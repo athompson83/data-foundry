@@ -1,0 +1,287 @@
+{
+ "sampled": 25,
+ "fetched": 25,
+ "with_valid_gtin": 19,
+ "fda_mention": 0,
+ "us_distribution": 0,
+ "lot_or_best_before": 25,
+ "records": [
+  {
+   "nid": "73451",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/president-s-choice-brand-chopped-sesame-wonton-salad-kit-recalled-due-undeclared",
+   "bytes": 31641,
+   "valid_gtins": [
+    "0 60383 02315 7"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "62970",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/happy-veggie-world-brand-vege-fried-prawn-recalled-due-undeclared-egg",
+   "bytes": 31429,
+   "valid_gtins": [],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "75294",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/karachi-bakery-brand-gluten-free-cookies-recalled-due-undeclared-gluten",
+   "bytes": 32662,
+   "valid_gtins": [
+    "8 908004 010242",
+    "8 908004 010259"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "63854",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/searay-brand-sauerkraut-fish-szechuan-style-spicy-recalled-due-undeclared-milk",
+   "bytes": 42581,
+   "valid_gtins": [
+    "8 27510 00494 2"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "78002",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/rose-brand-dry-anchovy-recalled-due-histamine",
+   "bytes": 31862,
+   "valid_gtins": [
+    "0 714676 937224"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "64187",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/lafleur-original-brand-wieners-recalled-due-texture-and-appearance-issues",
+   "bytes": 30630,
+   "valid_gtins": [
+    "0 65305 02201 0"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "76634",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/mccain-brand-potato-products-recalled-due-pieces-metal",
+   "bytes": 39291,
+   "valid_gtins": [
+    "50195500089336",
+    "10055773026044",
+    "10072714008129",
+    "10072714191401"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "62143",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-isagenix-brand-isalean-products-may-be-unsafe-due-over-fortification-vitamins",
+   "bytes": 57432,
+   "valid_gtins": [],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "73786",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/tit-bit-brand-garlic-powder-recalled-due-bacillus-cereus",
+   "bytes": 30943,
+   "valid_gtins": [
+    "8 901806 301938"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "63665",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/great-lakes-goat-dairy-brand-herb-garlic-goat-cheese-and-aged-cheddar-goat-cheese",
+   "bytes": 46061,
+   "valid_gtins": [
+    "6 28055 40020 2",
+    "6 28055 40017 2"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "81679",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-macadamia-nuts-and-macadamia-nut-containing-products-recalled-due-salmonella",
+   "bytes": 58850,
+   "valid_gtins": [
+    "2 000238 006995",
+    "2 000237 013956",
+    "0200997110892",
+    "0200996718792",
+    "0 08523 00597 7"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "62992",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/gosselin-smokehouses-brand-honey-smoked-salmon-recalled-due-listeria-monocytogenes",
+   "bytes": 24632,
+   "valid_gtins": [],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "82604",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/smarter-snacks-brand-vegan-protein-puff-chili-lime-flavored-recalled-due-undeclared",
+   "bytes": 34686,
+   "valid_gtins": [
+    "8 684041 306837"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "74959",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/balssi-brand-cayenne-red-pepper-recalled-due-non-permitted-colours",
+   "bytes": 31635,
+   "valid_gtins": [
+    "6 269039 101100"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "63003",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/goodfood-brand-onions-recalled-due-salmonella",
+   "bytes": 39826,
+   "valid_gtins": [],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "62198",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/clover-leaf-brand-sardines-boneless-fillets-garlic-chive-oil-and-sardines-boneless",
+   "bytes": 34468,
+   "valid_gtins": [
+    "0 61362 46008 6",
+    "0 61362 46009 3"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "62178",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/rougie-sarlat-brand-terrine-duck-foie-gras-recalled-due-undeclared-gluten-and-wheat",
+   "bytes": 24752,
+   "valid_gtins": [
+    "0 79343 00555 3"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "64503",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/mrakovic-fine-foods-brand-natural-chicken-burger-recalled-due-undeclared-egg",
+   "bytes": 31152,
+   "valid_gtins": [
+    "8 14945 00062 5"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "63869",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/hankook-korean-characters-only-brand-original-kimchi-recalled-due-e-coli-o157h7",
+   "bytes": 42571,
+   "valid_gtins": [],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "64124",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/beyond-meat-brand-beyond-burger-plant-based-burgers-recalled-due-pieces-wood",
+   "bytes": 31166,
+   "valid_gtins": [
+    "8 10057 29031 2"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "63517",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/longo-s-brand-chicken-burgers-recalled-due-undeclared-egg",
+   "bytes": 43310,
+   "valid_gtins": [
+    "7 72468 03418 6"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "64020",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-stellar-bay-shellfish-brand-chef-creek-oysters-recalled-due-norovirus",
+   "bytes": 40490,
+   "valid_gtins": [],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "78154",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/indian-punjabi-bazaar-brand-green-pistachios-recalled-due-salmonella",
+   "bytes": 36009,
+   "valid_gtins": [
+    "0 201540 307486"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "81860",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/arbutus-farms-kitchenjade-fine-foods-brand-and-arbutus-foods-brand-products-cheese",
+   "bytes": 41958,
+   "valid_gtins": [
+    "6 66359 54900 5",
+    "6 66359 71154 9",
+    "6 66359 71155 6",
+    "6 66359 71084 9",
+    "6 66359 55545 7"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  },
+  {
+   "nid": "77434",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/paneriso-brand-banana-chocolate-chip-muffins-recalled-due-pieces-metal",
+   "bytes": 31817,
+   "valid_gtins": [
+    "0 55685 22002 1"
+   ],
+   "us_fda_mention": false,
+   "lot_or_best_before": true,
+   "us_distribution": false
+  }
+ ]
+}

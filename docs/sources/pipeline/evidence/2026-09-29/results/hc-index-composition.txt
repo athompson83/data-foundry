@@ -1,0 +1,5 @@
+Health Canada HCRSAMOpenData.json, fetched 2026-09-29; records: 34135
+by Organization: {'CFIA': 5315, 'Medical devices': 8647, 'Drugs and health products': 1933, 'Communications and Public Affairs Branch': 1814, 'TC': 9898, 'Consumer product safety': 5206, 'Controlled substances and cannabis': 99, 'Marketed health products': 1161, 'HC': 62}
+newest Last updated by Organization: {'CFIA': '2026-09-26', 'Medical devices': '2026-09-25', 'Drugs and health products': '2026-09-25', 'Communications and Public Affairs Branch': '2026-09-25', 'TC': '2026-09-25', 'Consumer product safety': '2026-09-24', 'Controlled substances and cannabis': '2026-09-15', 'Marketed health products': '2026-09-14', 'HC': '2022-03-15'}
+fields: ['Archived', 'Category', 'Issue', 'Last updated', 'NID', 'Organization', 'Product', 'Recall class', 'Title', 'URL', 'What you should do']
+Archived=1: 14444

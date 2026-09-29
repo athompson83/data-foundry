@@ -1,0 +1,67 @@
+{
+ "eu_report_list": {
+  "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en",
+  "status": 200,
+  "bytes": 390111
+ },
+ "eu_dcat": {
+  "url": "https://data.europa.eu/api/hub/search/datasets/rapex-rapid-alert-system-non-food",
+  "status": 200,
+  "bytes": 124866
+ },
+ "uk_search_1": {
+  "url": "https://www.gov.uk/api/search.json?filter_format=product_safety_alert_report_recall&count=1&order=-public_timestamp",
+  "status": 200,
+  "bytes": 2304
+ },
+ "uk_terms": {
+  "url": "https://www.gov.uk/help/terms-conditions",
+  "status": 200,
+  "bytes": 80660
+ },
+ "hc_pkg": {
+  "url": "https://open.canada.ca/data/api/action/package_show?id=d38de914-c94c-429b-8ab1-8776c31643e3",
+  "status": 200,
+  "bytes": 10164
+ },
+ "cpsc_2025": {
+  "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallDateStart=2025-01-01",
+  "status": 200,
+  "bytes": 2737248
+ },
+ "accc_rss": {
+  "url": "https://www.productsafety.gov.au/rss/feed.xml/psa_recall",
+  "status": 200,
+  "bytes": 382247
+ },
+ "accc_search": {
+  "url": "https://www.productsafety.gov.au/search-consumer-product-recalls",
+  "status": 200,
+  "bytes": 113269
+ },
+ "accc_copyright": {
+  "url": "https://www.productsafety.gov.au/about-us/using-our-website/disclaimer-and-copyright",
+  "status": 200,
+  "bytes": 73323
+ },
+ "nz_sitemap": {
+  "url": "https://www.productsafety.govt.nz/sitemap.xml",
+  "status": 200,
+  "bytes": 574
+ },
+ "nz_copyright": {
+  "url": "https://www.productsafety.govt.nz/about-us/copyright",
+  "status": 200,
+  "bytes": 184140
+ },
+ "fsis_api": {
+  "url": "https://www.fsis.usda.gov/fsis/api/recall/v/1",
+  "status": 403,
+  "bytes": 0
+ },
+ "fsis_page": {
+  "url": "https://www.fsis.usda.gov/recalls",
+  "status": 403,
+  "bytes": 0
+ }
+}

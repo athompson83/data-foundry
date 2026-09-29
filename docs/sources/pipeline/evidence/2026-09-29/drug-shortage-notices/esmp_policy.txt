@@ -1,0 +1,1089 @@
+27 February 2025 
+
+European Medicines Agency 
+
+European Shortages Monitoring Platform (ESMP) 
+Data access policy 
+
+EMA/90987/2025 
+Version 1.0 
+
+Official address  Domenico Scarlattilaan 6  ●  1083 HS Amsterdam  ●  The Netherlands 
+
+Address for visits and deliveries  Refer to www.ema.europa.eu/how-to-find-us  
+Send us a question  Go to www.ema.europa.eu/contact   Telephone +31 (0)88 781 6000 
+
+An agency of the European Union   
+
+© European Medicines Agency, 2025. Reproduction is authorised provided the source is acknowledged. 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Table of contents 
+
+1. 
+
+2. 
+
+3. 
+
+Executive summary ............................................................................ 4 
+
+Scope of this guidance ....................................................................... 5 
+
+Objectives of the guidance ................................................................. 5 
+
+4. 
+Characteristics of the guidance .......................................................... 6 
+4.1.  European Shortages Monitoring Platform (ESMP) .................................................. 6 
+4.2.  Access to ESMP ................................................................................................ 6 
+Stakeholder groups ........................................................................................ 7 
+4.2.1. 
+ESMP general principles .................................................................................. 7 
+4.2.2. 
+Personal data protection ................................................................................. 8 
+4.2.3. 
+4.2.4. 
+ESMP access levels ........................................................................................ 8 
+4.2.5.  Detailed description of access to data held in ESMP by access levels .................... 9 
+
+Annex A – Data elements accessible by ESMP access level ........................ 14 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+2 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Table of abbreviations 
+Abbreviation  Full name 
+
+API 
+
+CAP 
+
+CCI 
+
+EC 
+
+EEA 
+
+EMA 
+
+Application Programming Interface 
+
+Centrally Authorised Products 
+
+Commercially Confidential Information 
+
+European Commission 
+
+European Economic Area 
+
+European Medicines Agency 
+
+ESMP 
+
+European Shortages Monitoring Platform 
+
+EU DPR 
+
+European Data Protection Regulation 
+
+EU 
+
+European Union 
+
+GDPR 
+
+General Data Protection Regulation 
+
+GPI 
+
+General Public Information 
+
+HERA 
+
+Health Emergency Preparedness and Response Authority 
+
+ISO 
+
+MAH  
+
+International Organization for Standardisation 
+
+Marketing Authorisation Holder 
+
+MSSG  
+
+Executive Steering Group on Shortages and Safety of Medicinal Products (Medicines 
+
+NAP 
+
+NCA 
+
+PD 
+
+Shortages Steering Group) 
+
+Nationally Authorised Products 
+
+National Competent Authority 
+
+Personal Data 
+
+SPOR 
+
+Substance, Product, Organisation, and Referential 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+3 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1.  Executive summary 
+
+Addressing the issue of shortages of medicinal products has been a long-standing priority for Member 
+
+States, European Commission and the European Parliament. The COVID-19 pandemic has exacerbated the 
+
+problem of shortages of certain medicinal products considered to be critical to address the pandemic and 
+
+has highlighted the Union's external dependence in terms of domestic production of medicinal products 
+
+and medical devices, the lack of coordination and the structural limitations in the EU's and Member States' 
+
+ability to rapidly and effectively react to such challenges during public health emergencies. 
+
+The COVID-19 pandemic highlighted the need for coordinated EU-wide crisis management, leading to 
+
+strengthened frameworks for monitoring and reporting medicinal product shortages. It has demonstrated 
+
+the need to strengthen the Union’s role to be more effective in managing the availability of medicinal 
+
+products, the availability of medical devices, in vitro diagnostic medical devices and their respective 
+
+accessories (collectively ‘medical devices’). One of the main goals of Regulation (EU) 2022/123 (hereafter 
+
+also referred to as “the Regulation’’) is to ensure a strengthened framework for monitoring of and 
+
+reporting on shortages of medicinal products during public health emergencies and major events.  
+
+The Regulation aims to empower the European Union (EU) to better prepare for and react to health crises 
+
+quickly, efficiently, and in a coordinated manner with a view to strategically complementing the efforts of 
+
+the European Commission, including the Health Emergency Preparedness and Response Authority 
+
+('HERA'), and Union agencies, to that end. The European Medicines Agency (EMA) (hereafter also referred 
+
+to as "the Agency") has a formal role in preparing for and managing crisis situations affecting the 
+
+European Union (EU) single market for medicines and medical devices. The Regulation formalises some of 
+
+the structures and processes that EMA set up in the COVID-19 pandemic and assigns new tasks to EMA in 
+
+the following areas: 
+
+•  Monitoring and mitigating potential or actual shortages of critical medicinal products and medical 
+
+devices 
+
+• 
+
+• 
+
+Providing scientific support to the timely development of high quality, safe and effective medicines 
+
+during public health emergencies 
+
+Ensuring the smooth functioning of EU expert panels to assess certain high-risk medical devices 
+
+and advise on crisis preparation and management 
+
+The Regulation became applicable on 1 March 2022 for medicinal products. It is part of the European 
+
+Health Union package proposed by the European Commission in November 2020.  
+
+EMA works with the European Commission and other EU partners to implement the Regulation. Article 13 
+
+of the Regulation states that EMA shall set up, maintain, and manage an information technology (IT) 
+
+platform, to be known as the European Shortages Monitoring Platform (ESMP), that is capable of 
+
+processing information on the supply of and demand for critical medicinal products during public health 
+
+emergencies or major events and, outside of those situations, to allow for reporting on shortages of 
+
+medicinal products that are likely to lead to public health emergencies or major events. The ESMP should 
+
+allow national competent authorities (NCAs) to submit and monitor information on unmet demand, 
+
+including information received from marketing authorisation holders, wholesale distributors and other 
+
+4 of 14 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+ 
+ 
+ 
+ 
+ 
+persons or legal entities that are authorised or entitled to supply medicinal products to the public, in order 
+
+to anticipate shortages of medicinal products. To facilitate the coordination role of the Agency, the 
+
+interoperability of data with existing Member States' IT platforms for monitoring shortages and other 
+
+systems, as appropriate, is essential to allow the sharing of relevant information with the ESMP to prevent, 
+
+detect, and manage human medicine shortages in the EU and European Economic Area (EEA). ESMP 
+became fully operational on 29th January 2025.  
+
+2.  Scope of this guidance 
+
+This ESMP Data access policy defines the overall principles for providing access to data held in ESMP in 
+
+accordance with Article 13(6)(f) of the Regulation, which requires appropriate access levels for the 
+
+Commission, the Agency, national competent authorities, and the MSSG. Additionally, in alignment with 
+
+Article 6(6) of the Regulation and EU transparency principles, the policy establishes controlled public 
+
+access to relevant shortage information through a tiered access framework that reflects varying 
+
+stakeholder needs and data sensitivity levels. 
+
+The policy ensures: 
+
+•  Mandatory access for regulatory bodies as specified in Article 13(6)(f) of the Regulation 
+
+• 
+
+Publicly accessible web page providing on actual shortages of medicinal products as per Article 
+
+6(6) of the Regulation 
+
+• 
+
+Protection of commercially confidential information 
+
+•  Compliance with data protection regulations 
+
+This document has been drafted with the aim of providing transparency and visibility of information on 
+
+shortages of medicines while protecting commercially confidential information as defined by the Agency 
+
+based on the Regulation (EC) No 1049/2001. Requirements to protect personal data based on Regulation 
+
+(EU) 2016/679 and Regulation (EU) 2018/1725. 
+
+3.  Objectives of the guidance 
+
+The ESMP data access policy has been developed with the goal of facilitating the maintenance of and 
+
+accessibility to information on shortages of human medicinal products in the EU, within the overall aim of 
+
+promoting and protecting animal and public health and the environment. 
+
+Furthermore, this document aims to meet the EU principles of transparency and openness while ensuring 
+
+compliance with EU personal data protection legislation. The following objectives should be met, by 
+
+allowing data exchange and providing access to shortages information on human medicinal products: 
+
+1.  Increasing transparency and availability of and access to shortages information of human 
+
+medicinal products authorised in the EU; 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+5 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2.  Simplifying the regulatory environment and reducing administrative burden by giving marketing 
+
+authorisation holders and national competent authorities access to the functionalities of ESMP; 
+
+3.  Facilitating the proactive identification and prevention of potential medicine shortages that could 
+
+lead to public health emergencies or major events; 
+
+4.  Enhancing EMA's continuous monitoring of medicines during both crisis situations and normal 
+
+circumstances; 
+
+5.  Supporting the EMA’s Executive Steering Group on Shortages and Safety of Medicinal Products 
+
+(MSSG) by facilitating timely data exchange during MSSG-led preparedness situations; 
+
+6.  Simplifying the reporting process for marketing authorisation holders by enabling them to 
+
+routinely report shortages of authorised products through the ESMP; 
+
+7.  Strengthening the decision making for the European Commission, NCAs and marketing 
+
+authorisation holders by providing access to data analytics and reports. 
+
+4.  Characteristics of the guidance 
+4.1.  European Shortages Monitoring Platform (ESMP) 
+
+The European Shortages Monitoring Platform (ESMP) is a digital tool created by the EMA to prevent, 
+
+monitor and manage medicines shortages in the EU/EEA. ESMP aims to facilitate the collection of 
+
+information from marketing authorisation holders and EU Member States on shortages, supply and 
+
+demand of critical medicines during crisis situations, and potential supply issues that can lead to such 
+
+crises. It operates during crises, under MSSG-led preparedness, and in normal circumstances, helping 
+
+manage and prevent medicinal product shortages. EMA will collect data via the platform from the national 
+
+competent authorities (NCAs) and marketing authorisation holders (MAHs) to ensure timely responses and 
+
+efficient management of medicinal product shortages.  
+
+The data submitted to the ESMP is fully compliant with the standards developed by the International 
+
+Organization for Standardization for the identification of medicinal products based on the domains of 
+
+master data in pharmaceutical regulatory processes, namely substance, product, organisation, and 
+
+referential data. Therefore, developed using an Agile methodology, the ESMP is designed to be 
+
+interoperable with Member States’ IT systems and MAH’s IT systems, facilitating data exchange and 
+
+streamlining regulatory processes across the EEA/EU. 
+
+4.2.  Access to ESMP 
+
+Access to ESMP for data submission is provided through the ESMP hosted in this portal ESMP Application 
+
+Programming Interface (API). Access is based on the ESMP user roles available for each stakeholder group 
+
+User guide for MAHs and User guide for NCAs Section 2.1 and Sections 2.2. 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+6 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+4.2.1.  Stakeholder groups 
+
+The stakeholders being granted access to ESMP data can be grouped as follows: 
+
+•  Stakeholders with interest in accessing publicly available information on actual shortages of 
+
+medicinal products included in the critical medicines lists in cases in which the Agency has 
+
+assessed the shortage and has provided recommendations to healthcare professionals and 
+
+patients. This stakeholder group is reserved to the general public, patient and consumers, 
+
+healthcare professionals and academia. 
+
+•  Stakeholders with interest in reporting and accessing shortages data on human medicinal products 
+
+authorised for regulatory purposes. This stakeholder group is reserved to organisations who are 
+
+required to fulfil their legal responsibilities (i.e. marketing authorisation holders’ users) and to fulfil 
+
+their responsibilities to protect public health (i.e. national competent authority users). 
+
+•  Stakeholders with interest in managing, monitoring and processing shortages data on human 
+
+medicinal products authorised for the purpose of shortages management in the EU/EEA. This 
+
+stakeholder group is reserved to the Agency, the European Commission (in concrete, DG-HERA), 
+
+and the Executive Steering Group on Shortages and Safety of Medicinal Products (MSSG). 
+
+Note: access to data required by any other organisation not falling in the above stakeholder groups is 
+
+defined on a case-by-case basis and in relation to the specific declared interest. 
+
+4.2.2.  ESMP general principles 
+
+ESMP gives the access to report availability, supply and demand information on human medicinal products 
+
+authorised while protecting certain public and private interests, such as personal data and commercially 
+
+confidential information as defined by the Agency based on Regulation (EC) No 1049/2001.. 
+
+The data elements collected in ESMP for human medicinal products are defined based on and comply with 
+
+the reporting requirements specified in the Regulation. This includes information about potential or actual 
+
+shortages, supply and demand data, and other relevant details needed for preventing, monitoring and 
+
+managing medicine availability in the EU/EEA. The required data elements are outlined in reference 
+
+documents – the ESMP Implementation guide for MAHs and ESMP Implementation guide for NCAs - which 
+
+serve as guidance documents detailing the data specifications and formats that will be collected through 
+
+ESMP's interface and ESMP API. Additional ISO data elements may be implemented in subsequent 
+
+iterations of ESMP. 
+
+In accordance with Article 13 of the Regulation, data submitted to ESMP complies with ISO standards for 
+
+identification of medicinal products (IDMP), including ISO 11238:2018 (Substances), ISO 11239:2012 
+
+(Pharmaceutical dose forms, units of presentation, routes of administration and packaging), ISO 
+
+11240:2012 (Units of measurement), ISO 11616:2017 (Pharmaceutical products), and ISO 11615:2017 
+
+(Medicinal products), covering the SPOR domains: substance, product, organisation, and referential data. 
+
+In accordance with Article 13 of the Regulation and related implementing measures, the ESMP access 
+
+framework enables data exchange that will: 
+
+7 of 14 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+ 
+ 
+ 
+ 
+ 
+ 
+• 
+
+Increase access to information on shortages of medicinal products authorised for human use in the 
+
+EU and EEA;  
+
+•  Simplify the regulatory environment since data will be reviewed, assessed and approved as part of 
+
+the new data operating model; 
+
+•  Make regulatory action and decision-making more efficient thanks to improved data quality, 
+
+integrity and reliability; 
+
+•  Support meeting regulatory requirements more effectively by enabling secure, GDPR-compliant 
+
+data exchange while maintaining appropriate data protection safeguards across EU systems. 
+
+4.2.3.  Personal data protection 
+
+The protection of personal data is a fundamental right of all European citizens. The Agency, national 
+
+competent authorities and marketing authorisation holders must ensure secure processing of personal 
+
+data in ESMP through appropriate technical and organisational measures, in accordance with applicable 
+
+data protection regulations: 
+
+• 
+
+• 
+
+For the Agency: Regulation (EU) 2018/1725 (EU DPR) 
+
+For competent authorities and marketing authorisation holders: Regulation (EU) 2016/679 (GDPR)  
+
+ESMP implements appropriate safeguards to protect against unauthorized access, ensuring personal data 
+
+is processed lawfully, fairly, and transparently based on principles of necessity and proportionality. For 
+
+detailed information on EMA's data protection practices, please refer to the Data Protection Notice 
+
+available at: Data protection and privacy | European Medicines Agency (EMA). 
+
+4.2.4.  ESMP access levels 
+
+Access to the ESMP is structured and defined based on the stakeholder’s interests and needs as well as the 
+
+requirements of the EU DPR and GDPR. This tiered approach ensures that data is shared appropriately, 
+
+and the data privacy and security are maintained. 
+
+Annex A of this data access policy document lists all the ESMP data elements and outlines which can be 
+
+accessed by the different stakeholder groups, based on the access levels described in Table 1. 
+
+Table 1 – Description of access levels in ESMP 
+
+Access level 
+
+Stakeholder 
+
+Level 1 
+
+•  General public 
+
+• 
+
+Patient and Consumers 
+
+•  Health Care Professionals 
+
+•  Academia 
+
+Level 2 
+
+•  Marketing authorisation holders 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+8 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Access level 
+
+Stakeholder 
+
+Level 3 
+
+Level 4 
+
+•  Contractors, vendors and other external service providers working for 
+
+the above companies on ESMP matters 
+
+•  National competent authorities 
+
+•  Contractors and external service providers working for the above 
+
+authorities on ESMP matters 
+
+European Medicines Agency 
+
+European Commission 
+
+• 
+
+• 
+
+•  Medicine Shortages Steering Group (MSSG) 
+
+ESMP data are classified as follow:  
+
+•  Commercially Confidential Information (CCI): Information that requires restricted access due to 
+
+business sensitivity (e.g., Manufacturing capacity data) 
+
+• 
+
+Industry Public Information (IPI): Technical or regulatory information that is public but primarily 
+
+used by industry stakeholders (e.g., PMS ID) 
+
+•  General Public Information (GPI): Information intended for broad public access (e.g., Medicinal 
+
+product full name, Marketing authorisation holder, shortage status) 
+
+4.2.5.  Detailed description of access to data held in ESMP by access levels 
+
+The below sections provide detailed information on the level of accessibility of shortages data held in 
+
+ESMP. 
+
+4.2.5.1.  ESMP access level 1 – Public 
+
+In accordance with Article 6(6) of the Regulation, the general public (including patients, consumers, 
+
+healthcare professionals and academia) shall have access to actual shortages of medicinal products 
+
+included in the critical medicines lists where the Agency has assessed the shortage and provided 
+
+recommendations. 
+
+The public is provided with access to shortage processed data, specifically through the Shortages 
+
+catalogue of ongoing and resolved shortages of human medicines assessed by EMA.  
+
+Access Level 1 is reserved to any stakeholders with interest in accessing public ESMP data for specific 
+
+cases falling outside the regulatory scope, without the possibility to change the information therein. This 
+
+level of access ensures transparency and keeps the public informed about medicine availability and related 
+
+trends without compromising commercially confidential information or personal data. 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+9 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Table 2 – Access to ESMP data by Level 1 
+
+Stakeholder 
+
+Access level 
+
+Access type 
+
+•  General public 
+
+Public subset of all shortages of 
+
+Not required/controlled 
+
+• 
+
+Patient and Consumers 
+
+human medicinal products. 
+
+•  Health Care Professionals 
+
+•  Academia 
+
+•  WHO 
+
+4.2.5.1.1.  Personal data protection requirements 
+
+Data access and provision is based on each ESMP data set (Level 1) in compliance with the Regulation. 
+
+4.2.5.2.  ESMP access level 2 – MAHs 
+
+In accordance with the Regulation, the organisations falling under this stakeholder group with interest in 
+
+reporting and accessing shortages data on valid human medicinal products authorised shall have full 
+
+access to public (Level 1) and restricted subsets of information reported in ESMP. Access level 2 is 
+
+reserved to allow users to fulfil their legal obligation and responsibilities for their own products.  
+
+Marketing authorisation holders shall submit and monitor shortage-related information in accordance with 
+
+the Regulation. Detailed operational procedures are documented in the ESMP User guide for MAHs. 
+
+The access management in ESMP is a decentralised mechanism in which designated administrator(s) for 
+
+each organisation decide whether to approve/deny subsequent ESMP access role requests. 
+
+MAHs require ESMP access to download, submit and manage data related to: 
+
+1.  Crisis/MSSG-led preparedness - Availability information: data on medicine availability, stocks, 
+
+supply forecasts, and other. 
+
+2.  Crisis/MSSG-led preparedness - Marketing status for nationally authorised products (NAPs): 
+
+information on the marketing status of NAPs. 
+
+3.  Crisis/MSSG-led preparedness - Manufacturing information: details on manufacturing capacities 
+
+and plans for centrally and nationally authorised products during crisis. 
+
+4.  Crisis/MSSG-led preparedness - Alternative therapies: submission of data on alternative therapies 
+
+available. 
+
+5.  Preparedness - Routine shortage reporting: regular reporting of shortages to assist in 
+
+preparedness activities. 
+
+MAH users are only entitled to access the data according to the Organisation(s) they have an affiliation. 
+
+Furthermore, each MAH user can only access metadata on their own data submissions. 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+10 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Table 3 – Access to ESMP data by Level 2 
+
+Stakeholder 
+
+Access level 
+
+Access type 
+
+•  Marketing authorisation 
+
+Full access to both public and 
+
+Authorised personnel only 
+
+holders 
+
+•  Contractors, vendors and 
+
+restricted subsets of their own 
+
+shortages of authorised human 
+
+other external service 
+
+providers working for the 
+
+above companies on the 
+
+ESMP subject 
+
+medicinal products to fulfil their legal 
+
+responsibilities for their own products. 
+
+This level has sub-levels of access:  
+
+• 
+
+Level 2a providing full access 
+
+to commercially confidential 
+
+information (CCI) for their own 
+
+products. 
+
+• 
+
+Level 2b providing access to 
+
+General Public Information 
+
+(GPI) and Industry Public 
+
+Information (IPI) only. Access 
+
+to commercially confidential 
+
+information (CCI) for other 
+
+products is not granted. 
+
+4.2.5.2.1.  Personal data protection requirements 
+
+Data access and provision is based on each ESMP data set (Level 2) in compliance with the Regulation. 
+
+4.2.5.3.  ESMP access level 3 – NCAs 
+
+In accordance with the Regulation, the organisations falling under this stakeholder group with interest in 
+
+reporting and accessing supply and demand data on valid human medicinal products authorised shall have 
+
+full access to public (Level 1) and restricted subsets of information reported in ESMP. Access level 3 is 
+
+reserved to allow users to fulfil their legal obligation and responsibilities for centrally authorised products 
+
+(CAPs) and nationally authorised products (NAPs) of their country. 
+
+For detailed procedures on submitting and retrieving data for stock and supply, patient estimations, 
+
+demand forecasting, and medicine usage, please refer to the User guide for NCAs, which outlines the 
+
+specific steps and technical requirements. 
+
+The access management in ESMP is a decentralised mechanism in which designated administrator(s) for 
+
+each organisation decide whether to approve/deny subsequent ESMP access role requests. 
+
+NCAs require ESMP access to download, submit and manage data related to: 
+
+11 of 14 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+1.  Crisis - Stock and supply 
+
+2.  Crisis - Patient estimation 
+
+3.  Crisis - Medicine usage 
+
+4.  MSSG-led preparedness – National demand 
+
+NCA users are entitled to access all the relevant data submitted by MAHs to support national and EU-level 
+
+actions in response to potential or actual shortages of centrally authorised products (CAPs) and nationally 
+
+authorised products (NAPs) of their country. This includes data needed for shortage prevention, mitigation, 
+
+and management activities. Furthermore, each NCA user can access metadata information on data 
+
+submissions executed by users of the NCA for which they have an affiliation. 
+
+Table 4 – Access to ESMP data by Level 3 
+
+Stakeholder 
+
+Access level 
+
+Access type 
+
+•  National competent 
+
+Full access to both public and 
+
+Authorised personnel only 
+
+authorities 
+
+restricted subsets of data for medicinal 
+
+•  Contractors and external 
+
+service providers engaged 
+
+by the EMA or the NCAs 
+
+for the ESMP are subject 
+
+to specific contractual 
+
+agreements that include 
+
+data confidentiality, 
+
+security, and compliance 
+
+obligations. Their access 
+
+to ESMP data and 
+
+systems is granted strictly 
+
+for the duration and 
+
+scope of their contract 
+
+and must adhere to all 
+
+relevant policy 
+
+requirements. 
+
+products that are authorised in their 
+
+Member State/EEA country, including 
+
+centrally authorised products (CAPs) 
+
+and nationally authorised products 
+
+(NAPs) under their jurisdiction, to fulfil 
+
+their regulatory oversight 
+
+responsibilities. This level has sub-
+
+levels of access:  
+
+• 
+
+Level 3a providing full access 
+
+to commercially confidential 
+
+information (CCI) for centrally 
+
+authorised products (CAPs) 
+
+and nationally authorised 
+
+products (NAPs) that are 
+
+authorized in their Member 
+
+State/EEA country; Level 3b 
+
+providing access to General 
+
+Public Information (GPI) and 
+
+Industry Public Information 
+
+(IPI) only. Access to 
+
+commercially confidential 
+
+information (CCI) for products 
+
+authorized in other Member 
+
+States/EEA countries (outside 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+12 of 14 
+
+ 
+ 
+ 
+ 
+ 
+Stakeholder 
+
+Access level 
+
+Access type 
+
+their jurisdiction) is not 
+
+granted. 
+
+4.2.5.3.1.  Personal data protection requirements 
+
+Data access and provision is based on each ESMP data set (Level 3) in compliance with the Regulation. 
+
+4.2.5.4.  ESMP access level 4 – EMA 
+
+In accordance with the Regulation, the organisations falling under this stakeholder group with interest in 
+
+managing, monitoring and processing shortages data on valid human medicinal products authorised for 
+
+the purpose of shortages management at the EU shall have full access to both public subset and restricted 
+
+subset of all shortages of human medicinal product data elements without restrictions. 
+
+Access level 4 users are granted secure access to ESMP through appropriate authentication mechanisms. 
+
+The Agency manages access rights through a decentralized administration model. 
+
+EMA users require ESMP access for: 
+
+1.  Operational purposes: fulfilling the Agency's responsibilities in monitoring and managing medicine 
+
+shortages at the EU level 
+
+2.  Data analytics purposes: analyzing trends, identifying potential shortages, and supporting 
+
+decision-making processes 
+
+Table 5 – Access to ESMP data by Level 4 
+
+Stakeholder 
+
+Access level 
+
+Access type 
+
+•  Agency 
+
+Full access to both public subset and 
+
+Authorised personnel only 
+
+restricted subset of all shortages of 
+
+human medicinal product data 
+
+elements without restrictions. 
+
+• 
+
+European 
+
+Commission 
+
+•  Medicine 
+
+Shortages 
+
+Steering 
+
+Group 
+
+(MSSG) 
+
+4.2.5.4.1.  Personal data protection requirements 
+
+Data access and provision is based on each ESMP data set (Level 4) in compliance with the Regulation. 
+
+13 of 14 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Note: this guidance will be subject to revision and further releases based on the ESMP progresses and 
+
+deliverables. 
+
+Annex A – Data elements accessible by ESMP access level 
+
+•  R / C / U / D = Read, Create, Update, Delete 
+
+• 
+
+Y/N = Yes, No 
+
+European Shortages Monitoring Platform (ESMP) – Data access policy 
+
+14 of 14 
+
+ 
+ 
+ 
+ 
+ 
+ 
+

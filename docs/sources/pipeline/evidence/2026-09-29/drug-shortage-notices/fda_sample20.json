@@ -1,0 +1,239 @@
+[
+ {
+  "package_ndc": "57884-3151-1",
+  "generic_name": "Daptomycin Injection",
+  "rxcui": null,
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "65219-086-20",
+  "generic_name": "Gadoterate Meglumine Injection",
+  "rxcui": null,
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0832-0273-11",
+  "generic_name": "Morphine Sulfate Tablet",
+  "rxcui": [
+   "892582",
+   "892672"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0641-6084-25",
+  "generic_name": "Promethazine Hydrochloride Injection",
+  "rxcui": [
+   "992460",
+   "992462",
+   "992858",
+   "992876"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0264-7520-20",
+  "generic_name": "Dextrose Monohydrate 10% Injection",
+  "rxcui": [
+   "1795477",
+   "1795480",
+   "1795481",
+   "1795607",
+   "1795610",
+   "1795612"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0071-0527-23",
+  "generic_name": "Quinapril Hydrochloride Tablet",
+  "rxcui": null,
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "83634-600-02",
+  "generic_name": "Dexmedetomidine Hydrochloride Injection",
+  "rxcui": [
+   "309710"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0409-1890-01",
+  "generic_name": "Morphine Sulfate Injection",
+  "rxcui": [
+   "894912",
+   "998212",
+   "998213",
+   "1729197",
+   "1731995",
+   "1732014"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0409-2344-88",
+  "generic_name": "Dobutamine Hydrochloride Injection",
+  "rxcui": [
+   "1812168"
+  ],
+  "recalls": [
+   "D-0489-2025",
+   "D-1540-2014"
+  ],
+  "n": 2
+ },
+ {
+  "package_ndc": "47781-563-01",
+  "generic_name": "Lisdexamfetamine Dimesylate Capsule",
+  "rxcui": [
+   "854830",
+   "854834",
+   "854838",
+   "854842",
+   "854846",
+   "854850",
+   "1593856"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "60951-701-70",
+  "generic_name": "Acetaminophen; Oxycodone Hydrochloride Tablet",
+  "rxcui": [
+   "1049214",
+   "1049216",
+   "1049221",
+   "1049223",
+   "1049225",
+   "1049227",
+   "1049635",
+   "1487288"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "76045-010-11",
+  "generic_name": "Hydromorphone Hydrochloride Injection",
+  "rxcui": [
+   "897756",
+   "897757",
+   "1433251",
+   "1872265",
+   "1872269",
+   "1872752",
+   "2277368",
+   "2277370"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0338-3814-50",
+  "generic_name": "Clindamycin Phosphate Injection",
+  "rxcui": [
+   "309335",
+   "309336",
+   "309339"
+  ],
+  "recalls": [
+   "D-0815-2026",
+   "D-0808-2026"
+  ],
+  "n": 2
+ },
+ {
+  "package_ndc": "0990-7139-36",
+  "generic_name": "Sterile Water Irrigant",
+  "rxcui": null,
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "71288-203-05",
+  "generic_name": "Furosemide Injection",
+  "rxcui": [
+   "1719286",
+   "1719290",
+   "1719291"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0409-1858-12",
+  "generic_name": "Dopamine Hydrochloride Injection",
+  "rxcui": [
+   "1292887",
+   "1743877",
+   "1743879"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "72888-154-30",
+  "generic_name": "Clonazepam Tablet",
+  "rxcui": [
+   "197527",
+   "197528",
+   "197529",
+   "204892"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "0409-1181-30",
+  "generic_name": "Meperidine Hydrochloride Injection",
+  "rxcui": [
+   "860792",
+   "861463",
+   "861473",
+   "861493",
+   "861494",
+   "861522",
+   "861529",
+   "861617",
+   "1242106",
+   "1242503",
+   "2539186",
+   "2539188",
+   "2539191",
+   "2539192"
+  ],
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "60505-0815-0",
+  "generic_name": "Desmopressin Acetate Spray",
+  "rxcui": null,
+  "recalls": [],
+  "n": 0
+ },
+ {
+  "package_ndc": "31722-277-34",
+  "generic_name": "Bupivacaine Hydrochloride Injection",
+  "rxcui": [
+   "1724786",
+   "1724787",
+   "1724880",
+   "1724884",
+   "1725078",
+   "1725082"
+  ],
+  "recalls": [],
+  "n": 0
+ }
+]

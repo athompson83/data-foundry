@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title></title>
+
+    <style>
+        /*.body_container {
+            background-color: #152439;
+            max-width: 1400px;
+            margin: 0px auto;
+            padding: 0 15px 0 15px;
+        }*/
+
+    </style>
+</head>
+<body class="body_container">
+    <div>
+        
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script id="app_container">
+        let addDynamicScript = function (src, id, isModule) {
+            return new Promise(function (resolve) {
+                let script = document.createElement('script');
+                script.src = src;
+                script.async = true;
+                script.onload = function () {
+                    resolve();
+                };
+
+                if (id)
+                    script.setAttribute('id', id);
+
+                if (isModule) {
+                    script.setAttribute('type', 'module');
+                    script.setAttribute('crossorigin', 'anonymous');
+                }
+
+                document.getElementsByTagName('head')[0].appendChild(script);
+            });
+        }
+
+        //Set polymer root path (usage of non-standard global variable is explained further in app-container constructor)
+        if (window.Polymer == null) {
+            window.Polymer = { rootPath: "/carol-main-public/build/es6-bundled/" };
+        }
+
+        let useServiceWorker = true;
+        if ('serviceWorker' in navigator && useServiceWorker) {
+            window.addEventListener('load', function () {
+                addDynamicScript('/carol-main-public/build/es6-bundled/wwwroot/scripts/sw-util.js', null, false)
+                    .then(function () {
+                        navigator.serviceWorker.register('/carol-main-public/sw-dist.js')
+                            .then(function (registration) {
+                                // Track updates to the Service Worker.
+                                if (!navigator.serviceWorker.controller) {
+                                    // The window client isn't currently controlled so it's a new service
+                                    // worker that will activate immediately
+                                    return;
+                                }
+
+                                // When the user asks to refresh the UI, we'll need to reload the window
+                                let preventDevToolsReloadLoop;
+                                navigator.serviceWorker.addEventListener('controllerchange', function (event) {
+                                    // Ensure refresh is only called once.
+                                    // This works around a bug in "force update on reload".
+                                    if (preventDevToolsReloadLoop) return;
+                                    preventDevToolsReloadLoop = true;
+                                    console.log('Controller loaded');
+                                    window.location.reload();
+                                });
+
+                                onNewServiceWorker(registration, function () {
+                                    showRefreshUI(registration);
+                                });
+                            });
+                    });
+            });
+        }
+    </script>
+    <script src="/carol-main-public/build/es6-bundled/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js" id="webcomponents_loader"></script>
+    <script type="module" src="/carol-main-public/build/es6-bundled/wwwroot/custom-components/pages/app-container.js" crossorigin="anonymous" id="appContainerForChrome"></script>
+    <script src="/carol-main-public/build/es6-bundled/wwwroot/scripts/underscore-min.js"></script>
+    <script src="/carol-main-public/build/es6-bundled/wwwroot/scripts/date-parse.js"></script>
+    <script src="/carol-main-public/build/es6-bundled/wwwroot/scripts/sugar-custom.min.js"></script>
+    <script src="/carol-main-public/build/es6-bundled/node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+    <link id="sitecss" rel="stylesheet" type="text/css" media="all" href="/carol-main-public/build/es6-bundled/wwwroot/css/site.css">
+    <title>CAROL Query</title>
+</head>
+<body>
+    <div class="home-content">
+        <app-container route-root="/carol-main-public/" export-max-size="10000"></app-container>
+    </div>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a42b79190a65c55e',t:'MTc5MDY4OTk5NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+    </div>
+</body>
+</html>

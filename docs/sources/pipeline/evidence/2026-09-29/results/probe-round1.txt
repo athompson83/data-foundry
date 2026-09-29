@@ -1,0 +1,24 @@
+ntsb-carol | 200 5616 text/html; charset=utf-8 | https://data.ntsb.gov/carol-main-public/basic-search
+ntsb-api | 200 67697 text/html; charset=utf-8 | https://data.ntsb.gov/carol-repo/carol/api/v1/query/queries
+tsb-open | 200 64582 application/json;charset=utf-8 | https://open.canada.ca/data/api/action/package_search?q=TSB+occurrence&rows=3
+aaib-govuk | 200 2257 application/json | https://www.gov.uk/api/search.json?filter_format=aaib_report&count=1&order=-public_timestamp
+nih-reporter | 405 0  | https://api.reporter.nih.gov/v2/projects/search
+nsf-awards | 200 4033 application/json | https://api.nsf.gov/services/v1/awards.json?printFields=id,title&rpp=1
+ukri-gtr | 400 99 application/json;charset=UTF-8 | https://gtr.ukri.org/gtr/api/projects?s=1
+cordis | 404 36641 text/html; charset=UTF-8 | https://cordis.europa.eu/datalab/data
+osha-sir | 403 919 text/html | https://www.osha.gov/sites/default/files/severe_injury_data.csv
+osha-sir-page | 403 919 text/html | https://www.osha.gov/severeinjury
+msha-data | 200 30491 text/html | https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp
+faa-ad-fr |                                                                  ^ | https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=federal-aviation-administration&conditions[type][]=RULE&conditions[term]=airworthiness+directives&per_page=1
+easa-ad | 200 90044 text/html; charset=UTF-8 | https://ad.easa.europa.eu/
+faa-drs | 200 22876 text/html; charset=UTF-8 | https://drs.faa.gov/browse
+fda-shortages | 200 1205 application/json; charset=utf-8 | https://api.fda.gov/drug/shortages.json?limit=1
+hc-shortages | 403 5391 text/html; charset=UTF-8 | https://www.drugshortagescanada.ca/search
+ema-shortages | 200 79067 text/html; charset=UTF-8 | https://www.ema.europa.eu/en/human-regulatory-overview/post-authorisation/medicine-shortages-availability-issues
+courtlistener | 200 37688 application/json | https://www.courtlistener.com/api/rest/v4/search/?q=recall&type=o
+caselaw-uk | 200 57693 application/xml; charset=utf-8 | https://caselaw.nationalarchives.gov.uk/atom.xml
+ecos | 404 124 application/json;charset=UTF-8 | https://ecos.fws.gov/ecp/services/species?status=listed
+sara-registry | 200 11035 text/html | https://species-registry.canada.ca/index-en.html
+opss-search | 200 118 application/json | https://www.gov.uk/api/search.json?filter_format=product_safety_alert_report&count=1
+opss-content | 200 7563 application/json; charset=utf-8 | https://www.gov.uk/api/content/product-safety-alerts-reports-recalls
+accc-rss | 404 62405 text/html; charset=UTF-8 | https://www.productsafety.gov.au/rss/recalls

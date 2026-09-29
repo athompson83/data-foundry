@@ -1,0 +1,297 @@
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>GtR</title>
+    
+
+    <!--  Some descriptive Fields -->
+    <meta charset="UTF-8" />
+    <meta name="title" content="Gateway to Research (GtR) -  Explore publicly funded research" />
+    <meta name="description" content="The Gateway to Research: UKRI portal onto publically funded research"/>
+    <meta name="keywords" content="GtR, Gateway to Research, ukri.org, UKRI GtR, Research Portal, Public Funding"/>
+    <meta name="author" content="UKRI"/>
+    <meta name="publisher" content="UKRI, Polaris House, North Star Avenue, Swindon, SN2 1ET"/>
+    <meta name="language" content="en" />
+    <meta name="version" content="4.0.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Added to allow access to the GtR data in Google search console. -->
+    <meta name="google-site-verification" content="Fwg6zce-Z_fMe0dNr6O5V1QeEcMPXCoFxF-iOvMxpYc" />
+
+    <link rel="icon" href="/resources/img/ukri-favicon-96x96.png" itemprop="image">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <script src="/resources/lib/html5shiv.js?v=98"></script>
+    <script src="/resources/js/respond.min.js?v=98"></script>
+    
+    <!--  These are useful for mobile phones -->
+    <link href="/resources/img/ukri-apple-icon-120x120.png" rel="apple-touch-icon" sizes="120x120" />
+    <link href="/resources/img/ukri-apple-icon-152x152.png" rel="apple-touch-icon" sizes="152x152" />
+    <link href="/resources/img/ukri-apple-icon-180x180.png" rel="apple-touch-icon" sizes="180x180" />    
+    <link href="/resources/img/cropped-ukri-site-icon-180x180" rel="apple-touch-icon"  />
+    
+    <!--  Useful for Mobile Responsive onl-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5.0, minimum-scale=0.5, user-scalable=yes" />
+
+    <!--   Style Sheets -->
+
+    <link href="/webjars/bootstrap/css/bootstrap.min.css?v=98" rel="stylesheet" media="screen" />
+    <link href="/resources/lib/bootstrap/css/bootstrap_override.css?v=98" rel="stylesheet" media="screen" />
+    <link href="/resources/css/style.css?v=98" rel="stylesheet" media="screen" />
+
+
+    <link href="/resources/css/jstree/jstreestyle.css?v=98" rel="stylesheet" media="screen" />
+    <link rel="stylesheet" href="/resources/css/font-awesome.min.css?v=98"  rel="stylesheet" media="screen">
+
+    <link href="/webjars/jquery-ui/jquery-ui.min.css?v=98" rel="stylesheet" media="screen" />
+    <link href="/resources/css/jquery-ui_override.css?v=98" rel="stylesheet" media="screen" />
+
+
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js?v=98"></script>
+    <script type="text/javascript" src="/webjars/jquery-ui/jquery-ui.min.js?v=98"></script>
+    <script type="text/javascript" src="/resources/lib/jquery.validate.js?v=98"></script>
+    <script type="text/javascript" src="/resources/lib/jquery.format-1.3.js?v=98"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js?v=98"></script>
+    <script src="https://unpkg.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script  type="text/javascript" src="/webjars/angularjs/angular.min.js?v=98"></script>
+    <script  type="text/javascript" src="/webjars/angularjs/angular-resource.min.js?v=98" ></script>
+    <script  type="text/javascript" src="/webjars/angularjs/angular-route.min.js?v=98" ></script>
+    <script  type="text/javascript" src="/webjars/angularjs/angular-sanitize.min.js?v=98"></script>  
+    <script  type="text/javascript" src="/resources/js/app/configdata/outcometype.js?v=98" ></script>    
+    <script  type="text/javascript" src="/resources/js/app/controllers/outcomecontroller.js?v=98" ></script>
+    <script  type="text/javascript" src="/resources/js/app/controllers/searchheadcontroller.js?v=98" ></script>
+    <script  type="text/javascript" src="/resources/js/app/controllers/filtercontroller.js?v=98" ></script>
+    <script  type="text/javascript" src="/resources/js/app/controllers/classificationtabcontroller.js?v=98" ></script> 
+    <script  type="text/javascript" src="/resources/js/app/controllers/classificationcontroller.js?v=98" ></script> 
+    <script  type="text/javascript" src="/resources/js/jstree.min_gtr.js?v=98" ></script>
+        
+    <script type="text/javascript">
+        function goBack() {
+            window.history.back();
+        }
+    
+        function searchAll() {
+            let x=document.getElementById("term");
+            document.getElementById("term").value = "*";
+            document.getElementById("search-submit").click();
+        }
+
+        /*this will enable the sub nav to be sticky.
+         - set the cookie to the selected tab value.
+         */
+        function setSelectedTab(tabname) {
+            if (tabname === "publications")
+                document.cookie="projectSubTab="+tabname;
+        }
+
+        $(document).ready(function(){
+            /*
+            this will enable the sub nav to be sticky.
+            - on reload if the cookie = publications - select the tab
+            */
+            if (document.cookie.includes("projectSubTab=publications"))
+                $('#tabPublicationsLink').click();
+
+             $('#search-submit').click(function (e) {
+                 if ($('#term').val() == "") {
+                     e.preventDefault();
+                 }
+             })
+        });
+            
+    </script>   
+       
+    <script  type="text/javascript" src="/resources/js/app/gtrapp.js?v=98" ></script>      
+
+    <script type="text/javascript" src="/resources/js/google-tag-manager-setup.js?v=98"></script>
+ 
+</head>
+
+<body class="content gtr-body d-flex flex-column" ng-app="gtrApp" >
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLN9HHB" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) --> 
+
+<header>
+    <nav class="container navbar navbar-expand-lg">
+        <div id="titleblock">
+            <div class="col-12" >
+                <a class="navbar-brand" href="https://www.ukri.org/">
+                    <img class="navbar-img" src="/resources/img/ukrilogo.png?" alt="UKRI Logo (press to go to the UKRI home page)" />
+                </a>
+                <button class="navbar-toggler navbar-light bg-light mr-auto" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div> <!--  row -->
+        <div class="col-lg-8"> 
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul id="navPrimary" class="navheadmenu navbar-nav ml-auto">
+                        <li class="nav-item active"><a class="nav-link" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/resources/about.html">About this system</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/resources/releasehistory.html">Release history</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/resources/contact.html">Contact us</a></li>
+                    </ul>
+                </div>
+            </div>
+
+    </nav>
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-8">        
+                <p class="pl-3 h6 font-weight-bold">📣 Try out the NEW Gateway to Research and let us know what you think.</p>
+                <p class="pl-3">
+                    We're looking for users to test the new service during August and September and share their feedback.
+                    Express your interest by <a href="https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=juC3i6TajkqSfvyjjbBLfpZIhb6-Y0hNuKSsEPAng5JUNDlRTlRMV0xMM0RYOVpXWk5SSDkzQ05RMS4u">completing this short form</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+</header>
+  
+ 
+
+
+<!--  body class="d-flex flex-column"> -->
+
+<div id="homepage-wrapper">
+  <div class="container">
+        <div  class="row">
+            <div class="col">
+                <div id="homepage-title">
+                    <h2>Welcome to the UKRI gateway to publicly funded research and innovation</h2>
+                    <h3>Search for and analyse information on the latest innovative research in the UK</h3>
+                </div>
+            <div>  
+                   <section id="Search" class="jumbotron text-center"> 
+                       <div id="search-wrapper" class="container">
+                           <form id="advsearch" class="form-search" action="/search/project" method="get">
+                                <span style="vertical-align:middle;"> 
+                                <input id="term" name="term" spellcheck="true" placeholder="Please enter a search term..." type="text" value=""/>
+                                    <p class="rwd-break"></p>
+                                    <span class="container">
+	                                     <button id="search-submit" class="btn btn-primary search-button" type="submit">
+	                                        <span>Search</span>
+	                                    </button>
+	                                    <button id="search-allbtn" class="btn btn-primary search-button" onclick="searchAll()" >
+	                                        <span>All Data</span>
+	                                    </button>
+	                                    <button id="search-helpbtn" class="btn btn-primary search-button" type="button" data-toggle="collapse" data-target="#search-help-details" >
+	                                        <span>Help</span>
+                                        </button>
+                                    </span>
+                                    
+                                </span>
+                             </form>                                
+                        </div>
+
+                          <!-- /section>  --> 
+                        <section id="search-help-details" class="collapse pl-2 ml-2">
+                            <br />
+                            <div id="further-details" >Below are some examples of how to search for things:</div>
+                                <div class="row pad-bot-em">
+                                    <div class="col-md-2 col-sm-3 col-xs-4">genome</div><div class="col-md-10 col-sm-9 col-xs-7">searches for results with the word Genome</div>
+                                </div>
+                                <div class="row pad-bot-em">
+                                    <div class="col-md-2 col-sm-3 col-xs-4">genome DNA</div><div class="col-md-10 col-sm-9 col-xs-7">returns results containing the word Genome OR the word DNA.</div>
+                                </div>
+                                <div class="row pad-bot-em">
+                                    <div class="col-md-2 col-sm-3 col-xs-4">genome AND DNA</div><div class="col-md-10 col-sm-9 col-xs-7">returns results containing both the word Genome AND the word DNA.  Important! Boolean operators like AND, NOT, OR must be capitalised.</div>
+                                </div>
+                                <div class="row pad-bot-em">
+                                    <div class="col-md-2 col-sm-3 col-xs-4">"big data"</div><div class="col-md-10 col-sm-9 col-xs-7">Surround with quotes will return things containing the exact phrase "Big Data"</div>
+                                </div>
+                                <div class="row pad-bot-em">
+                                    <div class="col-md-2 col-sm-3 col-xs-4">"All Data"</div><div class="col-md-10 col-sm-9 col-xs-7">Brings back the entire data set (a useful starting point for navigating facets)</div>
+                                </div>
+                                <div>
+                                    We have another document that explains search further if you are interested (<a id="further-help" href="/resources/about-search.html">further help</a>)
+                                </div>
+                        </section>
+                   </section> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="container-fluid flex-grow">
+</section>
+
+<footer class="mt-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">  
+                <div class="widget">
+                    <h5 class="widgetheading">Data</h5>
+                    <p><a href="https://www.ukri.org/publications/gateway-to-research-guide/a-guide-to-gateway-to-research/">The Data</a> on this website provides information about publications, people, organisations and outcomes relating to research projects&#160;</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="widget">
+                     
+                     
+                    <h5 class="widgetheading">APIs</h5>
+                    <p>A set of REST <a href="/resources/api.html">API's</a> enable programmatic access to the data.  Refer to the application programming interfaces
+                    <a class="footerlink" href="/resources/gtrapi.html" target="_blank">GtR</a>
+                    and <a class="footerlink" href="/resources/gtrapi2.html" target="_blank">GtR-2</a></p>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                <div class="widget">
+                </div>
+                </div>
+                
+               <div class="col-lg-3">
+                <div class="widget">
+                    <h5 class="widgetheading">Contact</h5>
+                        <p>UKRI Gateway<br />
+                            Polaris House<br />
+                            Swindon<br />
+                            SN2 1ET<br />
+                        <a href="mailto:gateway@ukri.org">gateway@ukri.org</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div id="sub-footer">
+        <div style="width:95%;">
+            <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col-11">
+                    <div class="endlinks">
+                        
+                        
+                        
+                        <p><a href="https://www.ukri.org/about-us/privacy-notice/">Privacy</a>&#160;| <a href="https://www.ukri.org/terms-of-use/">Terms of Use</a>&#160; | <a href="http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3">OGL</a>
+                            <span class="pull-right">Data last updated: 06 Jul 2026</span></p>
+                        <div class="credits">&#160;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script type="text/javascript" src="https://cc.cdn.civiccomputing.com/9/cookieControl-9.x.min.js"></script>
+<script type="text/javascript" src="/resources/js/cookie-control-setup.js?v=98"></script>
+
+
+
+</body>
+</html>
+

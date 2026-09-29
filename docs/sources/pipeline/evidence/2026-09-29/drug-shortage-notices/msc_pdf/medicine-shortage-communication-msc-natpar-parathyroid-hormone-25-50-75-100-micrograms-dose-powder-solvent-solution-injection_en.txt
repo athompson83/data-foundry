@@ -1,0 +1,215 @@
+Medicine Shortage Communication  
+
+26 January 2026 
+
+Natpar (parathyroid hormone) 25, 50, 75 and 100 micrograms/dose 
+powder and solvent for solution for injection: end of supply due to 
+marketing cessation (discontinuation) 
+
+Dear Healthcare Professional, 
+
+Takeda is notifying healthcare professionals about a upcoming permanent stock-out of 
+Natpar. 
+
+Overview of situation 
+
+•  Due to unresolved manufacturing challenges with Natpar, manufacturing of 
+
+the 100mcg dose was discontinued in 2022 and manufacturing of all other 
+strengths was discontinued globally at the end of 2024. This information 
+was previously communicated in October 20221.  
+
+•  The company has continued to supply any remaining stock where available 
+but will cease distribution prior to the planned withdrawal of the marketing 
+authorisation of Natpar, scheduled on 01 July 2026.  
+
+•  The last lot of pen devices of Natpar will expire on 30 June 2026; patients 
+
+should be advised not to use the Natpar pen beyond its expiry date. Patients 
+should be informed that, after this date, any remaining packs should be 
+returned to the pharmacy or hospital where they were obtained. 
+
+•  Below are the current anticipated stock-out dates in <insert country>: 
+
+Please note these dates are approximate and are based on historical trends 
+in usage, which may not accurately reflect future demand.  
+
+25mcg: <insert date here> 
+
+50mcg: <insert date here> 
+
+75mcg: <insert date here> 
+
+100mcg: Unavailable since October 2022 
+
+Mitigation measures 
+
+In order to manage the market cessation and any associated risk of shortages, the 
+marketing authorisation holder (MAH) is engaging with the European Medicines Agency 
+(EMA) and [National Competent Authority] on mitigation measures.  
+
+In preparation for the discontinuation, healthcare professionals should follow the 
+below advice: 
+
+•  Do not prescribe Natpar to new patients.  
+
+•  For existing patients and while stocks last, a reduced dose should be 
+prescribed, if this is an option. Dose reductions increase the risk of 
+
+1 Natpar - direct healthcare professional communication (DHPC) | European Medicines Agency (EMA)  
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+hypocalcaemia. When reducing Natpar treatment, it is very important to 
+closely monitor serum calcium levels and monitor patients for signs and 
+symptoms of hypocalcaemia, while carefully adjusting active vitamin D and 
+supplemental calcium doses in all patients. Patients should be informed 
+about the signs of hypocalcaemia (see section 4.8 List of adverse reactions 
+in the SmPC2 for Natpar) and advised when they should inform their doctor. 
+
+•  Patients should be switched in time to a suitable alternative therapy, where 
+
+appropriate and in line with relevant clinical guidelines, including the 
+Revised European Society of Endocrinology Clinical Practice Guideline: 
+Treatment of Chronic Hypoparathyroidism in Adults3. 
+
+•  Abrupt interruption or discontinuation of Natpar can result in severe 
+
+hypocalcaemia. When stopping Natpar treatment, it is very important to 
+closely monitor serum calcium levels and monitor patients for signs and 
+symptoms of hypocalcaemia, while carefully adjusting active vitamin D and 
+supplemental calcium doses in all patients. Healthcare professionals should 
+refer to section 4.2 (Interruption or discontinuation of treatment) and 
+section 4.4 (Warnings and Precautions: Hypocalcaemia) in the SmPC for 
+Natpar. 
+
+•  Long-term treatment plans should be discussed with patients, to minimise 
+
+the risks of complications from abruptly stopping Natpar. 
+
+•  For additional information consult EMA’s shortage catalogue, <your 
+
+country’s shortage register> or <your national competent authority>. 
+
+Background on the shortage   
+
+Natpar is indicated as adjunctive treatment of adult patients with chronic 
+hypoparathyroidism who cannot be adequately controlled with standard therapy alone. 
+Takeda communicated the decision to discontinue manufacturing of all strengths of Natpar 
+by the end of 2024, due to unresolved manufacturing issues, via a direct healthcare 
+professional communication (DHPC) issued in October 2022.  
+
+Company contact point 
+
+For questions relating to the content of this communication, please contact the Takeda 
+Medical Information Department <insert local or global contact phone number>. 
+
+Please continue to report suspected adverse drug reactions (ADRs) to <insert HA name> via 
+<insert details>. 
+
+When reporting, please provide as much information as possible, including information about 
+medical history, any concomitant medication, timing onset of the adverse event/s, treatment 
+dates, and product brand name. Adverse events should also be reported to Takeda: <insert 
+local contact details>. 
+
+2 Natpar, INN-parathyroid hormone (rDNA) 
+
+3 Revised European Society of Endocrinology Clinical Practice Guideline: Treatment of Chronic 
+Hypoparathyroidism in Adults | European Journal of Endocrinology | Oxford Academic 
+
+ 
+ 
+ 
+ 
+ 
+ 
+Annexes  
+
+Annex 1: Communication Plan 
+
+Communication Plan for Medicine Shortage Communication 
+
+MSC COMMUNICATION PLAN 
+
+Medicinal 
+
+product(s)/active 
+
+substance(s) 
+
+Marketing 
+
+authorisation 
+
+holder(s)  
+
+Purpose of the 
+
+communication 
+
+MSC recipients 
+
+Member States where 
+
+the MSC will be 
+
+distributed 
+
+Natpar (parathyroid hormone) 
+
+Takeda Pharmaceuticals International AG Ireland Branch 
+
+To inform prescribing physicians of the upcoming permanent 
+cessation of supply and Marketing Authorisation withdrawal of 
+Natpar in the EEA and advice to move patients to an alternative 
+therapy. 
+
+Prescribing physicians, endocrinologists and pharmacists to be 
+confirmed by local commercial teams. Patient Advocacy Groups 
+to be identified and included.  
+
+In all EEA member states where Natpar is distributed, whether 
+commercially or via clinical trials or named patient programs. 
+
+Timetable [Delete steps which are not applicable] 
+
+Date 
+
+MSC and communication plan (in English) agreed by SPOC WP 
+
+16 Dec 2025 
+
+MSC and communication plan (in English) agreed by MSSG  
+
+26 Jan 2026 
+
+Submission of translated MSCs to the national competent 
+
+28 Jan 2026 
+
+authorities for review 
+
+Agreement of translations by national competent authorities   
+
+04 Feb 2026 
+
+Dissemination of MSC  
+
+06 Feb 2026 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+

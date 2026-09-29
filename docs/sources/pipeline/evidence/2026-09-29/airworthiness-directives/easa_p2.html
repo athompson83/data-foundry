@@ -1,0 +1,1419 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>EASA Safety Publications Tool</title>
+	<meta name="description" content="EASA Airworthiness Directives Publishing Tool">
+    <meta name="keywords" content="Safety Publication,Safety Publications,AD,ADs,EASA,European Union Aviation Safety Agency,Agence Européenne de la Sécurité Aérienne">
+    <meta name="robots" content="All">
+    <meta name="rating" content="General">
+    <meta name="resource-type" content="document">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta name="revisit-after" content="7 days">
+    <meta name="robots" content="index,follow">
+    <meta name="DC.Publisher" content="easa.eu">
+
+    <link rel="shortcut icon" type="image/x-icon" href="https://ad.easa.europa.eu/static/img/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="https://ad.easa.europa.eu/static/css/ext/css/ext-all.css">
+
+    <link rel="stylesheet" type="text/css" href="https://ad.easa.europa.eu/static/css/default/easa_adtool.css">
+    <link rel="stylesheet" type="text/css" href="https://ad.easa.europa.eu/static/css/default/tree.css">
+    <link rel="stylesheet" type="text/css" href="https://ad.easa.europa.eu/static/css/default/resultset_paging.css">
+    <link rel="stylesheet" type="text/css" href="https://ad.easa.europa.eu/static/css/default/resultset_detail.css">
+    <link rel="stylesheet" type="text/css" href="https://ad.easa.europa.eu/static/css/notices.css?v=2">
+
+
+
+<!-- IE toolbar overflow bug hack [start] -->
+<!--[if IE]>
+<style type="text/css">
+.td_toolbar {
+    text-align: left;
+    vertical-align: top;
+    background: url(/static/css/ext/images/default/toolbar/bg.gif) #d0def0 repeat-x;
+    border-bottom: 1px solid #a9bfd3;
+    height: 26px;
+}
+.div_toolbar {
+    overflow: hidden;
+    width: 100px;
+}
+</style>
+<![endif]-->
+<!-- IE toolbar overflow bug hack [end] -->
+
+<!-- IE 6 PNG transparency fix [start] -->
+<!--[if lte IE 6]>
+<style type="text/css">
+
+.global_green_notice_top {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_green_top-fs8.png) 0 0 no-repeat;
+    filter: shadow(color=#cccccc, strength=3, Direction=135);
+}
+.global_green_notice_main {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_green_main-fs8.png) 0 0 repeat-y;
+    filter: shadow(color=#cccccc, strength=3, Direction=135);
+}
+.global_green_notice_bottom {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_green_bottom-fs8.png) 0 0 no-repeat;
+    filter: shadow(color=#cccccc, strength=3, direction=135);
+}
+.global_green_notice_bottom_fader {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_green_bottom_fader.gif) bottom right repeat-x;
+}
+
+.global_red_notice_top {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_red_top-fs8.png) 0 0 no-repeat;
+    filter: shadow(color=#cccccc, strength=3, Direction=135);
+}
+.global_red_notice_main {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_red_main-fs8.png) 0 0 repeat-y;
+    filter: shadow(color=#cccccc, strength=3, Direction=135);
+}
+.global_red_notice_bottom {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_red_bottom-fs8.png) 0 0 no-repeat;
+    filter: shadow(color=#cccccc, strength=3, direction=135);
+}
+.global_red_notice_bottom_fader {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_red_bottom_fader.gif) bottom right repeat-x;
+}
+
+.global_notice_top {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_top-fs8.png) 0 0 no-repeat;
+    filter: shadow(color=#cccccc, strength=3, Direction=135);
+}
+.global_notice_main {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_main-fs8.png) 0 0 repeat-y;
+    filter: shadow(color=#cccccc, strength=3, Direction=135);
+}
+.global_notice_bottom {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_bottom-fs8.png) 0 0 no-repeat;
+    filter: shadow(color=#cccccc, strength=3, direction=135);
+}
+.global_notice_bottom_fader {
+    background: transparent url(https://ad.easa.europa.eu/static/img/notices/note_bottom_fader.gif) bottom right repeat-x;
+}
+</style>
+<![endif]-->
+<!-- IE 6 PNG transparency fix [end] -->
+
+<script type="text/javascript" src="https://ad.easa.europa.eu/static/js/custom/general.js"></script>
+
+</head>
+
+<body>
+
+<!-- header [start] -->
+<div id="divHeader">
+    <table id="tblHeader" border="0" cellpadding="0" cellspacing="0">
+        <tr class="trHeader">
+            <td  class="header_logo">
+                <div class="easa-logo">
+                </div>
+            </td>
+            <td class="header_expand">
+                <span class="header_info">You are <strong>not</strong> logged in</span>
+            </td>
+            <td class="header_right">
+                <div class="header_right_info">&nbsp;
+                    <span class="header_text_two">Safety Publications Tool</span>
+                    <!--<span class="header_text_two">AD</span>-->
+                    <!--<span class="header_text_three">easa.europa.eu</span>
+                    <span class="header_text_four">information hub</span>-->
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="td_toolbar" colspan="3"><div id="header_toolbar" class="div_toolbar"></div></td>
+        </tr>
+    </table>
+</div>
+<!-- header [end] -->
+
+<div class="div_footer_shadow1">
+    <div class="div_footer_shadow2">
+        <div id="divMain">
+            <!-- content [start] -->
+            <div id="ZN-main">
+                <form id="frmMain" name="frmMain" action="https://ad.easa.europa.eu/search/" onSubmit="return doQuery(this);" method="post" style="margin:0px;">                    <!-- left column [start] -->
+                    <div id="ZN-main-left">
+
+                        <input type="hidden" name="fi_action" id="fi_action" value="simple">
+                        
+                        <div id="EL-search-container">
+                            <div id="EL-search">
+                                <div style="margin:8px 0; white-space:nowrap; vertical-align:middle;">
+                                    <label for="fi_keyword">Keyword:</label>
+                                    <input value="" type="text" id="fi_keyword" name="fi_keyword" class="input_text" style="width:112px;">
+                                </div>
+                                <div style="text-align:right; margin:0; white-space:nowrap; vertical-align:middle;">
+                                    <a href="/search/advanced" style="font:11px tahoma; color:#ffffff">advanced search</a>
+                                    <a onClick="doQuery(document.forms[0]); return false;"><img src="https://ad.easa.europa.eu/static/img/button/btn_search.gif" alt="search" style="vertical-align:middle;" onmouseover="this.src='https://ad.easa.europa.eu/static/img/button/btn_search_over.gif'" onmouseout="this.src='https://ad.easa.europa.eu/static/img/button/btn_search.gif'"></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- global notices [start] -->
+
+                        <div class="global_notice">
+                            <div class="global_notice_top">&nbsp;</div>
+                            <div class="global_notice_main">
+                                <div class="global_notice_coffee_stain">
+                                    <h1> Revision 2 of EASA SIB 2026-07 </h1>
+<br>
+<b>“Revision 2 of EASA SIB 2026-07”</b>, has been issued.
+<br>
+<br>We recommend all registered SPT users to activate notification for <b>“Safety Information Bulletin – Airworthiness”</b>, to be notified about SPT taxonomy updates. 
+
+
+                                    <div class="global_notice_bottom_fader">&nbsp;</div>
+                                </div>
+                            </div>
+                            <div class="global_notice_bottom">&nbsp;</div>
+                        </div>
+                        <!-- global notices [end] -->
+                    </div>
+                    <!-- left column [end] -->
+                    <!-- AD list [start] -->
+
+
+                    <div id="ZN-main-central">
+                        <div id="toolbar">
+                            <h2 >List of Mandatory Continuing Airworthiness Information</h2>
+                            <h3>Displaying records 21 to 40 out of a total of 17415 publications.</h3>
+                        </div>
+
+                        <table class="ad-list">
+                        <tr>
+                            <th style="width:12%;">
+                                    <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                            let sorting = window.location.pathname.split('/').filter(segment => segment.length > 0);
+                                            let sortValue = sorting.find(segment => segment.startsWith('sort-'));
+                                            sorting = sortValue ? sortValue.substring(5) : ''
+                                             let index = '1D';
+                                            let pathName = window.location.pathname;
+                                            let url = pathName;
+                                            let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                             handleSorting(url, urlPrefix, index, sorting);">Number</a>
+                            </th>
+                            <th style="width:25px;">
+                            Issued by
+                            </th>
+                            <th style="width:10%;">
+                                    <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                            let sorting = window.location.pathname.split('/').filter(segment => segment.length > 0);
+                                            let sortValue = sorting.find(segment => segment.startsWith('sort-'));
+                                            sorting = sortValue ? sortValue.substring(5) : ''
+                                             let index = '1D';
+                                            let pathName = window.location.pathname;
+                                            let url = pathName;
+                                            let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                             handleSorting(url, urlPrefix, index, sorting);">Issue date</a>
+                                <img src="https://ad.easa.europa.eu/static/img/button/btn_triangle_desc.gif" style="vertical-align:middle;" alt="Sorted in descending order" title="Sorted in descending order">
+                            </th>
+                            <th>
+                                Subject
+                            </th>
+                            <th>
+                                Approval Holder / Type Designation
+                            </th>
+                            <th style="width:10%;">
+                                    <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                            let sorting = window.location.pathname.split('/').filter(segment => segment.length > 0);
+                                            let sortValue = sorting.find(segment => segment.startsWith('sort-'));
+                                            sorting = sortValue ? sortValue.substring(5) : ''
+                                             let index = '3D';
+                                            let pathName = window.location.pathname;
+                                            let url = pathName;
+                                            let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                             handleSorting(url, urlPrefix, index, sorting);">Effective date</a>
+                            </th>
+                            <th style="width:12%;">Attachment</th>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-108');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-108" class="easa_cd">26-108</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-17
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Flight Controls – Flight Control Primary Computer – Modification
+
+
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6018'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A330
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_108.pdf/PAD_26-108_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">301 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-107');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-107" class="easa_cd">26-107</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-17
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Flight Controls – Flight Control Primary Computer – Modification
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6017'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A330
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_107.pdf/PAD_26-107_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">297 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2024-0144R1');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2024-0144R1" class="easa_cd">2024-0144R1</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-16
+		                    </td>
+                            <td class="cell-default">
+                                Tail Rotor Drive – Shaft-Line – Check / Measurement / Modification
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS HELICOPTERS
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                AS 350 / EC 130
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-23
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2024_0144_R1.pdf/AD_2024-0144R1_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">323 kb</a></li>
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2024_0144R1.zip/AD_2024-0144R1_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">518 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2023-0214R1');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2023-0214R1" class="easa_cd">2023-0214R1</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-16
+		                    </td>
+                            <td class="cell-default">
+                                Fuselage – Tail Rotor Drive Shaft / Rear Transmission Bearing Support – Inspections / Modification
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS HELICOPTERS
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                AS 350 / EC 130
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-23
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2023_0214_R1.pdf/AD_2023-0214R1_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">289 kb</a></li>
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2023_0214_R1.zip/AD_2023-0214R1_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">1 mb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-106');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-106" class="easa_cd">26-106</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-15
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Landing Gear – Main Landing Gear Barrel – Inspection
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6016'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        DAHER AIRCRAFT, SAS
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                TBM 700
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_106.pdf/PAD_26-106_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">313 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0137R1');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0137R1" class="easa_cd">2026-0137R1</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-15
+		                    </td>
+                            <td class="cell-default">
+                                Doors – Door Locking Mechanism – Modification
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        PIPISTREL VERTICAL SOLUTIONS d.o.o.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                Virus SW
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-22
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0137.zip/AD_2026-0137R1_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">624 kb</a></li>
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0137_R1.pdf/AD_2026-0137R1_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">330 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0178-E');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0178-E" class="easa_cd">2026-0178-E</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-14
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_ead.gif" style="vertical-align:bottom;" alt="EAD" title="Emergency AD">
+                                Engine – Turbocharger Valve Housing – Replacement
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        BRP-ROTAX GmbH &amp; Co KG
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                915
+                                            </li>
+                                            <li class="type" title="Type">
+                                                916 iSc
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-16
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0178_E.pdf/EAD_2026-0178-E_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">302 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/US-2026-17-03');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/US-2026-17-03" class="easa_cd">US-2026-17-03</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/us.gif" alt="US" title="US"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-14
+		                    </td>
+                            <td class="cell-default">
+                                [Correction] Turbine Engine - 3rd-Stage High Pressure Compressor - Replacement
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        INTERNATIONAL AERO ENGINES AG
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                V2500-( )5
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-24
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/2026-17-03_Correction.pdf/AD_US-2026-17-03_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">121 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0177');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0177" class="easa_cd">2026-0177</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-14
+		                    </td>
+                            <td class="cell-default">
+                                Indicating / Recording Systems – Integrated Control Panels – Inspection
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A350
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-28
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0177.pdf/AD_2026-0177_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">298 kb</a></li>
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_087.zip/AD_2026-0177_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">1 002 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-105');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-105" class="easa_cd">26-105</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-11
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Tail Rotor Drive – Tail Gear Box Control Rod Bearings – Replacement / Life Limitation
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6015'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS HELICOPTERS
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                SA/AS 365 / EC 155
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_105.pdf/PAD_26-105_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">294 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/CF-2026-45');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/CF-2026-45" class="easa_cd">CF-2026-45</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/ca.gif" alt="CA" title="CA"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-11
+		                    </td>
+                            <td class="cell-default">
+                                Wings – Discrepant Fasteners at Wing to Fuselage Joint - Amendment
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS CANADA LP
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                BD-500 (A220 Series)
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-18
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/CF-2026-45-E.pdf/AD_CF-2026-45_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">150 kb</a></li>
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/CF-2026-45-F.pdf/AD_CF-2026-45_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">183 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/CF-2026-43');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/CF-2026-43" class="easa_cd">CF-2026-43</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/ca.gif" alt="CA" title="CA"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-11
+		                    </td>
+                            <td class="cell-default">
+                                Ice and Rain Protection – Wing Anti-Ice – Aircraft Flight Manual Procedure Anomaly - Amendment
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        MHI RJ Aviation ULC
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                CL-600 (Regional Jet)
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-14
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/CF-2026-43-E.pdf/AD_CF-2026-43_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">599 kb</a></li>
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/CF-2026-43-F.pdf/AD_CF-2026-43_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">643 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0176');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0176" class="easa_cd">2026-0176</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-11
+		                    </td>
+                            <td class="cell-default">
+                                Electrical Systems Installation – Battery Retaining Rods – Identification / Replacement 
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A318
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A319
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A320
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A321
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-25
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0176.pdf/AD_2026-0176_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">339 kb</a></li>
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_093.zip/AD_2026-0176_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">1 mb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0144R1');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0144R1" class="easa_cd">2026-0144R1</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-11
+		                    </td>
+                            <td class="cell-default">
+                                Stabilizers – Rudder Outer Skin – Inspection
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A320
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A321
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-18
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0144_R1.pdf/AD_2026-0144R1_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">274 kb</a></li>
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026-0144.zip/AD_2026-0144R1_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">1 mb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0175');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0175" class="easa_cd">2026-0175</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-10
+		                    </td>
+                            <td class="cell-default">
+                                Rotor(s) – Main Rotor Yoke – Inspection
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        LEONARDO S.p.A. HELICOPTERS
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                AB212/AB412
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-24
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0175.pdf/AD_2026-0175_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">272 kb</a></li>
+                                    <li class="file_zip"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_094.zip/AD_2026-0175_2" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">496 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/G-2026-0004');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/G-2026-0004" class="easa_cd">G-2026-0004</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/uk.gif" alt="UK" title="UK"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-09
+		                    </td>
+                            <td class="cell-default">
+                                TECHTEST - HR SMITH GROUP - Equipment / Furnishings – Personal Locator Beacon / Emergency Location Transmitter – Inspection
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        APPLIANCES
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                ATA 25 EQUIPMENT / FURNISHINGS
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-15
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/G-2026-0004.pdf/AD_G-2026-0004_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">170 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-104');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-104" class="easa_cd">26-104</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-09
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Aircraft Flight Manual Supplement – Abnormal Procedures – Amendment
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6014'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A330
+                                        </ul>
+                                    <li class="tc_holder" title="TC Holder">
+                                        ELBE FLUGZEUGWERKE GmbH
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                EASA STC 10063798
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_104.pdf/PAD_26-104_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">289 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-103');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-103" class="easa_cd">26-103</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-09
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Fuselage – Structural Parts / Joints – Modification / Reinforcement
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6013'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A330
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_103.pdf/PAD_26-103_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">284 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/26-102');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/26-102" class="easa_cd">26-102</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-09
+		                    </td>
+                            <td class="cell-default">
+                                <img src="https://ad.easa.europa.eu/static/img/icon/adclass_pad.gif" style="vertical-align:bottom;" alt="PAD" title="Proposed AD">
+                                Fuselage – Cockpit Floor Structure – Inspections
+                                <br>
+                                <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.?uusjbce=toCmmne%t02no2%P0DA2%20-6012'.replace(/(.)(.)/g, '$2$1'); return false;"><img src="https://ad.easa.europa.eu/static/img/icon/email-orange.gif" alt="send comment" style="vertical-align:bottom;"> send comment</a>
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        AIRBUS S.A.S.
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                A318
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A319
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A320
+                                            </li>
+                                            <li class="type" title="Type">
+                                                A321
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_PAD_26_102.pdf/PAD_26-102_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">317 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr onmouseover="this.className='rowOn'; showStatus('https://ad.easa.europa.eu/ad/2026-0174');" onmouseout="this.className='rowOff'; showStatus('EASA - SP Tool');">
+                            <td class="cell-date">
+                                <a href="https://ad.easa.europa.eu/ad/2026-0174" class="easa_cd">2026-0174</a>
+		                    </td>
+                            <td class="cell-default">
+                                <div style="width:100%; display:block; align:center; text-align:center;"><img src="https://ad.easa.europa.eu/static/img/flags/eu.gif" alt="EU" title="EU"></div>
+                            </td>
+                            <td class="cell-date">
+                                2026-09-08
+		                    </td>
+                            <td class="cell-default">
+                                Time Limits / Maintenance Checks – Airworthiness Limitations Section – Amendment
+
+                            </td>
+                            <td class="cell-tree">
+                                <ul class="aircraft-tree">
+                                    <li class="tc_holder" title="TC Holder">
+                                        CFM INTERNATIONAL
+                                        <ul>
+                                            <li class="type" title="Type">
+                                                CFM56-7B
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="cell-date">
+			                     2026-09-22
+                            </td>
+                            <td class="cell-default" style="cursor:default">
+                                <ul class="attachments-small">
+                                    <li class="file_pdf"><a href="https://ad.easa.europa.eu/blob/EASA_AD_2026_0174.pdf/AD_2026-0174_1" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">313 kb</a></li>
+                                </ul>
+                            </td>
+                        </tr>
+                        </table>
+
+                        <!-- paging [start] -->
+                        <div id="EL-navpaging">
+                            <ul id="navpaging">
+                                                    <!--Previous button -->
+                                <li style="margin:0 10px 0 0">
+                                    <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '1';
+                                        handlePaging(url, window.location.pathname, pageNumber);">
+                                        <img src="https://ad.easa.europa.eu/static/img/arrow/arrow_left.gif" style="margin:0 10px 0 0; vertical-align:middle;" alt="Previous" title="Previous">Previous
+                                    </a>
+                                </li>
+                                        
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '1';
+                                            handlePaging(url, urlPrefix, pageNumber);">1</a>
+                                                                    </li>
+                                                    <li id="active">
+                                                                             2
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '3';
+                                            handlePaging(url, urlPrefix, pageNumber);">3</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '4';
+                                            handlePaging(url, urlPrefix, pageNumber);">4</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '5';
+                                            handlePaging(url, urlPrefix, pageNumber);">5</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '6';
+                                            handlePaging(url, urlPrefix, pageNumber);">6</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '7';
+                                            handlePaging(url, urlPrefix, pageNumber);">7</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '8';
+                                            handlePaging(url, urlPrefix, pageNumber);">8</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '9';
+                                            handlePaging(url, urlPrefix, pageNumber);">9</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '10';
+                                            handlePaging(url, urlPrefix, pageNumber);">10</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '11';
+                                            handlePaging(url, urlPrefix, pageNumber);">11</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '12';
+                                            handlePaging(url, urlPrefix, pageNumber);">12</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '13';
+                                            handlePaging(url, urlPrefix, pageNumber);">13</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '14';
+                                            handlePaging(url, urlPrefix, pageNumber);">14</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '15';
+                                            handlePaging(url, urlPrefix, pageNumber);">15</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '16';
+                                            handlePaging(url, urlPrefix, pageNumber);">16</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '17';
+                                            handlePaging(url, urlPrefix, pageNumber);">17</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '18';
+                                            handlePaging(url, urlPrefix, pageNumber);">18</a>
+                                                                    </li>
+                                                    <li>
+                                                                            <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '19';
+                                            handlePaging(url, urlPrefix, pageNumber);">19</a>
+                                                                    </li>
+                    
+                                                    <li>
+                                    <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                        let pathName = window.location.pathname;
+                                        let url = pathName;
+                                        let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '871';
+                                        handlePaging(url, urlPrefix, pageNumber);"> ...871
+                                    </a>
+                                </li>
+                    
+                                                    <li style="margin:0 0 0 10px">
+                                    <a onclick="if(isDefined('buildFilter') &amp;&amp; typeof(buildFilter) == 'function') { buildFilter(); }
+                                    let pathName = window.location.pathname;
+                                    let url = pathName;
+                                    let urlPrefix = pathName.replace(/page-\d+.*$/, '');
+                                        let pageNumber = '3';
+                                        handlePaging(url, urlPrefix, pageNumber);">Next<img src="https://ad.easa.europa.eu/static/img/arrow/arrow_right.gif" style="margin:0 0 0 10px; vertical-align:middle;" alt="Next" title="Next"></a></li>
+                                                </ul>
+                        </div>
+                        <!-- paging [end] -->
+                    </div>
+                    <!-- AD list [end] -->
+
+                    <div class="spacer"></div>
+                </form>
+            </div>
+            <!-- content [end] -->
+        </div>
+    </div>
+</div>
+
+<!-- footer [start] -->
+<div class="div_footer_shadow1" id="divFooter">
+    
+    <div class="div_footer_shadow2">
+        <div class="div_footer">
+            <table border="0" cellpadding="0" cellspacing="0" class="tbl_footer">
+            <tr>
+                <td style="text-align:left; padding-left:4px;">
+                    For help on using this tool, please refer to <a href="https://ad.easa.europa.eu/help/index.html" onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;">the help section</a><br>
+                    For any inquiry regarding ADs, please contact
+                    <a href="#" onclick="location.href='amliotA:sDe@sa.aueorape.u'.replace(/(.)(.)/g, '$2$1'); return false;">the EASA AD team</a>
+                    <br>
+                    To report any bug, broken link or problem with this application, please contact the
+                    <a href="#" onclick="location.href='amliota:sde@sa.aueorape.u'.replace(/(.)(.)/g, '$2$1'); return false;">webmaster</a>
+                </td>
+                <td style="font-size:1px; padding-left:4px;">
+                    <img src="https://ad.easa.europa.eu/static/img/valid-html401-blue-16px.gif" alt="Valid HTML 4.01 Strict" height="16" width="45">
+                </td>
+                <td style="text-align:right; padding-left:4px;">
+                    <a href="https://ad.easa.europa.eu/disclaimer">Disclaimer &amp; copyright notice</a> - 2024 &#169; <a onkeypress="window.open(this.href); return false;" onclick="window.open(this.href); return false;" href="http://www.easa.europa.eu">www.easa.europa.eu</a>
+                </td>
+            </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- footer [end] -->
+
+
+<script type="text/javascript" src="https://ad.easa.europa.eu/static/js/custom/fct_search.js"></script>
+<script type="text/javascript" src="https://ad.easa.europa.eu/static/js/custom/util.js"></script>
+<script type="text/javascript" src="https://ad.easa.europa.eu/static/js/external/yui-utilities.js"></script>
+<script type="text/javascript" src="https://ad.easa.europa.eu/static/js/external/ext-yui-adapter.js"></script>
+<script type="text/javascript" src="https://ad.easa.europa.eu/static/js/external/ext-all.js"></script>
+
+
+
+
+
+
+<!-- top menu [start] -->
+<script type="text/javascript">
+
+Ext.onReady(function()
+{
+    var thisScope = this;
+    Ext.QuickTips.init();
+
+    var menuExportCSV = new Ext.menu.Menu({
+            id: 'menuExport',
+        items: [
+            new Ext.menu.Item({
+                text    : 'US - separator is the comma (,)',
+                handler : function onExportToCSVComma(btn) {
+                    thisScope.exporLimitHandler(17415,"csv","c");
+                }
+            }),
+            new Ext.menu.Item({
+                text    : 'European - separator is the semicolon (;)',
+                handler : function onExportToCSVSemicolon(btn) {
+                    thisScope.exporLimitHandler(17415,"csv","s");
+                }
+            })
+        ]
+        });
+    
+    var menuExport = new Ext.menu.Menu({
+            id: 'menuExport',
+        items: [
+            new Ext.menu.Item({
+                text    : 'CSV',
+                icon    : 'https://ad.easa.europa.eu/static/img/icon/file_type_csv_small.gif',
+                menu    : menuExportCSV
+            }),
+            new Ext.menu.Item({
+                text    : 'PDF',
+                icon    : 'https://ad.easa.europa.eu/static/img/icon/file_type_pdf_small.gif',
+                handler : function onExportToPDF(btn) {
+                    thisScope.exporLimitHandler(17415,"pdf");
+                    }
+            }),
+            new Ext.menu.Item({
+                text    : 'XML',
+                icon    : 'https://ad.easa.europa.eu/static/img/icon/file_type_xml_small.gif',
+                handler : function onExportToXML(btn) {
+                    thisScope.exporLimitHandler(17415,"xml");
+                    }
+            })
+        ]
+        });
+
+    var tb = new Ext.Toolbar({
+        renderTo: 'header_toolbar'
+    });
+
+
+    tb.add(
+
+        {
+            cls     :   'x-btn-text',
+                text    :   'AD Home Page',
+                tooltip :   'See information about Safety Publications<br> on the EASA website',
+                handler :   function onUserGuide(btn) {
+            var winRelated = window.open('https://www.easa.europa.eu/en/domains/aircraft-products/airworthiness-directives-ad', 'winUserGuide');
+            if(winRelated && winRelated.focus)
+                winRelated.focus();
+            }
+        },
+        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'MCAI',
+            tooltip :   'Show all available Mandatory Continuing Airworthiness Information',
+                        pressed :   true,
+                        handler :   function onHome(btn) {
+                            location.href = 'https://ad.easa.europa.eu/';
+                        }
+            },
+                        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'SIB',
+            tooltip :   'Show all available Safety Information',
+                     handler :   function onSibDistinct(btn) {
+                            location.href = 'https://ad.easa.europa.eu/sib-docs/page-1';
+                        }
+
+
+        },
+    '-',
+
+        {
+    cls     :   'x-btn-text',
+        text    :   'SD',
+    tooltip :   'Show all available Safety Directives',
+        handler :   function onODDistinct(btn) {
+    location.href = 'https://ad.easa.europa.eu/sd-docs/page-1';
+    }
+
+    },
+        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'Advanced search',
+            tooltip :   'Perform a detailed query based on multiple criteria',
+             handler :   function onSearch(btn) {
+                            location.href = 'https://ad.easa.europa.eu/search/advanced';
+                        }
+
+        },
+        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'AD Biweekly reports',
+            tooltip :   'Access AD biweekly reports of previously published Mandatory Continuing Airworthiness Information',
+            handler :   function onBiweekly(btn) {
+                            location.href = '/biweekly';
+                        }
+        },
+        '-',
+        {
+            cls     :   'x-btn-text bmenu',
+            text    :   'Export list as...',
+            tooltip :   'Export the current list of publications to a CSV, PDF or XML file',
+            menu    :   menuExport
+        },
+        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'User guide',
+            tooltip :   'Read the user guide for this application',
+            handler :   function onUserGuide(btn) {
+                            var winUserGuide = window.open('/help/index.html', 'winUserGuide');
+                            if(winUserGuide && winUserGuide.focus)
+                                winUserGuide.focus();
+                        }
+        },
+        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'AD FAQ',
+            handler :   function onAdFaq(btn) {
+                            window.open('https://www.easa.europa.eu/the-agency/faqs/airworthiness-directives-ads', '_blank');
+                        }
+        },
+        '-',
+        {
+            cls     :   'x-btn-text',
+            text    :   'AMOC FAQ',
+            handler :   function onAmFaq(btn) {
+                            window.open('https://www.easa.europa.eu/the-agency/faqs/alternative-method-compliance-amoc-airworthiness-directive-ad', '_blank');
+                        }
+        },
+        '-'
+    );
+
+    tb.addButton(
+        {
+            cls     :   'x-btn-text',
+            text    :   'Register',
+            tooltip :   'Click here to register if you are a new user',
+            handler :   function onUserRegister(btn) {
+                            location.href = '/redirect.php?url=' + encodeURIComponent('https://hub.easa.europa.eu/security/?app=awd&act=register');
+                        }
+        }
+    );
+    tb.addSeparator();
+    tb.addButton(
+        {
+            cls     :   'x-btn-text',
+            text    :   'Login',
+            tooltip :   'Click here to login.<br>You need to be logged in to save multiple filters and receive notifications',
+            handler :   function onUserLogin(btn) {
+                            location.href = '/redirect.php?url=' + encodeURIComponent('https://hub.easa.europa.eu/security/?act=login&app=awd');
+                        }
+        }
+    );
+    
+    if(isDefined('onAfterLoad'))
+        onAfterLoad();
+});
+</script>
+<!-- top menu [end] -->
+
+</body>
+</html>

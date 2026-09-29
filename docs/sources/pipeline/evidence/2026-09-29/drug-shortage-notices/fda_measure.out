@@ -1,0 +1,13 @@
+enforcement 17988
+enf keys [('status', 17988), ('city', 17988), ('state', 17988), ('country', 17988), ('classification', 17988), ('openfda', 17988), ('product_type', 17988), ('event_id', 17988), ('recalling_firm', 17988), ('address_1', 17988), ('address_2', 17988), ('postal_code', 17988), ('voluntary_mandated', 17988), ('initial_firm_notification', 17988), ('distribution_pattern', 17988), ('recall_number', 17988), ('product_description', 17988), ('product_quantity', 17988), ('reason_for_recall', 17988), ('recall_initiation_date', 17988), ('report_date', 17988), ('code_info', 17988), ('center_classification_date', 17987), ('termination_date', 14809), ('more_code_info', 8379)]
+enf newest report_date 20260923
+enf w/ openfda.package_ndc 3206
+pkg ndc regex hit 1599 / 1599
+presentation NDC regex hit 1599 / 1599
+openfda.rxcui 1361 / 1599
+openfda keys Counter({'brand_name': 1398, 'generic_name': 1398, 'manufacturer_name': 1398, 'product_ndc': 1398, 'product_type': 1398, 'spl_id': 1398, 'spl_set_id': 1398, 'package_ndc': 1398, 'unii': 1391, 'route': 1389, 'substance_name': 1388, 'application_number': 1370, 'rxcui': 1361, 'nui': 353, 'pharm_class_epc': 352, 'pharm_class_cs': 161, 'pharm_class_moa': 120, 'pharm_class_pe': 93})
+openfda.product_ndc 1398
+JOIN declared: shortage.package_ndc in enforcement openfda.package_ndc 442 / 1599
+JOIN declared: shortage product part in enforcement openfda.product_ndc 450 / 1599
+JOIN declared: product ndc appears in recall product_description text 287 / 1599
+sample20 with recall match 2 /20
