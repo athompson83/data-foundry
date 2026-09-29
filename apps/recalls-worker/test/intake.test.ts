@@ -241,8 +241,15 @@ describe('extraction intake', () => {
   it('refuses after policy withdrawal: a withdrawn source, and the dataset kill switch', async () => {
     const { env, token, sha } = await seeded();
     const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
-    const withdrawn = (await (await submit({ ...env, INTAKE_WITHDRAWN_SOURCES: 'cpsc-recalls' }, token, notices)).json()) as { accepted: number; results: Array<{ status: string }> };
-    expect(withdrawn).toMatchObject({ accepted: 0, results: [{ status: 'source_not_allowed' }] });
+    // A withdrawn source is refused as retryable, before anything is written, so the collector keeps the upload.
+    const key = 'e'.repeat(64);
+    const withdrawn = await submit({ ...env, INTAKE_WITHDRAWN_SOURCES: 'cpsc-recalls' }, token, notices, key);
+    expect(withdrawn.status).toBe(503);
+    expect(await withdrawn.json()).toMatchObject({ error: { code: 'source_withdrawn' } });
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall_extracted_key').first<{ n: number }>()).toEqual({ n: 0 });
+    // Once restored, the same upload (same Idempotency-Key and body) is processed and accepted.
+    expect(await (await submit(env, token, notices, key)).json()).toMatchObject({ accepted: 1 });
+    await env.DB.prepare('DELETE FROM product_recall_extracted_key').run();
     const killed = await submit({ ...env, PRODUCT_RECALLS_KILL_SWITCH: '1' }, token, notices);
     expect(killed.status).toBe(503);
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall_extracted_key').first<{ n: number }>()).toEqual({ n: 0 });

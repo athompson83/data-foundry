@@ -137,7 +137,7 @@ Three variables in `wrangler.toml` gate it. All ship closed:
 | --- | --- |
 | `COLLECTOR_INTAKE_OPEN` | `"1"` accepts submissions at `POST /v1/intake/product-recalls/identifiers`; otherwise 503 `intake_closed` |
 | `EXTRACTED_IDENTIFIERS_OPEN` | `"1"` serves accepted candidates (`extracted_identifiers`, lookup kind `extracted_model`). Set only when the held-out result meets `apps/local-collector/benchmark/QUALITY_BAR.md` |
-| `INTAKE_WITHDRAWN_SOURCES` | comma-separated source keys (e.g. `cpsc-recalls`) whose submissions are refused, independent of credentials |
+| `INTAKE_WITHDRAWN_SOURCES` | comma-separated source keys (e.g. `cpsc-recalls`) whose submissions are refused (503 `source_withdrawn`, retryable: the collector keeps them queued and resubmits them once the source is removed from the list), independent of credentials |
 
 `PRODUCT_RECALLS_KILL_SWITCH = "1"` also refuses every submission and hides every extracted identifier.
 

@@ -47,7 +47,8 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
    - The credential is minted and revoked by an operator through `/admin/ingest-credentials`. It is scoped to
      listed sources, cannot read data, and is neither a customer key nor the admin token.
    - Submissions are refused when `COLLECTOR_INTAKE_OPEN` is not `"1"`, when the dataset kill switch is set, or
-     when the source is listed in `INTAKE_WITHDRAWN_SOURCES`.
+     when the source is listed in `INTAKE_WITHDRAWN_SOURCES`. All three are retryable refusals (503) made before
+     anything is written, so the collector keeps the upload queued and resubmits it once the hold is lifted.
    - The submitted `raw_sha256` must equal the stored record's. The record is re-read from R2 and its digest
      verified; the checked text is never client-supplied.
    - Codes the agency parser already indexes are reported as duplicates. Everything else is inserted idempotently,

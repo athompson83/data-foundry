@@ -431,6 +431,11 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   }
   const { extractor, notices } = parseBody(body);
   const withdrawn = withdrawnSources(env);
+  // A withdrawn source is a temporary operator hold, not a verdict on the candidates: refuse the whole request as
+  // retryable (like the dataset kill switch), before anything is written, so the collector keeps the upload queued
+  // and resubmits it once the source is restored.
+  const held = notices.map((notice) => sourceOf(notice.recall_id)).find((source) => source !== null && withdrawn.has(source));
+  if (held) throw new IntakeRefused(503, 'source_withdrawn', `Submissions for ${held} are withdrawn for now; retry later.`);
   const now = new Date().toISOString();
   const results: NoticeResult[] = [];
   for (const notice of notices) {
