@@ -235,8 +235,17 @@ CODE_TOKEN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.ASC
 
 
 def _has_code(text: str) -> bool:
-    # The token grammar the rules accept (letters, digits, . - / # _), with a digit and a key of 3 or more.
-    return any(re.search(r"[0-9]", token) and len(model_key(token)) >= 3 for token in CODE_TOKEN.findall(text))
+    """A code-shaped value: the rules' grammar (letters, digits, . - / # _, and up to two single spaces, as SHAPE
+    allows), with a digit and a key of 3 or more. Runs of up to three adjacent tokens are tried, so "AB 12" counts."""
+    tokens = [(match.start(), match.end()) for match in CODE_TOKEN.finditer(text)]
+    for i in range(len(tokens)):
+        for j in range(i, min(i + 3, len(tokens))):
+            if j > i and text[tokens[j - 1][1]:tokens[j][0]] != " ":
+                break
+            value = text[tokens[i][0]:tokens[j][1]]
+            if re.search(r"[0-9]", value) and len(model_key(value)) >= 3 and SHAPE.match(value):
+                return True
+    return False
 
 
 def worth_extracting(record: object) -> bool:

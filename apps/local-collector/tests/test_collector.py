@@ -1459,3 +1459,12 @@ class CodexRegressionsRound23(unittest.TestCase):
                 self.assertTrue(collector.adopt_runtime(extract.BENCHMARKED_RUNTIME))
                 self.assertIsNone(state.cursor(TASK, "backfill_done"))
                 self.assertEqual(collector.queue_documents([notice]), 1)
+
+
+class CodexRegressionsRound24(unittest.TestCase):
+    def test_the_prefilter_recognises_space_separated_codes_the_rules_accept(self):
+        text = "Model number AB 12 is affected."
+        self.assertTrue(validate.decide(text, "AB 12", "Description").ok)
+        self.assertTrue(worth_extracting({"Title": "Lamps recalled", "Description": text, "Products": []}))
+        # Still skipped: a label with no code-shaped value at all.
+        self.assertFalse(worth_extracting({"Title": "Lamps recalled", "Description": "Model lamps can overheat.", "Products": []}))

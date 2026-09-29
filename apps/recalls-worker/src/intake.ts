@@ -44,7 +44,7 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = '76efd9668d421b40fb6b4b12867d50845315ba37a30b2a004e9bdf8e68a241ca';
+export const EXTRACTION_BEHAVIOUR_SHA256 = 'b8faf91988e5bbffaefc3e966f94fee6c1f8fe85fafe02160c364ea7914b177a';
 
 export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly runtime: string; readonly benchmark: string }> = [
   {
@@ -56,7 +56,7 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: '76efd9668d421b40fb6b4b12867d50845315ba37a30b2a004e9bdf8e68a241ca',
+    behaviourSha256: 'b8faf91988e5bbffaefc3e966f94fee6c1f8fe85fafe02160c364ea7914b177a',
     // The inference runtime the benchmark ran on (RESULTS.md, "ollama"): another release is another build.
     runtime: 'ollama/0.34.4',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
@@ -315,13 +315,19 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     if (!stored) throw reservationLost();
     return { status: 200, body: response };
   } catch (error) {
-    // While the reservation is still ours, undo the candidates this request wrote and release the reservation, so no
-    // row outlives a failed submission and a retry of the same payload starts clean. A request that lost its
-    // reservation leaves both to the retry that took it over, whose response accounts for those rows.
-    await env.DB.batch([
-      env.DB.prepare('DELETE FROM product_recall_extracted_key WHERE submission_id = ? AND EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL)').bind(reservation.id, reservation.id, reservation.lease),
-      env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL').bind(reservation.id, reservation.lease),
-    ]);
+    // While the reservation is still ours, it becomes the audit record of a failed submission: it keeps accounting for
+    // the candidates it wrote (never deleted, since a concurrent submission may already have replayed them), and it
+    // moves off the Idempotency-Key so a retry of the same payload is processed afresh. A request that lost its
+    // reservation leaves it to the retry that took it over, whose response accounts for those rows.
+    const failure = JSON.stringify({ failed: true, error: error instanceof IntakeRefused ? error.code : 'internal_error' });
+    await env.DB.prepare(
+      `UPDATE extraction_submission SET idempotency_key = idempotency_key || '#failed:' || lease, response = ?,
+         accepted = (SELECT count(*) FROM product_recall_extracted_key WHERE submission_id = extraction_submission.id),
+         items = (SELECT count(*) FROM product_recall_extracted_key WHERE submission_id = extraction_submission.id)
+       WHERE id = ? AND lease = ? AND response IS NULL`,
+    )
+      .bind(failure, reservation.id, reservation.lease)
+      .run();
     throw error;
   }
 }

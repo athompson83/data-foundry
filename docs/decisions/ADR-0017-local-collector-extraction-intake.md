@@ -58,8 +58,9 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      being processed answers 503 so the client retries. The owning request refreshes its reservation before each
      notice and holds a random lease; a retry may take over only a reservation left unrefreshed for 120 s, and then
      replaces the lease, after which the earlier request can write neither candidates nor the response. Each row
-     records the submission that wrote it; a submission that fails part-way removes its rows with its reservation,
-     so every stored candidate is accounted for by a completed submission.
+     records the submission that wrote it; a submission that fails part-way is kept as a failed audit record (moved
+     off its Idempotency-Key, so a retry is processed afresh), and its rows are never deleted, since a concurrent
+     submission may already have replayed them.
 4. **Publication is a separate gate.**
    - Accepted candidates are served only while `EXTRACTED_IDENTIFIERS_OPEN` is `"1"`, and only against each
      notice's current bytes.

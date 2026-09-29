@@ -394,10 +394,16 @@ describe('publication of extracted identifiers', () => {
     expect(await served()).toEqual([expect.objectContaining({ value: 'SA904', runtime: 'ollama/0.34.4' })]);
   });
 
-  it('a submission that fails part-way keeps none of the candidates it wrote, so a retry accepts it afresh', async () => {
-    const { env, token, sha } = await seeded();
+  it('a submission that fails part-way stays accounted for, and never removes a row another submission relies on', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const notices = [
+      { recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] },
+      { recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[3]] },
+    ];
+    const other = await sha256Hex('concurrent');
     let reads = 0;
-    // The first notice's evidence reads; the second's read fails (an unreadable R2 object).
+    // The first notice's evidence reads. Before the second's read fails (an unreadable R2 object), another
+    // submission of the same candidate completes, replaying the row the first request wrote.
     const failing: Env = {
       ...env,
       RAW_ARTIFACTS: new Proxy(env.RAW_ARTIFACTS, {
@@ -405,23 +411,28 @@ describe('publication of extracted identifiers', () => {
           if (prop !== 'get') return Reflect.get(target, prop, receiver) as unknown;
           return async (...args: Parameters<Env['RAW_ARTIFACTS']['get']>) => {
             reads += 1;
-            if (reads > 1) throw new Error('R2 read failed');
+            if (reads === 2) {
+              expect(await (await submit(env, token, [notices[0]], other)).json()).toMatchObject({ accepted: 0, replayed: 1 });
+              throw new Error('R2 read failed');
+            }
             return target.get(...args);
           };
         },
       }),
     };
-    const notices = [
-      { recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] },
-      { recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[3]] },
-    ];
     const key = await sha256Hex('partial');
     expect((await submit(failing, token, notices, key)).status).toBe(500);
-    expect((await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n).toBe(0);
-    expect((await env.DB.prepare('SELECT count(*) AS n FROM extraction_submission').first<{ n: number }>())?.n).toBe(0);
-    // The retry is accounted for in full: the candidate the failed attempt wrote is accepted again, not replayed.
-    expect(await (await submit(env, token, notices, key)).json()).toMatchObject({ accepted: 1, replayed: 0 });
-    expect(await env.DB.prepare('SELECT count(DISTINCT submission_id) AS n FROM product_recall_extracted_key').first()).toEqual({ n: 1 });
+    // The row stays: the completed concurrent submission reported it as replayed.
+    const apiKey = await customerKey(env);
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
+    // The failed request is kept as an audit record accounting for the row it wrote, off the Idempotency-Key.
+    const failed = await env.DB.prepare("SELECT idempotency_key, accepted, response FROM extraction_submission WHERE idempotency_key LIKE ?").bind(`${key}#failed:%`).first<{ accepted: number; response: string }>();
+    expect(failed).toMatchObject({ accepted: 1 });
+    expect(JSON.parse(failed?.response ?? '{}')).toMatchObject({ failed: true });
+    // A retry of the same payload is processed afresh, not answered with the failure.
+    expect(await (await submit(env, token, notices, key)).json()).toMatchObject({ accepted: 0, replayed: 1 });
+    expect((await env.DB.prepare('SELECT count(*) AS n FROM product_recall_extracted_key').first<{ n: number }>())?.n).toBe(1);
   });
 
   it('a request whose stale reservation was taken over by a retry commits nothing more', async () => {

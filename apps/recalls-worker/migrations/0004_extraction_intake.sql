@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
   -- Publication requires both to be the benchmarked one.
   rules_sha256      TEXT NOT NULL,
   credential_id     TEXT NOT NULL,
-  -- The extraction_submission that wrote the row. A submission that fails removes the rows it wrote, so every row
-  -- is accounted for by a completed submission.
+  -- The extraction_submission that wrote the row. A submission that fails is kept as a failed audit record (its
+  -- key suffixed '#failed:<lease>', its response {"failed":true,…}), so every row is accounted for by a submission.
   submission_id     INTEGER NOT NULL,
   -- accepted: passed every server check; withdrawn: removed by an operator (reversible audit trail, never deleted).
   status            TEXT NOT NULL CHECK (status IN ('accepted', 'withdrawn')),
