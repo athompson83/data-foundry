@@ -1,0 +1,380 @@
+[
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/ewhc/scco/2026/2470",
+  "title": "R v Wandel",
+  "tna_ncn_in_feed": "[2026] EWHC 2470 (SCCO)",
+  "chars": 22591,
+  "own_nc_in_text": true,
+  "neutral_cites": [
+   "[2026] EWHC 2470"
+  ],
+  "reporter_cites": [],
+  "n_statute": 2,
+  "n_section": 29,
+  "docket_like": [
+   "33JJ2823524",
+   "SC-2026-CRI-000056"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/ewhc/admin/2026/2406",
+  "title": "King Media Limited v Secretary of State for Housing, Communities and Local Government & Anor",
+  "tna_ncn_in_feed": "[2026] EWHC 2406 (Admin)",
+  "chars": 80594,
+  "own_nc_in_text": true,
+  "neutral_cites": [
+   "[2017] EWCA Civ 1643",
+   "[2019] EWHC 489",
+   "[2021] EWHC 1286",
+   "[2022] EWHC 2621",
+   "[2026] EWCA Civ 829",
+   "[2026] EWHC 2406",
+   "[2026] UKSC 30"
+  ],
+  "reporter_cites": [
+   "[2001] 2 AC 532",
+   "[2004] 1 WLR 1953",
+   "[2005] 2 AC 68",
+   "[2007] 1 AC 100",
+   "[2007] 1 WLR 1420",
+   "[2007] 1 WLR 2067",
+   "[2015] AC 945",
+   "[2018] 1 WLR 1022",
+   "[2021] AC 765",
+   "[2022] AC 408"
+  ],
+  "n_statute": 4,
+  "n_section": 30,
+  "docket_like": [
+   "AC-2025-LON-001382"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.jtydp24s",
+  "title": "SY v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 19199,
+  "own_nc_in_text": null,
+  "neutral_cites": [],
+  "reporter_cites": [],
+  "n_statute": 3,
+  "n_section": 2,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.s7vb3qn4",
+  "title": "AH (Iran) v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 11007,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2011] UKUT 36",
+   "[2018] UKUT 430",
+   "[2022] UKUT 00023",
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 3,
+  "n_section": 2,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.qr8j3tn2",
+  "title": "RM v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 25528,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2011] UKUT 36",
+   "[2015] EWCA Civ 541",
+   "[2016] EWCA Civ 813",
+   "[2016] UKUT 308",
+   "[2018] EWCA Civ 932",
+   "[2018] UKUT 430",
+   "[2022] UKUT 110",
+   "[2022] UKUT 23",
+   "[2026] UKUT 150"
+  ],
+  "reporter_cites": [],
+  "n_statute": 3,
+  "n_section": 19,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.2v9mghq4",
+  "title": "H N v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 28826,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2017] UKUT 491",
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 3,
+  "n_section": 3,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.t6n2nv3m",
+  "title": "AS v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 31298,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2006] UKHL 5",
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [
+   "[2001] 1 AC 489"
+  ],
+  "n_statute": 3,
+  "n_section": 9,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/ukut/lc/2026/363",
+  "title": "Tariq Khuja & Anor v Cherwell District Council",
+  "tna_ncn_in_feed": "[2026] UKUT 363 (LC)",
+  "chars": 28910,
+  "own_nc_in_text": true,
+  "neutral_cites": [
+   "[2020] EWCA Crim 1234",
+   "[2021] EWCA Civ 20",
+   "[2026] UKUT 363"
+  ],
+  "reporter_cites": [
+   "[1996] 1 WLR 970",
+   "[2008] ICR 96",
+   "[2009] 1 WLR 1"
+  ],
+  "n_statute": 4,
+  "n_section": 24,
+  "docket_like": [
+   "LC-2026-000003",
+   "N"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.m2gpkzxz",
+  "title": "YK v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 23871,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 2,
+  "n_section": 3,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/ukftt/grc/2026/1344",
+  "title": "Desmond Fitzpatrick v The Information Commissioner",
+  "tna_ncn_in_feed": "[2026] UKFTT 1344 (GRC)",
+  "chars": 22831,
+  "own_nc_in_text": true,
+  "neutral_cites": [
+   "[2026] UKFTT 01344",
+   "[2026] UKFTT 1344"
+  ],
+  "reporter_cites": [],
+  "n_statute": 3,
+  "n_section": 42,
+  "docket_like": [
+   "FT/EA/2026/0253/GDPR"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/eat/2026/149",
+  "title": "KP McConnell v WM Morrisons Supermarkets Ltd",
+  "tna_ncn_in_feed": "[2026] EAT 149",
+  "chars": 37041,
+  "own_nc_in_text": true,
+  "neutral_cites": [
+   "[2003] UKHL 11",
+   "[2008] EWCA Civ 885",
+   "[2014] EWCA Civ 449",
+   "[2017] UKSC 27",
+   "[2020] EWCA Civ 112",
+   "[2022] EAT 42",
+   "[2026] EAT 149"
+  ],
+  "reporter_cites": [
+   "[1995] IRLR 633",
+   "[2003] ICR 337",
+   "[2004] IRLR 763",
+   "[2008] ICR 218",
+   "[2009] ICR 133",
+   "[2014] ICR 920",
+   "[2017] 1 WLR 1343",
+   "[2020] ICR 1204",
+   "[2022] ICR 925"
+  ],
+  "n_statute": 2,
+  "n_section": 14,
+  "docket_like": [
+   "EA-2024-000415-TH"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.qr82ftn2",
+  "title": "KK (Namibia) v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 14571,
+  "own_nc_in_text": null,
+  "neutral_cites": [],
+  "reporter_cites": [
+   "[1999] 2 AC 629",
+   "[2000] 3 All ER 449"
+  ],
+  "n_statute": 2,
+  "n_section": 1,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.zhk5yxcn",
+  "title": "Raeda Alothman & Anor v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 17851,
+  "own_nc_in_text": null,
+  "neutral_cites": [],
+  "reporter_cites": [],
+  "n_statute": 2,
+  "n_section": 15,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.ynqgw9vg",
+  "title": "NC v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 53533,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2012] UKSC 38",
+   "[2016] EWCA Civ 813",
+   "[2017] UKUT 491",
+   "[2024] UKUT 00028",
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 5,
+  "n_section": 18,
+  "docket_like": [
+   "378/2022",
+   "164/2026"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.9ctg3s87",
+  "title": "AG (Albania) v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 42498,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2016] UKUT 92",
+   "[2026] UKUT 315"
+  ],
+  "reporter_cites": [],
+  "n_statute": 4,
+  "n_section": 12,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.t6n23v3m",
+  "title": "HZ v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 40452,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 1,
+  "n_section": 7,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/ewca/civ/2026/1212",
+  "title": "Gary Jones v Persons Unknown",
+  "tna_ncn_in_feed": "[2026] EWCA Civ 1212",
+  "chars": 116127,
+  "own_nc_in_text": true,
+  "neutral_cites": [
+   "[2007] EWHC 3179",
+   "[2013] EWHC 2880",
+   "[2015] EWHC 1013",
+   "[2017] EWCA Civ 1768",
+   "[2017] UKSC 29",
+   "[2018] EWCA Civ 879",
+   "[2019] EWHC 3424",
+   "[2020] EWHC 679",
+   "[2020] UKPC 23",
+   "[2022] EWHC 2543",
+   "[2022] EWHC 2600",
+   "[2023] EWHC 1229",
+   "[2023] EWHC 2108",
+   "[2025] EWHC 1823",
+   "[2025] UKSC 36",
+   "[2026] EWCA Civ 1212"
+  ],
+  "reporter_cites": [
+   "[1964] 2 QB 587",
+   "[1976] AC 443",
+   "[1982] Ch 204",
+   "[2018] 1 WLR 738",
+   "[2018] AC 275",
+   "[2023] 1 WLR 4358",
+   "[2026] AC 50"
+  ],
+  "n_statute": 4,
+  "n_section": 39,
+  "docket_like": [
+   "CA-2025-001599"
+  ]
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.pm3v95k5",
+  "title": "SA v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 17052,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2009] EWCA Civ 40",
+   "[2017] UKUT 00491",
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 2,
+  "n_section": 11,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.xyb45gx6",
+  "title": "PO v The Secretary of State for the Home Department",
+  "tna_ncn_in_feed": null,
+  "chars": 29810,
+  "own_nc_in_text": null,
+  "neutral_cites": [
+   "[2017] UKUT 491",
+   "[2024] UKUT 00100"
+  ],
+  "reporter_cites": [],
+  "n_statute": 3,
+  "n_section": 6,
+  "docket_like": []
+ },
+ {
+  "link": "https://caselaw.nationalarchives.gov.uk/tna.vpc2t8np",
+  "title": "Zoha Ayman v Entry Clearance Officer",
+  "tna_ncn_in_feed": null,
+  "chars": 20480,
+  "own_nc_in_text": null,
+  "neutral_cites": [],
+  "reporter_cites": [],
+  "n_statute": 2,
+  "n_section": 10,
+  "docket_like": []
+ }
+]

@@ -1,0 +1,12 @@
+accident rows 275067
+oldest accident 20000101 newest 20260922
+distinct document_no 275067 distinct mine_id 13538
+narrative non-empty 275065 / 275067 avg len 188.85568865540873 max 610
+by year tail [('2023', 6093), ('2024', 5991), ('2025', 5602), ('2026', 4024)]
+degree fatal 1213
+newest doc rows [('220262660014', '09/21/2026'), ('220262660019', '09/22/2026'), ('220262660029', '09/22/2026')]
+mines rows 92028 cols ['MINE_ID', 'CURRENT_MINE_NAME', 'COAL_METAL_IND', 'CURRENT_MINE_TYPE', 'CURRENT_MINE_STATUS', 'CURRENT_STATUS_DT', 'CURRENT_CONTROLLER_ID', 'CURRENT_CONTROLLER_NAME', 'CURRENT_OPERATOR_ID', 'CURRENT_OPERATOR_NAME', 'STATE', 'BOM_STATE_CD']
+JOIN declared accidents.MINE_ID in Mines: 275067 / 275067
+sample20 {'age': 0, 'body_kw': 18, 'equip_model_in_text': 1, 'has_equip_model_field': 7, 'model_regex': 0, 'n': 20}
+all narratives {'age': 27, 'body_kw': 205118, 'equip_model_in_text': 5329, 'has_equip_model_field': 109298, 'model_regex': 5032, 'n': 275065}
+narrative body kw agrees with structured body part (sample20): 13 /20

@@ -1,0 +1,1 @@
+{"jsonapi":{"version":"1.0","meta":{"links":{"self":{"href":"http:\/\/jsonapi.org\/format\/1.0\/"}}}},"data":[],"links":{"node--psa_recall":{"href":"https:\/\/www.productsafety.gov.au\/jsonapi\/node\/psa_recall"},"self":{"href":"https:\/\/www.productsafety.gov.au\/jsonapi"}}}

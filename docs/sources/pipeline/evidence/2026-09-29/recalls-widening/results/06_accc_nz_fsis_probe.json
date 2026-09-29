@@ -1,0 +1,42 @@
+{
+ "accc_jsonapi": {
+  "url": "https://www.productsafety.gov.au/jsonapi",
+  "status": 200,
+  "bytes": 276
+ },
+ "accc_sitemap": {
+  "url": "https://www.productsafety.gov.au/sitemap.xml",
+  "status": 404,
+  "bytes": 0
+ },
+ "accc_page2": {
+  "url": "https://www.productsafety.gov.au/search-consumer-product-recalls?page=2",
+  "status": 200,
+  "bytes": 113958
+ },
+ "nz_sm1": {
+  "url": "https://www.productsafety.govt.nz/sitemap.xml/sitemap/SilverStripe-CMS-Model-SiteTree/1",
+  "status": 200,
+  "bytes": 294303
+ },
+ "nz_sm2": {
+  "url": "https://www.productsafety.govt.nz/sitemap.xml/sitemap/SilverStripe-CMS-Model-SiteTree/2",
+  "status": 200,
+  "bytes": 202926
+ },
+ "nz_recalls": {
+  "url": "https://www.productsafety.govt.nz/recalls",
+  "status": "<urlopen error [Errno 104] Connection reset by peer>",
+  "bytes": 0
+ },
+ "datagovau": {
+  "url": "https://data.gov.au/data/api/3/action/package_search?q=product+recalls+accc&rows=5",
+  "status": 200,
+  "bytes": 14228
+ },
+ "fsis_alt": {
+  "url": "https://www.fsis.usda.gov/science-data/developer-resources/recall-api",
+  "status": 403,
+  "bytes": 0
+ }
+}

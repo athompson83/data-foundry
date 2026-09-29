@@ -1,0 +1,4 @@
+Measured 2026-09-29. Verbatim terms:
+govinfo.gov/about/policies: "The intent of the section is to place in the public domain all work of the United States Government"
+ad.easa.europa.eu/disclaimer: "Reproduction is authorised, provided the source is acknowledged, save where otherwise stated."
+EASA cited-AD resolution: 302 redirect to <id>R1 counts as resolved (2025-0051, 2026-0095); 2026-0172 redirects to /ad/ (unresolved). Strict-200: 36/40; with R-revision redirects: 38/40 (2026-0172 unresolved, 2026-0173 see report).

@@ -27,3 +27,13 @@ def gtins(s):
         for g in re.findall(r'(?<!\d)(\d{14}|\d{13}|\d{12}|\d{8})(?!\d)', re.sub(r'(?<=\d)[ -](?=\d)', '', tok)):
             if gs1_valid(g): out.add(g.zfill(14))
     return out
+def gtins_fused(s):
+    """gtins() plus recovery of several codes printed back-to-back with no separator: a digit run whose length is a
+    multiple of 13 (or 12, 14, 8) is cut into equal chunks; a chunk counts only if its GS1 check digit is valid."""
+    out = set(gtins(s))
+    for run in re.findall(r'(?<!\d)\d{16,}(?!\d)', re.sub(r'(?<=\d)[ -](?=\d)', '', s or '')):
+        for w in (13, 14, 12, 8):
+            if len(run) % w == 0:
+                ch = [run[i:i+w] for i in range(0, len(run), w)]
+                if all(gs1_valid(c) for c in ch): out |= {c.zfill(14) for c in ch}; break
+    return out

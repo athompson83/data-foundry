@@ -1,0 +1,226 @@
+{
+ "all_2025_01_to_2026_09": {
+  "label": "all",
+  "n": 7368,
+  "brand_present": 5781,
+  "model_present": 4955,
+  "batch_present": 2318,
+  "barcode_field_present": 4368,
+  "barcode_checkdigit_valid_gtin": 3808,
+  "hazard_riskType": 7368,
+  "level": 7368,
+  "notifying_country": 7368,
+  "origin_country": 7368,
+  "url_recall": 893,
+  "company_recall_code": 675,
+  "measures_parseable": 7368,
+  "cites_cpsc_or_hc_or_us_in_text": 0,
+  "cites_other_SR_case_in_text": 0,
+  "has_pictures(excluded)": 7366
+ },
+ "latest_8_weeks": {
+  "label": "latest 8 weeks",
+  "n": 488,
+  "brand_present": 369,
+  "model_present": 407,
+  "batch_present": 111,
+  "barcode_field_present": 272,
+  "barcode_checkdigit_valid_gtin": 233,
+  "hazard_riskType": 488,
+  "level": 488,
+  "notifying_country": 488,
+  "origin_country": 488,
+  "url_recall": 53,
+  "company_recall_code": 50,
+  "measures_parseable": 488,
+  "cites_cpsc_or_hc_or_us_in_text": 0,
+  "cites_other_SR_case_in_text": 0,
+  "has_pictures(excluded)": 488
+ },
+ "countries": [
+  [
+   "Italy",
+   1506
+  ],
+  [
+   "France",
+   876
+  ],
+  [
+   "Germany",
+   833
+  ],
+  [
+   "United Kingdom in respect of Northern Ireland",
+   700
+  ],
+  [
+   "Czechia",
+   547
+  ],
+  [
+   "Sweden",
+   513
+  ],
+  [
+   "Hungary",
+   495
+  ],
+  [
+   "Poland",
+   285
+  ]
+ ],
+ "levels": {
+  "Serious risk": 7083,
+  "Other types of alerts": 21,
+  "Other risk levels": 264
+ },
+ "risk_types": [
+  [
+   "Chemical",
+   3173
+  ],
+  [
+   "Injuries",
+   879
+  ],
+  [
+   "Electric shock",
+   683
+  ],
+  [
+   "Choking",
+   593
+  ],
+  [
+   "Fire",
+   408
+  ],
+  [
+   "Environment",
+   370
+  ],
+  [
+   "Chemical, Environment",
+   126
+  ],
+  [
+   "Electric shock, Fire",
+   118
+  ],
+  [
+   "Burns",
+   90
+  ],
+  [
+   "Chemical, Choking",
+   79
+  ],
+  [
+   "Suffocation",
+   72
+  ],
+  [
+   "Health risk / other",
+   66
+  ]
+ ],
+ "categories": [
+  [
+   "Cosmetics",
+   2221
+  ],
+  [
+   "Toys",
+   1236
+  ],
+  [
+   "Electrical appliances and equipment",
+   1001
+  ],
+  [
+   "Motor vehicles",
+   737
+  ],
+  [
+   "Chemical products",
+   341
+  ],
+  [
+   "Clothing, textiles and fashion items",
+   215
+  ],
+  [
+   "Childcare articles and children's equipment",
+   201
+  ],
+  [
+   "Machinery",
+   195
+  ],
+  [
+   "Lighting chains",
+   182
+  ],
+  [
+   "Hobby/sports equipment",
+   179
+  ],
+  [
+   "Jewellery",
+   156
+  ],
+  [
+   "Protective equipment",
+   117
+  ]
+ ],
+ "measures_types": [
+  [
+   "Withdrawal of the product from the market",
+   2450
+  ],
+  [
+   "Recall of the product from end users",
+   2423
+  ],
+  [
+   "Ban on the marketing of the product and any accompanying measures",
+   2096
+  ],
+  [
+   "Removal of this product listing by the online marketplace",
+   1135
+  ],
+  [
+   "Warning consumers of the risks",
+   694
+  ],
+  [
+   "Import rejected at border",
+   681
+  ],
+  [
+   "Destruction of the product",
+   652
+  ],
+  [
+   "Stop of sales",
+   278
+  ]
+ ],
+ "duplicate_case_numbers": 0,
+ "sample_barcode_values_invalid": [
+  "7802694520",
+  "805177248819",
+  "8004830291389",
+  "80157001529068015700152937801570015295180157001530408015700159240",
+  "5902694000421",
+  "80572065809688057206580975",
+  "80572065803198057206580340",
+  "80572065800678057206580081",
+  "8057206580883805720658089080572065809068057206580937",
+  "805720658015980572065801668057206580173805720658027280572065802898057206580302"
+ ]
+}

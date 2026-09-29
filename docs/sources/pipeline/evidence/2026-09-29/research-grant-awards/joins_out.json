@@ -1,0 +1,492 @@
+{
+ "J1_nsf_to_nih_uei": [
+  {
+   "nsf_awardee": "University of Nebraska-Lincoln",
+   "nsf_uei": "HTQ6K6NJFHA6",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "University of California-Los Angeles",
+   "nsf_uei": "RN64EPNH8JC6",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "Rutgers University New Brunswick",
+   "nsf_uei": "M1LVPE5GLSD9",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "University of Georgia Research Foundation Inc",
+   "nsf_uei": "NMJHD63STRC5",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "Haverford College",
+   "nsf_uei": "QAP9NNDEWGZ8",
+   "nih_projects_by_name": 40,
+   "nih_ueis_seen": [
+    "QAP9NNDEWGZ8"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "University of Rochester",
+   "nsf_uei": "F27KDXZMF9Y8",
+   "nih_projects_by_name": 20635,
+   "nih_ueis_seen": [
+    "F27KDXZMF9Y8"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "University of Alabama at Birmingham",
+   "nsf_uei": "YND4PLMC9AN7",
+   "nih_projects_by_name": 28787,
+   "nih_ueis_seen": [
+    "YND4PLMC9AN7"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "Michigan Technological University",
+   "nsf_uei": "GKMSN3DA6P91",
+   "nih_projects_by_name": 185,
+   "nih_ueis_seen": [
+    "GKMSN3DA6P91"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "SUNY College of Technology Farmingdale",
+   "nsf_uei": "NK5CPKU3K7T8",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "Arizona State University",
+   "nsf_uei": "NTLHJXM55KZ6",
+   "nih_projects_by_name": 4230,
+   "nih_ueis_seen": [
+    "NTLHJXM55KZ6"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "University of Massachusetts Amherst",
+   "nsf_uei": "VGJHK59NMPK9",
+   "nih_projects_by_name": 3274,
+   "nih_ueis_seen": [
+    "VGJHK59NMPK9"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "Iowa State University",
+   "nsf_uei": "DQDBM7FGJPC5",
+   "nih_projects_by_name": 1936,
+   "nih_ueis_seen": [
+    "DQDBM7FGJPC5"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "Washington University",
+   "nsf_uei": "L6NFUM28LQM5",
+   "nih_projects_by_name": 101964,
+   "nih_ueis_seen": [
+    "HD1WMN6945W6",
+    "L6NFUM28LQM5"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "Trustees of Boston University",
+   "nsf_uei": "THL6A6JLE1S7",
+   "nih_projects_by_name": 5,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "LINFIELD UNIVERSITY",
+   "nsf_uei": "C7U8CVQXNCB6",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "University of Oklahoma Norman Campus",
+   "nsf_uei": "EVTSTTLCEWS5",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  },
+  {
+   "nsf_awardee": "Johns Hopkins University",
+   "nsf_uei": "FTMTDMBR29C7",
+   "nih_projects_by_name": 65131,
+   "nih_ueis_seen": [
+    "FTMTDMBR29C7"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "Woods Hole Oceanographic Institution",
+   "nsf_uei": "GFKFBWG2TV98",
+   "nih_projects_by_name": 226,
+   "nih_ueis_seen": [
+    "GFKFBWG2TV98"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "University of Connecticut",
+   "nsf_uei": "WNTPS995QBM7",
+   "nih_projects_by_name": 10719,
+   "nih_ueis_seen": [
+    "H6D6JMXJXDE6",
+    "WNTPS995QBM7"
+   ],
+   "uei_match": true
+  },
+  {
+   "nsf_awardee": "San Diego State University Foundation",
+   "nsf_uei": "H59JKGFZKHL7",
+   "nih_projects_by_name": 0,
+   "nih_ueis_seen": [],
+   "uei_match": false
+  }
+ ],
+ "J1b_nih_to_nsf_uei": [
+  {
+   "nih_org": "RBHS-NEW JERSEY MEDICAL SCHOOL",
+   "nih_uei": "QHHJD3X516J9",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "DANA-FARBER CANCER INST",
+   "nih_uei": "DPMGH9MG1X67",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "INDIANA STATE DEPARTMENT OF HEALTH",
+   "nih_uei": "GXFMGZLP95D9",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "NEW YORK UNIVERSITY SCHOOL OF MEDICINE",
+   "nih_uei": "M5SZJ6VHUHN8",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "COLUMBIA UNIVERSITY HEALTH SCIENCES",
+   "nih_uei": "QHF5ZZ114M72",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "UNIVERSITY OF MIAMI SCHOOL OF MEDICINE",
+   "nih_uei": "F8THLJQSAF93",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "UNIVERSITY OF VIRGINIA",
+   "nih_uei": "JJG6HU8PA4S5",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "GEORGIA STATE DEPARTMENTOF PUBLIC HEALTH",
+   "nih_uei": "GUT1BFELPFJ1",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "BRIGHAM AND WOMEN'S HOSPITAL",
+   "nih_uei": "QN6MS4VN7BD1",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "SEATTLE CHILDREN'S HOSPITAL",
+   "nih_uei": "LMAWH591NFK5",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "STATE UNIVERSITY OF NEW YORK AT BUFFALO",
+   "nih_uei": "LMCJKRFW5R81",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "FRED HUTCHINSON CANCER CENTER",
+   "nih_uei": "TJFZLPP6NYL6",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "OHIO STATE BUREAU/WORKERS' COMPENSATION",
+   "nih_uei": "VDMKWZ9AAQR3",
+   "nsf_awards_returned": 0,
+   "uei_match": false
+  },
+  {
+   "nih_org": "LSU PENNINGTON BIOMEDICAL RESEARCH CTR",
+   "nih_uei": "MWYVQTQ32ME5",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "MONELL CHEMICAL SENSES CENTER",
+   "nih_uei": "DJCTQA1PR7Q4",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "UNIVERSITY OF CHICAGO",
+   "nih_uei": "ZUE9HKT2CLC9",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "RUTGERS BIOMEDICAL AND HEALTH SCIENCES",
+   "nih_uei": "YVVTQD8CJC79",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  },
+  {
+   "nih_org": "UNIVERSITY OF COLORADO DENVER",
+   "nih_uei": "MW8JHK6ZYEX8",
+   "nsf_awards_returned": 25,
+   "uei_match": false
+  }
+ ],
+ "J2_doi": {
+  "nsf_dois": 35,
+  "gtr_dois": 81,
+  "overlap": 0,
+  "gtr_doi_examples": [
+   "http://dx.doi.org/10.1001/jamapsychiatry.2024.0200",
+   "http://dx.doi.org/10.1002/ajmg.b.33037",
+   "http://dx.doi.org/10.1002/alz.13782"
+  ]
+ },
+ "J2b_nsfdoi_in_gtr": {
+  "matched": 0,
+  "total": 35,
+  "rows": [
+   {
+    "doi": "10.1016/j.bpj.2022.08.024",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1016/j.bpr.2023.100133",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1016/j.ohx.2024.e00552",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1016/j.ress.2023.109923",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1021/acs.jctc.1c01015",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1021/acs.jpca.1c09686",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1029/2024gl112446",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1029/2025jg009428",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1038/s41524-024-01305-7",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1039/d2lc00725h",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1080/00268976.2021.1939453",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/isvlsi61997.2024.00067",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/isvlsi65124.2025.11130318",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/mwscas60917.2024.10658771",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/tase.2024.3363624",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/tcasai.2025.3537968",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/tetc.2024.3480700",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/tii.2024.3399921",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1109/tmc.2018.2839604",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1142/s2301385024410024",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1145/3395351.3399366",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1145/3593013.3594105",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1145/3649329.3656261",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1145/3649476.3658791",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1145/3649476.3660361",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1175/jpo-d-23-0236.1",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.1186/s42055-024-00074-x",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.18697/ajfand.114.20600",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.23919/date58400.2024.10546822",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.2514/1.g007343",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.2514/6.2023-2539",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.3354/meps14567",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.3389/feduc.2021.684291",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.3389/fnins.2022.971382",
+    "gtr_total": 0,
+    "exact": false
+   },
+   {
+    "doi": "10.35459/tbp.2023.000253",
+    "gtr_total": 0,
+    "exact": false
+   }
+  ]
+ },
+ "J3_cited_grant_numbers_in_abstracts_(GtR only first 300 chars)": {
+  "NIH": {
+   "NIH": 0,
+   "NSF": 0,
+   "UKRI": 0,
+   "EU": 0,
+   "n": 20
+  },
+  "NSF": {
+   "NIH": 0,
+   "NSF": 1,
+   "UKRI": 0,
+   "EU": 0,
+   "n": 20
+  },
+  "GtR": {
+   "NIH": 0,
+   "NSF": 0,
+   "UKRI": 0,
+   "EU": 0,
+   "n": 20
+  }
+ }
+}

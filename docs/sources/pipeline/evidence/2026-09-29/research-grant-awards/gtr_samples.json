@@ -1,0 +1,1085 @@
+[
+ {
+  "id": "7AB6347B-1644-4CF6-9F4E-B5836FA4715D",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "ST/S000267/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Impact of magnetic complexity in solar and astrophysical plasmas: Dundee-Durham consortium",
+  "status": "Closed",
+  "leadFunder": "STFC",
+  "grantCategory": "Research Grant",
+  "abstract_len": 3416,
+  "techAbstract_len": 0,
+  "impact_len": 3681,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "COLLABORATION",
+   "COLLAB_ORG",
+   "DISSEMINATION",
+   "FUND",
+   "FURTHER_FUNDING",
+   "KEY_FINDING",
+   "LEAD_ORG",
+   "PI_PER",
+   "PUBLICATION",
+   "SOFTWARE_AND_TECHNICAL_PRODUCT"
+  ],
+  "abstract_head": "This project is a continuation of a successful collaboration between the researchers of the Universities of Dundee and Durham on the behaviour of complex magnetic fields in astrophysical plasmas. Magnetic fields are ubiquitous in astrophysics. Closest to home they are generated inside rotating stars",
+  "pubs": [
+   {
+    "doi": "http://dx.doi.org/10.1093/acrefore/9780190871994.013.5",
+    "pubMedId": null,
+    "title": "Oxford Research Encyclopedia of Physics"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/2041-8213/aca8ae",
+    "pubMedId": null,
+    "title": "The Imprint of Intermittent Interchange Reconnection on the Solar Wind"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ac69ed",
+    "pubMedId": null,
+    "title": "The Dynamic Structure of Coronal Hole Boundaries"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ac8eb6",
+    "pubMedId": null,
+    "title": "Evolution, Structure, and Topology of Self-generated Turbulent Reconnection Layers"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1051/0004-6361/202039182",
+    "pubMedId": null,
+    "title": "A comparison of methods for finding magnetic nulls in simulations and in situ observations of space "
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/adcd65",
+    "pubMedId": null,
+    "title": "The Sun's Open-Closed Flux Boundary and the Origin of the Slow Solar Wind"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1063/5.0107601",
+    "pubMedId": null,
+    "title": "Magnetic reconnections as the underlying cause of spontaneous generation and annihilation of three-d"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ac2e6d",
+    "pubMedId": null,
+    "title": "Spatially Separated Electron and Proton Beams in a Simulated Solar Coronal Jet"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1063/5.0059756",
+    "pubMedId": null,
+    "title": "Evolution of field line helicity in magnetic relaxation"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/abd6e6",
+    "pubMedId": null,
+    "title": "Effects of Pseudostreamer Boundary Dynamics on Heliospheric Field and Wind"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1063/5.0047033",
+    "pubMedId": null,
+    "title": "Topological constraints in the reconnection of vortex braids"
+   },
+   {
+    "doi": "http://dx.doi.org/10.48550/arxiv.2209.04492",
+    "pubMedId": null,
+    "title": "Evolution, structure and topology of self-generated turbulent reconnection layers"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1051/0004-6361/202037582",
+    "pubMedId": null,
+    "title": "Non-thermal line broadening due to braiding-induced turbulence in solar coronal loops"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1016/j.cnsns.2021.106015",
+    "pubMedId": null,
+    "title": "On self and mutual winding helicity"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ac5d5b",
+    "pubMedId": null,
+    "title": "The Dynamic Coupling of Streamers and Pseudostreamers to the Heliosphere"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1051/0004-6361/202452019",
+    "pubMedId": null,
+    "title": "Propagation of untwisting solar jets from the low-beta corona into the super-Alfv&eacute;nic wind: T"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/2041-8213/ad1934",
+    "pubMedId": null,
+    "title": "A Near-half-century Simulation of the Solar Corona"
+   },
+   {
+    "doi": "http://dx.doi.org/10.48550/arxiv.1907.11071",
+    "pubMedId": null,
+    "title": "Topological Constraints in the Reconnection of Vortex Braids"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1007/s41116-022-00032-9",
+    "pubMedId": null,
+    "title": "Magnetic reconnection: MHD theory and modelling"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ac7219",
+    "pubMedId": null,
+    "title": "Parallel Plasma Loops and the Energization of the Solar Corona"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ac1943",
+    "pubMedId": null,
+    "title": "Is Flare Ribbon Fine Structure Related to Tearing in the Flare Current Sheet?"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1007/s41116-020-00026-5",
+    "pubMedId": null,
+    "title": "The Parker problem: existence of smooth force-free fields and coronal heating"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/abec4f",
+    "pubMedId": null,
+    "title": "The Dynamic Formation of Pseudostreamers"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/ad55ca",
+    "pubMedId": null,
+    "title": "A New Field Line Tracer for the Study of Coronal Magnetic Topologies"
+   }
+  ],
+  "persons": 1,
+  "orcids": [
+   null
+  ]
+ },
+ {
+  "id": "C418B192-071A-4272-97D7-0672A4BBED95",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2611842",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Combinatorial rigidity of symmetric frameworks",
+  "status": "Closed",
+  "leadFunder": "EPSRC",
+  "grantCategory": "Studentship",
+  "abstract_len": 255,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG"
+  ],
+  "abstract_head": "This project will investigate rigidity problems for symmetric bar-joint frameworks and related structures. In particular the project aims to establish combinatorial characterisations of symmetric rigidity matroids for various geometric constraint systems.",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "03941FF5-CDD8-4E60-9949-5EDA61A13BC9",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "10003698",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "SlurryBugs - a novel bacterial approach to mitigating slurry ammonia emissions and enhancing fertiliser value",
+  "status": "Closed",
+  "leadFunder": "ISCF",
+  "grantCategory": "Collaborative R&D",
+  "abstract_len": 679,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "PARTICIPANT_ORG",
+   "PM_PER"
+  ],
+  "abstract_head": "Envirosystems has partnered with Myerscough College to deliver an 18-month lab-to-field feasibility project into a novel approach to reducing slurry ammonia emissions. This project builds on Envirosystems' 18 years' experience in the slurry inoculant market with SlurryBugs and Myerscough's world-cla",
+  "pubs": [],
+  "persons": 1,
+  "orcids": [
+   null
+  ]
+ },
+ {
+  "id": "113FC007-1575-4BE0-9578-E8C03374483C",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2858816",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Directed Evolution of EneIRED Biocatalysts for Application in Organic Synthesis",
+  "status": "Closed",
+  "leadFunder": "EPSRC",
+  "grantCategory": "Studentship",
+  "abstract_len": 827,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "STUDENT_PP_ORG"
+  ],
+  "abstract_head": "EneIREDS are a recently discovered family of enzymes that catalyse conjugate reduction/reductive amination of enones with amines. In order to expand their synthetic application it is necessary to engineer EneIREDs such that they possess broader substrate scope (enone; amine) and also higher stereose",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "6FB79013-CA6A-4E9B-B6CC-BB4C6CE36ADC",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "10031889",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "University of Aberdeen and Claxton Engineering Services Limited KTP 22_23 R1",
+  "status": "Closed",
+  "leadFunder": "Innovate UK",
+  "grantCategory": "Knowledge Transfer Partnership",
+  "abstract_len": 197,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "PARTICIPANT_ORG",
+   "PM_PER"
+  ],
+  "abstract_head": "To deploy computational modelling to optimise the deep-water cutting performance and efficiency of a novel underwater laser cutting technology for specialist Oil and Gas decommissioning operations.",
+  "pubs": [],
+  "persons": 1,
+  "orcids": [
+   null
+  ]
+ },
+ {
+  "id": "E7D9B136-F157-49BA-B3DF-764E2ED9FFB5",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2185305",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Bottom-Up Creation of an Enzyme for the Morita-Baylis-Hillman Reaction",
+  "status": "Closed",
+  "leadFunder": "COVID",
+  "grantCategory": "Studentship",
+  "abstract_len": 1757,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG"
+  ],
+  "abstract_head": "The combination of computational design and directed evolution is an attractive strategy to create enzymes with new function, that to date has delivered de novo biocatalysts for a small set of well-studied transformations. To establish 'bottom up' enzyme design as a reliable source of biocatalysts f",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "478781E5-C81B-4317-BEAD-0A872D4A8D19",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "MR/P015549/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Going beyond health related quality of life - towards a broader QALY measure for use across sectors",
+  "status": "Closed",
+  "leadFunder": "MRC",
+  "grantCategory": "Research Grant",
+  "abstract_len": 3893,
+  "techAbstract_len": 1634,
+  "impact_len": 3990,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "COI_PER",
+   "FUND",
+   "LEAD_ORG",
+   "PI_PER",
+   "PP_ORG",
+   "PUBLICATION",
+   "RESEARCH_PER"
+  ],
+  "abstract_head": "The NHS has a limited budget and so deciding to spend money on an expensive drug means less is available for other services. NICE helps the NHS by providing guidance on whether new medicines should be made available to patients based on the 'value for money' of the new treatment compared to what wil",
+  "pubs": [
+   {
+    "doi": "http://dx.doi.org/10.1007/s11136-020-02718-9",
+    "pubMedId": "33289063",
+    "title": "Criteria for item selection for a preference-based measure for use in economic evaluation."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1007/s10198-021-01306-z",
+    "pubMedId": "33909157",
+    "title": "What is the best approach to adopt for identifying the domains for a new measure of health, social c"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3390/economies7010014",
+    "pubMedId": null,
+    "title": "A Qualitative Study of the Views of Health and Social Care Decision-Makers on the Role of Wellbeing "
+   }
+  ],
+  "persons": 13,
+  "orcids": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ {
+  "id": "5E617C22-627E-49C9-81D8-889E343C7F3C",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "ES/W007029/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Power Politics and International Order in a Global Age",
+  "status": "Closed",
+  "leadFunder": "ESRC",
+  "grantCategory": "Fellowship",
+  "abstract_len": 3907,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FELLOW_PER",
+   "FUND",
+   "LEAD_ORG",
+   "PI_PER"
+  ],
+  "abstract_head": "Scholars and policymakers traditionally associate globalisation with the rise of a cooperative liberal international order (Doyle,2011; Gartzke, 2007; Ikenberry, 2001; Oneal and Russett, 1997). In recent years, however, many have noted a reversal of this trend: from Russian revanchism to the US-Chin",
+  "pubs": [],
+  "persons": 2,
+  "orcids": [
+   null,
+   null
+  ]
+ },
+ {
+  "id": "330AB422-CE9A-41C2-BE7A-5C133F674B47",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "MR/Y013328/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Elucidating type 1 conventional dendritic cell-dependent anti-tumour immune responses in brain metastases",
+  "status": "Active",
+  "leadFunder": "MRC",
+  "grantCategory": "Research Grant",
+  "abstract_len": 3894,
+  "techAbstract_len": 1988,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "COI_PER",
+   "FUND",
+   "LEAD_ORG",
+   "PI_PER",
+   "PP_ORG"
+  ],
+  "abstract_head": "Melanoma is the most aggressive form of skin cancer. Once melanoma has spread throughout the body, it is known as metastatic melanoma. At this stage melanoma becomes very difficult to treat and the standard treatment is effective only in a very small proportion of patients. In recent years new drugs",
+  "pubs": [],
+  "persons": 4,
+  "orcids": [
+   null,
+   null,
+   "0000-0002-1807-1056",
+   "0000-0002-0519-3820"
+  ]
+ },
+ {
+  "id": "4544A415-3644-4D70-8319-8A0F8657FB19",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2726660",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Revealing Electrochemical Defects in Commercial Li-ion Cathodes with 3D-DPDF",
+  "status": "Active",
+  "leadFunder": "EPSRC",
+  "grantCategory": "Studentship",
+  "abstract_len": 644,
+  "techAbstract_len": 0,
+  "impact_len": 2595,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "STUDENT_PP_ORG"
+  ],
+  "abstract_head": "This project will develop cutting-edge diffuse scattering techniques and use them on real world battery materials. Single-crystal diffuse scattering (SCDS) is unparalleled in its ability to probe &quot;hidden&quot; short-range order and dilute defects. Single-crystalline electrode particles (i.e., t",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "1C896B78-E9D2-431F-854C-981FA0C31900",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2376857",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Computational analysis of localised ignition in single and multiphase combustible mixtures Details of Project Plan including key milestones Please at",
+  "status": "Closed",
+  "leadFunder": "EPSRC",
+  "grantCategory": "Studentship",
+  "abstract_len": 478,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG"
+  ],
+  "abstract_head": "This project aims to study the ignition and subsequent propagation of premixed methane-air mixtures utilising DNS for both single phase and multi-phase flows. The project will initially focus on the ignition aspect in an attempt to address gaps in the existing literature and confirm earlier findings",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "B7FF3C8E-6267-4443-87BA-0BECDE641B84",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2883999",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Collisional Cascading: Predicting the Distribution of Objects in Low Earth Orbit based on Collisions and other Mechanisms",
+  "status": "Active",
+  "leadFunder": "STFC",
+  "grantCategory": "Studentship",
+  "abstract_len": 303,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG"
+  ],
+  "abstract_head": "Using statistical simulations of satellite, debris and object collisions in Low Earth Orbit; as well as models of Earth's atmosphere and other effects such as warming average temperatures in the lower atmosphere, to predict the long term evolution of the mass distribution of objects in Low Earth Orb",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "B0D4AB83-EB51-48FA-9A32-11D7CFDD28D4",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "MR/Y004094/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Molecular Genetic Studies of Schizophrenia: Understanding Treatment Resistance and Outcomes to Inform Precision Psychiatry.",
+  "status": "Active",
+  "leadFunder": "MRC",
+  "grantCategory": "Research Grant",
+  "abstract_len": 3716,
+  "techAbstract_len": 1909,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "COI_PER",
+   "COLLABORATION",
+   "COLLAB_ORG",
+   "DISSEMINATION",
+   "FUND",
+   "FURTHER_FUNDING",
+   "LEAD_ORG",
+   "PI_PER",
+   "PUBLICATION",
+   "RESEARCH_COI_PER"
+  ],
+  "abstract_head": "Schizophrenia (SZ) is a severe psychiatric disorder that has a profound impact on the individual and society. Over half of people with SZ have long-term psychiatric problems, 80-90% are unemployed, and life expectancy is reduced by 10-20 years. These outcomes have not changed over recent decades. Cu",
+  "pubs": [
+   {
+    "doi": "http://dx.doi.org/10.1101/2025.08.17.25333857",
+    "pubMedId": null,
+    "title": "The relationship between schizophrenia polygenic scores, blood-based proteins and psychosis diagnosi"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1101/2025.11.17.25340399",
+    "pubMedId": null,
+    "title": "Links between cognition and functioning: Examining the role of mental health in clinically ascertain"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1016/j.bpsgos.2025.100601",
+    "pubMedId": null,
+    "title": "Effects of Shared and Nonshared Schizophrenia and Bipolar Disorder Alleles on Cognition and Educatio"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1007/s00213-025-06912-w",
+    "pubMedId": "41074960",
+    "title": "Integrating genome-wide and epigenome-wide associations for antipsychotic induced extrapyramidal sid"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1192/bjp.2024.129",
+    "pubMedId": "39474930",
+    "title": "Associations of psychotic symptom dimensions with clinical and developmental variables in twin and g"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1186/s13195-024-01664-9",
+    "pubMedId": "39762974",
+    "title": "Benchmarking Alzheimer's disease prediction: personalised risk assessment using polygenic risk score"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1002/alz.13782",
+    "pubMedId": "38506636",
+    "title": "Dementias Platform UK: Bringing genetics into life."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1016/s2215-0366(25)00123-3",
+    "pubMedId": null,
+    "title": "Association between genetic liability to physical health conditions and comorbidities in individuals"
+   },
+   {
+    "doi": "http://dx.doi.org/10.2196/72256",
+    "pubMedId": "40966546",
+    "title": "Large Language Model-Supported Identification of Intellectual Disabilities in Clinical Free-Text Sum"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41380-025-02911-7",
+    "pubMedId": "39880902",
+    "title": "The genetics of neurodegenerative diseases is the genetics of age-related damage clearance failure."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41380-025-03330-4",
+    "pubMedId": "41176580",
+    "title": "Decoding the genomic symphony: unravelling brain disorders through data integration and machine lear"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1016/s2215-0366(25)00061-6",
+    "pubMedId": "40222385",
+    "title": "Recommendations for defining treatment outcomes in major psychiatric disorders using real-world data"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1002/ajmg.b.33037",
+    "pubMedId": "40530585",
+    "title": "The Role of SLC39A8.p.(Ala391Thr) in Schizophrenia Symptom Severity and Cognitive Ability: Cross-Sec"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1001/jamapsychiatry.2024.0200",
+    "pubMedId": "38536179",
+    "title": "Genetic and Phenotypic Features of Schizophrenia in the UK Biobank."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41586-024-08468-9",
+    "pubMedId": "39843750",
+    "title": "Genomics yields biological and phenotypic insights into bipolar disorder."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1101/2025.02.03.25320178",
+    "pubMedId": null,
+    "title": "Genetic liability to physical health conditions influences comorbidities in individuals with severe "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1101/2025.02.26.25322962",
+    "pubMedId": "40061341",
+    "title": "A Novel Method to Disentangle Tightly Linked Risk and Resilience Genes for Brain Disorders: Applicat"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41576-025-00843-0",
+    "pubMedId": "40355602",
+    "title": "Genomics of schizophrenia, bipolar disorder and major depressive disorder."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41537-025-00725-8",
+    "pubMedId": "41535306",
+    "title": "The relationship between schizophrenia polygenic scores, blood-based proteins and psychosis diagnosi"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1016/j.ebiom.2025.105745",
+    "pubMedId": null,
+    "title": "Antipsychotic and pharmacogenomic effects on cross-sectional symptom severity and cognitive ability "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1192/bjo.2025.10825",
+    "pubMedId": null,
+    "title": "Associations between psychotic experience dimensions and polygenic liability to schizophrenia in a l"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1371/journal.pone.0340584",
+    "pubMedId": null,
+    "title": "Genetics to Improve Outcomes in Schizophrenia (GENios): A within-case molecular genetic study protoc"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1101/2025.02.08.637219",
+    "pubMedId": null,
+    "title": "Complementary MR measures of white matter and their relation to cardiovascular health and cognition"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s44220-024-00292-4",
+    "pubMedId": "39421137",
+    "title": "Exploration of first onsets of mania, schizophrenia spectrum disorders and major depressive disorder"
+   },
+   {
+    "doi": "http://dx.doi.org/10.2196/59225",
+    "pubMedId": "39546783",
+    "title": "AI for Analyzing Mental Health Disorders Among Social Media Users: Quarter-Century Narrative Review "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41380-026-03601-8",
+    "pubMedId": null,
+    "title": "Analysis of rare coding variants in schizophrenia-associated genes and generalised cognition in the "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1093/schbul/sbae083",
+    "pubMedId": "38869145",
+    "title": "Genetic Implication of Prenatal GABAergic and Cholinergic Neuron Development in Susceptibility to Sc"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41591-024-03190-5",
+    "pubMedId": null,
+    "title": "Increased frequency of repeat expansion mutations across different populations"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1016/j.euroneuro.2023.12.007",
+    "pubMedId": "38310750",
+    "title": "Rare variants in pharmacogenes influence clozapine metabolism in individuals with schizophrenia."
+   },
+   {
+    "doi": "http://dx.doi.org/10.3389/fphar.2025.1719761",
+    "pubMedId": null,
+    "title": "Near, far, wherever you are: phenotype-related variation in pharmacogenomic effect sizes across the "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41398-024-02910-2",
+    "pubMedId": "38649377",
+    "title": "Common risk alleles for schizophrenia within the major histocompatibility complex predict white matt"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1101/2025.02.13.25322048",
+    "pubMedId": null,
+    "title": "The relationship between shared and differentiating genetic liability for schizophrenia and bipolar "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1101/2024.11.20.24317526",
+    "pubMedId": null,
+    "title": "Medication and pharmacogenomic effects on cross-sectional symptom severity and cognitive ability in "
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s41467-025-62429-y",
+    "pubMedId": null,
+    "title": "Whole-exome sequencing analysis identifies risk genes for schizophrenia"
+   }
+  ],
+  "persons": 8,
+  "orcids": [
+   "0000-0002-6980-4053",
+   "0000-0001-6845-7590",
+   "0000-0002-6168-9222",
+   null,
+   null,
+   null,
+   null,
+   null
+  ]
+ },
+ {
+  "id": "91D781DA-AC5D-4845-B1DF-15CFB95E5962",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2279392",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Combining animal and human imaging to understand inhibitory mechanisms for learning and brain plasticity",
+  "status": "Closed",
+  "leadFunder": "COVID",
+  "grantCategory": "Studentship",
+  "abstract_len": 3031,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG"
+  ],
+  "abstract_head": "PhD project strategic theme: Understanding the rules of life\n\nThe brain has the important task to select and execute the most meaningful behaviour vital for survival. It does so by selectively integrating relevant sensory information while also filtering out noise. GABA, the main inhibitory neurotra",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "9A8E1E1E-103F-4BEA-8D0E-A3B4E6555F2F",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "ST/G005222/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Harnessing the Power of B -&gt; D(Multi-body)K Decays at LHCb for a Precise Measurement of the CKM Angle Gamma",
+  "status": "Closed",
+  "leadFunder": "STFC",
+  "grantCategory": "Fellowship",
+  "abstract_len": 3989,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FELLOW_PER",
+   "FUND",
+   "LEAD_ORG",
+   "PI_PER"
+  ],
+  "abstract_head": "The universe is believed to have begun according to a cosmological model that scientists refer to as the 'Big Bang'. It describes how both time and space were created giving birth to a primordial 'fireball' that has since expanded and evolved into today's current universe. A variety of evidence has ",
+  "pubs": [],
+  "persons": 2,
+  "orcids": [
+   null,
+   null
+  ]
+ },
+ {
+  "id": "1D30B249-1E31-4D92-B0F4-DC6C79BE965B",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "2326977",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Accelerating innovation in nitrogen removal bioprocesses through the study of the emerging properties of natural microbial communities of nitrifiers.",
+  "status": "Closed",
+  "leadFunder": "EPSRC",
+  "grantCategory": "Studentship",
+  "abstract_len": 3981,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "PUBLICATION",
+   "RESEARCH_DATABASE_AND_MODEL"
+  ],
+  "abstract_head": "Brief description of the context of the research including potential impact:\nNitrogen is a fundamental constituent of any form of life: it is necessary for the synthesis of amino acids (building blocks of proteins) and nucleic acids. Although the atmosphere of Earth is composed of 78% dinitrogen (N2",
+  "pubs": [
+   {
+    "doi": "http://dx.doi.org/10.1016/j.copbio.2021.01.001",
+    "pubMedId": "33540361",
+    "title": "A framework based on fundamental biochemical principles to engineer microbial community dynamics."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1038/s43705-023-00288-8",
+    "pubMedId": "37644216",
+    "title": "Competitive and substrate limited environments drive metabolic heterogeneity for comammox Nitrospira"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1098/rsfs.2023.0008",
+    "pubMedId": "37303746",
+    "title": "Multiscale models driving hypothesis and theory-based research in microbial ecology."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1371/journal.pcbi.1010807",
+    "pubMedId": "36534694",
+    "title": "Environmental and ecological controls of the spatial distribution of microbial populations in aggreg"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1002/bit.28045",
+    "pubMedId": "35092010",
+    "title": "Biochemistry shapes growth kinetics of nitrifiers and defines their activity under specific environm"
+   }
+  ],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "F6C7B679-C9D1-4344-BD1D-558CFBF40C67",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "101130",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Allergen analysis \u2013 developing integrated approaches",
+  "status": "Closed",
+  "leadFunder": "Innovate UK",
+  "grantCategory": "Collaborative R&D",
+  "abstract_len": 239,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "PARTICIPANT_ORG"
+  ],
+  "abstract_head": "Abstracts are not currently available in GtR for all funded research. This is normally because the abstract was not required at the time of proposal submission, but may be because it included sensitive information such as personal details.",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "C6BBF182-33D6-431B-90F1-5FEBDD91A5AF",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "400081",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Vehicle Energy Recovery through an Intelligent Turbo Assist System",
+  "status": "Closed",
+  "leadFunder": "Innovate UK",
+  "grantCategory": "Collaborative R&D",
+  "abstract_len": 814,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "PARTICIPANT_ORG"
+  ],
+  "abstract_head": "The TSB-funded VERITAS project led by Caterpillar UK Engines Co. Ltd, in partnership with BorgWarner Ltd, Imperial College London and Loughborough University is developing solutions to realise powertrain-level CO2 savings. These solutions in the form of advanced diesel engine air system technologies",
+  "pubs": [],
+  "persons": 0,
+  "orcids": []
+ },
+ {
+  "id": "1803751A-BB54-4EC0-BF3A-0938B6355522",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "MR/Y021207/1",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "DARES - Data Assimilation Revolution in Space Weather Forecasting",
+  "status": "Active",
+  "leadFunder": "UKRI FLF",
+  "grantCategory": "Fellowship",
+  "abstract_len": 3658,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "COLLABORATION",
+   "COLLAB_ORG",
+   "FELLOW_PER",
+   "FUND",
+   "IMPACT_SUMMARY",
+   "LEAD_ORG",
+   "PI_PER",
+   "PP_ORG",
+   "PUBLICATION",
+   "SOFTWARE_AND_TECHNICAL_PRODUCT"
+  ],
+  "abstract_head": "With this Future Leaders Fellowship, I will lead a research team that will build the first self-consistent data assimilation (DA) and continuous verification scheme for space weather forecasting, which is critically needed to improve our physical understanding of, and preparedness for, hazardous spa",
+  "pubs": [
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.174914334.47766586/v1",
+    "pubMedId": null,
+    "title": "Using solar wind data assimilation results to drive dynamic solar wind models."
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004823",
+    "pubMedId": null,
+    "title": "Extended Lead-Time Geomagnetic Storm Forecasting With Solar Wind Ensembles and Machine Learning"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004517",
+    "pubMedId": null,
+    "title": "Can a Major Geomagnetic and Auroral Disturbance Originate From a Solar Active Region Close to the Li"
+   },
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.175553624.46922203/v1",
+    "pubMedId": null,
+    "title": "Driving dynamical inner-heliosphere models with in-situ solar-wind observations"
+   },
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.175503864.41525285/v1",
+    "pubMedId": null,
+    "title": "Coronal Mass Ejection Transit Time to Earth over the Solar Cycle"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004559",
+    "pubMedId": null,
+    "title": "Using Solar Wind Data Assimilation Results to Drive Dynamic Solar Wind Models"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004675",
+    "pubMedId": null,
+    "title": "Driving Dynamical Inner-Heliosphere Models With In Situ Solar Wind Observations"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004561",
+    "pubMedId": null,
+    "title": "Solar Transient Recognition Using Deep Learning (STRUDL) for Heliospheric Imager Data"
+   },
+   {
+    "doi": "http://dx.doi.org/10.3847/1538-4357/adb978",
+    "pubMedId": null,
+    "title": "Statistical Analysis of Comet Disconnection Events Using STEREO HI and a Data-assimilative Solar Win"
+   },
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.175503864.41525285/v2",
+    "pubMedId": null,
+    "title": "Why Coronal Mass Ejections Arrive Differently: Solar Cycle Modulation Through Solar Wind Structure"
+   },
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.174129288.84036414/v1",
+    "pubMedId": null,
+    "title": "Implications of Using Spheroidal CMEs in Solar-wind Models"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004397",
+    "pubMedId": null,
+    "title": "Implications of Using Spheroidal &quot;Cone Model&quot; CMEs in Solar-Wind Models"
+   },
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.176030854.46278665/v1",
+    "pubMedId": null,
+    "title": "The contribution of the Russell-McPherron effect to the semiannual variation in thermospheric densit"
+   },
+   {
+    "doi": "http://dx.doi.org/10.22541/essoar.175310148.82291631/v1",
+    "pubMedId": null,
+    "title": "Calibrating probabilistic solar-wind forecasts driven by the Wang-Sheeley-Arge model"
+   },
+   {
+    "doi": "http://dx.doi.org/10.1029/2025sw004614",
+    "pubMedId": null,
+    "title": "Calibrating Probabilistic Solar-Wind Forecasts Driven by the Wang-Sheeley-Arge Model"
+   }
+  ],
+  "persons": 2,
+  "orcids": [
+   "0000-0001-9876-4612",
+   "0000-0001-9876-4612"
+  ]
+ },
+ {
+  "id": "E358E381-DBC6-4C26-870E-810F56997EA9",
+  "identifiers": {
+   "identifier": [
+    {
+     "value": "10126093",
+     "type": "RCUK"
+    }
+   ]
+  },
+  "title": "Abertay University and Probat Limited KTP 24_25 R2",
+  "status": "Active",
+  "leadFunder": "Innovate UK",
+  "grantCategory": "Knowledge Transfer Partnership",
+  "abstract_len": 154,
+  "techAbstract_len": 0,
+  "impact_len": 0,
+  "start": null,
+  "end": null,
+  "created": 1788431759000,
+  "link_rels": [
+   "FUND",
+   "LEAD_ORG",
+   "PARTICIPANT_ORG",
+   "PM_PER"
+  ],
+  "abstract_head": "To develop and explore novel and innovative market applications for food and non-food products utilising established refiner conche processing technology.",
+  "pubs": [],
+  "persons": 1,
+  "orcids": [
+   null
+  ]
+ }
+]

@@ -1,9 +1,0 @@
-HTTP/1.1 200 Connection Established
-
-HTTP/1.1 403 Forbidden
-Server: Microsoft-Azure-Application-Gateway/v2
-Date: Tue, 29 Sep 2026 13:53:32 GMT
-Content-Type: text/html
-Content-Length: 179
-Connection: keep-alive
-

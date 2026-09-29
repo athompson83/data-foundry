@@ -1,0 +1,10 @@
+n 20
+id 7digit 20
+uei 12 20
+cfda 20
+abstract>50 20
+pi email 20
+has publicationResearch 12
+dois in pubs 36 ['10.1145/3649476.3658791~RACSen:', '10.1109/TCASAI.2025.3537968~Neuro-Photonix:', '10.1109/ISVLSI61997.2024.00067~Energy-Efficient', '10.1145/3649329.3656261~Lightator:', '10.1109/MWSCAS60917.2024.10658771~DECO:']
+keys ['abstractText', 'activeAwd', 'agency', 'awardAgencyCode', 'awardee', 'awardeeAddress', 'awardeeCity', 'awardeeCountryCode', 'awardeeDistrict', 'awardeeDistrictCode', 'awardeeName', 'awardeePhone', 'awardeeStateCode', 'awardeeZipCode', 'cfdaNumber', 'coPDPI', 'date', 'dirAbbr', 'divAbbr', 'estimatedTotalAmt', 'expDate', 'fundAgencyCode', 'fundProgramName', 'fundsObligated', 'fundsObligatedAmt', 'histAwd', 'id', 'initAmendmentDate', 'jrnl', 'latestAmendmentDate', 'managingPec', 'orgCodeDir', 'orgCodeDiv', 'orgLongName', 'orgLongName2', 'orgUrl', 'parentUeiNumber', 'pdPIName', 'perfAddress', 'perfCity', 'perfCountryCode', 'perfDistrict', 'perfDistrictCode', 'perfLocation', 'perfStateCode', 'perfZipCode', 'pi', 'piEmail', 'piFirstName', 'piId', 'piLastName', 'poEmail', 'poName', 'poPhone', 'primaryProgram', 'progEleCode', 'progRefCode', 'program', 'publicAccessMandate', 'publicationResearch', 'startDate', 'title', 'transType', 'ueiNumber']
+max date 12/28/2021

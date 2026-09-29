@@ -1,0 +1,7 @@
+n 20
+citation field non-empty 3 / 20 [['2018 TSPR 58'], [], [], ['2026 Ohio 3770'], ['2026 Ohio 3771'], []]
+docketNumber non-empty 20 / 20
+opinions[].cites non-empty 10 / 20
+snippet is truncated preview; max len 500
+courts {'connappct', 'ohio', 'fladistctapp', 'prsupreme', 'dcd', 'ca11'}
+dateFiled range 2026-09-29 2028-04-13 (includes future-dated 2028 record => source data anomaly)

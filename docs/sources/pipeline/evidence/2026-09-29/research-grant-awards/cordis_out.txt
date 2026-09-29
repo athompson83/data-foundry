@@ -1,0 +1,8 @@
+total HE project files 23613
+max startDate 2027-12-01 min 2021-01-01 max lastUpdate 2026-08-28 09:56:52
+status Counter({'SIGNED': 21399, 'CLOSED': 1353, 'TERMINATED': 861})
+objective present 23611 / 23613
+grantDoi present 23386 / 23613
+sample: id 9 digits 20 grantDoi 10.3030 20 objective 20 teaser 20
+orgs in sample 120 with id(PIC) 120 with vat 104 with ror 11
+org keys ['address', 'attributes', 'availableLanguages', 'contenttype', 'departmentName', 'id', 'legalName', 'rcn', 'relations', 'shortName', 'vatNumber']

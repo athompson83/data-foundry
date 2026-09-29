@@ -1,0 +1,186 @@
+[
+ {
+  "tga": "Peginterferon alfa2a",
+  "artg": "91837",
+  "fda_ndcs": [
+   "82154-0449-1",
+   "82154-0451-4"
+  ],
+  "norm": "peginterferon alfa a"
+ },
+ {
+  "tga": "hydrochlorothiazide",
+  "artg": "272662",
+  "fda_ndcs": [
+   "0071-5212-23",
+   "0591-0347-05",
+   "62135-669-90"
+  ],
+  "norm": "hydrochlorothiazide"
+ },
+ {
+  "tga": "guanfacine hydrochloride",
+  "artg": "487428",
+  "fda_ndcs": [
+   "0228-2851-11",
+   "0228-2853-11",
+   "0228-2850-11"
+  ],
+  "norm": "guanfacine"
+ },
+ {
+  "tga": "phenobarbital sodium",
+  "artg": "175471",
+  "fda_ndcs": [
+   "0603-5168-21",
+   "0603-5166-21",
+   "0603-5167-21"
+  ],
+  "norm": "phenobarbital"
+ },
+ {
+  "tga": "rivaroxaban",
+  "artg": "392322",
+  "fda_ndcs": [
+   "50458-575-01"
+  ],
+  "norm": "rivaroxaban"
+ },
+ {
+  "tga": "pemetrexed disodium",
+  "artg": "222419",
+  "fda_ndcs": [
+   "0781-3519-90",
+   "0781-3518-76"
+  ],
+  "norm": "pemetrexed disodium"
+ },
+ {
+  "tga": "fentanyl citrate",
+  "artg": "218437",
+  "fda_ndcs": [
+   "63323-806-05",
+   "0409-9094-28",
+   "0641-6030-01"
+  ],
+  "norm": "fentanyl"
+ },
+ {
+  "tga": "medroxyprogesterone acetate",
+  "artg": "46534",
+  "fda_ndcs": [
+   "0009-0051-01",
+   "0009-0065-01"
+  ],
+  "norm": "medroxyprogesterone"
+ },
+ {
+  "tga": "hydroxocobalamin acetate",
+  "artg": "172663",
+  "fda_ndcs": [
+   "0591-2888-30",
+   "50633-310-11"
+  ],
+  "norm": "hydroxocobalamin"
+ },
+ {
+  "tga": "oxycodone hydrochloride",
+  "artg": "14945",
+  "fda_ndcs": [
+   "60951-700-70",
+   "60951-602-70",
+   "60951-712-70"
+  ],
+  "norm": "oxycodone"
+ },
+ {
+  "tga": "dapsone",
+  "artg": "104482",
+  "fda_ndcs": [
+   "69238-1627-6"
+  ],
+  "norm": "dapsone"
+ },
+ {
+  "tga": "lamotrigine",
+  "artg": "275002",
+  "fda_ndcs": [
+   "49884-563-11",
+   "49884-605-11",
+   "49884-604-11"
+  ],
+  "norm": "lamotrigine"
+ },
+ {
+  "tga": "voriconazole",
+  "artg": "206983",
+  "fda_ndcs": [
+   "0049-3190-01"
+  ],
+  "norm": "voriconazole"
+ },
+ {
+  "tga": "methylphenidate hydrochloride",
+  "artg": "362232",
+  "fda_ndcs": [
+   "57664-606-88",
+   "62175-312-37",
+   "50458-588-01"
+  ],
+  "norm": "methylphenidate"
+ },
+ {
+  "tga": "busulfan",
+  "artg": "210228",
+  "fda_ndcs": [
+   "67457-893-08"
+  ],
+  "norm": "busulfan"
+ },
+ {
+  "tga": "voriconazole",
+  "artg": "267013",
+  "fda_ndcs": [
+   "0049-3190-01"
+  ],
+  "norm": "voriconazole"
+ },
+ {
+  "tga": "docetaxel",
+  "artg": "209465",
+  "fda_ndcs": [
+   "50742-431-08",
+   "50742-463-16"
+  ],
+  "norm": "docetaxel"
+ },
+ {
+  "tga": "itraconazole",
+  "artg": "244472",
+  "fda_ndcs": [
+   "50458-290-01",
+   "10147-1700-3",
+   "50458-290-04"
+  ],
+  "norm": "itraconazole"
+ },
+ {
+  "tga": "medroxyprogesterone acetate",
+  "artg": "46531",
+  "fda_ndcs": [
+   "0009-0051-01",
+   "0009-0065-01"
+  ],
+  "norm": "medroxyprogesterone"
+ },
+ {
+  "tga": "fentanyl citrate",
+  "artg": "218434",
+  "fda_ndcs": [
+   "63323-806-05",
+   "0409-9094-28",
+   "0641-6030-01"
+  ],
+  "norm": "fentanyl"
+ }
+]

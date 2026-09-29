@@ -1,0 +1,11 @@
+NIH by FY {1985: 49745, 2000: 72013, 2010: 94010, 2020: 82431, 2024: 83537, 2025: 76355, 2026: 68601, 2027: 0}
+NIH n 20
+project_num regex 19
+core_project_num regex 19
+org UEI 12 19
+org DUNS 9 19
+abstract non-empty 18
+PI profile_id 20
+cfda_code 15
+opportunity_number 19
+agency_code Counter({'NIH': 17, 'ALLCDC': 3})

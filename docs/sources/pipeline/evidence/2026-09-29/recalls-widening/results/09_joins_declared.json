@@ -1,0 +1,34 @@
+{
+ "cpsc_n": 879,
+ "cpsc_with_gtin": 49,
+ "cpsc_with_model": 280,
+ "eu_n": 7368,
+ "uk_n": 569,
+ "declared_gtin": {
+  "EU->CPSC": {
+   "source_notices": 7368,
+   "source_with_valid_gtin": 4007,
+   "source_notices_matched": 0,
+   "pairs": 0
+  },
+  "UK->CPSC": {
+   "source_notices": 569,
+   "source_with_valid_gtin": 111,
+   "source_notices_matched": 0,
+   "pairs": 0
+  },
+  "EU->UK": {
+   "source_notices": 7368,
+   "source_with_valid_gtin": 4007,
+   "source_notices_matched": 32,
+   "pairs": 35
+  }
+ },
+ "uk_text_cites_cpsc": 0,
+ "uk_text_cites_safety_gate_or_case": 0,
+ "uk_text_cites_healthcanada": 0,
+ "eu_text_cites_cpsc_hc": 0,
+ "cpsc_cites_hc": {
+  "cpsc_with_hc_citation": 123
+ }
+}

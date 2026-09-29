@@ -1,0 +1,146 @@
+{
+ "gtins_checked": 28,
+ "with_fda_food_match": 0,
+ "rows": [
+  {
+   "nid": "73451",
+   "gtin": "060383023157",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "75294",
+   "gtin": "8908004010242",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "75294",
+   "gtin": "8908004010259",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "63854",
+   "gtin": "827510004942",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "78002",
+   "gtin": "0714676937224",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "64187",
+   "gtin": "065305022010",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "76634",
+   "gtin": "50195500089336",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "76634",
+   "gtin": "10055773026044",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "76634",
+   "gtin": "10072714008129",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "73786",
+   "gtin": "8901806301938",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "63665",
+   "gtin": "628055400202",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "63665",
+   "gtin": "628055400172",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "81679",
+   "gtin": "2000238006995",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "81679",
+   "gtin": "2000237013956",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "81679",
+   "gtin": "0200997110892",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "82604",
+   "gtin": "8684041306837",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "74959",
+   "gtin": "6269039101100",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "62198",
+   "gtin": "061362460086",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "62198",
+   "gtin": "061362460093",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "62178",
+   "gtin": "079343005553",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "64503",
+   "gtin": "814945000625",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "64124",
+   "gtin": "810057290312",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "63517",
+   "gtin": "772468034186",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "78154",
+   "gtin": "0201540307486",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "81860",
+   "gtin": "666359549005",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "81860",
+   "gtin": "666359711549",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "81860",
+   "gtin": "666359711556",
+   "fda_food_matches": 0
+  },
+  {
+   "nid": "77434",
+   "gtin": "055685220021",
+   "fda_food_matches": 0
+  }
+ ]
+}

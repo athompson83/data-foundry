@@ -1,0 +1,184 @@
+[
+ {
+  "doc": "220140970032",
+  "struct_body": "FINGER(S)/THUMB",
+  "nar_kw": [
+   "finger"
+  ],
+  "agree": true,
+  "narr": "Employee was building crib and smashed end of right ring finger with crib block.  Medical Treatment."
+ },
+ {
+  "doc": "220240950005",
+  "struct_body": "LEG, NEC",
+  "nar_kw": [
+   "leg"
+  ],
+  "agree": true,
+  "narr": "Shoveling Sand, Pulled Muscle, Right Leg Sciatic"
+ },
+ {
+  "doc": "220073090067",
+  "struct_body": "BACK (MUSCLES/SPINE/S-CORD/TAILBONE)",
+  "nar_kw": [
+   "back"
+  ],
+  "agree": true,
+  "narr": "Wheel crusher had a small rock lodged in it. Put a spanner wrench on main shaft to spin backwards. EE pulled on wrench and wrench slipped off. He fell backwards into crusher upright support and hurt h"
+ },
+ {
+  "doc": "220013400043",
+  "struct_body": "SHOULDERS (COLLARBONE/CLAVICLE/SCAPULA)",
+  "nar_kw": [
+   "shoulder"
+  ],
+  "agree": true,
+  "narr": "A DIAGNOSIS OF SHOULDER ADHESIVE CAPSULITIS HAS RECENTLY BEEN MADE. IT MAY HAVE RESULTED FROM INDUSTRIAL WORK OVER THE YEARS. WE WERE NOTIFIED OF THESE FINDINGS 11/26/01 AND ARE THEREFORE REPO RTING T"
+ },
+ {
+  "doc": "220221810006",
+  "struct_body": "ABDOMEN/INTERNAL ORGANS",
+  "nar_kw": [],
+  "agree": false,
+  "narr": "EE pulling on rebar bolts to remove bolts from a new bundle and felt pain in stomach area.  EE placed on restricted duty on 6.24.22 and referred on to specialist for possible hernia.  "
+ },
+ {
+  "doc": "220012110156",
+  "struct_body": "LEG, NEC",
+  "nar_kw": [
+   "leg",
+   "rib"
+  ],
+  "agree": true,
+  "narr": "EMPLOYEE WAS HANGING A CURTAIN WHEN THE RIB ROLLED OUT AND FELL ON HIS LEFT LEG. APPROX SIZE OF ROCK 3'LONG, 18\"THICK."
+ },
+ {
+  "doc": "220010540013",
+  "struct_body": "MULTIPLE PARTS (MORE THAN ONE MAJOR)",
+  "nar_kw": [
+   "back",
+   "knee"
+  ],
+  "agree": false,
+  "narr": "EE WAS SHOVELING ROCK WHEN A BOULDER FELL OUT OF THE BUCKET OF THE LOADER, ROLLED DOWN A RAMP AND STRUCK EE IN THE BACK. HE HAS A BROKEN RT. COLLARBONE AND BROKEN LEFT KNEE CAP."
+ },
+ {
+  "doc": "220102930048",
+  "struct_body": "EYE(S) OPTIC NERVE/VISON",
+  "nar_kw": [
+   "eye"
+  ],
+  "agree": true,
+  "narr": "While supplying the roof bolter with roof bolt plates a piece of wire came in contact with the EE's right eye. The doctor \"prescribed medication for eye irritation\" for 5 days. Discovered during a Par"
+ },
+ {
+  "doc": "220141700037",
+  "struct_body": "SHOULDERS (COLLARBONE/CLAVICLE/SCAPULA)",
+  "nar_kw": [
+   "shoulder"
+  ],
+  "agree": true,
+  "narr": "WHILE TWISTING AND PULLING ON A BLOCKED TRANSMISSION (WORKING UNDER A WATER TRUCK) EMPLOYEE FELT A POP IN HIS LEFT SHOULDER"
+ },
+ {
+  "doc": "220050800091",
+  "struct_body": "LOWER LEG/TIBIA/FIBULA",
+  "nar_kw": [],
+  "agree": false,
+  "narr": "EE slipped getting off picker, fell between tire and steps bruising both shins. Continued to work the shift, went to doctor on 3-14-05 and was advised to work with restrictions for a week."
+ },
+ {
+  "doc": "220260130024",
+  "struct_body": "FOOT(NOT ANKLE/TOE)/TARSUS/METATARSUS",
+  "nar_kw": [
+   "foot"
+  ],
+  "agree": true,
+  "narr": "Employees were removing a deflection plate from a lowered stacker. After communicating the plate was ready to fall, the fall zone was cleared. The plate was dropped and bounced into an employee striki"
+ },
+ {
+  "doc": "220201980018",
+  "struct_body": "EYE(S) OPTIC NERVE/VISON",
+  "nar_kw": [
+   "back",
+   "face"
+  ],
+  "agree": false,
+  "narr": "Was clearing chunks off of the top of the hopper with a shovel when product sloughed off and dust blew back into the employee's face and under safety glasses."
+ },
+ {
+  "doc": "220161730006",
+  "struct_body": "NECK",
+  "nar_kw": [
+   "back"
+  ],
+  "agree": false,
+  "narr": "EE was scaling the back when the tooth slipped and jarred the cab of the mechanical scaler. EE was placed on restricted duty on 6.17.16. Further testing is pending."
+ },
+ {
+  "doc": "220121950045",
+  "struct_body": "KNEE/PATELLA",
+  "nar_kw": [
+   "knee"
+  ],
+  "agree": true,
+  "narr": "While unclogging a plugged drain at the slurry ditch, employee slipped and landed on his knee."
+ },
+ {
+  "doc": "220102160028",
+  "struct_body": "KNEE/PATELLA",
+  "nar_kw": [
+   "knee"
+  ],
+  "agree": true,
+  "narr": "Employee was working on a skid loader all day, while on his knees.  The next day his knee swelled and stayed swollen for a week."
+ },
+ {
+  "doc": "220202040011",
+  "struct_body": "MOUTH/LIP/TEETH/TONGUE/THROAT/TASTE",
+  "nar_kw": [
+   "face"
+  ],
+  "agree": false,
+  "narr": "Ee was pushing down the dig face on the 5380. The dozer hit a rock in the face, causing it to stop abruptly, and the ee's teeth to bite down/clash together, fracturing a molar on the lower left side. "
+ },
+ {
+  "doc": "220091610016",
+  "struct_body": "FINGER(S)/THUMB",
+  "nar_kw": [
+   "hand"
+  ],
+  "agree": false,
+  "narr": "Employee was helping anchor tailpiece and while holding one of the hydraulic jacks got his right hand caught between the jackbase and roof pad."
+ },
+ {
+  "doc": "220070930030",
+  "struct_body": "BACK (MUSCLES/SPINE/S-CORD/TAILBONE)",
+  "nar_kw": [
+   "back"
+  ],
+  "agree": true,
+  "narr": "While shoveling at the 520 conveyor belt the employee felt low back pain."
+ },
+ {
+  "doc": "220162090007",
+  "struct_body": "FINGER(S)/THUMB",
+  "nar_kw": [
+   "finger",
+   "hand"
+  ],
+  "agree": true,
+  "narr": "The plant operator was washing out underneath a cone crusher when a rock fell from above and struck EE in the hand, lacerating right ring finger and breaking the finger tip bone."
+ },
+ {
+  "doc": "220020140093",
+  "struct_body": "FINGER(S)/THUMB",
+  "nar_kw": [
+   "back",
+   "finger",
+   "hand"
+  ],
+  "agree": true,
+  "narr": "EMPLOYEE ATTEMPTING TO TAKE 4\" SQUARE TUBING ATTACHED TO BACK AND FLOOR. THE TUBE SLID TOGETHER SUDDENLY, MASHING INDEX FINGER ON LEFT HAND. STITCHES TO LEFT INDEX FINGER."
+ }
+]

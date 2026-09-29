@@ -1,0 +1,10 @@
+f3d volumes 935
+indexed official cites in F.3d 118-123: 1227
+fetched 20
+own official cite present (123 F.3d N): 20 / 20
+docket_number matches No./Nos. regex: 18 / 20
+opinions with >=1 reporter cite regex hit: 20 / 20
+opinions with >=1 U.S.C. cite: 18 / 20
+opinions with >=1 C.F.R. cite: 7 / 20
+cross-cite: F.3d cites into vols 118-123 resolved to a case in CAP: 4 / 4
+total F.3d 123 cases 178
