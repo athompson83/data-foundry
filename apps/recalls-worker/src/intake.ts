@@ -44,7 +44,7 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = 'b8faf91988e5bbffaefc3e966f94fee6c1f8fe85fafe02160c364ea7914b177a';
+export const EXTRACTION_BEHAVIOUR_SHA256 = 'b0c8db0068ee679a96d1c0c45e0a1483794e2394fc420be20aa2681012347d1a';
 
 export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly runtime: string; readonly benchmark: string }> = [
   {
@@ -56,7 +56,7 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: 'b8faf91988e5bbffaefc3e966f94fee6c1f8fe85fafe02160c364ea7914b177a',
+    behaviourSha256: 'b0c8db0068ee679a96d1c0c45e0a1483794e2394fc420be20aa2681012347d1a',
     // The inference runtime the benchmark ran on (RESULTS.md, "ollama"): another release is another build.
     runtime: 'ollama/0.34.4',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',

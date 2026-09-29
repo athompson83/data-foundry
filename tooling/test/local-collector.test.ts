@@ -101,11 +101,24 @@ describe('local collector', () => {
     // run_benchmark.py records the fingerprint and prompt it scored under; a publishable entry must name exactly those,
     // so updating the constants without re-scoring (a rules change) fails here.
     type Split = { systems: { llm_validated: { precision: number } }; negative_notices_with_false_positive: string; unsupported_values_in_raw_output: number };
-    const report = JSON.parse(readFileSync(join(APP, 'benchmark', 'data', 'report.json'), 'utf8')) as { extractor_version: string; prompt_sha256: string; behaviour_sha256: string; heldout: Split };
+    type Build = { extractor_version: string; model: string; model_digest: string; runtime: string; generation: Record<string, unknown>; request_sha256: string };
+    const report = JSON.parse(readFileSync(join(APP, 'benchmark', 'data', 'report.json'), 'utf8')) as { extractor_version: string; prompt_sha256: string; behaviour_sha256: string; predictions_build: Build; heldout: Split };
+    const build = report.predictions_build;
+    // The request the extractor sends today (the prediction build must be this one: a prompt, schema, truncation or
+    // option change needs a full, --fresh benchmark run, not a re-score).
+    const python = process.env['PYTHON'] ?? 'python3';
+    const request = spawnSync(python, ['-c', `from df_collector.extract import request_sha256; print(request_sha256(${JSON.stringify(build.model)}))`], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect(build.request_sha256, 'the scored predictions were made by the extractor\'s current request').toBe(request);
     for (const entry of PUBLISHABLE_EXTRACTORS) {
       expect(entry.behaviourSha256, 'the entry names the fingerprint benchmark/data/report.json was scored under').toBe(report.behaviour_sha256);
       expect(entry.promptSha256).toBe(report.prompt_sha256);
       expect(entry.version).toBe(report.extractor_version);
+      // And the build that produced the scored predictions: model, full digest, runtime and generation settings.
+      expect(entry.version).toBe(build.extractor_version);
+      expect(entry.model).toBe(build.model);
+      expect(entry.modelDigest).toBe(build.model_digest.replace(/^sha256:/, ''));
+      expect(entry.runtime).toBe(build.runtime);
+      expect(entry.generation).toBe(JSON.stringify(build.generation));
     }
     // QUALITY_BAR.md: held-out precision ≥ 0.95, no false positive on a negative notice, no unsupported value.
     expect(report.heldout.systems.llm_validated.precision).toBeGreaterThanOrEqual(0.95);

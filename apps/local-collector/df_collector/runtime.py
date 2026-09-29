@@ -307,22 +307,22 @@ class Collector:
         build differs from the one it last ran under, so every notice is extracted under the current build: an upgrade
         to an unbenchmarked release, and the return to the benchmarked one, each re-extract rather than skip."""
         new = extract.build_id(self.config.model, self.config.model_digest, self.config.num_ctx, self.config.think, self.threads, runtime)
-        old, self.runtime = self.build, runtime
-        changed = new != old
+        changed = new != self.build
+        self.runtime, self.build = runtime, new
         with self.state.tx() as db:
-            if changed:
-                db.execute("UPDATE OR IGNORE document SET extractor_version = ?, updated_at = ? WHERE state = 'queued' AND extractor_version = ?", (new, time.time(), old))
-                leftover = db.execute("SELECT * FROM document WHERE state = 'queued' AND extractor_version = ?", (old,)).fetchall()
+            # Every queued notice belongs to the current build, whichever build (this process's or an earlier one's)
+            # queued it: none of them has been extracted yet.
+            db.execute("UPDATE OR IGNORE document SET extractor_version = ?, updated_at = ? WHERE state = 'queued' AND extractor_version != ?", (new, time.time(), new))
+            leftover = db.execute("SELECT * FROM document WHERE state = 'queued' AND extractor_version != ?", (new,)).fetchall()
             if self.state.cursor(TASK, "backfill_build") != new:
                 rewind_backfill(db, self.state)
                 self.state.set_cursor(db, TASK, "backfill_build", new)
+        # A notice already recorded under the current build needs nothing more from its other queued row.
+        for row in leftover:
+            with self.state.tx() as db:
+                db.execute("DELETE FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (row["recall_id"], row["raw_sha256"], row["extractor_version"]))
+            self._drop_working_copy(row)
         if changed:
-            self.build = new
-            # A notice already recorded under the new build needs nothing more from its old queued row.
-            for row in leftover:
-                with self.state.tx() as db:
-                    db.execute("DELETE FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (row["recall_id"], row["raw_sha256"], row["extractor_version"]))
-                self._drop_working_copy(row)
             self.state.event("info", "build_changed", {"runtime": runtime, "build": new})
         return changed
 

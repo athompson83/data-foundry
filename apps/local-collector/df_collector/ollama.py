@@ -150,12 +150,13 @@ class OllamaClient:
     def loaded(self) -> list[dict]:
         return list(self._request("/api/ps", timeout=5).get("models", []))
 
-    def chat_json(self, system: str, user: str, schema: dict, seed: int = 0) -> ChatResult:
+    def chat_body(self, system: str, user: str, schema: dict, seed: int = 0) -> dict:
+        """The exact /api/chat request (also hashed into the benchmark's request fingerprint)."""
         # num_predict bounds one notice's generation time (60 identifiers of JSON fit well inside it).
         options: dict = {"temperature": 0, "seed": seed, "num_ctx": self.num_ctx, "num_predict": 1500}
         if self.num_thread:
             options["num_thread"] = self.num_thread
-        body = {
+        return {
             "model": self.model,
             "stream": False,
             "think": self.think,
@@ -164,6 +165,9 @@ class OllamaClient:
             "keep_alive": "15m",
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
         }
+
+    def chat_json(self, system: str, user: str, schema: dict, seed: int = 0) -> ChatResult:
+        body = self.chat_body(system, user, schema, seed)
         started = time.monotonic()
         out = self._request("/api/chat", body)
         if out.get("model") not in (self.model, None):

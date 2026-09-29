@@ -1468,3 +1468,30 @@ class CodexRegressionsRound24(unittest.TestCase):
         self.assertTrue(worth_extracting({"Title": "Lamps recalled", "Description": text, "Products": []}))
         # Still skipped: a label with no code-shaped value at all.
         self.assertFalse(worth_extracting({"Title": "Lamps recalled", "Description": "Model lamps can overheat.", "Products": []}))
+
+
+class CodexRegressionsRound25(unittest.TestCase):
+    def test_queued_notices_from_an_earlier_process_move_to_the_current_build(self):
+        notice = {"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            first = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            first.adopt_runtime(extract.BENCHMARKED_RUNTIME)
+            first.queue_documents([notice])
+            # The next start runs with another thread setting: another build from the outset.
+            config.limits.llm_threads = 4
+            second = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            self.assertNotEqual(second.build, first.build)
+            second.adopt_runtime(extract.BENCHMARKED_RUNTIME)
+            self.assertEqual({r["extractor_version"] for r in state.q("SELECT extractor_version FROM document WHERE state = 'queued'")}, {second.build})
+            # Queued again by the rewound backfill: still one queued row, under the current build.
+            second.queue_documents([notice])
+            self.assertEqual(state.one("SELECT COUNT(*) AS n FROM document WHERE state = 'queued'")["n"], 1)
+
+    def test_the_request_fingerprint_follows_the_model_call(self):
+        base = extract.request_sha256("qwen3.5:4b")
+        self.assertEqual(base, extract.request_sha256("qwen3.5:4b", 8192, False, None))
+        self.assertNotEqual(extract.request_sha256("qwen3.5:4b", 4096), base)
+        self.assertNotEqual(extract.request_sha256("qwen3.5:4b", num_thread=4), base)
+        self.assertNotEqual(extract.request_sha256("gpt-oss:20b"), base)

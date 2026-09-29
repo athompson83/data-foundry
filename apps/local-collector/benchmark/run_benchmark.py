@@ -57,18 +57,44 @@ def ollama_pids() -> list[int]:
     return pids
 
 
+BUILD_FILE = "predictions-build.json"
+
+
+def prediction_build(identity, args: argparse.Namespace, think: bool | str) -> dict:
+    """Everything that decides what the model returns: the extractor version, model build, runtime and request."""
+    return {
+        "extractor_version": ex.EXTRACTOR_VERSION,
+        "model": identity.name,
+        "model_digest": identity.digest,
+        "runtime": identity.runtime,
+        "generation": ex.generation(args.num_ctx, think, args.num_thread),
+        "request_sha256": ex.request_sha256(identity.name, args.num_ctx, think, args.num_thread),
+    }
+
+
 def run(args: argparse.Namespace) -> None:
     sample = json.loads(Path(args.sample).read_text())
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    think: bool | str = False if args.think in ("false", "") else args.think
+    client = OllamaClient(args.ollama, args.model, args.digest, num_ctx=args.num_ctx, num_thread=args.num_thread, think=think)
+    identity = client.verify()
+    build = prediction_build(identity, args, think)
+    existing = sorted(out.glob("predictions-*.jsonl"))
+    build_path = out / BUILD_FILE
+    recorded = json.loads(build_path.read_text()) if build_path.exists() else None
+    if args.fresh:
+        for path in existing:
+            path.unlink()
+    elif existing and recorded != build:
+        # Stored predictions are resumed only for the build that made them: another build's output is never mixed in.
+        raise SystemExit(f"{out} holds predictions from another build ({recorded}); run with --fresh to discard them")
+    build_path.write_text(json.dumps(build, indent=2) + "\n")
+    (out / "model.json").write_text(json.dumps(identity.__dict__, indent=2))
     preds_path = out / f"predictions-{args.split}.jsonl"
     done = set()
     if preds_path.exists():
         done = {json.loads(line)["id"] for line in preds_path.read_text().splitlines() if line.strip()}
-    think: bool | str = False if args.think in ("false", "") else args.think
-    client = OllamaClient(args.ollama, args.model, args.digest, num_ctx=args.num_ctx, num_thread=args.num_thread, think=think)
-    identity = client.verify()
-    (out / "model.json").write_text(json.dumps(identity.__dict__, indent=2))
     items = [i for i in sample if args.split == "all" or i["split"] == args.split]
     with preds_path.open("a") as sink:
         for n, item in enumerate(items, 1):
@@ -140,7 +166,12 @@ def score(args: argparse.Namespace) -> dict:
     # value (CI checks it), so a rules change cannot be allowlisted without re-scoring.
     from df_collector.behaviour import behaviour_sha256
 
-    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256()}
+    # The build that produced the predictions being scored (a rules-only re-score keeps it; CI compares it with the
+    # publishable entry and with the extractor's current request).
+    build_path = Path(args.out) / BUILD_FILE
+    if not build_path.exists():
+        raise SystemExit(f"{build_path} is missing: the predictions cannot be attributed to a build")
+    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256(), "predictions_build": json.loads(build_path.read_text())}
     for split in ("dev", "heldout"):
         ids = [i for i in by_id if by_id[i]["split"] == split]
         if not ids:
@@ -227,6 +258,7 @@ def main() -> None:
     parser.add_argument("--num-thread", type=int, default=None)
     parser.add_argument("--think", default="false", help='false for qwen3.5; "low" for gpt-oss')
     parser.add_argument("--score-only", action="store_true")
+    parser.add_argument("--fresh", action="store_true", help="discard stored predictions (required when the build changed)")
     args = parser.parse_args()
     if not args.score_only:
         run(args)

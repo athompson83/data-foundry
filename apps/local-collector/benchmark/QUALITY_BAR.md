@@ -30,6 +30,10 @@ Any change to them fails CI until this bar is met again for the changed behaviou
 - a rules-only change: re-score the stored predictions (`python benchmark/run_benchmark.py … --score-only`);
   the report records the fingerprint it was scored under, and CI requires the entry to name that value and the
   committed held-out result to meet this bar;
+- stored predictions carry the build that made them (`predictions-build.json`: model and digest, Ollama runtime,
+  generation settings and the request fingerprint). The runner refuses to resume another build's predictions
+  (`--fresh` discards them), and CI requires the scored build to match the entry and the extractor's current request,
+  so a prompt, schema, truncation or option change needs a full run, never a re-score;
 - a prompt, schema, truncation or option change: a full run on the dev and held-out splits.
 
 Then update `EXTRACTION_BEHAVIOUR_SHA256` and the entry (with its benchmark note) in the same reviewed change. Rows

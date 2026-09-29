@@ -63,6 +63,24 @@ def build_prompt(record: dict, fields: list[str]) -> str:
     return "Recall notice fields:\n\n" + "\n\n".join(parts) + "\n\nReturn the product identifiers as JSON."
 
 
+# A fixed notice exercising every allowed field, including one longer than MAX_FIELD_CHARS.
+_CANONICAL_RECORD = {
+    "Title": "Canonical recall title with Model AB-12",
+    "Description": "Canonical description. Item number CD-34. " + "x" * (MAX_FIELD_CHARS + 10),
+    "Products": [{"Name": "Canonical product", "Description": "Style EF-56", "Model": "GH-78"}],
+}
+
+
+def request_sha256(model: str, num_ctx: int = 8192, think: bool | str = False, num_thread: int | None = None) -> str:
+    """A fingerprint of the exact request the extractor sends the model (system prompt, schema, prompt assembly and
+    truncation, options) for a fixed notice. The benchmark records it with its stored predictions, so predictions made
+    by another request can be neither resumed nor scored as this one's."""
+    client = OllamaClient("http://127.0.0.1:11434", model, None, num_ctx=num_ctx, num_thread=num_thread, think=think)
+    fields = validate.candidate_fields(_CANONICAL_RECORD)
+    body = client.chat_body(SYSTEM_PROMPT, build_prompt(_CANONICAL_RECORD, fields), build_schema(fields))
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
 def prompt_sha256() -> str:
     return hashlib.sha256((EXTRACTOR_VERSION + "\n" + SYSTEM_PROMPT).encode()).hexdigest()
 

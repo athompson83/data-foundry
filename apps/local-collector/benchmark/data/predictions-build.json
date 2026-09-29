@@ -1,0 +1,11 @@
+{
+  "extractor_version": "cpsc-product-identifiers@1/prompt-3",
+  "model": "qwen3.5:4b",
+  "model_digest": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+  "runtime": "ollama/0.34.4",
+  "generation": {
+    "num_ctx": 8192,
+    "think": false
+  },
+  "request_sha256": "64c509db6e2f46842a4e3c5a3f7ccb44d021e9cc3a1ce8dfb3f804edee294963"
+}
