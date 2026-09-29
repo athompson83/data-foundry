@@ -33,7 +33,9 @@ Any change to them fails CI until this bar is met again for the changed behaviou
 - stored predictions carry the build that made them (`predictions-build.json`: model and digest, Ollama runtime,
   generation settings and the request fingerprint). The runner refuses to resume another build's predictions
   (`--fresh` discards them), and CI requires the scored build to match the entry and the extractor's current request,
-  so a prompt, schema, truncation or option change needs a full run, never a re-score;
+  so a prompt, schema, truncation or option change needs a full run, never a re-score. The runner re-proves the model
+  digest and Ollama runtime around every notice and stops if either changes, and scoring refuses predictions that do
+  not exactly cover each split (CI requires the full held-out split);
 - a prompt, schema, truncation or option change: a full run on the dev and held-out splits.
 
 Then update `EXTRACTION_BEHAVIOUR_SHA256` and the entry (with its benchmark note) in the same reviewed change. Rows

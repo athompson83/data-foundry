@@ -1495,3 +1495,47 @@ class CodexRegressionsRound25(unittest.TestCase):
         self.assertNotEqual(extract.request_sha256("qwen3.5:4b", 4096), base)
         self.assertNotEqual(extract.request_sha256("qwen3.5:4b", num_thread=4), base)
         self.assertNotEqual(extract.request_sha256("gpt-oss:20b"), base)
+
+
+def _benchmark_module():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("run_benchmark", Path(__file__).resolve().parents[1] / "benchmark" / "run_benchmark.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class CodexRegressionsRound26(unittest.TestCase):
+    SAMPLE = {"a": {"split": "heldout"}, "b": {"split": "heldout"}, "c": {"split": "dev"}}
+
+    def test_scoring_refuses_predictions_that_do_not_exactly_cover_a_split(self):
+        bench = _benchmark_module()
+        full = [{"id": "a", "split": "heldout"}, {"id": "b", "split": "heldout"}]
+        self.assertEqual(bench.coverage(self.SAMPLE, full), {"heldout": "2/2"})
+        for rows in (
+            full[:1],  # truncated to one notice
+            full + [{"id": "a", "split": "heldout"}],  # duplicate
+            full + [{"id": "z", "split": "heldout"}],  # unknown notice
+            full + [{"id": "c", "split": "heldout"}],  # a dev notice labelled held-out
+        ):
+            with self.assertRaises(SystemExit):
+                bench.coverage(self.SAMPLE, rows)
+
+    def test_the_run_stops_when_the_model_build_changes_mid_run(self):
+        from df_collector.ollama import ModelIdentity
+
+        bench = _benchmark_module()
+        expected = ModelIdentity("qwen3.5:4b", "2a654d98e6fb", "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.34.4")
+
+        class Client:
+            def __init__(self, identity):
+                self.identity = identity
+
+            def verify(self):
+                return self.identity
+
+        bench.check_identity(Client(expected), expected, "a")  # unchanged: continues
+        for changed in (ModelIdentity("qwen3.5:4b", "ffffffffffff", "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.34.4"), ModelIdentity("qwen3.5:4b", "2a654d98e6fb", "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.35.0")):
+            with self.assertRaises(SystemExit):
+                bench.check_identity(Client(changed), expected, "a")

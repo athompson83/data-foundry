@@ -357,7 +357,12 @@ async function route(request: Request, env: Env): Promise<Response> {
   if (url.pathname === '/admin/extractions/restore' && request.method === 'POST') {
     // Reverses a withdrawal: the rows were kept, so they are served again (still only from publishable builds).
     if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
-    return json({ restored: await restoreExtractions(env.DB, url.searchParams.get('extractor_version') ?? '', url.searchParams.get('recall_id')) });
+    try {
+      return json({ restored: await restoreExtractions(env.DB, url.searchParams.get('extractor_version') ?? '', url.searchParams.get('recall_id')) });
+    } catch (error) {
+      if (error instanceof IntakeRefused) return apiError(error.status, error.code, error.message);
+      throw error;
+    }
   }
 
   if (url.pathname === '/admin/revoke-keys' && request.method === 'POST') {

@@ -120,6 +120,11 @@ describe('local collector', () => {
       expect(entry.runtime).toBe(build.runtime);
       expect(entry.generation).toBe(JSON.stringify(build.generation));
     }
+    // Scored on the whole fixed held-out split (run_benchmark.py refuses partial, duplicate or unknown predictions).
+    const sample = JSON.parse(readFileSync(join(APP, 'benchmark', 'data', 'sample.json'), 'utf8')) as Array<{ split: string }>;
+    const heldout = sample.filter((item) => item.split === 'heldout').length;
+    expect((report as unknown as { coverage: Record<string, string> }).coverage['heldout']).toBe(`${heldout}/${heldout}`);
+    expect((report.heldout as unknown as { notices: number }).notices).toBe(heldout);
     // QUALITY_BAR.md: held-out precision ≥ 0.95, no false positive on a negative notice, no unsupported value.
     expect(report.heldout.systems.llm_validated.precision).toBeGreaterThanOrEqual(0.95);
     expect(report.heldout.negative_notices_with_false_positive).toMatch(/^0\//);

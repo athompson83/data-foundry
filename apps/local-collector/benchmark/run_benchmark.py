@@ -72,6 +72,36 @@ def prediction_build(identity, args: argparse.Namespace, think: bool | str) -> d
     }
 
 
+def check_identity(client: OllamaClient, expected, notice_id: str) -> None:
+    now = client.verify()
+    if (now.digest, now.runtime) != (expected.digest, expected.runtime):
+        raise SystemExit(
+            f"the model build changed at {notice_id} ({expected.digest[:12]} {expected.runtime} -> {now.digest[:12]} {now.runtime});"
+            " the prediction was not stored. Re-run with --fresh on a stable build."
+        )
+
+
+def coverage(sample: dict, rows: list[dict]) -> dict[str, str]:
+    """Refuse to score predictions that do not exactly cover each split they touch: no duplicate, unknown or
+    mis-split notice, and no missing one. A partial held-out file cannot produce an authorizing report."""
+    seen: dict[str, int] = {}
+    for row in rows:
+        seen[row["id"]] = seen.get(row["id"], 0) + 1
+        if row["id"] not in sample or sample[row["id"]]["split"] != row.get("split"):
+            raise SystemExit(f"prediction for {row['id']} is not a notice of split {row.get('split')!r} in the sample")
+    duplicates = sorted(i for i, n in seen.items() if n > 1)
+    if duplicates:
+        raise SystemExit(f"duplicate predictions: {duplicates[:5]}")
+    result: dict[str, str] = {}
+    for split in sorted({row["split"] for row in rows}):
+        expected = {i for i, item in sample.items() if item["split"] == split}
+        missing = sorted(expected - set(seen))
+        if missing:
+            raise SystemExit(f"split {split} is incomplete: {len(missing)} of {len(expected)} notices have no prediction (e.g. {missing[:3]})")
+        result[split] = f"{len(expected)}/{len(expected)}"
+    return result
+
+
 def run(args: argparse.Namespace) -> None:
     sample = json.loads(Path(args.sample).read_text())
     out = Path(args.out)
@@ -101,6 +131,9 @@ def run(args: argparse.Namespace) -> None:
             if item["id"] in done:
                 continue
             record = record_of(item)
+            # The model build and runtime are re-proved around every notice: a re-pulled tag or an Ollama upgrade or
+            # restart mid-run stops the run, so no stored prediction comes from anything but the recorded build.
+            check_identity(client, identity, item["id"])
             started = time.monotonic()
             result = None
             for attempt in range(2):
@@ -114,6 +147,7 @@ def run(args: argparse.Namespace) -> None:
             if result is None:
                 result = ex.Extraction(status="model_error", error="local model returned an error twice")
             wall = (time.monotonic() - started) * 1000
+            check_identity(client, identity, item["id"])
             baseline = ex.deterministic_baseline(record)
             row = {
                 "id": item["id"],
@@ -161,6 +195,7 @@ def score(args: argparse.Namespace) -> dict:
     rows = []
     for path in sorted(out.glob("predictions-*.jsonl")):
         rows += [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    covered = coverage(sample, rows)
     by_id = {r["id"]: r for r in rows}
     # The extraction-behaviour fingerprint the report was scored under: a publishable entry must name this report's
     # value (CI checks it), so a rules change cannot be allowlisted without re-scoring.
@@ -171,7 +206,7 @@ def score(args: argparse.Namespace) -> dict:
     build_path = Path(args.out) / BUILD_FILE
     if not build_path.exists():
         raise SystemExit(f"{build_path} is missing: the predictions cannot be attributed to a build")
-    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256(), "predictions_build": json.loads(build_path.read_text())}
+    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256(), "predictions_build": json.loads(build_path.read_text()), "coverage": covered}
     for split in ("dev", "heldout"):
         ids = [i for i in by_id if by_id[i]["split"] == split]
         if not ids:

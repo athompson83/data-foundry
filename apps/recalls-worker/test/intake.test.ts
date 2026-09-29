@@ -493,6 +493,25 @@ describe('publication of extracted identifiers', () => {
     expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
   });
 
+  it('keeps notice-level and version-level withdrawals independent', async () => {
+    const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const version = encodeURIComponent(EXTRACTOR.version);
+    const admin = (action: string, recall = '') => call(env, `/admin/extractions/${action}?extractor_version=${version}${recall ? `&recall_id=${recall}` : ''}`, { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    // Withdrawn for this notice, then the whole version is withdrawn too.
+    expect(await (await admin('withdraw', 'cpsc-15034')).json()).toEqual({ withdrawn: 1 });
+    expect(await (await admin('withdraw')).json()).toEqual({ withdrawn: 0 });
+    // A notice-level restore cannot republish while the version is withdrawn.
+    const refused = await admin('restore', 'cpsc-15034');
+    expect(refused.status).toBe(409);
+    expect(await served()).toEqual([]);
+    // The version-wide restore does not lift the notice's own withdrawal.
+    expect(await (await admin('restore')).json()).toEqual({ restored: 0 });
+    expect(await served()).toEqual([]);
+    expect(await (await admin('restore', 'cpsc-15034')).json()).toEqual({ restored: 1 });
+    expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
+  });
+
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {
     const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
     const withdrawn = await call(env, '/admin/extractions/withdraw?extractor_version=cpsc-product-identifiers@1/prompt-3', { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });

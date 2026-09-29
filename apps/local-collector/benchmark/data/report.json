@@ -13,6 +13,10 @@
     },
     "request_sha256": "64c509db6e2f46842a4e3c5a3f7ccb44d021e9cc3a1ce8dfb3f804edee294963"
   },
+  "coverage": {
+    "dev": "100/100",
+    "heldout": "30/30"
+  },
   "dev": {
     "notices": 100,
     "gold_identifiers": 149,
