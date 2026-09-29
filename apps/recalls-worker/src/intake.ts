@@ -97,8 +97,14 @@ export function publishableExtractorClause(): { sql: string; binds: string[] } {
 }
 
 export const MAX_INTAKE_BYTES = 262_144;
-export const MAX_INTAKE_NOTICES = 25;
+/**
+ * Size caps, chosen so a maximal request stays well inside D1's 1,000 queries per Worker invocation: each notice costs
+ * at most 2 + 2 × MAX_CANDIDATES_PER_NOTICE queries (heartbeat, recall lookup, and an insert plus at most one ownership
+ * check per candidate), and the request adds fewer than 10 of its own. The collector sends one notice per request.
+ */
+export const MAX_INTAKE_NOTICES = 5;
 export const MAX_CANDIDATES_PER_NOTICE = 60;
+export const MAX_INTAKE_QUERIES = MAX_INTAKE_NOTICES * (2 + 2 * MAX_CANDIDATES_PER_NOTICE) + 10;
 
 export interface IngestCredential {
   readonly id: string;
@@ -452,11 +458,18 @@ export async function withdrawExtractions(db: D1Database, extractorVersion: stri
   if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
   // Withdrawing a whole version is durable: later submissions from it are stored withdrawn too.
   if (!recallId) await db.prepare('INSERT INTO extractor_withdrawal (extractor_version, withdrawn_at) VALUES (?, ?) ON CONFLICT (extractor_version) DO NOTHING').bind(extractorVersion, now).run();
-  const rows = await db
-    .prepare(`UPDATE product_recall_extracted_key SET status = 'withdrawn', withdrawn_at = ?, withdrawn_scope = ? WHERE extractor_version = ? AND status = 'accepted' ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
-    .bind(now, recallId ? 'notice' : 'version', extractorVersion, ...(recallId ? [recallId] : []))
-    .all<{ recall_id: string }>();
-  return rows.results.length;
+  // Adds this scope's hold to every row, whatever holds it already has; the count is of rows newly withheld.
+  const scope = recallId ? 'notice' : 'version';
+  const other = recallId ? 'version' : 'notice';
+  const filter = `extractor_version = ? ${recallId ? 'AND recall_id = ?' : ''}`;
+  const binds = [extractorVersion, ...(recallId ? [recallId] : [])];
+  const served = await db.prepare(`SELECT count(*) AS n FROM product_recall_extracted_key WHERE ${filter} AND status = 'accepted'`).bind(...binds).first<{ n: number }>();
+  // One transaction: rows held only by the other scope gain this hold too, then served rows are withheld.
+  await db.batch([
+    db.prepare(`UPDATE product_recall_extracted_key SET withdrawn_scope = 'both' WHERE ${filter} AND status = 'withdrawn' AND withdrawn_scope = ?`).bind(...binds, other),
+    db.prepare(`UPDATE product_recall_extracted_key SET status = 'withdrawn', withdrawn_at = ?, withdrawn_scope = ? WHERE ${filter} AND status = 'accepted'`).bind(now, scope, ...binds),
+  ]);
+  return served?.n ?? 0;
 }
 
 /** Reverses withdrawExtractions for one extractor version (optionally one notice): withdrawn rows are accepted again. */
@@ -469,10 +482,20 @@ export async function restoreExtractions(db: D1Database, extractorVersion: strin
   } else {
     await db.prepare('DELETE FROM extractor_withdrawal WHERE extractor_version = ?').bind(extractorVersion).run();
   }
-  // Each restore lifts only the withdrawal of its own scope.
+  // Each restore lifts only its own hold; a row still held by the other scope stays withdrawn. The count is of rows
+  // served again.
+  const scope = recallId ? 'notice' : 'version';
+  const other = recallId ? 'version' : 'notice';
   const rows = await db
-    .prepare(`UPDATE product_recall_extracted_key SET status = 'accepted', withdrawn_at = NULL, withdrawn_scope = NULL WHERE extractor_version = ? AND status = 'withdrawn' AND withdrawn_scope = ? ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
-    .bind(extractorVersion, recallId ? 'notice' : 'version', ...(recallId ? [recallId] : []))
-    .all<{ recall_id: string }>();
-  return rows.results.length;
+    .prepare(
+      `UPDATE product_recall_extracted_key
+         SET status = CASE WHEN withdrawn_scope = 'both' THEN 'withdrawn' ELSE 'accepted' END,
+             withdrawn_at = CASE WHEN withdrawn_scope = 'both' THEN withdrawn_at ELSE NULL END,
+             withdrawn_scope = CASE WHEN withdrawn_scope = 'both' THEN ? ELSE NULL END
+       WHERE extractor_version = ? AND status = 'withdrawn' AND withdrawn_scope IN (?, 'both') ${recallId ? 'AND recall_id = ?' : ''}
+       RETURNING recall_id, status`,
+    )
+    .bind(other, extractorVersion, scope, ...(recallId ? [recallId] : []))
+    .all<{ recall_id: string; status: string }>();
+  return rows.results.filter((row) => row.status === 'accepted').length;
 }

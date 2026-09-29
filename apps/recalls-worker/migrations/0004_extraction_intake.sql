@@ -57,9 +57,10 @@ CREATE TABLE IF NOT EXISTS product_recall_extracted_key (
   status            TEXT NOT NULL CHECK (status IN ('accepted', 'withdrawn')),
   submitted_at      TEXT NOT NULL,
   withdrawn_at      TEXT,
-  -- Which withdrawal holds the row: 'version' (the whole extractor version) or 'notice' (this recall only). Each
-  -- restore lifts only its own scope, so neither can republish a row the other still withholds.
-  withdrawn_scope   TEXT CHECK (withdrawn_scope IN ('version', 'notice')),
+  -- Which withdrawals hold the row: 'version' (the whole extractor version), 'notice' (this recall only) or 'both'.
+  -- The holds are independent, whatever order they were placed in: each restore lifts only its own, and the row is
+  -- served again only when neither remains.
+  withdrawn_scope   TEXT CHECK (withdrawn_scope IN ('version', 'notice', 'both')),
   PRIMARY KEY (recall_id, raw_sha256, extractor_version, model, model_digest, prompt_sha256, generation, runtime, behaviour_sha256, rules_sha256, kind, value_key)
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS product_recall_extracted_key_lookup_idx ON product_recall_extracted_key (kind, value_key, status);

@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { issueKey } from '../src/account.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
-import { EXTRACTION_BEHAVIOUR_SHA256, MAX_INTAKE_BYTES } from '../src/intake.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, MAX_INTAKE_BYTES, MAX_INTAKE_NOTICES, MAX_INTAKE_QUERIES } from '../src/intake.js';
 import { ingestRecords } from '../src/product-sync.js';
 import { sha256Hex } from '../src/store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
@@ -510,6 +510,47 @@ describe('publication of extracted identifiers', () => {
     expect(await served()).toEqual([]);
     expect(await (await admin('restore', 'cpsc-15034')).json()).toEqual({ restored: 1 });
     expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
+  });
+
+  it('keeps a notice withdrawal made while the whole version is withdrawn', async () => {
+    const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const version = encodeURIComponent(EXTRACTOR.version);
+    const admin = (action: string, recall = '') => call(env, `/admin/extractions/${action}?extractor_version=${version}${recall ? `&recall_id=${recall}` : ''}`, { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    // The version first, then this notice: the notice's own hold is recorded even though the row was already withheld.
+    expect(await (await admin('withdraw')).json()).toEqual({ withdrawn: 1 });
+    expect(await (await admin('withdraw', 'cpsc-15034')).json()).toEqual({ withdrawn: 0 });
+    expect(await env.DB.prepare('SELECT withdrawn_scope FROM product_recall_extracted_key').first()).toEqual({ withdrawn_scope: 'both' });
+    // Restoring the version leaves the notice withheld; only lifting both holds serves it again.
+    expect(await (await admin('restore')).json()).toEqual({ restored: 0 });
+    expect(await served()).toEqual([]);
+    expect(await (await admin('restore', 'cpsc-15034')).json()).toEqual({ restored: 1 });
+    expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
+  });
+
+  it('keeps a maximal request inside D1\'s 1,000 queries per invocation', async () => {
+    expect(MAX_INTAKE_QUERIES).toBeLessThan(1000);
+    const { env, token, sha } = await seeded();
+    let queries = 0;
+    const counting: Env = {
+      ...env,
+      DB: new Proxy(env.DB, {
+        get(target, prop, receiver) {
+          const value = Reflect.get(target, prop, receiver) as unknown;
+          if (prop !== 'prepare' || typeof value !== 'function') return typeof value === 'function' ? (value as (...args: unknown[]) => unknown).bind(target) : value;
+          return (sql: string) => {
+            queries += 1;
+            return (value as (sql: string) => unknown).call(target, sql);
+          };
+        },
+      }) as unknown as Env['DB'],
+    };
+    // The largest body the intake accepts: every notice with the maximum number of candidates.
+    const candidates = Array.from({ length: MAX_CANDIDATES_PER_NOTICE }, (_, i) => ({ value: i === 0 ? 'SA904' : `ZX${1000 + i}`, field: 'Description', label: 'item' }));
+    const notices = Array.from({ length: MAX_INTAKE_NOTICES }, () => ({ recall_id: 'cpsc-15034', raw_sha256: sha, candidates }));
+    expect((await submit(counting, token, notices)).status).toBe(200);
+    expect(queries).toBeLessThanOrEqual(MAX_INTAKE_QUERIES);
+    expect((await submit(env, token, [...notices, notices[0]])).status).toBe(400);
   });
 
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {
