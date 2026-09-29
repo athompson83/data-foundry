@@ -68,6 +68,8 @@ describe('local collector', () => {
     const benchmarked = /"ollama": "(\d+\.\d+\.\d+)/.exec(results)?.[1];
     expect(benchmarked, 'RESULTS.md records the Ollama version').toBeTruthy();
     for (const entry of PUBLISHABLE_EXTRACTORS) expect(entry.runtime).toBe(`ollama/${benchmarked}`);
+    // The collector keys its short-form (benchmarked) local build by the same release.
+    expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`BENCHMARKED_RUNTIME = "ollama/${benchmarked}"`);
   });
 
   it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {

@@ -77,7 +77,11 @@ def generation(num_ctx: int, think: bool | str, num_thread: int | None = None) -
     return settings
 
 
-def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | str = False, num_thread: int | None = None) -> str:
+# The inference runtime the benchmark ran on (benchmark/RESULTS.md); the Worker's publishable entry names the same.
+BENCHMARKED_RUNTIME = "ollama/0.34.4"
+
+
+def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | str = False, num_thread: int | None = None, runtime: str | None = None) -> str:
     """The complete extractor build: version, model name, pinned model build and prompt hash (the tuple the server
     keys and publishes by). Local checkpoints, candidates and
     upload idempotency are keyed by it, so changing the model (or prompt) re-extracts under its own key instead of
@@ -86,10 +90,12 @@ def build_id(model: str, model_digest: str, num_ctx: int = 8192, think: bool | s
 
     # The behaviour fingerprint is part of the build: a rules-only change re-extracts every notice under a new key.
     base = f"{EXTRACTOR_VERSION}|{model}|{model_digest.removeprefix('sha256:')[:12]}|{prompt_sha256()[:16]}|b{behaviour_sha256()[:12]}"
-    # The benchmarked settings keep the short form; any other settings are their own build.
-    if (num_ctx, think, num_thread) == (8192, False, None):
-        return base
-    return f"{base}|ctx{num_ctx}-think{str(think).lower()}" + (f"-threads{num_thread}" if num_thread is not None else "")
+    # The benchmarked settings and runtime keep the short form; any other settings or runtime are their own build.
+    if (num_ctx, think, num_thread) != (8192, False, None):
+        base = f"{base}|ctx{num_ctx}-think{str(think).lower()}" + (f"-threads{num_thread}" if num_thread is not None else "")
+    if runtime is not None and runtime != BENCHMARKED_RUNTIME:
+        base = f"{base}|{runtime}"
+    return base
 
 
 @dataclass

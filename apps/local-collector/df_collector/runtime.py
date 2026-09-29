@@ -121,6 +121,8 @@ class Collector:
         self.threads = config.limits.llm_threads
         self.generation = extract.generation(config.num_ctx, config.think, self.threads)
         self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think, self.threads)
+        # The Ollama release is part of the build too; it is known once the server has been asked (adopt_runtime).
+        self.runtime: str | None = None
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -310,6 +312,33 @@ class Collector:
     def verify_model(self) -> None:
         self.model_identity = self._client().verify()
         self.status["model"] = self.model_identity.__dict__
+        self.adopt_runtime(self.model_identity.runtime)
+
+    def adopt_runtime(self, runtime: str) -> bool:
+        """Key the local build by the Ollama release actually serving the model. Returns True when the build changed.
+
+        Queued notices move to the new build (they have not been extracted yet), and the backfill restarts whenever the
+        build differs from the one it last ran under, so every notice is extracted under the current build: an upgrade
+        to an unbenchmarked release, and the return to the benchmarked one, each re-extract rather than skip."""
+        new = extract.build_id(self.config.model, self.config.model_digest, self.config.num_ctx, self.config.think, self.threads, runtime)
+        old, self.runtime = self.build, runtime
+        changed = new != old
+        with self.state.tx() as db:
+            if changed:
+                db.execute("UPDATE OR IGNORE document SET extractor_version = ?, updated_at = ? WHERE state = 'queued' AND extractor_version = ?", (new, time.time(), old))
+                leftover = db.execute("SELECT * FROM document WHERE state = 'queued' AND extractor_version = ?", (old,)).fetchall()
+            if self.state.cursor(TASK, "backfill_build") != new:
+                rewind_backfill(db, self.state)
+                self.state.set_cursor(db, TASK, "backfill_build", new)
+        if changed:
+            self.build = new
+            # A notice already recorded under the new build needs nothing more from its old queued row.
+            for row in leftover:
+                with self.state.tx() as db:
+                    db.execute("DELETE FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (row["recall_id"], row["raw_sha256"], row["extractor_version"]))
+                self._drop_working_copy(row)
+            self.state.event("info", "build_changed", {"runtime": runtime, "build": new})
+        return changed
 
     def extract_one(self) -> bool:
         """Extract the oldest queued document. Returns False when there is nothing to do."""
@@ -336,6 +365,10 @@ class Collector:
         # uncharged, so a payload never labels other weights with the benchmarked digest.
         before = client.verify()
         self.model_identity = before
+        if self.adopt_runtime(before.runtime):
+            # Another Ollama release is serving the model: the queued notices now belong to its build.
+            self.status.update(phase="idle", current=None)
+            return True
         started = time.monotonic()
         try:
             result = extract.extract(client, record)
@@ -533,10 +566,16 @@ class Collector:
                 db.execute("UPDATE job SET due_at = MIN(due_at, ?) WHERE kind = 'catalog' AND state = 'pending'", (time.time() + CATALOG_RETRY_S,))
             return
         self.state.ensure_job("read", TASK, f"{TASK}:read", {})
+        # Notices are queued under the build, which includes the Ollama release: learn it before reading any.
+        if self.runtime is None:
+            try:
+                self.verify_model()
+            except LocalModelError:
+                pass  # handled below, where the collector waits for the model
         queue = int((self.state.one("SELECT COUNT(*) AS n FROM document WHERE state = 'queued'") or {"n": 0})["n"])
         if cap:
             self.status.update(phase=f"reading paused: {cap}; draining the backlog")
-        elif queue < self.config.limits.max_queue:
+        elif queue < self.config.limits.max_queue and self.runtime is not None:
             job = self.state.claim(self.owner, ("read",))
             if job is not None:
                 self.status.update(phase="reading source", current=task.input["path"])

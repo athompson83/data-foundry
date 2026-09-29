@@ -1372,3 +1372,55 @@ class CodexRegressionsRound21(unittest.TestCase):
             with self.assertRaises(LocalModelError):
                 collector.extract_one()
             self.assertIsNone(collector.state.one("SELECT payload FROM outbox"))
+
+
+class CodexRegressionsRound22(unittest.TestCase):
+    NOTICE = {"id": "cpsc-15034", "raw": RECORD, "provenance": {"raw_sha256": "a" * 64}}
+
+    def test_the_local_build_includes_an_unbenchmarked_runtime(self):
+        benchmarked = extract.build_id("qwen3.5:4b", "2a654d98e6fb", runtime=extract.BENCHMARKED_RUNTIME)
+        self.assertEqual(benchmarked, extract.build_id("qwen3.5:4b", "2a654d98e6fb"))
+        self.assertNotEqual(extract.build_id("qwen3.5:4b", "2a654d98e6fb", runtime="ollama/0.35.0"), benchmarked)
+
+    def test_returning_to_the_benchmarked_runtime_re_extracts_notices_done_under_another(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            # Everything was read and extracted while an unbenchmarked Ollama release served the model.
+            collector.adopt_runtime("ollama/0.35.0")
+            collector.queue_documents([self.NOTICE])
+            with state.tx() as db:
+                db.execute("UPDATE document SET state = 'extracted'")
+                state.set_cursor(db, TASK, "backfill_done", "1")
+            # Back on the benchmarked release: a new build, so the backfill restarts and the notice is queued again.
+            self.assertTrue(collector.adopt_runtime(extract.BENCHMARKED_RUNTIME))
+            self.assertIsNone(state.cursor(TASK, "backfill_done"))
+            self.assertEqual(collector.queue_documents([self.NOTICE]), 1)
+            self.assertEqual(state.one("SELECT COUNT(*) AS n FROM document WHERE state = 'queued'")["n"], 1)
+
+    def test_queued_notices_move_to_the_new_build_and_the_backfill_rewinds_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            collector.adopt_runtime(extract.BENCHMARKED_RUNTIME)
+            collector.queue_documents([self.NOTICE])
+            with state.tx() as db:
+                state.set_cursor(db, TASK, "backfill_done", "1")
+            self.assertFalse(collector.adopt_runtime(extract.BENCHMARKED_RUNTIME))  # unchanged: nothing rewinds
+            self.assertEqual(state.cursor(TASK, "backfill_done"), "1")
+            self.assertTrue(collector.adopt_runtime("ollama/0.35.0"))
+            self.assertEqual(state.one("SELECT extractor_version FROM document WHERE state = 'queued'")["extractor_version"], collector.build)
+            self.assertIsNone(state.cursor(TASK, "backfill_done"))
+
+    def test_a_restart_under_a_changed_build_restarts_a_finished_backfill(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            Collector(config, state, client=FakeClient("{}"), policy=POLICY).adopt_runtime(extract.BENCHMARKED_RUNTIME)
+            with state.tx() as db:
+                state.set_cursor(db, TASK, "backfill_done", "1")
+            config.limits.llm_threads = 4  # takes effect at the next start: another build
+            Collector(config, state, client=FakeClient("{}"), policy=POLICY).adopt_runtime(extract.BENCHMARKED_RUNTIME)
+            self.assertIsNone(state.cursor(TASK, "backfill_done"))

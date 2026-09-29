@@ -50,7 +50,8 @@ bytes (`raw_sha256`) or the extractor version change.
   `temperature: 0`, `think: false`, a JSON schema and a bounded `num_predict`. There is no fallback provider.
   The Ollama version is part of the build: submissions report it, and only output from the benchmarked release
   (0.34.4) is published. After an Ollama upgrade, new output is stored but not served until that release is
-  benchmarked and allowlisted.
+  benchmarked and allowlisted. Each release is its own local build: a change of release (either way) restarts the
+  backfill and re-extracts every notice under it, as any other build change does.
   `install.ps1` sets `OLLAMA_NO_CLOUD=1` and proves the server refuses a cloud model.
 - **Hostile text.** Notice text is data. The model has no tools. A proposal survives only if it is printed
   verbatim in the stored record and passes the acceptance rules. The server re-decides everything.
