@@ -68,9 +68,13 @@ export function productsServed(env: Env): boolean {
   return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
 }
 
-/** Extracted identifiers (ADR-0017) are served only with the dataset, while their quality gate is open. */
-export function extractedServed(env: Env): boolean {
-  return productsServed(env) && env.EXTRACTED_IDENTIFIERS_OPEN === '1';
+/**
+ * Extracted identifiers (ADR-0017) are served only with the dataset, while their quality gate is open. The RapidAPI
+ * channel needs its own entitlement as well: marketplace delivery is a separate decision from the direct API.
+ */
+export function extractedServed(env: Env, channel: 'direct' | 'rapidapi' = 'direct'): boolean {
+  if (!(productsServed(env) && env.EXTRACTED_IDENTIFIERS_OPEN === '1')) return false;
+  return channel === 'direct' || env.MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN === '1';
 }
 
 /** Whether a submitted extractor tuple is exactly a publishable build (the JavaScript twin of the SQL clause below). */
@@ -278,12 +282,14 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
     }
     seen.add(decision.key);
     // Written only while this request still owns its reservation, so a request whose reservation was taken over
-    // commits nothing more.
+    // commits nothing more. A version an operator has withdrawn is stored withdrawn, never served.
     const inserted = await db
-      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, runtime, behaviour_sha256, rules_sha256, credential_id, submission_id, status, submitted_at)
-        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
+      .prepare(`INSERT INTO product_recall_extracted_key (recall_id, raw_sha256, extractor_version, kind, value_key, printed, label, source_field, span_start, span_end, model, model_digest, prompt_sha256, generation, runtime, behaviour_sha256, rules_sha256, credential_id, submission_id, status, withdrawn_at, submitted_at)
+        SELECT ?, ?, ?, 'model', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+          CASE WHEN w.extractor_version IS NULL THEN 'accepted' ELSE 'withdrawn' END, CASE WHEN w.extractor_version IS NULL THEN NULL ELSE ? END, ?
+        FROM (SELECT 1) LEFT JOIN extractor_withdrawal w ON w.extractor_version = ?
         WHERE EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL) ON CONFLICT DO NOTHING RETURNING recall_id`)
-      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.runtime, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, owner.id, owner.lease)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.runtime, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, now, extractor.version, owner.id, owner.lease)
       .first<{ recall_id: string }>();
     if (!inserted) await assertOwner(db, owner, false);
     results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
@@ -421,6 +427,7 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   }
   const all = results.flatMap((result) => result.candidates);
   const count = (status: CandidateStatus) => all.filter((candidate) => candidate.status === status).length;
+  const withdrawnVersion = (await env.DB.prepare('SELECT 1 AS w FROM extractor_withdrawal WHERE extractor_version = ?').bind(extractor.version).first()) !== null;
   const response = {
     task: IDENTIFIER_TASK,
     extractor_version: extractor.version,
@@ -430,8 +437,10 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
     rejected: count('rejected'),
     // Served only when the quality gate is open AND this exact build is allowlisted (the same test every query applies).
     publishable_build: isPublishableExtractor(extractor),
+    // An operator has withdrawn this extractor version: its candidates are checked and kept, but not served.
+    extractor_withdrawn: withdrawnVersion,
     // The read path's own conditions: dataset open and not withdrawn, quality gate open, and an allowlisted build.
-    published: extractedServed(env) && isPublishableExtractor(extractor),
+    published: extractedServed(env) && isPublishableExtractor(extractor) && !withdrawnVersion,
     results,
   };
   return response;
@@ -440,6 +449,8 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
 /** Operator withdrawal of every accepted candidate from one extractor version (optionally one notice). Rows are kept; restoreExtractions reverses it. */
 export async function withdrawExtractions(db: D1Database, extractorVersion: string, recallId: string | null, now: string): Promise<number> {
   if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
+  // Withdrawing a whole version is durable: later submissions from it are stored withdrawn too.
+  if (!recallId) await db.prepare('INSERT INTO extractor_withdrawal (extractor_version, withdrawn_at) VALUES (?, ?) ON CONFLICT (extractor_version) DO NOTHING').bind(extractorVersion, now).run();
   const rows = await db
     .prepare(`UPDATE product_recall_extracted_key SET status = 'withdrawn', withdrawn_at = ? WHERE extractor_version = ? AND status = 'accepted' ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
     .bind(now, extractorVersion, ...(recallId ? [recallId] : []))
@@ -450,6 +461,7 @@ export async function withdrawExtractions(db: D1Database, extractorVersion: stri
 /** Reverses withdrawExtractions for one extractor version (optionally one notice): withdrawn rows are accepted again. */
 export async function restoreExtractions(db: D1Database, extractorVersion: string, recallId: string | null): Promise<number> {
   if (!/^[\w.@/:+-]{3,100}$/.test(extractorVersion)) throw new BadRequest('extractor_version is required');
+  if (!recallId) await db.prepare('DELETE FROM extractor_withdrawal WHERE extractor_version = ?').bind(extractorVersion).run();
   const rows = await db
     .prepare(`UPDATE product_recall_extracted_key SET status = 'accepted', withdrawn_at = NULL WHERE extractor_version = ? AND status = 'withdrawn' ${recallId ? 'AND recall_id = ?' : ''} RETURNING recall_id`)
     .bind(extractorVersion, ...(recallId ? [recallId] : []))

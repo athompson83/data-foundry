@@ -97,6 +97,22 @@ describe('local collector', () => {
     }
   });
 
+  it('allowlists only what the committed benchmark report scored, and only while it meets the quality bar', () => {
+    // run_benchmark.py records the fingerprint and prompt it scored under; a publishable entry must name exactly those,
+    // so updating the constants without re-scoring (a rules change) fails here.
+    type Split = { systems: { llm_validated: { precision: number } }; negative_notices_with_false_positive: string; unsupported_values_in_raw_output: number };
+    const report = JSON.parse(readFileSync(join(APP, 'benchmark', 'data', 'report.json'), 'utf8')) as { extractor_version: string; prompt_sha256: string; behaviour_sha256: string; heldout: Split };
+    for (const entry of PUBLISHABLE_EXTRACTORS) {
+      expect(entry.behaviourSha256, 'the entry names the fingerprint benchmark/data/report.json was scored under').toBe(report.behaviour_sha256);
+      expect(entry.promptSha256).toBe(report.prompt_sha256);
+      expect(entry.version).toBe(report.extractor_version);
+    }
+    // QUALITY_BAR.md: held-out precision ≥ 0.95, no false positive on a negative notice, no unsupported value.
+    expect(report.heldout.systems.llm_validated.precision).toBeGreaterThanOrEqual(0.95);
+    expect(report.heldout.negative_notices_with_false_positive).toMatch(/^0\//);
+    expect(report.heldout.unsupported_values_in_raw_output).toBe(0);
+  });
+
   it('allowlists the Ollama runtime the benchmark actually ran on', () => {
     const results = readFileSync(join(APP, 'benchmark', 'RESULTS.md'), 'utf8');
     const benchmarked = /"ollama": "(\d+\.\d+\.\d+)/.exec(results)?.[1];

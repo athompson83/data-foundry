@@ -87,7 +87,10 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      [`apps/local-collector/benchmark/QUALITY_BAR.md`](../../apps/local-collector/benchmark/QUALITY_BAR.md) is met on
      held-out data.
    - Operators withdraw a whole extractor version with `/admin/extractions/withdraw`. Rows are kept for audit, and
-     `/admin/extractions/restore` reverses the withdrawal.
+     `/admin/extractions/restore` reverses the withdrawal. A version-wide withdrawal is durable (`extractor_withdrawal`):
+     submissions that arrive later from that version are checked and kept, but stored withdrawn, until restored.
+   - The RapidAPI channel serves extracted identifiers only while `MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN` is also
+     `"1"`: marketplace delivery is a separate product decision from the direct API (ADR-0016).
 5. **Local-only inference.**
    - The Ollama URL must be loopback. Cloud tags and models without local weights are refused. The model build is
      pinned by ID (`qwen3.5:4b`, `2a654d98e6fb`, Q4_K_M, Apache-2.0, weights layer

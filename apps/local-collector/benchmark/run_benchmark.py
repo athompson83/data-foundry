@@ -136,7 +136,11 @@ def score(args: argparse.Namespace) -> dict:
     for path in sorted(out.glob("predictions-*.jsonl")):
         rows += [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     by_id = {r["id"]: r for r in rows}
-    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256()}
+    # The extraction-behaviour fingerprint the report was scored under: a publishable entry must name this report's
+    # value (CI checks it), so a rules change cannot be allowlisted without re-scoring.
+    from df_collector.behaviour import behaviour_sha256
+
+    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256()}
     for split in ("dev", "heldout"):
         ids = [i for i in by_id if by_id[i]["split"] == split]
         if not ids:

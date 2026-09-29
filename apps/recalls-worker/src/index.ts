@@ -95,7 +95,7 @@ async function meteredApi(env: Env, request: Request, url: URL, marketplace: Mar
   const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
   if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
   // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
-  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' });
+  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi');
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
   const count = await consumeRequest(env.DB, auth);
@@ -106,13 +106,13 @@ async function meteredApi(env: Env, request: Request, url: URL, marketplace: Mar
       'x-ratelimit-remaining': '0',
     });
   }
-  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' });
+  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' }, 'direct');
 }
 
 /** The data endpoints, after the request's channel has authorised (and, if direct, metered) it. */
-async function serveData(env: Env, url: URL, headers: Record<string, string>): Promise<Response> {
+async function serveData(env: Env, url: URL, headers: Record<string, string>, channel: 'direct' | 'rapidapi'): Promise<Response> {
   const includeRaw = url.searchParams.get('include') === 'raw';
-  const extracted = extractedServed(env);
+  const extracted = extractedServed(env, channel);
 
   if (url.pathname === '/v1/product-recalls') return json(await searchProductRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams, extracted), 200, headers);
   if (url.pathname === '/v1/product-recalls/lookup') {

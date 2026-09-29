@@ -28,6 +28,8 @@ fingerprint covers the acceptance rules, the extractor's schema, truncation and 
 Any change to them fails CI until this bar is met again for the changed behaviour:
 
 - a rules-only change: re-score the stored predictions (`python benchmark/run_benchmark.py … --score-only`);
+  the report records the fingerprint it was scored under, and CI requires the entry to name that value and the
+  committed held-out result to meet this bar;
 - a prompt, schema, truncation or option change: a full run on the dev and held-out splits.
 
 Then update `EXTRACTION_BEHAVIOUR_SHA256` and the entry (with its benchmark note) in the same reviewed change. Rows

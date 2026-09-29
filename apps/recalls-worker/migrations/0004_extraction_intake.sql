@@ -84,3 +84,11 @@ CREATE TABLE IF NOT EXISTS extraction_submission (
   response        TEXT,
   UNIQUE (credential_id, idempotency_key)
 );
+
+-- Extractor versions an operator has withdrawn as a whole (/admin/extractions/withdraw without recall_id). The
+-- withdrawal is durable: later submissions from the version are still checked and kept, but stored withdrawn, so a
+-- collector with queued work cannot re-publish it. /admin/extractions/restore lifts it.
+CREATE TABLE IF NOT EXISTS extractor_withdrawal (
+  extractor_version TEXT PRIMARY KEY,
+  withdrawn_at      TEXT NOT NULL
+);

@@ -463,6 +463,36 @@ describe('publication of extracted identifiers', () => {
     expect(await env.DB.prepare('SELECT lease, response FROM extraction_submission WHERE idempotency_key = ?').bind(key).first()).toEqual({ lease: 'the-retry', response: null });
   });
 
+  it('serves extracted identifiers on the RapidAPI channel only with its own marketplace entitlement', async () => {
+    const secret = 'p'.repeat(40);
+    const { env } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1', RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: secret });
+    const viaMarketplace = async (target: Env) => {
+      const response = await call(target, '/v1/product-recalls/cpsc-15034', { headers: { 'x-rapidapi-proxy-secret': secret, 'x-rapidapi-user': 'someone', 'x-rapidapi-subscription': 'pro' } });
+      expect(response.status).toBe(200);
+      return ((await response.json()) as { data: { extracted_identifiers?: unknown[] } }).data.extracted_identifiers ?? [];
+    };
+    // The direct API serves them; the marketplace does not until its own gate opens.
+    expect(await viaMarketplace(env)).toEqual([]);
+    expect(await viaMarketplace({ ...env, MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN: '1' })).toEqual([expect.objectContaining({ value: 'SA904' })]);
+  });
+
+  it('keeps a withdrawn extractor version withdrawn for submissions that arrive after the withdrawal', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const version = encodeURIComponent(EXTRACTOR.version);
+    const admin = (action: string) => call(env, `/admin/extractions/${action}?extractor_version=${version}`, { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });
+    expect(await (await admin('withdraw')).json()).toEqual({ withdrawn: 0 });
+    // A collector's queued work arrives later: still checked and kept, but withdrawn and not served.
+    const late = await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }]);
+    expect(await late.json()).toMatchObject({ accepted: 1, extractor_withdrawn: true, published: false });
+    expect(await env.DB.prepare('SELECT status FROM product_recall_extracted_key').first()).toEqual({ status: 'withdrawn' });
+    const apiKey = await customerKey(env);
+    const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;
+    expect(await served()).toEqual([]);
+    // Restoring the version lifts it for those rows and for later submissions.
+    expect(await (await admin('restore')).json()).toEqual({ restored: 1 });
+    expect(await served()).toEqual([expect.objectContaining({ value: 'SA904' })]);
+  });
+
   it('stops serving a candidate when the source bytes change, and after withdrawal', async () => {
     const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
     const withdrawn = await call(env, '/admin/extractions/withdraw?extractor_version=cpsc-product-identifiers@1/prompt-3', { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });

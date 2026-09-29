@@ -57,6 +57,8 @@ export interface Env {
   readonly COLLECTOR_INTAKE_OPEN?: string;
   /** "1" serves accepted extracted identifiers (`extracted_identifiers`, lookup kind `extracted_model`): the quality gate. */
   readonly EXTRACTED_IDENTIFIERS_OPEN?: string;
+  /** "1" also serves extracted identifiers on the RapidAPI channel: a separate marketplace decision (ADR-0016/0017). */
+  readonly MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN?: string;
   /** Comma-separated intake source keys an operator has withdrawn (e.g. "cpsc-recalls"): submissions for them are refused. */
   readonly INTAKE_WITHDRAWN_SOURCES?: string;
   /** Workers version metadata binding: the running version's id, tag and upload time. */

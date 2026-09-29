@@ -50,6 +50,8 @@ PRODUCT_RECALLS_KILL_SWITCH = "0"
 # INTAKE_WITHDRAWN_SOURCES lists source keys whose submissions are refused (a per-source withdrawal).
 COLLECTOR_INTAKE_OPEN = "0"
 EXTRACTED_IDENTIFIERS_OPEN = "0"
+# Marketplace (RapidAPI) delivery of extracted identifiers is its own product decision, independent of the direct API.
+MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN = "0"
 INTAKE_WITHDRAWN_SOURCES = ""
 # RapidAPI channel (ADR-0016). "1" opens it once the listing, agreements, payouts and the
 # RAPIDAPI_PROXY_SECRET Worker secret exist and proxy acceptance has passed. Owner decision.

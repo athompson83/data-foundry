@@ -1,6 +1,7 @@
 {
   "extractor_version": "cpsc-product-identifiers@1/prompt-3",
   "prompt_sha256": "e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53",
+  "behaviour_sha256": "b8faf91988e5bbffaefc3e966f94fee6c1f8fe85fafe02160c364ea7914b177a",
   "dev": {
     "notices": 100,
     "gold_identifiers": 149,
