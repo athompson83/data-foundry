@@ -287,14 +287,14 @@ class UploaderBehaviour(unittest.TestCase):
         self.state = State(self.config.db_path)
         with self.state.tx() as db:
             db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES ('cpsc-15034', 'r', ?, 'SA904', 'Description', 'item', 'accepted', 0)", (extract.EXTRACTOR_VERSION,))
-            self.state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {}, "notices": [{"recall_id": "cpsc-15034", "raw_sha256": "r", "candidates": [{"value": "SA904", "field": "Description", "label": "item"}]}]})
+            self.state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {"version": extract.EXTRACTOR_VERSION}, "notices": [{"recall_id": "cpsc-15034", "raw_sha256": "r", "candidates": [{"value": "SA904", "field": "Description", "label": "item"}]}]})
 
     def uploader(self, outcomes):
         opener = FakeOpener(outcomes)
         return Uploader(self.config, self.state, POLICY, opener=opener), opener
 
     def test_interrupted_upload_is_resent_with_the_same_idempotency_key_and_acked_once(self):
-        ok = {"extractor_version": extract.EXTRACTOR_VERSION, "accepted": 1, "replayed": 0, "rejected": 0, "results": [{"recall_id": "cpsc-15034", "candidates": [{"value": "SA904", "field": "Description", "status": "accepted"}]}]}
+        ok = {"task": TASK, "extractor_version": extract.EXTRACTOR_VERSION, "accepted": 1, "replayed": 0, "rejected": 0, "results": [{"recall_id": "cpsc-15034", "candidates": [{"value": "SA904", "field": "Description", "status": "accepted"}]}]}
         uploader, opener = self.uploader([urllib.error.URLError("connection reset"), {**ok, "idempotent_replay": True}])
         self.assertFalse(uploader.send_one())
         self.assertEqual(self.state.one("SELECT state FROM outbox")["state"], "pending")
@@ -838,9 +838,9 @@ class CodexRegressionsRound6(unittest.TestCase):
             (config.secrets_dir / "ingest-token").write_text("dfi_" + "a" * 40)
             state = State(config.db_path)
             with state.tx() as db:
-                state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {}, "notices": []})
+                state.outbox_add(db, "f" * 64, {"task": TASK, "extractor": {"version": extract.EXTRACTOR_VERSION}, "notices": []})
             self.assertIsNone(snapshot(config, state, None)["last"]["upload"])
-            ok = {"extractor_version": extract.EXTRACTOR_VERSION, "accepted": 0, "replayed": 0, "rejected": 0, "results": []}
+            ok = {"task": TASK, "extractor_version": extract.EXTRACTOR_VERSION, "accepted": 0, "replayed": 0, "rejected": 0, "results": []}
             self.assertTrue(Uploader(config, state, POLICY, opener=FakeOpener([ok])).send_one())
             self.assertIsNone(state.one("SELECT 1 FROM outbox"))
             self.assertIsNotNone(snapshot(config, state, None)["last"]["upload"])
@@ -1094,8 +1094,8 @@ class CodexRegressionsRound12(unittest.TestCase):
             with state.tx() as db:
                 for raw in ("old", "new"):
                     db.execute("INSERT INTO candidate (recall_id, raw_sha256, extractor_version, value, field, label, local_decision, updated_at) VALUES ('cpsc-1', ?, 'b', 'SA904', 'Description', 'item', 'accepted', 0)", (raw,))
-                state.outbox_add(db, "1" * 64, {"task": TASK, "build": "b", "notices": [{"recall_id": "cpsc-1", "raw_sha256": "old", "candidates": []}]})
-            answer = {"extractor_version": "v", "accepted": 0, "replayed": 0, "rejected": 1, "results": [{"recall_id": "cpsc-1", "candidates": [{"value": "SA904", "field": "Description", "status": "rejected", "reason": "not_in_source"}]}]}
+                state.outbox_add(db, "1" * 64, {"task": TASK, "build": "b", "extractor": {"version": "v"}, "notices": [{"recall_id": "cpsc-1", "raw_sha256": "old", "candidates": []}]})
+            answer = {"task": TASK, "extractor_version": "v", "accepted": 0, "replayed": 0, "rejected": 1, "results": [{"recall_id": "cpsc-1", "candidates": [{"value": "SA904", "field": "Description", "status": "rejected", "reason": "not_in_source"}]}]}
             self.assertTrue(Uploader(config, state, POLICY, opener=FakeOpener([answer])).send_one())
             rows = {r["raw_sha256"]: r["server_status"] for r in state.q("SELECT raw_sha256, server_status FROM candidate")}
             self.assertEqual(rows, {"old": "rejected", "new": None})
@@ -1627,3 +1627,31 @@ class CodexRegressionsRound29(unittest.TestCase):
             (out / "sample.json").write_text(json.dumps(changed))
             with self.assertRaises(SystemExit):
                 bench.score(args)
+
+
+class CodexRegressionsRound30(unittest.TestCase):
+    PAYLOAD = {"task": TASK, "extractor": {"version": extract.EXTRACTOR_VERSION}, "notices": [{"recall_id": "cpsc-1", "raw_sha256": "r", "candidates": [{"value": "SA904", "field": "Description", "label": "item"}]}]}
+    OK = {"task": TASK, "extractor_version": extract.EXTRACTOR_VERSION, "results": [{"recall_id": "cpsc-1", "status": "checked", "candidates": [{"value": "SA904", "field": "Description", "status": "accepted"}]}]}
+
+    def test_only_an_answer_to_this_submission_acknowledges_it(self):
+        from df_collector.runtime import answer_problem
+
+        self.assertIsNone(answer_problem(self.PAYLOAD, self.OK))
+        for bad in ({}, {"ok": True}, {**self.OK, "task": "other"}, {**self.OK, "extractor_version": "x"}, {**self.OK, "results": []},
+                    {**self.OK, "results": [{"recall_id": "cpsc-1", "candidates": [{"value": "SA904", "field": "Description", "status": "maybe"}]}]},
+                    {**self.OK, "results": [{"recall_id": "cpsc-2", "candidates": [{"value": "SA904", "field": "Description", "status": "accepted"}]}]}):
+            self.assertIsNotNone(answer_problem(self.PAYLOAD, bad), bad)
+
+    def test_an_unexpected_2xx_keeps_the_upload_owed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            config.api_origin = "http://127.0.0.1:9"
+            state = State(config.db_path)
+            config.secrets_dir.mkdir(parents=True, exist_ok=True)
+            (config.secrets_dir / "ingest-token").write_text("dfi_" + "a" * 40)
+            state.outbox_add(state.db, "1" * 64, self.PAYLOAD)
+            state.db.commit()
+            uploader = Uploader(config, state, policy=POLICY, opener=FakeOpener([{"ok": True}]))
+            self.assertFalse(uploader.send_one())
+            self.assertEqual(state.outbox_pending(), 1)
+            self.assertTrue(state.get("uploads_rejected"))

@@ -82,6 +82,36 @@ def seconds_until_utc_midnight() -> float:
     return 86400 - (now.hour * 3600 + now.minute * 60 + now.second) + 5
 
 
+CANDIDATE_OUTCOMES = {"accepted", "replayed", "duplicate_of_agency_fact", "rejected"}
+
+
+def answer_problem(payload: dict, answer: object) -> str | None:
+    """Why an intake answer does not acknowledge this submission, or None when it does: the same task and extractor
+    version, and an outcome for every submitted candidate of every submitted notice."""
+    if not isinstance(answer, dict):
+        return "not a JSON object"
+    if answer.get("task") != payload.get("task"):
+        return f"task {answer.get('task')!r}"
+    if answer.get("extractor_version") != (payload.get("extractor") or {}).get("version"):
+        return f"extractor_version {answer.get('extractor_version')!r}"
+    results = answer.get("results")
+    if not isinstance(results, list):
+        return "no results"
+    answered: dict[str, set[tuple[str, str]]] = {}
+    for notice in results:
+        if not isinstance(notice, dict) or not isinstance(notice.get("candidates"), list):
+            return "a malformed notice result"
+        for candidate in notice["candidates"]:
+            if not isinstance(candidate, dict) or candidate.get("status") not in CANDIDATE_OUTCOMES:
+                return f"a candidate outcome {candidate.get('status') if isinstance(candidate, dict) else candidate!r}"
+            answered.setdefault(notice.get("recall_id"), set()).add((candidate.get("field"), candidate.get("value")))
+    for notice in payload.get("notices", []):
+        missing = {(c.get("field"), c.get("value")) for c in notice.get("candidates", [])} - answered.get(notice.get("recall_id"), set())
+        if missing or notice.get("recall_id") not in answered:
+            return f"no outcome for {notice.get('recall_id')}"
+    return None
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     """The uploader never follows a redirect: the ingestion credential goes only to the policy-checked intake URL."""
 
@@ -693,6 +723,14 @@ class Uploader:
             return False
         except (urllib.error.URLError, TimeoutError, ConnectionError, json.JSONDecodeError) as error:
             self._defer(row, str(error), backoff_seconds(row["attempts"]))
+            return False
+        problem = answer_problem(payload, answer)
+        if problem:
+            # A 2xx that does not answer this submission (a bad rollout, a misrouted origin) is not an acknowledgement:
+            # the upload stays owed, like a rejected one, rather than being deleted unanswered.
+            self.state.set("uploads_rejected", f"intake answer did not match the submission ({problem}); retrying every {REJECTED_RETRY_S // 3600} h")
+            self.state.event("error", "upload_unanswered", {"id": row["id"], "problem": problem})
+            self._defer(row, f"unexpected intake answer: {problem}", REJECTED_RETRY_S)
             return False
         self._ack(row, answer)
         return True

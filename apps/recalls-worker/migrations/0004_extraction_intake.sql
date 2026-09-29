@@ -89,10 +89,13 @@ CREATE TABLE IF NOT EXISTS extraction_submission (
   UNIQUE (credential_id, idempotency_key)
 );
 
--- Extractor versions an operator has withdrawn as a whole (/admin/extractions/withdraw without recall_id). The
--- withdrawal is durable: later submissions from the version are still checked and kept, but stored withdrawn, so a
--- collector with queued work cannot re-publish it. /admin/extractions/restore lifts it.
+-- Durable withdrawal holds. recall_id '' holds a whole extractor version (/admin/extractions/withdraw without
+-- recall_id); a recall id holds that notice only. Later submissions from a held version or notice are still checked
+-- and kept, but stored withdrawn with the matching scope, so a collector with queued work cannot re-publish them.
+-- /admin/extractions/restore lifts the hold of its own scope.
 CREATE TABLE IF NOT EXISTS extractor_withdrawal (
-  extractor_version TEXT PRIMARY KEY,
-  withdrawn_at      TEXT NOT NULL
+  extractor_version TEXT NOT NULL,
+  recall_id         TEXT NOT NULL DEFAULT '',
+  withdrawn_at      TEXT NOT NULL,
+  PRIMARY KEY (extractor_version, recall_id)
 );
