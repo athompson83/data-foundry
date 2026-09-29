@@ -1700,6 +1700,18 @@ class CodexRegressionsRound32(unittest.TestCase):
         result = extract.extract(self.Reader(), {"Title": "Widget", "Description": text})
         self.assertEqual([p.value for p in result.accepted], ["GH-78"])
 
+    def test_a_label_far_before_a_code_cut_at_a_boundary_is_seen_with_it(self):
+        # The label ends 500 characters before the code (within the validator's MAX_ANCHOR_BEFORE); the code straddles
+        # the end of the first window. Some window must hold both.
+        code = "JK-90"
+        head = "y" * (extract.MAX_FIELD_CHARS - 515)
+        text = head + "Item number " + "," * 500 + code + " is recalled." + " z" * 10
+        self.assertLess(text.index(code), extract.MAX_FIELD_CHARS)
+        self.assertGreater(text.index(code) + len(code), extract.MAX_FIELD_CHARS)
+        windows = [extract._prompt([("Description", text[: extract.MAX_FIELD_CHARS])])] + [extract._prompt([w]) for w in extract.later_windows({"Title": "W", "Description": text}, ["Description"])]
+        self.assertTrue(any("Item number " in w and code in w for w in windows))
+        self.assertGreaterEqual(extract.WINDOW_OVERLAP, validate.MAX_ANCHOR_BEFORE + extract.MAX_VALUE_CHARS + validate.MAX_ANCHOR_AFTER)
+
     def test_a_short_notice_is_one_request(self):
         client = self.Reader()
         extract.extract(client, RECORD)

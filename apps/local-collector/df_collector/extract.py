@@ -47,7 +47,7 @@ def build_schema(fields: list[str]) -> dict:
                 "items": {
                     "type": "object",
                     "properties": {
-                        "value": {"type": "string", "maxLength": 40},
+                        "value": {"type": "string", "maxLength": MAX_VALUE_CHARS},
                         "label": {"type": "string", "enum": list(validate.IDENTIFIER_LABELS)},
                         "field": {"type": "string", "enum": fields},
                     },
@@ -69,9 +69,12 @@ def build_prompt(record: dict, fields: list[str]) -> str:
     return _prompt([(name, (validate.candidate_field_text(record, name) or "")[:MAX_FIELD_CHARS]) for name in fields])
 
 
-# Later windows of a long field overlap the one before by more than an identifier's maximum length (40), so a code
-# cut at a boundary is whole in the next window. A field needing more windows than this is quarantined, never cut.
-WINDOW_OVERLAP = 200
+# The longest value the schema lets the model propose.
+MAX_VALUE_CHARS = 40
+# Later windows of a long field overlap the one before by the whole span the validator reads around a code (its label
+# up to MAX_ANCHOR_BEFORE before it, the code, and MAX_ANCHOR_AFTER after), so every code the validator could accept is
+# seen whole, with that context, in at least one window. A field needing more windows than this is quarantined.
+WINDOW_OVERLAP = validate.MAX_ANCHOR_BEFORE + MAX_VALUE_CHARS + validate.MAX_ANCHOR_AFTER
 MAX_LATER_WINDOWS = 20
 
 

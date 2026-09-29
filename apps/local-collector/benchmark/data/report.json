@@ -1,7 +1,7 @@
 {
   "extractor_version": "cpsc-product-identifiers@1/prompt-3",
   "prompt_sha256": "e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53",
-  "behaviour_sha256": "372f5a34b5025b31656c56ada167c41b7de996e1474f889383efd4e24dd2a0f4",
+  "behaviour_sha256": "99c20fb8078d6ee576a267484117e487f4b8d403fba75e5e0cdfb1ebd8d4bac2",
   "gold_sha256": "571af718bf66d369a4cd15dd2fb2adad010d0730a0360d633f98836ff072abd7",
   "predictions_build": {
     "sample_sha256": "2d777d7e2e543ab6ce2d094f8ddfd4b3293f82448e2d4dd0bef4f2c61cbd32ef",
