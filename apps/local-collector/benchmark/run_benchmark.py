@@ -68,6 +68,11 @@ def sample_sha256(sample: list[dict]) -> str:
     return hashlib.sha256(json.dumps(canonical, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
 
 
+def gold_sha256(gold) -> str:
+    """A digest of the gold annotations a report was scored against, so corrected annotations need a re-score."""
+    return hashlib.sha256(json.dumps(gold, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+
+
 def prediction_build(identity, args: argparse.Namespace, think: bool | str, sample: list[dict]) -> dict:
     """Everything that decides what the model returns: the inputs, extractor version, model build, runtime and request."""
     return {
@@ -220,7 +225,7 @@ def score(args: argparse.Namespace) -> dict:
     build = json.loads(build_path.read_text())
     if build.get("sample_sha256") != sample_sha256(list(sample.values())):
         raise SystemExit(f"the stored predictions were made from another sample ({build.get('sample_sha256')}); re-run the benchmark (--fresh)")
-    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256(), "predictions_build": json.loads(build_path.read_text()), "coverage": covered}
+    report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256(), "gold_sha256": gold_sha256(gold), "predictions_build": json.loads(build_path.read_text()), "coverage": covered}
     for split in ("dev", "heldout"):
         ids = [i for i in by_id if by_id[i]["split"] == split]
         if not ids:

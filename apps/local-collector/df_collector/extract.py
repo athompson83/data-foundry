@@ -59,12 +59,33 @@ def build_schema(fields: list[str]) -> dict:
     }
 
 
+def _prompt(parts: list[tuple[str, str]]) -> str:
+    fields = [f"<field name=\"{name}\">\n{text}\n</field>" for name, text in parts]
+    return "Recall notice fields:\n\n" + "\n\n".join(fields) + "\n\nReturn the product identifiers as JSON."
+
+
 def build_prompt(record: dict, fields: list[str]) -> str:
-    parts = []
+    """The first request: every field, each cut to its first window. Longer fields follow in `later_windows`."""
+    return _prompt([(name, (validate.candidate_field_text(record, name) or "")[:MAX_FIELD_CHARS]) for name in fields])
+
+
+# Later windows of a long field overlap the one before by more than an identifier's maximum length (40), so a code
+# cut at a boundary is whole in the next window. A field needing more windows than this is quarantined, never cut.
+WINDOW_OVERLAP = 200
+MAX_LATER_WINDOWS = 20
+
+
+def later_windows(record: dict, fields: list[str]) -> list[tuple[str, str]]:
+    """(field, text) for every part of a field past MAX_FIELD_CHARS, each sent as its own one-field request."""
+    step = MAX_FIELD_CHARS - WINDOW_OVERLAP
+    windows = []
     for name in fields:
         text = validate.candidate_field_text(record, name) or ""
-        parts.append(f"<field name=\"{name}\">\n{text[:MAX_FIELD_CHARS]}\n</field>")
-    return "Recall notice fields:\n\n" + "\n\n".join(parts) + "\n\nReturn the product identifiers as JSON."
+        start = step
+        while start + WINDOW_OVERLAP < len(text):
+            windows.append((name, text[start : start + MAX_FIELD_CHARS]))
+            start += step
+    return windows
 
 
 # A fixed notice exercising every allowed field, including one longer than MAX_FIELD_CHARS.
@@ -167,11 +188,34 @@ def extract(client: OllamaClient, record: dict) -> Extraction:
     fields = validate.candidate_fields(record)
     if not fields:
         return Extraction(status="extracted")
+    windows = later_windows(record, fields)
+    if len(windows) > MAX_LATER_WINDOWS:
+        return Extraction(status="quarantined", error=f"a field needs {len(windows)} windows past the first (limit {MAX_LATER_WINDOWS})")
     chat = client.chat_json(SYSTEM_PROMPT, build_prompt(record, fields), build_schema(fields))
     try:
         items = parse_output(chat.content, fields)
     except (ValueError, json.JSONDecodeError) as error:
         return Extraction(status="quarantined", error=f"invalid model output: {error}", raw_output=chat.content[:4000], chat=chat)
+    if windows:
+        # A long field is read to its end: each later window is its own request, and every answer must parse. The
+        # answers are merged (first occurrence of each value) into one answer, held to the same cap as a single one.
+        chats = [chat]
+        for name, text in windows:
+            part = client.chat_json(SYSTEM_PROMPT, _prompt([(name, text)]), build_schema([name]))
+            chats.append(part)
+            try:
+                items += parse_output(part.content, [name])
+            except (ValueError, json.JSONDecodeError) as error:
+                return Extraction(status="quarantined", error=f"invalid model output: {error}", raw_output=part.content[:4000], chat=part)
+        merged: dict[str, dict] = {}
+        for item in items:
+            merged.setdefault(item["value"], item)
+        content = json.dumps({"identifiers": list(merged.values())})
+        chat = ChatResult(content=content, **{key: sum(getattr(c, key) for c in chats) for key in ("total_ms", "prompt_tokens", "prompt_ms", "output_tokens", "output_ms", "load_ms")})
+        try:
+            items = parse_output(content, fields)
+        except ValueError as error:
+            return Extraction(status="quarantined", error=f"invalid model output: {error}", raw_output=content[:4000], chat=chat)
     proposals: list[Proposal] = []
     seen: set[str] = set()
     for item in items:

@@ -123,6 +123,10 @@ describe('local collector', () => {
     // ...from the committed sample's inputs.
     const sampleDigest = spawnSync(python, ['-c', 'import importlib.util, json; s = importlib.util.spec_from_file_location("rb", "benchmark/run_benchmark.py"); m = importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.sample_sha256(json.load(open("benchmark/data/sample.json"))))'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
     expect((build as unknown as { sample_sha256: string }).sample_sha256, 'the scored predictions were made from the committed sample').toBe(sampleDigest);
+    // ...and scored against the committed gold annotations (a corrected gold file needs a re-score).
+    const goldDigest = spawnSync(python, ['-c', 'import importlib.util, json; s = importlib.util.spec_from_file_location("rb", "benchmark/run_benchmark.py"); m = importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.gold_sha256(json.load(open("benchmark/data/gold.json"))))'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect(goldDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect((report as unknown as { gold_sha256: string }).gold_sha256, 'the report was scored against the committed gold annotations').toBe(goldDigest);
     for (const entry of PUBLISHABLE_EXTRACTORS) {
       expect(entry.behaviourSha256, 'the entry names the fingerprint benchmark/data/report.json was scored under').toBe(report.behaviour_sha256);
       expect(entry.promptSha256).toBe(report.prompt_sha256);

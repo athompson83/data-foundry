@@ -1667,3 +1667,65 @@ class CodexRegressionsRound31(unittest.TestCase):
         result = extract.extract(FakeClient(json.dumps({"identifiers": [item] * (extract.MAX_IDENTIFIERS + 1)})), RECORD)
         self.assertEqual(result.status, "quarantined")
         self.assertEqual(result.accepted, [])
+
+
+class CodexRegressionsRound32(unittest.TestCase):
+    class Reader(FakeClient):
+        """Answers each request with every identifier-looking code printed in it, as a perfect model would."""
+
+        def __init__(self):
+            super().__init__("")
+            self.prompts = []
+
+        def chat_json(self, system, user, schema, seed=0):
+            self.prompts.append(user)
+            field = schema["properties"]["identifiers"]["items"]["properties"]["field"]["enum"][0]
+            found = [{"value": code, "label": "item", "field": field} for code in re.findall(r"Item number ([A-Z]{2}-\d+)", user)]
+            return ChatResult(content=json.dumps({"identifiers": found}), total_ms=1, prompt_tokens=1, prompt_ms=1, output_tokens=1, output_ms=1, load_ms=0)
+
+    def test_an_identifier_past_the_first_window_is_read(self):
+        filler = "Nothing to see here. " * 600  # ~12,600 characters
+        record = {"Title": "Widget recall", "Description": "Item number AB-12 is recalled. " + filler + "Item number CD-34 too. " + filler + " Item number EF-56 last."}
+        client = self.Reader()
+        result = extract.extract(client, record)
+        self.assertEqual(result.status, "extracted")
+        self.assertEqual(sorted(p.value for p in result.accepted), ["AB-12", "CD-34", "EF-56"])
+        self.assertGreater(len(client.prompts), 1)
+        self.assertTrue(all(len(p) < extract.MAX_FIELD_CHARS + 200 for p in client.prompts[1:]))
+        # The merged answer is what the benchmark re-scores, and it parses as one answer.
+        self.assertEqual({i["value"] for i in extract.parse_output(result.raw_output, validate.candidate_fields(record))}, {"AB-12", "CD-34", "EF-56"})
+
+    def test_a_code_cut_at_a_window_boundary_is_whole_in_the_next(self):
+        text = "x" * (extract.MAX_FIELD_CHARS - 10) + " Item number GH-78 here."
+        result = extract.extract(self.Reader(), {"Title": "Widget", "Description": text})
+        self.assertEqual([p.value for p in result.accepted], ["GH-78"])
+
+    def test_a_short_notice_is_one_request(self):
+        client = self.Reader()
+        extract.extract(client, RECORD)
+        self.assertEqual(len(client.prompts), 1)
+
+    def test_an_invalid_later_answer_quarantines_the_notice(self):
+        class Later(FakeClient):
+            def chat_json(self, system, user, schema, seed=0):
+                self.calls += 1
+                return ChatResult(content='{"identifiers": []}' if self.calls == 1 else "not json", total_ms=1, prompt_tokens=1, prompt_ms=1, output_tokens=1, output_ms=1, load_ms=0)
+
+        result = extract.extract(Later(""), {"Title": "Widget", "Description": "y" * (3 * extract.MAX_FIELD_CHARS)})
+        self.assertEqual(result.status, "quarantined")
+
+    def test_a_field_too_long_to_read_is_quarantined_not_cut(self):
+        client = self.Reader()
+        result = extract.extract(client, {"Title": "Widget", "Description": "z" * (extract.MAX_FIELD_CHARS * (extract.MAX_LATER_WINDOWS + 3))})
+        self.assertEqual(result.status, "quarantined")
+        self.assertEqual(client.prompts, [])
+
+    def test_the_report_names_the_gold_it_was_scored_against(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("rb", Path(__file__).resolve().parents[1] / "benchmark" / "run_benchmark.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        gold = json.loads((Path(__file__).resolve().parents[1] / "benchmark" / "data" / "gold.json").read_text())
+        report = json.loads((Path(__file__).resolve().parents[1] / "benchmark" / "data" / "report.json").read_text())
+        self.assertEqual(report["gold_sha256"], module.gold_sha256(gold))

@@ -36,7 +36,15 @@ Any change to them fails CI until this bar is met again for the changed behaviou
   so a prompt, schema, truncation or option change needs a full run, never a re-score. The runner re-proves the model
   digest and Ollama runtime around every notice and stops if either changes, and scoring refuses predictions that do
   not exactly cover each split (CI requires the full held-out split);
-- a prompt, schema, truncation or option change: a full run on the dev and held-out splits.
+- a prompt, schema, truncation or option change: a full run on the dev and held-out splits;
+- a gold correction: a re-score. The report records the digest of the gold annotations it was scored against
+  (`gold_sha256`), and CI requires it to match the committed `gold.json`.
+
+Long fields: a field longer than `MAX_FIELD_CHARS` (6,000) is read in overlapping windows, each its own one-field
+request with the same prompt and schema, and the answers are merged under the same 60-identifier cap. A field
+needing more than `MAX_LATER_WINDOWS` extra windows is quarantined, never cut short. The first request is unchanged,
+and so is the request fingerprint. The benchmark sample has no field that long (the longest is 3,778 characters), so
+this bar does not measure windowed requests; their output passes the same deterministic checks, locally and at intake.
 
 Then update `EXTRACTION_BEHAVIOUR_SHA256` and the entry (with its benchmark note) in the same reviewed change. Rows
 accepted under an earlier fingerprint stay stored as evidence and are no longer served.
