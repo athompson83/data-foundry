@@ -61,7 +61,8 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      replaces the lease, after which the earlier request can write neither candidates nor the response. Each row
      records the submission that wrote it; a submission that fails part-way is kept as a failed audit record (moved
      off its Idempotency-Key, so a retry is processed afresh), and its rows are never deleted, since a concurrent
-     submission may already have replayed them.
+     submission may already have replayed them. A failure that wrote no candidate releases its reservation outright,
+     so a client retrying a deterministic refusal leaves no row per attempt.
 4. **Publication is a separate gate.**
    - Accepted candidates are served only while `EXTRACTED_IDENTIFIERS_OPEN` is `"1"`, and only against each
      notice's current bytes.

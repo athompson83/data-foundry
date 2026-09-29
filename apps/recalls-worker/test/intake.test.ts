@@ -269,6 +269,18 @@ describe('extraction intake', () => {
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall_extracted_key').first<{ n: number }>()).toEqual({ n: 0 });
   });
 
+  it('leaves no row behind for a failure that wrote nothing, however often it is retried', async () => {
+    const { env, token, sha } = await seeded();
+    const key = 'f'.repeat(64);
+    // Refused after the reservation: parseBody refuses an unknown task.
+    const bad = { task: 'other-task', extractor: EXTRACTOR, notices: [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }] };
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const response = await call(env, '/v1/intake/product-recalls/identifiers', { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'idempotency-key': key }, body: JSON.stringify(bad) });
+      expect(response.status).toBe(400);
+    }
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM extraction_submission').first<{ n: number }>()).toEqual({ n: 0 });
+  });
+
   it('rejects malformed and oversized bodies', async () => {
     const { env, token, sha } = await seeded();
     expect((await submit(env, token, [])).status).toBe(400);

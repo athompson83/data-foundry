@@ -369,6 +369,11 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
     // the candidates it wrote (never deleted, since a concurrent submission may already have replayed them), and it
     // moves off the Idempotency-Key so a retry of the same payload is processed afresh. A request that lost its
     // reservation leaves it to the retry that took it over, whose response accounts for those rows.
+    // A failure that wrote no candidate has nothing to account for: its reservation is released outright, so a client
+    // retrying a deterministic refusal (a 400, missing evidence) leaves no row per attempt.
+    await env.DB.prepare('DELETE FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL AND NOT EXISTS (SELECT 1 FROM product_recall_extracted_key WHERE submission_id = ?)')
+      .bind(reservation.id, reservation.lease, reservation.id)
+      .run();
     const failure = JSON.stringify({ failed: true, error: error instanceof IntakeRefused ? error.code : 'internal_error' });
     await env.DB.prepare(
       `UPDATE extraction_submission SET idempotency_key = idempotency_key || '#failed:' || lease, response = ?,
