@@ -18,6 +18,7 @@ Values the annotator marked ambiguous count neither as hits nor as errors.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import statistics
@@ -60,9 +61,17 @@ def ollama_pids() -> list[int]:
 BUILD_FILE = "predictions-build.json"
 
 
-def prediction_build(identity, args: argparse.Namespace, think: bool | str) -> dict:
-    """Everything that decides what the model returns: the extractor version, model build, runtime and request."""
+def sample_sha256(sample: list[dict]) -> str:
+    """A digest of the benchmark inputs (every notice's id, split and source fields), so stored predictions are never
+    resumed or scored against notice text the model did not see."""
+    canonical = sorted(({"id": item["id"], "split": item["split"], "fields": item["fields"]} for item in sample), key=lambda item: item["id"])
+    return hashlib.sha256(json.dumps(canonical, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+
+
+def prediction_build(identity, args: argparse.Namespace, think: bool | str, sample: list[dict]) -> dict:
+    """Everything that decides what the model returns: the inputs, extractor version, model build, runtime and request."""
     return {
+        "sample_sha256": sample_sha256(sample),
         "extractor_version": ex.EXTRACTOR_VERSION,
         "model": identity.name,
         "model_digest": identity.digest,
@@ -109,7 +118,7 @@ def run(args: argparse.Namespace) -> None:
     think: bool | str = False if args.think in ("false", "") else args.think
     client = OllamaClient(args.ollama, args.model, args.digest, num_ctx=args.num_ctx, num_thread=args.num_thread, think=think)
     identity = client.verify()
-    build = prediction_build(identity, args, think)
+    build = prediction_build(identity, args, think, sample)
     existing = sorted(out.glob("predictions-*.jsonl"))
     build_path = out / BUILD_FILE
     recorded = json.loads(build_path.read_text()) if build_path.exists() else None
@@ -208,6 +217,9 @@ def score(args: argparse.Namespace) -> dict:
     build_path = Path(args.out) / BUILD_FILE
     if not build_path.exists():
         raise SystemExit(f"{build_path} is missing: the predictions cannot be attributed to a build")
+    build = json.loads(build_path.read_text())
+    if build.get("sample_sha256") != sample_sha256(list(sample.values())):
+        raise SystemExit(f"the stored predictions were made from another sample ({build.get('sample_sha256')}); re-run the benchmark (--fresh)")
     report: dict = {"extractor_version": ex.EXTRACTOR_VERSION, "prompt_sha256": ex.prompt_sha256(), "behaviour_sha256": behaviour_sha256(), "predictions_build": json.loads(build_path.read_text()), "coverage": covered}
     for split in ("dev", "heldout"):
         ids = [i for i in by_id if by_id[i]["split"] == split]

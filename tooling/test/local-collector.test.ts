@@ -120,6 +120,9 @@ describe('local collector', () => {
     const python = process.env['PYTHON'] ?? 'python3';
     const request = spawnSync(python, ['-c', `from df_collector.extract import request_sha256; print(request_sha256(${JSON.stringify(build.model)}))`], { cwd: APP, encoding: 'utf8' }).stdout.trim();
     expect(build.request_sha256, 'the scored predictions were made by the extractor\'s current request').toBe(request);
+    // ...from the committed sample's inputs.
+    const sampleDigest = spawnSync(python, ['-c', 'import importlib.util, json; s = importlib.util.spec_from_file_location("rb", "benchmark/run_benchmark.py"); m = importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.sample_sha256(json.load(open("benchmark/data/sample.json"))))'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect((build as unknown as { sample_sha256: string }).sample_sha256, 'the scored predictions were made from the committed sample').toBe(sampleDigest);
     for (const entry of PUBLISHABLE_EXTRACTORS) {
       expect(entry.behaviourSha256, 'the entry names the fingerprint benchmark/data/report.json was scored under').toBe(report.behaviour_sha256);
       expect(entry.promptSha256).toBe(report.prompt_sha256);

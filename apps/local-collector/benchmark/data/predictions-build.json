@@ -1,4 +1,5 @@
 {
+  "sample_sha256": "2d777d7e2e543ab6ce2d094f8ddfd4b3293f82448e2d4dd0bef4f2c61cbd32ef",
   "extractor_version": "cpsc-product-identifiers@1/prompt-3",
   "model": "qwen3.5:4b",
   "model_digest": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",

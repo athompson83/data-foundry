@@ -1597,10 +1597,33 @@ class CodexRegressionsRound28(unittest.TestCase):
             sample = [{"id": "cpsc-1", "split": "heldout", "fields": RECORD}]
             (out / "sample.json").write_text(json.dumps(sample))
             (out / "gold.json").write_text(json.dumps({"cpsc-1": {"identifiers": [{"value": "SA904", "label": "item"}], "ambiguous": []}}))
-            (out / bench.BUILD_FILE).write_text("{}")
+            (out / bench.BUILD_FILE).write_text(json.dumps({"sample_sha256": bench.sample_sha256(sample)}))
             truncated = json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})[:30]
             row = {"id": "cpsc-1", "split": "heldout", "status": "extracted", "error": None, "wall_ms": 1, "chat": None, "proposals": [], "baseline": [], "raw_output": truncated}
             (out / "predictions-heldout.jsonl").write_text(json.dumps(row) + "\n")
             args = argparse.Namespace(sample=str(out / "sample.json"), gold=str(out / "gold.json"), out=str(out))
+            with self.assertRaises(SystemExit):
+                bench.score(args)
+
+
+class CodexRegressionsRound29(unittest.TestCase):
+    def test_scoring_refuses_predictions_made_from_another_sample(self):
+        import argparse
+
+        bench = _benchmark_module()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            sample = [{"id": "cpsc-1", "split": "heldout", "fields": RECORD}]
+            (out / "sample.json").write_text(json.dumps(sample))
+            (out / "gold.json").write_text(json.dumps({"cpsc-1": {"identifiers": [{"value": "SA904", "label": "item"}], "ambiguous": []}}))
+            raw = json.dumps({"identifiers": [{"value": "SA904", "label": "item", "field": "Description"}]})
+            row = {"id": "cpsc-1", "split": "heldout", "status": "extracted", "error": None, "wall_ms": 1, "chat": None, "proposals": [], "baseline": [], "raw_output": raw}
+            (out / "predictions-heldout.jsonl").write_text(json.dumps(row) + "\n")
+            args = argparse.Namespace(sample=str(out / "sample.json"), gold=str(out / "gold.json"), out=str(out))
+            (out / bench.BUILD_FILE).write_text(json.dumps({"sample_sha256": bench.sample_sha256(sample)}))
+            self.assertEqual(bench.score(args)["heldout"]["notices"], 1)
+            # Same id and split, corrected notice text: the stored predictions no longer describe these inputs.
+            changed = [{"id": "cpsc-1", "split": "heldout", "fields": {**RECORD, "Description": "Corrected text. Item SA904."}}]
+            (out / "sample.json").write_text(json.dumps(changed))
             with self.assertRaises(SystemExit):
                 bench.score(args)
