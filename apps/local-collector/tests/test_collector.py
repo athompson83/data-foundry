@@ -1,5 +1,6 @@
 import io
 import json
+import re
 import socket
 import tempfile
 import threading
@@ -9,7 +10,7 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from df_collector import extract, policy as policy_mod
+from df_collector import extract, policy as policy_mod, validate
 from df_collector.behaviour import behaviour_sha256
 from df_collector.config import Config, Limits
 from df_collector.netguard import FetchFailed, FetchRefused, HostPolicy, SafeFetcher, address_allowed
@@ -1424,3 +1425,37 @@ class CodexRegressionsRound22(unittest.TestCase):
             config.limits.llm_threads = 4  # takes effect at the next start: another build
             Collector(config, state, client=FakeClient("{}"), policy=POLICY).adopt_runtime(extract.BENCHMARKED_RUNTIME)
             self.assertIsNone(state.cursor(TASK, "backfill_done"))
+
+
+class CodexRegressionsRound23(unittest.TestCase):
+    def test_the_prefilter_admits_every_label_the_rules_accept(self):
+        for text in ("Reference number RF-2231 is affected.", "The recalled Cat. No. 88-114B lamps.", "Stock code ST4410 was sold.", "Article # AR-77 was sold."):
+            self.assertTrue(worth_extracting({"Title": "Lamps recalled", "Description": text, "Products": []}), text)
+            # Each is a value the rules accept, so skipping it would lose an identifier.
+            value = re.search(r"[A-Z]{2}-?\d+|\d+-\d+B", text).group(0)
+            self.assertTrue(validate.decide(text, value, "Description").ok, text)
+        self.assertFalse(worth_extracting({"Title": "Lamps recalled", "Description": "Lot 44871 and serial 99812 are affected.", "Products": []}))
+
+    def test_the_prefilter_is_fingerprinted_so_a_change_re_examines_skipped_notices(self):
+        from unittest import mock
+
+        from df_collector import behaviour
+
+        self.assertIs(worth_extracting, validate.worth_extracting)
+        self.assertIn("apps/local-collector/df_collector/validate.py", behaviour.FILES)
+        notice = {"id": "cpsc-15034", "raw": {"Title": "Lamps recalled", "Description": "No codes here.", "Products": []}, "provenance": {"raw_sha256": "b" * 64}}
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=FakeClient("{}"), policy=POLICY)
+            collector.adopt_runtime(extract.BENCHMARKED_RUNTIME)
+            self.assertEqual(collector.queue_documents([notice]), 0)
+            self.assertEqual(state.one("SELECT state FROM document")["state"], "skipped")
+            with state.tx() as db:
+                state.set_cursor(db, TASK, "backfill_done", "1")
+            # A corrected prefilter (validate.py changed) is a new fingerprint, so a new build: the backfill restarts
+            # and the notice skipped under the old build is examined again.
+            with mock.patch.object(behaviour, "behaviour_sha256", lambda: "e" * 64), mock.patch.object(validate, "worth_extracting", lambda record: True), mock.patch("df_collector.runtime.worth_extracting", lambda record: True):
+                self.assertTrue(collector.adopt_runtime(extract.BENCHMARKED_RUNTIME))
+                self.assertIsNone(state.cursor(TASK, "backfill_done"))
+                self.assertEqual(collector.queue_documents([notice]), 1)

@@ -36,6 +36,7 @@ from .config import Config
 from .netguard import FetchFailed, FetchRefused, HostPolicy, RateLimited, SafeFetcher
 from .ollama import LocalModelError, OllamaClient
 from .state import State, backoff_seconds
+from .validate import worth_extracting  # noqa: F401 - the prefilter lives with the rules it mirrors
 
 TASK = "cpsc-product-identifiers@1"
 PAGE_SIZE = 25
@@ -51,8 +52,6 @@ CAP_PAUSE = "cap: "
 CREDENTIAL_RETRY_S = 3600
 # A served-or-not read-back of one notice happens at most this often.
 VERIFY_RECHECK_S = 3600
-PREFILTER = re.compile(r"\b(?:models?|items?|styles?|skus?|part|catalog(?:ue)?|product|article|stock|p/n)\b", re.I | re.A)
-CODE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.A)
 
 
 def utc_now_iso() -> str:
@@ -86,19 +85,6 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: D401 - urllib hook
         return None
-
-
-def _has_code(text: str) -> bool:
-    # The same token grammar the validator accepts (letters, digits, . - / # _), with a digit and a key of 3 or more.
-    return any(re.search(r"[0-9]", token) and len(validate.model_key(token)) >= 3 for token in CODE.findall(text))
-
-
-def worth_extracting(record: dict) -> bool:
-    """A cheap scheduling heuristic (not a decision): a product label and a code-shaped token somewhere. A populated
-    Products[n].Model field is its own label, since the validator anchors values found there."""
-    texts = {field: validate.candidate_field_text(record, field) or "" for field in validate.candidate_fields(record)}
-    labelled = any(field.endswith(".Model") and text.strip() for field, text in texts.items()) or PREFILTER.search("\n".join(texts.values()))
-    return bool(labelled and any(_has_code(text) for text in texts.values()))
 
 
 class Collector:

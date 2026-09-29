@@ -17,7 +17,7 @@ such as item, style, SKU, part or catalog numbers, e.g. "The recalled item numbe
 Data Foundry API root (live catalog: which datasets are hosted) → capture plan (registry policy)
 Data Foundry API (stored CPSC evidence, include=raw)  ← the recalls Worker stays the only CPSC acquirer
   → local evidence copy (content-addressed) + retrieval log
-  → cheap prefilter (label word + digit code), else "skipped" without a model call
+  → cheap prefilter (one of the rules' labels, or a Products[].Model value, plus a digit code), else "skipped" without a model call
   → local model proposes {value, label, field} as schema-constrained JSON
   → local pre-check (validate.py, the server's rules mirrored), invalid output quarantined
   → SQLite outbox (Idempotency-Key)

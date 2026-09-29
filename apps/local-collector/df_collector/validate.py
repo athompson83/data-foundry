@@ -229,3 +229,24 @@ def decide_in_record(record: object, value: str, claimed_field: str) -> Decision
         if decision.reason != "not_in_source" and first_rejection is None:
             first_rejection = Decision(False, decision.reason, field=name)
     return first_rejection or Decision(False, "not_in_source", field=claimed_field)
+
+
+CODE_TOKEN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.ASCII)
+
+
+def _has_code(text: str) -> bool:
+    # The token grammar the rules accept (letters, digits, . - / # _), with a digit and a key of 3 or more.
+    return any(re.search(r"[0-9]", token) and len(model_key(token)) >= 3 for token in CODE_TOKEN.findall(text))
+
+
+def worth_extracting(record: object) -> bool:
+    """The collector's prefilter: whether a notice could yield any accepted identifier, so it is worth the model's time.
+
+    A notice is skipped only when no value in it could be accepted: the rules anchor a value to one of LABEL_PATTERNS
+    (the same vocabulary, used here directly so the two cannot drift) or to a populated Products[n].Model field, and
+    it must contain a code-shaped token. This file is part of the behaviour fingerprint, so changing the prefilter
+    changes the build and re-examines notices it skipped."""
+    texts = {field: candidate_field_text(record, field) or "" for field in candidate_fields(record)}
+    joined = "\n".join(texts.values())
+    labelled = any(field.endswith(".Model") and text.strip() for field, text in texts.items()) or any(pattern.search(joined) for _, pattern in LABEL_PATTERNS)
+    return bool(labelled and any(_has_code(text) for text in texts.values()))
