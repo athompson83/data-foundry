@@ -4,14 +4,14 @@
  * no workflow change and no Python dependencies.
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
 import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
 import { EXTRACTION_BEHAVIOUR_SHA256, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
-import { extractionBehaviourSha256 } from '../scripts/extraction-behaviour.js';
+import { EXTRACTION_BEHAVIOUR_FILES, extractionBehaviourSha256 } from '../scripts/extraction-behaviour.js';
 import { compilePolicy } from '../scripts/local-collector-policy.js';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -62,6 +62,40 @@ describe('local collector', () => {
     const run = spawnSync(python, ['-m', 'unittest', 'discover', '-s', 'tests', '-t', '.'], { cwd: APP, encoding: 'utf8', env: { ...process.env, NO_PROXY: '127.0.0.1,localhost', no_proxy: '127.0.0.1,localhost' }, timeout: 120_000 });
     expect(run.status, run.stderr.slice(-4000)).toBe(0);
   }, 150_000);
+
+  it('fingerprints every repository file the acceptance rules and the extractor depend on', () => {
+    // TypeScript: relative imports, and each named import from a workspace package resolved to its defining file.
+    const listed = new Set<string>(EXTRACTION_BEHAVIOUR_FILES);
+    const seen = new Set<string>();
+    const visit = (file: string): void => {
+      if (seen.has(file)) return;
+      seen.add(file);
+      const source = readFileSync(join(ROOT, file), 'utf8');
+      for (const match of source.matchAll(/import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+'([^']+)'/g)) {
+        const [, names = '', specifier = ''] = match;
+        if (specifier.startsWith('.')) {
+          visit(join(file, '..', specifier.replace(/\.js$/, '.ts')));
+        } else if (specifier.startsWith('@data-foundry/')) {
+          const src = join('packages', specifier.slice('@data-foundry/'.length), 'src');
+          for (const name of names.split(',').map((part) => part.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0]).filter(Boolean)) {
+            const defining = readdirSync(join(ROOT, src)).map((entry) => join(src, entry)).find((path) => path.endsWith('.ts') && new RegExp(`export (?:function|const|class) ${name}\\b`).test(readFileSync(join(ROOT, path), 'utf8')));
+            expect(defining, `${name} (imported by ${file}) is defined in ${src}`).toBeTruthy();
+            visit(defining as string);
+          }
+        }
+      }
+    };
+    visit('packages/product-recall-structuring/src/identifier-candidates.ts');
+    for (const file of seen) expect(listed, `${file} affects acceptance: add it to EXTRACTION_BEHAVIOUR_FILES`).toContain(file);
+    // Python: every collector module the extractor imports.
+    for (const module of ['extract', 'validate', 'ollama']) {
+      const source = readFileSync(join(APP, 'df_collector', `${module}.py`), 'utf8');
+      for (const match of source.matchAll(/^from \.(\w*) import ([\w, ]+)$/gm)) {
+        const imported = match[1] ? [match[1]] : (match[2] as string).split(',').map((name) => name.trim());
+        for (const name of imported) expect(listed, `df_collector/${name}.py is imported by ${module}.py`).toContain(`apps/local-collector/df_collector/${name}.py`);
+      }
+    }
+  });
 
   it('allowlists the Ollama runtime the benchmark actually ran on', () => {
     const results = readFileSync(join(APP, 'benchmark', 'RESULTS.md'), 'utf8');

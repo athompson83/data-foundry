@@ -73,7 +73,7 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      Output from any other build is stored as evidence but never served, and rows are keyed by the whole build, so
      one build never shadows another. A CI test requires the collector's own build to be on that list.
    - The build also includes the **extraction-behaviour fingerprint** (`EXTRACTION_BEHAVIOUR_SHA256`,
-     `tooling/scripts/extraction-behaviour.ts`). It covers the acceptance rules in both languages, the extractor's
+     `tooling/scripts/extraction-behaviour.ts`). It covers the acceptance rules in both languages (with the helpers they import, which CI checks), the extractor's
      schema, truncation and prompt assembly, the model options and the generation defaults. The collector sends its
      own fingerprint with every submission; each accepted row records it (`behaviour_sha256`) and the accepting
      Worker's (`rules_sha256`), and publication requires both to be the benchmarked one, so output from an older or

@@ -20,6 +20,8 @@ ROOT = Path(__file__).resolve().parents[3]
 
 FILES = (
     "packages/product-recall-structuring/src/identifier-candidates.ts",
+    "packages/product-recall-structuring/src/text.ts",
+    "packages/recall-structuring/src/codes.ts",
     "apps/local-collector/df_collector/validate.py",
     "apps/local-collector/df_collector/extract.py",
     "apps/local-collector/df_collector/ollama.py",

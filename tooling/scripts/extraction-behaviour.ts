@@ -24,6 +24,10 @@ const ROOT = join(import.meta.dirname, '..', '..');
 
 export const EXTRACTION_BEHAVIOUR_FILES = [
   'packages/product-recall-structuring/src/identifier-candidates.ts',
+  // The helpers the rules import (modelKey; GS1 check digits and UPC-E expansion). A CI test requires every
+  // repository file the rules and the collector's extractor import to be listed here.
+  'packages/product-recall-structuring/src/text.ts',
+  'packages/recall-structuring/src/codes.ts',
   'apps/local-collector/df_collector/validate.py',
   'apps/local-collector/df_collector/extract.py',
   'apps/local-collector/df_collector/ollama.py',
