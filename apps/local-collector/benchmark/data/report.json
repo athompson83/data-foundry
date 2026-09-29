@@ -1,0 +1,488 @@
+{
+  "extractor_version": "cpsc-product-identifiers@1/prompt-3",
+  "prompt_sha256": "e4a912fb71b2f0edbcb5929cd483cad57b7a8e9ebc419ea3fef3f3e19ee69d53",
+  "behaviour_sha256": "6b6ead48260d5e746be33e68887bed5a20cbb6b1322eb982e48b3cf9d84070e7",
+  "gold_sha256": "571af718bf66d369a4cd15dd2fb2adad010d0730a0360d633f98836ff072abd7",
+  "predictions_build": {
+    "sample_sha256": "2d777d7e2e543ab6ce2d094f8ddfd4b3293f82448e2d4dd0bef4f2c61cbd32ef",
+    "extractor_version": "cpsc-product-identifiers@1/prompt-3",
+    "model": "qwen3.5:4b",
+    "model_digest": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+    "runtime": "ollama/0.34.4",
+    "generation": {
+      "num_ctx": 8192,
+      "think": false
+    },
+    "request_sha256": "64c509db6e2f46842a4e3c5a3f7ccb44d021e9cc3a1ce8dfb3f804edee294963"
+  },
+  "coverage": {
+    "dev": "100/100",
+    "heldout": "30/30"
+  },
+  "dev": {
+    "notices": 100,
+    "gold_identifiers": 149,
+    "notices_with_gold": 36,
+    "negative_notices": 64,
+    "systems": {
+      "llm_raw": {
+        "tp": 120,
+        "fp": 37,
+        "fn": 29,
+        "precision": 0.764,
+        "precision_95ci": [
+          0.692,
+          0.824
+        ],
+        "recall": 0.805,
+        "recall_95ci": [
+          0.734,
+          0.861
+        ],
+        "f1": 0.784
+      },
+      "llm_validated": {
+        "tp": 94,
+        "fp": 4,
+        "fn": 55,
+        "precision": 0.959,
+        "precision_95ci": [
+          0.9,
+          0.984
+        ],
+        "recall": 0.631,
+        "recall_95ci": [
+          0.551,
+          0.704
+        ],
+        "f1": 0.761
+      },
+      "baseline": {
+        "tp": 98,
+        "fp": 72,
+        "fn": 51,
+        "precision": 0.576,
+        "precision_95ci": [
+          0.501,
+          0.648
+        ],
+        "recall": 0.658,
+        "recall_95ci": [
+          0.578,
+          0.729
+        ],
+        "f1": 0.614
+      }
+    },
+    "notice_coverage_llm_validated": "28/36",
+    "negative_notices_with_false_positive": "0/64",
+    "unsupported_values_in_raw_output": 0,
+    "quarantined_notices": 0,
+    "latency_s": {
+      "p50": 12.4,
+      "p95": 47.5,
+      "mean": 19.0
+    },
+    "output_tokens_per_s_median": 6.8,
+    "errors": [
+      {
+        "id": "cpsc-14202",
+        "type": "missed",
+        "value": "Contessa Speedster 25"
+      },
+      {
+        "id": "cpsc-14202",
+        "type": "missed",
+        "value": "Contessa Speedster 35"
+      },
+      {
+        "id": "cpsc-14202",
+        "type": "missed",
+        "value": "Speedster 30"
+      },
+      {
+        "id": "cpsc-14202",
+        "type": "missed",
+        "value": "Speedster 40"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "false_positive",
+        "value": "11-44"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "false_positive",
+        "value": "15-60"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "false_positive",
+        "value": "8-32"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "false_positive",
+        "value": "WB2"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "missed",
+        "value": "WB2 11-44"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "missed",
+        "value": "WB2 15-60"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "missed",
+        "value": "WB2 6-24"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "missed",
+        "value": "WB2 6-24C"
+      },
+      {
+        "id": "cpsc-09002",
+        "type": "missed",
+        "value": "WB2 8-32"
+      },
+      {
+        "id": "cpsc-78086",
+        "type": "missed",
+        "value": "51GA0661"
+      },
+      {
+        "id": "cpsc-78086",
+        "type": "missed",
+        "value": "51GB0661"
+      },
+      {
+        "id": "cpsc-23020",
+        "type": "missed",
+        "value": "AAP206"
+      },
+      {
+        "id": "cpsc-17714",
+        "type": "missed",
+        "value": "Can-Am Maverick X3 STD"
+      },
+      {
+        "id": "cpsc-17714",
+        "type": "missed",
+        "value": "Can-Am Maverick X3 XDS"
+      },
+      {
+        "id": "cpsc-17714",
+        "type": "missed",
+        "value": "Can-Am Maverick X3 XRS"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XR 500"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XR 500 LE"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XR 570"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XR 570 LE"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XRT 500"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XRT 570"
+      },
+      {
+        "id": "cpsc-23790",
+        "type": "missed",
+        "value": "XPLORER XRT 570 LE"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "PDW9200J"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "PDW9280J"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "PDW9700J"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "PDW9800J"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "PDW9880J"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0700K00"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0700K01"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0700K03"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0700K10"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0710K00"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0710K01"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0710K03"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD0710K10"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6800K00"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6800K01"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6800K03"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6800K10"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6880K00"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6880K01"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6880K03"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6880K10"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6890K00"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6890K01"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6890K03"
+      },
+      {
+        "id": "cpsc-11022",
+        "type": "missed",
+        "value": "ZBD6890K10"
+      },
+      {
+        "id": "cpsc-04162",
+        "type": "missed",
+        "value": "AV5105"
+      },
+      {
+        "id": "cpsc-04162",
+        "type": "missed",
+        "value": "AV5150"
+      },
+      {
+        "id": "cpsc-04162",
+        "type": "missed",
+        "value": "LK240"
+      },
+      {
+        "id": "cpsc-23258",
+        "type": "missed",
+        "value": "2208123"
+      },
+      {
+        "id": "cpsc-23258",
+        "type": "missed",
+        "value": "2521943"
+      },
+      {
+        "id": "cpsc-23258",
+        "type": "missed",
+        "value": "2522060"
+      },
+      {
+        "id": "cpsc-23258",
+        "type": "missed",
+        "value": "2522267"
+      },
+      {
+        "id": "cpsc-23258",
+        "type": "missed",
+        "value": "7396260"
+      }
+    ]
+  },
+  "heldout": {
+    "notices": 30,
+    "gold_identifiers": 45,
+    "notices_with_gold": 12,
+    "negative_notices": 18,
+    "systems": {
+      "llm_raw": {
+        "tp": 40,
+        "fp": 23,
+        "fn": 5,
+        "precision": 0.635,
+        "precision_95ci": [
+          0.511,
+          0.743
+        ],
+        "recall": 0.889,
+        "recall_95ci": [
+          0.765,
+          0.952
+        ],
+        "f1": 0.741
+      },
+      "llm_validated": {
+        "tp": 38,
+        "fp": 0,
+        "fn": 7,
+        "precision": 1.0,
+        "precision_95ci": [
+          0.908,
+          1.0
+        ],
+        "recall": 0.844,
+        "recall_95ci": [
+          0.712,
+          0.923
+        ],
+        "f1": 0.916
+      },
+      "baseline": {
+        "tp": 42,
+        "fp": 1,
+        "fn": 3,
+        "precision": 0.977,
+        "precision_95ci": [
+          0.879,
+          0.996
+        ],
+        "recall": 0.933,
+        "recall_95ci": [
+          0.821,
+          0.977
+        ],
+        "f1": 0.955
+      }
+    },
+    "notice_coverage_llm_validated": "12/12",
+    "negative_notices_with_false_positive": "0/18",
+    "unsupported_values_in_raw_output": 0,
+    "quarantined_notices": 0,
+    "latency_s": {
+      "p50": 12.3,
+      "p95": 49.6,
+      "mean": 23.8
+    },
+    "output_tokens_per_s_median": 6.6,
+    "errors": [
+      {
+        "id": "cpsc-21026",
+        "type": "missed",
+        "value": "001969-501"
+      },
+      {
+        "id": "cpsc-21026",
+        "type": "missed",
+        "value": "001969-605"
+      },
+      {
+        "id": "cpsc-21026",
+        "type": "missed",
+        "value": "001969-905"
+      },
+      {
+        "id": "cpsc-21026",
+        "type": "missed",
+        "value": "001970-501"
+      },
+      {
+        "id": "cpsc-21026",
+        "type": "missed",
+        "value": "001970-605"
+      },
+      {
+        "id": "cpsc-06072",
+        "type": "missed",
+        "value": "891"
+      },
+      {
+        "id": "cpsc-19108",
+        "type": "missed",
+        "value": "89304"
+      }
+    ]
+  }
+}

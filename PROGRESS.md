@@ -1,5 +1,85 @@
 # Progress
 
+## Current session — 2026-09-29: Local Collector review closeout and re-verification
+
+- **PR #75.** It went through 12 more Codex review rounds. Every finding was fixed with a regression test that fails on
+  the earlier code. Codex's final review of `0565658` found no issues, and required CI is green on it.
+- **Main fixes.**
+  - Withdrawals: notice-level holds are durable, and a withdrawn source gets a retryable 503 before anything is
+    written.
+  - Intake: a failure that wrote nothing releases its reservation.
+  - Collector: an upload is acknowledged only by an intake answer that matches it, and an answer longer than 60
+    identifiers is quarantined.
+  - Long fields are read in overlapping windows and reported as their own unpublished build until they are
+    benchmarked.
+  - The benchmark report is bound to its gold file and re-scored in CI.
+- **Re-verified end to end** on the final head against a full local replica: source → local model → intake →
+  authenticated API result, with a 20-minute unattended run
+  ([evidence](docs/evidence/local-collector-e2e-20260929.md)).
+- **Not live yet.**
+  - Production deploy is blocked by UA-015 (the deploy token contains a line break), then the ADR-0017 steps.
+  - The Windows install is UA-017.
+
+## Current session — 2026-09-28: Local Collector (local-model extraction through a governed intake)
+
+- **Owner direction.** Set up the Data Foundry Local Collector (goal document of 2026-09-28). Use Ollama with a free
+  local model (start with `qwen3.5:4b`), benchmark it, and disable cloud and paid fallbacks. Reuse the existing
+  infrastructure, registry, rights controls, parsers and publication path. Mid-session: "This tool will need to be
+  able to see what types of data we are hosting on Data Foundry (and refresh as needed) and then seek out and
+  capture that data. We can also set it up with any OpenAI free models as needed."
+- **Reconciled.**
+  - The deployed path for the target dataset is the recalls Worker (D1/R2). The Postgres acquisition and ingestion
+    Workers are not deployed, and no intake existed.
+  - This session runs in a cloud Linux container (4 vCPU, 15.7 GB RAM, no GPU, Docker daemon unavailable), not on
+    the owner's Windows computer, and has no Cloudflare credentials.
+  - Production was healthy throughout (CPSC 10,027, Health Canada 5,206, syncs 12:17 UTC).
+- **Gap chosen.** 6,698 of 10,027 CPSC notices have no indexed identifier, because the parser reads models only after
+  a "model" label. 3,642 of them print labelled item, style, SKU, part or catalog codes.
+- **Built** ([ADR-0017](docs/decisions/ADR-0017-local-collector-extraction-intake.md)):
+  - `apps/local-collector` (Python stdlib): catalog-driven capture plan, SSRF-guarded fetches, SQLite
+    leases/outbox, a local-only Ollama client with a pinned digest, a loopback dashboard, a Windows installer and
+    Start/Stop/Status launchers, and a benchmark harness.
+  - The recalls Worker intake `POST /v1/intake/product-recalls/identifiers` (migration `0004`, ingestion
+    credentials, re-verification against R2 evidence, idempotency, withdrawal). It is served only behind
+    `EXTRACTED_IDENTIFIERS_OPEN`, as `extracted_identifiers` and lookup kind `extracted_model`.
+  - Shared acceptance rules in `product-recall-structuring` with TS/Python shared vectors.
+  - Policy compiled from `candidates.yaml` (`pnpm collector:policy`, checked in CI).
+  - The API root now names each dataset's registry key and stats path.
+- **Benchmark** ([results](apps/local-collector/benchmark/RESULTS.md)). 130 notices, blind gold labels, 30
+  held out. The bar was fixed before the held-out run.
+  - Held-out, model plus server checks: precision 38/38 = 1.00 (95% CI 0.91–1.00), recall 0.84, 0/18 negatives with
+    a false positive, 0 hallucinated values. **Passes the bar.**
+  - Dev: precision 0.96, recall 0.63. The rules alone reached only 0.58 precision on dev.
+  - Speed: median 12 s per notice (p95 about 50 s), 6.7 tokens/s on 4 CPU cores.
+  - Memory: `llama-server` reached 8.3 GB RSS after 130 notices (prompt cache), so 16 GB of RAM is recommended.
+  - `gpt-oss:20b` (OpenAI open-weight, Apache-2.0, 12.9 GB) is supported but not benchmarked: it would not fit
+    beside the rest in 15.7 GB.
+- **End-to-end on the real Worker locally** ([evidence](docs/evidence/local-collector-e2e-20260928.md)):
+  - 16 identifiers accepted; with the gate closed, none were served.
+  - With the gate opened, the authenticated lookup of `LDQMFJ8D-BK` returned `cpsc-26794` as `extracted_model`, and
+    11 identifiers were read back as queryable.
+  - Replay with the same and with new keys created no duplicates.
+  - After `kill -9`, the restart resumed with 0 duplicate documents.
+  - Source withdrawal, credential revocation and the dataset kill switch were each refused or idled correctly.
+- **Unattended run with no lasting local copy** (owner: "Make sure this stays on an autonomous run … without keeping
+  it locally after the work is done").
+  - Every stop condition now recovers by itself. Notice text exists locally only while queued, and acknowledged
+    uploads and final candidates are deleted at once, keeping only counts.
+  - `purge` refuses while work is owed, and `--everything` removes the data directory.
+    `apps/local-collector/deploy/enable-production.sh` handles the operator steps around the `Deploy recalls Worker`
+    workflow. `--migrate` applies `0004` under a bookmark before the deploy, which the workflow requires, and
+    `--finish` verifies, mints and probes. It never deploys and does not change the gates, and setting them to `"1"` in `wrangler.toml` was refused by the session's permission
+    check as a feature-flag write.
+  - A 41-minute unattended run added 84 identifiers at about 125 notices an hour, with 0 outbox rows kept.
+  - Purge left no local notice data, and this session's snapshots and local replica were deleted (303 MB to 108 KB).
+- **Not done.**
+  - Production: migration `0004`, the deploy, a minted credential, and the open gates. The session has no
+    Cloudflare credentials. Deploys run only through the owner-dispatched `Deploy recalls Worker` workflow, which
+    refuses a pending migration, so `enable-production.sh --migrate` must come first.
+  - Installation on the owner's Windows computer (outside this environment).
+  - Elapsed multi-day stability.
+  - An adapter for the permitted Health Canada member.
+
 ## Current session — 2026-09-28 (night): merged, deploy blocked on a malformed secret
 
 - **Merged.**

@@ -1,0 +1,8 @@
+{
+  "name": "qwen3.5:4b",
+  "digest": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+  "family": "qwen35",
+  "parameter_size": "4.7B",
+  "quantization": "Q4_K_M",
+  "license_head": "Apache License"
+}

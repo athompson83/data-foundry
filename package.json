@@ -54,7 +54,10 @@
     "sources:readiness": "tsx tooling/scripts/source-readiness.ts",
     "cloudflare:synthetic-ingestion:check": "tsx tooling/scripts/check-synthetic-ingestion.ts",
     "cloudflare:synthetic-ingestion:artifacts:check": "tsx tooling/scripts/check-cloudflare-artifacts.ts --synthetic-only",
-    "recalls:bulk-load": "tsx tooling/scripts/recalls-bulk-load.ts"
+    "recalls:bulk-load": "tsx tooling/scripts/recalls-bulk-load.ts",
+    "collector:policy": "tsx tooling/scripts/local-collector-policy.ts",
+    "collector:policy:check": "tsx tooling/scripts/local-collector-policy.ts --check",
+    "collector:behaviour": "tsx tooling/scripts/extraction-behaviour.ts"
   },
   "devDependencies": {
     "@data-foundry/api-keys": "workspace:*",

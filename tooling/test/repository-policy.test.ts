@@ -66,6 +66,9 @@ const DOMAIN_ALLOWLIST: readonly string[] = [
   // ceedirectory.org being prohibited, so naming the hosts is the point.
   'docs/sources/pipeline/research-2026-09-27-composites.md',
   'tooling/test/repository-policy.test.ts',
+  // The local collector's compiled source policy (ADR-0017): a generated copy of the list above, which its network
+  // guard refuses. tooling/test/local-collector.test.ts requires it to equal the compiler's output byte for byte.
+  'apps/local-collector/policy/sources.json',
 ];
 
 describe('a prohibited domain may appear only where naming it is the point', () => {

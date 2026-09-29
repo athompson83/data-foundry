@@ -1,0 +1,192 @@
+/**
+ * The local collector (apps/local-collector) is Python, standard library only. Its unit tests and the
+ * freshness of its compiled source policy run here, so `pnpm test` (and therefore CI) covers them with
+ * no workflow change and no Python dependencies.
+ */
+import { spawnSync } from 'node:child_process';
+import { copyFileSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+import { describe, expect, it } from 'vitest';
+
+import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
+import { EXTRACTION_BEHAVIOUR_FILES, extractionBehaviourSha256 } from '../scripts/extraction-behaviour.js';
+import { compilePolicy } from '../scripts/local-collector-policy.js';
+
+const ROOT = join(import.meta.dirname, '..', '..');
+const APP = join(ROOT, 'apps', 'local-collector');
+
+describe('local collector', () => {
+  it('ships a source policy compiled from the current registry', () => {
+    expect(readFileSync(join(APP, 'policy', 'sources.json'), 'utf8'), 'run: pnpm collector:policy').toBe(compilePolicy());
+  });
+
+  it('refuses a GREEN task once the registry no longer links its rights record, even if the file remains', () => {
+    const registry = readFileSync(join(ROOT, 'docs', 'sources', 'pipeline', 'candidates.yaml'), 'utf8');
+    // The source's own evidence list (the dataset entry that also cites the record is left alone).
+    const unlinked = registry.replace(/^\s*docs\/sources\/cpsc-recalls-rights-record-20260927\.md,\n/m, '');
+    expect(unlinked).not.toBe(registry);
+    const policy = JSON.parse(compilePolicy(unlinked)) as { tasks: Array<{ source: string; rights: string; enabled: boolean; refused_because: string[] }> };
+    const task = policy.tasks.find((entry) => entry.source === 'cpsc-recalls');
+    expect(task).toMatchObject({ rights: 'GREEN', enabled: false });
+    expect(task?.refused_because.join(' ')).toMatch(/without its rights record/);
+  });
+
+  it('enables only registered GREEN/AMBER tasks with a rights record', () => {
+    const policy = JSON.parse(compilePolicy()) as { tasks: Array<{ task: string; enabled: boolean; rights: string; refused_because: string[] }>; prohibited_domains: string[] };
+    for (const task of policy.tasks) {
+      if (task.enabled) {
+        expect(['GREEN', 'AMBER']).toContain(task.rights);
+        expect(task.refused_because).toEqual([]);
+      }
+    }
+    expect(policy.prohibited_domains).toEqual([...new Set(PROHIBITED_SOURCES.map((source) => source.domain))].sort());
+  });
+
+  it("publishes only the collector's own benchmarked extractor build", () => {
+    const python = process.env['PYTHON'] ?? 'python3';
+    const out = spawnSync(python, ['-c', 'import json; from df_collector import extract, config; c = config.Config(); print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(c.model); print(c.model_digest); print(json.dumps(extract.generation(c.num_ctx, c.think), separators=(",", ":")))'], { cwd: APP, encoding: 'utf8' });
+    const [version, promptSha, model, pin, generation] = out.stdout.trim().split('\n');
+    // The collector's current build must be the benchmarked, publishable one; changing the prompt or pin needs a new benchmark entry.
+    const entry = PUBLISHABLE_EXTRACTORS.find((candidate) => candidate.version === version && candidate.promptSha256 === promptSha && candidate.model === model);
+    expect(entry).toBeDefined();
+    // The collector's default generation settings are the benchmarked ones.
+    expect(entry?.generation).toBe(generation);
+    // The collector's pin selects the benchmarked build, and the entry's full digest is the one the benchmark recorded.
+    expect(entry?.modelDigest.startsWith(pin as string)).toBe(true);
+    // The acceptance rules, extractor schema and options are pinned too: changing them needs a re-run benchmark and a
+    // reviewed update of EXTRACTION_BEHAVIOUR_SHA256 and the entry (pnpm exec tsx tooling/scripts/extraction-behaviour.ts).
+    expect(EXTRACTION_BEHAVIOUR_SHA256).toBe(extractionBehaviourSha256());
+    // The collector computes the same fingerprint (df_collector/behaviour.py) and keys its local build by it.
+    const collectorFingerprint = spawnSync(python, ['-c', 'from df_collector.behaviour import behaviour_sha256; print(behaviour_sha256())'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect(collectorFingerprint).toBe(EXTRACTION_BEHAVIOUR_SHA256);
+    expect(entry?.behaviourSha256).toBe(EXTRACTION_BEHAVIOUR_SHA256);
+    const benchmarked = JSON.parse(readFileSync(join(APP, 'benchmark/data/model.json'), 'utf8')) as { name: string; digest: string };
+    expect({ model: benchmarked.name, digest: benchmarked.digest }).toEqual({ model: entry?.model, digest: entry?.modelDigest });
+  });
+
+  it('passes its Python unit tests (network guard, leases, outbox, policy, model output, dashboard, shared vectors)', () => {
+    const python = process.env['PYTHON'] ?? 'python3';
+    const version = spawnSync(python, ['-c', 'import sys; print(sys.version_info >= (3, 11))'], { encoding: 'utf8' });
+    expect(version.stdout.trim(), `${python} 3.11+ is required to test apps/local-collector`).toBe('True');
+    const run = spawnSync(python, ['-m', 'unittest', 'discover', '-s', 'tests', '-t', '.'], { cwd: APP, encoding: 'utf8', env: { ...process.env, NO_PROXY: '127.0.0.1,localhost', no_proxy: '127.0.0.1,localhost' }, timeout: 120_000 });
+    expect(run.status, run.stderr.slice(-4000)).toBe(0);
+  }, 150_000);
+
+  it('fingerprints every repository file the acceptance rules and the extractor depend on', () => {
+    // TypeScript: relative imports, and each named import from a workspace package resolved to its defining file.
+    const listed = new Set<string>(EXTRACTION_BEHAVIOUR_FILES);
+    const seen = new Set<string>();
+    const visit = (file: string): void => {
+      if (seen.has(file)) return;
+      seen.add(file);
+      const source = readFileSync(join(ROOT, file), 'utf8');
+      for (const match of source.matchAll(/import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+'([^']+)'/g)) {
+        const [, names = '', specifier = ''] = match;
+        if (specifier.startsWith('.')) {
+          visit(join(file, '..', specifier.replace(/\.js$/, '.ts')));
+        } else if (specifier.startsWith('@data-foundry/')) {
+          const src = join('packages', specifier.slice('@data-foundry/'.length), 'src');
+          for (const name of names.split(',').map((part) => part.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0]).filter(Boolean)) {
+            const defining = readdirSync(join(ROOT, src)).map((entry) => join(src, entry)).find((path) => path.endsWith('.ts') && new RegExp(`export (?:function|const|class) ${name}\\b`).test(readFileSync(join(ROOT, path), 'utf8')));
+            expect(defining, `${name} (imported by ${file}) is defined in ${src}`).toBeTruthy();
+            visit(defining as string);
+          }
+        }
+      }
+    };
+    visit('packages/product-recall-structuring/src/identifier-candidates.ts');
+    for (const file of seen) expect(listed, `${file} affects acceptance: add it to EXTRACTION_BEHAVIOUR_FILES`).toContain(file);
+    // Python: every collector module the extractor imports.
+    for (const module of ['extract', 'validate', 'ollama']) {
+      const source = readFileSync(join(APP, 'df_collector', `${module}.py`), 'utf8');
+      for (const match of source.matchAll(/^from \.(\w*) import ([\w, ]+)$/gm)) {
+        const imported = match[1] ? [match[1]] : (match[2] as string).split(',').map((name) => name.trim());
+        for (const name of imported) expect(listed, `df_collector/${name}.py is imported by ${module}.py`).toContain(`apps/local-collector/df_collector/${name}.py`);
+      }
+    }
+  });
+
+  it('allowlists only what the committed benchmark report scored, and only while it meets the quality bar', () => {
+    // run_benchmark.py records the fingerprint and prompt it scored under; a publishable entry must name exactly those,
+    // so updating the constants without re-scoring (a rules change) fails here.
+    type Split = { systems: { llm_validated: { precision: number } }; negative_notices_with_false_positive: string; unsupported_values_in_raw_output: number };
+    type Build = { extractor_version: string; model: string; model_digest: string; runtime: string; generation: Record<string, unknown>; request_sha256: string };
+    const report = JSON.parse(readFileSync(join(APP, 'benchmark', 'data', 'report.json'), 'utf8')) as { extractor_version: string; prompt_sha256: string; behaviour_sha256: string; predictions_build: Build; heldout: Split };
+    const build = report.predictions_build;
+    // The request the extractor sends today (the prediction build must be this one: a prompt, schema, truncation or
+    // option change needs a full, --fresh benchmark run, not a re-score).
+    const python = process.env['PYTHON'] ?? 'python3';
+    const request = spawnSync(python, ['-c', `from df_collector.extract import request_sha256; print(request_sha256(${JSON.stringify(build.model)}))`], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect(build.request_sha256, 'the scored predictions were made by the extractor\'s current request').toBe(request);
+    // ...from the committed sample's inputs.
+    const sampleDigest = spawnSync(python, ['-c', 'import importlib.util, json; s = importlib.util.spec_from_file_location("rb", "benchmark/run_benchmark.py"); m = importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.sample_sha256(json.load(open("benchmark/data/sample.json"))))'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect((build as unknown as { sample_sha256: string }).sample_sha256, 'the scored predictions were made from the committed sample').toBe(sampleDigest);
+    // ...and scored against the committed gold annotations (a corrected gold file needs a re-score).
+    const goldDigest = spawnSync(python, ['-c', 'import importlib.util, json; s = importlib.util.spec_from_file_location("rb", "benchmark/run_benchmark.py"); m = importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.gold_sha256(json.load(open("benchmark/data/gold.json"))))'], { cwd: APP, encoding: 'utf8' }).stdout.trim();
+    expect(goldDigest).toMatch(/^[0-9a-f]{64}$/);
+    expect((report as unknown as { gold_sha256: string }).gold_sha256, 'the report was scored against the committed gold annotations').toBe(goldDigest);
+    for (const entry of PUBLISHABLE_EXTRACTORS) {
+      expect(entry.behaviourSha256, 'the entry names the fingerprint benchmark/data/report.json was scored under').toBe(report.behaviour_sha256);
+      expect(entry.promptSha256).toBe(report.prompt_sha256);
+      expect(entry.version).toBe(report.extractor_version);
+      // And the build that produced the scored predictions: model, full digest, runtime and generation settings.
+      expect(entry.version).toBe(build.extractor_version);
+      expect(entry.model).toBe(build.model);
+      expect(entry.modelDigest).toBe(build.model_digest.replace(/^sha256:/, ''));
+      expect(entry.runtime).toBe(build.runtime);
+      expect(entry.generation).toBe(JSON.stringify(build.generation));
+    }
+    // Scored on the whole fixed held-out split (run_benchmark.py refuses partial, duplicate or unknown predictions).
+    const sample = JSON.parse(readFileSync(join(APP, 'benchmark', 'data', 'sample.json'), 'utf8')) as Array<{ split: string }>;
+    const heldout = sample.filter((item) => item.split === 'heldout').length;
+    expect((report as unknown as { coverage: Record<string, string> }).coverage['heldout']).toBe(`${heldout}/${heldout}`);
+    expect((report.heldout as unknown as { notices: number }).notices).toBe(heldout);
+    // QUALITY_BAR.md: held-out precision ≥ 0.95, no false positive on a negative notice, no unsupported value.
+    expect(report.heldout.systems.llm_validated.precision).toBeGreaterThanOrEqual(0.95);
+    expect(report.heldout.negative_notices_with_false_positive).toMatch(/^0\//);
+    expect(report.heldout.unsupported_values_in_raw_output).toBe(0);
+  });
+
+  it('allowlists the Ollama runtime the benchmark actually ran on', () => {
+    const results = readFileSync(join(APP, 'benchmark', 'RESULTS.md'), 'utf8');
+    const benchmarked = /"ollama": "(\d+\.\d+\.\d+)/.exec(results)?.[1];
+    expect(benchmarked, 'RESULTS.md records the Ollama version').toBeTruthy();
+    for (const entry of PUBLISHABLE_EXTRACTORS) expect(entry.runtime).toBe(`ollama/${benchmarked}`);
+    // The collector keys its short-form (benchmarked) local build by the same release.
+    expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`BENCHMARKED_RUNTIME = "ollama/${benchmarked}"`);
+  });
+
+  it('re-scores the committed predictions to exactly the committed report', () => {
+    // The report is only as good as the predictions it summarises: scoring is recomputed here from the committed
+    // prediction files, build, sample and gold, so an edited or half-rewritten prediction file cannot keep stale metrics.
+    const out = mkdtempSync(join(tmpdir(), 'collector-rescore-'));
+    try {
+      const data = join(APP, 'benchmark', 'data');
+      for (const file of readdirSync(data).filter((name) => /^predictions-.*\.jsonl$/.test(name) || name === 'predictions-build.json')) copyFileSync(join(data, file), join(out, file));
+      const python = process.env['PYTHON'] ?? 'python3';
+      const run = spawnSync(python, ['benchmark/run_benchmark.py', '--sample', 'benchmark/data/sample.json', '--gold', 'benchmark/data/gold.json', '--out', out, '--score-only'], { cwd: APP, encoding: 'utf8' });
+      expect(run.status, run.stderr).toBe(0);
+      expect(JSON.parse(readFileSync(join(out, 'report.json'), 'utf8')), 'benchmark/data/report.json must be exactly what the committed predictions score to').toEqual(JSON.parse(readFileSync(join(data, 'report.json'), 'utf8')));
+    } finally {
+      rmSync(out, { recursive: true, force: true });
+    }
+  });
+
+  it('caps model answers at the intake\'s per-notice candidate limit', () => {
+    expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`MAX_IDENTIFIERS = ${MAX_CANDIDATES_PER_NOTICE}\n`);
+  });
+
+  it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {
+    // PowerShell is not available in CI; this pins the script's structure.
+    const script = readFileSync(join(APP, 'windows', 'uninstall.ps1'), 'utf8');
+    expect(script).toMatch(/'purge', '--everything'/);
+    expect(script).toMatch(/if \(\$purged -ne 0\) \{ throw/);
+    // The only direct delete is on the path where the guard cannot run, and it requires -Force.
+    const deletes = script.split('\n').filter((line) => /Remove-Item -Recurse/.test(line));
+    expect(deletes).toHaveLength(1);
+    expect(script.slice(0, script.indexOf(deletes[0] as string))).toMatch(/if \(-not \$Force\) \{ throw[^\n]*\n\s*$/);
+  });
+});

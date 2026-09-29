@@ -84,6 +84,31 @@ const PRODUCT_RECALL_SCHEMA = {
     identifiers: { type: 'object', properties: { gtins: { type: 'array', items: { type: 'string' } }, model_numbers: { type: 'array', items: { type: 'string' } }, model_keys: { type: 'array', items: { type: 'string' } } } },
     trade_facets: { type: 'array', items: { type: 'string', enum: [...TRADE_FACETS] } },
     linked_notices: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, agency: { type: 'string' }, relation: { type: 'string', enum: ['cites', 'cited_by'] }, basis: { type: 'string', enum: ['declared_citation'] } } } },
+    extracted_identifiers: {
+      type: 'array',
+      description:
+        'Present only while extracted identifiers are published. Product codes (item, style, SKU, part, catalog numbers) proposed by a local model and accepted by deterministic server checks against the stored record; kept apart from `identifiers`, each with its source field, span, extractor and model digest. Lookup reports these matches as kind `extracted_model`.',
+      items: {
+        type: 'object',
+        properties: {
+          kind: { type: 'string', enum: ['model'] },
+          value: { type: 'string' },
+          key: { type: 'string' },
+          label: { type: 'string', enum: ['model', 'item', 'style', 'sku', 'part', 'catalog', 'product'] },
+          method: { type: 'string', enum: ['local-model-proposal+deterministic-verification'] },
+          source_field: { type: 'string' },
+          span: { type: 'array', items: { type: 'integer' }, minItems: 2, maxItems: 2 },
+          extractor_version: { type: 'string' },
+          model: { type: 'string' },
+          model_digest: { type: 'string' },
+          prompt_sha256: { type: 'string' },
+          generation: { type: 'string', description: 'The generation settings the extractor ran with, canonical JSON.' },
+          behaviour_sha256: { type: 'string', description: 'The extraction-behaviour fingerprint of the collector build that produced the identifier.' },
+          runtime: { type: 'string', description: 'The inference runtime that served the model, "ollama/<version>".' },
+          submitted_at: { type: 'string', format: 'date-time' },
+        },
+      },
+    },
     provenance: { type: 'object' },
     raw: { type: 'object', description: 'Verbatim source record (include=raw) with the fields listed in raw_redaction.removed_fields withheld.' },
     raw_redaction: {
