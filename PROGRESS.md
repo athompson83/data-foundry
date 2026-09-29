@@ -1,5 +1,25 @@
 # Progress
 
+## Current session — 2026-09-29: Local Collector review closeout and re-verification
+
+- **PR #75.** It went through 12 more Codex review rounds. Every finding was fixed with a regression test that fails on
+  the earlier code. Codex's final review of `0565658` found no issues, and required CI is green on it.
+- **Main fixes.**
+  - Withdrawals: notice-level holds are durable, and a withdrawn source gets a retryable 503 before anything is
+    written.
+  - Intake: a failure that wrote nothing releases its reservation.
+  - Collector: an upload is acknowledged only by an intake answer that matches it, and an answer longer than 60
+    identifiers is quarantined.
+  - Long fields are read in overlapping windows and reported as their own unpublished build until they are
+    benchmarked.
+  - The benchmark report is bound to its gold file and re-scored in CI.
+- **Re-verified end to end** on the final head against a full local replica: source → local model → intake →
+  authenticated API result, with a 20-minute unattended run
+  ([evidence](docs/evidence/local-collector-e2e-20260929.md)).
+- **Not live yet.**
+  - Production deploy is blocked by UA-015 (the deploy token contains a line break), then the ADR-0017 steps.
+  - The Windows install is UA-017.
+
 ## Current session — 2026-09-28: Local Collector (local-model extraction through a governed intake)
 
 - **Owner direction.** Set up the Data Foundry Local Collector (goal document of 2026-09-28). Use Ollama with a free
