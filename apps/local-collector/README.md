@@ -82,6 +82,7 @@ The collector is built to run unattended, and to leave nothing on the computer o
 | Network or 5xx errors, 429 / Retry-After, the daily request cap | Jobs back off and retry, then dead-letter at the ceiling |
 | A cap reached (disk, free space) | It pauses, then resumes by itself once the sweep or the drain clears it |
 | Ingestion credential refused | Uploads pause and are retried hourly, so a fixed credential resumes without anyone touching it |
+| Upload rejected by the intake (400, 409, 413) | Kept and retried every 6 hours, never discarded; it counts toward the outbox cap, so a systematic rejection pauses extraction until the Worker or collector is fixed |
 | Dataset withdrawn from the live catalog | The task idles and the catalog is re-read hourly, so collection resumes when the dataset returns |
 | Restart | The catalog is re-read at start-up, and work resumes from the saved cursor and outbox |
 

@@ -50,6 +50,8 @@ SWEEP_INTERVAL_S = 60
 CAP_PAUSE = "cap: "
 # A refused ingestion credential is retried after this long, so a fixed or re-issued credential resumes on its own.
 CREDENTIAL_RETRY_S = 3600
+# An upload the intake rejected (400/409/413) is retried this often, never discarded.
+REJECTED_RETRY_S = 6 * 3600
 # A served-or-not read-back of one notice happens at most this often.
 VERIFY_RECHECK_S = 3600
 
@@ -676,7 +678,12 @@ class Uploader:
                 self.state.set("uploader_paused_at", str(time.time()))
                 self._defer(row, f"{error.code}: {detail}", 3600)
             elif error.code in (400, 409, 413):
-                self._dead(row, f"{error.code}: {detail}")
+                # A contract rejection (a collector/Worker mismatch, most likely systematic) is never discarded: the row
+                # stays owed and is retried every few hours, and it counts toward the outbox cap, so a run of them
+                # pauses extraction rather than silently losing its results. A fixed Worker or collector sends it.
+                self.state.set("uploads_rejected", f"intake rejected an upload ({error.code}); retrying every {REJECTED_RETRY_S // 3600} h")
+                self.state.event("error", "upload_rejected", {"id": row["id"], "error": f"{error.code}: {detail}"[:300]})
+                self._defer(row, f"{error.code}: {detail}", REJECTED_RETRY_S)
             elif 300 <= error.code < 400:
                 # Never followed (the credential stays with the checked URL); an intake that redirects is misconfigured.
                 self._defer(row, f"{error.code} redirect refused: {detail}", 3600)

@@ -309,7 +309,7 @@ class UploaderBehaviour(unittest.TestCase):
         self.assertEqual(self.state.one("SELECT server_status FROM candidate")["server_status"], "accepted")
         self.assertNotIn("collector", json.loads(opener.requests[-1].data))
 
-    def test_credential_refusal_pauses_uploads_and_bad_requests_dead_letter(self):
+    def test_credential_refusal_pauses_uploads_and_bad_requests_are_kept(self):
         uploader, _ = self.uploader([http_error(401)])
         uploader.send_one()
         self.assertTrue(self.state.get("uploader_paused"))
@@ -318,7 +318,8 @@ class UploaderBehaviour(unittest.TestCase):
             db.execute("UPDATE outbox SET next_attempt_at = 0")
         uploader, _ = self.uploader([http_error(400)])
         uploader.send_one()
-        self.assertEqual(self.state.one("SELECT state FROM outbox")["state"], "dead")
+        # A rejected upload stays owed (retried later), never dead-lettered.
+        self.assertEqual(self.state.one("SELECT state FROM outbox")["state"], "pending")
 
     def test_kill_switch_and_policy_withdrawal_stop_uploads(self):
         self.state.set(f"kill:{TASK}", "1")
@@ -1539,3 +1540,43 @@ class CodexRegressionsRound26(unittest.TestCase):
         for changed in (ModelIdentity("qwen3.5:4b", "ffffffffffff", "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.34.4"), ModelIdentity("qwen3.5:4b", "2a654d98e6fb", "qwen35", "4.7B", "Q4_K_M", "Apache License", "ollama/0.35.0")):
             with self.assertRaises(SystemExit):
                 bench.check_identity(Client(changed), expected, "a")
+
+
+class CodexRegressionsRound27(unittest.TestCase):
+    def test_the_prefilter_accepts_every_spacing_shape_accepts(self):
+        # SHAPE allows two consecutive spaces (the rules accept "AB  12"); the prefilter must see it too.
+        for text in ("Affected: model number AB  12.",):
+            value = "AB  12"
+            self.assertTrue(validate.decide(text, value, "Description").ok, text)
+            self.assertTrue(worth_extracting({"Title": "Lamps recalled", "Description": text, "Products": []}), text)
+
+    def test_a_rejected_upload_is_kept_retried_and_counted_toward_the_cap(self):
+        from df_collector.runtime import REJECTED_RETRY_S
+
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            state.set_secret = None
+            (config.secrets_dir).mkdir(parents=True, exist_ok=True)
+            (config.secrets_dir / "ingest-token").write_text("dfi_" + "a" * 40)
+            state.outbox_add(state.db, "1" * 64, {"task": TASK, "extractor": {}, "notices": [{"recall_id": "cpsc-1", "raw_sha256": "r", "candidates": []}]})
+            state.db.commit()
+
+            class Opener:
+                def open(self, request, timeout=None):
+                    raise http_error(400)
+
+            uploader = Uploader(config, state, policy=POLICY, opener=Opener())
+            config.api_origin = "http://127.0.0.1:9"
+            import time
+
+            before = time.time()
+            uploader.send_one()
+            row = state.one("SELECT state, next_attempt_at FROM outbox")
+            self.assertEqual(row["state"], "pending")
+            self.assertGreaterEqual(row["next_attempt_at"], before + REJECTED_RETRY_S - 5)
+            self.assertEqual(state.outbox_pending(), 1)  # still owed, so it counts toward the outbox cap
+            self.assertTrue(state.get("uploads_rejected"))
+            # The sweep does not discard it.
+            state.sweep(config.evidence_dir, unverified_days=0)
+            self.assertEqual(state.outbox_pending(), 1)

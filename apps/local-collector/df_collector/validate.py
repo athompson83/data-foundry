@@ -235,15 +235,18 @@ CODE_TOKEN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.ASC
 
 
 def _has_code(text: str) -> bool:
-    """A code-shaped value: the rules' grammar (letters, digits, . - / # _, and up to two single spaces, as SHAPE
-    allows), with a digit and a key of 3 or more. Runs of up to three adjacent tokens are tried, so "AB 12" counts."""
+    """A code-shaped value: exactly the shapes SHAPE accepts (letters, digits, . - / # _ and spaces, up to 40
+    characters), with a digit and a key of 3 or more. Runs of adjacent tokens separated only by spaces, however many,
+    are tried while they fit SHAPE, so "AB 12" and "AB  12" both count."""
     tokens = [(match.start(), match.end()) for match in CODE_TOKEN.finditer(text)]
     for i in range(len(tokens)):
-        for j in range(i, min(i + 3, len(tokens))):
-            if j > i and text[tokens[j - 1][1]:tokens[j][0]] != " ":
-                break
+        for j in range(i, len(tokens)):
+            if j > i and text[tokens[j - 1][1]:tokens[j][0]].strip(" "):
+                break  # something other than spaces separates the tokens
             value = text[tokens[i][0]:tokens[j][1]]
-            if re.search(r"[0-9]", value) and len(model_key(value)) >= 3 and SHAPE.match(value):
+            if not SHAPE.match(value):
+                break  # longer runs only grow past SHAPE's length
+            if re.search(r"[0-9]", value) and len(model_key(value)) >= 3:
                 return True
     return False
 
