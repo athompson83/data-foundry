@@ -534,7 +534,8 @@ describe('publication of extracted identifiers', () => {
     const admin = (action: string) => call(env, `/admin/extractions/${action}?extractor_version=${version}&recall_id=cpsc-15034`, { method: 'POST', headers: { authorization: `Bearer ${ADMIN}` } });
     expect(await (await admin('withdraw')).json()).toEqual({ withdrawn: 0 });
     // A queued submission for the withdrawn notice arrives afterwards: kept, withheld under the notice's hold.
-    expect(await (await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }])).json()).toMatchObject({ accepted: 1 });
+    // The answer does not claim publication for a candidate the read path withholds.
+    expect(await (await submit(env, token, [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }])).json()).toMatchObject({ accepted: 1, publishable_build: true, extractor_withdrawn: false, withdrawn_notices: ['cpsc-15034'], published: false });
     expect(await env.DB.prepare('SELECT status, withdrawn_scope FROM product_recall_extracted_key').first()).toEqual({ status: 'withdrawn', withdrawn_scope: 'notice' });
     const apiKey = await customerKey(env);
     const served = async () => ((await (await get(env, apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers;

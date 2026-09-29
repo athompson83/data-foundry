@@ -44,7 +44,7 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = '5d74499ac9a30823e761bf914f2ffd6fcdf062e7f8f07734d316d8708ef6171c';
+export const EXTRACTION_BEHAVIOUR_SHA256 = '280a135d8fb7e299ec0fdcf409dab4d7f983a44d3f6fb64e66235fb18b0c8c9f';
 
 export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly runtime: string; readonly benchmark: string }> = [
   {
@@ -56,7 +56,7 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: '5d74499ac9a30823e761bf914f2ffd6fcdf062e7f8f07734d316d8708ef6171c',
+    behaviourSha256: '280a135d8fb7e299ec0fdcf409dab4d7f983a44d3f6fb64e66235fb18b0c8c9f',
     // The inference runtime the benchmark ran on (RESULTS.md, "ollama"): another release is another build.
     runtime: 'ollama/0.34.4',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
@@ -440,6 +440,11 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   const all = results.flatMap((result) => result.candidates);
   const count = (status: CandidateStatus) => all.filter((candidate) => candidate.status === status).length;
   const withdrawnVersion = (await env.DB.prepare("SELECT 1 AS w FROM extractor_withdrawal WHERE extractor_version = ? AND recall_id = ''").bind(extractor.version).first()) !== null;
+  // Notices of this submission under their own hold: their candidates are stored withdrawn, so none of them is served.
+  const checked = [...new Set(results.filter((result) => result.status === 'checked').map((result) => result.recall_id))];
+  const withdrawnNotices = checked.length === 0
+    ? []
+    : (await env.DB.prepare(`SELECT recall_id FROM extractor_withdrawal WHERE extractor_version = ? AND recall_id IN (${checked.map(() => '?').join(', ')}) ORDER BY recall_id`).bind(extractor.version, ...checked).all<{ recall_id: string }>()).results.map((row) => row.recall_id);
   const response = {
     task: IDENTIFIER_TASK,
     extractor_version: extractor.version,
@@ -451,8 +456,10 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
     publishable_build: isPublishableExtractor(extractor),
     // An operator has withdrawn this extractor version: its candidates are checked and kept, but not served.
     extractor_withdrawn: withdrawnVersion,
-    // The read path's own conditions: dataset open and not withdrawn, quality gate open, and an allowlisted build.
-    published: extractedServed(env) && isPublishableExtractor(extractor) && !withdrawnVersion,
+    // Notices an operator has withdrawn for this version: their candidates are checked and kept, but not served.
+    withdrawn_notices: withdrawnNotices,
+    // The read path's own conditions: dataset open and not withdrawn, quality gate open, an allowlisted build, and no hold.
+    published: extractedServed(env) && isPublishableExtractor(extractor) && !withdrawnVersion && withdrawnNotices.length === 0,
     results,
   };
   return response;

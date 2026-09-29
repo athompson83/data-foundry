@@ -1655,3 +1655,15 @@ class CodexRegressionsRound30(unittest.TestCase):
             self.assertFalse(uploader.send_one())
             self.assertEqual(state.outbox_pending(), 1)
             self.assertTrue(state.get("uploads_rejected"))
+
+
+class CodexRegressionsRound31(unittest.TestCase):
+    def test_an_answer_longer_than_the_intake_cap_is_quarantined(self):
+        item = {"value": "SA904", "label": "item", "field": "Description"}
+        self.assertEqual(extract.build_schema(["Description"])["properties"]["identifiers"]["maxItems"], extract.MAX_IDENTIFIERS)
+        # At the cap: parsed (duplicates then collapse to one proposal).
+        self.assertEqual(extract.extract(FakeClient(json.dumps({"identifiers": [item] * extract.MAX_IDENTIFIERS})), RECORD).status, "extracted")
+        # Past it (a schema-violating runtime): never enqueued, since the intake would refuse the whole notice.
+        result = extract.extract(FakeClient(json.dumps({"identifiers": [item] * (extract.MAX_IDENTIFIERS + 1)})), RECORD)
+        self.assertEqual(result.status, "quarantined")
+        self.assertEqual(result.accepted, [])

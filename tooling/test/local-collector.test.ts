@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
-import { EXTRACTION_BEHAVIOUR_SHA256, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
 import { EXTRACTION_BEHAVIOUR_FILES, extractionBehaviourSha256 } from '../scripts/extraction-behaviour.js';
 import { compilePolicy } from '../scripts/local-collector-policy.js';
 
@@ -152,6 +152,10 @@ describe('local collector', () => {
     for (const entry of PUBLISHABLE_EXTRACTORS) expect(entry.runtime).toBe(`ollama/${benchmarked}`);
     // The collector keys its short-form (benchmarked) local build by the same release.
     expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`BENCHMARKED_RUNTIME = "ollama/${benchmarked}"`);
+  });
+
+  it('caps model answers at the intake\'s per-notice candidate limit', () => {
+    expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`MAX_IDENTIFIERS = ${MAX_CANDIDATES_PER_NOTICE}\n`);
   });
 
   it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {
