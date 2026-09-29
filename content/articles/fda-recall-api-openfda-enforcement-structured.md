@@ -2,6 +2,7 @@
 title: "FDA Recall API: openFDA enforcement reports, structured"
 description: "What openFDA enforcement reports contain, which fields Data Foundry extracts from their prose, and a real request to the recall API, with its limits."
 publishedAt: "2026-09-27"
+updatedAt: "2026-09-29"
 author: "Data Foundry"
 dataset: fda-recalls
 ---
@@ -117,7 +118,7 @@ Its results include `H-1331-2026` with `"matched_on": [{ "kind": "lot", "value":
 
 The example shows two limits honestly. `PRODUCT CODE: 28DSUM` is not captured in any field, because "product code" is not one of the markers the parser trusts. And `reason.classes` is empty: "not properly eviscerated" matches none of the reason-class rules. Derived fields can be incomplete like this, so every response can include the verbatim FDA record: add `include=raw`, and the API serves it only after checking it against the stored SHA-256 (`raw_sha256`).
 
-Freshness has two parts. We check openFDA every six hours, but how recent the newest report is depends on when FDA publishes. `GET https://api.data.aroqon.com/v1/recalls/stats` needs no key and reports both. On 2026-09-27 it showed 87,354 recalls (29,413 food, 17,973 drug, 39,968 device), a latest FDA report date of 2026-09-16 in each category, and 162,971 distinct GTINs, 22,573 NDCs and 1,588,577 lots in the index.
+Freshness has two parts. We check openFDA every six hours, but how recent the newest report is depends on when FDA publishes. `GET https://api.data.aroqon.com/v1/recalls/stats` needs no key and reports both. On 2026-09-29 it showed 87,503 recalls (29,461 food, 17,986 drug, 40,056 device), a latest FDA report date of 2026-09-23 in each category, and 164,170 distinct GTINs, 22,597 NDCs and 1,591,751 lots in the index.
 
 The data is not medical, legal or regulatory advice. Do not rely on it to make decisions regarding medical care, and confirm against FDA's own recall notice before acting.
 
