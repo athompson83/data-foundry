@@ -158,7 +158,9 @@ def run(args: argparse.Namespace) -> None:
                 "chat": result.chat.__dict__ if result.chat else None,
                 "proposals": [{"value": p.value, "label": p.label, "field": p.field, "ok": p.decision.ok, "reason": p.decision.reason, "server_label": p.decision.label} for p in result.proposals],
                 "baseline": [{"value": p.value, "label": p.label, "field": p.field} for p in baseline],
-                "raw_output": result.raw_output,
+                # The complete response (Extraction.raw_output is shortened for logs): scoring re-parses it, so every
+                # proposal production would submit is counted.
+                "raw_output": result.chat.content if result.chat else result.raw_output,
             }
             sink.write(json.dumps(row) + "\n")
             sink.flush()
@@ -235,8 +237,10 @@ def score(args: argparse.Namespace) -> dict:
             fields = validate.candidate_fields(record)
             try:
                 proposed = [item["value"] for item in ex.parse_output(row["raw_output"], fields)] if row["status"] == "extracted" and row["raw_output"] else []
-            except (ValueError, json.JSONDecodeError):
-                proposed = []
+            except (ValueError, json.JSONDecodeError) as error:
+                # An extracted notice whose stored output no longer parses (truncated or corrupted) cannot be scored as
+                # "no proposals": that would hide whatever production submitted. Refuse to score it.
+                raise SystemExit(f"stored output for {i} does not parse ({error}); re-run the benchmark (--fresh)") from error
             preds = {
                 "llm_raw": set(proposed),
                 "llm_validated": {v for v in proposed if validate.decide_in_record(record, v, fields[0] if fields else "Description").ok},

@@ -346,6 +346,18 @@
     "ok": false,
     "reason": "measurement"
    }
+  },
+  {
+   "name": "a label separated by a non-breaking space (JavaScript \\s)",
+   "field": "Description",
+   "text": "The recalled lamps carry part number AB12 and were sold online.",
+   "value": "AB12",
+   "expect": {
+    "ok": true,
+    "label": "part",
+    "key": "AB12",
+    "start": 37
+   }
   }
  ],
  "records": [

@@ -7,7 +7,7 @@ the stored R2 evidence. This copy only keeps obviously bad model output in
 local quarantine instead of uploading it. Both implementations run the same
 vectors (``packages/product-recall-structuring/test/identifier-candidate-vectors.json``).
 
-All patterns use ``re.ASCII`` so ``\\b``, ``\\d`` and ``\\s`` behave as in JavaScript.
+Patterns use ``re.ASCII`` so ``\\b`` and ``\\d`` behave as in JavaScript; ``\\s`` is compiled as JavaScript's whitespace set (``_js``).
 """
 
 from __future__ import annotations
@@ -18,43 +18,54 @@ from dataclasses import dataclass
 
 IDENTIFIER_TASK = "cpsc-product-identifiers@1"
 IDENTIFIER_LABELS = ("model", "item", "style", "sku", "part", "catalog", "product")
+# ECMAScript's \s: the TypeScript rules (authoritative) treat these as whitespace, so the mirror must too. re.ASCII is
+# kept for \b, \d and \w, and every \s in a pattern below is compiled as this class instead.
+JS_WHITESPACE = "[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
+
+
+def _js(pattern: str, flags: int = 0) -> "re.Pattern[str]":
+    return re.compile(pattern.replace(r"\s", JS_WHITESPACE), flags)
+
 _F = re.IGNORECASE | re.ASCII
 
 LABEL_PATTERNS = [
-    ("model", re.compile(r"\bmodels?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
-    ("item", re.compile(r"\bitems?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
-    ("style", re.compile(r"\bstyles?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
-    ("sku", re.compile(r"\bskus?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
-    ("part", re.compile(r"\bpart\s*(?:numbers?\b|nos?\b\.?|#)|\bp/n\b", _F)),
-    ("catalog", re.compile(r"\bcatalog(?:ue)?s?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?|\bcat\.\s*nos?\b\.?", _F)),
-    ("product", re.compile(r"\b(?:product|article|reference|stock)\s*(?:numbers?\b|nos?\b\.?|#|codes?\b)", _F)),
+    ("model", _js(r"\bmodels?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("item", _js(r"\bitems?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("style", _js(r"\bstyles?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("sku", _js(r"\bskus?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("part", _js(r"\bpart\s*(?:numbers?\b|nos?\b\.?|#)|\bp/n\b", _F)),
+    ("catalog", _js(r"\bcatalog(?:ue)?s?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?|\bcat\.\s*nos?\b\.?", _F)),
+    ("product", _js(r"\b(?:product|article|reference|stock)\s*(?:numbers?\b|nos?\b\.?|#|codes?\b)", _F)),
 ]
-NEGATIVE = re.compile(
+NEGATIVE = _js(
     r"\bmodel\s*years?\b|\b(?:lots?|batch(?:es)?|serial(?:s|\s*numbers?)?|(?:date|production|manufactur(?:e|ing))\s*codes?|codes?\s*dates?|vins?|rn|upcs?|eans?|gtins?|barcodes?|ca\s*#|wpl|recall\s*(?:numbers?|nos?\b\.?)|release\s*(?:numbers?|#)|phone|telephone|fax|call)\b|\btoll[- ]free\b",
     _F,
 )
-ABBREVIATION = re.compile(r"(?:\bno|\bnos|\bcat|\bref|\bapprox|\binc|\bco|\bcorp|\bltd|\bu\.s|\bst|\bjr|\bmr|\bmrs|\bdr|\bvs|\bft|\bin|\boz|\blbs?|\be\.g|\bi\.e)$", _F)
-UNIT_AFTER = re.compile(
+ABBREVIATION = _js(r"(?:\bno|\bnos|\bcat|\bref|\bapprox|\binc|\bco|\bcorp|\bltd|\bu\.s|\bst|\bjr|\bmr|\bmrs|\bdr|\bvs|\bft|\bin|\boz|\blbs?|\be\.g|\bi\.e)$", _F)
+UNIT_AFTER = _js(
     r"^\s*(?:-\s*)?(?:watts?|volts?|amps?|amperes?|inch(?:es)?|in\.|feet|foot|ft|pounds?|lbs?|ounces?|oz|gallons?|gal|quarts?|liters?|litres?|ml|mm|cm|meters?|btus?|hp|mah|wh|kw|units?|pieces?|pcs|pairs?|sets?|percent|%|degrees?|months?|years?|days?|pack|count|ct)\b",
     _F,
 )
-MEASURE = re.compile(r"^\d+(?:\.\d+)?-?(?:cups?|inch(?:es)?|in|ft|foot|feet|oz|lbs?|mm|cm|m|v|volts?|w|watts?|amps?|a|packs?|pieces?|pcs?|gallons?|gal|quarts?|qt|l|ml|speed|pound|btu|hp|mah|wh|kw|piece|ct)$", _F)
-SHAPE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9 .\-/#_]{0,38}[A-Za-z0-9])?$", re.ASCII)
-FIELD = re.compile(r"^(?:Title|Description|Products\[(\d{1,3})\]\.(?:Name|Description|Model))$", re.ASCII)
-AFTER_LABEL = re.compile(r"number|\bnos?\b|#|sku|p/n", _F)
+MEASURE = _js(r"^\d+(?:\.\d+)?-?(?:cups?|inch(?:es)?|in|ft|foot|feet|oz|lbs?|mm|cm|m|v|volts?|w|watts?|amps?|a|packs?|pieces?|pcs?|gallons?|gal|quarts?|qt|l|ml|speed|pound|btu|hp|mah|wh|kw|piece|ct)$", _F)
+SHAPE = _js(r"^[A-Za-z0-9](?:[A-Za-z0-9 .\-/#_]{0,38}[A-Za-z0-9])?$", re.ASCII)
+FIELD = _js(r"^(?:Title|Description|Products\[(\d{1,3})\]\.(?:Name|Description|Model))$", re.ASCII)
+AFTER_LABEL = _js(r"number|\bnos?\b|#|sku|p/n", _F)
 MAX_ANCHOR_BEFORE = 800
 NEGATIVE_NEAR_WORDS = 3
-RANGE_NEIGHBOUR_BEFORE = re.compile(r"(?:\bthrough|\bthru|\bto|\s[-\u2013]|^[-\u2013])\s*$", _F)
-RANGE_NEIGHBOUR_AFTER = re.compile(r"^\s*(?:through\b|thru\b|to\b|[-\u2013]\s)", _F)
+RANGE_NEIGHBOUR_BEFORE = _js(r"(?:\bthrough|\bthru|\bto|\s[-\u2013]|^[-\u2013])\s*$", _F)
+RANGE_NEIGHBOUR_AFTER = _js(r"^\s*(?:through\b|thru\b|to\b|[-\u2013]\s)", _F)
 MONTH = r"(?:0?[1-9]|1[0-2])"
 DAY = r"(?:0?[1-9]|[12]\d|3[01])"
 CALENDAR = [
-    re.compile(rf"^{MONTH}[/.-]{DAY}(?:[/.-](?:\d{{2}}|\d{{4}}))?$", re.ASCII),
-    re.compile(rf"^{DAY}[/.-]{MONTH}[/.-](?:\d{{2}}|\d{{4}})$", re.ASCII),
-    re.compile(rf"^(?:19|20)\d\d[/.-]{MONTH}(?:[/.-]{DAY})?$", re.ASCII),
-    re.compile(r"^(?:19|20)\d\d[-/](?:19|20)?\d\d$", re.ASCII),
+    _js(rf"^{MONTH}[/.-]{DAY}(?:[/.-](?:\d{{2}}|\d{{4}}))?$", re.ASCII),
+    _js(rf"^{DAY}[/.-]{MONTH}[/.-](?:\d{{2}}|\d{{4}})$", re.ASCII),
+    _js(rf"^(?:19|20)\d\d[/.-]{MONTH}(?:[/.-]{DAY})?$", re.ASCII),
+    _js(r"^(?:19|20)\d\d[-/](?:19|20)?\d\d$", re.ASCII),
 ]
-LISTED = re.compile(r"\b(?:models?|items?|styles?|skus?|part|catalog(?:ue)?|product|article|stock)\s*(?:numbers?|nos?\.?|#)\s*(?:[:#]\s*)?(?:[A-Za-z0-9-]+\s*(?:,|and|or)\s*)*$", _F)
+LISTED = _js(r"\b(?:models?|items?|styles?|skus?|part|catalog(?:ue)?|product|article|stock)\s*(?:numbers?|nos?\.?|#)\s*(?:[:#]\s*)?(?:[A-Za-z0-9-]+\s*(?:,|and|or)\s*)*$", _F)
+_SENTENCE_END_BEFORE = _js(r"[.!?](?=\s)|\n")
+_SENTENCE_END_AFTER = _js(r"[.!?](?=\s|$)|\n")
+_YEARS_BEFORE = _js(r"\byears?\s*$", _F)
 MAX_ANCHOR_AFTER = 40
 
 
@@ -117,13 +128,13 @@ def _is_alnum(text: str, index: int) -> bool:
 
 def _sentence_bounds(text: str, start: int, end: int) -> tuple[int, int]:
     begin = 0
-    for match in re.finditer(r"[.!?](?=\s)|\n", text[:start]):
+    for match in _SENTENCE_END_BEFORE.finditer(text[:start]):
         at = match.start()
         if match.group(0) == "." and ABBREVIATION.search(text[max(0, at - 6):at]):
             continue
         begin = at + 1
     finish = len(text)
-    for match in re.finditer(r"[.!?](?=\s|$)|\n", text[end:]):
+    for match in _SENTENCE_END_AFTER.finditer(text[end:]):
         at = end + match.start()
         if match.group(0) == "." and ABBREVIATION.search(text[max(0, at - 6):at]):
             continue
@@ -167,7 +178,7 @@ def _is_year_or_date(value: str, text: str, end: int) -> bool:
     if not re.fullmatch(r"(?:19|20)\d\d", value, re.ASCII):
         return False
     before = text[max(0, end - len(value) - 60):end - len(value)]
-    return not LISTED.search(before) or bool(re.search(r"\byears?\s*$", before, _F))
+    return not LISTED.search(before) or bool(_YEARS_BEFORE.search(before))
 
 
 def _shape_rejection(value: str, text: str, end: int) -> str | None:
@@ -231,7 +242,7 @@ def decide_in_record(record: object, value: str, claimed_field: str) -> Decision
     return first_rejection or Decision(False, "not_in_source", field=claimed_field)
 
 
-CODE_TOKEN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.ASCII)
+CODE_TOKEN = _js(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.ASCII)
 
 
 def _has_code(text: str) -> bool:
