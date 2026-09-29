@@ -44,7 +44,7 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = '99c20fb8078d6ee576a267484117e487f4b8d403fba75e5e0cdfb1ebd8d4bac2';
+export const EXTRACTION_BEHAVIOUR_SHA256 = '6b6ead48260d5e746be33e68887bed5a20cbb6b1322eb982e48b3cf9d84070e7';
 
 export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly runtime: string; readonly benchmark: string }> = [
   {
@@ -56,7 +56,7 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: '99c20fb8078d6ee576a267484117e487f4b8d403fba75e5e0cdfb1ebd8d4bac2',
+    behaviourSha256: '6b6ead48260d5e746be33e68887bed5a20cbb6b1322eb982e48b3cf9d84070e7',
     // The inference runtime the benchmark ran on (RESULTS.md, "ollama"): another release is another build.
     runtime: 'ollama/0.34.4',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
@@ -187,15 +187,22 @@ interface Extractor {
 /**
  * Canonical form of the generation settings the collector reports: num_ctx, think and, when overridden, num_thread.
  * The benchmark ran with Ollama's default thread count, so a thread override makes a different (unpublished) build.
+ * `windowed: true` marks a notice read in several requests (a field past the first window): the benchmark has no such
+ * notice, so that is a different (unpublished) build too, until a benchmark covering it is allowlisted.
  */
 function canonicalGeneration(value: unknown): string | null {
   if (!value || typeof value !== 'object') return null;
-  const { num_ctx: ctx, think, num_thread: threads } = value as Record<string, unknown>;
+  const { num_ctx: ctx, think, num_thread: threads, windowed } = value as Record<string, unknown>;
   if (typeof ctx !== 'number' || !Number.isInteger(ctx) || ctx < 512 || ctx > 262_144) return null;
   if (typeof think !== 'boolean' && !(typeof think === 'string' && ['low', 'medium', 'high'].includes(think))) return null;
-  if (threads === undefined || threads === null) return JSON.stringify({ num_ctx: ctx, think });
-  if (typeof threads !== 'number' || !Number.isInteger(threads) || threads < 1 || threads > 256) return null;
-  return JSON.stringify({ num_ctx: ctx, think, num_thread: threads });
+  if (windowed !== undefined && windowed !== null && windowed !== true) return null;
+  const settings: Record<string, unknown> = { num_ctx: ctx, think };
+  if (threads !== undefined && threads !== null) {
+    if (typeof threads !== 'number' || !Number.isInteger(threads) || threads < 1 || threads > 256) return null;
+    settings['num_thread'] = threads;
+  }
+  if (windowed === true) settings['windowed'] = true;
+  return JSON.stringify(settings);
 }
 
 const str = (value: unknown, pattern: RegExp): value is string => typeof value === 'string' && pattern.test(value);
@@ -309,6 +316,27 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
   return { recall_id: notice.recall_id, status: 'checked', candidates: results };
 }
 
+const sourceWithdrawn = (source: string) => new IntakeRefused(503, 'source_withdrawn', `Submissions for ${source} are withdrawn for now; retry later.`);
+
+/** The first withdrawn source named by a well-formed body's notices, or null (including for any malformed body). */
+function heldSource(text: string, withdrawn: Set<string>): string | null {
+  if (withdrawn.size === 0) return null;
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const notices = body && typeof body === 'object' ? (body as Record<string, unknown>)['notices'] : undefined;
+  if (!Array.isArray(notices)) return null;
+  for (const notice of notices) {
+    const id = notice && typeof notice === 'object' ? (notice as Record<string, unknown>)['recall_id'] : undefined;
+    const source = typeof id === 'string' ? sourceOf(id) : null;
+    if (source !== null && withdrawn.has(source)) return source;
+  }
+  return null;
+}
+
 export async function handleIntake(env: Env, request: Request): Promise<{ status: number; body: Record<string, unknown> }> {
   if (!intakeOpen(env)) throw new IntakeRefused(503, 'intake_closed', 'Extraction intake is closed.');
   const credential = await findCredential(env.DB, request);
@@ -321,6 +349,10 @@ export async function handleIntake(env: Env, request: Request): Promise<{ status
   // Content-Length is only a hint (absent when chunked, or understated): the cap is enforced on the bytes as they
   // arrive, so an oversized body is refused without ever being buffered whole.
   const text = await readCappedBody(request, MAX_INTAKE_BYTES);
+  // A withdrawn source is refused before any reservation exists, so a collector retrying through a long hold leaves
+  // no row behind; processSubmission checks again after parsing (a malformed body is answered there as a 400).
+  const held = heldSource(text, withdrawnSources(env));
+  if (held) throw sourceWithdrawn(held);
   const bodySha = await sha256Hex(text);
   const reservation = await reserveSubmission(env.DB, credential.id, idempotencyKey, bodySha);
   if ('replay' in reservation) return { status: 200, body: reservation.replay };
@@ -435,7 +467,7 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   // retryable (like the dataset kill switch), before anything is written, so the collector keeps the upload queued
   // and resubmits it once the source is restored.
   const held = notices.map((notice) => sourceOf(notice.recall_id)).find((source) => source !== null && withdrawn.has(source));
-  if (held) throw new IntakeRefused(503, 'source_withdrawn', `Submissions for ${held} are withdrawn for now; retry later.`);
+  if (held) throw sourceWithdrawn(held);
   const now = new Date().toISOString();
   const results: NoticeResult[] = [];
   for (const notice of notices) {

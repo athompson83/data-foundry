@@ -159,6 +159,10 @@ class Extraction:
     error: str | None = None
     raw_output: str = ""
     chat: ChatResult | None = None
+    # Read in several requests (a field past the first window). The benchmark has no such notice, so the collector
+    # reports these under their own generation settings ({"windowed": true}): stored at intake, never served, until a
+    # benchmark covering long fields allowlists that build.
+    windowed: bool = False
 
     @property
     def accepted(self) -> list[Proposal]:
@@ -228,7 +232,7 @@ def extract(client: OllamaClient, record: dict) -> Extraction:
         seen.add(value)
         decision = validate.decide_in_record(record, value, item["field"])
         proposals.append(Proposal(value=value, label=item["label"], field=decision.field or item["field"], decision=decision))
-    return Extraction(status="extracted", proposals=proposals, raw_output=chat.content[:4000], chat=chat)
+    return Extraction(status="extracted", proposals=proposals, raw_output=chat.content[:4000], chat=chat, windowed=bool(windows))
 
 
 def deterministic_baseline(record: dict) -> list[Proposal]:

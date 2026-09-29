@@ -439,7 +439,7 @@ class Collector:
                 identity = before
                 payload = {
                     "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": self.generation, "behaviour_sha256": behaviour_sha256(), "runtime": identity.runtime},
+                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": {**self.generation, "windowed": True} if result.windowed else self.generation, "behaviour_sha256": behaviour_sha256(), "runtime": identity.runtime},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }

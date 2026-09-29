@@ -44,7 +44,9 @@ Long fields: a field longer than `MAX_FIELD_CHARS` (6,000) is read in windows ov
 request with the same prompt and schema, and the answers are merged under the same 60-identifier cap. A field
 needing more than `MAX_LATER_WINDOWS` extra windows is quarantined, never cut short. The first request is unchanged,
 and so is the request fingerprint. The benchmark sample has no field that long (the longest is 3,778 characters), so
-this bar does not measure windowed requests; their output passes the same deterministic checks, locally and at intake.
+this bar does not measure windowed requests. A windowed notice is therefore reported under its own generation settings
+(`{"num_ctx":…,"think":…,"windowed":true}`), which no publishable entry names: its candidates are checked and stored at
+intake but never served. Serving them needs a benchmark with long-field notices and an entry for that build.
 
 Then update `EXTRACTION_BEHAVIOUR_SHA256` and the entry (with its benchmark note) in the same reviewed change. Rows
 accepted under an earlier fingerprint stay stored as evidence and are no longer served.

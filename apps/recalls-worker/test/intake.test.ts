@@ -203,6 +203,18 @@ describe('extraction intake', () => {
     expect(response.status).toBe(400);
   });
 
+  it('stores a notice read in several requests as its own build, never served until benchmarked', async () => {
+    const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
+    const windowed = { ...EXTRACTOR, generation: { ...(EXTRACTOR.generation as Record<string, unknown>), windowed: true } };
+    expect(await (await submit(env, token, notices, undefined, windowed)).json()).toMatchObject({ accepted: 1, publishable_build: false, published: false });
+    expect(await env.DB.prepare('SELECT generation FROM product_recall_extracted_key').first()).toEqual({ generation: '{"num_ctx":8192,"think":false,"windowed":true}' });
+    const apiKey = await customerKey(env);
+    expect(((await (await call(env, '/v1/product-recalls/cpsc-15034', { headers: { authorization: `Bearer ${apiKey}` } })).json()) as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers).toEqual([]);
+    // Only `true` is a valid marker.
+    expect((await submit(env, token, notices, undefined, { ...EXTRACTOR, generation: { ...(EXTRACTOR.generation as Record<string, unknown>), windowed: 'yes' } })).status).toBe(400);
+  });
+
   it('reports published only for an allowlisted build while the gate is open', async () => {
     const { env, token, sha } = await seeded({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
     const notices = [{ recall_id: 'cpsc-15034', raw_sha256: sha, candidates: [CANDIDATES[0]] }];
@@ -246,6 +258,8 @@ describe('extraction intake', () => {
     const withdrawn = await submit({ ...env, INTAKE_WITHDRAWN_SOURCES: 'cpsc-recalls' }, token, notices, key);
     expect(withdrawn.status).toBe(503);
     expect(await withdrawn.json()).toMatchObject({ error: { code: 'source_withdrawn' } });
+    // Refused before any reservation: a collector retrying through a long hold leaves no row behind.
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM extraction_submission').first<{ n: number }>()).toEqual({ n: 0 });
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall_extracted_key').first<{ n: number }>()).toEqual({ n: 0 });
     // Once restored, the same upload (same Idempotency-Key and body) is processed and accepted.
     expect(await (await submit(env, token, notices, key)).json()).toMatchObject({ accepted: 1 });

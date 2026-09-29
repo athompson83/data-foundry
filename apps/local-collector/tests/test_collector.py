@@ -1741,3 +1741,25 @@ class CodexRegressionsRound32(unittest.TestCase):
         gold = json.loads((Path(__file__).resolve().parents[1] / "benchmark" / "data" / "gold.json").read_text())
         report = json.loads((Path(__file__).resolve().parents[1] / "benchmark" / "data" / "report.json").read_text())
         self.assertEqual(report["gold_sha256"], module.gold_sha256(gold))
+
+
+class CodexRegressionsRound33(unittest.TestCase):
+    """A notice read in several requests is reported as its own (unbenchmarked, unpublished) build."""
+
+    def run_notice(self, record):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state, client=CodexRegressionsRound32.Reader(), policy=POLICY)
+            collector.queue_documents([{"id": "cpsc-00001", "raw": record, "provenance": {"raw_sha256": "a" * 64}}])
+            collector.extract_one()
+            row = state.one("SELECT payload FROM outbox")
+            return json.loads(row["payload"])["extractor"]["generation"] if row else None
+
+    def test_a_windowed_notice_is_reported_with_windowed_generation(self):
+        long = {"Title": "Widget", "Description": "Item number AB-12 is recalled. " + "Nothing to see here. " * 600 + "Item number CD-34 too.", "Products": []}
+        self.assertEqual(self.run_notice(long), {**extract.generation(8192, False), "windowed": True})
+
+    def test_a_single_request_notice_keeps_the_benchmarked_generation(self):
+        short = {"Title": "Widget", "Description": "Item number AB-12 is recalled.", "Products": []}
+        self.assertEqual(self.run_notice(short), extract.generation(8192, False))
