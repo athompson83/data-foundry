@@ -102,8 +102,16 @@ reviewer is needed:
   third-party copyright carve-outs or personal-data exclusions. The agent may
   proceed only if the product design satisfies every condition, and the rights
   record says how each one is met.
-- **RED**: forbidden, unreadable or unverified terms. The candidate is parked.
-  A `200` is not permission.
+- **RED**: terms that expressly forbid commercial reuse or redistribution, a
+  prohibited publisher, access behind a login, paywall or CAPTCHA, or
+  unresolved personal data. The candidate is parked.
+
+Since [ADR-0018](../../decisions/ADR-0018-free-public-data-presumed-usable.md)
+(2026-09-30), free public data needs no written permission: an open API,
+download or public pages with no login, paywall or CAPTCHA, whose terms do not
+expressly forbid the use, is determined under `FREE_PUBLIC_ACCESS`. Silent,
+missing or unreadable terms make it `AMBER` (attribution, rate limits and the
+hard stops are its conditions), not `RED`.
 
 ## Scoring
 

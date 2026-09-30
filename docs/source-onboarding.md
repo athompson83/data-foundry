@@ -101,6 +101,10 @@ report treats it as a blocker for exactly that reason.
 `next_review_at`. Under [ADR-0013](decisions/ADR-0013-evidence-based-rights-determination.md)
 `reviewed_by` names the committed evidence-based determination (legal basis,
 evidence, per-surface cells, hard stops, attribution), not a human approver.
+Free public data needs no written permission under
+[ADR-0018](decisions/ADR-0018-free-public-data-presumed-usable.md): record basis
+`FREE_PUBLIC_ACCESS` with the access evidence and a note that the terms do not
+expressly forbid the use.
 Terms change. A review with no expiry is a review that will silently go stale.
 
 **6. Record the determination into the rights matrix.** The ADR-0013

@@ -183,6 +183,8 @@ describe('determination file schema', () => {
     expect(() =>
       determination({ terms_evidence: 'memo', basis: 'PUBLIC_DOMAIN_US_GOVERNMENT_WORK' }),
     ).not.toThrow();
+    // ADR-0018: free public data needs no written permission; its terms may be silent or absent.
+    expect(() => determination({ terms_evidence: 'memo', basis: 'FREE_PUBLIC_ACCESS' })).not.toThrow();
     expect(() => determination({ basis: 'DOCUMENTED_APPROVAL' })).toThrow(/AGREEMENT/);
     expect(() => determination({ decision_evidence: 'terms' })).toThrow(/REVIEW_MEMO/);
   });

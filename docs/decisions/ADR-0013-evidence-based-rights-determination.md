@@ -34,7 +34,7 @@ A determination is valid only when it is committed to the repository as a source
 ## What does not change
 
 - **Unknown is still refusal.** Without a valid determination a source stays `UNREVIEWED` and fail-closed.
-- **Public availability alone is not a basis.** "It is on the internet" is not one of the four bases. A public website with restrictive terms, or with no terms and no licence, does not qualify.
+- **Public availability alone is not a basis.** "It is on the internet" is not one of the four bases. A public website with restrictive terms, or with no terms and no licence, does not qualify. *Amended 2026-09-30 by [ADR-0018](ADR-0018-free-public-data-presumed-usable.md): data a publisher offers free, with no login, paywall or CAPTCHA, is presumed usable under a fifth basis, `FREE_PUBLIC_ACCESS`, unless its terms expressly forbid commercial reuse or redistribution. Restrictive terms still refuse.*
 - **Private sources** need `DOCUMENTED_APPROVAL`. Scraping a private site whose terms are silent is not permitted by this ADR.
 - **Personal data** still needs its own handling decision before acquisition.
 - **Crawler/payment settings never expand upstream rights** (ADR-0012).
