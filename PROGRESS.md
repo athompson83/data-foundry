@@ -13,14 +13,16 @@
   - the live API root names no dataset `registry`, and `POST /v1/intake/product-recalls/identifiers` answers 405.
 - **Consequence.** The installed collector stays idle by design (fail closed) until the deploy is live. The ingestion
   credential cannot be minted until then either.
-- **Remaining owner steps, in order:**
+- **Remaining owner steps, in order.** The gates are committed values in `apps/recalls-worker/wrangler.toml`, so
+  each one is a reviewed change deployed by the workflow. `--finish` mints the credential only once the intake answers
+  401, not 503.
   1. UA-015: re-save the production `CLOUDFLARE_API_TOKEN` as one line.
   2. `enable-production.sh --migrate`.
-  3. Dispatch `Deploy recalls Worker` for the current `main` SHA.
-  4. `enable-production.sh --finish`.
-  5. `COLLECTOR_INTAKE_OPEN=1`.
+  3. A reviewed change sets `COLLECTOR_INTAKE_OPEN = "1"`.
+  4. Dispatch `Deploy recalls Worker` for the `main` SHA that contains that change.
+  5. `enable-production.sh --finish`: verifies the deploy, probes for 401, then mints the credential.
   6. On the Windows computer: `set-secret.cmd` for `read-api-key` and `ingest-token`.
-  7. `EXTRACTED_IDENTIFIERS_OPEN=1` to publish.
+  7. To publish: a reviewed change sets `EXTRACTED_IDENTIFIERS_OPEN = "1"`, deployed the same way.
 
 ## Current session — 2026-09-29: Local Collector review closeout and re-verification
 

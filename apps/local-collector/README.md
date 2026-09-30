@@ -188,7 +188,7 @@ The installer:
 
 The collector reads the API root to decide what to collect. Until the ADR-0017 Worker is deployed, the root names no
 dataset `registry`, so the collector stays idle by design; it re-reads the catalog hourly and starts on its own once
-the deploy is live and both secrets are set.
+the deploy is live with the intake open (`COLLECTOR_INTAKE_OPEN = "1"`) and both secrets are set.
 
 It changes no sleep or power setting. Collection stops while the computer sleeps, shuts down or is offline, and
 resumes from its checkpoints. The hosted API keeps serving regardless.
