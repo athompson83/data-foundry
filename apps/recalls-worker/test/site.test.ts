@@ -219,7 +219,8 @@ describe('dataset product pages', () => {
     // No FDA sync has run in this database: the page says so instead of implying freshness.
     expect(fda.body).toContain('<dt>Last successful refresh</dt><dd>not yet recorded</dd>');
     const products = await page(env, '/product-recalls');
-    expect(products.body).toMatch(/<dt>Last successful refresh<\/dt><dd>2026-09-2\d \d\d:\d\d UTC<\/dd>|not yet recorded/);
+    // The seeded sync is recorded at the wall-clock time, so only the timestamp's shape is fixed (a pinned date expires).
+    expect(products.body).toMatch(/<dt>Last successful refresh<\/dt><dd>\d{4}-\d\d-\d\d \d\d:\d\d UTC<\/dd>|not yet recorded/);
   });
 
   it('links every endpoint to an anchor that exists in the docs', async () => {
