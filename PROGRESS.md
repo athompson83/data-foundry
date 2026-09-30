@@ -1,5 +1,29 @@
 # Progress
 
+## Current session — 2026-09-30: Windows install done; production not yet deployed
+
+- **UA-017 done by the owner.** `install.ps1` ran from `main` under PowerShell 7 with `-SkipSecrets`. The logon task
+  is running, the dashboard answers on `127.0.0.1:8765`, and `doctor` passed with the pinned `qwen3.5:4b`. Windows
+  PowerShell 5.1 could not find the Python that the installer had just installed. The installer now also looks in
+  Python's standard install folders, and never counts the Microsoft Store stub. This was checked under PowerShell 7.4
+  with Python only in the per-user folder, only the Store stub on `PATH`, and a normal `PATH`.
+- **Production is unchanged**, checked read-only on 2026-09-30:
+  - D1 has migrations `0001`–`0003` only;
+  - there has been no `Deploy recalls Worker` run since the two token failures of 2026-09-28;
+  - the live API root names no dataset `registry`, and `POST /v1/intake/product-recalls/identifiers` answers 405.
+- **Consequence.** The installed collector stays idle by design (fail closed) until the deploy is live. The ingestion
+  credential cannot be minted until then either.
+- **Remaining owner steps, in order.** The gates are committed values in `apps/recalls-worker/wrangler.toml`, so
+  each one is a reviewed change deployed by the workflow. `--finish` mints the credential only once the intake answers
+  401, not 503.
+  1. UA-015: re-save the production `CLOUDFLARE_API_TOKEN` as one line.
+  2. `enable-production.sh --migrate`.
+  3. A reviewed change sets `COLLECTOR_INTAKE_OPEN = "1"`.
+  4. Dispatch `Deploy recalls Worker` for the `main` SHA that contains that change.
+  5. `enable-production.sh --finish`: verifies the deploy, probes for 401, then mints the credential.
+  6. On the Windows computer: `set-secret.cmd` for `read-api-key` and `ingest-token`.
+  7. To publish: a reviewed change sets `EXTRACTED_IDENTIFIERS_OPEN = "1"`, deployed the same way.
+
 ## Current session — 2026-09-29: Supabase `rls_disabled_in_public` alert contained
 
 - **Trigger.** Supabase emailed a CRITICAL `rls_disabled_in_public` finding for project `fgxinxaqkwoqyywdgobs` (issues as of 2026-09-27). The Product Owner forwarded it for resolution.

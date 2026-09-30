@@ -80,15 +80,29 @@ if ($dataDrive.root -eq $modelDrive.root) {
 
 Step 'Python 3.11+'
 function Find-Python {
-  foreach ($candidate in @('py -3.12', 'py -3.11', 'python')) {
-    $parts = $candidate.Split(' ')
+  # By name first (PATH), then by the standard install folders, because a fresh per-user install is not always on the
+  # PATH this process sees (Windows PowerShell 5.1 missed it where PowerShell 7 found it). The Microsoft Store alias
+  # (WindowsApps\python.exe) is only a stub that opens the Store, so it never counts.
+  $candidates = [System.Collections.Generic.List[object]]::new()
+  foreach ($name in @('py -3.12', 'py -3.11', 'python')) {
+    $parts = $name.Split(' ')
     # 'python' has no launcher arguments; 1..0 would count down and pass the executable name itself.
-    $launcherArgs = if ($parts.Length -gt 1) { $parts[1..($parts.Length - 1)] } else { @() }
+    $candidates.Add(@{ Exe = $parts[0]; Args = @(if ($parts.Length -gt 1) { $parts[1..($parts.Length - 1)] }) })
+  }
+  foreach ($launcher in @((Join-Path $env:LOCALAPPDATA 'Programs\Python\Launcher\py.exe'), (Join-Path $env:WINDIR 'py.exe'))) {
+    if (Test-Path $launcher) { foreach ($v in @('-3.12', '-3.11')) { $candidates.Add(@{ Exe = $launcher; Args = @($v) }) } }
+  }
+  $roots = @((Join-Path $env:LOCALAPPDATA 'Programs\Python'), $env:ProgramFiles) | Where-Object { $_ -and (Test-Path $_) }
+  foreach ($exe in (Get-ChildItem -Path $roots -Filter 'python.exe' -Recurse -Depth 1 -ErrorAction SilentlyContinue | Where-Object { $_.Directory.Name -like 'Python3*' } | Sort-Object FullName -Descending)) {
+    $candidates.Add(@{ Exe = $exe.FullName; Args = @() })
+  }
+  foreach ($candidate in $candidates) {
     try {
-      $version = & $parts[0] $launcherArgs -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>$null
-      if ($version -and [version]$version -ge [version]'3.11') {
-        $exe = & $parts[0] $launcherArgs -c 'import sys; print(sys.executable)'
-        return $exe.Trim()
+      $launcherArgs = $candidate.Args
+      $version = & $candidate.Exe @launcherArgs -c 'import sys; print("%d.%d" % sys.version_info[:2])' 2>$null
+      if ($LASTEXITCODE -eq 0 -and $version -and [version]("$version".Trim()) -ge [version]'3.11') {
+        $exe = ("$(& $candidate.Exe @launcherArgs -c 'import sys; print(sys.executable)' 2>$null)").Trim()
+        if ($exe -and $exe -notmatch '[\\/]WindowsApps[\\/]' -and (Test-Path $exe)) { return $exe }
       }
     } catch { }
   }
