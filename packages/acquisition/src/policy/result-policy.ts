@@ -11,12 +11,14 @@ export class AcquisitionResultPolicyError extends AcquisitionError {
   }
 }
 
-const pathMatches = (path: string, prefix: string): boolean =>
+/** Path-segment prefix match shared by every result-URL policy check. */
+export const pathMatchesPrefix = (path: string, prefix: string): boolean =>
   path === prefix ||
   (prefix.endsWith('/') && path.startsWith(prefix)) ||
   (!prefix.endsWith('/') && path.startsWith(`${prefix}/`));
 
-const unsafe = (value: string): boolean =>
+/** Encoded separators or backslashes that could smuggle a path past a prefix check. */
+export const hasUnsafeUrlEncoding = (value: string): boolean =>
   value.includes('\\') || /%(?:2e|2f|5c)/i.test(value);
 
 /** Mandatory shared pre-store matcher. Omitted policy means exact target only. */
@@ -37,7 +39,7 @@ export function classifyAcquisitionResult(input: {
     result.username !== '' ||
     result.password !== '' ||
     result.hash !== '' ||
-    unsafe(input.resultUrl)
+    hasUnsafeUrlEncoding(input.resultUrl)
   ) {
     throw new AcquisitionResultPolicyError();
   }
@@ -46,7 +48,7 @@ export function classifyAcquisitionResult(input: {
     input.policy === undefined ||
     (input.acquisitionRoute !== 'BROWSER_RUN' && input.acquisitionRoute !== 'CRAWL4AI') ||
     !input.policy.allowedOrigins.includes(result.origin) ||
-    !input.policy.allowedPathPrefixes.some((prefix) => pathMatches(result.pathname, prefix))
+    !input.policy.allowedPathPrefixes.some((prefix) => pathMatchesPrefix(result.pathname, prefix))
   ) {
     throw new AcquisitionResultPolicyError();
   }

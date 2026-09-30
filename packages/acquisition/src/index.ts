@@ -40,6 +40,7 @@ export * from './policy/refresh-schedule.js';
 export * from './policy/rate-limit.js';
 export * from './policy/conditional.js';
 export * from './policy/result-policy.js';
+export * from './policy/sitemap.js';
 export * from './policy/policy-snapshot.js';
 
 export * from './storage/keys.js';

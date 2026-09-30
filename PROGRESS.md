@@ -1,5 +1,34 @@
 # Progress
 
+## Current session — 2026-09-30: Maxun review; sitemap planning and record-selector suggestions
+
+- **Owner direction.** Review `getmaxun/maxun` for anything we can use, then "add anything that would be valuable".
+- **Decision** ([record](docs/reference/maxun-review-20260930.md)). Reference only.
+  - It is AGPL-3.0 (we are MIT and sell hosted access).
+  - It ships stealth, fingerprinting and proxy-rotation tooling, which conflicts with rules 1 and 6.
+  - Its combined navigate-and-extract robots and separate platform would duplicate our infrastructure.
+  - No Maxun code was copied.
+- **Built (pure functions, tested, not yet wired to a runner):**
+  - `packages/acquisition/src/policy/sitemap.ts`. The `SITEMAP` method had no parser. This adds a bounded parser
+    and a planner that applies result-URL policy, robots and a lastmod cutoff.
+  - `packages/extraction/src/record-selector-suggest.ts`. It drafts HTML record selectors for new sources; fixture
+    tests are still required.
+  - Robots crawl-delay already existed, so nothing was added there.
+- **Deferred with a design note:** declarative pagination, and model-proposed field selectors validated against
+  fixtures. Neither is needed by any approved source yet.
+- **Verification (local, this container):**
+  - Passed: `pnpm typecheck`; acquisition and extraction package tests (507/507); `acquisition:check`;
+    `ingestion:check` (after regenerating `hvac.ingestion-runtime.json`, whose implementation digest covers the
+    new files); `cloudflare:artifacts:check`; `mcp:compile:check`; `web:compile:check`; `migrate:check`;
+    `schemas:check`; `openapi:check`; `cloudflare:topology:check`; `verticals:validate`;
+    `verticals:compile:check`; `cloudflare:synthetic-ingestion:artifacts:check`.
+  - Full suite: 5,193/5,194. The one failure was already on `main`: a `recalls-worker` site test matched
+    `2026-09-2\d` against a sync seeded at the current time, so it broke on 2026-09-30. PR #80 fixed the same test
+    on `main`, and its version was kept when `main` was merged in.
+  - Codex review: three P2 findings, all fixed with tests. `lastmod` values that don't exist on the calendar are
+    now rejected, sitemap plans resume from a cursor, and mixed-content text is counted. Hosted CI is green.
+  - No production, database or Cloudflare state changed.
+
 ## Current session — 2026-09-30: Windows install done; production not yet deployed
 
 - **UA-017 done by the owner.** `install.ps1` ran from `main` under PowerShell 7 with `-SkipSecrets`. The logon task
