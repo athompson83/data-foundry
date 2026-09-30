@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "fe20d02dc0e11f48d8a9a3195c7c3fe55e3cf6e095a9d32331f4a615d021baa6",
+  "registry_sha256": "6618872a0dba847717b901ecd8fc10556db23ea45653b4128ae72d8cd18070ab",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -106,6 +106,32 @@
       "sources": [
         "cpsc-recalls",
         "health-canada-consumer-product-recalls"
+      ]
+    },
+    "sanctions-designations-global": {
+      "name": "Global sanctions designations (OFAC, UN Security Council, EU, UK) with cited-reference links",
+      "stage": "SCREENED",
+      "sources": [
+        "sanctions-ofac-sdn",
+        "sanctions-un-consolidated",
+        "sanctions-eu-fsf",
+        "sanctions-uk-list"
+      ]
+    },
+    "drug-shortages-us-eu": {
+      "name": "Drug shortages (FDA and EMA), linked on active substance for review",
+      "stage": "SCREENED",
+      "sources": [
+        "shortages-fda-drug",
+        "shortages-ema-eu"
+      ]
+    },
+    "research-grant-awards-us": {
+      "name": "US research grant awards (NIH RePORTER and NSF), linked at organization level by UEI",
+      "stage": "SCREENED",
+      "sources": [
+        "grants-nih-reporter",
+        "grants-nsf-awards"
       ]
     }
   },
@@ -1571,6 +1597,253 @@
       "acquisition": "permitted-no-adapter",
       "tasks": [],
       "blocked_because": []
+    },
+    "sanctions-ofac-sdn": {
+      "name": "US Treasury OFAC Specially Designated Nationals list (SDN, XML)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Treasury OFAC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "sanctions-un-consolidated": {
+      "name": "UN Security Council Consolidated List (XML)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "UN Security Council",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "sanctions-eu-fsf": {
+      "name": "EU Consolidated Financial Sanctions List (FSF, XML)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "sanctions-uk-list": {
+      "name": "UK financial sanctions consolidated list (OFSI legacy ConList.xml with statements of reasons)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK FCDO and OFSI",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "grants-nih-reporter": {
+      "name": "NIH RePORTER research projects (API v2, abstracts and RCDC terms)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US NIH",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "grants-nsf-awards": {
+      "name": "NSF award search API (abstracts, programs, awardee UEI)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US NSF",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "shortages-fda-drug": {
+      "name": "FDA drug shortages (openFDA drug/shortages endpoint)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "shortages-ema-eu": {
+      "name": "EMA medicine shortages catalogue (JSON report)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Medicines Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tenders-uk-contracts-finder": {
+      "name": "UK Contracts Finder OCDS notices (tender descriptions, CPV codes, values)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Cabinet Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tenders-canadabuys": {
+      "name": "CanadaBuys open tender notices (CSV, English and French)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Public Services and Procurement Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "accidents-msha": {
+      "name": "MSHA mine accident, injury and illness reports (Accidents.txt with narratives)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Mine Safety and Health Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "accidents-uk-aaib": {
+      "name": "UK Air Accidents Investigation Branch reports (GOV.UK finder)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK AAIB",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "accidents-ntsb-carol": {
+      "name": "NTSB CAROL investigation search API",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US NTSB",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "caselaw-uk-national-archives": {
+      "name": "UK National Archives Find Case Law (Atom feed and LegalDocML, Open Justice Licence)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK National Archives",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "caselaw-courtlistener": {
+      "name": "CourtListener opinions API (Free Law Project)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Free Law Project",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "directives-faa-federal-register": {
+      "name": "FAA airworthiness directives as published in the Federal Register (JSON API)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Office of the Federal Register",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "directives-easa": {
+      "name": "EASA airworthiness directives",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "EASA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "food-open-food-facts": {
+      "name": "Open Food Facts product search API",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Open Food Facts",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "food-usda-fooddata-central": {
+      "name": "USDA FoodData Central branded foods (GTIN and ingredients)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US USDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
     }
   },
   "prohibited_domains": [
