@@ -133,8 +133,11 @@ recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-202609
      comes before the deploy because the `Deploy recalls Worker` workflow refuses a pending migration. The migration only
      adds tables, so the Worker already live is unaffected;
   2. a deploy of the merge commit through that workflow, the only deployment path;
-  3. an ingestion credential minted with `ADMIN_TOKEN` (`enable-production.sh --finish`);
-  4. `COLLECTOR_INTAKE_OPEN = "1"`;
+  3. a reviewed change setting `COLLECTOR_INTAKE_OPEN = "1"`, deployed the same way;
+  4. an ingestion credential minted with `ADMIN_TOKEN` (`enable-production.sh --finish`). It mints only once the
+     intake probe answers 401, so it follows step 3; with the intake closed (503) it exits without minting;
   5. only after the held-out bar is met, `EXTRACTED_IDENTIFIERS_OPEN = "1"`.
+
+  Steps 1 and 2 were completed on 2026-09-30 (migration at 12:11 UTC, then `625b07e` deployed).
 - Existing tables, keys, prices, sales gates and hostnames are unchanged. Migration `0004` adds tables only.
 - Collection depends on the owner's computer being awake and online. Serving does not.
