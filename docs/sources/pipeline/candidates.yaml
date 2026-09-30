@@ -2646,7 +2646,7 @@ candidates:
     format: structured
     publisher: US EPA ENERGY STAR
     stage: SCREENED
-    rights: AMBER
+    rights: GREEN
     sources:
       [
         'https://data.energystar.gov/resource/8wj2-sec8.json',
@@ -2678,17 +2678,19 @@ candidates:
         'Publish factual fields only (brand, filer, model/pattern, category, markets, UPC, dates); label
           them "listed in EPA ENERGY STAR data as of <date>".',
         No ENERGY STAR mark or logo and no implied EPA endorsement.,
-        Partner-filed fields need the ADR-0013 rights record already required for the category datasets.,
         'Sync daily; a model absent from the index is "no longer listed", not "never certified".'
       ]
     evidence:
-      &id002 [
+      [
         docs/sources/pipeline/research-2026-09-27-composites.md,
-        docs/sources/pipeline/evidence/2026-09-27-composites/equipment
+        docs/sources/pipeline/evidence/2026-09-27-composites/equipment,
+        docs/sources/equipment-energystar-model-index-rights-record-20260930.md
       ]
     next_action: 1,796,876 rows (Central AC split 1,491,897 collapse to 3,253 brand x filer x outdoor-pattern
       groups via $group). Use it as the identity spine and the source of the markets flag (1,644,779 rows list
-      Canada). Ratings still come from the category datasets.
+      Canada). Ratings still come from the category datasets. On 2026-09-30 the rights record was written (GREEN, § 105;
+      ADR-0018 applies too); UPC Codes 37,686/38,993 check-digit-valid GTINs. Next, archive the snapshot in R2
+      and commit the replayable evidence round, then EVIDENCED and RIGHTS_DETERMINED.
   - key: equipment-nrcan-energuide-2017
     name: NRCan EnerGuide energy consumption of home appliances (historical 2017 snapshot)
     category: home-services
@@ -2719,7 +2721,11 @@ candidates:
         Attribute Natural Resources Canada and link the Open Government Licence - Canada.,
         'Label the data as historical (data change date 2017-02-01), not current Canadian listing status.'
       ]
-    evidence: *id002
+    evidence:
+      &id002 [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/equipment
+      ]
     next_action: 'Low priority: 5,868 rows; 330 still match current ENERGY STAR listings (25/25 hand-checked). Use
       only for the historical rated kWh of older models. Replace it with the live NRCan list if that host
       becomes reachable.'
