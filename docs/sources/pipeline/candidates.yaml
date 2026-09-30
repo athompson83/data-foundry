@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-09-27
+updated: 2026-09-30
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -3784,6 +3784,269 @@ candidates:
       and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
       check refused the write); it is routine verification, not an owner decision. The appliance slice above stays a member of
       home-product-recalls-global.
+  # ---- Round 2026-09-30: sanctions, grants, drug shortages, and screened-but-unattached types.
+  - key: sanctions-ofac-sdn
+    name: US Treasury OFAC Specially Designated Nationals list (SDN, XML)
+    category: regulatory
+    structuring: identifier-extraction
+    format: structured
+    publisher: US Treasury OFAC
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - Terms not yet quoted; a US Treasury publication is presumed US government work but that presumption is not evidence. Write the ADR-0013 record before any build.
+      - 7,565 of the 19,452 entries are natural persons; publish them only as the official list does, with no enrichment from other sources.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Quote OFAC's terms and write the rights record; parse the remarks free text ("Linked To", "Secondary sanctions risk") and the id table (passport, tax ID, IMO, registration number) into typed identifiers.
+  - key: sanctions-un-consolidated
+    name: UN Security Council Consolidated List (XML)
+    category: regulatory
+    structuring: identifier-extraction
+    format: structured
+    publisher: UN Security Council
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://scsanctions.un.org/resources/xml/en/consolidated.xml' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - Terms not located in this round (the UN sanctions page returned no licence text to the search). Do not proceed until the terms are quoted.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Locate and quote the UN reuse terms. The REFERENCE_NUMBER (for example CDi.001) is the join key the EU list cites.
+  - key: sanctions-eu-fsf
+    name: EU Consolidated Financial Sanctions List (FSF, XML)
+    category: regulatory
+    structuring: identifier-extraction
+    format: structured
+    publisher: European Commission
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - The download URL carries a public token in the query string; confirm the Commission's reuse terms before any build.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Quote the reuse terms; generation date read was 2026-09-22 (check whether the file is refreshed daily). 87 entries cite a UN reference number, 81 resolve in the UN list.
+  - key: sanctions-uk-list
+    name: UK financial sanctions consolidated list (OFSI legacy ConList.xml with statements of reasons)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK FCDO and OFSI
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml', 'https://www.gov.uk/government/publications/financial-sanctions-consolidated-list-of-targets/consolidated-list-of-targets' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - The gov.uk publication page states OGL v3.0 ("except where otherwise stated"); attribute and link the licence.
+      - Capture gap found this round - the ConList.xml 2022-format file has a Last-Modified header of 2026-06-03, so it is stale. Acquire the current UK Sanctions List (FCDO) instead before any build.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Find the current FCDO UK Sanctions List download and its refresh cadence; measure UKStatementOfReasons extraction (3,150 distinct statements) against the new file.
+  - key: grants-nih-reporter
+    name: NIH RePORTER research projects (API v2, abstracts and RCDC terms)
+    category: research
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US NIH
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://api.reporter.nih.gov/v2/projects/search' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - Terms not yet quoted. The API asks for at most one request per second and reserves the right to block abusive clients; the bulk ExPORTER files at reporter.nih.gov/exporter are the intended path for full history.
+      - Exclude investigator and program-officer names and contact details until a personal-data policy is written.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json ]
+    next_action: Quote the RePORTER data-access policy and write the rights record; test the ExPORTER bulk files for full history (the API caps offset at 14,999 per query, 76,355 FY2025 projects).
+  - key: grants-nsf-awards
+    name: NSF award search API (abstracts, programs, awardee UEI)
+    category: research
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US NSF
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://api.nsf.gov/services/v1/awards.json' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - Terms not yet quoted (nsf.gov terms-of-use returned no copyright sentence to the search).
+      - The response carries investigator emails and program-officer phone numbers; the design must drop them (personal data).
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json ]
+    next_action: Quote the NSF reuse terms; measure the API's paging limits and whether the full award history can be acquired.
+  - key: shortages-fda-drug
+    name: FDA drug shortages (openFDA drug/shortages endpoint)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US FDA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.fda.gov/drug/shortages.json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    conditions:
+      - The endpoint's meta.license is https://open.fda.gov/license/, the licence the live FDA Recall Intelligence record already relies on; confirm it covers this endpoint in the rights record.
+      - related_info averages 38 characters (1,095 of 1,594 records), so it is short status text, not the narrative this dataset needs as its free-text member.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json ]
+    next_action: Write the rights record; find a free-text member (FDA shortage detail pages, or a regulator that publishes reasons in prose) before the dataset can reach EVIDENCED.
+  - key: shortages-ema-eu
+    name: EMA medicine shortages catalogue (JSON report)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: European Medicines Agency
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://www.ema.europa.eu/en/documents/report/shortages-output-json-report_en.json' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - EMA's legal notice refers to "copyright and limited reproduction notices"; the reuse terms are not yet quoted, so treat as unverified.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/shortage_review.json ]
+    next_action: Quote EMA's reproduction notice and decide whether commercial redistribution is allowed; the 85 entries carry an INN, ATC-style therapeutic area and status.
+  - key: tenders-uk-contracts-finder
+    name: UK Contracts Finder OCDS notices (tender descriptions, CPV codes, values)
+    category: procurement
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Cabinet Office
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - The OCDS payload's license field is the Open Government Licence v3; attribute and link it.
+      - No member of a second publisher links to it by an identifier yet, so it is not attached to a dataset.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Find a second publisher that cites Contracts Finder identifiers (an OCID or notice number), or an award-notice source that does.
+  - key: tenders-canadabuys
+    name: CanadaBuys open tender notices (CSV, English and French)
+    category: procurement
+    structuring: event-extraction
+    format: free-text
+    publisher: Public Services and Procurement Canada
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://canadabuys.canada.ca/opendata/pub/openTenderNotice-ouvertAvisAppelOffres.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - The licence statement was not located in this round; do not build until it is quoted.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Quote the licence; locate the award-notice file (the guessed awardNotice-avisAttribution.csv path returned 404).
+  - key: accidents-msha
+    name: MSHA mine accident, injury and illness reports (Accidents.txt with narratives)
+    category: safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US Mine Safety and Health Administration
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://arlweb.msha.gov/OpenGovernmentData/DataSets/Accidents.zip' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - US Department of Labor copyright page states federal materials are generally public domain, but the MSHA data page carried no licence sentence; write the rights record before a build.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Find a second publisher of accident reports that cites MSHA identifiers or equipment (109,300 rows carry manufacturer and model).
+  - key: accidents-uk-aaib
+    name: UK Air Accidents Investigation Branch reports (GOV.UK finder)
+    category: safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK AAIB
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=aaib_report' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - GOV.UK content is Crown copyright under the OGL except where stated; attribute the licence.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Pair with a second publisher of aircraft occurrences (NTSB, TSB Canada, BEA) that cites a registration or type; measure the overlap on real samples.
+  - key: accidents-ntsb-carol
+    name: NTSB CAROL investigation search API
+    category: safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US NTSB
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.ntsb.gov/carol-main-public/api/Query/Main' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
+    next_action: Parked - the endpoint answers 405 to GET and rejected a minimal POST body ("The Query AndOr value {0} is null"). Reopen once the exact query schema is documented.
+  - key: caselaw-uk-national-archives
+    name: UK National Archives Find Case Law (Atom feed and LegalDocML, Open Justice Licence)
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: UK National Archives
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://caselaw.nationalarchives.gov.uk/atom.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - The feed's rights element points to the Open Justice Licence, which grants a worldwide, royalty-free, non-exclusive licence subject to conditions; read every condition before a build.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Needs a second publisher of judgments that cites neutral citations. CourtListener answers 429 without a token and govinfo's USCOURTS bulk path is 404 from this egress.
+  - key: caselaw-courtlistener
+    name: CourtListener opinions API (Free Law Project)
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Free Law Project
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.courtlistener.com/api/rest/v4/search/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
+    next_action: Parked - unauthenticated requests get 429 and the API needs an account token (a credential). Try the Free Law Project bulk-data path next.
+  - key: directives-faa-federal-register
+    name: FAA airworthiness directives as published in the Federal Register (JSON API)
+    category: aviation
+    structuring: obligation-timeline
+    format: free-text
+    publisher: US Office of the Federal Register
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://www.federalregister.gov/api/v1/documents.json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Federal Register documents are US government works, but the API terms were not quoted this round.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Pair with EASA or Transport Canada airworthiness directives that supersede or cite an FAA AD; measure on real samples. The API reports count 10000, which is a cap, not a total.
+  - key: directives-easa
+    name: EASA airworthiness directives
+    category: aviation
+    structuring: obligation-timeline
+    format: free-text
+    publisher: EASA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://ad.easa.europa.eu/ad-list' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
+    next_action: Parked - the guessed list path is 404 and the advanced-search page is HTML only; find the documented download and terms.
+  - key: food-open-food-facts
+    name: Open Food Facts product search API
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: Open Food Facts
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://world.openfoodfacts.org/api/v2/search' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
+    next_action: Parked for this round - the API answered 503 and the database licence (share-alike) has not been read. Retry, then read the licence.
+  - key: food-usda-fooddata-central
+    name: USDA FoodData Central branded foods (GTIN and ingredients)
+    category: food
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US USDA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.nal.usda.gov/fdc/v1/foods/list' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
+    next_action: Parked for this round - the shared DEMO_KEY answered 429. Use the bulk CSV download rather than the API, and pair it with Open Food Facts on GTIN.
 
 datasets:
   - key: home-product-recalls-global
@@ -4487,3 +4750,50 @@ datasets:
       acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
       and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
       check refused the write); it is routine verification, not an owner decision.
+  - key: sanctions-designations-global
+    name: Global sanctions designations (OFAC, UN Security Council, EU, UK) with cited-reference links
+    category: regulatory
+    entity: sanctions_designation (one listed person, entity, vessel or aircraft under one regime), linked to the counterpart designation where one list cites another's reference number
+    stage: SCREENED
+    description: "One record per designation on the US Treasury SDN list, the UN Security Council consolidated list, the EU financial sanctions list and the UK consolidated list. Typed identifiers (passport, tax ID, IMO, registration number) and the free-text remarks and statements of reasons are parsed deterministically. An EU entry that cites a UN reference number (for example CDi.001) is linked to that UN designation (declared); names and aliases only propose a link for review and never merge, because a name match on a sanctions list is a compliance judgement, not a fact. Individuals are listed as the official lists publish them and are not enriched."
+    sources: [ sanctions-ofac-sdn, sanctions-un-consolidated, sanctions-eu-fsf, sanctions-uk-list ]
+    join_keys:
+      - key: cited UN reference number (EU sanctionEntity unitedNationId to UN REFERENCE_NUMBER, exact)
+        between: [ sanctions-eu-fsf, sanctions-un-consolidated ]
+        measured: 81/87 EU entries that cite a UN reference number resolve to a UN list entry (EU generated 2026-09-22, UN generated 2026-09-29; the six that do not resolve stay unlinked)
+        mode: declared
+    taxonomy:
+      - "list: OFAC-SDN | UN-1267 | UN-other | EU-FSF | UK-FCDO"
+      - "subject_type: person | entity | vessel | aircraft"
+      - "regime: the list's own programme or regime code, verbatim"
+      - "identifier_type: passport | national-id | tax-id | registration-number | imo | other"
+    agent_questions:
+      - Is this passport, IMO or registration number on any of the four official sanctions lists, and under which regime?
+      - Which EU designations implement a UN Security Council listing, and what are the differences in the identifying details?
+      - What reasons does the UK give for designating this entity, and which other lists name it?
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
+    next_action: Write the ADR-0013 rights records (OFAC, UN and EU terms are not quoted yet; UK is OGL v3), replace the stale UK ConList file with the current FCDO list, then measure identifier extraction on 20 or more real entries per list.
+  - key: drug-shortages-us-eu
+    name: Drug shortages (FDA and EMA), linked on active substance for review
+    category: health
+    entity: drug_shortage (one product or active substance in shortage, with status, dates and alternatives)
+    stage: SCREENED
+    description: "One record per shortage notice from the FDA drug shortage database (1,594 records on 2026-09-30, updated the same day) and the EMA shortages catalogue (85 entries). The FDA package NDC, presentation and therapeutic category are normalised; an EMA entry's INN is matched to an FDA generic name as a review candidate only, never a merge, because a shared token is not the same substance (insulin glargine is not insulin aspart). Missing: a free-text member; FDA related_info is short status text."
+    sources: [ shortages-fda-drug, shortages-ema-eu ]
+    join_keys:
+      - key: active-substance name token overlap (EMA INN to FDA generic_name)
+        between: [ shortages-ema-eu, shortages-fda-drug ]
+        measured: 30/85 EMA shortage entries share a token with an FDA generic name; 17/30 are the same active substance on hand check (insulin, pancrelipase and amoxicillin rows were wrong)
+        mode: candidate
+        reviewed: { correct: 17, checked: 30 }
+    taxonomy:
+      - "status: as each agency states it (FDA values seen: Current, To Be Discontinued; EMA: Shortage ongoing)"
+      - "therapeutic_category: FDA therapeutic_category and EMA therapeutic_area_mesh, verbatim"
+      - "dosage_form: as published"
+    agent_questions:
+      - Is this drug in shortage in the US or EU, since when, and is an alternative available?
+      - Which active substances are short on both sides of the Atlantic?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json, docs/sources/pipeline/evidence/2026-09-30/shortage_review.json ]
+    next_action: Find a free-text member (a shortage detail page or a regulator that publishes reasons in prose), quote EMA's reproduction notice, and replace the token join with an INN or RxNorm exact match before EVIDENCED.
