@@ -23,6 +23,10 @@ An unchanged response verifies existing data only after its prior artifact set
 has successfully published. An upstream timestamp, a successful download and
 canonical publication are separate observations. Report each accurately.
 
+A sitemap (`SITEMAP` method) is parsed and planned by `policy/sitemap.ts`
+within the source's result-URL policy and robots snapshot. It is incremental
+discovery, never a complete snapshot.
+
 ## Extraction boundary
 
 `ExtractionProvider.extract(artifact, schema)` returns source-native records.

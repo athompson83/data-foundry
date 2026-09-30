@@ -1,5 +1,29 @@
 # Progress
 
+## Current session — 2026-09-30: Maxun review; sitemap planning and record-selector suggestions
+
+- **Owner direction.** Review `getmaxun/maxun` for anything we can use, then "add anything that would be valuable".
+- **Decision** ([record](docs/reference/maxun-review-20260930.md)). Reference only.
+  - It is AGPL-3.0 (we are MIT and sell hosted access).
+  - It ships stealth, fingerprinting and proxy-rotation tooling, which conflicts with rules 1 and 6.
+  - Its combined navigate-and-extract robots and separate platform would duplicate our infrastructure.
+  - No Maxun code was copied.
+- **Built (pure functions, tested, not yet wired to a runner):**
+  - `packages/acquisition/src/policy/sitemap.ts`. The `SITEMAP` method had no parser. This adds a bounded parser
+    and a planner that applies result-URL policy, robots and a lastmod cutoff.
+  - `packages/extraction/src/record-selector-suggest.ts`. It drafts HTML record selectors for new sources; fixture
+    tests are still required.
+  - Robots crawl-delay already existed, so nothing was added there.
+- **Deferred with a design note:** declarative pagination, and model-proposed field selectors validated against
+  fixtures. Neither is needed by any approved source yet.
+- **Verification (local, this container):**
+  - Passed: `pnpm typecheck`; acquisition and extraction package tests (505/505); `acquisition:check`;
+    `ingestion:check` (after regenerating `hvac.ingestion-runtime.json`, whose implementation digest covers the
+    new files); `cloudflare:artifacts:check`; `mcp:compile:check`; `web:compile:check`; `migrate:check`;
+    `schemas:check`; `openapi:check`; `cloudflare:topology:check`; `verticals:validate`;
+    `verticals:compile:check`; `cloudflare:synthetic-ingestion:artifacts:check`.
+  - No production, database or Cloudflare state changed.
+
 ## Current session — 2026-09-29: Local Collector review closeout and re-verification
 
 - **PR #75.** It went through 12 more Codex review rounds. Every finding was fixed with a regression test that fails on

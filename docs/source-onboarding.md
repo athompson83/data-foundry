@@ -189,6 +189,20 @@ decisions.
 stable, and it is usually what the publisher intends. `acquisition_policy.method`
 records what is acquired; the notes record how.
 
+**Use the publisher's sitemap when it has one.** For the `SITEMAP` method,
+`parseSitemapXml` and `planSitemapTargets` (`packages/acquisition`) turn the
+fetched sitemap into a bounded, newest-first list of page URLs. The list is
+filtered by the source's reviewed result-URL policy and robots snapshot, and it
+skips pages whose `lastmod` shows no change since the last published run. A
+sitemap is a discovery hint, not a complete snapshot, so a plan built from one
+never authorises retiring records.
+
+**Draft HTML record selectors from the page, then prove them.**
+`suggestHtmlRecordSelectors` (`packages/extraction`) ranks repeated sibling
+groups in a stored HTML artifact as candidate `{ kind: 'css' }` record
+selectors. Treat a suggestion as a draft: it is accepted only when the schema
+passes the source's fixture and golden-record tests.
+
 **Set `max_requests_per_minute` deliberately.** The cap exists to make an
 accidental crawl loop visible immediately, not to describe expected traffic.
 

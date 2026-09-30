@@ -1,7 +1,7 @@
 {
   "version": 1,
   "vertical_slug": "hvac",
-  "implementation_digest": "41ee0bb90dd5d67369f36749fb9edb08c96d94f6d7d3b7b72736e453096ede74",
+  "implementation_digest": "13edbf262d9ead6b8057e26bea33ebbd2f47d51a22c4d46b1cd1e354f9c6f27d",
   "implementation_inputs": [
     "apps/ingestion-worker/package.json",
     "apps/ingestion-worker/src/runner.ts",
@@ -53,6 +53,7 @@
     "packages/acquisition/src/policy/result-policy.ts",
     "packages/acquisition/src/policy/rights-gate.ts",
     "packages/acquisition/src/policy/robots.ts",
+    "packages/acquisition/src/policy/sitemap.ts",
     "packages/acquisition/src/provider.ts",
     "packages/acquisition/src/providers/base.ts",
     "packages/acquisition/src/providers/browser-run.ts",
@@ -107,6 +108,7 @@
     "packages/extraction/src/providers/csv-extractor.ts",
     "packages/extraction/src/providers/json-extractor.ts",
     "packages/extraction/src/record-builder.ts",
+    "packages/extraction/src/record-selector-suggest.ts",
     "packages/extraction/src/registry-core.ts",
     "packages/extraction/src/runtime.ts",
     "packages/extraction/src/schema.ts",
@@ -2905,5 +2907,5 @@
       }
     }
   },
-  "runtime_digest": "da9c1b4b86fae0d5e7b4b18ec0695f0e154fc043fe9bf841469b16267b911000"
+  "runtime_digest": "31648880946524e5acd37952a78d638c7c29d330a299b3ece1d324c5e33950c3"
 }

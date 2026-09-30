@@ -29,6 +29,7 @@ export * from './registry.js';
 export * from './source-record.js';
 export * from './zip.js';
 export * from './archive.js';
+export * from './record-selector-suggest.js';
 
 export { JsonExtractor, createJsonExtractor } from './providers/json-extractor.js';
 export { CsvExtractor, createCsvExtractor } from './providers/csv-extractor.js';
