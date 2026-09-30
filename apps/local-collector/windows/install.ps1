@@ -139,6 +139,16 @@ foreach ($i in 1..30) {
   try { Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/version' -TimeoutSec 2 | Out-Null; $ready = $true; break } catch { Start-Sleep -Seconds 1 }
 }
 if (-not $ready) { throw 'Ollama did not answer on http://127.0.0.1:11434 within 30 seconds.' }
+# The collector needs Ollama running; make sure it starts at logon too (Ollama's own installer does not always add it).
+if (Test-Path $app) {
+  $startup = Join-Path ([Environment]::GetFolderPath('Startup')) 'Ollama.lnk'
+  if (-not (Test-Path $startup)) {
+    $link = (New-Object -ComObject WScript.Shell).CreateShortcut($startup)
+    $link.TargetPath = $app
+    $link.Save()
+    Write-Host "Ollama will start at logon ($startup)."
+  }
+}
 # Prove cloud inference is refused by this server.
 try {
   Invoke-RestMethod -Uri 'http://127.0.0.1:11434/api/chat' -Method Post -TimeoutSec 20 -ContentType 'application/json' `

@@ -181,7 +181,8 @@ The installer:
 2. installs Python and Ollama with `winget` if they are missing. Python is found by name or in its standard install
    folders, so a fresh per-user install that is not yet on this shell's `PATH` is still used (Windows PowerShell 5.1
    and PowerShell 7 both work). The Microsoft Store `python.exe` stub never counts;
-3. sets `OLLAMA_NO_CLOUD=1` and the loopback `OLLAMA_HOST`, then pulls and pins the model;
+3. sets `OLLAMA_NO_CLOUD=1` and the loopback `OLLAMA_HOST`, adds Ollama to the Startup folder (the collector waits,
+   `waiting for the local model`, whenever Ollama is not running), then pulls and pins the model;
 4. runs `doctor` and asks for the two secrets (either can be skipped);
 5. registers a per-user **Scheduled Task** at logon, which restarts after a crash and never wakes the computer;
 6. adds desktop shortcuts: **Start**, **Stop**, **Status** and **Dashboard** (`http://127.0.0.1:8765/`).

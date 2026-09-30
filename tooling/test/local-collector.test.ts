@@ -190,6 +190,13 @@ describe('local collector', () => {
     expect(finder).toMatch(/\$LASTEXITCODE -eq 0/);
   });
 
+  it('install makes Ollama start at logon, since the collector waits on it', () => {
+    // 2026-09-30: after a sign-out Ollama was not running and the collector waited on 127.0.0.1:11434 for over an hour.
+    const script = readFileSync(join(APP, 'windows', 'install.ps1'), 'utf8');
+    expect(script).toContain("[Environment]::GetFolderPath('Startup')) 'Ollama.lnk'");
+    expect(script).toMatch(/\$link\.TargetPath = \$app/);
+  });
+
   it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {
     // PowerShell is not available in CI; this pins the script's structure.
     const script = readFileSync(join(APP, 'windows', 'uninstall.ps1'), 'utf8');
