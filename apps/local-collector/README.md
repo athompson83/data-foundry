@@ -187,8 +187,11 @@ The installer:
 6. adds desktop shortcuts: **Start**, **Stop**, **Status** and **Dashboard** (`http://127.0.0.1:8765/`).
 
 The collector reads the API root to decide what to collect. Until the ADR-0017 Worker is deployed, the root names no
-dataset `registry`, so the collector stays idle by design; it re-reads the catalog hourly and starts on its own once
-the deploy is live with the intake open (`COLLECTOR_INTAKE_OPEN = "1"`) and both secrets are set.
+dataset `registry`, so the collector stays idle by design and re-reads the catalog hourly. Reading and extraction
+start on their own once the live root names the dataset and a `read-api-key` is set. Uploads are separate: they need
+the `ingest-token` and an open intake (`COLLECTOR_INTAKE_OPEN = "1"`). Until then, extracted candidates wait in the
+local outbox, which is capped (`max_outbox`, 200 by default). At the cap extraction pauses, so the computer does not
+spend CPU on work it cannot upload. To keep the machine fully idle until the intake opens, set the `read-api-key` last.
 
 It changes no sleep or power setting. Collection stops while the computer sleeps, shuts down or is offline, and
 resumes from its checkpoints. The hosted API keeps serving regardless.
