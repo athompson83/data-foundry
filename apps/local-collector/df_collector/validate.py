@@ -1,0 +1,275 @@
+"""Collector-side pre-check for product-identifier candidates.
+
+A line-by-line mirror of
+``packages/product-recall-structuring/src/identifier-candidates.ts``: the
+server's rules are authoritative and are re-run on every submission against
+the stored R2 evidence. This copy only keeps obviously bad model output in
+local quarantine instead of uploading it. Both implementations run the same
+vectors (``packages/product-recall-structuring/test/identifier-candidate-vectors.json``).
+
+Patterns use ``re.ASCII`` so ``\\b`` and ``\\d`` behave as in JavaScript; ``\\s`` is compiled as JavaScript's whitespace set (``_js``).
+"""
+
+from __future__ import annotations
+
+import re
+import unicodedata
+from dataclasses import dataclass
+
+IDENTIFIER_TASK = "cpsc-product-identifiers@1"
+IDENTIFIER_LABELS = ("model", "item", "style", "sku", "part", "catalog", "product")
+# ECMAScript's \s: the TypeScript rules (authoritative) treat these as whitespace, so the mirror must too. re.ASCII is
+# kept for \b, \d and \w, and every \s in a pattern below is compiled as this class instead.
+JS_WHITESPACE = "[\t\n\v\f\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
+
+
+def _js(pattern: str, flags: int = 0) -> "re.Pattern[str]":
+    return re.compile(pattern.replace(r"\s", JS_WHITESPACE), flags)
+
+_F = re.IGNORECASE | re.ASCII
+
+LABEL_PATTERNS = [
+    ("model", _js(r"\bmodels?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("item", _js(r"\bitems?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("style", _js(r"\bstyles?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("sku", _js(r"\bskus?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?", _F)),
+    ("part", _js(r"\bpart\s*(?:numbers?\b|nos?\b\.?|#)|\bp/n\b", _F)),
+    ("catalog", _js(r"\bcatalog(?:ue)?s?\b(?:\s*(?:numbers?\b|nos?\b\.?|#))?|\bcat\.\s*nos?\b\.?", _F)),
+    ("product", _js(r"\b(?:product|article|reference|stock)\s*(?:numbers?\b|nos?\b\.?|#|codes?\b)", _F)),
+]
+NEGATIVE = _js(
+    r"\bmodel\s*years?\b|\b(?:lots?|batch(?:es)?|serial(?:s|\s*numbers?)?|(?:date|production|manufactur(?:e|ing))\s*codes?|codes?\s*dates?|vins?|rn|upcs?|eans?|gtins?|barcodes?|ca\s*#|wpl|recall\s*(?:numbers?|nos?\b\.?)|release\s*(?:numbers?|#)|phone|telephone|fax|call)\b|\btoll[- ]free\b",
+    _F,
+)
+ABBREVIATION = _js(r"(?:\bno|\bnos|\bcat|\bref|\bapprox|\binc|\bco|\bcorp|\bltd|\bu\.s|\bst|\bjr|\bmr|\bmrs|\bdr|\bvs|\bft|\bin|\boz|\blbs?|\be\.g|\bi\.e)$", _F)
+UNIT_AFTER = _js(
+    r"^\s*(?:-\s*)?(?:watts?|volts?|amps?|amperes?|inch(?:es)?|in\.|feet|foot|ft|pounds?|lbs?|ounces?|oz|gallons?|gal|quarts?|liters?|litres?|ml|mm|cm|meters?|btus?|hp|mah|wh|kw|units?|pieces?|pcs|pairs?|sets?|percent|%|degrees?|months?|years?|days?|pack|count|ct)\b",
+    _F,
+)
+MEASURE = _js(r"^\d+(?:\.\d+)?-?(?:cups?|inch(?:es)?|in|ft|foot|feet|oz|lbs?|mm|cm|m|v|volts?|w|watts?|amps?|a|packs?|pieces?|pcs?|gallons?|gal|quarts?|qt|l|ml|speed|pound|btu|hp|mah|wh|kw|piece|ct)$", _F)
+SHAPE = _js(r"^[A-Za-z0-9](?:[A-Za-z0-9 .\-/#_]{0,38}[A-Za-z0-9])?$", re.ASCII)
+FIELD = _js(r"^(?:Title|Description|Products\[(\d{1,3})\]\.(?:Name|Description|Model))$", re.ASCII)
+AFTER_LABEL = _js(r"number|\bnos?\b|#|sku|p/n", _F)
+MAX_ANCHOR_BEFORE = 800
+NEGATIVE_NEAR_WORDS = 3
+RANGE_NEIGHBOUR_BEFORE = _js(r"(?:\bthrough|\bthru|\bto|\s[-\u2013]|^[-\u2013])\s*$", _F)
+RANGE_NEIGHBOUR_AFTER = _js(r"^\s*(?:through\b|thru\b|to\b|[-\u2013]\s)", _F)
+MONTH = r"(?:0?[1-9]|1[0-2])"
+DAY = r"(?:0?[1-9]|[12]\d|3[01])"
+CALENDAR = [
+    _js(rf"^{MONTH}[/.-]{DAY}(?:[/.-](?:\d{{2}}|\d{{4}}))?$", re.ASCII),
+    _js(rf"^{DAY}[/.-]{MONTH}[/.-](?:\d{{2}}|\d{{4}})$", re.ASCII),
+    _js(rf"^(?:19|20)\d\d[/.-]{MONTH}(?:[/.-]{DAY})?$", re.ASCII),
+    _js(r"^(?:19|20)\d\d[-/](?:19|20)?\d\d$", re.ASCII),
+]
+LISTED = _js(r"\b(?:models?|items?|styles?|skus?|part|catalog(?:ue)?|product|article|stock)\s*(?:numbers?|nos?\.?|#)\s*(?:[:#]\s*)?(?:[A-Za-z0-9-]+\s*(?:,|and|or)\s*)*$", _F)
+_SENTENCE_END_BEFORE = _js(r"[.!?](?=\s)|\n")
+_SENTENCE_END_AFTER = _js(r"[.!?](?=\s|$)|\n")
+_YEARS_BEFORE = _js(r"\byears?\s*$", _F)
+MAX_ANCHOR_AFTER = 40
+
+
+@dataclass(frozen=True)
+class Decision:
+    ok: bool
+    reason: str | None = None
+    start: int | None = None
+    end: int | None = None
+    key: str | None = None
+    label: str | None = None
+    field: str | None = None
+
+
+def model_key(value: str) -> str:
+    folded = "".join(ch for ch in unicodedata.normalize("NFKD", value) if not ("̀" <= ch <= "ͯ"))
+    return re.sub(r"[^A-Z0-9]", "", folded.upper())
+
+
+def gs1_check_digit_valid(digits: str) -> bool:
+    if not digits.isdigit() or len(digits) < 2:
+        return False
+    body, check = digits[:-1], int(digits[-1])
+    total = sum(int(d) * (3 if i % 2 == 0 else 1) for i, d in enumerate(reversed(body)))
+    return (10 - total % 10) % 10 == check
+
+
+def candidate_field_text(record: object, field: str) -> str | None:
+    match = FIELD.match(field)
+    if not match or not isinstance(record, dict):
+        return None
+    if field in ("Title", "Description"):
+        value = record.get(field)
+        return value if isinstance(value, str) else None
+    products = record.get("Products")
+    if not isinstance(products, list):
+        return None
+    index = int(match.group(1))
+    if index >= len(products) or not isinstance(products[index], dict):
+        return None
+    value = products[index].get(field.split(".", 1)[1])
+    return value if isinstance(value, str) else None
+
+
+def candidate_fields(record: object) -> list[str]:
+    if not isinstance(record, dict):
+        return []
+    fields = [f for f in ("Title", "Description") if isinstance(record.get(f), str) and record[f].strip()]
+    products = record.get("Products") if isinstance(record.get("Products"), list) else []
+    for index, product in enumerate(products[:1000]):
+        for name in ("Name", "Description", "Model"):
+            if isinstance(product, dict) and isinstance(product.get(name), str) and product[name].strip():
+                fields.append(f"Products[{index}].{name}")
+    return fields
+
+
+def _is_alnum(text: str, index: int) -> bool:
+    return 0 <= index < len(text) and bool(re.match(r"[A-Za-z0-9]", text[index]))
+
+
+def _sentence_bounds(text: str, start: int, end: int) -> tuple[int, int]:
+    begin = 0
+    for match in _SENTENCE_END_BEFORE.finditer(text[:start]):
+        at = match.start()
+        if match.group(0) == "." and ABBREVIATION.search(text[max(0, at - 6):at]):
+            continue
+        begin = at + 1
+    finish = len(text)
+    for match in _SENTENCE_END_AFTER.finditer(text[end:]):
+        at = end + match.start()
+        if match.group(0) == "." and ABBREVIATION.search(text[max(0, at - 6):at]):
+            continue
+        finish = at
+        break
+    return begin, finish
+
+
+def _keywords(text: str, begin: int, finish: int) -> list[tuple[int, int, str | None]]:
+    piece = text[begin:finish]
+    found: list[tuple[int, int, str | None]] = []
+    for label, pattern in LABEL_PATTERNS:
+        found.extend((begin + m.start(), begin + m.end(), label) for m in pattern.finditer(piece))
+    found.extend((begin + m.start(), begin + m.end(), None) for m in NEGATIVE.finditer(piece))
+    return found
+
+
+def _anchor(text: str, start: int, end: int) -> str:
+    begin, finish = _sentence_bounds(text, start, end)
+    found = _keywords(text, max(begin, start - MAX_ANCHOR_BEFORE), min(finish, end + MAX_ANCHOR_AFTER))
+    before = sorted((k for k in found if k[1] <= start), key=lambda k: (-k[1], k[0]))
+    if before:
+        tied = [k for k in before if k[1] == before[0][1]]
+        if not any(k[2] is None for k in tied):
+            return before[0][2]  # type: ignore[return-value]
+        product = next((k for k in before if k[2] is not None), None)
+        words_since_negative = len(re.findall(r"[A-Za-z0-9]+", text[before[0][1]:start]))
+        range_endpoint = bool(RANGE_NEIGHBOUR_BEFORE.search(text[max(0, start - 12):start]) or RANGE_NEIGHBOUR_AFTER.search(text[end:end + 12]))
+        if product and words_since_negative > NEGATIVE_NEAR_WORDS and not range_endpoint:
+            return product[2]  # type: ignore[return-value]
+        return "non_product_label"
+    after = sorted((k for k in found if k[0] >= end and (k[2] is None or AFTER_LABEL.search(text[k[0]:k[1]]))), key=lambda k: k[0])
+    if not after:
+        return "no_product_label"
+    return after[0][2] or "non_product_label"
+
+
+def _is_year_or_date(value: str, text: str, end: int) -> bool:
+    if any(p.match(value) for p in CALENDAR):
+        return True
+    if not re.fullmatch(r"(?:19|20)\d\d", value, re.ASCII):
+        return False
+    before = text[max(0, end - len(value) - 60):end - len(value)]
+    return not LISTED.search(before) or bool(_YEARS_BEFORE.search(before))
+
+
+def _shape_rejection(value: str, text: str, end: int) -> str | None:
+    if not SHAPE.match(value) or value.count(" ") > 2 or not re.search(r"[0-9]", value) or len(model_key(value)) < 3:
+        return "bad_shape"
+    if _is_year_or_date(value, text, end):
+        return "year_or_date"
+    if re.fullmatch(r"\(?\d{3}\)?[ .-]?\d{3}[ .-]\d{4}", value, re.ASCII) or re.fullmatch(r"1-\d{3}-\d{3}-\d{4}", value, re.ASCII):
+        return "phone"
+    if MEASURE.match(value) or re.fullmatch(r"\d{1,3}(?:,\d{3})+", value, re.ASCII) or (re.fullmatch(r"\d+(?:\.\d+)?", value, re.ASCII) and UNIT_AFTER.match(text[end:])):
+        return "measurement"
+    digits = re.sub(r"[ -]", "", value)
+    if digits.isdigit() and digits.isascii() and len(digits) in (8, 12, 13, 14) and gs1_check_digit_valid(digits):
+        return "barcode"
+    return None
+
+
+def decide(text: str, value: str, field: str) -> Decision:
+    if not FIELD.match(field):
+        return Decision(False, "field_not_allowed")
+    if not value or value != value.strip():
+        return Decision(False, "bad_shape")
+    first_rejection: str | None = None
+    occurred = False
+    at = text.find(value)
+    while at != -1:
+        end = at + len(value)
+        if not (_is_alnum(text, at - 1) or _is_alnum(text, end)):
+            occurred = True
+            # A context rejection (a measurement, a year) applies to this occurrence only; a later one may still pass.
+            shape = _shape_rejection(value, text, end)
+            if shape:
+                first_rejection = first_rejection or shape
+                at = text.find(value, at + 1)
+                continue
+            label = "model" if field.endswith(".Model") else _anchor(text, at, end)
+            if label in IDENTIFIER_LABELS:
+                return Decision(True, start=at, end=end, key=model_key(value), label=label)
+            first_rejection = first_rejection or label
+        at = text.find(value, at + 1)
+    if not occurred:
+        return Decision(False, "not_in_source")
+    return Decision(False, first_rejection or "no_product_label")
+
+
+def decide_in_record(record: object, value: str, claimed_field: str) -> Decision:
+    """Mirror of decideIdentifierInRecord: the field claim is a hint; the field where the value passes is recorded."""
+    if not FIELD.match(claimed_field):
+        return Decision(False, "field_not_allowed", field=claimed_field)
+    order = [claimed_field] + [f for f in candidate_fields(record) if f != claimed_field]
+    first_rejection: Decision | None = None
+    for name in order:
+        text = candidate_field_text(record, name)
+        if text is None:
+            continue
+        decision = decide(text, value, name)
+        if decision.ok:
+            return Decision(True, start=decision.start, end=decision.end, key=decision.key, label=decision.label, field=name)
+        if decision.reason != "not_in_source" and first_rejection is None:
+            first_rejection = Decision(False, decision.reason, field=name)
+    return first_rejection or Decision(False, "not_in_source", field=claimed_field)
+
+
+CODE_TOKEN = _js(r"[A-Za-z0-9](?:[A-Za-z0-9.\-/#_]*[A-Za-z0-9])?", re.ASCII)
+
+
+def _has_code(text: str) -> bool:
+    """A code-shaped value: exactly the shapes SHAPE accepts (letters, digits, . - / # _ and spaces, up to 40
+    characters), with a digit and a key of 3 or more. Runs of adjacent tokens separated only by spaces, however many,
+    are tried while they fit SHAPE, so "AB 12" and "AB  12" both count."""
+    tokens = [(match.start(), match.end()) for match in CODE_TOKEN.finditer(text)]
+    for i in range(len(tokens)):
+        for j in range(i, len(tokens)):
+            if j > i and text[tokens[j - 1][1]:tokens[j][0]].strip(" "):
+                break  # something other than spaces separates the tokens
+            value = text[tokens[i][0]:tokens[j][1]]
+            if not SHAPE.match(value):
+                break  # longer runs only grow past SHAPE's length
+            if re.search(r"[0-9]", value) and len(model_key(value)) >= 3:
+                return True
+    return False
+
+
+def worth_extracting(record: object) -> bool:
+    """The collector's prefilter: whether a notice could yield any accepted identifier, so it is worth the model's time.
+
+    A notice is skipped only when no value in it could be accepted: the rules anchor a value to one of LABEL_PATTERNS
+    (the same vocabulary, used here directly so the two cannot drift) or to a populated Products[n].Model field, and
+    it must contain a code-shaped token. This file is part of the behaviour fingerprint, so changing the prefilter
+    changes the build and re-examines notices it skipped."""
+    texts = {field: candidate_field_text(record, field) or "" for field in candidate_fields(record)}
+    joined = "\n".join(texts.values())
+    labelled = any(field.endswith(".Model") and text.strip() for field, text in texts.items()) or any(pattern.search(joined) for _, pattern in LABEL_PATTERNS)
+    return bool(labelled and any(_has_code(text) for text in texts.values()))

@@ -1,0 +1,1591 @@
+{
+  "generated_by": "tooling/scripts/local-collector-policy.ts",
+  "registry": "docs/sources/pipeline/candidates.yaml",
+  "registry_sha256": "fe20d02dc0e11f48d8a9a3195c7c3fe55e3cf6e095a9d32331f4a615d021baa6",
+  "tasks": [
+    {
+      "task": "cpsc-product-identifiers@1",
+      "source": "cpsc-recalls",
+      "rights_record": "docs/sources/cpsc-recalls-rights-record-20260927.md",
+      "input": {
+        "kind": "dataforge-api",
+        "path": "/v1/product-recalls",
+        "params": {
+          "agency": "CPSC"
+        }
+      },
+      "allowed_hosts": [
+        "api.data.aroqon.com"
+      ],
+      "intake_path": "/v1/intake/product-recalls/identifiers",
+      "min_interval_s": 2,
+      "rights": "GREEN",
+      "stage": "BUILDING",
+      "enabled": true,
+      "refused_because": []
+    }
+  ],
+  "datasets": {
+    "home-product-recalls-global": {
+      "name": "Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)",
+      "stage": "SCREENED",
+      "sources": [
+        "cpsc-recalls",
+        "appliance-recall-model-index",
+        "hvac-cpsc-recall-slice",
+        "plumbing-water-heating-recalls",
+        "electrical-cpsc-recalls-facet",
+        "appliance-health-canada-recalls",
+        "eu-safety-gate-alerts",
+        "uk-opss-product-safety-alerts",
+        "au-accc-product-recalls",
+        "nz-mbie-product-recalls",
+        "appliance-saferproducts-incidents",
+        "appliance-energy-star-registry",
+        "plumbing-energystar-water-heaters",
+        "appliance-brand-ownership"
+      ]
+    },
+    "home-equipment-model-registry": {
+      "name": "Home equipment model registry (HVAC, water heating, plumbing fixtures, appliances, EV/solar) with recalls, ownership and refrigerant rules",
+      "stage": "SCREENED",
+      "sources": [
+        "hvac-energystar-matched-systems",
+        "appliance-energy-star-registry",
+        "plumbing-energystar-water-heaters",
+        "electrical-energy-star-electrical",
+        "equipment-energystar-model-index",
+        "plumbing-watersense-products",
+        "electrical-cec-solar-equipment",
+        "cpsc-recalls",
+        "appliance-recall-model-index",
+        "hvac-brand-ownership-graph",
+        "appliance-brand-ownership",
+        "hvac-refrigerant-transition-rules",
+        "equipment-epa-snap-substitutes",
+        "equipment-nrcan-energuide-2017",
+        "appliance-au-energy-rating",
+        "equipment-au-gems-ac-water-heaters"
+      ]
+    },
+    "building-envelope-product-approvals": {
+      "name": "Wind-rated building-envelope product approvals (Miami-Dade NOA + Florida FL#), with cited-component validity, jurisdiction code editions and county hazard context",
+      "stage": "SCREENED",
+      "sources": [
+        "roofing-miami-dade-noa",
+        "roofing-florida-product-approvals",
+        "building-products-fema-bcat",
+        "building-products-fema-nri-counties",
+        "roofing-ncei-storm-events",
+        "building-products-nws-zone-county",
+        "building-products-wikidata-manufacturers"
+      ]
+    },
+    "contractors-licensed-trade-businesses": {
+      "name": "Licensed trade-contractor businesses (multi-state licence, bond, insurance, discipline and lead-safe composite)",
+      "stage": "SCREENED",
+      "sources": [
+        "contractors-wa-lni-licences",
+        "contractors-or-ccb-registrations",
+        "contractors-or-bcd-trade-licences",
+        "contractors-co-dora-trade-licences",
+        "contractors-ct-hic-registrations",
+        "contractors-mn-dli-licences",
+        "hvac-tx-acr-contractor-licences",
+        "electrical-tx-tdlr-contractors",
+        "contractors-epa-rrp-firms",
+        "hvac-osm-contractors",
+        "appliance-osm-shops",
+        "contractors-osha-inspections",
+        "contractors-ca-cslb-master"
+      ]
+    },
+    "consumer-product-recalls-north-america": {
+      "name": "North American consumer-product recalls (CPSC + Health Canada, declared cross-agency links)",
+      "stage": "BUILDING",
+      "sources": [
+        "cpsc-recalls",
+        "health-canada-consumer-product-recalls"
+      ]
+    }
+  },
+  "sources": {
+    "fda-recalls": {
+      "name": "FDA Recall Intelligence (food, drug, device enforcement reports)",
+      "rights": "GREEN",
+      "stage": "LIVE",
+      "format": null,
+      "publisher": null,
+      "acquisition": "permitted-no-adapter",
+      "tasks": [],
+      "blocked_because": []
+    },
+    "cpsc-recalls": {
+      "name": "CPSC consumer-product recalls in the recall API",
+      "rights": "GREEN",
+      "stage": "BUILDING",
+      "format": "free-text",
+      "publisher": "US CPSC",
+      "acquisition": "task",
+      "tasks": [
+        "cpsc-product-identifiers@1"
+      ],
+      "blocked_because": []
+    },
+    "nhtsa-recalls": {
+      "name": "NHTSA vehicle recalls in the recall API",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fsis-recalls": {
+      "name": "USDA FSIS meat, poultry and egg recalls",
+      "rights": "UNKNOWN",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "clinical-trial-eligibility": {
+      "name": "ClinicalTrials.gov structured eligibility criteria",
+      "rights": "AMBER",
+      "stage": "EVIDENCED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage EVIDENCED is before PROTOTYPED"
+      ]
+    },
+    "federal-register-obligations": {
+      "name": "Federal Register + eCFR regulatory obligation timelines",
+      "rights": "GREEN",
+      "stage": "EVIDENCED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage EVIDENCED is before PROTOTYPED"
+      ]
+    },
+    "drug-label-facts": {
+      "name": "Drug label facts (boxed warnings, contraindications, pregnancy/lactation)",
+      "rights": "AMBER",
+      "stage": "EVIDENCED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage EVIDENCED is before PROTOTYPED"
+      ]
+    },
+    "sec-8k-events": {
+      "name": "SEC 8-K item-level corporate events",
+      "rights": "GREEN",
+      "stage": "EVIDENCED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage EVIDENCED is before PROTOTYPED"
+      ]
+    },
+    "vulnerability-intelligence": {
+      "name": "NVD CVE + CISA KEV normalization",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "faa-aircraft-registry": {
+      "name": "FAA aircraft registry by N-number",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "us-tariff-duty-stack": {
+      "name": "US HTS duty stack with Chapter 99 remedies",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "sec-xbrl-financial-facts": {
+      "name": "SEC XBRL canonical financial facts",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-recall-model-index": {
+      "name": "CPSC major-appliance recalls — structured model-number and serial-range index",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CPSC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "appliance-energy-star-registry": {
+      "name": "ENERGY STAR certified appliance model registry (fridges, freezers, dishwashers, washers, dryers, dehumidifiers, room AC, electric cooking)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA ENERGY STAR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "appliance-health-canada-recalls": {
+      "name": "Health Canada consumer-product recalls — major-appliance slice",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Health Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "appliance-brand-ownership": {
+      "name": "Appliance brand to owner crosswalk from Wikidata (CC0)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Wikidata",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "appliance-au-energy-rating": {
+      "name": "Australian Energy Rating registered household appliances (fridges, dishwashers, washers, dryers)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "AU GEMS Regulator",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "appliance-osm-shops": {
+      "name": "OpenStreetMap appliance shops and repair businesses",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": "structured",
+      "publisher": "OpenStreetMap",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "appliance-saferproducts-incidents": {
+      "name": "SaferProducts.gov consumer incident reports for major appliances",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US CPSC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "appliance-open-products-facts": {
+      "name": "Open Products Facts appliance entries",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-doe-ccms": {
+      "name": "DOE CCMS appliance certification classes",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-cec-maedbs": {
+      "name": "California Energy Commission MAEDbS appliance database",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-ifixit-error-codes": {
+      "name": "iFixit appliance repair guides and error-code pages",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-manufacturer-error-codes": {
+      "name": "Manufacturer appliance error and fault-code meanings (manuals)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-parts-crossref": {
+      "name": "Appliance replacement-part cross-reference (PartSelect, RepairClinic)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "appliance-eprel": {
+      "name": "EU EPREL product energy-label database (appliances)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hvac-energystar-matched-systems": {
+      "name": "ENERGY STAR rated matched HVAC systems (heat pumps, mini-splits, furnaces) with model-pattern matching",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA ENERGY STAR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hvac-brand-ownership-graph": {
+      "name": "HVAC brand -> filing manufacturer -> corporate parent graph (Wikidata CC0 + ENERGY STAR filings)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Wikidata",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hvac-refrigerant-transition-rules": {
+      "name": "AIM Act refrigerant transition obligations (40 CFR 84.54) joined to per-model refrigerant",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US EPA (eCFR)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hvac-cpsc-recall-slice": {
+      "name": "HVAC slice of CPSC recalls (serial ranges, manufacture dates, models)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CPSC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hvac-tx-acr-contractor-licences": {
+      "name": "Texas TDLR air-conditioning contractor licences (business facts only)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "TX TDLR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hvac-osm-contractors": {
+      "name": "OpenStreetMap HVAC contractor locations (craft/shop=hvac)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "OpenStreetMap",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hvac-serial-date-decoder-guides": {
+      "name": "HVAC serial-number to manufacture-date decoding guides (Building Intelligence Center and similar)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hvac-hvi-certified-directory": {
+      "name": "Home Ventilating Institute certified products directory",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hvac-ul-product-iq": {
+      "name": "UL Product iQ certification listings for HVAC equipment",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-watersense-products": {
+      "name": "EPA WaterSense labelled plumbing products (governmental-host; certifier/manufacturer-filed)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA WaterSense",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-water-heating-recalls": {
+      "name": "CPSC recalls — plumbing and water-heater/boiler slice with serial-range parsing (governmental-host)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CPSC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-water-heater-serial-date-codes": {
+      "name": "Water-heater serial-number date-code rules from manufacturer-published schemes (nongovernmental)",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-watersense-rebates": {
+      "name": "WaterSense Rebate Finder utility rebate listings (governmental-host listing; amounts on third-party pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-energystar-water-heaters": {
+      "name": "ENERGY STAR Certified Water Heaters (governmental-host; partner-filed)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA ENERGY STAR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-iapmo-rt-listings": {
+      "name": "IAPMO R&T Product Listing Directory (nongovernmental)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-asse-listings": {
+      "name": "ASSE International seal listings (nongovernmental, IAPMO group)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-nsf-listings": {
+      "name": "NSF/ANSI 61 and 372 drinking-water component listings (nongovernmental)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-usc-backflow-list": {
+      "name": "USC FCCCHR List of Approved Backflow Prevention Assemblies (nongovernmental)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-map-toilet-scores": {
+      "name": "MaP toilet flush-performance scores (nongovernmental)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-cec-maedbs": {
+      "name": "California Energy Commission MAEDbS plumbing fittings and water heaters (governmental-host)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-doe-ccms-water-heaters": {
+      "name": "DOE CCMS water heaters (governmental-host)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-csa-listings": {
+      "name": "CSA Group certified product listings (nongovernmental)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "plumbing-wikidata-brand-owners": {
+      "name": "Wikidata plumbing brand to owner and private-label links (nongovernmental, CC0)",
+      "rights": "GREEN",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "roofing-miami-dade-noa": {
+      "name": "Miami-Dade County Product Control NOAs, roofing (HVHZ): per-assembly deck, fastening and maximum design pressure",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Miami-Dade County",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "roofing-florida-product-approvals": {
+      "name": "Florida Building Commission product approvals, roofing (FL#): assemblies and design pressures from evaluation reports",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Florida Building Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "roofing-ncei-storm-events": {
+      "name": "NOAA NCEI Storm Events hail and thunderstorm-wind reports with roof-damage extraction",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "roofing-osm-roof-tags": {
+      "name": "OpenStreetMap building roof:material and roof:shape tags",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-tdi-windstorm-evaluations": {
+      "name": "Texas Department of Insurance windstorm product evaluations (roof coverings)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-crrc-rated-products": {
+      "name": "Cool Roof Rating Council Rated Roof Products Directory",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-icc-es-reports": {
+      "name": "ICC-ES evaluation reports (ESRs) for roofing products",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-fm-roofnav": {
+      "name": "FM Approvals RoofNav approved roof assemblies",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-ul-product-iq": {
+      "name": "UL Product iQ roof covering fire/wind listings",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-manufacturer-warranties": {
+      "name": "Roofing manufacturer warranty and installation documents (GAF, Owens Corning, CertainTeed)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-spc-storm-reports": {
+      "name": "NOAA SPC daily hail/wind storm reports",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "roofing-fl-dbpr-contractor-licences": {
+      "name": "Florida DBPR certified roofing contractor (CCC) licences",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "electrical-cec-solar-equipment": {
+      "name": "CEC Solar Equipment Lists (grid-support inverters, PV modules, energy storage, batteries, meters)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "California Energy Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "electrical-cpsc-recalls-facet": {
+      "name": "CPSC electrical recalls facet (breakers, GFCI/AFCI, cords, power strips, generators, power stations, LED fixtures, EV chargers)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CPSC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "electrical-tx-tdlr-contractors": {
+      "name": "Texas TDLR electrical contractor licences (business entities only)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "TX TDLR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "electrical-energy-star-electrical": {
+      "name": "ENERGY STAR electrical categories (EVSE AC/DC, ceiling fans, downlights, UPS)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA ENERGY STAR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "electrical-open-charge-map": {
+      "name": "Open Charge Map EV charging locations and pricing",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "electrical-osm-power": {
+      "name": "OpenStreetMap power infrastructure (substations, plants, lines)",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "electrical-cec-maedbs": {
+      "name": "CEC MAEDbS Title 20 appliance database (LED lamps, battery chargers)",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "electrical-afdc-ev-stations": {
+      "name": "DOE/NREL AFDC EV charging stations (ev_pricing free text)",
+      "rights": "UNKNOWN",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "electrical-dlc-qpl": {
+      "name": "DesignLights Consortium Qualified Products Lists",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "electrical-ul-product-iq": {
+      "name": "UL Product iQ certification directory",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "electrical-intertek-csa-sunspec": {
+      "name": "Intertek ETL, CSA Group and SunSpec certified-product directories",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "eu-safety-gate-alerts": {
+      "name": "EU Safety Gate (ex-RAPEX) non-food product alerts — weekly XML reports with brand, model, barcode and batch fields",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "European Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uk-opss-product-safety-alerts": {
+      "name": "UK OPSS product safety alerts, reports and recalls (GOV.UK finder) — brand/model/barcode tables and PSD notification numbers",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK OPSS",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "au-accc-product-recalls": {
+      "name": "ACCC Product Safety Australia recalls (productsafety.gov.au) — PRA numbers with brand, model, SKU and GTIN fields",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "ACCC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "nz-mbie-product-recalls": {
+      "name": "New Zealand MBIE Trading Standards product recalls (productsafety.govt.nz)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NZ MBIE",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fr-rappelconso-v2": {
+      "name": "France RappelConso V2 product recalls with GTIN (DGCCRF, data.economie.gouv.fr)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "oecd-globalrecalls-portal": {
+      "name": "OECD GlobalRecalls portal (aggregated multi-country recalls)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ca-healthycanadians-recall-api": {
+      "name": "Legacy Health Canada recalls JSON API (healthycanadians.gc.ca/recall-alert-rappel-avis/api)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "equipment-energystar-model-index": {
+      "name": "ENERGY STAR Model Index (all certified models, all categories incl. central AC) and UPC Codes index",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA ENERGY STAR",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "equipment-nrcan-energuide-2017": {
+      "name": "NRCan EnerGuide energy consumption of home appliances (historical 2017 snapshot)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Natural Resources Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "equipment-nrcan-searchable-product-list": {
+      "name": "NRCan Searchable Product List (ENERGY STAR Canada / EnerGuide / former Greener Homes eligible lists)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "equipment-au-gems-ac-water-heaters": {
+      "name": "AU/NZ GEMS registered air conditioners and electric water heaters (data.gov.au)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "AU GEMS Regulator",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "equipment-epa-snap-substitutes": {
+      "name": "EPA SNAP acceptable/unacceptable refrigerant substitutes by end-use (Federal Register / 40 CFR 82 subpart G)",
+      "rights": "GREEN",
+      "stage": "DISCOVERED",
+      "format": "free-text",
+      "publisher": "US EPA (eCFR)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "equipment-irs-energy-credit-criteria": {
+      "name": "IRS 25C / 25D energy credit eligibility criteria applied to model ratings",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "equipment-uk-pcdb": {
+      "name": "UK SAP Product Characteristics Database (BRE for DESNZ)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "equipment-eccc-creed": {
+      "name": "ECCC Compliance Regulatory Energy Efficiency Database (Canadian regulated-product reports)",
+      "rights": "UNKNOWN",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "building-products-fema-bcat": {
+      "name": "FEMA Building Code Adoption Tracking (BCAT): code edition, adoption notes and hazard-resistance by jurisdiction",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "FEMA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-products-fema-nri-counties": {
+      "name": "FEMA National Risk Index (county): hail, hurricane and strong-wind frequency, expected annual loss and ratings",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "FEMA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-products-nws-zone-county": {
+      "name": "NWS County-Public Forecast Zone correlation file (zone to county crosswalk for NCEI Storm Events)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NOAA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-products-ibhs-fortified-incentives": {
+      "name": "IBHS FORTIFIED state incentives and standards pages (insurance discounts, grants, tax credits by state)",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "building-products-wikidata-manufacturers": {
+      "name": "Wikidata items for building-envelope manufacturers (parent organisation / alias only)",
+      "rights": "GREEN",
+      "stage": "DISCOVERED",
+      "format": "structured",
+      "publisher": "Wikidata",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "building-products-energystar-roof-archive": {
+      "name": "ENERGY STAR Roof Products (historical certified list)",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-products-ccmc-registry": {
+      "name": "NRC Canada CCMC Registry of Product Assessments (JSON API)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-products-eota-eta-database": {
+      "name": "EOTA European Technical Assessment (ETA) database",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-products-codemark-register": {
+      "name": "CodeMark Australia certificates of conformity register (JAS-ANZ)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-products-asce-atc-hazard-tools": {
+      "name": "ASCE 7 Hazard Tool and ATC Hazards by Location (design wind speed / hail by address)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-products-nc-osfm-interpretations": {
+      "name": "North Carolina OSFM/DOI informal building-code interpretations (wind-borne debris, replacement windows)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-products-fenestration-manufacturer-sites": {
+      "name": "Window/door/shutter manufacturer product sites (PGT/MITER Brands, Owens Corning roofing and similar)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "contractors-wa-lni-licences": {
+      "name": "Washington L&I contractor licences with bond and insurance (business entities only)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "WA L&I",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-or-ccb-registrations": {
+      "name": "Oregon CCB active contractor registrations with bond and insurance (entity-form names)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "OR CCB",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-or-bcd-trade-licences": {
+      "name": "Oregon Building Codes Division plumbing, electrical, HVAC-R and boiler contractor licences (businesses)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "OR BCD",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-co-dora-trade-licences": {
+      "name": "Colorado DORA electrical, plumbing and water-conditioning contractor licences with discipline",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "CO DORA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-ct-hic-registrations": {
+      "name": "Connecticut home-improvement contractor registrations (LLC, corporation, partnership only)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "CT DCP",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-ct-trade-credentials": {
+      "name": "Connecticut electrical, plumbing and heating-cooling contractor credentials",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "contractors-mn-dli-licences": {
+      "name": "Minnesota DLI electrical, plumbing, mechanical-bond and residential roofer contractor licences (businesses)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "MN DLI",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-epa-rrp-firms": {
+      "name": "EPA lead-safe (RRP) certified renovation firms",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA RRP",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "contractors-osha-inspections": {
+      "name": "OSHA inspections and violations for specialty-trade contractor establishments (NAICS 2381-2382)",
+      "rights": "GREEN",
+      "stage": "DISCOVERED",
+      "format": "structured",
+      "publisher": "US DOL OSHA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "contractors-sam-entities": {
+      "name": "SAM.gov public entity registrations for trade contractors",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "contractors-ca-cslb-master": {
+      "name": "California CSLB License Master (classifications, bond, workers' compensation)",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": "structured",
+      "publisher": "CA CSLB",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "contractors-nyc-dob-licences": {
+      "name": "NYC DOB licensed trades (electrical firms, master plumbers, oil burner installers)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "contractors-az-roc-posting-list": {
+      "name": "Arizona Registrar of Contractors posting list",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "health-canada-consumer-product-recalls": {
+      "name": "Health Canada consumer-product recalls and alerts (open-data index, all categories)",
+      "rights": "AMBER",
+      "stage": "BUILDING",
+      "format": "structured",
+      "publisher": "Health Canada",
+      "acquisition": "permitted-no-adapter",
+      "tasks": [],
+      "blocked_because": []
+    }
+  },
+  "prohibited_domains": [
+    "ahridirectory.org",
+    "ahrinet.org",
+    "carrier.com",
+    "ceedirectory.org",
+    "daikin.com",
+    "daikincomfort.com",
+    "goodmanmfg.com",
+    "lennox.com",
+    "lennoxpros.com",
+    "mcscertified.com",
+    "neep.org",
+    "trane.com",
+    "york.com"
+  ]
+}

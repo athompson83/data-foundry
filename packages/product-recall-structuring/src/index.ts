@@ -13,3 +13,15 @@ export { classifyHazards, classifyRemedies, tradeFacets, HAZARD_CLASSES, REMEDY_
 export { cleanText, digitCodes, gtin14, gtinReadings, modelKey } from './text.js';
 export { parseUnits, type UnitCounts } from './units.js';
 export { PARSER_VERSION, type Agency, type CounterpartAgency, type CrossReference, type FirmMention, type RecallProduct, type StructuredProductRecall } from './types.js';
+export {
+  candidateFields,
+  candidateFieldText,
+  decideIdentifierCandidate,
+  decideIdentifierInRecord,
+  IDENTIFIER_LABELS,
+  IDENTIFIER_TASK,
+  type CandidateDecision,
+  type CandidateRejection,
+  type IdentifierLabel,
+  type RecordDecision,
+} from './identifier-candidates.js';

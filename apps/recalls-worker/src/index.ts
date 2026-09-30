@@ -20,6 +20,7 @@ import { scheduledSync, syncWindow } from './sync.js';
 import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
+import { createIngestCredential, extractedServed, handleIntake, IntakeRefused, productsServed, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
 import { logMarketplaceRejection, logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
@@ -33,10 +34,7 @@ interface EdgeCache {
 /** Every IndexNow feed, by the name /admin/indexnow-status reports it under. */
 const INDEXNOW_FEEDS = { recalls: FDA_INDEXNOW_FEED, 'product-recalls': PRODUCT_INDEXNOW_FEED } as const;
 
-/** The CPSC/Health Canada dataset is served only when opened and not withdrawn. */
-export function productsServed(env: Env): boolean {
-  return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
-}
+export { extractedServed, productsServed };
 
 function context(env: Env): PageContext {
   return {
@@ -97,7 +95,7 @@ async function meteredApi(env: Env, request: Request, url: URL, marketplace: Mar
   const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
   if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
   // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
-  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' });
+  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi');
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
   const count = await consumeRequest(env.DB, auth);
@@ -108,25 +106,26 @@ async function meteredApi(env: Env, request: Request, url: URL, marketplace: Mar
       'x-ratelimit-remaining': '0',
     });
   }
-  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' });
+  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' }, 'direct');
 }
 
 /** The data endpoints, after the request's channel has authorised (and, if direct, metered) it. */
-async function serveData(env: Env, url: URL, headers: Record<string, string>): Promise<Response> {
+async function serveData(env: Env, url: URL, headers: Record<string, string>, channel: 'direct' | 'rapidapi'): Promise<Response> {
   const includeRaw = url.searchParams.get('include') === 'raw';
+  const extracted = extractedServed(env, channel);
 
-  if (url.pathname === '/v1/product-recalls') return json(await searchProductRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams), 200, headers);
+  if (url.pathname === '/v1/product-recalls') return json(await searchProductRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams, extracted), 200, headers);
   if (url.pathname === '/v1/product-recalls/lookup') {
     const code = url.searchParams.get('code');
     if (!code) throw new BadRequest('code is required');
-    return json(await lookupProductCode(env.DB, env.RAW_ARTIFACTS, code, includeRaw), 200, headers);
+    return json(await lookupProductCode(env.DB, env.RAW_ARTIFACTS, code, includeRaw, extracted), 200, headers);
   }
   const product = /^\/v1\/product-recalls\/([^/]+)$/.exec(url.pathname);
   if (product) {
     // Ids are ASCII letters, digits and hyphens, so the raw segment is matched as is: a malformed
     // percent escape ("%", "%ZZ") is simply not an id, never a decode error.
     const id = (product[1] as string).toLowerCase();
-    const found = PRODUCT_ID.test(id) ? await getProductRecall(env.DB, env.RAW_ARTIFACTS, id, includeRaw) : null;
+    const found = PRODUCT_ID.test(id) ? await getProductRecall(env.DB, env.RAW_ARTIFACTS, id, includeRaw, extracted) : null;
     return found ? json(found, 200, headers) : apiError(404, 'not_found', 'No notice with that id. Ids look like cpsc-25203 or hc-77184.', headers);
   }
   if (url.pathname === '/v1/recalls') return json(await searchRecalls(env.DB, env.RAW_ARTIFACTS, url.searchParams), 200, headers);
@@ -262,6 +261,18 @@ async function v1Api(request: Request, env: Env, url: URL, ctx: PageContext, mar
     if (marketplace) return apiError(403, 'not_available_on_marketplace', 'Account endpoints belong to direct API keys. Manage a RapidAPI subscription on RapidAPI.');
     return accountApi(env, request, url);
   }
+  if (url.pathname === '/v1/intake/product-recalls/identifiers') {
+    // Ingestion credentials only (ADR-0017): not a marketplace route, a customer key or the admin token, and it never reads data.
+    if (marketplace) return apiError(403, 'not_available_on_marketplace', 'The intake accepts Data Foundry ingestion credentials only.');
+    if (request.method !== 'POST') return apiError(405, 'method_not_allowed', 'POST only.');
+    try {
+      const result = await handleIntake(env, request);
+      return json(result.body, result.status, { 'cache-control': 'no-store' });
+    } catch (error) {
+      if (error instanceof IntakeRefused) return apiError(error.status, error.code, error.message, { 'cache-control': 'no-store' });
+      throw error;
+    }
+  }
   if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'Data endpoints accept GET only.');
   return meteredApi(env, request, url, marketplace);
 }
@@ -324,6 +335,34 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (!customer) return apiError(404, 'not_found', 'No customer with that Stripe id.');
     const key = await replaceKey(env.DB, customer.id, null);
     return json({ api_key: key, email: customer.email, plan: customer.plan, status: customer.status }, 200, { 'cache-control': 'no-store' });
+  }
+
+  if (url.pathname === '/admin/ingest-credentials' && request.method === 'POST') {
+    // Mint one ingestion-scoped credential (ADR-0017). The token is shown once; only its SHA-256 is stored.
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    const sources = (url.searchParams.get('sources') ?? '').split(',').map((value) => value.trim()).filter(Boolean);
+    return json(await createIngestCredential(env.DB, url.searchParams.get('label') ?? '', sources, new Date().toISOString()), 200, { 'cache-control': 'no-store' });
+  }
+
+  if (url.pathname === '/admin/ingest-credentials/revoke' && request.method === 'POST') {
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    return json({ revoked: await revokeIngestCredential(env.DB, url.searchParams.get('id') ?? '', new Date().toISOString()) });
+  }
+
+  if (url.pathname === '/admin/extractions/withdraw' && request.method === 'POST') {
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    return json({ withdrawn: await withdrawExtractions(env.DB, url.searchParams.get('extractor_version') ?? '', url.searchParams.get('recall_id'), new Date().toISOString()) });
+  }
+
+  if (url.pathname === '/admin/extractions/restore' && request.method === 'POST') {
+    // Reverses a withdrawal: the rows were kept, so they are served again (still only from publishable builds).
+    if (!isAuthorizedAdmin(env, request)) return apiError(404, 'not_found', 'Not found.');
+    try {
+      return json({ restored: await restoreExtractions(env.DB, url.searchParams.get('extractor_version') ?? '', url.searchParams.get('recall_id')) });
+    } catch (error) {
+      if (error instanceof IntakeRefused) return apiError(error.status, error.code, error.message);
+      throw error;
+    }
   }
 
   if (url.pathname === '/admin/revoke-keys' && request.method === 'POST') {
@@ -390,8 +429,9 @@ async function route(request: Request, env: Env): Promise<Response> {
         name: 'Data Foundry API',
         datasets: {
           // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
-          ...(env.SOURCE_KILL_SWITCH !== '1' ? { recalls: { docs: `${ctx.publicOrigin}/docs#fda-recalls`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
-          ...(productsServed(env) ? { 'product-recalls': { docs: `${ctx.publicOrigin}/docs#product-recalls`, openapi: `${ctx.apiOrigin}/openapi.json` } } : {}),
+          // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
+          ...(env.SOURCE_KILL_SWITCH !== '1' ? { recalls: { name: DATASETS.recalls.name, registry: DATASETS.recalls.registry, docs: `${ctx.publicOrigin}/docs#fda-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS.recalls.statsPath}` } } : {}),
+          ...(productsServed(env) ? { 'product-recalls': { name: DATASETS['product-recalls'].name, registry: DATASETS['product-recalls'].registry, docs: `${ctx.publicOrigin}/docs#product-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS['product-recalls'].statsPath}` } } : {}),
         },
       });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
