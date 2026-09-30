@@ -15,6 +15,7 @@ declarations) and the vertical/dataset build itself.
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
 | [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
 | `evidence/YYYY-MM-DD/` | Sample identifiers (`samples.json`), assessment scripts, their outputs, and `inputs.json` + `replay.sh`. The source responses themselves are preserved in the R2 evidence bucket, so every measurement can be re-run. |
+| [`../../../tooling/snapshots/plans.json`](../../../tooling/snapshots/plans.json) | Full-snapshot plans. The manual `Archive source snapshot` workflow downloads a listed source's open endpoints (only once its rights record exists), uploads the tarball and `manifest.json` to `data-foundry-raw-artifacts/research/pipeline/snapshots/<source>/<date>/`, reads the bytes back to verify the SHA-256, and prints the archive record for `inputs.json`. |
 | `research-2026-09-27-composites.md` | The composite-dataset round: the four datasets and their measured linkage. |
 | `prototypes/<key>/` | The PROTOTYPED evidence for one candidate: report and `coverage.json`. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |

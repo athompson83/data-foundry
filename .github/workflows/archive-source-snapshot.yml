@@ -1,0 +1,116 @@
+name: Archive source snapshot
+
+# Manual archive of one allowlisted source snapshot to R2 (AGENTS.md rule 10: preserve raw evidence).
+# It downloads the open, free endpoints listed for the source in tooling/snapshots/plans.json (the source
+# must already have its rights record), records every file's URL, bytes, SHA-256 and retrieval time,
+# and uploads the tarball and its manifest to data-foundry-raw-artifacts. It never runs on push,
+# pull_request or a schedule, and it writes only under the snapshots prefix.
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Source key from tooling/snapshots/plans.json'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: archive-source-snapshot-${{ inputs.source }}
+  cancel-in-progress: false
+
+env:
+  CI: 'true'
+  WRANGLER_SEND_METRICS: 'false'
+  RECALLS_ACCOUNT_ID: c2832821a9ab36419cde6ee08112f6d3
+
+jobs:
+  archive:
+    name: snapshot • upload to R2 • verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: production
+    steps:
+      - name: Only from main, only an allowlisted key
+        shell: bash
+        env:
+          SOURCE: ${{ inputs.source }}
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Snapshots are archived only from main."; exit 1
+          fi
+          [[ "$SOURCE" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || { echo "::error::Invalid source key."; exit 1; }
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Fail closed on a missing credential or a different Cloudflare account
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            [[ -n "${!name:-}" ]] || { echo "::error::Required secret ${name} is not set for the production environment."; exit 1; }
+          done
+          if [[ "$CLOUDFLARE_API_TOKEN" =~ [[:space:]] ]]; then
+            echo "::error::CLOUDFLARE_API_TOKEN contains whitespace or a line break."; exit 1
+          fi
+          [[ "$CLOUDFLARE_ACCOUNT_ID" == "$RECALLS_ACCOUNT_ID" ]] || { echo "::error::CLOUDFLARE_ACCOUNT_ID is not the recalls account."; exit 1; }
+
+      - name: Download the snapshot (no credentials)
+        env:
+          SOURCE: ${{ inputs.source }}
+        run: tooling/scripts/snapshot-source.sh "$SOURCE" "$RUNNER_TEMP/snapshot"
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Upload to R2 and verify the stored bytes
+        working-directory: apps/recalls-worker
+        env:
+          SOURCE: ${{ inputs.source }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          plan="$GITHUB_WORKSPACE/tooling/snapshots/plans.json"
+          bucket="$(jq -r .bucket "$plan")"; prefix="$(jq -r .prefix "$plan")"
+          day="$(date -u +%Y-%m-%d)"
+          dir="$RUNNER_TEMP/snapshot"
+          key="${prefix}/${SOURCE}/${day}/snapshot.tar.gz"
+          sha="$(sha256sum "$dir/snapshot.tar.gz" | cut -d' ' -f1)"; bytes="$(stat -c %s "$dir/snapshot.tar.gz")"
+          pnpm exec wrangler r2 object put "${bucket}/${key}" --file "$dir/snapshot.tar.gz" --content-type application/gzip --remote
+          pnpm exec wrangler r2 object put "${bucket}/${prefix}/${SOURCE}/${day}/manifest.json" --file "$dir/${SOURCE}/manifest.json" --content-type application/json --remote
+          pnpm exec wrangler r2 object get "${bucket}/${key}" --file "$RUNNER_TEMP/readback.tar.gz" --remote
+          back="$(sha256sum "$RUNNER_TEMP/readback.tar.gz" | cut -d' ' -f1)"
+          [[ "$back" == "$sha" ]] || { echo "::error::R2 read-back SHA-256 ${back} does not match ${sha}."; exit 1; }
+          jq --arg b "$bucket" --arg k "$key" --arg s "$sha" --argjson n "$bytes" '. + {archive: {bucket: $b, key: $k, bytes: $n, sha256: $s}}' \
+            "$dir/${SOURCE}/manifest.json" > "$RUNNER_TEMP/archived-manifest.json"
+          {
+            echo "## Archived ${SOURCE}"
+            echo
+            echo "| Field | Value |"
+            echo "| --- | --- |"
+            echo "| R2 object | \`${bucket}/${key}\` |"
+            echo "| Bytes | ${bytes} |"
+            echo "| SHA-256 | \`${sha}\` (read back and matched) |"
+            echo
+            echo '```json'
+            cat "$RUNNER_TEMP/archived-manifest.json"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
