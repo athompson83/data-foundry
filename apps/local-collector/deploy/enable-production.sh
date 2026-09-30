@@ -9,7 +9,8 @@
 #   apps/local-collector/deploy/enable-production.sh             # dry run: checks only, changes nothing
 #   apps/local-collector/deploy/enable-production.sh --migrate   # 1. bookmark, then apply migration 0004
 #   (2. dispatch Actions -> Deploy recalls Worker on main with the merge commit SHA, and approve it)
-#   apps/local-collector/deploy/enable-production.sh --finish    # 3. verify the deploy, mint the credential, probe
+#   (3. a reviewed change sets COLLECTOR_INTAKE_OPEN = "1" in wrangler.toml; deploy it the same way)
+#   apps/local-collector/deploy/enable-production.sh --finish    # 4. verify the deploy, probe for 401, mint the credential
 #
 # Migration 0004 only adds tables, so the Worker already live keeps serving unchanged after --migrate.
 # It never changes SALES_OPEN, prices, hostnames or existing tables. The gates are left as committed in
@@ -40,7 +41,7 @@ echo "== D1 migration state"
 npx wrangler d1 migrations list data-foundry-recalls --remote
 
 if [[ -z "$MODE" ]]; then
-  echo "Dry run complete. Next: --migrate, then the Deploy recalls Worker workflow, then --finish."
+  echo "Dry run complete. Next: --migrate, then the Deploy recalls Worker workflow, then (once COLLECTOR_INTAKE_OPEN = \"1\" is deployed) --finish."
   exit 0
 fi
 
@@ -49,7 +50,7 @@ if [[ "$MODE" == "--migrate" ]]; then
   npx wrangler d1 time-travel info data-foundry-recalls | tee "/tmp/df-bookmark-$(date -u +%Y%m%dT%H%M%SZ).txt"
   echo "== Apply migration 0004 (adds tables only)"
   npx wrangler d1 migrations apply data-foundry-recalls --remote
-  echo "Migrated. Now dispatch Actions -> Deploy recalls Worker on main (confirm = deploy-recalls, expected_sha = $(git rev-parse HEAD)), approve it, then run --finish."
+  echo "Migrated. Now dispatch Actions -> Deploy recalls Worker on main (confirm = deploy-recalls, expected_sha = $(git rev-parse HEAD)), approve it. Then, once a reviewed change setting COLLECTOR_INTAKE_OPEN = \"1\" is deployed the same way, run --finish."
   exit 0
 fi
 

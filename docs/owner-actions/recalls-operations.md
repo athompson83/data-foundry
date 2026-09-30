@@ -131,7 +131,7 @@ Raw evidence in R2 is append-only and is not touched by a D1 restore. A restored
 
 ## Local-collector extraction intake (ADR-0017)
 
-Three variables in `wrangler.toml` gate it. All ship closed:
+Three variables in `wrangler.toml` gate it. `COLLECTOR_INTAKE_OPEN` is `"1"` since 2026-09-30; the other two stay closed:
 
 | Variable | Effect |
 | --- | --- |
@@ -141,17 +141,18 @@ Three variables in `wrangler.toml` gate it. All ship closed:
 
 `PRODUCT_RECALLS_KILL_SWITCH = "1"` also refuses every submission and hides every extracted identifier.
 
-Enabling it takes three operator steps. `apps/local-collector/deploy/enable-production.sh` runs steps 1 and 3; without an argument it is a dry run. It never deploys and never changes the gates. The order matters: the deploy workflow refuses a pending D1 migration, so `0004` is applied first. It only adds tables, so the Worker already live keeps serving unchanged.
+Enabling it takes four operator steps, in this order. `apps/local-collector/deploy/enable-production.sh` runs steps 1 and 4; without an argument it is a dry run. It never deploys and never changes the gates. The deploy workflow refuses a pending D1 migration, so `0004` is applied first. It only adds tables, so the Worker already live keeps serving unchanged.
 
 1. After the PR is merged: `enable-production.sh --migrate`. It takes a D1 bookmark (`wrangler d1 time-travel info data-foundry-recalls`), then runs `wrangler d1 migrations apply data-foundry-recalls --remote`.
-2. Deploy the merge commit with the *Deploy recalls Worker* workflow (see "Deploying").
-3. `ADMIN_TOKEN=… enable-production.sh --finish`. It checks that the deployed API root names each dataset's registry key and probes the intake. Only when the probe answers 401 does it mint the collector's credential, so a closed intake never leaves an unused credential behind. Store the token only in the collector's `secrets/ingest-token`. The mint call it makes is:
+2. Deploy the merge commit with the *Deploy recalls Worker* workflow (see "Deploying"). The intake still answers 503 while `COLLECTOR_INTAKE_OPEN` is `"0"`.
+3. A reviewed change sets `COLLECTOR_INTAKE_OPEN = "1"`, and the workflow deploys it. The unauthenticated probe then answers 401.
+4. `ADMIN_TOKEN=… enable-production.sh --finish`. It checks that the deployed API root names each dataset's registry key and probes the intake. Only when the probe answers 401 does it mint the collector's credential, so a closed intake never leaves an unused credential behind (with a 503 it exits 2 and mints nothing). Store the token only in the collector's `secrets/ingest-token`. The mint call it makes is:
 
    ```sh
    curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
      "https://api.data.aroqon.com/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls"
    ```
 
-4. To open the intake, a reviewed change sets `COLLECTOR_INTAKE_OPEN = "1"`, and the workflow deploys it. `--finish` then passes only when the probe answers 401.
+Status on 2026-09-30: steps 1 and 2 are done (migration `0004` applied at 12:11 UTC, `625b07e` deployed), and step 3 is the change that sets `COLLECTOR_INTAKE_OPEN = "1"`.
 
 Revoke a credential with `POST /admin/ingest-credentials/revoke?id=<ic_…>`. Withdraw everything one extractor version produced with `POST /admin/extractions/withdraw?extractor_version=<version>[&recall_id=<id>]`. Withdrawn rows are kept for audit and are no longer served. `POST /admin/extractions/restore?extractor_version=<version>[&recall_id=<id>]` reverses a withdrawal. Every withdrawal, of a whole version or of one notice (`recall_id`), also covers submissions that arrive afterwards, until it is restored. The two holds are independent, in whichever order they were placed: each restore lifts only its own, a row is served again only when neither remains, and a notice-level restore is refused (409) while its whole version is withdrawn. The intake answer names held notices in `withdrawn_notices` and reports `published: false` while any hold applies. Intake requests carry at most 5 notices of up to 60 candidates, which keeps each request inside D1's 1,000-query limit (the collector sends one notice per request, and quarantines a model answer with more than 60 identifiers rather than queueing an upload the intake would refuse). Extracted identifiers reach RapidAPI subscribers only while `MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN` is also `"1"` (a separate marketplace decision).
