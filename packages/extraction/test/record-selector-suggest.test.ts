@@ -78,6 +78,20 @@ describe('suggestHtmlRecordSelectors', () => {
     expect(suggestHtmlRecordSelectors('<html><body><h1>Notice</h1><p>One paragraph.</p></body></html>')).toEqual([]);
   });
 
+  it('keeps text that sits beside child elements', () => {
+    const html = `<html><body><ul class="notices">
+      <li>Recall 1 <a href="/1">details</a></li>
+      <li>Recall 2 <a href="/2">details</a></li>
+      <li>Recall 3<a href="/3"></a></li>
+    </ul><p>Model <strong>SH-100</strong></p></body></html>`;
+    const [best] = suggestHtmlRecordSelectors(html);
+    expect(best).toMatchObject({
+      selector: 'html > body > ul > li',
+      count: 3,
+      samples: ['Recall 1 details', 'Recall 2 details'],
+    });
+  });
+
   it('ignores groups whose members carry no text', () => {
     const html = `<html><body><div class="icons"><i class="x"></i><i class="x"></i><i class="x"></i></div></body></html>`;
     expect(suggestHtmlRecordSelectors(html)).toEqual([]);

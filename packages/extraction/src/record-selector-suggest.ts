@@ -17,6 +17,8 @@ import { cssPathOf, isTagNode, type HtmlNodeLike } from './providers/html-dom.js
 
 interface ElementLike extends HtmlNodeLike {
   readonly attribs?: Readonly<Record<string, string>>;
+  /** Text content of a `text` node. */
+  readonly data?: string;
   readonly children?: readonly ElementLike[];
 }
 
@@ -77,14 +79,22 @@ const childShape = (node: ElementLike): string =>
     .map((child) => String(child.name).toLowerCase())
     .join(',');
 
-/** Non-empty text of each leaf element, in document order, so adjacent cells are not run together. */
-function textLeaves($: DocumentQuery, node: ElementLike): string[] {
-  const children = elementChildren(node);
-  if (children.length === 0) {
-    const text = collapse($(node).text());
-    return text === '' ? [] : [text];
+/**
+ * Non-empty text runs in document order: a node's own text and each descendant
+ * element's, kept apart so adjacent cells are not run together and text beside
+ * a child element (`<p>Title <b>value</b></p>`) is not lost.
+ */
+function textLeaves(node: ElementLike): string[] {
+  const leaves: string[] = [];
+  for (const child of node.children ?? []) {
+    if (child.type === 'text') {
+      const text = collapse(child.data ?? '');
+      if (text !== '') leaves.push(text);
+    } else if (isTagNode(child) && !IGNORED_TAGS.has(String(child.name).toLowerCase())) {
+      leaves.push(...textLeaves(child));
+    }
   }
-  return children.flatMap((child) => textLeaves($, child));
+  return leaves;
 }
 
 function median(values: readonly number[]): number {
@@ -136,7 +146,7 @@ export function suggestHtmlRecordSelectors(
   const suggestions: RecordSelectorSuggestion[] = [];
   for (const { parent, key, members } of groups) {
     if (repeatedMembers.has(parent)) continue;
-    const withText = members.filter((member) => collapse($(member).text()) !== '');
+    const withText = members.filter((member) => textLeaves(member).length > 0);
     if (withText.length === 0) continue;
 
     const parentPath = parent === root ? '' : cssPathOf(parent);
@@ -150,7 +160,7 @@ export function suggestHtmlRecordSelectors(
       shapes.set(shape, (shapes.get(shape) ?? 0) + 1);
     }
     const consistency = Math.max(...shapes.values()) / members.length;
-    const fieldCount = median(members.map((member) => textLeaves($, member).length));
+    const fieldCount = median(members.map((member) => textLeaves(member).length));
     const textCoverage = withText.length / members.length;
     const score =
       Math.round(Math.log2(members.length + 1) * consistency * textCoverage * Math.min(fieldCount, 12) * 1000) / 1000;
@@ -164,7 +174,7 @@ export function suggestHtmlRecordSelectors(
       score,
       samples: withText
         .slice(0, sampleCount)
-        .map((member) => textLeaves($, member).join(' ').slice(0, sampleChars)),
+        .map((member) => textLeaves(member).join(' ').slice(0, sampleChars)),
     });
   }
 

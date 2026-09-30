@@ -67,6 +67,19 @@ describe('parseSitemapXml', () => {
     });
   });
 
+  it('rejects calendar-impossible lastmod values instead of rolling them over', () => {
+    const xml = `<urlset>
+      <url><loc>https://recalls.example.gov/a</loc><lastmod>2026-02-30</lastmod></url>
+      <url><loc>https://recalls.example.gov/b</loc><lastmod>2026-13</lastmod></url>
+      <url><loc>https://recalls.example.gov/c</loc><lastmod>2026-09-30T24:00:00Z</lastmod></url>
+      <url><loc>https://recalls.example.gov/d</loc><lastmod>2024-02-29T23:59:59+15:00</lastmod></url>
+      <url><loc>https://recalls.example.gov/e</loc><lastmod>2024-02-29T23:59:59-05:00</lastmod></url>
+    </urlset>`;
+    const parsed = parseSitemapXml(xml, { sitemapUrl: SITEMAP_URL });
+    expect(parsed.entries.map((e) => e.lastmod)).toEqual([null, null, null, null, '2024-03-01T04:59:59.000Z']);
+    expect(parsed.issues).toHaveLength(4);
+  });
+
   it('refuses rather than truncates when a ceiling is exceeded', () => {
     expect(() => parseSitemapXml(URLSET, { sitemapUrl: SITEMAP_URL, maxEntries: 3 })).toThrow(SitemapParseError);
     expect(() => parseSitemapXml(URLSET, { sitemapUrl: SITEMAP_URL, maxBytes: 100 })).toThrow(/bytes/);
@@ -97,7 +110,7 @@ describe('planSitemapTargets', () => {
     { loc: 'https://recalls.example.gov/notices/%2e%2e/admin', lastmod: null },
   ];
 
-  it('filters by result policy, robots and lastmod, and orders newest first then undated by URL', () => {
+  it('filters by result policy, robots and lastmod, and orders oldest first then undated by URL', () => {
     const plan = planSitemapTargets({
       entries,
       policy,
@@ -106,12 +119,14 @@ describe('planSitemapTargets', () => {
       maxTargets: 10,
     });
     expect(plan.targets.map((t) => t.loc)).toEqual([
-      'https://recalls.example.gov/notices/newer',
       'https://recalls.example.gov/notices/new',
+      'https://recalls.example.gov/notices/newer',
       'https://recalls.example.gov/notices/undated-a',
       'https://recalls.example.gov/notices/undated-b',
     ]);
     expect(plan.deferred).toBe(0);
+    expect(plan.nextCursor).toBeNull();
+    expect(plan.watermark).toBe('2026-09-28T00:00:00.000Z');
     expect(plan.skipped).toEqual({
       OUTSIDE_RESULT_POLICY: 3,
       ROBOTS_DISALLOWED: 1,
@@ -119,13 +134,44 @@ describe('planSitemapTargets', () => {
     });
   });
 
-  it('bounds the run and reports the remainder as deferred', () => {
-    const plan = planSitemapTargets({ entries, policy, maxTargets: 2 });
-    expect(plan.targets.map((t) => t.loc)).toEqual([
-      'https://recalls.example.gov/notices/newer',
+  it('works through a bounded backlog in slices without repeating or skipping entries', () => {
+    const changedSince = '2026-07-01T00:00:00Z';
+    const first = planSitemapTargets({ entries, policy, changedSince, maxTargets: 2 });
+    expect(first.targets.map((t) => t.loc)).toEqual([
+      'https://recalls.example.gov/notices/old',
       'https://recalls.example.gov/notices/new',
     ]);
-    expect(plan.deferred).toBe(4);
+    expect(first.deferred).toBe(4);
+    expect(first.nextCursor).toEqual({
+      lastmod: '2026-09-25T00:00:00.000Z',
+      loc: 'https://recalls.example.gov/notices/new',
+    });
+
+    // An entry added mid-cycle with a later lastmod sorts after the cursor and is still reached.
+    const grown = [...entries, { loc: 'https://recalls.example.gov/notices/added', lastmod: '2026-09-29T00:00:00.000Z' }];
+    const seen = [...first.targets.map((t) => t.loc)];
+    let cursor = first.nextCursor;
+    let last = first;
+    while (cursor !== null) {
+      last = planSitemapTargets({ entries: grown, policy, changedSince, after: cursor, maxTargets: 2 });
+      seen.push(...last.targets.map((t) => t.loc));
+      cursor = last.nextCursor;
+    }
+    expect(seen).toEqual([
+      'https://recalls.example.gov/notices/old',
+      'https://recalls.example.gov/notices/new',
+      'https://recalls.example.gov/notices/newer',
+      'https://recalls.example.gov/notices/added',
+      'https://recalls.example.gov/notices/private/x',
+      'https://recalls.example.gov/notices/undated-a',
+      'https://recalls.example.gov/notices/undated-b',
+    ]);
+    expect(new Set(seen).size).toBe(seen.length);
+    expect(last.watermark).toBe('2026-09-29T00:00:00.000Z');
+
+    // The next cycle starts from the watermark: only undated entries remain eligible.
+    const next = planSitemapTargets({ entries: grown, policy, changedSince: last.watermark, maxTargets: 10 });
+    expect(next.targets.every((t) => t.lastmod === null)).toBe(true);
   });
 
   it('rejects invalid bounds and instants', () => {

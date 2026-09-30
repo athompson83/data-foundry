@@ -27,8 +27,13 @@ real gaps inside our existing adapter boundaries. No Maxun code was copied.
      normalises `lastmod` to UTC, reports every dropped entry, and follows the protocol: entries on another origin
      are dropped. Over 50,000 entries or 50 MB is an error, never a truncation.
    - `planSitemapTargets` keeps only entries inside the source's reviewed result-URL policy and its robots
-     snapshot. It skips entries whose `lastmod` is at or before the last *published* run, orders the rest newest
-     first, and reports anything over the per-run bound as deferred.
+     snapshot. It skips entries whose `lastmod` is at or before the last *published* cycle and orders the rest
+     oldest first.
+   - A sitemap larger than the per-run bound is worked through in slices. Each plan returns a `nextCursor` to pass
+     back as `after`. Once the cursor comes back null, the plan's `watermark` becomes the next cycle's
+     `changedSince`. Entries added or updated mid-cycle sort after the cursor, so they are still reached.
+   - `lastmod` values that don't exist on the calendar (for example `2026-02-30`) are reported and treated as
+     undated, not rolled over to a nearby date.
    - A sitemap plan is incremental work. It never authorises omission-based retirement.
    - Maxun's crawl mode seeds from `/sitemap.xml` in a similar way. Robots crawl-delay, the other half of that
      feature, already existed here (`policy/robots.ts`, `policy/rate-limit.ts`).
