@@ -178,11 +178,20 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 The installer:
 
 1. measures CPU, RAM, GPU (via `nvidia-smi`) and disk;
-2. installs Python and Ollama with `winget` if they are missing;
+2. installs Python and Ollama with `winget` if they are missing. Python is found by name or in its standard install
+   folders, so a fresh per-user install that is not yet on this shell's `PATH` is still used (Windows PowerShell 5.1
+   and PowerShell 7 both work). The Microsoft Store `python.exe` stub never counts;
 3. sets `OLLAMA_NO_CLOUD=1` and the loopback `OLLAMA_HOST`, then pulls and pins the model;
 4. runs `doctor` and asks for the two secrets (either can be skipped);
 5. registers a per-user **Scheduled Task** at logon, which restarts after a crash and never wakes the computer;
 6. adds desktop shortcuts: **Start**, **Stop**, **Status** and **Dashboard** (`http://127.0.0.1:8765/`).
+
+The collector reads the API root to decide what to collect. Until the ADR-0017 Worker is deployed, the root names no
+dataset `registry`, so the collector stays idle by design and re-reads the catalog hourly. Reading and extraction
+start on their own once the live root names the dataset and a `read-api-key` is set. Uploads are separate: they need
+the `ingest-token` and an open intake (`COLLECTOR_INTAKE_OPEN = "1"`). Until then, extracted candidates wait in the
+local outbox, which is capped (`max_outbox`, 200 by default). At the cap extraction pauses, so the computer does not
+spend CPU on work it cannot upload. To keep the machine fully idle until the intake opens, set the `read-api-key` last.
 
 It changes no sleep or power setting. Collection stops while the computer sleeps, shuts down or is offline, and
 resumes from its checkpoints. The hosted API keeps serving regardless.
