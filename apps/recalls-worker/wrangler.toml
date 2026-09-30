@@ -48,7 +48,7 @@ PRODUCT_RECALLS_KILL_SWITCH = "0"
 # Local-collector extraction intake (ADR-0017). Closed until an operator mints an ingestion credential and opens it;
 # EXTRACTED_IDENTIFIERS_OPEN publishes accepted candidates only after the benchmark's quality bar is met.
 # INTAKE_WITHDRAWN_SOURCES lists source keys whose submissions are refused (a per-source withdrawal).
-COLLECTOR_INTAKE_OPEN = "0"
+COLLECTOR_INTAKE_OPEN = "1"
 EXTRACTED_IDENTIFIERS_OPEN = "0"
 # Marketplace (RapidAPI) delivery of extracted identifiers is its own product decision, independent of the direct API.
 MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN = "0"
