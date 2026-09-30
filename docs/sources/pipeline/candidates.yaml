@@ -4797,3 +4797,25 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json, docs/sources/pipeline/evidence/2026-09-30/shortage_review.json ]
     next_action: Find a free-text member (a shortage detail page or a regulator that publishes reasons in prose), quote EMA's reproduction notice, and replace the token join with an INN or RxNorm exact match before EVIDENCED.
+  - key: research-grant-awards-us
+    name: US research grant awards (NIH RePORTER and NSF), linked at organization level by UEI
+    category: research
+    entity: research_grant_award (one funded project with abstract, programme, amount and awardee organization), linked to the same organization's awards at the other agency
+    stage: SCREENED
+    description: "One record per NIH RePORTER project (76,355 FY2025 projects) and NSF award. Abstracts, programme and topic terms are the free text; amount, dates and awardee UEI are typed fields. An awardee's UEI links its NSF awards to its NIH awards at the organization level only (declared); it never merges two awards. Investigator and program-officer names, emails and phones are excluded until a personal-data policy is written."
+    sources: [ grants-nih-reporter, grants-nsf-awards ]
+    join_keys:
+      - key: awardee UEI (exact; NSF ueiNumber to NIH organization org_ueis or primary_uei), organization level only
+        between: [ grants-nsf-awards, grants-nih-reporter ]
+        measured: 38/40 sampled NSF awardee UEIs (seed 7, awards starting 2024-10, 2025-03 and 2025-07) appear on an NIH FY2025 project; 2,961 distinct NIH UEIs read from 72,722 of 76,355 projects (offset cap 15,000 per state; no state capped)
+        mode: declared
+    taxonomy:
+      - "agency: NIH | NSF; funder unit: NIH institute code or NSF directorate/division, verbatim"
+      - "topic_terms: NIH RCDC terms and NSF programme reference codes, verbatim"
+      - "award_type: activity code (NIH) or transaction type (NSF), verbatim"
+    agent_questions:
+      - Which organizations hold both NIH and NSF awards in this topic, and for how much?
+      - What has this university been funded to study since 2020, in the funders' own words?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/uei_join.json, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json ]
+    next_action: Quote NIH and NSF terms and write the rights records; use the ExPORTER bulk files for full history; re-measure the UEI join on a larger NSF sample before EVIDENCED.

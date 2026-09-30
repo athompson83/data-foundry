@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-09-30 (daily dataset scout)
+
+- **Live health.** FDA Recall Intelligence and North American Consumer Product Recalls both synced at 12:18 UTC today; newest records match openFDA (2026-09-23) and the CPSC API (2026-09-24). No regression.
+- **Data types added (3, all SCREENED):** `sanctions-designations-global` (OFAC, UN, EU, UK; EU-to-UN cited reference 81/87), `drug-shortages-us-eu` (FDA, EMA; hand-checked candidate join 17/30; no true free-text member yet) and `research-grant-awards-us` (NIH, NSF; UEI 38/40). Fewer than the 5 to 10 target: the others lacked a measured cross-publisher link.
+- **Screened, not added:** public tenders (UK Contracts Finder, CanadaBuys), accident reports (MSHA, UK AAIB; NTSB parked), case law (UK Find Case Law; CourtListener parked), airworthiness directives (FAA via Federal Register; EASA parked), food by GTIN (Open Food Facts and USDA FDC parked after 503/429).
+- **Widening.** UK OPSS re-measured against CPSC: 0 shared GTINs (155 of 600 OPSS notices carry one), so it cannot join the BUILDING North American dataset yet. Capture check: the whole Health Canada index (34,137 rows) is archived in R2 before filtering; no gap. Gap found for later: the UK OFSI 2022-format ConList.xml is stale (Last-Modified 2026-06-03).
+- **Validator.** `source-pipeline.test.ts` now accepts a declared join whose key names a cited reference number or UEI.
+- Record: `docs/sources/pipeline/research-2026-09-30.md`; evidence in `evidence/2026-09-30/`. Nothing deployed; no production state changed.
+
 ## Current session — 2026-09-30 (later): ADR-0017 deployed; intake opening
 
 - **Migration `0004` applied to production D1** at 2026-09-30 12:11 UTC. The owner asked for it to be done from this
