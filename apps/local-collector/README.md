@@ -178,11 +178,17 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 The installer:
 
 1. measures CPU, RAM, GPU (via `nvidia-smi`) and disk;
-2. installs Python and Ollama with `winget` if they are missing;
+2. installs Python and Ollama with `winget` if they are missing. Python is found by name or in its standard install
+   folders, so a fresh per-user install that is not yet on this shell's `PATH` is still used (Windows PowerShell 5.1
+   and PowerShell 7 both work). The Microsoft Store `python.exe` stub never counts;
 3. sets `OLLAMA_NO_CLOUD=1` and the loopback `OLLAMA_HOST`, then pulls and pins the model;
 4. runs `doctor` and asks for the two secrets (either can be skipped);
 5. registers a per-user **Scheduled Task** at logon, which restarts after a crash and never wakes the computer;
 6. adds desktop shortcuts: **Start**, **Stop**, **Status** and **Dashboard** (`http://127.0.0.1:8765/`).
+
+The collector reads the API root to decide what to collect. Until the ADR-0017 Worker is deployed, the root names no
+dataset `registry`, so the collector stays idle by design; it re-reads the catalog hourly and starts on its own once
+the deploy is live and both secrets are set.
 
 It changes no sleep or power setting. Collection stops while the computer sleeps, shuts down or is offline, and
 resumes from its checkpoints. The hosted API keeps serving regardless.

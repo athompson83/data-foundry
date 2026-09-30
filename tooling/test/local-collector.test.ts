@@ -179,6 +179,17 @@ describe('local collector', () => {
     expect(readFileSync(join(APP, 'df_collector', 'extract.py'), 'utf8')).toContain(`MAX_IDENTIFIERS = ${MAX_CANDIDATES_PER_NOTICE}\n`);
   });
 
+  it('install finds a per-user Python that is not on PATH, and never the Store stub', () => {
+    // PowerShell is not available in CI; this pins the script's structure. Windows PowerShell 5.1 missed a fresh
+    // winget install that was not yet on its PATH, so the standard install folders are probed as well.
+    const script = readFileSync(join(APP, 'windows', 'install.ps1'), 'utf8');
+    const finder = script.slice(script.indexOf('function Find-Python {'), script.indexOf('$Python = Find-Python'));
+    expect(finder).toContain("Join-Path $env:LOCALAPPDATA 'Programs\\Python'");
+    expect(finder).toContain("Join-Path $env:LOCALAPPDATA 'Programs\\Python\\Launcher\\py.exe'");
+    expect(finder).toMatch(/-notmatch '\[\\\\\/\]WindowsApps/);
+    expect(finder).toMatch(/\$LASTEXITCODE -eq 0/);
+  });
+
   it('uninstall -Purge goes through the guarded purge, and deletes unchecked data only with -Force', () => {
     // PowerShell is not available in CI; this pins the script's structure.
     const script = readFileSync(join(APP, 'windows', 'uninstall.ps1'), 'utf8');
