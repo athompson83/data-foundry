@@ -9,7 +9,8 @@
 #   apps/local-collector/deploy/enable-production.sh             # dry run: checks only, changes nothing
 #   apps/local-collector/deploy/enable-production.sh --migrate   # 1. bookmark, then apply migration 0004
 #   (2. dispatch Actions -> Deploy recalls Worker on main with the merge commit SHA, and approve it)
-#   apps/local-collector/deploy/enable-production.sh --finish    # 3. verify the deploy, mint the credential, probe
+#   (3. a reviewed change sets COLLECTOR_INTAKE_OPEN = "1" in wrangler.toml; deploy it the same way)
+#   apps/local-collector/deploy/enable-production.sh --finish    # 4. verify the deploy, probe for 401, mint the credential
 #
 # Migration 0004 only adds tables, so the Worker already live keeps serving unchanged after --migrate.
 # It never changes SALES_OPEN, prices, hostnames or existing tables. The gates are left as committed in
