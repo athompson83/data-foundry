@@ -1,5 +1,24 @@
 # Progress
 
+## Current session — 2026-09-30 (later): ADR-0017 deployed; intake opening
+
+- **Migration `0004` applied to production D1** at 2026-09-30 12:11 UTC. The owner asked for it to be done from this
+  session; it went through the connected Cloudflare account, with the same statements as the migration file and a
+  `d1_migrations` row, so wrangler sees it as applied. It only adds tables. After it, `d1_migrations` lists
+  `0001`–`0004`, the four intake tables exist, and `product_recall` still holds 15,233 rows. Restore point: D1 Time
+  Travel to 2026-09-30 12:11 UTC.
+- **Deploy.**
+  - The first `Deploy recalls Worker` run for `625b07e` stopped at the account check: the `production` secret
+    `CLOUDFLARE_ACCOUNT_ID` did not match the recalls account.
+  - The owner corrected it, and the re-run went green.
+  - Live check: the API root names `registry` keys for both datasets, the intake answers 503 (closed, as committed),
+    and the site and stats answer 200.
+- **This change** sets `COLLECTOR_INTAKE_OPEN = "1"`. Publication stays closed (`EXTRACTED_IDENTIFIERS_OPEN = "0"`).
+- **Next:**
+  1. Deploy the merge commit.
+  2. `enable-production.sh --finish`: the probe must answer 401, then it mints the credential.
+  3. `set-secret.cmd` on the Windows computer: `ingest-token` first, then `read-api-key`.
+
 ## Current session — 2026-09-30: Maxun review; sitemap planning and record-selector suggestions
 
 - **Owner direction.** Review `getmaxun/maxun` for anything we can use, then "add anything that would be valuable".
