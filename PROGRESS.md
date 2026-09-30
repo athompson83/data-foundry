@@ -22,6 +22,9 @@
     new files); `cloudflare:artifacts:check`; `mcp:compile:check`; `web:compile:check`; `migrate:check`;
     `schemas:check`; `openapi:check`; `cloudflare:topology:check`; `verticals:validate`;
     `verticals:compile:check`; `cloudflare:synthetic-ingestion:artifacts:check`.
+  - Full suite: 5,193/5,194. The one failure was already on `main`: a `recalls-worker` site test matched
+    `2026-09-2\d` against a sync seeded at the current time, so it broke on 2026-09-30. It now accepts any
+    date-time, and `site.test.ts` passes 16/16.
   - No production, database or Cloudflare state changed.
 
 ## Current session — 2026-09-29: Local Collector review closeout and re-verification
