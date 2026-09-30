@@ -1,16 +1,35 @@
 {
-  "$comment": "Allowlisted source snapshots archived to R2 by .github/workflows/archive-source-snapshot.yml (AGENTS.md rule 10). A source is listed only once its rights record exists; every URL is an open, free endpoint fetched without credentials.",
+  "$comment": "Allowlisted source snapshots archived to R2 by .github/workflows/archive-source-snapshot.yml (AGENTS.md rule 10). A source is listed only once its rights record exists; every URL is an open, free endpoint fetched without credentials. A file with page_size is read in pages ($limit/$offset, ordered by a stable key) so one dropped connection costs one page, not the whole file.",
   "bucket": "data-foundry-raw-artifacts",
   "prefix": "research/pipeline/snapshots",
   "sources": {
     "equipment-energystar-model-index": {
       "rights_record": "docs/sources/equipment-energystar-model-index-rights-record-20260930.md",
       "files": [
-        { "name": "model-index.csv", "url": "https://data.energystar.gov/api/views/8wj2-sec8/rows.csv?accessType=DOWNLOAD" },
-        { "name": "model-index.metadata.json", "url": "https://data.energystar.gov/api/views/8wj2-sec8.json" },
-        { "name": "upc-codes.csv", "url": "https://data.energystar.gov/api/views/8edu-y555/rows.csv?accessType=DOWNLOAD" },
-        { "name": "upc-codes.metadata.json", "url": "https://data.energystar.gov/api/views/8edu-y555.json" },
-        { "name": "epa-data-license.html", "url": "https://edg.epa.gov/EPA_Data_License.html" }
+        {
+          "name": "model-index.csv",
+          "url": "https://data.energystar.gov/resource/8wj2-sec8.csv",
+          "page_size": 200000,
+          "order": "pd_id"
+        },
+        {
+          "name": "model-index.metadata.json",
+          "url": "https://data.energystar.gov/api/views/8wj2-sec8.json"
+        },
+        {
+          "name": "upc-codes.csv",
+          "url": "https://data.energystar.gov/resource/8edu-y555.csv",
+          "page_size": 200000,
+          "order": "pd_id"
+        },
+        {
+          "name": "upc-codes.metadata.json",
+          "url": "https://data.energystar.gov/api/views/8edu-y555.json"
+        },
+        {
+          "name": "epa-data-license.html",
+          "url": "https://edg.epa.gov/EPA_Data_License.html"
+        }
       ]
     }
   }
