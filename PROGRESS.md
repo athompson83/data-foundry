@@ -17,15 +17,41 @@
 - **Deferred with a design note:** declarative pagination, and model-proposed field selectors validated against
   fixtures. Neither is needed by any approved source yet.
 - **Verification (local, this container):**
-  - Passed: `pnpm typecheck`; acquisition and extraction package tests (505/505); `acquisition:check`;
+  - Passed: `pnpm typecheck`; acquisition and extraction package tests (507/507); `acquisition:check`;
     `ingestion:check` (after regenerating `hvac.ingestion-runtime.json`, whose implementation digest covers the
     new files); `cloudflare:artifacts:check`; `mcp:compile:check`; `web:compile:check`; `migrate:check`;
     `schemas:check`; `openapi:check`; `cloudflare:topology:check`; `verticals:validate`;
     `verticals:compile:check`; `cloudflare:synthetic-ingestion:artifacts:check`.
   - Full suite: 5,193/5,194. The one failure was already on `main`: a `recalls-worker` site test matched
-    `2026-09-2\d` against a sync seeded at the current time, so it broke on 2026-09-30. It now accepts any
-    date-time, and `site.test.ts` passes 16/16.
+    `2026-09-2\d` against a sync seeded at the current time, so it broke on 2026-09-30. PR #80 fixed the same test
+    on `main`, and its version was kept when `main` was merged in.
+  - Codex review: three P2 findings, all fixed with tests. `lastmod` values that don't exist on the calendar are
+    now rejected, sitemap plans resume from a cursor, and mixed-content text is counted. Hosted CI is green.
   - No production, database or Cloudflare state changed.
+
+## Current session — 2026-09-30: Windows install done; production not yet deployed
+
+- **UA-017 done by the owner.** `install.ps1` ran from `main` under PowerShell 7 with `-SkipSecrets`. The logon task
+  is running, the dashboard answers on `127.0.0.1:8765`, and `doctor` passed with the pinned `qwen3.5:4b`. Windows
+  PowerShell 5.1 could not find the Python that the installer had just installed. The installer now also looks in
+  Python's standard install folders, and never counts the Microsoft Store stub. This was checked under PowerShell 7.4
+  with Python only in the per-user folder, only the Store stub on `PATH`, and a normal `PATH`.
+- **Production is unchanged**, checked read-only on 2026-09-30:
+  - D1 has migrations `0001`–`0003` only;
+  - there has been no `Deploy recalls Worker` run since the two token failures of 2026-09-28;
+  - the live API root names no dataset `registry`, and `POST /v1/intake/product-recalls/identifiers` answers 405.
+- **Consequence.** The installed collector stays idle by design (fail closed) until the deploy is live. The ingestion
+  credential cannot be minted until then either.
+- **Remaining owner steps, in order.** The gates are committed values in `apps/recalls-worker/wrangler.toml`, so
+  each one is a reviewed change deployed by the workflow. `--finish` mints the credential only once the intake answers
+  401, not 503.
+  1. UA-015: re-save the production `CLOUDFLARE_API_TOKEN` as one line.
+  2. `enable-production.sh --migrate`.
+  3. A reviewed change sets `COLLECTOR_INTAKE_OPEN = "1"`.
+  4. Dispatch `Deploy recalls Worker` for the `main` SHA that contains that change.
+  5. `enable-production.sh --finish`: verifies the deploy, probes for 401, then mints the credential.
+  6. On the Windows computer: `set-secret.cmd` for `read-api-key` and `ingest-token`.
+  7. To publish: a reviewed change sets `EXTRACTED_IDENTIFIERS_OPEN = "1"`, deployed the same way.
 
 ## Current session — 2026-09-29: Local Collector review closeout and re-verification
 
