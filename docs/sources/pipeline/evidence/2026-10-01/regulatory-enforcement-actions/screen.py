@@ -367,7 +367,7 @@ nm = {'fda': defaultdict(list), 'echo': defaultdict(list), 'sec': defaultdict(li
 for x in fda_recs:
     nm['fda'][norm(x['name'])].append(x['url'])
 for c in cases:
-    nm['echo'][norm(re.sub(r'\(Permit.*', '', c['CaseName']))].append(c['CaseNumber'])
+    nm['echo'][norm(re.sub(r'\(Permit.*', '', c['CaseName'] or ''))].append(c['CaseNumber'])
 for x in sec_list:
     for part in re.split(r',| and (?=[A-Z])|;', x['respondents']):
         if part.strip():

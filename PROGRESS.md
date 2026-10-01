@@ -1,5 +1,22 @@
 # Progress
 
+## Current session — 2026-10-01: daily dataset scout (round 4)
+
+- **Live health.** FDA Recall Intelligence: last sync 2026-10-01 12:18Z, newest report date 2026-09-23 on food, drug and
+  device, equal to openFDA. North American Consumer Product Recalls: last sync 12:18Z for CPSC and Health Canada, newest
+  CPSC notice 2026-09-24, equal to the CPSC Recall API. No regression. Capture check on the recalls Worker: full history
+  (openFDA from 2012-06, CPSC from before 2000) and the verbatim record in R2 are already kept; no gap found.
+- **Screened (SCREENED, nothing past it).** Six data types: `aviation-safety-occurrences`, `drug-shortage-notices`,
+  `public-procurement-notices`, `workplace-injury-incident-narratives` (mining only; OSHA 403), and
+  `hazard-disaster-events` and `regulatory-enforcement-actions` (candidates only where they failed the join gate or the
+  agent did not finish). Widening: `food-and-health-recalls-global` brings UK FSA, Canada non-consumer recalls and
+  FSANZ alongside the LIVE `fda-recalls`.
+- **Decision for the owner.** Exact-identifier joins (NDC/RxCUI, aircraft registration, Companies House number, MSHA mine
+  ID) are recorded as hand-checked `candidate` joins because the test's declared-identifier list does not name them.
+  Adding them is a policy change that was not made here.
+- **Record.** [research-2026-10-01.md](docs/sources/pipeline/research-2026-10-01.md); evidence in
+  `docs/sources/pipeline/evidence/2026-10-01/`.
+
 ## Current session — 2026-09-30 (later): ADR-0017 deployed; intake opening
 
 - **Migration `0004` applied to production D1** at 2026-09-30 12:11 UTC. The owner asked for it to be done from this
