@@ -1,5 +1,26 @@
 # Progress
 
+## Current session — 2026-10-01: keep the data.aroqon.com dataset catalog current
+
+- **Owner direction.** "Make sure https://data.aroqon.com/#datasets stays updated as we add datasets."
+- **Finding.** The `#datasets` list already rendered from `DATASETS` (`apps/recalls-worker/src/catalog.ts`). Several
+  places around it branched on the two current keys, though: the JSON-LD, the hero excerpt, the browse link, the
+  product-page routes, the coverage lookup, the API root listing and the publish gate. A third dataset would have
+  shown product-recall stats, JSON-LD or gates.
+- **Change.**
+  - Each catalog entry now carries its `browsePath`, `docsAnchor`, sample path and hero fields.
+  - The homepage, product pages and routes, DataCatalog JSON-LD and API root listing render from the catalog.
+  - `isPublished`, `coverage` and `DATASET_JSON_LD` are exhaustive over `DatasetKey`, so a new key does not compile
+    until its gate, stats and description exist.
+  - New `test/catalog-registry.test.ts` fails when a `LIVE` registry dataset (or a `LIVE` feed no dataset has
+    adopted) has no catalog entry. It also fails when a catalog entry names a registry entry that is not
+    `BUILDING`/`LIVE`. A mutation check confirmed it: marking `home-product-recalls-global` `LIVE` failed it.
+  - The pipeline README's `LIVE` stage now states the requirement.
+- **Not changed:** llms.txt, the pages sitemap, the docs and OpenAPI still list datasets by hand. The hero copy
+  still describes recalls; it needs rewording when the first non-recall dataset ships.
+- **Verification (local):** `tsc -p apps/recalls-worker` clean; `vitest --project recalls-worker` 6 files, 146 tests passed; root `tsc` clean; `source-pipeline` and `readme-inventory` tests passed.
+  Live output is unchanged until the next deploy.
+
 ## Current session — 2026-09-30 (later): ADR-0017 deployed; intake opening
 
 - **Migration `0004` applied to production D1** at 2026-09-30 12:11 UTC. The owner asked for it to be done from this

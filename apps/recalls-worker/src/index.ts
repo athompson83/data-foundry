@@ -13,7 +13,7 @@ import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.j
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
 import { docsPage, messagePage, privacyPage, termsPage, welcomePage, type PageContext } from './pages.js';
-import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetKey } from './catalog.js';
+import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetEntry, type DatasetKey } from './catalog.js';
 import { datasetPage, homePage, SITE_JS, type Coverage } from './site.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
@@ -427,16 +427,22 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === '/')
       return json({
         name: 'Data Foundry API',
-        datasets: {
-          // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
-          // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
-          ...(env.SOURCE_KILL_SWITCH !== '1' ? { recalls: { name: DATASETS.recalls.name, registry: DATASETS.recalls.registry, docs: `${ctx.publicOrigin}/docs#fda-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS.recalls.statsPath}` } } : {}),
-          ...(productsServed(env) ? { 'product-recalls': { name: DATASETS['product-recalls'].name, registry: DATASETS['product-recalls'].registry, docs: `${ctx.publicOrigin}/docs#product-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS['product-recalls'].statsPath}` } } : {}),
-        },
+        // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
+        // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
+        datasets: Object.fromEntries(
+          publishedDatasets(env).map((entry) => [
+            entry.key,
+            { name: entry.name, registry: entry.registry, docs: `${ctx.publicOrigin}/docs${entry.docsAnchor}`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${entry.statsPath}` },
+          ]),
+        ),
       });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/docs');
   }
+
+  // Every catalog entry's product page, at the path the catalog gives it.
+  const datasetAt = (Object.values(DATASETS) as DatasetEntry[]).find((entry) => entry.path === url.pathname);
+  if (datasetAt) return datasetRoute(env, ctx, datasetAt.key);
 
   switch (url.pathname) {
     case '/': {
@@ -451,13 +457,9 @@ async function route(request: Request, env: Env): Promise<Response> {
     }
     case '/assets/site.js':
       return new Response(SITE_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=3600', ...SECURITY_HEADERS } });
-    case '/product-recalls':
-      return datasetRoute(env, ctx, 'product-recalls');
     case '/product-recalls/browse':
       if (!productsServed(env)) return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await productBrowseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
-    case '/recalls':
-      return datasetRoute(env, ctx, 'recalls');
     case '/recalls/docs':
       return Response.redirect(`${ctx.publicOrigin}/docs`, 301);
     case '/docs':
@@ -608,24 +610,28 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
 /** Public coverage for a dataset, from the same queries as its stats endpoint. */
 async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
   try {
-    if (key === 'recalls') {
-      const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
-      return {
-        records: s.categories.reduce((total, row) => total + row.recalls, 0),
-        breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
-        latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
-        lastSuccessfulSync: s.last_successful_sync,
-      };
+    switch (key) {
+      case 'recalls': {
+        const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
+        return {
+          records: s.categories.reduce((total, row) => total + row.recalls, 0),
+          breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
+          latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+          lastSuccessfulSync: s.last_successful_sync,
+        };
+      }
+      case 'product-recalls': {
+        const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
+        const syncs = Object.values(s.last_successful_sync).sort();
+        return {
+          records: s.agencies.reduce((total, row) => total + row.notices, 0),
+          breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
+          latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+          // The oldest of the per-source last successes: every source has refreshed at least that recently.
+          lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
+        };
+      }
     }
-    const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
-    const syncs = Object.values(s.last_successful_sync).sort();
-    return {
-      records: s.agencies.reduce((total, row) => total + row.notices, 0),
-      breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
-      latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
-      // The oldest of the per-source last successes: every source has refreshed at least that recently.
-      lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
-    };
   } catch (error) {
     console.error('coverage_error', key, error instanceof Error ? error.message : String(error));
     return null;
