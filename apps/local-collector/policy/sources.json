@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "d72be1ba9de11c86002b7563fd70565df8f5cc7cde3564fb687f78771a94aeb4",
+  "registry_sha256": "cdc3d87f5afc96e4954decba97eb9b6cb04dcdc3b7840f4e9830de0fbfe7b339",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -190,6 +190,14 @@
         "cfpb-enforcement-actions",
         "ftc-cases-proceedings",
         "uk-cma-cases"
+      ]
+    },
+    "aviation-safety-events": {
+      "name": "US aviation accident/incident and airworthiness-action register (NTSB + FAA)",
+      "stage": "SCREENED",
+      "sources": [
+        "ntsb-aviation-accidents",
+        "faa-airworthiness-directives"
       ]
     }
   },
@@ -2405,6 +2413,110 @@
       "blocked_because": [
         "rights verdict is UNKNOWN",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ntsb-aviation-accidents": {
+      "name": "NTSB aviation accident/incident database (monthly eADMSPUB extract, aircraft/events/narratives)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Transportation Safety Board",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "faa-airworthiness-directives": {
+      "name": "FAA airworthiness directives and special conditions, via the Federal Register API",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Office of the Federal Register (National Archives and Records Administration)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "federal-contract-awards": {
+      "name": "USASpending.gov federal prime contract award transactions",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Department of the Treasury (USAspending.gov)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "sam-entity-exclusions": {
+      "name": "SAM.gov excluded-parties list (suspensions, debarments)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "usda-nass-quickstats": {
+      "name": "USDA NASS QuickStats agricultural survey and census statistics",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "bls-local-area-unemployment": {
+      "name": "BLS Local Area Unemployment Statistics (LAUS) time series",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": null,
+      "publisher": null,
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "epa-echo-facility-compliance": {
+      "name": "EPA ECHO (Enforcement and Compliance History Online) facility compliance and enforcement data",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Environmental Protection Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fdic-bank-failures": {
+      "name": "FDIC BankFind bank failures and institution directory",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Federal Deposit Insurance Corporation",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },
