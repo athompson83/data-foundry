@@ -4519,6 +4519,248 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
     next_action: Park as out of scope; NEISS covers hospital visits for consumer products with no employer or establishment identifier. Consider it for a consumer-product injury dataset instead.
 
+  - key: fda-warning-letters
+    name: FDA warning letters (CDER, CBER, CDRH, CFSAN/HFP, CVM, CTP, OII)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US FDA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/compliance-actions-and-activities/warning-letters
+      - https://www.fda.gov/datatables/views/ajax?view_name=warning_letter_solr_index&view_display_id=warning_letter_solr_block
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not
+          copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by
+          anyone without the need to obtain permission from FDA."
+    conditions:
+      - Public-domain text, but each letter header carries the recipient's personal name, title and e-mail address
+        (26/26 sampled letters); redact individual contact data and publish only the company, site address and violation text.
+      - Letters redact trade secrets as (b)(4); never try to reconstruct them.
+      - Datatable endpoint is an undocumented site feed (no API key, no stated rate limit); cap at 2 requests per second and send a declared User-Agent.
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Extract violation categories, CFR citations, product type and cited FEI/CMS numbers from letter text; archive
+      the 3,723-row index plus letters in R2; write the ADR-0013 rights record with the recipient-contact exclusion.
+
+  - key: epa-echo-enforcement-cases
+    name: EPA ECHO civil, administrative and criminal enforcement cases
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://echodata.epa.gov/echo/case_rest_services.get_cases
+      - https://echodata.epa.gov/echo/case_rest_services.get_case_report
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "These documents may be freely distributed and used for non-commercial, scientific and educational
+          purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and
+          Foreign Copyright Laws."
+    conditions:
+      - The EPA disclaimer reserves commercial-use copyright for some documents; case data are EPA-authored federal work,
+        so serve only EPA-authored fields (case number, dates, law, penalty, outcome, FRS id, defendant, summary) and write
+        an ADR-0013 rights record that resolves the sentence before any paid delivery.
+      - Personal names appear as case names and defendants (criminal and individual cases); exclude natural persons.
+      - The service returned intermittent 503 responses and 5 of 19 listing pages failed after 3 retries; sync must back off and resume.
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Resolve commercial-use wording in a rights record; page the full 312,444-case population by state and fiscal
+      year (listing is capped), ingest case reports for FRS ids, defendants, court/DOJ docket numbers and summaries.
+
+  - key: sec-litigation-releases
+    name: SEC litigation releases (civil actions in federal court)
+    category: regulatory
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US SEC
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.sec.gov/enforcement-litigation/litigation-releases
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.sec.gov/about/privacy-information
+        quote: "Information presented on sec.gov is considered public information and may be copied or further
+          distributed by users of the web site without the SEC’s permission."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Extract the cited court case number (7 formats seen), court, defendants, relief and penalty amounts from release
+      text; resolve defendants to CIK through the SEC company index; cite the SEC, no seal, at most 10 requests/second.
+
+  - key: cfpb-enforcement-actions
+    name: CFPB enforcement actions (administrative and civil)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US CFPB
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.consumerfinance.gov/enforcement/actions/
+      - https://www.consumerfinance.gov/enforcement/actions/feed/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.consumerfinance.gov/privacy/website-privacy-policy/
+        quote: "Information created by the CFPB is in the public domain and you may reproduce, publish, or otherwise
+          use it without the Bureau’s permission."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Parse the Action Details block (forum, docket number, filing date, status, products) and monetary terms from the
+      page text; exclude copyrighted third-party material the page notes; note feed is stale (last item 2025-08-21).
+
+  - key: ftc-cases-proceedings
+    name: FTC cases and proceedings (consumer protection and competition)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US FTC
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.ftc.gov/legal-library/browse/cases-proceedings
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 2,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.ftc.gov/policy-notices/website-policy
+        quote: "Most material on the FTC’s website is considered work of the United States Government, meaning that the
+          material is in the public domain and is not subject to copyright restrictions"
+    conditions:
+      - Attribute the FTC where feasible; some pages carry third-party material outside the public-domain statement.
+      - robots.txt sets Crawl-delay 5, so a full crawl of about 6,120 cases takes roughly 9 hours at one request per 5 seconds; no keyless API was used (api.ftc.gov needs a key).
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Crawl case pages at the declared 5-second delay, extract parties, docket and file numbers, relief; the listing is
+      HTML only and about 1 MB per page, so prefer incremental sync from the newest-first order.
+
+  - key: uk-cma-cases
+    name: UK CMA case pages (consumer enforcement, CA98, mergers, markets)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK CMA
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.gov.uk/api/search.json?filter_format=cma_case
+      - https://www.gov.uk/cma-cases
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "is published under the Open Government Licence (OGL), which also sets out which content is exempt."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Keep only the enforcement case types (consumer-enforcement, ca98-and-civil-cartels, criminal-cartels, markets);
+      ingest case body text and decision documents; add OGL attribution and the Crown copyright notice.
+
+  - key: uk-fca-enforcement
+    name: UK FCA final notices and enforcement
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK FCA
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.fca.org.uk/news/search-results
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: PARKED, UNKNOWN rights - search page answered HTTP 403 and the terms URL 404 from our egress; reopen when terms are readable.
+
+  - key: uk-ico-enforcement
+    name: UK ICO enforcement actions
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK ICO
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://ico.org.uk/action-weve-taken/enforcement/
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 3,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://ico.org.uk/action-weve-taken/enforcement/
+        quote: "All text content is available under the Open Government Licence v3."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: PARKED, unmeasured - landing page returned only 1,709 characters of text with no listing or count; reopen after finding a stable list or feed.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -5447,3 +5689,91 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
     evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
     next_action: Archive full MSHA Accidents and Mines zips to R2, run the personal-data scan on narratives, add the EIA current-year file, and retry OSHA severe-injury access.
+
+  - key: regulatory-enforcement-actions
+    name: Regulatory enforcement actions against companies (US federal and UK, narrative-level)
+    category: regulatory
+    entity: enforcement_action (one warning letter, civil or administrative case, litigation release or consumer-protection order against a named company, with violation narrative, relief and penalty)
+    stage: SCREENED
+    description: "One record per enforcement action published by the FDA, EPA, SEC, CFPB, FTC and the UK CMA. Free-text
+      letters, releases and case pages are parsed deterministically into respondent, forum, cited statutes or CFR sections,
+      cited court case numbers, relief and penalty amounts; EPA ECHO supplies structured cases with FRS facility ids,
+      DOJ and court docket numbers and penalties. A cited court case number is the only automatic link between
+      actions; identical case numbers from two publishers mean the same litigation. Company-name matches across
+      agencies only propose a reviewed link to a company profile (never a merge of actions), and agency identifiers
+      such as CMS, FEI, FRS ids and CIK link an action to its own agency's registry, not across agencies. Every fact
+      carries its source document. Measured on 2026-10-01: no court case number was shared between publishers in the
+      samples, so cross-agency linking today is by reviewed company-name candidates."
+    sources:
+      - fda-warning-letters
+      - epa-echo-enforcement-cases
+      - sec-litigation-releases
+      - cfpb-enforcement-actions
+      - ftc-cases-proceedings
+      - uk-cma-cases
+    join_keys:
+      - key: cited court case number (district, year, type, serial) shared by two publishers
+        between:
+          - epa-echo-enforcement-cases
+          - sec-litigation-releases
+        measured: 0/911 ECHO federal docket numbers appear in 28 sampled SEC releases (0 shared with 26 CFPB actions, 24 FTC cases and 26 FDA letters either); regex catches only the D:YY-cv-N form so SEC "07 CV 6709" style is undercounted
+        mode: declared
+      - key: normalised company name, FDA letter recipient to SEC litigation-release respondent
+        between:
+          - fda-warning-letters
+          - sec-litigation-releases
+        measured: 4/3548 distinct FDA recipient names equal a respondent among 11,986 SEC releases; 4/4 same company on hand check (Cardinal Health, MiMedx, United Health Products, Vivera Pharmaceuticals); entity link only, different actions
+        mode: candidate
+        reviewed: { correct: 4, checked: 4 }
+      - key: normalised company name, CFPB action to SEC litigation-release respondent
+        between:
+          - cfpb-enforcement-actions
+          - sec-litigation-releases
+        measured: 3/379 CFPB action titles equal an SEC respondent; 3/3 same company on hand check (Bank of America N.A., ITT Educational Services, Regions Bank); different actions
+        mode: candidate
+        reviewed: { correct: 3, checked: 3 }
+      - key: normalised company name, EPA ECHO case name to FDA letter recipient
+        between:
+          - epa-echo-enforcement-cases
+          - fda-warning-letters
+        measured: 5/3548 FDA recipient names equal an ECHO case name in the 13,652 listed cases; 5/5 same company on hand check (Eli Lilly, Hanover Foods, Kroger, Linemaster Switch, Stavis Seafoods); different actions
+        mode: candidate
+        reviewed: { correct: 5, checked: 5 }
+      - key: normalised company name, EPA ECHO case name to SEC litigation-release respondent
+        between:
+          - epa-echo-enforcement-cases
+          - sec-litigation-releases
+        measured: 31/11058 distinct ECHO names equal an SEC respondent; 19/31 same company on hand check, 12 rejected (4 personal names, 5 generic fragments, 3 uncorroborated small-company names)
+        mode: candidate
+        reviewed: { correct: 19, checked: 31 }
+      - key: normalised company name, FTC case title to any other member
+        between:
+          - ftc-cases-proceedings
+          - sec-litigation-releases
+        measured: 0/245 FTC titles collected from 12 listing pages equal an SEC respondent or any other member name set
+        mode: candidate
+    taxonomy:
+      - agency and forum (FDA warning letter, EPA civil judicial, EPA administrative, SEC civil action, CFPB administrative or civil, FTC, UK CMA)
+      - violation domain (CGMP and product quality, environmental media, securities fraud, consumer finance, deceptive advertising, competition)
+      - statute or regulation cited (21 CFR, CWA, CAA, CERCLA, RCRA, Securities Act, Exchange Act, CFPA, FTC Act, CA98)
+      - sanction type (warning, injunction, consent decree, civil penalty, redress, disgorgement)
+    agent_questions:
+      - Which agencies have taken enforcement action against this company in the last five years, and for what conduct?
+      - Which companies received FDA warning letters citing CGMP violations at the same site in consecutive years?
+      - What penalties and relief did federal regulators impose for a given violation type, by agency and year?
+      - Which cited court case number identifies the same litigation across a regulator's release and a court docket?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Build the court-case-number extractor for SEC, CFPB and FTC text and re-measure the declared join on the full
+      11,986 releases; resolve the ECHO commercial-use wording in a rights record; link actions to company profiles by
+      CIK, FRS id and reviewed name candidates before advancing to EVIDENCED.

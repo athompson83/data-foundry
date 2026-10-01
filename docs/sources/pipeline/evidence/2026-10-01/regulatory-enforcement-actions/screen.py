@@ -410,5 +410,15 @@ for s in fda_samples:
 L['court_numbers_seen'] = {k: sum(1 for v in court.values() if k in v) for k in nm}
 L['court_numbers_shared_by_2plus_publishers'] = [{n: {k: sorted(v)[:2] for k, v in d.items()}} for n, d in court.items() if len(d) >= 2][:30]
 L['echo_judicial_docket_numbers_in_court_format'] = sum(1 for n, d in court.items() if 'echo' in d)
+
+# Hand check (done by reading both records' names, SEC release headings and ECHO case names; no identifier is shared, so
+# "correct" = the two records name the same distinctive legal entity; it is an entity link, never an event merge).
+L['hand_check'] = {
+    'fda|sec': {'checked': 4, 'correct': 4, 'note': 'Cardinal Health (LR-20212), MiMedx (LR-24678), United Health Products (LR-25413), Vivera Pharmaceuticals (LR-25538): SEC release caption names the same company as the FDA letter recipient'},
+    'cfpb|sec': {'checked': 3, 'correct': 3, 'note': 'Bank of America N.A. (LR-22772), ITT Educational Services (LR-24188), Regions Bank (LR-21682)'},
+    'echo|fda': {'checked': 5, 'correct': 5, 'note': 'Eli Lilly and Company, Hanover Foods Corporation, Kroger, Linemaster Switch Corporation, Stavis Seafoods; distinctive full names, no shared identifier'},
+    'echo|sec': {'checked': 31, 'correct': 19, 'note': '19 distinctive corporate names (ADM, Bristol-Myers Squibb, Chevron, Collins & Aikman, Dow, GE, GM, Granite Construction, Guardian Industries, IBM, Monsanto, National Presto, Navistar, Safety-Kleen, Terex, Transocean, Tyco, Tyson, W.R. Grace); 12 not confirmable: 4 personal names (Edward Miller, Timothy Smith, Robert Pierce, William J. McCarthy), 5 generic fragments (Brown, Enterprises, Milan, New Castle, Saint James) and 3 small-company names with no corroboration (American Energy, New Energy, Trans Energy)'},
+}
+L['declared_court_number_join'] = {'matched': 0, 'note': 'ECHO court docket numbers (911 in the 13,652 listed cases match a federal docket pattern) vs docket numbers cited in 28 SEC releases, 26 CFPB actions, 24 FTC cases and 26 FDA letters: 0 numbers shared by two publishers. Regex only catches the D:YY-cv-N form, so SEC releases written as "07 CV 6709" are undercounted.'}
 json.dump(R, open(os.path.join(HERE, 'results.json'), 'w'), indent=1, default=list)
 print('done', {k: (v.get('records_total') or v.get('releases_listed') or v.get('actions_listed') or v.get('total') or v.get('judicial_listing_fetched') or v.get('titles_collected')) for k, v in R['members'].items() if isinstance(v, dict)})

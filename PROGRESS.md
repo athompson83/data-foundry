@@ -6,11 +6,11 @@
   device, equal to openFDA. North American Consumer Product Recalls: last sync 12:18Z for CPSC and Health Canada, newest
   CPSC notice 2026-09-24, equal to the CPSC Recall API. No regression. Capture check on the recalls Worker: full history
   (openFDA from 2012-06, CPSC from before 2000) and the verbatim record in R2 are already kept; no gap found.
-- **Screened (SCREENED, nothing past it).** Six data types: `aviation-safety-occurrences`, `drug-shortage-notices`,
-  `public-procurement-notices`, `workplace-injury-incident-narratives` (mining only; OSHA 403), and
-  `hazard-disaster-events` and `regulatory-enforcement-actions` (candidates only where they failed the join gate or the
-  agent did not finish). Widening: `food-and-health-recalls-global` brings UK FSA, Canada non-consumer recalls and
-  FSANZ alongside the LIVE `fda-recalls`.
+- **Screened (SCREENED, nothing past it).** Six new data types, each with a registered dataset: `aviation-safety-occurrences`,
+  `drug-shortage-notices`, `public-procurement-notices`, `workplace-injury-incident-narratives` (mining only; OSHA
+  403), `regulatory-enforcement-actions` (hand-checked name candidates only) and `food-and-health-recalls-global`,
+  which widens the LIVE `fda-recalls` with UK FSA, Canada non-consumer recalls and FSANZ. `hazard-disaster-events` is
+  candidates only (FEMA terms unreadable; no independent join). Several members are PARKED (403, keys, RED terms).
 - **Decision for the owner.** Exact-identifier joins (NDC/RxCUI, aircraft registration, Companies House number, MSHA mine
   ID) are recorded as hand-checked `candidate` joins because the test's declared-identifier list does not name them.
   Adding them is a policy change that was not made here.
