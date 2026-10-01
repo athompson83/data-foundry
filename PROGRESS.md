@@ -87,6 +87,27 @@
   6. On the Windows computer: `set-secret.cmd` for `read-api-key` and `ingest-token`.
   7. To publish: a reviewed change sets `EXTRACTED_IDENTIFIERS_OPEN = "1"`, deployed the same way.
 
+## Current session — 2026-09-29: Supabase `rls_disabled_in_public` alert contained
+
+- **Trigger.** Supabase emailed a CRITICAL `rls_disabled_in_public` finding for project `fgxinxaqkwoqyywdgobs` (issues as of 2026-09-27). The Product Owner forwarded it for resolution.
+- **The table was `public.automation_runs`.** This table belongs to the ESO/ZOLL EMS automation experiment, not to Data Foundry. It was already triaged in [`ua002-hosted-catchup-decision-20260917.md`](docs/evidence/ua002-hosted-catchup-decision-20260917.md) §5, where the containment was proposed and waited on an owner decision. Evidence re-checked before the change:
+  - `anon` and `authenticated` held full CRUD (`arwdDxt`), and RLS was off;
+  - 5 rows, the last written 2025-02-16, none in the last 30 days;
+  - no dependents.
+- **Applied**, as the provider migration `contain_public_automation_runs`:
+  `REVOKE ALL PRIVILEGES ON TABLE public.automation_runs FROM anon, authenticated; ALTER TABLE public.automation_runs ENABLE ROW LEVEL SECURITY;`
+  To undo it, re-grant the privileges and disable RLS. No rows were read, changed or deleted.
+- **Verified live:**
+  - RLS is on;
+  - `anon` and `authenticated` have no SELECT, INSERT, UPDATE or DELETE;
+  - `service_role` still reads it, and the row count is still 5;
+  - the security advisor now shows **0 ERROR findings** (it had 1).
+- **Left as is (WARN or INFO, none of it Data Foundry):**
+  - the HQ app's `public.hq_*` SECURITY DEFINER RPCs are executable by `anon`. They take a `p_key` argument, so the gate is presumably by design, and HQ's owner should confirm it;
+  - `rise_*` tables with RLS on but no policies (deny-all), which appear in GraphQL introspection;
+  - `hq.*` tables with RLS on but no policies (deny-all).
+- **Data Foundry tables are unaffected.** `data_foundry` grants no USAGE to `anon`, `authenticated` or `service_role`.
+
 ## Current session — 2026-09-29: Local Collector review closeout and re-verification
 
 - **PR #75.** It went through 12 more Codex review rounds. Every finding was fixed with a regression test that fails on
