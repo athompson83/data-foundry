@@ -1,0 +1,2540 @@
+{
+ "run_date": "2026-10-01",
+ "members": {
+  "fda-warning-letters": {
+   "records_total": 3723,
+   "rows_fetched": 3723,
+   "newest_posted": "2026-09-29",
+   "oldest_issued": "2021-01-04",
+   "posted_last_30d": 54,
+   "sample_n": 26,
+   "sample_ok": 26,
+   "median_text_chars": 10625,
+   "sample_with_fei": 8,
+   "sample_with_cms": 10,
+   "sample_with_recipient_email": 26,
+   "sample_with_court_cites": 0,
+   "samples": [
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/sciarra-aeromed-inc-728248-09232026",
+     "name": "Sciarra Aeromed, Inc.",
+     "issued": "2026-09-23",
+     "text_chars": 15646,
+     "cms": "728248",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/neogen-corporation-731018-09232026",
+     "name": "Neogen Corporation",
+     "issued": "2026-09-23",
+     "text_chars": 10341,
+     "cms": "731018",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/stream2sea-llc-718983-02022026",
+     "name": "Stream2Sea, LLC",
+     "issued": "2026-02-02",
+     "text_chars": 11981,
+     "cms": null,
+     "fei_mentions": 2
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/bentley-laboratories-llc-732028-09172026",
+     "name": "Bentley Laboratories LLC",
+     "issued": "2026-09-17",
+     "text_chars": 29668,
+     "cms": null,
+     "fei_mentions": 2
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/wellmill-llc-dba-vitamix-laboratories-725655-04202026",
+     "name": "Wellmill, LLC dba Vitamix Laboratories",
+     "issued": "2026-04-20",
+     "text_chars": 10916,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/good-stuff-cacao-729744-07022026",
+     "name": "Good Stuff Cacao ",
+     "issued": "2026-07-02",
+     "text_chars": 6433,
+     "cms": "729744",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/babikian-healthcare-products-cjsc-730513-09212026",
+     "name": "Babikian Healthcare Products CJSC",
+     "issued": "2026-09-21",
+     "text_chars": 10705,
+     "cms": null,
+     "fei_mentions": 5
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/celmade-735876-09142026",
+     "name": "Celmade",
+     "issued": "2026-09-14",
+     "text_chars": 10484,
+     "cms": null,
+     "fei_mentions": 1
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/stokes-healthcare-inc-dba-epicur-pharma-733243-08042026",
+     "name": "Stokes Healthcare Inc. dba Epicur Pharma",
+     "issued": "2026-08-04",
+     "text_chars": 11552,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/american-pharma-mfg-inc-728227-08042026",
+     "name": "American Pharma Mfg. Inc. ",
+     "issued": "2026-08-04",
+     "text_chars": 11942,
+     "cms": "728227",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/fil-bay-import-inc-734615-07202026",
+     "name": "Fil-Bay Import, Inc.",
+     "issued": "2026-07-20",
+     "text_chars": 7954,
+     "cms": "734615",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/bo-wah-enterprises-inc-736539-08132026",
+     "name": "Bo Wah Enterprises Inc",
+     "issued": "2026-08-13",
+     "text_chars": 6897,
+     "cms": "736539",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/chongqing-tianrun-food-development-co-ltd-686323-10222024",
+     "name": "Chongqing Tianrun Food Development Co., Ltd",
+     "issued": "2024-10-22",
+     "text_chars": 18001,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/diamond-chemical-co-inc-687078-09062024",
+     "name": "Diamond Chemical Co., Inc.",
+     "issued": "2024-09-06",
+     "text_chars": 10625,
+     "cms": "687078",
+     "fei_mentions": 2
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/laboratorio-magnachem-international-673796-06182024",
+     "name": "Laboratorio Magnachem International",
+     "issued": "2024-06-18",
+     "text_chars": 33446,
+     "cms": null,
+     "fei_mentions": 2
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/capitol-hill-vapor-co-614855-05212021",
+     "name": "Capitol Hill Vapor Co.",
+     "issued": "2021-05-21",
+     "text_chars": 7088,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/mr-lulu-llc-650772-06012023",
+     "name": "Mr. Lulu LLC",
+     "issued": "2023-06-01",
+     "text_chars": 16662,
+     "cms": null,
+     "fei_mentions": 1
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/pharmacanna-647390-01052023",
+     "name": "PharmaCanna",
+     "issued": "2023-01-05",
+     "text_chars": 10704,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/global-lc-inc-dba-rice-chicken-623004-02042022",
+     "name": "Global LC Inc DBA Rice Chicken",
+     "issued": "2022-02-04",
+     "text_chars": 5894,
+     "cms": "623004",
+     "fei_mentions": 1
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/good-guy-vapes-lab-llc-640139-08242022",
+     "name": "Good Guy Vapes Lab LLC",
+     "issued": "2022-08-24",
+     "text_chars": 6882,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/la-sucursal-produce-inc-673621-03012024",
+     "name": "La Sucursal Produce Inc.",
+     "issued": "2024-03-01",
+     "text_chars": 7160,
+     "cms": "673621",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/my-habitat-brands-llc-611996-02032021",
+     "name": "My Habitat Brands LLC",
+     "issued": "2021-02-03",
+     "text_chars": 5988,
+     "cms": "611996",
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/radhanite-llc-dba-curalife-ltd-614542-09072021",
+     "name": "Radhanite, LLC d/b/a Curalife Ltd",
+     "issued": "2021-09-07",
+     "text_chars": 9518,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/biomedical-research-laboratories-llc-612831-07012021",
+     "name": "Biomedical Research Laboratories, LLC",
+     "issued": "2021-07-01",
+     "text_chars": 19673,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/bioxtek-llc-715478-12012025",
+     "name": "BioXtek LLC",
+     "issued": "2025-12-01",
+     "text_chars": 8319,
+     "cms": null,
+     "fei_mentions": 0
+    },
+    {
+     "url": "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/cali-steam-llc-646294-11102022",
+     "name": "Cali Steam, LLC",
+     "issued": "2022-11-10",
+     "text_chars": 8371,
+     "cms": null,
+     "fei_mentions": 0
+    }
+   ],
+   "terms_page_status": 200,
+   "terms_quote_found": true
+  },
+  "epa-echo-enforcement-cases": {
+   "get_cases_status": 200,
+   "jdc_rows": "15783",
+   "fedpen_rows": "4801",
+   "criminal_rows": "2869",
+   "all_cases_rows_unfiltered_get_case_info": null,
+   "all_cases_total": "312444",
+   "all_civil_judicial": "15783",
+   "all_administrative": "293792",
+   "all_criminal": "2869",
+   "judicial_listing_fetched": 13652,
+   "listing_newest_filed": "09/25/2026",
+   "listing_with_court_docket": 7374,
+   "listing_with_doj_docket": 2709,
+   "listing_with_fed_penalty_gt0": 3563,
+   "by_year_filed_2020_2026": {
+    "2020": 151,
+    "2021": 140,
+    "2022": 142,
+    "2023": 89,
+    "2024": 63,
+    "2025": 30,
+    "2026": 24
+   },
+   "sample_n": 30,
+   "sample_with_summary": 28,
+   "sample_with_frs": 27,
+   "sample_with_defendants": 30,
+   "sample_with_court_docket": 24,
+   "samples": [
+    {
+     "case": "06-2022-1837",
+     "name": "Hess Corporation",
+     "filed": "09/25/2026",
+     "law": "CWA",
+     "court_docket": "90-5-1-1-12725",
+     "doj_docket": null,
+     "summary_chars": 704,
+     "violations_chars": 76,
+     "frs_ids": [
+      "110011276859"
+     ],
+     "defendants": [
+      "Hess Corporation"
+     ],
+     "fed_penalty": "$2,100,000",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "10-2026-0226",
+     "name": "JUSTIN METTLER ID - JUDICIAL (CWA 404)",
+     "filed": "09/14/2026",
+     "law": "CWA",
+     "court_docket": "4:26-cv-00594-DKG",
+     "doj_docket": "4:26-cv-00594-DKG",
+     "summary_chars": 2246,
+     "violations_chars": 19,
+     "frs_ids": [
+      "110071752951"
+     ],
+     "defendants": [
+      "JUSTIN METTLER"
+     ],
+     "fed_penalty": null,
+     "milestones": 3,
+     "citations": 0
+    },
+    {
+     "case": "02-2026-0003",
+     "name": "Environmental Resource Holdings, LLC - Diamond Alkali Upland Processing Facility",
+     "filed": "09/10/2026",
+     "law": "CERCLA",
+     "court_docket": "2:26-cv-11675",
+     "doj_docket": null,
+     "summary_chars": 388,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110009324409"
+     ],
+     "defendants": [
+      "Environmental Resource Holdings, LLC",
+      "Environmental Resource Holdings, LLc"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "02-2025-0001",
+     "name": "Estate of Harry D. Silverstein",
+     "filed": "09/09/2026",
+     "law": "TSCA",
+     "court_docket": "1:26-cv-07752",
+     "doj_docket": null,
+     "summary_chars": 1098,
+     "violations_chars": 15,
+     "frs_ids": [],
+     "defendants": [
+      "Estate of Harry D. Silverstein"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "01-2023-2006",
+     "name": "PILGRIM FOODS DIV OF OLD DUTCH MUSTARD",
+     "filed": "08/13/2026",
+     "law": "CWA",
+     "court_docket": "1:26-cv-00655",
+     "doj_docket": null,
+     "summary_chars": 998,
+     "violations_chars": 33,
+     "frs_ids": [
+      "110007131950"
+     ],
+     "defendants": [
+      "Pilgrim Foods"
+     ],
+     "fed_penalty": "$50,000",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "02-2023-0006",
+     "name": "Passaic Valley Water Commission",
+     "filed": "08/12/2026",
+     "law": "SDWA",
+     "court_docket": "2:26-cv-10199",
+     "doj_docket": null,
+     "summary_chars": 1412,
+     "violations_chars": 41,
+     "frs_ids": [
+      "110044220321"
+     ],
+     "defendants": [
+      "Passaic Valley Water Commission"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "01-2026-0001",
+     "name": "MICROFAB INC. (FORMER)",
+     "filed": "08/10/2026",
+     "law": "CERCLA",
+     "court_docket": "CERCLA-01-2026-0060",
+     "doj_docket": null,
+     "summary_chars": 1107,
+     "violations_chars": 18,
+     "frs_ids": [
+      "110009289616"
+     ],
+     "defendants": [
+      "Ex parte"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "06-2022-3400",
+     "name": "DOMTAR A.W. LLC-ASHDOWN MILL-ECDAT Consent Decree-FY2026",
+     "filed": "07/24/2026",
+     "law": "CAA",
+     "court_docket": "4:26-cv-04059-JTS",
+     "doj_docket": "90-5-2-2-12655",
+     "summary_chars": 575,
+     "violations_chars": 87,
+     "frs_ids": [
+      "110000756352"
+     ],
+     "defendants": [
+      "Domtar A.W., LLC"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "02-2025-0011",
+     "name": "Lisa M. Brown - Former Brown's Auto Salvage (Access Warrant)",
+     "filed": "07/20/2026",
+     "law": "CERCLA",
+     "court_docket": "1:26-mc-00029-PJE",
+     "doj_docket": null,
+     "summary_chars": 787,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110071730426"
+     ],
+     "defendants": [
+      "Lisa M. Brown"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "07-2024-1004",
+     "name": "TC Oil Pipeline Operations, Inc./ Keystone",
+     "filed": "07/10/2026",
+     "law": "CWA",
+     "court_docket": null,
+     "doj_docket": "90-5-1-1-12906",
+     "summary_chars": 70,
+     "violations_chars": 33,
+     "frs_ids": [],
+     "defendants": [
+      "TC Oil Pipeline Operations, Inc.",
+      "TransCanada Keystone Pipeline, LP"
+     ],
+     "fed_penalty": null,
+     "milestones": 3,
+     "citations": 0
+    },
+    {
+     "case": "10-2024-0060",
+     "name": "KX WHEELS",
+     "filed": "07/10/2026",
+     "law": "CAA",
+     "court_docket": "2:26-cv-00231",
+     "doj_docket": "90-5-2-1-13043",
+     "summary_chars": 685,
+     "violations_chars": 17,
+     "frs_ids": [],
+     "defendants": [
+      "658736 B.C. LTC",
+      "KX Wheels",
+      "Phil Sweeney",
+      "Stuart McKeowon"
+     ],
+     "fed_penalty": "$700,000",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "05-2022-5026",
+     "name": "MARTIN BARKEY RACING PRODUCTS (MBRP LTD)",
+     "filed": "06/17/2026",
+     "law": "CAA",
+     "court_docket": null,
+     "doj_docket": null,
+     "summary_chars": 444,
+     "violations_chars": 26,
+     "frs_ids": [
+      "110071308373"
+     ],
+     "defendants": [
+      "MARTIN BARKEY RACING PRODUCTS"
+     ],
+     "fed_penalty": "$670,379",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "07-2026-1000",
+     "name": "Armour Road",
+     "filed": "06/05/2026",
+     "law": "CERCLA",
+     "court_docket": "4:26-cv-00482-FJG",
+     "doj_docket": null,
+     "summary_chars": 240,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110001454042"
+     ],
+     "defendants": [
+      "U.S. BORAX, INC.,"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "10-2026-0289",
+     "name": "Burley CD with Brian Tibbets",
+     "filed": "05/18/2026",
+     "law": "CERCLA",
+     "court_docket": "4:25-cv-00007-AKB",
+     "doj_docket": "4:25-cv-00007-AKB",
+     "summary_chars": 1160,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110070253797"
+     ],
+     "defendants": [
+      "Brian Tibbets"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "10-2026-0290",
+     "name": "Burley CD with Brek Pilling",
+     "filed": "05/18/2026",
+     "law": "CERCLA",
+     "court_docket": "4:25-cv-00007-AKB",
+     "doj_docket": "4:25-cv-00007-AKB",
+     "summary_chars": 1280,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110070253797"
+     ],
+     "defendants": [
+      "Brek Pilling"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "05-2021-5009",
+     "name": "KROGER CO",
+     "filed": "04/29/2026",
+     "law": "CAA",
+     "court_docket": null,
+     "doj_docket": null,
+     "summary_chars": 1136,
+     "violations_chars": 39,
+     "frs_ids": [
+      "110009605775"
+     ],
+     "defendants": [
+      "KROGER CO"
+     ],
+     "fed_penalty": "$2,500,000",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "03-2021-7003",
+     "name": "ANTERO RESOURCES CORPORATION (MULTIPLE FACILITIES)",
+     "filed": "03/31/2026",
+     "law": "CAA",
+     "court_docket": "Case:1:26-cv-00010-TSK",
+     "doj_docket": "90-5-2-1-12292",
+     "summary_chars": 1946,
+     "violations_chars": 99,
+     "frs_ids": [
+      "110056440506",
+      "110056440506",
+      "110063720497",
+      "110063720497",
+      "110063720503",
+      "110063720503",
+      "110063720576",
+      "110063720576",
+      "110063720656",
+      "110063720656",
+      "110063720692",
+      "110063720692",
+      "110063882295",
+      "110063882295",
+      "110063890197",
+      "110063890197",
+      "110063893121",
+      "110063893121",
+      "110063895049",
+      "110063895049",
+      "110063895058",
+      "110063897706",
+      "110063897706",
+      "110064503808",
+      "110070132844",
+      "110070132844",
+      "110071723771",
+      "110071723771",
+      "110072219473"
+     ],
+     "defendants": [
+      "ANTERO RESOURCES CORPORATION"
+     ],
+     "fed_penalty": "$1,900,000",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "02-2025-0008",
+     "name": "Ford Motor Company et al.",
+     "filed": "03/19/2026",
+     "law": "CERCLA",
+     "court_docket": "2:26-cv-02846",
+     "doj_docket": null,
+     "summary_chars": 188,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110009300112"
+     ],
+     "defendants": [
+      "Borough of Ringwood",
+      "Ford Motor Company"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 4,
+     "citations": 0
+    },
+    {
+     "case": "10-2026-0294",
+     "name": "LDW CD with Boeing, City of Seattle, King County, et al.",
+     "filed": "03/04/2026",
+     "law": "CERCLA",
+     "court_docket": "2:26-cv-00738-RSM",
+     "doj_docket": "2:26-cv-00738-RSM",
+     "summary_chars": 560,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110009259729"
+     ],
+     "defendants": [
+      "5055 Properties, LLC",
+      "8th Avenue Terminals, Inc",
+      "Ash Grove Cement Company",
+      "BOEING COMPANY",
+      "Boyer Halvorsen",
+      "Boyer Logistics Inc",
+      "Boyer Towing Inc",
+      "CITY OF SEATTLE",
+      "ConGlobal Industries, LLC",
+      "Crowley Marine Services, Inc",
+      "Duwamish Shipyard, Inc",
+      "Earle M. Jorgensen Company",
+      "Frank H. Hopkins Family LLC",
+      "Frederick J. Hopkins Family LLC",
+      "Glacier Northwest, Inc",
+      "Holcim (US) Inc",
+      "Holcim Canada Holdings LLC fka Lafarge North",
+      "International Paper Company",
+      "KING COUNTY",
+      "Kirsten Halvorsen Stahl",
+      "Lafarge PNW Inc",
+      "Linde Inc (f/k/a Praxair, Inc)",
+      "Maia Halvorsen",
+      "Manson Construction Co.",
+      "Manson International, Inc",
+      "Northwest Aggregates Co",
+      "Northwest Container Services, Inc",
+      "PACCAR Inc",
+      "Pharmacia LLC",
+      "Puget Sound Energy, Inc",
+      "SeaTac Marine Properties, LLC",
+      "SeaTac Marine Services, LLC",
+      "Seattle Boiler Works, Inc",
+      "Seattle Iron & Metals Corporation",
+      "Shalmar 08, LLC",
+      "Silver Bay Logging, Inc",
+      "Simco Properties LLC",
+      "Surplus Items Inc",
+      "The Shalmar Group, LLC",
+      "Washington State Department of Transportation",
+      "Wells Fargo Bank, National Association",
+      "WestRock Longview, LLC",
+      "WestRock Services, LLC"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "02-2024-0001",
+     "name": "Mary Hauptman et al.",
+     "filed": "02/18/2026",
+     "law": "CWA",
+     "court_docket": "2:26-cv-00953",
+     "doj_docket": null,
+     "summary_chars": 527,
+     "violations_chars": 50,
+     "frs_ids": [
+      "110042367907",
+      "110072245381"
+     ],
+     "defendants": [
+      "Harbourview Realty, LLC",
+      "MRL Realty Corp.",
+      "Mary Hauptman",
+      "Village of Roslyn"
+     ],
+     "fed_penalty": null,
+     "milestones": 3,
+     "citations": 0
+    },
+    {
+     "case": "05-2021-5028",
+     "name": "ANTERO RESOURCES CORPORATION (NC) (NLP)",
+     "filed": "02/09/2026",
+     "law": "CAA",
+     "court_docket": null,
+     "doj_docket": "1:26-cv-00010",
+     "summary_chars": 1182,
+     "violations_chars": 33,
+     "frs_ids": [
+      "110070566817",
+      "110070604374",
+      "110070604392",
+      "110070604453",
+      "110070604470"
+     ],
+     "defendants": [
+      "ANTERO RESOURCES CORPORATION"
+     ],
+     "fed_penalty": "$1,900,000",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "06-2025-1745",
+     "name": "E.R.R LLC",
+     "filed": "02/05/2026",
+     "law": "CWA",
+     "court_docket": null,
+     "doj_docket": null,
+     "summary_chars": 769,
+     "violations_chars": 133,
+     "frs_ids": [
+      "110044896976"
+     ],
+     "defendants": [
+      "Evergreen Resources Recovery, LLC or E.R.R., LLC"
+     ],
+     "fed_penalty": null,
+     "milestones": 3,
+     "citations": 0
+    },
+    {
+     "case": "02-2026-0002",
+     "name": "Amparit Industries LLC et al. - LCDM Onondaga",
+     "filed": "02/02/2026",
+     "law": "CERCLA",
+     "court_docket": "5:26-cv-00173-DNH-ML",
+     "doj_docket": null,
+     "summary_chars": 1153,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110009303645"
+     ],
+     "defendants": [
+      "Amparit Industries LLC",
+      "Carrier Circle Business Complex LLC",
+      "Jagar Enterprises Inc.",
+      "North Midler Properties LLC",
+      "Northeast Management Services Inc.",
+      "Solvents and Petroleum Services Inc."
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "03-2022-7003",
+     "name": "Hanover Foods Corporation",
+     "filed": "01/21/2026",
+     "law": "CWA",
+     "court_docket": "Case:1:21-cv-01600-JPW",
+     "doj_docket": null,
+     "summary_chars": 1108,
+     "violations_chars": 141,
+     "frs_ids": [
+      "110010974320",
+      "110010974320"
+     ],
+     "defendants": [
+      "Hanover Foods Corporation",
+      "Hanover Foods Corporation"
+     ],
+     "fed_penalty": "$575,000",
+     "milestones": 6,
+     "citations": 2
+    },
+    {
+     "case": "06-2025-4882",
+     "name": "Smitty's Supply, Inc.",
+     "filed": "11/05/2025",
+     "law": "CWA",
+     "court_docket": null,
+     "doj_docket": null,
+     "summary_chars": 619,
+     "violations_chars": 33,
+     "frs_ids": [
+      "110072072316"
+     ],
+     "defendants": [
+      "Mr. Chad Tate",
+      "Smitty's Supply, Inc."
+     ],
+     "fed_penalty": null,
+     "milestones": 3,
+     "citations": 0
+    },
+    {
+     "case": "02-2025-0010",
+     "name": "Hauler's Facility LLC et al. - LCDM Onondaga",
+     "filed": "11/04/2025",
+     "law": "CERCLA",
+     "court_docket": "5:25-cv-01551-DNH-ML",
+     "doj_docket": null,
+     "summary_chars": 1263,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110009303645"
+     ],
+     "defendants": [
+      "6259 Thompson Road LLC",
+      "B&B Family Limited Partnership",
+      "Hauler's Facility LLC",
+      "Lennox Industries, Inc.",
+      "Metalico New York, Inc.",
+      "Metalico Syracuse Realty, Inc",
+      "Nokia of America Corporation",
+      "Northern Industrial Holdings, LLC",
+      "ONX1 LLC",
+      "Syracuse Deere Road Associates, LLC",
+      "Syracuse Haulers Waste Removal Inc.",
+      "Syracuse Lepage LLC",
+      "Thompson Corners LLC",
+      "Thompson Lawn LLC",
+      "Thompson NW LLC",
+      "Verizon New York, Inc",
+      "Western Electric Company Inc."
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    },
+    {
+     "case": "02-2025-0009",
+     "name": "Matlack Inc. et al.",
+     "filed": "10/23/2025",
+     "law": "CERCLA",
+     "court_docket": "1:25-cv-16867",
+     "doj_docket": null,
+     "summary_chars": 1093,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110001934453"
+     ],
+     "defendants": [
+      "Matlack Inc.",
+      "Pharmacia LLC",
+      "The Chemours Company",
+      "The Estate of Duverney B. Matlack"
+     ],
+     "fed_penalty": null,
+     "milestones": 3,
+     "citations": 0
+    },
+    {
+     "case": "03-2026-7001",
+     "name": "Congoleum",
+     "filed": "09/30/2025",
+     "law": "CERCLA",
+     "court_docket": "Case No. 20-18488",
+     "doj_docket": null,
+     "summary_chars": 886,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110004836991"
+     ],
+     "defendants": [
+      "Congoleum Corporation, n/k/a/ CC Oldcc Corporation"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 6,
+     "citations": 0
+    },
+    {
+     "case": "03-2026-7002",
+     "name": "Congoleum",
+     "filed": "09/30/2025",
+     "law": "CERCLA",
+     "court_docket": "Case No. 20-18488 (MBK)",
+     "doj_docket": null,
+     "summary_chars": 891,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110001767268"
+     ],
+     "defendants": [
+      "Congoleum Corporation, n/k/a/ CC Oldco Corporation"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 6,
+     "citations": 0
+    },
+    {
+     "case": "05-2025-1012",
+     "name": "Joliet Chemical Fire Site",
+     "filed": "09/08/2025",
+     "law": "CERCLA",
+     "court_docket": "25-10792",
+     "doj_docket": "90-11-3-12915",
+     "summary_chars": 28,
+     "violations_chars": 0,
+     "frs_ids": [
+      "110070605267"
+     ],
+     "defendants": [
+      "MPG Industries, Inc.",
+      "Millridge IV, LLC",
+      "Millridge Industries, LLC"
+     ],
+     "fed_penalty": "$0",
+     "milestones": 5,
+     "citations": 0
+    }
+   ],
+   "terms_page_status": 200,
+   "terms_quote_1": true
+  },
+  "sec-litigation-releases": {
+   "listing_pages": 120,
+   "releases_listed": 11986,
+   "newest": "2026-09-30",
+   "oldest": "1995-09-20",
+   "last_30d": 39,
+   "sample_n": 28,
+   "sample_ok": 27,
+   "sample_with_court_number": 14,
+   "sample_with_civil_action_phrase": 8,
+   "sample_with_cik": 27,
+   "median_text_chars": 6562,
+   "samples": [
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26662",
+     "no": "LR-26662",
+     "respondents": "Mukesh Asudani",
+     "date": "2026-09-30",
+     "text_chars": 6290,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26661",
+     "no": "LR-26661",
+     "respondents": "Robert Bernardi and Sunil Chandra",
+     "date": "2026-09-30",
+     "text_chars": 6442,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26660",
+     "no": "LR-26660",
+     "respondents": "Trevon Brown, Craig Grant, and Michael Noble",
+     "date": "2026-09-30",
+     "text_chars": 7080,
+     "court_cites": [
+      "1:21-cv-4791"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26659",
+     "no": "LR-26659",
+     "respondents": "Owen E.H. Meyer and Meyer Global Management LLC",
+     "date": "2026-09-30",
+     "text_chars": 6420,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26658",
+     "no": "LR-26658",
+     "respondents": "Christopher Kenji Dinelli a/k/a Kenji Dinelli and Jacob David Frankel a/k/a Kobi Frankel",
+     "date": "2026-09-30",
+     "text_chars": 6984,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26657",
+     "no": "LR-26657",
+     "respondents": "Travel + Leisure Co.",
+     "date": "2026-09-30",
+     "text_chars": 6562,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26656",
+     "no": "LR-26656",
+     "respondents": "Lamar D. Fletcher",
+     "date": "2026-09-30",
+     "text_chars": 5978,
+     "court_cites": [
+      "1:26-cv-5623"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26655",
+     "no": "LR-26655",
+     "respondents": "Timothy E. Alatorre, Rhonda D. Stevenson, and Above: Space Development Corporation f/k/a Orbital Assembly Corporation",
+     "date": "2026-09-29",
+     "text_chars": 7170,
+     "court_cites": [
+      "3:26-cv-11078"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26654",
+     "no": "LR-26654",
+     "respondents": "Cryptoaiml Ltd.; Cryptoaiml Capital Foundation; TSAI Pro Ltd.; TSAI Capital Foundation",
+     "date": "2026-09-29",
+     "text_chars": 9229,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26653",
+     "no": "LR-26653",
+     "respondents": "Chris Farrant",
+     "date": "2026-09-29",
+     "text_chars": 6555,
+     "court_cites": [
+      "1:23-cv-5573"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26652",
+     "no": "LR-26652",
+     "respondents": "Cheryl R. Kramer",
+     "date": "2026-09-29",
+     "text_chars": 6220,
+     "court_cites": [
+      "1:26-cv-3786"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26651",
+     "no": "LR-26651",
+     "respondents": "Jacob Garfinkel; 5G Funding LLC; Five G Funding LLC",
+     "date": "2026-09-28",
+     "text_chars": 7010,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26650",
+     "no": "LR-26650",
+     "respondents": "Fan \u201cJocelyn\u201d Yang; Jing Tian; Zijun Zhang; Shuchen Zhu; Chong Zhang; and Hanxiong Bo",
+     "date": "2026-09-28",
+     "text_chars": 7983,
+     "court_cites": [
+      "1:26-cv-3366"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26649",
+     "no": "LR-26649",
+     "respondents": "Lloyd Anderson Wilson, C.P.A.",
+     "date": "2026-09-28",
+     "text_chars": 6561,
+     "court_cites": [
+      "1:26-cv-5530"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24187",
+     "no": "LR-24187",
+     "respondents": "The Owings Group, LLC, et al.",
+     "date": "2018-07-06",
+     "text_chars": 7209,
+     "court_cites": [
+      "1:18-cv-2046"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23555",
+     "no": "LR-23555",
+     "respondents": "Steven Wise",
+     "date": "2016-06-02",
+     "text_chars": 5387,
+     "court_cites": [
+      "1:16-cv-4104"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25370",
+     "no": "LR-25370",
+     "respondents": "Fernando Passos, Civ. Action",
+     "date": "2022-04-18",
+     "text_chars": 5972,
+     "court_cites": [
+      "1:22-cv-3156"
+     ]
+    },
+    {
+     "url": "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr15553.txt",
+     "no": "LR-15553",
+     "respondents": "Shahryar Soroosh",
+     "date": "1997-11-05",
+     "text_chars": 0,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24411",
+     "no": "LR-24411",
+     "respondents": "Daniel Adams, Michael Flanders, Spiderworx Media LLC, and An L.A. Minute LLC",
+     "date": "2019-02-26",
+     "text_chars": 6891,
+     "court_cites": [
+      "2:19-cv-1412"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26036",
+     "no": "LR-26036",
+     "respondents": "Lufkin Advisors, LLC and Chauncey Forbush Lufkin, III",
+     "date": "2024-06-25",
+     "text_chars": 6461,
+     "court_cites": [
+      "9:23-cv-81289"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23583",
+     "no": "LR-23583",
+     "respondents": "Malcolm Segal",
+     "date": "2016-06-24",
+     "text_chars": 6912,
+     "court_cites": [
+      "2:15-cr-287",
+      "2:15-cv-3668"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19051",
+     "no": "LR-19051",
+     "respondents": "Goldman Sachs & Co.",
+     "date": "2005-01-25",
+     "text_chars": 9817,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20419",
+     "no": "LR-20419",
+     "respondents": "Mitchell S. Drucker and Ronald Drucker, Defendants, and William Minerva, Relief Defendant",
+     "date": "2008-01-02",
+     "text_chars": 7696,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23131",
+     "no": "LR-23131",
+     "respondents": "J. Patrick O'Neill and Robert H. Bray",
+     "date": "2014-11-14",
+     "text_chars": 6445,
+     "court_cites": [
+      "1:14-cr-10317",
+      "1:14-cv-13381",
+      "1:14-mj-5119"
+     ]
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21051",
+     "no": "LR-21051",
+     "respondents": "Zachariah P. Zachariah, et al.",
+     "date": "2009-05-20",
+     "text_chars": 5292,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23500",
+     "no": "LR-23500",
+     "respondents": "James M. Louks and FiberPoP Solutions, Inc.",
+     "date": "2016-03-25",
+     "text_chars": 6110,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17385",
+     "no": "LR-17385",
+     "respondents": "Trans Energy, Inc., Loren E. Bagley, and William F. Woodburn",
+     "date": "2002-02-27",
+     "text_chars": 6654,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22250",
+     "no": "LR-22250",
+     "respondents": "Cutillo et al.",
+     "date": "2012-02-02",
+     "text_chars": 7302,
+     "court_cites": []
+    }
+   ],
+   "terms_page_status": 200,
+   "terms_quote_found": true
+  },
+  "cfpb-enforcement-actions": {
+   "listing_pages": 17,
+   "actions_listed": 386,
+   "sample_n": 26,
+   "sample_with_docket": 26,
+   "sample_with_court_cite": 11,
+   "sample_filed_dates": [
+    "SEP 21, 2020",
+    "SEP 22, 2016",
+    "SEP 26, 2016"
+   ],
+   "samples": [
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/synapse-financial-technologies-inc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "1:25-ap-01052",
+     "filed": "AUG 21, 2025",
+     "forum": "Civil Action Court U.S. Bankruptcy Court for the Central District of California",
+     "text_chars": 3276,
+     "court_cites": [
+      "1:25-ap-1052"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/wise-us-inc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2025-CFPB-0004",
+     "filed": "JAN 30, 2025",
+     "forum": "Administrative Proceeding",
+     "text_chars": 3764,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/equifax-inc-and-equifax-information-services-llc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2025-CFPB-0002",
+     "filed": "JAN 17, 2025",
+     "forum": "Administrative Proceeding",
+     "text_chars": 3911,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/draper-kramer-mortgage-corporation/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "1:25-cv-00605",
+     "filed": "JAN 17, 2025",
+     "forum": "Civil Action Court U.S. District Court for the Northern District of Illinois",
+     "text_chars": 3785,
+     "court_cites": [
+      "1:25-cv-605"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/american-honda-finance-corporation-2025/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2025-CFPB-0003",
+     "filed": "JAN 17, 2025",
+     "forum": "Administrative Proceeding",
+     "text_chars": 3442,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/block-inc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2025-CFPB-0001",
+     "filed": "JAN 16, 2025",
+     "forum": "Administrative Proceeding",
+     "text_chars": 3791,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/td-bank-na/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2020-BCFP-0007",
+     "filed": "AUG 20, 2020",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 3454,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/nationstar-mortgage-llc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2017-CFPB-0011",
+     "filed": "MAR 15, 2017",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 2150,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/bounceback-inc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "5:20-cv-06179",
+     "filed": "DEC 09, 2020",
+     "forum": "Civil Action Court U.S. District Court for the Western District of Missouri",
+     "text_chars": 3900,
+     "court_cites": [
+      "5:20-cv-6179"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/forster-garbus-llp/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2:19-cv-02928",
+     "filed": "MAY 17, 2019",
+     "forum": "Civil Action Court U.S. District Court for the Eastern District of New York",
+     "text_chars": 3200,
+     "court_cites": [
+      "2:19-cv-2928"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/climb-credit-inc-et-al/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "1:24-cv-07868",
+     "filed": "OCT 17, 2024",
+     "forum": "Civil Action Court U.S. District Court for the Southern District of New York",
+     "text_chars": 4687,
+     "court_cites": [
+      "1:24-cv-7868"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/lobel-financial-corporation/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2020-BCFP-0016",
+     "filed": "SEP 21, 2020",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 3494,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/loancare-servicing/",
+     "status": 200,
+     "title": null,
+     "docket": "2015-CFPB-0018",
+     "filed": "JUL 28, 2015",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 1910,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/trans-fast-remittance-llc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2020-BCFP-0010",
+     "filed": "AUG 31, 2020",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 3342,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/gst-factoring-inc-et-al/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "8:20-cv-01239",
+     "filed": "JUL 13, 2020",
+     "forum": "Civil Action Court U.S. District Court for the Central District of California",
+     "text_chars": 5372,
+     "court_cites": [
+      "8:20-cv-1239"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/all-american-check-cashing-inc-mid-state-finance-inc-db-thrifty-check-advance-and-michael-gray/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "3:16-cv-00356",
+     "filed": "MAY 11, 2016",
+     "forum": "Civil Action Court U.S. District Court for the Southern District of Mississippi",
+     "text_chars": 2927,
+     "court_cites": [
+      "3:16-cv-356"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/prime-marketing-holdings-llc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2:16-cv-07111",
+     "filed": "SEP 22, 2016",
+     "forum": "Civil Action Court U.S. District Court for the Central District of California",
+     "text_chars": 2605,
+     "court_cites": [
+      "2:16-cv-7111"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/student-loan-pro-judith-noh-syed-faisal-gilani-and-fnza-marketing-llc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "8:21-cv-00488",
+     "filed": "MAR 16, 2021",
+     "forum": "Civil Action Court U.S. District Court for the Central District of California",
+     "text_chars": 4498,
+     "court_cites": [
+      "8:21-cv-488"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/federal-debt-assistance-association-llc-financial-document-assistance-administration-inc-clear-solutions-inc-robert-pantoulis-david-piccione-and-vincent-piccione/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "1:17-cv-02997",
+     "filed": "OCT 12, 2017",
+     "forum": "Civil Action Court U.S. District Court for the District of Maryland - Baltimore",
+     "text_chars": 2681,
+     "court_cites": [
+      "1:17-cv-2997"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/weltman-weinberg-reis-co-lpa/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "1:17-cv-00817",
+     "filed": "APR 17, 2017",
+     "forum": "Civil Action Court U.S. District Court for the Northern District of Ohio",
+     "text_chars": 2780,
+     "court_cites": [
+      "1:17-cv-817"
+     ]
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/y-king-s-corp-db-herbies-auto-sales/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2016-CFPB-0001",
+     "filed": "JAN 21, 2016",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 2063,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/mortgage-master-inc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2013-CFPB-0006",
+     "filed": "OCT 09, 2013",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 1951,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/american-express-centurion-bank/",
+     "status": 200,
+     "title": null,
+     "docket": "2012-CFPB-0002",
+     "filed": "OCT 01, 2012",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 2273,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/bloomtech-inc-and-austen-allred/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2024-CFPB-0001",
+     "filed": "APR 17, 2024",
+     "forum": "Administrative Proceeding",
+     "text_chars": 4839,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/tmx-finance-llc/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2016-CFPB-0022",
+     "filed": "SEP 26, 2016",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 3791,
+     "court_cites": []
+    },
+    {
+     "url": "https://www.consumerfinance.gov/enforcement/actions/experian-holdings-inc-experian-information-solutions-inc-and-consumerinfocom-inc-dba-experian-consumer-services/",
+     "status": 200,
+     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
+     "docket": "2017-CFPB-0012",
+     "filed": "MAR 23, 2017",
+     "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
+     "text_chars": 2399,
+     "court_cites": []
+    }
+   ],
+   "rss_status": 200,
+   "rss_last_build": "Mon, 22 Sep 2025 00:00:00 -0400",
+   "rss_items": 25,
+   "rss_newest_item": "Thu, 21 Aug 2025 00:00:00 -0400",
+   "terms_page_status": 200,
+   "terms_quote_found": true
+  },
+  "ftc-cases-proceedings": {
+   "listing_pages_fetched": 12,
+   "titles_collected": 247,
+   "last_page_index": 305,
+   "approx_cases_total": 6120,
+   "sample_n": 24,
+   "sample_with_summary": 13,
+   "sample_with_court_cite": 2,
+   "sample_with_docket_phrase": 9,
+   "samples": [
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/banned-debt-collectors",
+     "title": "Find banned debt collectors",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [
+      "3:19-cv-55"
+     ],
+     "has_docket_phrase": false,
+     "last_updated": "December 10, 2024",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/ticketmaster",
+     "title": "Ticketmaster",
+     "status": 200,
+     "summary_chars": 600,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "September 30, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/191-0031-syngenta-corteva-ftc-v",
+     "title": "Syngenta and Corteva, FTC v.",
+     "status": 200,
+     "summary_chars": 1521,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "September 28, 2026",
+     "file_number_in_slug": true
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/vance-childers-matter",
+     "title": "Vance Childers, In the Matter of",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 28, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/jason-scott-dvm-matter",
+     "title": "Jason Scott, DVM, In the Matter of",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 28, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/ricardo-murillo-matter",
+     "title": "Ricardo A. Murillo, In the Matter of",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 22, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/182-3000-fleetcor-technologies-matter",
+     "title": "Fleetcor Technologies, In the Matter of",
+     "status": 200,
+     "summary_chars": 309,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 17, 2026",
+     "file_number_in_slug": true
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/amway-ftc-v",
+     "title": "Amway, FTC v.",
+     "status": 200,
+     "summary_chars": 427,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "September 17, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/erin-thompson-matter",
+     "title": "Erin Thompson, In the Matter of",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 17, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/berettaruger",
+     "title": "Beretta/Ruger",
+     "status": 200,
+     "summary_chars": 583,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 16, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/2123050-amazoncom-inc-rosca-ftc-v",
+     "title": "Amazon.com, Inc. (ROSCA), FTC v.",
+     "status": 200,
+     "summary_chars": 993,
+     "court_cites": [
+      "2:23-cv-932"
+     ],
+     "has_docket_phrase": false,
+     "last_updated": "September 14, 2026",
+     "file_number_in_slug": true
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/humboldt-merchant-services",
+     "title": "Humboldt Merchant Services",
+     "status": 200,
+     "summary_chars": 569,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "September 11, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/henkel-paint",
+     "title": "Henkel, A-Paint",
+     "status": 200,
+     "summary_chars": 728,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "September 11, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/larry-rickman-overly-matter",
+     "title": "Larry Rickman Overly, In the Matter of",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 8, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/eusabio-juarez-ruffino-matter",
+     "title": "Eusabio Juarez-Ruffino, In the Matter of",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 4, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/nuvei",
+     "title": "Nuvei",
+     "status": 200,
+     "summary_chars": 279,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "September 4, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/222-3135-asbury-automotive-group-inc-et-al-matter",
+     "title": "Asbury Automotive Group, Inc., et al., In the Matter of",
+     "status": 200,
+     "summary_chars": 1047,
+     "court_cites": [],
+     "has_docket_phrase": true,
+     "last_updated": "September 3, 2026",
+     "file_number_in_slug": true
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/commissioner-statements",
+     "title": "Commissioner Statements",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": null,
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/public-statements/joint-statement-chairman-andrew-n-ferguson-commissioner-mark-r-meador-matter-nuvei",
+     "title": "Joint Statement of Chairman Andrew N. Ferguson and Commissioner Mark R. Meador In the Matter of Nuvei",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": null,
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/public-statements/statement-chairman-andrew-n-ferguson-joined-commissioner-mark-r-meador-regarding-fairfield-medical",
+     "title": "Statement of Chairman Andrew N. Ferguson Joined by Commissioner Mark R. Meador Regarding Fairfield Medical Center\u2019s Sale to Adena Health",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": null,
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/amazon",
+     "title": "Amazon",
+     "status": 200,
+     "summary_chars": 0,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "August 31, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/hims-hers",
+     "title": "Hims & Hers",
+     "status": 200,
+     "summary_chars": 391,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "August 31, 2026",
+     "file_number_in_slug": false
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/242-3029-cmg-media-corporation-matter",
+     "title": "CMG Media Corporation, In the Matter of",
+     "status": 200,
+     "summary_chars": 353,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "August 27, 2026",
+     "file_number_in_slug": true
+    },
+    {
+     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/zillow-groupredfin-corp",
+     "title": "Zillow Group/Redfin Corp.",
+     "status": 200,
+     "summary_chars": 773,
+     "court_cites": [],
+     "has_docket_phrase": false,
+     "last_updated": "August 24, 2026",
+     "file_number_in_slug": false
+    }
+   ],
+   "terms_page_status": 200,
+   "terms_quote_found": true
+  },
+  "uk-cma-cases": {
+   "search_status": 200,
+   "total": 2585,
+   "newest": "2026-10-01T06:01:03Z",
+   "by_case_type_in_newest_100": {
+    "mergers": 33,
+    "consumer-enforcement": 20,
+    "sau-referral": 21,
+    "ca98-and-civil-cartels": 9,
+    "markets": 7,
+    "digital-markets-unit": 4,
+    "regulatory-references-and-appeals": 2,
+    "review-of-orders-and-undertakings": 1,
+    "oim-project": 1,
+    "information-and-advice-to-government": 2
+   },
+   "sample_n": 25,
+   "sample_with_body": 25,
+   "samples": [
+    {
+     "url": "https://www.gov.uk/cma-cases/ryanair-consumer-protection-enforcement-case",
+     "title": "Ryanair: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 3964,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-scottish-zero-emission-truck-fund-scheme-by-transport-scotland",
+     "title": "Referral of the proposed Scottish Zero Emission Truck Fund Scheme by Transport Scotland",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "closed_date",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 5042,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/suspected-anti-competitive-conduct-in-relation-to-fragrances-and-fragrance-ingredients-51257",
+     "title": "Suspected anti-competitive conduct in relation to fragrances and fragrance ingredients (51257)",
+     "case_type": [
+      "ca98-and-civil-cartels"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 3481,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/pasta-evangelists-consumer-protection-enforcement-case",
+     "title": "Pasta Evangelists: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1710,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/just-eat-consumer-protection-enforcement-case",
+     "title": "Just Eat: consumer protection enforcement case ",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1631,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/feefo-consumer-protection-enforcement-case",
+     "title": "Feefo: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1682,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/dignity-consumer-protection-enforcement-case",
+     "title": "Dignity: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1615,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/autotrader-consumer-protection-enforcement-case",
+     "title": "Autotrader: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1702,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/early-years-education-and-childcare-market-study",
+     "title": "Early years education and childcare market study",
+     "case_type": [
+      "markets"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 4479,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-strategic-charging-infrastructure-scheme-by-the-office-for-zero-emission-vehicles",
+     "title": "Referral of the proposed Strategic Charging Infrastructure Scheme by the Office for Zero Emission Vehicles",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 4388,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/suspected-anti-competitive-conduct-in-relation-to-the-supply-of-roofing-and-other-construction-services",
+     "title": "Suspected anti-competitive conduct in relation to the supply of roofing and other construction services",
+     "case_type": [
+      "ca98-and-civil-cartels"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 4667,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/veterinary-services-market-for-pets-review",
+     "title": "Veterinary services for household pets",
+     "case_type": [
+      "markets"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "closed_date",
+      "market_sector",
+      "opened_date",
+      "outcome_type"
+     ],
+     "body_chars": 26856,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-critical-chemicals-resilience-fund-subsidy-scheme-by-the-department-for-business-innovation-science-and-trade",
+     "title": "Referral of the proposed Critical Chemicals Resilience Fund subsidy scheme by the Department for Business, Innovation, Science and Trade",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 5100,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/heating-oil-review-consumer-protection-enforcement-case",
+     "title": "Heating oil review: consumer protection enforcement case ",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1868,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-contracts-for-difference-for-renewables-allocation-round-8-scheme-by-desnz",
+     "title": "Referral of the proposed Contracts for Difference for Renewables Allocation Round 8 scheme by DESNZ ",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "closed_date",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 8771,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-subsidy-to-edf-energy-nuclear-generation-ltd-by-the-department-for-energy-security-and-net-zero",
+     "title": "Referral of the proposed subsidy to EDF Energy Nuclear Generation Ltd by the Department for Energy Security and Net Zero",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "closed_date",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 4949,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-subsidy-to-ryanair-uk-limited-by-invest-northern-ireland",
+     "title": "Referral of the proposed subsidy to Ryanair UK Limited by Invest Northern Ireland ",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 3402,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/red-driving-school-consumer-protection-enforcement-case",
+     "title": "Red Driving School: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1703,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/trainline-consumer-protection-enforcement-case",
+     "title": "Trainline: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1650,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/virgin-atlantic-consumer-protection-enforcement-case",
+     "title": "Virgin Atlantic: consumer protection enforcement case",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 1814,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/referral-of-the-proposed-subsidy-to-udx-development-company-limited-by-the-department-for-culture-media-and-sport",
+     "title": "Referral of the proposed subsidy to UDX Development Company Limited by the Department for Culture Media and Sport ",
+     "case_type": [
+      "sau-referral"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "closed_date",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 4973,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/potential-designation-of-aldi-and-lidl-under-the-groceries-market-investigation-controlled-land-order-2010",
+     "title": "Potential designation of Aldi and Lidl under the Groceries Market Investigation (Controlled Land) Order 2010 ",
+     "case_type": [
+      "markets"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 2775,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/suspected-anti-competitive-conduct-in-relation-to-hotel-accommodation-services",
+     "title": "Suspected anti-competitive conduct in relation to hotel accommodation services",
+     "case_type": [
+      "ca98-and-civil-cartels"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 3173,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/suspected-anti-competitive-conduct-in-relation-to-the-supply-of-waste-management-services",
+     "title": "Suspected anti-competitive conduct in relation to the supply of waste management services",
+     "case_type": [
+      "ca98-and-civil-cartels"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 2543,
+     "docs": 0
+    },
+    {
+     "url": "https://www.gov.uk/cma-cases/emma-group-consumer-protection-case",
+     "title": "Emma Group: consumer protection case  ",
+     "case_type": [
+      "consumer-enforcement"
+     ],
+     "status": 200,
+     "metadata_keys": [
+      "case_state",
+      "case_type",
+      "market_sector",
+      "opened_date"
+     ],
+     "body_chars": 5677,
+     "docs": 0
+    }
+   ],
+   "terms_page_status": 200,
+   "terms_sentence": "UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt."
+  },
+  "uk-fca-ico-reachability": {
+   "fca-final-notices": {
+    "status": 403,
+    "chars": 0,
+    "terms_sentence": null
+   },
+   "fca-terms": {
+    "status": 404,
+    "chars": 0,
+    "terms_sentence": null
+   },
+   "ico-enforcement": {
+    "status": 200,
+    "chars": 1709,
+    "terms_sentence": "Contact us Privacy notice Cookies Accessibility Cymraeg Disclaimer \u00a9 Copyright All text content is available under the Open Government Licence v3."
+   },
+   "ico-terms": {
+    "status": 404,
+    "chars": 0,
+    "terms_sentence": null
+   }
+  }
+ },
+ "linkage": {
+  "name_sets": {
+   "fda": 3548,
+   "echo": 11058,
+   "sec": 16960,
+   "cfpb": 379,
+   "ftc": 245
+  },
+  "name_pairs": {
+   "fda|sec": {
+    "matched_normalised_names": 4,
+    "of_smaller_set": 3548,
+    "examples": [
+     [
+      "cardinal health",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/cardinal-health-679404-04242024",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20212"
+     ],
+     [
+      "mimedx",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/mimedx-group-inc-662942-12202023",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24678"
+     ],
+     [
+      "united health products",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/united-health-products-inc-697777-03242025",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25413"
+     ],
+     [
+      "vivera pharmaceuticals",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/vivera-pharmaceuticals-inc-614412-07262021",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25538"
+     ]
+    ]
+   },
+   "fda|ftc": {
+    "matched_normalised_names": 0,
+    "of_smaller_set": 245,
+    "examples": []
+   },
+   "echo|fda": {
+    "matched_normalised_names": 5,
+    "of_smaller_set": 3548,
+    "examples": [
+     [
+      "eli lilly and",
+      "05-2007-6603",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/eli-lilly-and-company-716485-09092025"
+     ],
+     [
+      "hanover foods",
+      "03-2022-7003",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/hanover-foods-corporation-612551-03262021"
+     ],
+     [
+      "kroger",
+      "05-2021-5009",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/kroger-company-720464-12122025"
+     ],
+     [
+      "linemaster switch",
+      "01-1993-0016",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/linemaster-switch-corporation-730215-05272026"
+     ],
+     [
+      "stavis seafoods",
+      "01-2017-1018",
+      "https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/warning-letters/stavis-seafoods-llc-727785-04152026"
+     ]
+    ]
+   },
+   "echo|sec": {
+    "matched_normalised_names": 31,
+    "of_smaller_set": 11058,
+    "examples": [
+     [
+      "american energy",
+      "10-1999-0220",
+      "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr16042.txt"
+     ],
+     [
+      "archer daniels midland",
+      "05-1996-0375",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22900"
+     ],
+     [
+      "bristol myers squibb",
+      "02-2005-0018",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-18867"
+     ],
+     [
+      "brown",
+      "01-1979-0001",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22002"
+     ],
+     [
+      "chevron",
+      "06-1979-0006",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20363"
+     ],
+     [
+      "collins and aikman",
+      "01-2021-0002",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21491"
+     ],
+     [
+      "dow chemical",
+      "05-1982-0019",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20000"
+     ],
+     [
+      "edward miller",
+      "CR_3224",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23571"
+     ],
+     [
+      "enterprises",
+      "02-1983-0015",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20883"
+     ],
+     [
+      "general electric",
+      "01-1989-0028",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21602"
+     ],
+     [
+      "general motors",
+      "02-1998-0334",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20861"
+     ],
+     [
+      "granite construction",
+      "10-2012-0134",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25507"
+     ],
+     [
+      "guardian industries",
+      "02-2014-0018",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17087"
+     ],
+     [
+      "international business machines",
+      "02-2013-0001",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21889"
+     ],
+     [
+      "milan",
+      "MO-N00000580",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22966"
+     ],
+     [
+      "monsanto",
+      "06-1979-0013",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19023"
+     ],
+     [
+      "national presto industries",
+      "05-1991-0207",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19458"
+     ],
+     [
+      "navistar international",
+      "05-1987-0167",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23330"
+     ],
+     [
+      "new castle",
+      "03-1989-1659",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21255"
+     ],
+     [
+      "new energy",
+      "05-2013-5008",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19670"
+     ],
+     [
+      "robert pierce",
+      "CR_577",
+      "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr15298.txt"
+     ],
+     [
+      "safety kleen",
+      "09-2001-0134",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-18555"
+     ],
+     [
+      "saint james",
+      "MN-N00000109",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24308"
+     ],
+     [
+      "terex",
+      "05-1984-0044",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21177"
+     ],
+     [
+      "timothy smith",
+      "CR_2893",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20998"
+     ],
+     [
+      "trans energy",
+      "03-2013-7020",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17385"
+     ],
+     [
+      "transocean",
+      "CR_3034",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21725"
+     ],
+     [
+      "tyco international",
+      "02-2005-0019",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22491"
+     ],
+     [
+      "tyson foods",
+      "07-2011-0207",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21851"
+     ],
+     [
+      "w r grace and",
+      "01-1980-0003",
+      "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr16008.txt"
+     ],
+     [
+      "william j mccarthy",
+      "CR_916",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-16519"
+     ]
+    ]
+   },
+   "echo|ftc": {
+    "matched_normalised_names": 0,
+    "of_smaller_set": 245,
+    "examples": []
+   },
+   "cfpb|fda": {
+    "matched_normalised_names": 0,
+    "of_smaller_set": 379,
+    "examples": []
+   },
+   "cfpb|echo": {
+    "matched_normalised_names": 0,
+    "of_smaller_set": 379,
+    "examples": []
+   },
+   "cfpb|sec": {
+    "matched_normalised_names": 3,
+    "of_smaller_set": 379,
+    "examples": [
+     [
+      "bank of america",
+      "/enforcement/actions/bank-of-america-na/",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22772"
+     ],
+     [
+      "itt educational services",
+      "/enforcement/actions/itt-educational-services/",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24188"
+     ],
+     [
+      "regions bank",
+      "/enforcement/actions/regions-bank/",
+      "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21682"
+     ]
+    ]
+   },
+   "cfpb|ftc": {
+    "matched_normalised_names": 0,
+    "of_smaller_set": 245,
+    "examples": []
+   },
+   "ftc|sec": {
+    "matched_normalised_names": 0,
+    "of_smaller_set": 245,
+    "examples": []
+   }
+  },
+  "court_numbers_seen": {
+   "fda": 0,
+   "echo": 911,
+   "sec": 17,
+   "cfpb": 11,
+   "ftc": 2
+  },
+  "court_numbers_shared_by_2plus_publishers": [],
+  "echo_judicial_docket_numbers_in_court_format": 911,
+  "hand_check": {
+   "fda|sec": {
+    "checked": 4,
+    "correct": 4,
+    "note": "Cardinal Health (LR-20212), MiMedx (LR-24678), United Health Products (LR-25413), Vivera Pharmaceuticals (LR-25538): SEC release caption names the same company as the FDA letter recipient"
+   },
+   "cfpb|sec": {
+    "checked": 3,
+    "correct": 3,
+    "note": "Bank of America N.A. (LR-22772), ITT Educational Services (LR-24188), Regions Bank (LR-21682)"
+   },
+   "echo|fda": {
+    "checked": 5,
+    "correct": 5,
+    "note": "Eli Lilly and Company, Hanover Foods Corporation, Kroger, Linemaster Switch Corporation, Stavis Seafoods; distinctive full names, no shared identifier"
+   },
+   "echo|sec": {
+    "checked": 31,
+    "correct": 19,
+    "note": "19 distinctive corporate names (ADM, Bristol-Myers Squibb, Chevron, Collins & Aikman, Dow, GE, GM, Granite Construction, Guardian Industries, IBM, Monsanto, National Presto, Navistar, Safety-Kleen, Terex, Transocean, Tyco, Tyson, W.R. Grace); 12 not confirmable: 4 personal names (Edward Miller, Timothy Smith, Robert Pierce, William J. McCarthy), 5 generic fragments (Brown, Enterprises, Milan, New Castle, Saint James) and 3 small-company names with no corroboration (American Energy, New Energy, Trans Energy)"
+   }
+  },
+  "declared_court_number_join": {
+   "matched": 0,
+   "note": "ECHO court docket numbers (911 in the 13,652 listed cases match a federal docket pattern) vs docket numbers cited in 28 SEC releases, 26 CFPB actions, 24 FTC cases and 26 FDA letters: 0 numbers shared by two publishers. Regex only catches the D:YY-cv-N form, so SEC releases written as \"07 CV 6709\" are undercounted."
+  }
+ }
+}

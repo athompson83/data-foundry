@@ -1,0 +1,2040 @@
+{
+ "run_date": "2026-10-01",
+ "probes": {
+  "faa_registry_zip": {
+   "url": "https://registry.faa.gov/database/ReleasableAircraft.zip",
+   "http": 403,
+   "content_length": "409",
+   "last_modified": null
+  },
+  "faa_registry_inquiry": {
+   "url": "https://registry.faa.gov/aircraftinquiry/",
+   "http": 403,
+   "content_length": "390",
+   "last_modified": null
+  },
+  "asrs_home": {
+   "url": "https://asrs.arc.nasa.gov/",
+   "http": 500,
+   "content_length": "39112",
+   "last_modified": null
+  },
+  "asrs_dbol": {
+   "url": "https://asrs.arc.nasa.gov/search/dbol.html",
+   "http": 500,
+   "content_length": "39127",
+   "last_modified": null
+  },
+  "bea_reports": {
+   "url": "https://bea.aero/en/investigation-reports/notified-events/",
+   "http": 200,
+   "content_length": null,
+   "last_modified": null
+  },
+  "bea_legal": {
+   "url": "https://bea.aero/en/legal-notice/",
+   "http": 200,
+   "content_length": null,
+   "last_modified": null
+  },
+  "tsb_air_csv": {
+   "url": "https://www.tsb.gc.ca/sites/default/files/stats/ASISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv",
+   "http": 403,
+   "content_length": "179",
+   "last_modified": null
+  },
+  "ntsb_avdata_page": {
+   "url": "https://data.ntsb.gov/avdata",
+   "http": 200,
+   "content_length": null,
+   "last_modified": null
+  },
+  "ntsb_web_policies": {
+   "url": "https://www.ntsb.gov/about/Pages/Website-Policies.aspx",
+   "http": 200,
+   "content_length": null,
+   "last_modified": "Thu, 01 Oct 2026 13:43:07 GMT"
+  },
+  "aaib_search_api": {
+   "url": "https://www.gov.uk/api/search.json?filter_format=aaib_report&count=1",
+   "http": 200,
+   "content_length": "2257",
+   "last_modified": null
+  },
+  "govuk_terms": {
+   "url": "https://www.gov.uk/help/terms-conditions",
+   "http": 200,
+   "content_length": "80784",
+   "last_modified": null
+  },
+  "cadors_occ_csv": {
+   "url": "https://opendatatc.tc.canada.ca/CADORS_Occurrence_Information.csv",
+   "http": 200,
+   "content_length": "98426014",
+   "last_modified": "Thu, 01 Oct 2026 09:08:53 GMT"
+  },
+  "cadors_ac_csv": {
+   "url": "https://opendatatc.tc.canada.ca/CADORS_Aircraft_Information.csv",
+   "http": 200,
+   "content_length": "90960001",
+   "last_modified": "Thu, 01 Oct 2026 09:08:09 GMT"
+  },
+  "cadors_event_csv": {
+   "url": "https://opendatatc.tc.canada.ca/CADORS_Occurrence_Event_Information.csv",
+   "http": 200,
+   "content_length": "13119381",
+   "last_modified": "Thu, 01 Oct 2026 09:08:39 GMT"
+  },
+  "ogl_canada": {
+   "url": "https://open.canada.ca/en/open-government-licence-canada",
+   "http": 200,
+   "content_length": "23079",
+   "last_modified": "Tue, 22 Sep 2026 18:53:07 GMT"
+  }
+ },
+ "ntsb": {
+  "avdata_listing": {
+   "update_files_listed": 48,
+   "fetched_2026_files": 37,
+   "fetched_bytes_total": 21640546,
+   "full_db_avall_zip_bytes": 96583215,
+   "note": "avall.zip (96.6MB) is NOT used here; a first accidental GET of it was discarded (over the 50MB cap) and is disclosed in notes.md"
+  },
+  "events_unique": 2557,
+  "aircraft_rows": 2633,
+  "narrative_rows": 1518,
+  "event_date_min": "2001-04-18",
+  "event_date_max": "2099-09-12",
+  "aircraft_with_registration": 2631,
+  "aircraft_with_narrative": 1512,
+  "foreign_event_country_counts": {
+   "USA": 1802,
+   "BR": 100,
+   "AU": 40,
+   "AS": 39,
+   "CA": 30,
+   "MX": 28,
+   "CO": 28,
+   "UK": 25
+  },
+  "aircraft_with_operator_name": 1172,
+  "sample20": [
+   {
+    "ev_id": "20260309202619",
+    "ntsb_no": "CEN26LA137",
+    "ev_type": "ACC",
+    "date": "2026-03-07",
+    "country": "USA",
+    "reg": "N2511M",
+    "make": "PIPER",
+    "model": "PA-12",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 2181,
+    "has_narr": true,
+    "narr_head": "On March 7, 2026, about 1323 central standard time, a Piper PA-12, N2511M, was substantially damaged when it was involved in an accident near Lockhart, Texas. T"
+   },
+   {
+    "ev_id": "20260323202675",
+    "ntsb_no": "WPR26FA130",
+    "ev_type": "ACC",
+    "date": "2026-03-23",
+    "country": "USA",
+    "reg": "N2882W",
+    "make": "BEECH",
+    "model": "A36",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 2185,
+    "has_narr": true,
+    "narr_head": "On March 22, 2026, at 1716 Pacific daylight time, a Beech A36, N2882W, was substantially damaged when it was involved in an accident near Olympic Valley, Califo"
+   },
+   {
+    "ev_id": "20260305202605",
+    "ntsb_no": "ERA26LA137",
+    "ev_type": "ACC",
+    "date": "2026-02-22",
+    "country": "USA",
+    "reg": "N865VL",
+    "make": "PILATUS BRITTEN-NORMAN LIMITED",
+    "model": "BN-2B-27",
+    "operator": "",
+    "far_part": "135",
+    "narr_chars": 1447,
+    "has_narr": true,
+    "narr_head": "On February 22, 2026, at 0915 Atlantic standard time, a Pilatus Brittan-Norman Limited, BN-2B-27 Islander, N865VL, was substantially damaged when it was involve"
+   },
+   {
+    "ev_id": "20260310202631",
+    "ntsb_no": "WPR26LA123",
+    "ev_type": "ACC",
+    "date": "2026-03-10",
+    "country": "USA",
+    "reg": "N104DG",
+    "make": "BRUNNER DONALD G",
+    "model": "KITFOX",
+    "operator": "SKULKING KITFOXES LLC",
+    "far_part": "091",
+    "narr_chars": 689,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260324202687",
+    "ntsb_no": "CEN26LA144",
+    "ev_type": "ACC",
+    "date": "2026-03-18",
+    "country": "USA",
+    "reg": "N1374W",
+    "make": "MOONEY",
+    "model": "M20",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 1574,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260324202682",
+    "ntsb_no": "WPR26LA132",
+    "ev_type": "ACC",
+    "date": "2026-03-21",
+    "country": "USA",
+    "reg": "N7328J",
+    "make": "PIPER",
+    "model": "PA-28-140",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 1123,
+    "has_narr": true,
+    "narr_head": "On March 21, 2026, about 1610 mountain daylight time, a Piper PA-28-140, N7328J, was substantially damaged when it was involved in an accident near West Valley "
+   },
+   {
+    "ev_id": "20260308202614",
+    "ntsb_no": "ERA26LA140",
+    "ev_type": "ACC",
+    "date": "2026-03-08",
+    "country": "USA",
+    "reg": "N66519",
+    "make": "BEECH",
+    "model": "A36",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 2445,
+    "has_narr": true,
+    "narr_head": "On March 7, 2026, about 1900 central standard time, a Beechcraft A36, N66519 was destroyed when it was involved in an accident near Gulf Shores, Alabama. The pi"
+   },
+   {
+    "ev_id": "20260324202683",
+    "ntsb_no": "WPR26LA133",
+    "ev_type": "ACC",
+    "date": "2026-03-19",
+    "country": "USA",
+    "reg": "N7632H",
+    "make": "PIPER",
+    "model": "PA-12",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 1274,
+    "has_narr": true,
+    "narr_head": "On March 18, 2026, about 1700 Pacific daylight time, a Piper PA-12, N7632H, was substantially damaged when it was involved in an accident near West Linn, Oregon"
+   },
+   {
+    "ev_id": "20260324202691",
+    "ntsb_no": "WPR26LA138",
+    "ev_type": "ACC",
+    "date": "2026-03-21",
+    "country": "USA",
+    "reg": "N5045V",
+    "make": "BOEING",
+    "model": "A75N1",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 730,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260320202671",
+    "ntsb_no": "CEN26FA141",
+    "ev_type": "ACC",
+    "date": "2026-03-20",
+    "country": "USA",
+    "reg": "N9913W",
+    "make": "PIPER",
+    "model": "PA-28-140",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 4193,
+    "has_narr": true,
+    "narr_head": "On March 20, 2026, about 1503 central daylight time, a Piper PA-28-140 airplane, N9913W, was destroyed when it was involved in an accident near Rock Falls, Illi"
+   },
+   {
+    "ev_id": "20260324202684",
+    "ntsb_no": "WPR26LA134",
+    "ev_type": "ACC",
+    "date": "2026-03-20",
+    "country": "USA",
+    "reg": "N9111",
+    "make": "ZLIN AVIATION SRO",
+    "model": "SAVAGE CUB-S",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 718,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260324202685",
+    "ntsb_no": "WPR26LA135",
+    "ev_type": "ACC",
+    "date": "2026-03-20",
+    "country": "USA",
+    "reg": "N9368A",
+    "make": "CESSNA",
+    "model": "195",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 1289,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260303202591",
+    "ntsb_no": "WPR26LA115",
+    "ev_type": "ACC",
+    "date": "2026-03-02",
+    "country": "USA",
+    "reg": "N258MF",
+    "make": "MIGHTYFLY INC",
+    "model": "MF-100",
+    "operator": "MIGHTYFLY INC",
+    "far_part": "091",
+    "narr_chars": 719,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260228202564",
+    "ntsb_no": "WPR26FA108",
+    "ev_type": "ACC",
+    "date": "2026-02-28",
+    "country": "USA",
+    "reg": "N80AR",
+    "make": "RUBIN ALAN",
+    "model": "RV-8",
+    "operator": "PALMER THOMAS W",
+    "far_part": "091",
+    "narr_chars": 2239,
+    "has_narr": true,
+    "narr_head": "On February 28, 2026, at about 1005 mountain standard time, an experimental amateur-built, Vans Aircraft, RV-8, N80AR, was substantially damaged when it was inv"
+   },
+   {
+    "ev_id": "20260228202565",
+    "ntsb_no": "WPR26FA109",
+    "ev_type": "ACC",
+    "date": "2026-02-28",
+    "country": "USA",
+    "reg": "N3170Z",
+    "make": "PIPER",
+    "model": "PA-22-150",
+    "operator": "",
+    "far_part": "",
+    "narr_chars": 2338,
+    "has_narr": true,
+    "narr_head": "On February 28, 2026, about 0948 Pacific standard time, a Piper PA-22-150, N3170Z, was destroyed when it was involved in an accident near Oroville, California. "
+   },
+   {
+    "ev_id": "20260324202689",
+    "ntsb_no": "WPR26LA136",
+    "ev_type": "ACC",
+    "date": "2026-03-22",
+    "country": "USA",
+    "reg": "N163TW",
+    "make": "CESSNA AIRCRAFT CO",
+    "model": "162",
+    "operator": "RAINIER FLIGHT SERVICE LLC",
+    "far_part": "091",
+    "narr_chars": 835,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260326202699",
+    "ntsb_no": "WPR26LA140",
+    "ev_type": "ACC",
+    "date": "2026-03-16",
+    "country": "USA",
+    "reg": "N212LG",
+    "make": "LANCAIR",
+    "model": "Legacy",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 2140,
+    "has_narr": true,
+    "narr_head": "On March 16, 2026, about 1257 Pacific daylight time, a Lancair Legacy, N212LG, sustained substantial damage when it was involved in an accident near Hillsboro, "
+   },
+   {
+    "ev_id": "20260325202695",
+    "ntsb_no": "DCA26LA164",
+    "ev_type": "ACC",
+    "date": "2026-03-24",
+    "country": "USA",
+    "reg": "N17316",
+    "make": "BOEING",
+    "model": "737-8",
+    "operator": "United Airlines ",
+    "far_part": "121",
+    "narr_chars": 5539,
+    "has_narr": true,
+    "narr_head": ""
+   },
+   {
+    "ev_id": "20260323202678",
+    "ntsb_no": "ANC26FA021",
+    "ev_type": "ACC",
+    "date": "2026-03-23",
+    "country": "USA",
+    "reg": "N478AT",
+    "make": "ROBINSON HELICOPTER",
+    "model": "R44",
+    "operator": "Palm Beach Helicopters",
+    "far_part": "091",
+    "narr_chars": 5687,
+    "has_narr": true,
+    "narr_head": "On March 23, 2026, about 1221 eastern daylight time, a Robinson R44 Raven I helicopter, N478AT, was destroyed when it was involved in an accident near Boynton B"
+   },
+   {
+    "ev_id": "20240307193897",
+    "ntsb_no": "WPR24FA104",
+    "ev_type": "ACC",
+    "date": "2024-03-07",
+    "country": "USA",
+    "reg": "N4443G",
+    "make": "KOLB COMPANY",
+    "model": "FIRESTAR KXP",
+    "operator": "",
+    "far_part": "091",
+    "narr_chars": 16273,
+    "has_narr": true,
+    "narr_head": "On March 7, 2024, about 1124 Pacific standard time, a Kolb Firestar KXP airplane, N4443G, was substantially damaged when it was involved in an accident near Cav"
+   }
+  ],
+  "identifier_fields": [
+   "ev_id",
+   "ntsb_no",
+   "regis_no",
+   "acft_serial_no",
+   "oper_cert_num"
+  ],
+  "freetext_fields": [
+   "narratives.narr_accp",
+   "narr_accf",
+   "narr_cause",
+   "narr_inc"
+  ],
+  "personal_data_fields_to_exclude": [
+   "owner_acft",
+   "owner_street",
+   "owner_city",
+   "oper_individual_name",
+   "Flight_Crew.*"
+  ],
+  "event_date_max_excluding_future_typos": "2026-09-30",
+  "future_dated_events": 13
+ },
+ "aaib": {
+  "search_total": 11356,
+  "fetched": 11356,
+  "with_registration_field": 11301,
+  "newest_public_timestamp": "2026-10-01T09:00:07Z",
+  "oldest_date_of_occurrence": "1958-02-06",
+  "public_timestamp_last_30d": 5,
+  "identifier_fields": [
+   "registration",
+   "date_of_occurrence",
+   "aircraft_type",
+   "location"
+  ],
+  "freetext_fields": [
+   "content API details.body (HTML summary)",
+   "PDF attachment (full report)"
+  ],
+  "non_G_prefix_registrations": 1163,
+  "n_number_registrations": [
+   "N100MC",
+   "N101DW",
+   "N1024L",
+   "N103CD",
+   "N1052U",
+   "N1061T",
+   "N109TK",
+   "N111DT",
+   "N1134K",
+   "N1158V",
+   "N115TB",
+   "N116KY",
+   "N119EZ",
+   "N119RS",
+   "N11HJ",
+   "N120HH",
+   "N122AE",
+   "N12305",
+   "N123CA",
+   "N123TL",
+   "N123TY",
+   "N12426",
+   "N124CP",
+   "N125XX",
+   "N127VL",
+   "N12ZX",
+   "N1385R",
+   "N138SR",
+   "N13987",
+   "N14065",
+   "N14075",
+   "N14113",
+   "N147KA",
+   "N150JC",
+   "N151FL",
+   "N153JS",
+   "N1551D",
+   "N1581D",
+   "N1608",
+   "N160UA",
+   "N162AW",
+   "N166MG",
+   "N171JB",
+   "N1754",
+   "N1756",
+   "N1778X",
+   "N17CK",
+   "N18028",
+   "N1805",
+   "N186CB"
+  ],
+  "sample20_content_api": [
+   {
+    "link": "/aaib-reports/aaib-investigation-to-beagle-b121-series-2-g-azdg",
+    "title": "AAIB investigation to Beagle B121 Series 2, G-AZDG",
+    "registration": "G-AZDG",
+    "date": "2025-12-28",
+    "type": "Beagle B121 Series 2",
+    "report_type": "field-investigation",
+    "body_chars": 647,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-boeing-737-800-9h-qbd",
+    "title": "AAIB investigation to Boeing 737-800, 9H-QBD",
+    "registration": "9H-QBD ",
+    "date": "2025-10-03",
+    "type": "Boeing 737-800",
+    "report_type": "field-investigation",
+    "body_chars": 1040,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-atr-72-212-a-g-oasb",
+    "title": "AAIB investigation to ATR 72-212 A, G-OASB",
+    "registration": "G-OASB",
+    "date": "2025-11-14",
+    "type": "ATR 72-212 A",
+    "report_type": "field-investigation",
+    "body_chars": 622,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-cessna-citation-cj2-plus-d-iscv",
+    "title": "AAIB investigation to Cessna Citation CJ2+, D-ISCV",
+    "registration": "D-ISCV",
+    "date": "2026-01-06",
+    "type": "Cessna Citation CJ2+",
+    "report_type": "correspondence-investigation",
+    "body_chars": 916,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-boeing-747-433-g-onee",
+    "title": "AAIB investigation to Boeing 747-433, G-ONEE",
+    "registration": "G-ONEE",
+    "date": "2024-02-08",
+    "type": "Boeing 747-433",
+    "report_type": "field-investigation",
+    "body_chars": 2825,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-eurofox-2k-g-cmax",
+    "title": "AAIB investigation to Eurofox 2K, G-CMAX",
+    "registration": "G-CMAX",
+    "date": "2025-12-27",
+    "type": "Eurofox 2K",
+    "report_type": "field-investigation",
+    "body_chars": 1150,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-skyranger-swift-912s-1-g-mlzz",
+    "title": "AAIB investigation to Skyranger Swift 912S(1), G-MLZZ",
+    "registration": "G-MLZZ",
+    "date": "2026-04-24",
+    "type": "Skyranger Swift 912S(1)",
+    "report_type": "correspondence-investigation",
+    "body_chars": 614,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-skymagic-x245-uas-registration-n-slash-a",
+    "title": "AAIB investigation to Skymagic X245, (UAS registration n/a)",
+    "registration": "n/a",
+    "date": "2026-03-23",
+    "type": "Skymagic X245",
+    "report_type": "correspondence-investigation",
+    "body_chars": 554,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-embraer-190ar-zs-yad",
+    "title": "AAIB investigation to Embraer 190AR, ZS-YAD",
+    "registration": "ZS-YAD",
+    "date": "2023-06-17",
+    "type": "Embraer 190AR",
+    "report_type": "field-investigation",
+    "body_chars": 1854,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-jodel-d18-g-bodt",
+    "title": "AAIB investigation to Jodel D18, G-BODT",
+    "registration": "G-BODT",
+    "date": "2025-10-27",
+    "type": "Jodel D18",
+    "report_type": "field-investigation",
+    "body_chars": 697,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-boeing-737-8-g-crux",
+    "title": "AAIB investigation to Boeing 737-8, G-CRUX",
+    "registration": "G-CRUX",
+    "date": "2025-04-22",
+    "type": "Boeing 737-8",
+    "report_type": "correspondence-investigation",
+    "body_chars": 452,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-westland-scout-ah1-g-bwhu",
+    "title": "AAIB investigation to Westland Scout AH1, G-BWHU",
+    "registration": "G-BWHU",
+    "date": "2026-04-24",
+    "type": "Westland Scout AH1",
+    "report_type": "correspondence-investigation",
+    "body_chars": 557,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-de-havilland-aircraft-of-canada-limited-dhc-8-9h-lwb",
+    "title": "AAIB investigation to De Havilland Aircraft of Canada Limited DHC-8, 9H-LWB",
+    "registration": "9H-LWB",
+    "date": "2024-04-23",
+    "type": "De Havilland Aircraft of Canada Limited DHC-8",
+    "report_type": "field-investigation",
+    "body_chars": 1148,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-dyn-aero-mcr-01-g-tomx",
+    "title": "AAIB investigation to Dyn Aero MCR-01, G-TOMX",
+    "registration": "G-TOMX",
+    "date": "2025-05-04",
+    "type": "Dyn Aero MCR-01",
+    "report_type": "field-investigation",
+    "body_chars": 1743,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-mw6-1-1-g-mnmw",
+    "title": "AAIB investigation to MW6-1-1, G-MNMW ",
+    "registration": "G-MNMW",
+    "date": "2025-08-29",
+    "type": "MW6-1-1",
+    "report_type": "correspondence-investigation",
+    "body_chars": 553,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-airbus-a320-214-g-ezuk",
+    "title": "AAIB investigation to Airbus A320-214, G-EZUK",
+    "registration": "G-EZUK",
+    "date": "2025-06-13",
+    "type": "Airbus A320-214",
+    "report_type": "correspondence-investigation",
+    "body_chars": 559,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-boeing-767-316f-g-dhls",
+    "title": "AAIB investigation to Boeing 767-316F, G-DHLS",
+    "registration": "G-DHLS",
+    "date": "2025-10-09",
+    "type": "Boeing 767-316F",
+    "report_type": "field-investigation",
+    "body_chars": 766,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-annual-safety-review-2025",
+    "title": "AAIB Annual Safety Review 2025",
+    "registration": null,
+    "date": "2026-06-04",
+    "type": null,
+    "report_type": "annual-safety-report",
+    "body_chars": 1299,
+    "pdf_attachments": 1
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-leonardo-aw139-g-cimu",
+    "title": "AAIB investigation to Leonardo AW139, G-CIMU",
+    "registration": "G-CIMU",
+    "date": "2022-06-13",
+    "type": "Leonardo AW139",
+    "report_type": "field-investigation",
+    "body_chars": 844,
+    "pdf_attachments": 2
+   },
+   {
+    "link": "/aaib-reports/aaib-investigation-to-bellanca-american-champion-decathlon-8kcab-g-talx",
+    "title": "AAIB investigation to Bellanca (American Champion) Decathlon 8KCAB, G-TALX",
+    "registration": "G-TALX",
+    "date": "2025-06-30",
+    "type": "Bellanca (American Champion) Decathlon 8KCAB",
+    "report_type": "correspondence-investigation",
+    "body_chars": 776,
+    "pdf_attachments": 2
+   }
+  ]
+ },
+ "cadors": {
+  "files_bytes": {
+   "aircraft": 90960001,
+   "occurrence": 98426014
+  },
+  "sampled_bytes_per_file": 6000000,
+  "sampled_aircraft_rows": 22036,
+  "sampled_occurrence_rows": 24411,
+  "estimated_aircraft_rows_total": 334065,
+  "estimated_occurrence_rows_total": 400446,
+  "occurrence_date_range_in_sample": [
+   "1970-11-15",
+   "2026-07-21"
+  ],
+  "aircraft_columns": [
+   "cadorsnumber",
+   "aircraftnumber",
+   "aircraftregistration",
+   "foreignaircraftregistration",
+   "flightnumber",
+   "flight_rule_enm",
+   "flight_rule_fnm",
+   "Categorydescriptione",
+   "Categorydescriptionf",
+   "Country_Enm",
+   "Country_Fnm",
+   "aircraft_make_name_nm",
+   "aircraft_model_name_nm",
+   "aircraftyearbuilt",
+   "homebuiltaircraft",
+   "engine_manufacturer_name_nm",
+   "engine_model_name_nm",
+   "enginetypedescriptione",
+   "enginetypedescriptionf",
+   "geartypedescriptione",
+   "geartypedescriptionf",
+   "phasenamee",
+   "phasenamef",
+   "damagedescriptione",
+   "damagedescriptionf",
+   "operator",
+   "operatortypedescriptione",
+   "operatortypedescriptionf",
+   "operation_sector_elbl",
+   "operation_sector_flbl",
+   "owner"
+  ],
+  "occurrence_columns": [
+   "cadorsnumber",
+   "occurrencetypedescriptione",
+   "occurrencetypedescriptionf",
+   "occurrencedate",
+   "occurrencetime",
+   "dayornight",
+   "fatalities",
+   "Injuries",
+   "aerodromeid",
+   "aerodromelocation",
+   "occurrencelocation",
+   "subdivision_enm",
+   "subdivision_fnm",
+   "tc_region_enm",
+   "tc_region_fnm",
+   "country_enm",
+   "country_fnm",
+   "worldareanamee",
+   "worldareanamef",
+   "aornumber",
+   "occurrence_class_type_elbl",
+   "occurrence_class_type_flbl",
+   "tsboccurrencenumber"
+  ],
+  "with_foreign_registration": 1207,
+  "with_cdn_registration": 9149,
+  "with_tsb_occurrence_number": 2361,
+  "freetext_fields": "none found: no narrative column in the 5 published CSVs (category + event-name controlled vocabularies only)",
+  "sample20": [
+   {
+    "cadorsnumber": "2010O2403",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "N6409H",
+    "aircraft_make_name_nm": "CESSNA",
+    "aircraft_model_name_nm": "152",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2011Q0288",
+    "aircraftregistration": "GJZT",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "BOEING",
+    "aircraft_model_name_nm": "757 28A",
+    "operator": "JAZZ AVIATION LP,  AS REPRESENTED BY ITS GENERAL PARTNER, AVIATION GENERAL PARTNER INC. (5002)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2004C2570",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "PIPER",
+    "aircraft_model_name_nm": "PA30",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2005C0782",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "AIRBUS",
+    "aircraft_model_name_nm": "A319 112",
+    "operator": "NORTHWEST AIRLINES, INC. (298)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2005C0775",
+    "aircraftregistration": "GQAP",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "SWEARINGEN",
+    "aircraft_model_name_nm": "SA226TC",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2004O1932",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "SWEARINGEN",
+    "aircraft_model_name_nm": "SA227AC",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2004Q1322",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "PIPER",
+    "aircraft_model_name_nm": "PA32RT 300",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2005Q0485",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "BEECH",
+    "aircraft_model_name_nm": "100",
+    "operator": "AEROPRO (5813)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2004A0817",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "6YJMP",
+    "aircraft_make_name_nm": "AIRBUS",
+    "aircraft_model_name_nm": "A340 313",
+    "operator": "AIR JAMAICA LIMITED (2623)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2005C0333",
+    "aircraftregistration": "GEXP",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "CESSNA",
+    "aircraft_model_name_nm": "172M",
+    "operator": "MCMURRAY AVIATION (4719)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2005P0263",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "N584RH",
+    "aircraft_make_name_nm": "AGUSTA",
+    "aircraft_model_name_nm": "A109 AII",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "1999Q0608",
+    "aircraftregistration": "GAAV",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "BEECH",
+    "aircraft_model_name_nm": "1900D",
+    "operator": "",
+    "damagedescriptione": "Unknown"
+   },
+   {
+    "cadorsnumber": "2004Q1068",
+    "aircraftregistration": "GBYZ",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "CESSNA",
+    "aircraft_model_name_nm": "152",
+    "operator": "PRO AVIATION (14935)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "1999C0098",
+    "aircraftregistration": "GHQS",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "CESSNA",
+    "aircraft_model_name_nm": "A150M",
+    "operator": "",
+    "damagedescriptione": "Unknown"
+   },
+   {
+    "cadorsnumber": "2005C0544",
+    "aircraftregistration": "FMPW",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "PILATUS - SW",
+    "aircraft_model_name_nm": "PC 12 45",
+    "operator": "",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2005O0463",
+    "aircraftregistration": "FJVV",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "DEHAVILLAND - CAN",
+    "aircraft_model_name_nm": "DHC 8 311",
+    "operator": "AIR CANADA JAZZ (5002)",
+    "damagedescriptione": "No Damage"
+   },
+   {
+    "cadorsnumber": "2000P0439",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "DEHAVILLAND",
+    "aircraft_model_name_nm": "DHC 2 MKI",
+    "operator": "",
+    "damagedescriptione": "Unknown"
+   },
+   {
+    "cadorsnumber": "2000P0675",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "BEECH",
+    "aircraft_model_name_nm": "B300",
+    "operator": "WEYERHAEUSER COMPANY LIMITED (10534)",
+    "damagedescriptione": "Unknown"
+   },
+   {
+    "cadorsnumber": "2005A0072",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "EIDBP",
+    "aircraft_make_name_nm": "BOEING",
+    "aircraft_model_name_nm": "767 333",
+    "operator": "ALITALIA LINEE AEREE ITALIANE, S.P.A. (998)",
+    "damagedescriptione": "Unknown"
+   },
+   {
+    "cadorsnumber": "1999Q0153",
+    "aircraftregistration": "",
+    "foreignaircraftregistration": "",
+    "aircraft_make_name_nm": "DEHAVILLAND",
+    "aircraft_model_name_nm": "DHC 8",
+    "operator": "AIR ALLIANCE",
+    "damagedescriptione": "Unknown"
+   }
+  ]
+ },
+ "links": {
+  "ntsb_vs_aaib": {
+   "pair": "NTSB(2026 updates) x AAIB(all)",
+   "a_distinct_registrations": 2602,
+   "b_distinct_registrations": 8856,
+   "matched_registrations": 21,
+   "matched_list": [
+    "EIHEZ",
+    "EIHGG",
+    "EIICU",
+    "GBCGJ",
+    "GBCKV",
+    "GBNWY",
+    "GBRCD",
+    "GDHLS",
+    "GFDZS",
+    "GFDZX",
+    "GJMCZ",
+    "GNPTA",
+    "GOATW",
+    "GTAWD",
+    "GVDIA",
+    "GWBRN",
+    "GYMME",
+    "N",
+    "N222SW",
+    "N4698W",
+    "N796UA"
+   ]
+  },
+  "ntsb_vs_cadors_sample": {
+   "pair": "NTSB(2026 updates) x CADORS(6MB Range sample)",
+   "a_distinct_registrations": 2602,
+   "b_distinct_registrations": 5754,
+   "matched_registrations": 6,
+   "matched_list": [
+    "GVDIA",
+    "HBJMF",
+    "N250NN",
+    "N27290",
+    "N3013M",
+    "N903AR"
+   ]
+  },
+  "aaib_vs_cadors_sample": {
+   "pair": "AAIB(all) x CADORS(Range sample)",
+   "a_distinct_registrations": 8856,
+   "b_distinct_registrations": 5754,
+   "matched_registrations": 30,
+   "matched_list": [
+    "APBGY",
+    "APBGZ",
+    "ETAOP",
+    "GBOAC",
+    "GBOAD",
+    "GCIVY",
+    "GFCLK",
+    "GRAES",
+    "GSTBJ",
+    "GVDIA",
+    "GVHOT",
+    "GVIIC",
+    "GVIIE",
+    "GVIIJ",
+    "GVIIR",
+    "GVIIU",
+    "GVROM",
+    "GXWBL",
+    "GYMMG",
+    "GYMML",
+    "GYMMR",
+    "N197DN",
+    "N273AY",
+    "N316FE",
+    "N583FE",
+    "N7375A",
+    "N784UA",
+    "N786UA",
+    "N813DE",
+    "URCKL"
+   ]
+  },
+  "structural_note": {
+   "ntsb_regs_not_starting_with_N": [
+    "0AEUI",
+    "10302",
+    "2WKTN",
+    "3CLLY",
+    "4KSW888",
+    "4RCAE",
+    "4RDRA",
+    "4XAGP",
+    "4XHCC",
+    "4XIAJ",
+    "558BA",
+    "5NASR",
+    "5NBPV",
+    "5NBXR",
+    "5NDAB",
+    "5NISB",
+    "5NJRT",
+    "5NMJF",
+    "5NSYS",
+    "5RMEK",
+    "5XRHB",
+    "5YBRJ",
+    "5YBVL",
+    "5YCCA",
+    "5YFDN",
+    "5YGMM",
+    "5YGYM",
+    "666NN",
+    "6VAIM",
+    "7TVCF",
+    "7TVJM",
+    "7TVKK",
+    "8RGET",
+    "8RGGW",
+    "8RGHS",
+    "8RYAC",
+    "9ACAN",
+    "9HAEB",
+    "9HDFS",
+    "9HQBL",
+    "9HQDZ",
+    "9HQEC",
+    "9HQEP",
+    "9HQEU",
+    "9HQFB",
+    "9HVISTA",
+    "9HVUE",
+    "9HVUG",
+    "9HVVL",
+    "9KAOD",
+    "9MIGB",
+    "9MLLF",
+    "9MLRH",
+    "9MMRD",
+    "9MMXU",
+    "9MRXE",
+    "9SAAI",
+    "9SABS",
+    "9VOJD",
+    "9VOJH"
+   ],
+   "aaib_n_number_count": 360,
+   "cadors_n_number_count_in_sample": 631
+  },
+  "match_detail": [
+   {
+    "pair": "ntsb-aaib",
+    "reg": "EIHEZ",
+    "a": {
+     "ntsb_no": "DCA25WA351",
+     "date": "2025-06-28",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-8200 MAX, EI-HEZ",
+     "date_of_occurrence": "2025-04-24"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "EIHGG",
+    "a": {
+     "ntsb_no": "DCA26WA042",
+     "date": "2025-11-14",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-8200, EI-HGG",
+     "date_of_occurrence": "2024-03-08"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "EIICU",
+    "a": {
+     "ntsb_no": "ENG23WA021",
+     "date": "2023-02-05",
+     "make": "SIKORSKY",
+     "model": "S-92"
+    },
+    "b": {
+     "title": "AAIB investigation to Sikorsky S-92A, EI-ICU\t",
+     "date_of_occurrence": "2023-02-05"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GBCGJ",
+    "a": {
+     "ntsb_no": "GAA26WA264",
+     "date": "2026-07-25",
+     "make": "PIPER",
+     "model": "PA28"
+    },
+    "b": {
+     "title": "Piper PA-28-140 Cherokee, G-BCGJ, 3 September 2011",
+     "date_of_occurrence": "2011-09-03"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GBCKV",
+    "a": {
+     "ntsb_no": "GAA26WA197",
+     "date": "2026-05-14",
+     "make": "CESSNA",
+     "model": "FRA150"
+    },
+    "b": {
+     "title": "Reims Cessna FRA150L Aerobat, G-BCKV, 20 January 2011",
+     "date_of_occurrence": "2011-01-20"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GBNWY",
+    "a": {
+     "ntsb_no": "DCA10IA006",
+     "date": "2009-11-04",
+     "make": "BOEING",
+     "model": "767"
+    },
+    "b": {
+     "title": "Boeing 767-336, G-BNWY, 3 September 1996",
+     "date_of_occurrence": "1996-09-03"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GBRCD",
+    "a": {
+     "ntsb_no": "GAA26WA234",
+     "date": "2026-06-30",
+     "make": "CESSNA",
+     "model": "A152"
+    },
+    "b": {
+     "title": "Cessna A152, G-BRCD, 25 August 2006",
+     "date_of_occurrence": "2006-08-25"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GDHLS",
+    "a": {
+     "ntsb_no": "DCA26WA011",
+     "date": "2025-10-09",
+     "make": "BOEING",
+     "model": "767"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 767-316F, G-DHLS",
+     "date_of_occurrence": "2025-10-09"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GFDZS",
+    "a": {
+     "ntsb_no": "DCA24WA116",
+     "date": "2024-03-04",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-8K5, G-FDZS",
+     "date_of_occurrence": "2024-03-04"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GFDZX",
+    "a": {
+     "ntsb_no": "DCA23WA318",
+     "date": "2023-06-12",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-8K5, G-FDZX",
+     "date_of_occurrence": "2023-06-12"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GJMCZ",
+    "a": {
+     "ntsb_no": "DCA24WA014",
+     "date": "2023-10-18",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-4K5, G-JMCZ, 26 April 2024",
+     "date_of_occurrence": "2024-04-26"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GNPTA",
+    "a": {
+     "ntsb_no": "DCA25WA209",
+     "date": "2025-05-17",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-86N, G-NPTA",
+     "date_of_occurrence": "2025-05-17"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GOATW",
+    "a": {
+     "ntsb_no": "DCA24WA012",
+     "date": "2023-10-05",
+     "make": "AIRBUS",
+     "model": "A321"
+    },
+    "b": {
+     "title": "AAIB investigation to Airbus A321-253NX, G-OATW",
+     "date_of_occurrence": "2023-10-04"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GTAWD",
+    "a": {
+     "ntsb_no": "DCA24WA013",
+     "date": "2023-10-17",
+     "make": "BOEING",
+     "model": "737"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 737-8K5, G-TAWD, 17 October 2023",
+     "date_of_occurrence": "2023-10-17"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GVDIA",
+    "a": {
+     "ntsb_no": "DCA24WA152",
+     "date": "2024-04-06",
+     "make": "BOEING",
+     "model": "787"
+    },
+    "b": {
+     "title": "AAIB investigation to Boeing 787-9, G-VDIA / Airbus A350-1041, G-XWBC",
+     "date_of_occurrence": "2024-04-06"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GWBRN",
+    "a": {
+     "ntsb_no": "GAA25WA183",
+     "date": "2025-06-11",
+     "make": "ROBINSON",
+     "model": "R66"
+    },
+    "b": {
+     "title": "AAIB investigation to Robinson R66, G-WBRN",
+     "date_of_occurrence": "2025-06-11"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "GYMME",
+    "a": {
+     "ntsb_no": "DCA26WA117",
+     "date": "2026-02-13",
+     "make": "BOEING",
+     "model": "777"
+    },
+    "b": {
+     "title": "Aircraft Accident Report 2/2007 - Boeing 777-236, G-YMME, 10 June 2004",
+     "date_of_occurrence": "2004-06-10"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "N",
+    "a": {
+     "ntsb_no": "GAA26WA178",
+     "date": "2026-04-27",
+     "make": "CESSNA",
+     "model": "208"
+    },
+    "b": {
+     "title": "AAIB investigation to Skymagic X245, (UAS registration n/a)",
+     "date_of_occurrence": "2026-03-23"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "N222SW",
+    "a": {
+     "ntsb_no": "GAA21WA090",
+     "date": "2021-04-26",
+     "make": "CIRRUS DESIGN CORP",
+     "model": "SR22"
+    },
+    "b": {
+     "title": "AAIB investigation to Cirrus SR22, N222SW",
+     "date_of_occurrence": "2014-04-12"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "N4698W",
+    "a": {
+     "ntsb_no": "GAA25WA049",
+     "date": "2024-12-23",
+     "make": "ROCKWELL INTERNATIONAL",
+     "model": "112TCA"
+    },
+    "b": {
+     "title": "AAIB investigation to Rockwell Commander 112 TCA, N4698W",
+     "date_of_occurrence": "2024-12-23"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-aaib",
+    "reg": "N796UA",
+    "a": {
+     "ntsb_no": "DCA25WA345",
+     "date": "2025-09-09",
+     "make": "BOEING",
+     "model": "777-222"
+    },
+    "b": {
+     "title": "Boeing 777, N796UA, 29 July 1998",
+     "date_of_occurrence": "1998-07-29"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-cadors",
+    "reg": "GVDIA",
+    "a": {
+     "ntsb_no": "DCA24WA152",
+     "date": "2024-04-06",
+     "make": "BOEING",
+     "model": "787"
+    },
+    "b": {
+     "cadorsnumber": "2025A0757",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "787-9"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-cadors",
+    "reg": "HBJMF",
+    "a": {
+     "ntsb_no": "ENG26WA008",
+     "date": "2025-11-11",
+     "make": "AIRBUS",
+     "model": "A340"
+    },
+    "b": {
+     "cadorsnumber": "2019P2031",
+     "aircraft_make_name_nm": "AIRBUS",
+     "aircraft_model_name_nm": "A340-313"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-cadors",
+    "reg": "N250NN",
+    "a": {
+     "ntsb_no": "DCA20WA096",
+     "date": "2020-03-05",
+     "make": "Embraer",
+     "model": "ERJ170-200LR"
+    },
+    "b": {
+     "cadorsnumber": "2019O1170",
+     "aircraft_make_name_nm": "EMBRAER",
+     "aircraft_model_name_nm": "ERJ 170-200 LR"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-cadors",
+    "reg": "N27290",
+    "a": {
+     "ntsb_no": "DCA24FA120",
+     "date": "2024-03-08",
+     "make": "BOEING",
+     "model": "737-8"
+    },
+    "b": {
+     "cadorsnumber": "2024Q2900",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "737-8"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-cadors",
+    "reg": "N3013M",
+    "a": {
+     "ntsb_no": "WPR26LA234",
+     "date": "2026-06-23",
+     "make": "PIPER",
+     "model": "PA-12"
+    },
+    "b": {
+     "cadorsnumber": "2002P1053",
+     "aircraft_make_name_nm": "PIPER",
+     "aircraft_model_name_nm": "PA12"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "ntsb-cadors",
+    "reg": "N903AR",
+    "a": {
+     "ntsb_no": "DCA26WA202",
+     "date": "2026-05-14",
+     "make": "BOEING",
+     "model": "747-428F"
+    },
+    "b": {
+     "cadorsnumber": "2024P0869",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "747 400 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "APBGY",
+    "a": {
+     "title": "Boeing 777-240(LR) and DHC-8-402 Dash 8, AP-BGY and G-JEDR, 15 February 2007",
+     "date_of_occurrence": "2007-02-15"
+    },
+    "b": {
+     "cadorsnumber": "2017O0048",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "APBGZ",
+    "a": {
+     "title": "AAIB investigation to Boeing 777-200, AP-BGZ\t",
+     "date_of_occurrence": "2019-08-22"
+    },
+    "b": {
+     "cadorsnumber": "2017O1308",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "ETAOP",
+    "a": {
+     "title": "Aircraft Accident Report 2/2015 - Boeing B787-8, ET-AOP, 12 July 2013",
+     "date_of_occurrence": "2013-07-12"
+    },
+    "b": {
+     "cadorsnumber": "2013O1486",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "737 800"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GBOAC",
+    "a": {
+     "title": "BAC Concorde Type 1 Variant 102, G-BOAC, 4 October 2003",
+     "date_of_occurrence": "2003-10-04"
+    },
+    "b": {
+     "cadorsnumber": "2003A0448",
+     "aircraft_make_name_nm": "BRITISH AEROSPACE",
+     "aircraft_model_name_nm": "CONCORDE"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GBOAD",
+    "a": {
+     "title": "Concorde Type 1 Variant 102, G-BOAD, 12 October 1985",
+     "date_of_occurrence": "1985-10-12"
+    },
+    "b": {
+     "cadorsnumber": "2002A0659",
+     "aircraft_make_name_nm": "BRITISH AEROSPACE",
+     "aircraft_model_name_nm": "CONCORDE"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GCIVY",
+    "a": {
+     "title": "Boeing 747-436, G-CIVY, 28 December 2005",
+     "date_of_occurrence": "2005-12-28"
+    },
+    "b": {
+     "cadorsnumber": "2018C5627",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "747 400"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GFCLK",
+    "a": {
+     "title": "AAIB investigation to Boeing 757-2Y0, G-FCLK",
+     "date_of_occurrence": "2013-08-23"
+    },
+    "b": {
+     "cadorsnumber": "2005A0411",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "757 258"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GRAES",
+    "a": {
+     "title": "AAIB investigation to Boeing 777-236, G-RAES",
+     "date_of_occurrence": "2015-03-06"
+    },
+    "b": {
+     "cadorsnumber": "2003A0180",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GSTBJ",
+    "a": {
+     "title": " AAIB investigation to various Airbus and Boeing aircraft between 9 June and 19 July 2021",
+     "date_of_occurrence": "2021-06-09"
+    },
+    "b": {
+     "cadorsnumber": "2016A0356",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 300 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVDIA",
+    "a": {
+     "title": "AAIB investigation to Boeing 787-9, G-VDIA / Airbus A350-1041, G-XWBC",
+     "date_of_occurrence": "2024-04-06"
+    },
+    "b": {
+     "cadorsnumber": "2025A0757",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "787-9"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVHOT",
+    "a": {
+     "title": "Boeing 747-4Q8, G-VHOT, 7 December 2006",
+     "date_of_occurrence": "2006-12-07"
+    },
+    "b": {
+     "cadorsnumber": "2002A0504",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "747 433"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVIIC",
+    "a": {
+     "title": "Boeing 777-236, G-VIIC, 28 March 2004",
+     "date_of_occurrence": "2004-03-28"
+    },
+    "b": {
+     "cadorsnumber": "2010A1232",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVIIE",
+    "a": {
+     "title": "Boeing 777-236, G-VIIE, 8 August 1999",
+     "date_of_occurrence": "1999-08-08"
+    },
+    "b": {
+     "cadorsnumber": "2015A0284",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVIIJ",
+    "a": {
+     "title": "AAIB investigation to Boeing 777-236, G-VIIJ\t",
+     "date_of_occurrence": "2017-11-13"
+    },
+    "b": {
+     "cadorsnumber": "2024A1298",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVIIR",
+    "a": {
+     "title": "Aircraft Accident Report 4/2010 - Boeing 777-236, G-VIIR, 26 September 2009",
+     "date_of_occurrence": "2009-09-26"
+    },
+    "b": {
+     "cadorsnumber": "2009A1002",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVIIU",
+    "a": {
+     "title": "Boeing 777-236, G-VIIU, 8 February 2003",
+     "date_of_occurrence": "2003-02-08"
+    },
+    "b": {
+     "cadorsnumber": "2012O0035",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GVROM",
+    "a": {
+     "title": "AAIB investigation to Boeing 747-443, G-VROM",
+     "date_of_occurrence": "2014-12-29"
+    },
+    "b": {
+     "cadorsnumber": "2004A0807",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "747 433"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GXWBL",
+    "a": {
+     "title": "AAIB investigation to Airbus A350-1041, G-XWBL",
+     "date_of_occurrence": "2023-01-22"
+    },
+    "b": {
+     "cadorsnumber": "2024Q3096",
+     "aircraft_make_name_nm": "AIRBUS",
+     "aircraft_model_name_nm": "350-1000"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GYMMG",
+    "a": {
+     "title": "AAIB investigation to Boeing 777-236, G-YMMG",
+     "date_of_occurrence": "2024-03-09"
+    },
+    "b": {
+     "cadorsnumber": "2023Q3284",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GYMML",
+    "a": {
+     "title": "AAIB investigation to Boeing 777-336ER, G-STBL / Boeing 777-236, G-YMML",
+     "date_of_occurrence": "2023-06-15"
+    },
+    "b": {
+     "cadorsnumber": "2012A0700",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "GYMMR",
+    "a": {
+     "title": " AAIB investigation to various Airbus and Boeing aircraft between 9 June and 19 July 2021",
+     "date_of_occurrence": "2021-06-09"
+    },
+    "b": {
+     "cadorsnumber": "2023O1769",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "777 200 SERIES"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "N197DN",
+    "a": {
+     "title": "AAIB investigation to Boeing 767-332(ER), N197DN",
+     "date_of_occurrence": "2023-02-10"
+    },
+    "b": {
+     "cadorsnumber": "2005A0196",
+     "aircraft_make_name_nm": "BOEING",
+     "aircraft_model_name_nm": "767 333"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "N273AY",
+    "a": {
+     "title": "AAIB investigation to Airbus A330-323, N273AY\t",
+     "date_of_occurrence": "2015-02-05"
+    },
+    "b": {
+     "cadorsnumber": "2014A0410",
+     "aircraft_make_name_nm": "AIRBUS",
+     "aircraft_model_name_nm": "A330-300"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "N316FE",
+    "a": {
+     "title": "McDonnell-Douglas DC10-30, N316FE, 24 June 1992",
+     "date_of_occurrence": "1992-06-24"
+    },
+    "b": {
+     "cadorsnumber": "2022O2919",
+     "aircraft_make_name_nm": "MCDONNELL DOUGLAS",
+     "aircraft_model_name_nm": "MD 10 30F"
+    },
+    "b_cadors_date": null
+   },
+   {
+    "pair": "aaib-cadors",
+    "reg": "N583FE",
+    "a": {
+     "title": "McDonnell Douglas MD-11F, N583FE, 15 January 2003",
+     "date_of_occurrence": "2003-01-15"
+    },
+    "b": {
+     "cadorsnumber": "2017O1291",
+     "aircraft_make_name_nm": "MCDONNELL DOUGLAS",
+     "aircraft_model_name_nm": "MD-11"
+    },
+    "b_cadors_date": null
+   }
+  ],
+  "ntsb_aaib_same_registration_and_date_within_3d": {
+   "matched": 16,
+   "of_registration_matches": 21,
+   "pairs": [
+    {
+     "reg": "EIICU",
+     "ntsb_no": "ENG23WA021",
+     "ntsb_date": "2023-02-05",
+     "ntsb_make_model": "SIKORSKY S-92",
+     "aaib_date": "2023-02-05",
+     "aaib_title": "AAIB investigation to Sikorsky S-92A, EI-ICU\t",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-sikorsky-s-92a-ei-icu"
+    },
+    {
+     "reg": "GDHLS",
+     "ntsb_no": "DCA26WA011",
+     "ntsb_date": "2025-10-09",
+     "ntsb_make_model": "BOEING 767",
+     "aaib_date": "2025-10-09",
+     "aaib_title": "AAIB investigation to Boeing 767-316F, G-DHLS",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-767-316f-g-dhls"
+    },
+    {
+     "reg": "GFDZS",
+     "ntsb_no": "DCA24WA116",
+     "ntsb_date": "2024-03-04",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2024-03-04",
+     "aaib_title": "AAIB investigation to Boeing 737-8K5, G-FDZS",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-737-8k5-g-fdzs-4-march-2024"
+    },
+    {
+     "reg": "GFDZS",
+     "ntsb_no": "DCA24WA116",
+     "ntsb_date": "2024-03-04",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2024-03-04",
+     "aaib_title": "AAIB Special Bulletin S1/2024: Boeing 737-8K5, G-FDZS",
+     "aaib_link": "/aaib-reports/aaib-special-bulletin-s1-slash-2024-boeing-737-8k5-g-fdzs"
+    },
+    {
+     "reg": "GFDZX",
+     "ntsb_no": "DCA23WA318",
+     "ntsb_date": "2023-06-12",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2023-06-12",
+     "aaib_title": "AAIB investigation to Boeing 737-8K5, G-FDZX",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-737-8k5-g-fdzx"
+    },
+    {
+     "reg": "GJMCZ",
+     "ntsb_no": "DCA24WA014",
+     "ntsb_date": "2023-10-18",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2023-10-18",
+     "aaib_title": "AAIB investigation to Boeing 737-4K5, G-JMCZ",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-737-4k5-g-jmcz"
+    },
+    {
+     "reg": "GNPTA",
+     "ntsb_no": "DCA25WA209",
+     "ntsb_date": "2025-05-17",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2025-05-17",
+     "aaib_title": "AAIB investigation to Boeing 737-86N, G-NPTA",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-737-86n-g-npta"
+    },
+    {
+     "reg": "GOATW",
+     "ntsb_no": "DCA24WA012",
+     "ntsb_date": "2023-10-05",
+     "ntsb_make_model": "AIRBUS A321",
+     "aaib_date": "2023-10-04",
+     "aaib_title": "AAIB investigation to Airbus A321-253NX, G-OATW",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-airbus-a321-253nx-g-oatw"
+    },
+    {
+     "reg": "GOATW",
+     "ntsb_no": "DCA24WA012",
+     "ntsb_date": "2023-10-05",
+     "ntsb_make_model": "AIRBUS A321",
+     "aaib_date": "2023-10-04",
+     "aaib_title": "AAIB Special Bulletin S2/2023: Airbus A321-253NX, G-OATW",
+     "aaib_link": "/aaib-reports/aaib-special-bulletin-s2-slash-2023-airbus-a321-253nx-g-oatw"
+    },
+    {
+     "reg": "GTAWD",
+     "ntsb_no": "DCA24WA013",
+     "ntsb_date": "2023-10-17",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2023-10-17",
+     "aaib_title": "AAIB investigation to Boeing 737-8K5, G-TAWD, 17 October 2023",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-737-8k5-g-tawd-17-october-2023"
+    },
+    {
+     "reg": "GTAWD",
+     "ntsb_no": "DCA24WA013",
+     "ntsb_date": "2023-10-17",
+     "ntsb_make_model": "BOEING 737",
+     "aaib_date": "2023-10-20",
+     "aaib_title": "AAIB investigation to Boeing 737-8K5, G-TAWD",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-737-8k5-g-tawd"
+    },
+    {
+     "reg": "GVDIA",
+     "ntsb_no": "DCA24WA152",
+     "ntsb_date": "2024-04-06",
+     "ntsb_make_model": "BOEING 787",
+     "aaib_date": "2024-04-06",
+     "aaib_title": "AAIB investigation to Boeing 787-9, G-VDIA / Airbus A350-1041, G-XWBC",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boeing-787-9-g-vdia-slash-airbus-a350-1041-g-xwbc"
+    },
+    {
+     "reg": "GWBRN",
+     "ntsb_no": "GAA25WA183",
+     "ntsb_date": "2025-06-11",
+     "ntsb_make_model": "ROBINSON R66",
+     "aaib_date": "2025-06-11",
+     "aaib_title": "AAIB investigation to Robinson R66, G-WBRN",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-robinson-r66-g-wbrn"
+    },
+    {
+     "reg": "N",
+     "ntsb_no": "GAA26WA103",
+     "ntsb_date": "2026-02-09",
+     "ntsb_make_model": "PIPER PA34",
+     "aaib_date": "2026-02-06",
+     "aaib_title": "AAIB investigation to Boresight BQ400 Raider LR, (UAS registration n/a)",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-boresight-bq400-raider-lr-uas-registration-n-slash-a"
+    },
+    {
+     "reg": "N4698W",
+     "ntsb_no": "GAA25WA049",
+     "ntsb_date": "2024-12-23",
+     "ntsb_make_model": "ROCKWELL INTERNATIONAL 112TCA",
+     "aaib_date": "2024-12-23",
+     "aaib_title": "AAIB investigation to Rockwell Commander 112 TCA, N4698W",
+     "aaib_link": "/aaib-reports/aaib-investigation-to-rockwell-commander-112-tca-n4698w"
+    },
+    {
+     "reg": "N4698W",
+     "ntsb_no": "GAA25WA049",
+     "ntsb_date": "2024-12-23",
+     "ntsb_make_model": "ROCKWELL INTERNATIONAL 112TCA",
+     "aaib_date": "2024-12-23",
+     "aaib_title": "AAIB Special Bulletin S1/2025: Rockwell Commander 112 TCA, N4698W",
+     "aaib_link": "/aaib-reports/aaib-special-bulletin-s1-slash-2025-rockwell-commander-112-tca-n4698w"
+    }
+   ]
+  }
+ }
+}

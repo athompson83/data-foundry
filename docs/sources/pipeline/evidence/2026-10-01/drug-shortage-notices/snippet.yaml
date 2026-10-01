@@ -1,0 +1,214 @@
+# drug-shortage-notices: paste under `candidates:` and `datasets:` in candidates.yaml (orchestrator merges).
+candidates:
+  - key: fda-drug-shortages-openfda
+    name: FDA drug shortages and discontinuations (openFDA endpoint and CDER database)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/drug/shortages.json
+      - https://www.accessdata.fda.gov/scripts/drugshortages/default.cfm
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 5,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication."
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Re-measure from an archived R2 snapshot of the 1,594 notices, then extract reason/recovery phrases from related_info and the CDER detail pages.
+
+  - key: ema-medicine-shortages
+    name: EMA medicine shortages catalogue (spreadsheet and shortage pages)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: European Medicines Agency
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.ema.europa.eu/en/documents/report/medicines-output-shortages-report_en.xlsx
+      - https://www.ema.europa.eu/en/human-regulatory-overview/post-authorisation/medicine-shortages-availability-issues
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: https://www.ema.europa.eu/en/about-us/legal-notice
+        quote: "Information and documents made available on EMA's webpages are public and may be reproduced and / or distributed, totally or in part, irrespective of the means and / or the formats used, for non-commercial and commercial purposes, provided that EMA is always acknowledged as the source of the material."
+      - url: https://www.ema.europa.eu/en/about-us/legal-notice
+        quote: "The above-mentioned permissions do not apply to content supplied by third parties."
+    conditions:
+      - Acknowledge EMA as the source in each copy of the material.
+      - Exclude third-party content and photos or other materials that are not under EMA copyright.
+      - Publish only catalogue fields and short shortage-page spans with the shortage URL; the catalogue lists only shortages assessed by EMA, so do not present it as complete EU coverage.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive the daily xlsx and the 85 shortage pages, then measure deterministic extraction of reason, expected resolution and affected member states from the page prose.
+
+  - key: nlm-rxnorm-ndc-atc-map
+    name: NLM RxNorm NDC to RxCUI and DailyMed set-id crosswalk (ATC via RxClass)
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: US National Library of Medicine
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://rxnav.nlm.nih.gov/REST/ndcstatus.json
+      - https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://lhncbc.nlm.nih.gov/RxNav/TermsofService.html
+        quote: "The APIs (RxNorm, RxTerms, Prescribable RxNorm, and RxClass) may be used free-of-charge."
+      - url: https://lhncbc.nlm.nih.gov/RxNav/TermsofService.html
+        quote: "NLM requires that users of the APIs (RxNorm, RxTerms, Prescribable RxNorm, and RxClass) send no more than 20 requests per second per IP address."
+    conditions:
+      - Include the NLM attribution statement the terms request, and do not use the NLM name or logo.
+      - Stay under 20 requests per second per IP and cache results 12 to 24 hours, or run RxNav-in-a-Box.
+      - Use RxNorm (non-proprietary) for NDC to RxCUI; treat ATC codes from RxClass as WHO content whose redistribution is unverified until a rights record settles it.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Read the RxNorm and WHO ATC licence texts for redistribution of ATC codes, then decide whether ATC is served or only linked.
+
+  - key: tga-medicine-shortages
+    name: TGA Australia medicine shortage reports database
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Therapeutic Goods Administration (Australia)
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://apps.tga.gov.au/prod/MSI/search
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Reopen when www.tga.gov.au copyright terms can be fetched from our egress; the MSI page (992 records, ARTG numbers) embeds its data as JSON.
+
+  - key: drug-shortages-canada
+    name: Drug Shortages Canada (Health Canada reporting database)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.drugshortagescanada.ca/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked because the site returned HTTP 403 with a Cloudflare challenge to our egress; look for an open.canada.ca bulk dataset with a stated licence.
+
+  - key: ashp-drug-shortages
+    name: ASHP current drug shortages list
+    category: health
+    structuring: normalization
+    format: free-text
+    publisher: American Society of Health-System Pharmacists
+    stage: PARKED
+    rights: RED
+    sources:
+      - https://www.ashp.org/drug-shortages/current-shortages
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 1,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked because the site returned HTTP 403 with a bot challenge and its terms page could not be read; do not work around it.
+
+datasets:
+  - key: drug-shortage-notices
+    name: Drug shortage and discontinuation notices (US and EU, NDC/RxCUI-linked)
+    category: health
+    entity: drug_shortage_notice (one regulator notice per product or presentation) with active ingredient, dosage form, strength, status, reason text, expected recovery, linked to NDC, RxCUI, DailyMed set id and ATC
+    stage: SCREENED
+    description: "One record per regulator shortage or discontinuation notice from the FDA (1,594 notices on 2026-09-30, each with a package NDC) and the EMA catalogue (85 shortages), classed under one status and reason taxonomy. The FDA notice carries a package NDC, which links automatically to the RxNorm RxCUI and the DailyMed set id (24/25 and 25/25 on a sample), and through RxClass to ATC. EMA notices name only the INN, so an FDA-EMA link on the same active substance is a reviewed candidate, never an auto-merge. Reason text is normalised into a closed set (demand increase, manufacturing, active ingredient, discontinuation) with the source quote kept per fact."
+    sources:
+      - fda-drug-shortages-openfda
+      - ema-medicine-shortages
+      - nlm-rxnorm-ndc-atc-map
+    join_keys:
+      # DECLARED but not accepted by the current test regex: a declared key must match
+      # /licen[cs]e number|UBI|GTIN|UPC|NOA|FL#|FIPS|zone|case number|cited ... notice URL/. NDC and RxCUI are identifiers
+      # that name the counterpart record; add NDC|RxCUI to the regex in tooling/test/source-pipeline.test.ts to enable this entry.
+      # - key: package NDC cited by the FDA notice -> RxNorm RxCUI and DailyMed set id
+      #   between: [ fda-drug-shortages-openfda, nlm-rxnorm-ndc-atc-map ]
+      #   measured: 24/25 package NDCs resolved to an RxCUI that is in the notice's own openfda.rxcui list; 25/25 resolved to a DailyMed set id in the notice's openfda.spl_set_id list
+      #   mode: declared
+      - key: active substance name (EMA INN equals an openFDA substance_name or generic_name; exact normalised string)
+        between:
+          - ema-medicine-shortages
+          - fda-drug-shortages-openfda
+        measured: 14/85 EMA notices have an exact INN match in the 1,594 FDA notices; 14/14 are the same active substance on hand check (one multi-ingredient EMA notice, ADHD medicines, matched on 1 of 3 ingredients)
+        mode: candidate
+        reviewed: { correct: 14, checked: 14 }
+    taxonomy:
+      - status (current shortage, resolved, to be discontinued, discontinued)
+      - reason class (demand increase, manufacturing or GMP, active ingredient supply, shipping delay, business discontinuation, other)
+      - therapeutic category and ATC level (via RxClass, rights permitting)
+      - dosage form and route
+      - jurisdiction (US FDA, EU EMA)
+    agent_questions:
+      - Which marketed presentations of this ingredient, by NDC, are in shortage or being discontinued right now, and why?
+      - Is this active substance in shortage in both the US and the EU, and when is recovery expected in each?
+      - Which equivalent products (same RxCUI or ATC class) are not affected?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Add NDC|RxCUI to the declared-key regex, archive the openFDA, EMA and NLM inputs in R2, and decide ATC redistribution before advancing to EVIDENCED.

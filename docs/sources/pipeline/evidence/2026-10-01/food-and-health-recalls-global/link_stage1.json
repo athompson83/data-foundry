@@ -1,0 +1,36 @@
+{
+ "fda_rows": 4000,
+ "fda_report_date_range": [
+  "20240103",
+  "20260923"
+ ],
+ "fda_rows_with_valid_gtin12_14": 609,
+ "census_fsa": {
+  "records": 1359
+ },
+ "census_hc_food_health": {
+  "mentions_FDA_or_US": 12,
+  "valid_gtin_tokens": 2,
+  "gtin_matches_fda": 0,
+  "records": 18973
+ },
+ "fsa_records_since_2024": 416,
+ "fsa_candidate_pairs": 11,
+ "hc_records_since_2023_12": 2364,
+ "hc_candidate_pairs": 117,
+ "hc_candidate_distinct_notices_checked": 80,
+ "hc_candidate_hand_correct": 9,
+ "hc_correct_nids": [
+  "82641",
+  "82092",
+  "81542",
+  "81490",
+  "81339",
+  "81288",
+  "81219",
+  "77655",
+  "75338"
+ ],
+ "fsa_candidate_distinct_notices_checked": 7,
+ "fsa_candidate_hand_correct": 0
+}

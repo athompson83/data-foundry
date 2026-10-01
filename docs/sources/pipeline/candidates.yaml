@@ -3,12 +3,14 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-09-30
+updated: 2026-10-01
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
     category: product-safety
     structuring: identifier-extraction
+    format: structured
+    publisher: US FDA
     stage: LIVE
     rights: GREEN
     sources: [ https://api.fda.gov/food/enforcement.json ]
@@ -4057,6 +4059,980 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
     next_action: Parked for this round - the shared DEMO_KEY answered 429. Use the bulk CSV download rather than the API, and pair it with Open Food Facts on GTIN.
 
+  - key: aviation-ntsb-accident-database
+    name: NTSB aviation accident and incident database with narratives
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: AMBER
+    sources: [ https://data.ntsb.gov/avdata ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
+          quote: 'Content appearing on NTSB Web pages, in reports, recommendation, and public dockets, unless otherwise noted, was prepared by employees of the United States Government as part of their official duties and, therefore, is not subject to copyright.'
+        }
+      - {
+          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
+          quote: 'This material may be freely copied and, at your discretion, credited to the NTSB with a "Courtesy: National Transportation Safety Board" notation.'
+        }
+    conditions:
+      - Exclude owner, crew and individual-operator personal data (owner_acft, owner_street, owner_city, oper_individual_name, Flight_Crew); keep raw in R2 only.
+      - Third-party copyrighted text and images are carved out by the NTSB policy; do not republish images.
+      - Credit NTSB (Courtesy National Transportation Safety Board) and keep records accurate and complete.
+      - The downloadable MDB retires 2027-04-05 in favour of the keyed Enterprise API; plan acquisition for the API before then.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Pull the full history through the keyed API (review its terms), parse narratives to cause, phase and damage, and re-measure the AAIB registration link over complete data.
+
+  - key: aviation-uk-aaib-reports
+    name: UK AAIB air accident and serious incident investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Air Accidents Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=aaib_report', 'https://www.gov.uk/aaib-reports' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.gov.uk/help/terms-conditions',
+          quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt.'
+        }
+    conditions:
+      - Attribute 'Contains public sector information licensed under the Open Government Licence v3.0'.
+      - Exclude personal data and third-party images or material inside the report PDFs (OGL exemptions).
+      - Do not suggest endorsement by the AAIB.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Fetch all 11,356 content-API records and PDFs into R2, extract cause, phase and injury text, and validate registrations against each state of registry grammar.
+
+  - key: aviation-ca-cadors-occurrences
+    name: Transport Canada CADORS civil aviation occurrence reports
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transport Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ https://opendatatc.tc.canada.ca/CADORS_Aircraft_Information.csv, https://opendatatc.tc.canada.ca/CADORS_Occurrence_Information.csv ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+        }
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license;'
+        }
+    conditions:
+      - Attribute 'Contains information licensed under the Open Government Licence – Canada'.
+      - Exclude the owner field and any personal information.
+      - Present CADORS as initial, unverified occurrence reports.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Stream the five CSVs (91 MB and 98 MB) in R2-backed chunks, count rows, join aircraft to occurrences by cadorsnumber, and map event names to the dataset taxonomy.
+
+  - key: aviation-nasa-asrs-reports
+    name: NASA ASRS de-identified aviation safety reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: NASA Aviation Safety Reporting System
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://asrs.arc.nasa.gov/search/database.html ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked 2026-10-01 - query-wizard access only, no licence text found, and reports are de-identified (no tail number); reopen if a bulk export with terms appears.
+
+  - key: aviation-fr-bea-reports
+    name: French BEA civil aviation investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Bureau d Enquetes et d Analyses (France)
+    stage: PARKED
+    rights: RED
+    sources: [ https://bea.aero/en/investigation-reports/notified-events/ ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 2,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://bea.aero/en/legal-notice/',
+          quote: "Les informations ne peuvent être utilisées à des fins commerciales ou promotionnelles sans l'autorisation expresse et l'obtention d'une licence de réutilisation des informations publiques."
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked 2026-10-01 - the legal notice forbids commercial reuse without a licence; reopen only with a written reuse licence.
+
+  - key: aviation-ca-tsb-air-occurrences
+    name: TSB Canada air occurrence data 1995 to present
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://www.tsb.gc.ca/sites/default/files/stats/ASISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 3,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked 2026-10-01 - the CSV returned HTTP 403 from this egress (listed under OGL-Canada on open.canada.ca); retry from another route and join to CADORS by tsboccurrencenumber.
+
+  - key: fda-drug-shortages-openfda
+    name: FDA drug shortages and discontinuations (openFDA endpoint and CDER database)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/drug/shortages.json
+      - https://www.accessdata.fda.gov/scripts/drugshortages/default.cfm
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 5,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication."
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Re-measure from an archived R2 snapshot of the 1,594 notices, then extract reason/recovery phrases from related_info and the CDER detail pages.
+
+  - key: ema-medicine-shortages
+    name: EMA medicine shortages catalogue (spreadsheet and shortage pages)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: European Medicines Agency
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.ema.europa.eu/en/documents/report/medicines-output-shortages-report_en.xlsx
+      - https://www.ema.europa.eu/en/human-regulatory-overview/post-authorisation/medicine-shortages-availability-issues
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: https://www.ema.europa.eu/en/about-us/legal-notice
+        quote: "Information and documents made available on EMA's webpages are public and may be reproduced and / or distributed, totally or in part, irrespective of the means and / or the formats used, for non-commercial and commercial purposes, provided that EMA is always acknowledged as the source of the material."
+      - url: https://www.ema.europa.eu/en/about-us/legal-notice
+        quote: "The above-mentioned permissions do not apply to content supplied by third parties."
+    conditions:
+      - Acknowledge EMA as the source in each copy of the material.
+      - Exclude third-party content and photos or other materials that are not under EMA copyright.
+      - Publish only catalogue fields and short shortage-page spans with the shortage URL; the catalogue lists only shortages assessed by EMA, so do not present it as complete EU coverage.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive the daily xlsx and the 85 shortage pages, then measure deterministic extraction of reason, expected resolution and affected member states from the page prose.
+
+  - key: nlm-rxnorm-ndc-atc-map
+    name: NLM RxNorm NDC to RxCUI and DailyMed set-id crosswalk (ATC via RxClass)
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: US National Library of Medicine
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://rxnav.nlm.nih.gov/REST/ndcstatus.json
+      - https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://lhncbc.nlm.nih.gov/RxNav/TermsofService.html
+        quote: "The APIs (RxNorm, RxTerms, Prescribable RxNorm, and RxClass) may be used free-of-charge."
+      - url: https://lhncbc.nlm.nih.gov/RxNav/TermsofService.html
+        quote: "NLM requires that users of the APIs (RxNorm, RxTerms, Prescribable RxNorm, and RxClass) send no more than 20 requests per second per IP address."
+    conditions:
+      - Include the NLM attribution statement the terms request, and do not use the NLM name or logo.
+      - Stay under 20 requests per second per IP and cache results 12 to 24 hours, or run RxNav-in-a-Box.
+      - Use RxNorm (non-proprietary) for NDC to RxCUI; treat ATC codes from RxClass as WHO content whose redistribution is unverified until a rights record settles it.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Read the RxNorm and WHO ATC licence texts for redistribution of ATC codes, then decide whether ATC is served or only linked.
+
+  - key: tga-medicine-shortages
+    name: TGA Australia medicine shortage reports database
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Therapeutic Goods Administration (Australia)
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://apps.tga.gov.au/prod/MSI/search
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Reopen when www.tga.gov.au copyright terms can be fetched from our egress; the MSI page (992 records, ARTG numbers) embeds its data as JSON.
+
+  - key: drug-shortages-canada
+    name: Drug Shortages Canada (Health Canada reporting database)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.drugshortagescanada.ca/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked because the site returned HTTP 403 with a Cloudflare challenge to our egress; look for an open.canada.ca bulk dataset with a stated licence.
+
+  - key: ashp-drug-shortages
+    name: ASHP current drug shortages list
+    category: health
+    structuring: normalization
+    format: free-text
+    publisher: American Society of Health-System Pharmacists
+    stage: PARKED
+    rights: RED
+    sources:
+      - https://www.ashp.org/drug-shortages/current-shortages
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 1,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked because the site returned HTTP 403 with a bot challenge and its terms page could not be read; do not work around it.
+
+  - key: uk-fsa-food-alerts
+    name: UK Food Standards Agency food alerts (allergy alerts, product recalls, food alerts for action)
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: Food Standards Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.food.gov.uk/food-alerts/id?_limit=5000' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'acknowledge the source of the Information in your product or application by including or linking to any attribution statement specified by the Information Provider(s)'
+    conditions:
+      - 'Attribute with "Contains public sector information licensed under the Open Government Licence v3.0" and link the licence.'
+      - Exclude personal data and do not imply FSA endorsement.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'Measured 2026-10-01: 1,359 alerts 2018-01-09 to 2026-09-25 in one JSON request; no barcode, lot or FDA reference in the API, so it links to FDA only by reviewed candidate; keep the raw JSON (allergen, pathogenRisk, country, modified, update chain).'
+
+  - key: ca-recalls-food-health-open-data
+    name: Health Canada recalls and safety alerts index, food (CFIA), drug, device and health-product slice
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license; the names, crests, logos, or other official symbols of the Information Provider; and Information subject to other intellectual property rights, including patents, trade-marks and official marks.'
+    conditions:
+      - 'Attribute with "Contains information licensed under the Open Government Licence - Canada" and link the licence.'
+      - Never republish the "What you should do" text (contact details); derive remedy classes only.
+      - 'Use the open-data file; notice detail pages (UPC, lot, best-before) are canada.ca page text and need a rights-record extension before use.'
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'Measured 2026-10-01: 18,973 non-consumer rows (CFIA 5,318 from 2011, devices 8,647, drugs 1,934, marketed health products 1,161) in the same file as the consumer slice; check-digit-valid UPC on 21 of 29 fetched detail pages and 5 of 29 matched FDA code_info; extend the existing Health Canada rights record to this slice and the detail pages.'
+
+  - key: au-nz-fsanz-food-recalls
+    name: FSANZ food recall alerts (Australia and New Zealand)
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Food Standards Australia New Zealand
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.foodstandards.gov.au/food-recalls-rss.xml', 'https://www.foodstandards.gov.au/food-recalls/recall-alert' ]
+    scores:
+      {
+        agent_demand: 2,
+        rights_clarity: 4,
+        acquisition_ease: 2,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: https://www.foodstandards.gov.au/copyright
+        quote: 'Unless expressly noted otherwise, material presented on this website is provided under a Creative Commons Attribution 4.0 Australia (CC BY 4.0) licence, except for: the Food Standards Australia New Zealand logo; and third party material.'
+      - url: https://www.foodstandards.gov.au/copyright
+        quote: 'You may copy, distribute, transmit and adapt the material covered by the CC BY 4.0 licence for commercial and non-commercial purposes; but you must attribute the work in the following manner: Food Standards Australia New Zealand.'
+    conditions:
+      - 'Attribute "Food Standards Australia New Zealand"; do not imply endorsement.'
+      - Exclude third-party material (images, PDF notices) and firm contact details (phone, email).
+      - 'No API: RSS holds the latest 10 only; history needs the HTML listing (19 pages, about 2024 onward) through the governed crawler adapter.'
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'Measured 2026-10-01: RSS 200 with 10 items to 2026-09-30, listing pager to page 18 (back to about April 2024); no GTIN or lot in the sampled item; linkage to FDA not measured.'
+
+  - key: us-fsis-recall-api-2026
+    name: USDA FSIS recall API (meat, poultry, egg products), 2026 re-screen
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: USDA Food Safety and Inspection Service
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fsis.usda.gov/fsis/api/recall/v/1' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'PARKED: HTTP 403 Access Denied (Akamai) from this egress with the scout User-Agent on 2026-10-01, terms unread; retry from Cloudflare Worker egress and merge with the existing fsis-recalls entry rather than creating a second one.'
+
+  - key: eu-rasff-notifications
+    name: EU RASFF food and feed safety notifications
+    category: product-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG SANTE
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://webgate.ec.europa.eu/rasff-window/screen/search' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'PARKED: official API at developer.datalake.sante.service.ec.europa.eu needs a subscription key and the RASFF Window backend answered 405; only a pre-2021 xlsx is reachable and these are border notifications, not lot-level recalls.'
+
+  - key: hazard-fema-disaster-declarations
+    name: FEMA OpenFEMA DisasterDeclarationsSummaries (federal disaster declarations by county, 1953 to date)
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: FEMA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 2,
+        acquisition_ease: 5,
+        structuring_value: 2,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: 'https://www.fema.gov/api/open/v1/OpenFemaDataSets'
+        quote: "Citation: FEMA's citation requirements for datasets (API usage or file downloads) can be found on the OpenFEMA Terms and Conditions page, Citing Data section"
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked UNKNOWN; the API answers 200 (70,423 rows, refreshed every 20 minutes) but the OpenFEMA terms page returns 403 from our egress, so terms are unread. Reopen when the terms are readable; then GREEN or AMBER (US government data, citation required) and FIPS-join to roofing-ncei-storm-events (128/543).
+
+  - key: hazard-nws-active-alerts
+    name: NWS api.weather.gov active watches, warnings and advisories (CAP text with SAME and UGC geocodes)
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: NOAA National Weather Service
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.weather.gov/alerts/active' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 5,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.weather.gov/disclaimer
+        quote: "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own"
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: The API holds only active alerts (347 now; a 2026-06-01 history query returned 0), so build means polling and archiving every alert to R2 to create history; join to NCEI by UGC zone and SAME county codes (place level).
+
+  - key: hazard-usgs-earthquakes
+    name: USGS ComCat earthquake GeoJSON feeds and FDSN event service
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: USGS
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 2,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 1
+      }
+    terms:
+      - url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+        quote: "USGS-authored or produced data and information are considered to be in the U.S. Public Domain."
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Keep as a reference feed (2,013 M2.5+ events in the last month; 10,854 events of all magnitudes since 2026-09-01); no FIPS, so it joins only by a derived state or county (candidate), and has no narrative text.
+
+  - key: hazard-eccc-cap-alerts
+    name: Environment and Climate Change Canada CAP weather alerts (dd.weather.gc.ca)
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Environment and Climate Change Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://dd.weather.gc.ca/today/alerts/cap/' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://eccc-msc.github.io/open-data/licence/readme_en/
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+      - url: https://eccc-msc.github.io/open-data/licence/readme_en/
+        quote: "In the case of weather alerts (i.e. watches/warnings), any information shall be reproduced in such a way that there is no alteration of the content or intent of the alert."
+    conditions:
+      - Acknowledge the source with the ECCC attribution statement and link to the licence.
+      - Reproduce alerts without altering their content or intent.
+      - No implied endorsement by ECCC.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive CAP XML per day (only 12 files existed in today's tree at 14:00 UTC); Canadian CLC and SGC codes do not join to US FIPS, so it joins no US member by an identifier.
+
+  - key: procurement-canadabuys-notices
+    name: CanadaBuys open tender and award notices (federal Canada, CSV)
+    category: procurement
+    structuring: normalization
+    format: free-text
+    publisher: Public Services and Procurement Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/en/dataset/6abd20d4-7a1c-4b38-baa2-9525d0bb2fd2', 'https://canadabuys.canada.ca/opendata/pub/tenderNoticeComplete-avisAppelOffresComplet.csv', 'https://canadabuys.canada.ca/opendata/pub/awardNoticeComplete-avisAttributionComplet.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - { url: 'https://open.canada.ca/en/open-government-licence-canada', quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.' }
+      - { url: 'https://open.canada.ca/en/open-government-licence-canada', quote: 'This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license;' }
+    conditions: [ 'Attribution: Contains information licensed under the Open Government Licence - Canada.', 'Drop contact names, emails and phones (Personal Information is excluded).', 'No third-party rights or official marks.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Measure UNSPSC-to-description extraction on 20 bilingual notices and look for a buyer or supplier registry identifier.
+  - key: procurement-uk-contracts-finder-ocds
+    name: UK Contracts Finder OCDS notices (tender and award)
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Cabinet Office (Crown Commercial Service)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - { url: 'https://www.contractsfinder.service.gov.uk/Home/TermsAndConditions', quote: 'You can reproduce content published on Contracts Finder and Find a Tender under the OGL as long as you follow the licence' }
+    conditions: [ 'OGL v3 attribution.', 'Drop party contactPoint names, emails and phones.', 'Respect "except where otherwise stated" third-party content.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Date-slice backfill (cursor caps at 2,000 releases per window) and extract value, lot and framework terms from descriptions.
+  - key: procurement-uk-find-a-tender-ocds
+    name: UK Find a Tender OCDS notices (above-threshold tender, award, contract)
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Cabinet Office (Crown Commercial Service)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - { url: 'https://www.contractsfinder.service.gov.uk/Home/TermsAndConditions', quote: 'You can reproduce content published on Contracts Finder and Find a Tender under the OGL as long as you follow the licence' }
+    conditions: [ 'OGL v3 attribution.', 'Drop party contactPoint names, emails and phones.', 'Respect "except where otherwise stated" third-party content.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Measure OCID overlap against Contracts Finder over a common date window and join suppliers on GB-COH.
+  - key: procurement-eu-ted-notices
+    name: EU TED procurement notices (Search API v3, eForms)
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Publications Office of the European Union
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.ted.europa.eu/v3/notices/search', 'https://docs.ted.europa.eu/api/latest/search.html' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - { url: 'https://docs.ted.europa.eu/api/latest/search.html', quote: 'does not require authentication, making it openly accessible to any system or user' }
+      - { url: 'https://commission.europa.eu/legal-notice_en', quote: 'content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence' }
+    conditions: [ 'Confirm the TED/Publications Office reuse statement (legal notice was not readable) before RIGHTS_DETERMINED.', 'CC BY 4.0 style attribution.', 'Exclude natural-person contact data in notices.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Quote the TED legal-notice reuse terms from a readable copy, then pair winner names and ids from notice XML.
+  - key: procurement-usaspending-awards
+    name: USAspending federal contract awards API
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: US Department of the Treasury (Bureau of the Fiscal Service)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.usaspending.gov/api/v2/search/spending_by_award/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - { url: 'https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/README.md', quote: 'all federal spending data which is open source and provided to the public as part of the DATA Act' }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked - no readable data-terms page (site is a JS shell); reopen when a public-domain statement is quotable. UEI is a join target.
+  - key: procurement-sam-opportunities
+    name: SAM.gov Opportunities (federal solicitations)
+    category: procurement
+    structuring: normalization
+    format: free-text
+    publisher: US General Services Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.sam.gov/prod/opportunities/v2/search' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked - needs a SAM.gov account and API key (same blocker as contractors-sam-entities); unauthenticated call returned 404.
+
+  - key: msha-mine-accident-injury-narratives
+    name: MSHA mine accident, injury and illness reports with free-text narrative (2000 to present)
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US DOL MSHA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://arlweb.msha.gov/OpenGovernmentData/DataSets/Accidents.zip', 'https://arlweb.msha.gov/OpenGovernmentData/DataSets/Mines.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    terms:
+      - url: https://www.dol.gov/general/aboutdol/copyright
+        quote: 'Materials created by the federal government are generally part of the public domain and may be used, reproduced and distributed without permission.'
+      - url: https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp
+        quote: 'These files are updated every Friday afternoon unless otherwise noted here.'
+    conditions:
+      - Credit US DOL MSHA and imply no DOL affiliation or endorsement; never use DOL seals or logos.
+      - Publish the NARRATIVE only after a personal-data scan (names, ages, contact details) and drop any record that fails it.
+      - Treat each weekly zip as a complete replacement, so rebuild from the snapshot and keep the raw zip in R2.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive the full Accidents.zip and Mines.zip to R2, then measure personal-data hits in the narratives and extract equipment, task and body-part facts deterministically.
+  - key: eia-coal-mine-production-msha-id
+    name: EIA annual coal mine production, employment and operator by MSHA mine ID
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: US EIA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.eia.gov/coal/data/public/xls/coalpublic2022.xls' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.eia.gov/about/copyrights_reuse.php
+        quote: 'U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website'
+    conditions:
+      - Acknowledge the US Energy Information Administration with the publication date.
+      - The file is SpreadsheetML XML with a .xls name, parse it as XML and expect transient 503 responses from the host.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Locate the current-year coalpublic file (2023 and 2024 returned 503 in the head request) and confirm the annual refresh date before relying on it.
+  - key: osha-severe-injury-reports
+    name: OSHA Severe Injury Reports with Final Narrative (employer, NAICS, narrative)
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US DOL OSHA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.osha.gov/severe-injury' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Reopen only if osha.gov stops returning HTTP 403 to our egress (page and severeinjury.csv both blocked) or DOL publishes the file on a reachable host.
+  - key: cpsc-neiss-injury-narratives
+    name: CPSC NEISS emergency-department injury narratives (consumer products)
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US CPSC
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.cpsc.gov/Research--Statistics/NEISS-Injury-Data' ]
+    scores: { agent_demand: 2, rights_clarity: 2, acquisition_ease: 3, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Park as out of scope; NEISS covers hospital visits for consumer products with no employer or establishment identifier. Consider it for a consumer-product injury dataset instead.
+
+  - key: fda-warning-letters
+    name: FDA warning letters (CDER, CBER, CDRH, CFSAN/HFP, CVM, CTP, OII)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US FDA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.fda.gov/inspections-compliance-enforcement-and-criminal-investigations/compliance-actions-and-activities/warning-letters
+      - https://www.fda.gov/datatables/views/ajax?view_name=warning_letter_solr_index&view_display_id=warning_letter_solr_block
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not
+          copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by
+          anyone without the need to obtain permission from FDA."
+    conditions:
+      - Public-domain text, but each letter header carries the recipient's personal name, title and e-mail address
+        (26/26 sampled letters); redact individual contact data and publish only the company, site address and violation text.
+      - Letters redact trade secrets as (b)(4); never try to reconstruct them.
+      - Datatable endpoint is an undocumented site feed (no API key, no stated rate limit); cap at 2 requests per second and send a declared User-Agent.
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Extract violation categories, CFR citations, product type and cited FEI/CMS numbers from letter text; archive
+      the 3,723-row index plus letters in R2; write the ADR-0013 rights record with the recipient-contact exclusion.
+
+  - key: epa-echo-enforcement-cases
+    name: EPA ECHO civil, administrative and criminal enforcement cases
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://echodata.epa.gov/echo/case_rest_services.get_cases
+      - https://echodata.epa.gov/echo/case_rest_services.get_case_report
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "These documents may be freely distributed and used for non-commercial, scientific and educational
+          purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and
+          Foreign Copyright Laws."
+    conditions:
+      - The EPA disclaimer reserves commercial-use copyright for some documents; case data are EPA-authored federal work,
+        so serve only EPA-authored fields (case number, dates, law, penalty, outcome, FRS id, defendant, summary) and write
+        an ADR-0013 rights record that resolves the sentence before any paid delivery.
+      - Personal names appear as case names and defendants (criminal and individual cases); exclude natural persons.
+      - The service returned intermittent 503 responses and 5 of 19 listing pages failed after 3 retries; sync must back off and resume.
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Resolve commercial-use wording in a rights record; page the full 312,444-case population by state and fiscal
+      year (listing is capped), ingest case reports for FRS ids, defendants, court/DOJ docket numbers and summaries.
+
+  - key: sec-litigation-releases
+    name: SEC litigation releases (civil actions in federal court)
+    category: regulatory
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US SEC
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.sec.gov/enforcement-litigation/litigation-releases
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.sec.gov/about/privacy-information
+        quote: "Information presented on sec.gov is considered public information and may be copied or further
+          distributed by users of the web site without the SEC’s permission."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Extract the cited court case number (7 formats seen), court, defendants, relief and penalty amounts from release
+      text; resolve defendants to CIK through the SEC company index; cite the SEC, no seal, at most 10 requests/second.
+
+  - key: cfpb-enforcement-actions
+    name: CFPB enforcement actions (administrative and civil)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US CFPB
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.consumerfinance.gov/enforcement/actions/
+      - https://www.consumerfinance.gov/enforcement/actions/feed/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.consumerfinance.gov/privacy/website-privacy-policy/
+        quote: "Information created by the CFPB is in the public domain and you may reproduce, publish, or otherwise
+          use it without the Bureau’s permission."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Parse the Action Details block (forum, docket number, filing date, status, products) and monetary terms from the
+      page text; exclude copyrighted third-party material the page notes; note feed is stale (last item 2025-08-21).
+
+  - key: ftc-cases-proceedings
+    name: FTC cases and proceedings (consumer protection and competition)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US FTC
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.ftc.gov/legal-library/browse/cases-proceedings
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 2,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.ftc.gov/policy-notices/website-policy
+        quote: "Most material on the FTC’s website is considered work of the United States Government, meaning that the
+          material is in the public domain and is not subject to copyright restrictions"
+    conditions:
+      - Attribute the FTC where feasible; some pages carry third-party material outside the public-domain statement.
+      - robots.txt sets Crawl-delay 5, so a full crawl of about 6,120 cases takes roughly 9 hours at one request per 5 seconds; no keyless API was used (api.ftc.gov needs a key).
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Crawl case pages at the declared 5-second delay, extract parties, docket and file numbers, relief; the listing is
+      HTML only and about 1 MB per page, so prefer incremental sync from the newest-first order.
+
+  - key: uk-cma-cases
+    name: UK CMA case pages (consumer enforcement, CA98, mergers, markets)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK CMA
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.gov.uk/api/search.json?filter_format=cma_case
+      - https://www.gov.uk/cma-cases
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "is published under the Open Government Licence (OGL), which also sets out which content is exempt."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Keep only the enforcement case types (consumer-enforcement, ca98-and-civil-cartels, criminal-cartels, markets);
+      ingest case body text and decision documents; add OGL attribution and the Crown copyright notice.
+
+  - key: uk-fca-enforcement
+    name: UK FCA final notices and enforcement
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK FCA
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.fca.org.uk/news/search-results
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: PARKED, UNKNOWN rights - search page answered HTTP 403 and the terms URL 404 from our egress; reopen when terms are readable.
+
+  - key: uk-ico-enforcement
+    name: UK ICO enforcement actions
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK ICO
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://ico.org.uk/action-weve-taken/enforcement/
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 3,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://ico.org.uk/action-weve-taken/enforcement/
+        quote: "All text content is available under the Open Government Licence v3."
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: PARKED, unmeasured - landing page returned only 1,709 characters of text with no listing or count; reopen after finding a stable list or feed.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -4828,3 +5804,317 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/uei_join.json, docs/sources/pipeline/evidence/2026-09-30/grants_shortages.json ]
     next_action: Quote NIH and NSF terms and write the rights records; use the ExPORTER bulk files for full history; re-measure the UEI join on a larger NSF sample before EVIDENCED.
+
+  - key: aviation-safety-occurrences
+    name: Aircraft accident and incident investigation records linked to airframe and operator
+    category: transport-safety
+    entity: aviation_occurrence (one investigated or reported accident or incident) linked to aircraft (registration, make, model, serial) and operator
+    stage: SCREENED
+    description: "One record per accident, serious incident or reported occurrence, assembled from NTSB (US, narratives),
+      UK AAIB (report summaries and PDFs) and Transport Canada CADORS (coded occurrence reports). Registration (tail number)
+      is normalised and links every source to the same airframe; registration plus an occurrence date within 3 days
+      proposes the link between two investigations of one event (for example an NTSB accredited-representative case and the
+      AAIB report of the same flight). Operator names only propose reviewed links. Narratives are structured
+      deterministically into cause, phase of flight, damage and injury fields. Every fact carries its source; owner and
+      crew personal data are excluded. The FAA registry (faa-aircraft-registry, UNKNOWN) is a later enrichment, not a member."
+    sources:
+      - aviation-ntsb-accident-database
+      - aviation-uk-aaib-reports
+      - aviation-ca-cadors-occurrences
+    join_keys:
+      - key: aircraft registration number (normalised) + occurrence date within 3 days (event-level link between investigations)
+        between:
+          - aviation-ntsb-accident-database
+          - aviation-uk-aaib-reports
+        measured: 11/2602 NTSB 2026-update registrations also have an AAIB report of the same occurrence (15 report pairs); 20 more registration-only overlaps are the same airframe in other occurrences; 11/11 same-occurrence on hand check
+        mode: candidate
+        reviewed: { correct: 11, checked: 11 }
+      - key: aircraft registration number (normalised), airframe-level link only (not the same occurrence)
+        between:
+          - aviation-ntsb-accident-database
+          - aviation-ca-cadors-occurrences
+        measured: 6/2602 NTSB registrations appear in a 6 MB CADORS Range sample; 6/6 same airframe on hand check, none the same occurrence
+        mode: candidate
+        reviewed: { correct: 6, checked: 6 }
+      - key: aircraft registration number (normalised), airframe-level link only (not the same occurrence)
+        between:
+          - aviation-uk-aaib-reports
+          - aviation-ca-cadors-occurrences
+        measured: 30/8856 AAIB registrations appear in a 6 MB CADORS Range sample; 22/25 same airframe on hand check (1 contradicted, 2 undecidable)
+        mode: candidate
+        reviewed: { correct: 22, checked: 25 }
+    taxonomy:
+      - occurrence class (accident, serious incident, incident)
+      - phase of flight
+      - occurrence category (CAST/ICAO-style event names mapped from CADORS events and NTSB sequence of events)
+      - aircraft category and operation type (FAR part, commercial, general aviation, rotorcraft)
+      - injury severity and aircraft damage
+    agent_questions:
+      - What accidents and incidents has aircraft N4698W or G-OATW been involved in, across the US, UK and Canada?
+      - Which investigations of this type of aircraft cite the same cause or phase of flight in the last five years?
+      - Which operators have repeated occurrences of a given category, with the investigating agency's narrative for each?
+      - Did a foreign authority investigate the same event that the NTSB opened as an accredited representative?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 5,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Run the EVIDENCED round - full NTSB history via the keyed API, AAIB content API plus PDFs into R2, CADORS full CSV counts, a placeholder-safe registration normalizer, and re-measured links; add 'registration number' to the declared-identifier list if the owner agrees.
+
+  - key: drug-shortage-notices
+    name: Drug shortage and discontinuation notices (US and EU, NDC/RxCUI-linked)
+    category: health
+    entity: drug_shortage_notice (one regulator notice per product or presentation) with active ingredient, dosage form, strength, status, reason text, expected recovery, linked to NDC, RxCUI, DailyMed set id and ATC
+    stage: SCREENED
+    description: "One record per regulator shortage or discontinuation notice from the FDA (1,594 notices on 2026-09-30, each with a package NDC) and the EMA catalogue (85 shortages), classed under one status and reason taxonomy. The FDA notice carries a package NDC, which links automatically to the RxNorm RxCUI and the DailyMed set id (24/25 and 25/25 on a sample), and through RxClass to ATC. EMA notices name only the INN, so an FDA-EMA link on the same active substance is a reviewed candidate, never an auto-merge. Reason text is normalised into a closed set (demand increase, manufacturing, active ingredient, discontinuation) with the source quote kept per fact."
+    sources:
+      - fda-drug-shortages-openfda
+      - ema-medicine-shortages
+      - nlm-rxnorm-ndc-atc-map
+    join_keys:
+      # DECLARED but not accepted by the current test regex: a declared key must match
+      # /licen[cs]e number|UBI|GTIN|UPC|NOA|FL#|FIPS|zone|case number|cited ... notice URL/. NDC and RxCUI are identifiers
+      # that name the counterpart record; add NDC|RxCUI to the regex in tooling/test/source-pipeline.test.ts to enable this entry.
+      # - key: package NDC cited by the FDA notice -> RxNorm RxCUI and DailyMed set id
+      #   between: [ fda-drug-shortages-openfda, nlm-rxnorm-ndc-atc-map ]
+      #   measured: 24/25 package NDCs resolved to an RxCUI that is in the notice's own openfda.rxcui list; 25/25 resolved to a DailyMed set id in the notice's openfda.spl_set_id list
+      #   mode: declared
+      - key: active substance name (EMA INN equals an openFDA substance_name or generic_name; exact normalised string)
+        between:
+          - ema-medicine-shortages
+          - fda-drug-shortages-openfda
+        measured: 14/85 EMA notices have an exact INN match in the 1,594 FDA notices; 14/14 are the same active substance on hand check (one multi-ingredient EMA notice, ADHD medicines, matched on 1 of 3 ingredients)
+        mode: candidate
+        reviewed: { correct: 14, checked: 14 }
+    taxonomy:
+      - status (current shortage, resolved, to be discontinued, discontinued)
+      - reason class (demand increase, manufacturing or GMP, active ingredient supply, shipping delay, business discontinuation, other)
+      - therapeutic category and ATC level (via RxClass, rights permitting)
+      - dosage form and route
+      - jurisdiction (US FDA, EU EMA)
+    agent_questions:
+      - Which marketed presentations of this ingredient, by NDC, are in shortage or being discontinued right now, and why?
+      - Is this active substance in shortage in both the US and the EU, and when is recovery expected in each?
+      - Which equivalent products (same RxCUI or ATC class) are not affected?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Add NDC|RxCUI to the declared-key regex, archive the openFDA, EMA and NLM inputs in R2, and decide ATC redistribution before advancing to EVIDENCED.
+
+  - key: food-and-health-recalls-global
+    name: Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ)
+    category: product-safety
+    entity: recall_notice (one agency notice for a food, drug, device or health product) with affected products (lot, GTIN/UPC, NDC, establishment) and the recalling firm
+    stage: SCREENED
+    description: 'One record per national agency notice, widening the LIVE fda-recalls feed (US FDA food, drug and device enforcement reports) with Health Canada and CFIA, the UK Food Standards Agency and FSANZ. Free text is parsed deterministically into allergens, pathogens, hazards, classes, check-digit-valid GTINs, lots and dates, under one hazard and class taxonomy. A check-digit-valid GTIN links a notice to the affected product and never merges two recall events. Name and product matches only propose a reviewed link.'
+    sources:
+      - fda-recalls
+      - uk-fsa-food-alerts
+      - ca-recalls-food-health-open-data
+      - au-nz-fsanz-food-recalls
+    join_keys:
+      - key: GTIN/UPC (check-digit-valid, Health Canada notice detail page vs FDA code_info)
+        between:
+          - ca-recalls-food-health-open-data
+          - fda-recalls
+        measured: '5/29 Health Canada notices fetched (9 hand-correct plus 20 random recent CFIA) carry a UPC that appears in an FDA record; 4/6 of the hand-correct notices with a UPC matched'
+        mode: declared
+      - key: recalling firm name + product tokens, reviewed for same hazard and date
+        between:
+          - ca-recalls-food-health-open-data
+          - fda-recalls
+        measured: '9/80 distinct Health Canada notices with a candidate pair were the same recall event on hand check (4,000 FDA rows, 2,364 HC notices since 2023-12)'
+        mode: candidate
+        reviewed: { correct: 9, checked: 80 }
+      - key: recalling firm name + product tokens, dates within 120 days
+        between:
+          - uk-fsa-food-alerts
+          - fda-recalls
+        measured: '0/7 distinct FSA notices with a candidate pair were the same recall event on hand check; no FDA number or GTIN in any of 1,359 FSA items'
+        mode: candidate
+        reviewed: { correct: 0, checked: 7 }
+    taxonomy:
+      - 'agency: FDA | HC-CFIA | HC | FSA | FSANZ; jurisdiction: US | CA | UK | AU-NZ'
+      - 'product_class: food | drug | device | natural-health-product | veterinary | biologic'
+      - 'hazard: undeclared-allergen | pathogen | foreign-material | chemical-contaminant | labelling | cgmp-deviation | mislabelled | other'
+      - 'severity: FDA Class I-III | CFIA Class 1-3 | Health Canada Type I-III, kept verbatim and mapped to I | II | III'
+      - 'allergen and pathogen: FSA allergen and pathogenRisk values verbatim, others extracted from the reason text'
+    agent_questions:
+      - Is this UPC, lot or NDC under a recall in the US, Canada, the UK or Australia, and what is the hazard and class?
+      - Was this US food recall also issued in Canada, and by whom and when?
+      - Which recalls name this firm or establishment across agencies since 2024, by hazard?
+      - Which allergen or pathogen recalls hit a given product category in the last 90 days, by country?
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 4
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-10-01.md
+    next_action: 'Extend the Health Canada rights record to the food/health slice and detail pages; build a notice-detail extractor for UPC, lot and best-before; PARKED members (FSIS 403, RASFF key) re-screened from Worker egress.'
+
+  - key: public-procurement-notices
+    name: Public tender and contract-award notices (CA, UK, EU), CPV/UNSPSC classified, supplier-registry linked
+    category: procurement
+    entity: procurement_notice (one tender or contract award notice) with buyer, supplier, classification, value and description
+    stage: SCREENED
+    description: "One record per public tender or award notice from CanadaBuys, UK Contracts Finder and Find a Tender (OCDS) and EU TED, normalized to one value, currency and classification schema. Free-text descriptions are parsed deterministically into lots, framework references, contract periods and values. A Companies House company number cited in TED winner-identifier and in OCDS GB-COH supplier ids links awardees automatically across publishers at the supplier level only; names and titles never auto-link."
+    sources:
+      - procurement-canadabuys-notices
+      - procurement-uk-contracts-finder-ocds
+      - procurement-uk-find-a-tender-ocds
+      - procurement-eu-ted-notices
+    join_keys:
+      - key: Companies House company number (TED winner-identifier = OCDS GB-COH supplier id)
+        between: [ procurement-eu-ted-notices, procurement-uk-contracts-finder-ocds ]
+        measured: 8/624 distinct TED UK winner ids found in 2,000 Contracts Finder awards (Sep 2026); 12/12 distinct matches checked, 11 same legal name, 1 trading name
+        mode: candidate
+        reviewed: { correct: 11, checked: 12 }
+      - key: Companies House company number (TED winner-identifier = OCDS GB-COH supplier id)
+        between: [ procurement-eu-ted-notices, procurement-uk-find-a-tender-ocds ]
+        measured: 5/624 distinct TED UK winner ids found in 2,000 Find a Tender awards (Aug-Sep 2026)
+        mode: candidate
+    taxonomy:
+      - CPV (EU/UK) and UNSPSC (Canada) mapped to one procurement taxonomy
+      - notice stage (planning, tender, award, contract)
+      - procedure type and framework flag
+    agent_questions:
+      - Which suppliers won public contracts above a value in a CPV division across the UK and EU in the last 90 days?
+      - Which open tenders close in the next 14 days matching a service description, with buyer, value and lots?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Obtain a quotable TED reuse statement, extend the declared-key regex for Companies House, then measure extraction hit rates on 20 notices per member.
+
+  - key: workplace-injury-incident-narratives
+    name: Workplace injury and fatality incident register with narratives (mining first, linked to mine and operator)
+    category: workplace-safety
+    entity: workplace_injury_incident (one reported accident, injury or illness with mine or establishment, operator, classification and narrative)
+    stage: SCREENED
+    description: 'One record per MSHA accident, injury or illness report from 2000 to present with its free-text narrative, linked by the declared MSHA mine ID to the Mines register (location, status, SIC) and to EIA annual coal production and employment for that mine. Deterministic extraction turns narratives into equipment, task, body part and mechanism facts. OSHA severe-injury and inspection data (employer, NAICS) is the planned second industry slice once reachable; NAICS or SIC codes are filters, never joins.'
+    sources:
+      - msha-mine-accident-injury-narratives
+      - eia-coal-mine-production-msha-id
+    join_keys:
+      - key: MSHA mine ID (exact; EIA publishes the MSHA ID per mine, zero-padded to 7 digits)
+        between:
+          - msha-mine-accident-injury-narratives
+          - eia-coal-mine-production-msha-id
+        measured: 6287/6673 coal-mine accident rows from 2020 onward in the first 48 percent of the MSHA table match a mine in EIA 2022; 25/25 sampled matches agree on mine name
+        mode: candidate
+        reviewed: { correct: 25, checked: 25 }
+    taxonomy:
+      - workplace_safety.mining.coal
+      - workplace_safety.mining.metal_nonmetal
+      - workplace_safety.injury.severity
+      - workplace_safety.injury.mechanism
+    agent_questions:
+      - What kinds of injuries and mechanisms recur at underground coal mines of a given operator, and how does that compare with its production and hours?
+      - Which mines had days-away-from-work injuries involving a given equipment type in the last two years, with the narrative evidence?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive full MSHA Accidents and Mines zips to R2, run the personal-data scan on narratives, add the EIA current-year file, and retry OSHA severe-injury access.
+
+  - key: regulatory-enforcement-actions
+    name: Regulatory enforcement actions against companies (US federal and UK, narrative-level)
+    category: regulatory
+    entity: enforcement_action (one warning letter, civil or administrative case, litigation release or consumer-protection order against a named company, with violation narrative, relief and penalty)
+    stage: SCREENED
+    description: "One record per enforcement action published by the FDA, EPA, SEC, CFPB, FTC and the UK CMA. Free-text
+      letters, releases and case pages are parsed deterministically into respondent, forum, cited statutes or CFR sections,
+      cited court case numbers, relief and penalty amounts; EPA ECHO supplies structured cases with FRS facility ids,
+      DOJ and court docket numbers and penalties. A cited court case number is the only automatic link between
+      actions; identical case numbers from two publishers mean the same litigation. Company-name matches across
+      agencies only propose a reviewed link to a company profile (never a merge of actions), and agency identifiers
+      such as CMS, FEI, FRS ids and CIK link an action to its own agency's registry, not across agencies. Every fact
+      carries its source document. Measured on 2026-10-01: no court case number was shared between publishers in the
+      samples, so cross-agency linking today is by reviewed company-name candidates."
+    sources:
+      - fda-warning-letters
+      - epa-echo-enforcement-cases
+      - sec-litigation-releases
+      - cfpb-enforcement-actions
+      - ftc-cases-proceedings
+      - uk-cma-cases
+    join_keys:
+      - key: cited court case number (district, year, type, serial) shared by two publishers
+        between:
+          - epa-echo-enforcement-cases
+          - sec-litigation-releases
+        measured: 0/911 ECHO federal docket numbers appear in 28 sampled SEC releases (0 shared with 26 CFPB actions, 24 FTC cases and 26 FDA letters either); regex catches only the D:YY-cv-N form so SEC "07 CV 6709" style is undercounted
+        mode: declared
+      - key: normalised company name, FDA letter recipient to SEC litigation-release respondent
+        between:
+          - fda-warning-letters
+          - sec-litigation-releases
+        measured: 4/3548 distinct FDA recipient names equal a respondent among 11,986 SEC releases; 4/4 same company on hand check (Cardinal Health, MiMedx, United Health Products, Vivera Pharmaceuticals); entity link only, different actions
+        mode: candidate
+        reviewed: { correct: 4, checked: 4 }
+      - key: normalised company name, CFPB action to SEC litigation-release respondent
+        between:
+          - cfpb-enforcement-actions
+          - sec-litigation-releases
+        measured: 3/379 CFPB action titles equal an SEC respondent; 3/3 same company on hand check (Bank of America N.A., ITT Educational Services, Regions Bank); different actions
+        mode: candidate
+        reviewed: { correct: 3, checked: 3 }
+      - key: normalised company name, EPA ECHO case name to FDA letter recipient
+        between:
+          - epa-echo-enforcement-cases
+          - fda-warning-letters
+        measured: 5/3548 FDA recipient names equal an ECHO case name in the 13,652 listed cases; 5/5 same company on hand check (Eli Lilly, Hanover Foods, Kroger, Linemaster Switch, Stavis Seafoods); different actions
+        mode: candidate
+        reviewed: { correct: 5, checked: 5 }
+      - key: normalised company name, EPA ECHO case name to SEC litigation-release respondent
+        between:
+          - epa-echo-enforcement-cases
+          - sec-litigation-releases
+        measured: 31/11058 distinct ECHO names equal an SEC respondent; 19/31 same company on hand check, 12 rejected (4 personal names, 5 generic fragments, 3 uncorroborated small-company names)
+        mode: candidate
+        reviewed: { correct: 19, checked: 31 }
+      - key: normalised company name, FTC case title to any other member
+        between:
+          - ftc-cases-proceedings
+          - sec-litigation-releases
+        measured: 0/245 FTC titles collected from 12 listing pages equal an SEC respondent or any other member name set
+        mode: candidate
+    taxonomy:
+      - agency and forum (FDA warning letter, EPA civil judicial, EPA administrative, SEC civil action, CFPB administrative or civil, FTC, UK CMA)
+      - violation domain (CGMP and product quality, environmental media, securities fraud, consumer finance, deceptive advertising, competition)
+      - statute or regulation cited (21 CFR, CWA, CAA, CERCLA, RCRA, Securities Act, Exchange Act, CFPA, FTC Act, CA98)
+      - sanction type (warning, injunction, consent decree, civil penalty, redress, disgorgement)
+    agent_questions:
+      - Which agencies have taken enforcement action against this company in the last five years, and for what conduct?
+      - Which companies received FDA warning letters citing CGMP violations at the same site in consecutive years?
+      - What penalties and relief did federal regulators impose for a given violation type, by agency and year?
+      - Which cited court case number identifies the same litigation across a regulator's release and a court docket?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    next_action: >-
+      Build the court-case-number extractor for SEC, CFPB and FTC text and re-measure the declared join on the full
+      11,986 releases; resolve the ECHO commercial-use wording in a rights record; link actions to company profiles by
+      CIK, FRS id and reviewed name candidates before advancing to EVIDENCED.

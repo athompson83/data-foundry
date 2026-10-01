@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "7d486f668c570a8db2b0c8f01940ff8f6e35fef445e5e98770c5cb7b99e721ce",
+  "registry_sha256": "d72be1ba9de11c86002b7563fd70565df8f5cc7cde3564fb687f78771a94aeb4",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -133,6 +133,64 @@
         "grants-nih-reporter",
         "grants-nsf-awards"
       ]
+    },
+    "aviation-safety-occurrences": {
+      "name": "Aircraft accident and incident investigation records linked to airframe and operator",
+      "stage": "SCREENED",
+      "sources": [
+        "aviation-ntsb-accident-database",
+        "aviation-uk-aaib-reports",
+        "aviation-ca-cadors-occurrences"
+      ]
+    },
+    "drug-shortage-notices": {
+      "name": "Drug shortage and discontinuation notices (US and EU, NDC/RxCUI-linked)",
+      "stage": "SCREENED",
+      "sources": [
+        "fda-drug-shortages-openfda",
+        "ema-medicine-shortages",
+        "nlm-rxnorm-ndc-atc-map"
+      ]
+    },
+    "food-and-health-recalls-global": {
+      "name": "Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ)",
+      "stage": "SCREENED",
+      "sources": [
+        "fda-recalls",
+        "uk-fsa-food-alerts",
+        "ca-recalls-food-health-open-data",
+        "au-nz-fsanz-food-recalls"
+      ]
+    },
+    "public-procurement-notices": {
+      "name": "Public tender and contract-award notices (CA, UK, EU), CPV/UNSPSC classified, supplier-registry linked",
+      "stage": "SCREENED",
+      "sources": [
+        "procurement-canadabuys-notices",
+        "procurement-uk-contracts-finder-ocds",
+        "procurement-uk-find-a-tender-ocds",
+        "procurement-eu-ted-notices"
+      ]
+    },
+    "workplace-injury-incident-narratives": {
+      "name": "Workplace injury and fatality incident register with narratives (mining first, linked to mine and operator)",
+      "stage": "SCREENED",
+      "sources": [
+        "msha-mine-accident-injury-narratives",
+        "eia-coal-mine-production-msha-id"
+      ]
+    },
+    "regulatory-enforcement-actions": {
+      "name": "Regulatory enforcement actions against companies (US federal and UK, narrative-level)",
+      "stage": "SCREENED",
+      "sources": [
+        "fda-warning-letters",
+        "epa-echo-enforcement-cases",
+        "sec-litigation-releases",
+        "cfpb-enforcement-actions",
+        "ftc-cases-proceedings",
+        "uk-cma-cases"
+      ]
     }
   },
   "sources": {
@@ -140,8 +198,8 @@
       "name": "FDA Recall Intelligence (food, drug, device enforcement reports)",
       "rights": "GREEN",
       "stage": "LIVE",
-      "format": null,
-      "publisher": null,
+      "format": "structured",
+      "publisher": "US FDA",
       "acquisition": "permitted-no-adapter",
       "tasks": [],
       "blocked_because": []
@@ -1835,6 +1893,513 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "US USDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "aviation-ntsb-accident-database": {
+      "name": "NTSB aviation accident and incident database with narratives",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Transportation Safety Board",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "aviation-uk-aaib-reports": {
+      "name": "UK AAIB air accident and serious incident investigation reports",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Air Accidents Investigation Branch",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "aviation-ca-cadors-occurrences": {
+      "name": "Transport Canada CADORS civil aviation occurrence reports",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Transport Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "aviation-nasa-asrs-reports": {
+      "name": "NASA ASRS de-identified aviation safety reports",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "NASA Aviation Safety Reporting System",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "aviation-fr-bea-reports": {
+      "name": "French BEA civil aviation investigation reports",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Bureau d Enquetes et d Analyses (France)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "aviation-ca-tsb-air-occurrences": {
+      "name": "TSB Canada air occurrence data 1995 to present",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Transportation Safety Board of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fda-drug-shortages-openfda": {
+      "name": "FDA drug shortages and discontinuations (openFDA endpoint and CDER database)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ema-medicine-shortages": {
+      "name": "EMA medicine shortages catalogue (spreadsheet and shortage pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "European Medicines Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "nlm-rxnorm-ndc-atc-map": {
+      "name": "NLM RxNorm NDC to RxCUI and DailyMed set-id crosswalk (ATC via RxClass)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US National Library of Medicine",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tga-medicine-shortages": {
+      "name": "TGA Australia medicine shortage reports database",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Therapeutic Goods Administration (Australia)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "drug-shortages-canada": {
+      "name": "Drug Shortages Canada (Health Canada reporting database)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Health Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ashp-drug-shortages": {
+      "name": "ASHP current drug shortages list",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "American Society of Health-System Pharmacists",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "uk-fsa-food-alerts": {
+      "name": "UK Food Standards Agency food alerts (allergy alerts, product recalls, food alerts for action)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Food Standards Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ca-recalls-food-health-open-data": {
+      "name": "Health Canada recalls and safety alerts index, food (CFIA), drug, device and health-product slice",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Health Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "au-nz-fsanz-food-recalls": {
+      "name": "FSANZ food recall alerts (Australia and New Zealand)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Food Standards Australia New Zealand",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "us-fsis-recall-api-2026": {
+      "name": "USDA FSIS recall API (meat, poultry, egg products), 2026 re-screen",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "USDA Food Safety and Inspection Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "eu-rasff-notifications": {
+      "name": "EU RASFF food and feed safety notifications",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "European Commission DG SANTE",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hazard-fema-disaster-declarations": {
+      "name": "FEMA OpenFEMA DisasterDeclarationsSummaries (federal disaster declarations by county, 1953 to date)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "FEMA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hazard-nws-active-alerts": {
+      "name": "NWS api.weather.gov active watches, warnings and advisories (CAP text with SAME and UGC geocodes)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA National Weather Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hazard-usgs-earthquakes": {
+      "name": "USGS ComCat earthquake GeoJSON feeds and FDSN event service",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "USGS",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hazard-eccc-cap-alerts": {
+      "name": "Environment and Climate Change Canada CAP weather alerts (dd.weather.gc.ca)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Environment and Climate Change Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "procurement-canadabuys-notices": {
+      "name": "CanadaBuys open tender and award notices (federal Canada, CSV)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Public Services and Procurement Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "procurement-uk-contracts-finder-ocds": {
+      "name": "UK Contracts Finder OCDS notices (tender and award)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Cabinet Office (Crown Commercial Service)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "procurement-uk-find-a-tender-ocds": {
+      "name": "UK Find a Tender OCDS notices (above-threshold tender, award, contract)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Cabinet Office (Crown Commercial Service)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "procurement-eu-ted-notices": {
+      "name": "EU TED procurement notices (Search API v3, eForms)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Publications Office of the European Union",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "procurement-usaspending-awards": {
+      "name": "USAspending federal contract awards API",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Department of the Treasury (Bureau of the Fiscal Service)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "procurement-sam-opportunities": {
+      "name": "SAM.gov Opportunities (federal solicitations)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US General Services Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "msha-mine-accident-injury-narratives": {
+      "name": "MSHA mine accident, injury and illness reports with free-text narrative (2000 to present)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US DOL MSHA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eia-coal-mine-production-msha-id": {
+      "name": "EIA annual coal mine production, employment and operator by MSHA mine ID",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EIA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "osha-severe-injury-reports": {
+      "name": "OSHA Severe Injury Reports with Final Narrative (employer, NAICS, narrative)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US DOL OSHA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "cpsc-neiss-injury-narratives": {
+      "name": "CPSC NEISS emergency-department injury narratives (consumer products)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US CPSC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fda-warning-letters": {
+      "name": "FDA warning letters (CDER, CBER, CDRH, CFSAN/HFP, CVM, CTP, OII)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "epa-echo-enforcement-cases": {
+      "name": "EPA ECHO civil, administrative and criminal enforcement cases",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "sec-litigation-releases": {
+      "name": "SEC litigation releases (civil actions in federal court)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US SEC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "cfpb-enforcement-actions": {
+      "name": "CFPB enforcement actions (administrative and civil)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CFPB",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ftc-cases-proceedings": {
+      "name": "FTC cases and proceedings (consumer protection and competition)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US FTC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uk-cma-cases": {
+      "name": "UK CMA case pages (consumer enforcement, CA98, mergers, markets)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK CMA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uk-fca-enforcement": {
+      "name": "UK FCA final notices and enforcement",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UK FCA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "uk-ico-enforcement": {
+      "name": "UK ICO enforcement actions",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UK ICO",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
