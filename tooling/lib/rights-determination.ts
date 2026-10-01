@@ -39,6 +39,9 @@ export const DETERMINATION_BASES = [
   'OPEN_LICENSE',
   'PUBLISHED_TERMS_PERMIT',
   'DOCUMENTED_APPROVAL',
+  // ADR-0018: data the publisher offers free of charge, with no login, paywall or CAPTCHA, whose terms do not
+  // expressly forbid commercial reuse or redistribution. Silent or missing terms are no longer a refusal.
+  'FREE_PUBLIC_ACCESS',
 ] as const;
 export type DeterminationBasis = (typeof DETERMINATION_BASES)[number];
 
@@ -202,12 +205,13 @@ export const RightsDeterminationSchema = z
         'decision_evidence',
       ]);
     }
-    // Only a § 105 federal work may rest on the determination memo alone
-    // (ADR-0013: where the terms text could not be retrieved, the basis must
-    // not depend on it). Every other basis cites the retrieved text itself.
+    // A § 105 federal work, and free public data under ADR-0018 (whose terms
+    // may be silent or absent), may rest on the determination memo alone.
+    // Every other basis cites the retrieved text itself.
     if (
       terms !== undefined &&
       value.basis !== 'PUBLIC_DOMAIN_US_GOVERNMENT_WORK' &&
+      value.basis !== 'FREE_PUBLIC_ACCESS' &&
       terms.kind === 'REVIEW_MEMO'
     ) {
       issue(`${value.basis} requires terms_evidence to be retrieved TERMS, POLICY or AGREEMENT text`, [

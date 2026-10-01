@@ -15,6 +15,7 @@ declarations) and the vertical/dataset build itself.
 | [`candidates.yaml`](candidates.yaml) | Every candidate dataset: category, stage, rights verdict, scores, evidence and the single next action. Validated by `tooling/test/source-pipeline.test.ts`. |
 | [`scout-routine.md`](scout-routine.md) | The scheduler: the routine's ID, cron and verbatim prompt. |
 | `evidence/YYYY-MM-DD/` | Sample identifiers (`samples.json`), assessment scripts, their outputs, and `inputs.json` + `replay.sh`. The source responses themselves are preserved in the R2 evidence bucket, so every measurement can be re-run. |
+| [`../../../tooling/snapshots/plans.json`](../../../tooling/snapshots/plans.json) | Full-snapshot plans. The manual `Archive source snapshot` workflow downloads a listed source's open endpoints (only once its rights record exists), uploads the tarball and `manifest.json` to `data-foundry-raw-artifacts/research/pipeline/snapshots/<source>/<date>/`, reads the bytes back to verify the SHA-256, and prints the archive record for `inputs.json`. |
 | `research-2026-09-27-composites.md` | The composite-dataset round: the four datasets and their measured linkage. |
 | `prototypes/<key>/` | The PROTOTYPED evidence for one candidate: report and `coverage.json`. |
 | `research-YYYY-MM-DD.md` | The evidence record for a research round: quoted terms, measured counts, samples, extraction hit rates. |
@@ -102,8 +103,16 @@ reviewer is needed:
   third-party copyright carve-outs or personal-data exclusions. The agent may
   proceed only if the product design satisfies every condition, and the rights
   record says how each one is met.
-- **RED**: forbidden, unreadable or unverified terms. The candidate is parked.
-  A `200` is not permission.
+- **RED**: terms that expressly forbid commercial reuse or redistribution, a
+  prohibited publisher, access behind a login, paywall or CAPTCHA, or
+  unresolved personal data. The candidate is parked.
+
+Since [ADR-0018](../../decisions/ADR-0018-free-public-data-presumed-usable.md)
+(2026-09-30), free public data needs no written permission: an open API,
+download or public pages with no login, paywall or CAPTCHA, whose terms do not
+expressly forbid the use, is determined under `FREE_PUBLIC_ACCESS`. Silent,
+missing or unreadable terms make it `AMBER` (attribution, rate limits and the
+hard stops are its conditions), not `RED`.
 
 ## Scoring
 

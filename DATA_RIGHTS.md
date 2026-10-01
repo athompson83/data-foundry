@@ -45,10 +45,14 @@ their exact required bundle at one explicit instant. A missing cell is
 **Who decides.** Since 2026-09-26 ([ADR-0013](docs/decisions/ADR-0013-evidence-based-rights-determination.md))
 a rights decision may be made by a committed, evidence-based determination
 (`reviewer_type = 'DETERMINATION'`) as well as by a human or counsel. It must
-cite one of four bases (US government work, open licence, published terms that
-permit the use, or a private source's documented approval) with its evidence
-and a decision for each surface. "Publicly reachable" on its own is not a
-basis.
+cite one of five bases (US government work, open licence, published terms that
+permit the use, a private source's documented approval, or free public access)
+with its evidence and a decision for each surface. Under
+[ADR-0018](docs/decisions/ADR-0018-free-public-data-presumed-usable.md) (2026-09-30),
+data a publisher offers free, with no login, paywall or CAPTCHA, needs no
+written permission and is presumed usable, unless its terms expressly forbid
+commercial reuse or redistribution. Silent or missing terms no longer count
+against it.
 
 Every source declaration also carries the legacy classification below. These
 values remain useful inventory/risk metadata and additional hard stops:

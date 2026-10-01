@@ -1,5 +1,20 @@
 # Progress
 
+## Current session — 2026-09-30 (afternoon): collector running against production
+
+- **Deploy.** #83 merged as `12007d9`; `Deploy recalls Worker` run #10 green, live version
+  `da997b35-bda5-4f4e-9c6d-c67705d94f1f` (rollback `76ed0234-ea9f-4493-9bae-a0a1c5749df6`). Unauthenticated intake
+  probe: 401 (open, credential required). API root and product-recall stats: 200.
+- **Credentials.** The owner rotated `ADMIN_TOKEN` (Worker secret and `RECALLS_ADMIN_TOKEN`), minted one ingestion
+  credential (`owner-windows-collector`, sources `cpsc-recalls`) straight into the collector, and set an Evaluate read key.
+- **Defect found and fixed.** The collector sat in `waiting for the local model` for over an hour: Ollama was not
+  running. Starting it resumed collection with no restart. `install.ps1` now adds Ollama to the Startup folder.
+- **Evidence (production D1, 13:58 UTC).** 6 `extraction_submission` rows, 12 `product_recall_extracted_key` rows, all
+  `accepted`; the collector reports 8 notices extracted, 7 skipped, 13 candidates matching agency facts, 6 uploads
+  acknowledged, 8.4 s mean extraction latency. Publication stays closed (`EXTRACTED_IDENTIFIERS_OPEN = "0"`).
+- **Next.** The Evaluate plan allows 100 requests a month; the full backfill needs Developer or higher. Then review
+  `EXTRACTED_IDENTIFIERS_OPEN = "1"` against the stored results.
+
 ## Current session — 2026-09-30 (later): ADR-0017 deployed; intake opening
 
 - **Migration `0004` applied to production D1** at 2026-09-30 12:11 UTC. The owner asked for it to be done from this

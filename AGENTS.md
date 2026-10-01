@@ -50,7 +50,7 @@ Source approved
 
 ## Non-negotiable rules
 
-1. **No source without rights metadata.** Unreviewed/RED sources must not publish. Rights are decided by a documented, evidence-based determination (US government work, open licence, published terms, or a private source's documented approval) under [ADR-0013](docs/decisions/ADR-0013-evidence-based-rights-determination.md); a named human reviewer is not required.
+1. **No source without rights metadata.** Unreviewed/RED sources must not publish. Rights are decided by a documented, evidence-based determination (US government work, open licence, published terms, a private source's documented approval, or free public data) under [ADR-0013](docs/decisions/ADR-0013-evidence-based-rights-determination.md) and [ADR-0018](docs/decisions/ADR-0018-free-public-data-presumed-usable.md); a named human reviewer is not required. Data a publisher offers free (open API, download or public pages, with no login, paywall or CAPTCHA) needs no written permission and is presumed usable unless its terms expressly forbid commercial reuse or redistribution.
 2. **No published fact without evidence.** Critical facts require traceable source lineage.
 3. **No silent LLM entity merges.** AI may recommend bounded decisions; merges must be auditable and reversible.
 4. **No vertical-specific forks of the app.** Add fields, filters and page behavior through vertical schemas/configuration.

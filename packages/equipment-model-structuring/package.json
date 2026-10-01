@@ -1,0 +1,19 @@
+{
+  "name": "@data-foundry/equipment-model-structuring",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic structuring of certified equipment-model listings (first source: EPA ENERGY STAR Model Index and UPC Codes) into one equipment_model shape: brand and model keys, model patterns, check-digit-valid GTINs, taxonomy, markets and listing dates, each with its source field.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": ["src"],
+  "scripts": {
+    "test": "vitest run --root .",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@data-foundry/product-recall-structuring": "workspace:*"
+  }
+}

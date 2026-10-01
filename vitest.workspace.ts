@@ -23,6 +23,7 @@ export const projects = [
   'packages/query-model',
   'packages/recall-structuring',
   'packages/product-recall-structuring',
+  'packages/equipment-model-structuring',
   'services/ingest-worker',
   'services/export-builder',
   'apps/api',

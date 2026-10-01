@@ -20,6 +20,9 @@ importers:
       '@data-foundry/canonical-store':
         specifier: workspace:*
         version: link:packages/canonical-store
+      '@data-foundry/equipment-model-structuring':
+        specifier: workspace:*
+        version: link:packages/equipment-model-structuring
       '@data-foundry/private-canary':
         specifier: workspace:*
         version: link:packages/private-canary
@@ -316,6 +319,12 @@ importers:
       pg:
         specifier: ^8.23.0
         version: 8.23.0
+
+  packages/equipment-model-structuring:
+    dependencies:
+      '@data-foundry/product-recall-structuring':
+        specifier: workspace:*
+        version: link:../product-recall-structuring
 
   packages/extraction:
     dependencies:

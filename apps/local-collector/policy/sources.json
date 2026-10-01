@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "fe20d02dc0e11f48d8a9a3195c7c3fe55e3cf6e095a9d32331f4a615d021baa6",
+  "registry_sha256": "f66d877c5e3ce967af9ea8f24183ea3eb6d7307f2c1bb585ba2aff363d7f79b6",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -1135,14 +1135,13 @@
     },
     "equipment-energystar-model-index": {
       "name": "ENERGY STAR Model Index (all certified models, all categories incl. central AC) and UPC Codes index",
-      "rights": "AMBER",
+      "rights": "GREEN",
       "stage": "SCREENED",
       "format": "structured",
       "publisher": "US EPA ENERGY STAR",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
       ]
     },
