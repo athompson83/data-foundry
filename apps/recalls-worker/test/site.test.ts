@@ -83,6 +83,28 @@ describe('homepage and catalog', () => {
     expect(body).toContain('Snapshot of a real response, not live.');
   });
 
+  it('renders #datasets, the product pages and the JSON-LD from the whole catalog, so a new entry needs no page edits', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const entries = Object.values(DATASETS);
+    expect(publishedDatasets(env)).toEqual(entries);
+    const { body } = await page(env, '/');
+    const section = body.slice(body.indexOf('<h2 id="datasets">'), body.indexOf('<h2 id="inspect">'));
+    expect(section.match(/<li class="catalog-row">/g)).toHaveLength(entries.length);
+    const ld = JSON.parse(/<script type="application\/ld\+json">(.*?)<\/script>/.exec(body)![1]!) as { dataset: Array<{ name: string }> };
+    expect(ld.dataset.map((dataset) => dataset.name)).toEqual(entries.map((entry) => entry.name));
+    const docs = (await page(env, '/docs')).body;
+    for (const entry of entries) {
+      expect(section, entry.key).toContain(`<a href="${entry.path}">${entry.name}</a>`);
+      const product = await page(env, entry.path);
+      expect(product.status, entry.path).toBe(200);
+      expect(product.body).toContain(`href="${entry.browsePath}"`);
+      expect(docs, entry.docsAnchor).toContain(`id="${entry.docsAnchor.slice(1)}"`);
+    }
+    const api = (await (await worker.fetch(new Request('https://api.data.aroqon.com/'), env)).json()) as { datasets: Record<string, { registry: string }> };
+    expect(Object.keys(api.datasets)).toEqual(entries.map((entry) => entry.key));
+  });
+
   it('shows only published datasets and follows each dataset gate', async () => {
     const closedProducts = makeEnv({ PRODUCT_RECALLS_OPEN: '0' });
     await seed(closedProducts);

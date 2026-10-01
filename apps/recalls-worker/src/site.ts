@@ -10,7 +10,7 @@
 
 import type { DatasetEntry } from './catalog.js';
 import { escapeHtml, layout, planCards, type PageContext } from './pages.js';
-import { catalogJsonLd, productDataset, recallsDataset } from './seo.js';
+import { catalogJsonLd, DATASET_JSON_LD } from './seo.js';
 
 /** Public coverage for one dataset, from its stats endpoint. */
 export interface Coverage {
@@ -42,10 +42,6 @@ function codeWindow(id: string, caption: string, code: string, extraClass = ''):
   return `<div class="window"><div class="bar"><span>${caption}</span>${copyButton(id)}</div><pre class="${extraClass}" id="${id}" tabindex="0"><code>${escapeHtml(code)}</code></pre></div>`;
 }
 
-function datasetJsonLd(ctx: PageContext, entry: DatasetEntry): Record<string, unknown> {
-  return entry.key === 'recalls' ? recallsDataset(ctx) : productDataset(ctx);
-}
-
 function accessLine(salesOpen: boolean): string {
   return salesOpen
     ? '<span class="badge">Available</span><span class="small muted">Free Evaluate key or monthly plan, sold directly on this site.</span>'
@@ -63,8 +59,7 @@ function coverageFacts(coverage: Coverage | null): string {
 function heroExcerpt(entry: DatasetEntry): string {
   const data = (JSON.parse(entry.sample.response) as { data: Record<string, unknown> }).data;
   const pick = (keys: readonly string[]) => Object.fromEntries(keys.filter((key) => key in data).map((key) => [key, data[key]]));
-  const fields = entry.key === 'recalls' ? ['recall_number', 'classification', 'status', 'codes', 'reason', 'distribution'] : ['id', 'identifiers', 'hazard', 'units', 'linked_notices'];
-  return JSON.stringify({ data: pick(fields) }, null, 2);
+  return JSON.stringify({ data: pick(entry.sample.heroFields) }, null, 2);
 }
 
 export function homePage(ctx: PageContext, state: SiteState): string {
@@ -72,7 +67,7 @@ export function homePage(ctx: PageContext, state: SiteState): string {
   const first = state.datasets.find(({ entry }) => entry.sample.origin === 'live-api') ?? state.datasets[0];
   const live = first?.entry.sample.origin === 'live-api';
   const hero = first
-    ? `<div>${codeWindow('hero-sample', `Excerpt · snapshot of <code>GET /v1/${first.entry.key === 'recalls' ? 'recalls/H-1275-2026' : 'product-recalls/cpsc-25203'}</code>`, heroExcerpt(first.entry), 'response')}
+    ? `<div>${codeWindow('hero-sample', `Excerpt · snapshot of <code>GET ${escapeHtml(first.entry.sample.path)}</code>`, heroExcerpt(first.entry), 'response')}
 <p class="small muted">${live ? 'A real response captured' : 'The production parser’s output, snapshot of'} ${escapeHtml(first.entry.sample.capturedOn)}, showing selected fields. <a href="#inspect">See the full sample</a>.</p></div>`
     : '';
   const cards = state.datasets
@@ -125,13 +120,12 @@ ${multiAgency ? '<div class="card"><h3>One schema across agencies</h3><p class="
 <h2>Questions</h2>${faq.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')}`;
   return layout(ctx, 'Data Foundry — clean data for applications and AI agents', 'Structured, provenance-linked recall data for software and AI agents: exact identifiers, distribution, hazards and source records, over a JSON API.', body, {
     path: '/',
-    jsonLd: [catalogJsonLd(ctx, { recalls: state.datasets.some(({ entry }) => entry.key === 'recalls'), products: state.datasets.some(({ entry }) => entry.key === 'product-recalls') })],
+    jsonLd: [catalogJsonLd(ctx, state.datasets.map(({ entry }) => entry.key))],
     scripts: true,
   });
 }
 
 export function datasetPage(ctx: PageContext, entry: DatasetEntry, coverage: Coverage | null, salesOpen: boolean): string {
-  const browse = entry.key === 'recalls' ? '/recalls/browse' : '/product-recalls/browse';
   const body = `<p class="eyebrow">${escapeHtml(entry.name)}</p><h1>${escapeHtml(entry.headline)}</h1>
 <p class="lede">${escapeHtml(entry.lede)}</p>
 <p>${accessLine(salesOpen)}</p>
@@ -145,13 +139,13 @@ export function datasetPage(ctx: PageContext, entry: DatasetEntry, coverage: Cov
 ${codeWindow('sample-response', `${entry.sample.origin === 'live-api' ? 'Response · snapshot captured' : 'Parser output · snapshot of'} ${escapeHtml(entry.sample.capturedOn)}`, entry.sample.response, 'response')}
 <h2>Key fields</h2><div class="table-wrap"><table><thead><tr><th scope="col">Field</th><th scope="col">What it holds</th></tr></thead><tbody>${entry.fields.map((field) => `<tr><td><code>${escapeHtml(field.name)}</code></td><td>${escapeHtml(field.meaning)}</td></tr>`).join('')}</tbody></table></div>
 <h2>Endpoints</h2><div class="table-wrap"><table><thead><tr><th scope="col">Endpoint</th><th scope="col">Returns</th></tr></thead><tbody>${entry.endpoints.map((endpoint) => `<tr><td><a href="${endpoint.docs}"><code>${endpoint.method} ${escapeHtml(endpoint.path)}</code></a></td><td>${escapeHtml(endpoint.summary)}</td></tr>`).join('')}</tbody></table></div>
-<p class="small muted">Full parameters and errors: <a href="/docs">API docs</a> · <a href="${ctx.apiOrigin}/openapi.json">OpenAPI 3.1</a> · every record also has a public page: <a href="${browse}">browse by year</a>.</p>
+<p class="small muted">Full parameters and errors: <a href="/docs">API docs</a> · <a href="${ctx.apiOrigin}/openapi.json">OpenAPI 3.1</a> · every record also has a public page: <a href="${entry.browsePath}">browse by year</a>.</p>
 <h2>Sources and limitations</h2><ul>${entry.sources.map((source) => `<li><a href="${source.url}">${escapeHtml(source.name)}</a> <span class="muted small">(${escapeHtml(source.terms)})</span></li>`).join('')}</ul>
 <ul>${entry.limitations.map((item) => `<li class="small">${escapeHtml(item)}</li>`).join('')}</ul>
 <h2 id="pricing">Pricing and access</h2><p class="lede">Monthly plans, billed by Stripe. One key covers every Data Foundry dataset.</p>
 <div class="grid">${planCards(salesOpen)}</div>
 <p class="small muted">${escapeHtml(entry.attribution)}</p>`;
-  return layout(ctx, `${entry.name} API — Data Foundry`, entry.summary, body, { path: entry.path, jsonLd: [datasetJsonLd(ctx, entry)], scripts: true });
+  return layout(ctx, `${entry.name} API — Data Foundry`, entry.summary, body, { path: entry.path, jsonLd: [DATASET_JSON_LD[entry.key](ctx)], scripts: true });
 }
 
 /** Progressive enhancement only: reveals and wires the copy buttons. */
