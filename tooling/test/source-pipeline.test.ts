@@ -290,7 +290,7 @@ describe('dataset expansion pipeline registry', () => {
       // would defeat a \b word boundary.
       if (/name|brand|model|title|token|phone|prefix|marker|label|pattern|filer/i.test(join.key)) expect(join.mode, `${join.key} must be a review candidate`).toBe('candidate');
       // And a declared join must name an identifier that points at the counterpart record.
-      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|case number|cited [A-Za-z ]*notice URL/i);
+      if (join.mode === 'declared') expect(join.key, `${join.key} is declared but names no identifier`).toMatch(/licen[cs]e number|\bUBI\b|GTIN|UPC|NOA|FL#|FIPS|zone|case number|cited [A-Za-z ]*notice URL|cited [A-Za-z ]*reference number|\bUEI\b/i);
     }
   });
 
