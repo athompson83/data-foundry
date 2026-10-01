@@ -15,6 +15,7 @@
   - **Source merged:** DONE. #73 was squash-merged as `efc1121` (CI green on its exact head `62451d1`, Codex clean).
   - **Production deployed:** NOT DONE. There is no Cloudflare token in the cloud session. The live bundle (version recorded as `40ea452b`) does not contain the product-recall IndexNow feed, and no scheduled run of it has occurred. See `UA-015`.
   - **Authenticated acceptance:** FDA passed 2026-09-26. Product recalls NOT PASSED: an internal D1-provisioned key returned 401 `invalid_key`, the cause was not diagnosed, and the key was revoked with no usage metered. Both product-recall members stay `BUILDING`.
+  - **Update 2026-10-01:** authenticated acceptance PASSED for both datasets on live `0f4949c` (run 36914729481, 21/21 checks, key revoked afterwards). RapidAPI now waits only on `UA-004`.
   - **Purchase flow:** sandbox end-to-end only (2026-09-26). Live Stripe has 0 subscriptions, and all 10 live Checkout sessions are unpaid.
   - **Discovery:** IndexNow submissions made (FDA 84,908; product 8,868 by hand). Observed indexing not measured.
   - **Channels:** direct API open, no sale yet. RapidAPI not listed and blocked on a recalls proxy adapter plus `UA-004` (package: `docs/owner-actions/rapidapi-recalls-listing.md`). Pay Per Crawl unknown (`UA-008`). Outreach drafted, not sent.

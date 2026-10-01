@@ -1,5 +1,20 @@
 # Progress
 
+## Current session — 2026-10-01 (evening): revenue-readiness check; product-recall acceptance passed
+
+- **Revenue path verified live.** `data.aroqon.com` pages, pricing, docs, terms, privacy, sitemap and `llms.txt` answer 200. `api.data.aroqon.com` answers 401 without a key. A live `POST /recalls/checkout` for Developer redirects to a `cs_live_` Stripe Checkout session (left unpaid). Stripe live mode has the four prices active and the webhook to `/stripe/webhook` enabled.
+- **Revenue so far: none.** The only real customer is the owner's free Evaluate account (since 2026-09-30). The Stripe balance is $0.00.
+- **Redeploy of `0f4949c`** (run 36914439661; no Worker code change since `12007d9`). The live version had lost its source tag: the `ADMIN_TOKEN` secret rotation on 2026-09-30 made an untagged version, so acceptance refused to run (run 36914180700). Live version is now `8ea7aba4`, tagged `0f4949c3ea7f`.
+- **Authenticated acceptance passed for both datasets** (run 36914729481), 21/21 checks:
+  - CPSC and Health Canada search, pagination, the hazard filter, model-code lookup, `include=raw` with matching digest, and 404;
+  - FDA search, lot lookup and `include=raw`;
+  - metering counts each of the 11 data requests once, against an allowance of 5,000;
+  - the key was revoked afterwards and is rejected (401).
+  The 2026-09-28 product-recall 401 does not reproduce through the operator reissue path.
+- **Found: the collector has spent its free quota.** The owner's Evaluate key, which the Windows collector uses, reached 100/100 requests for October (also 100 in September), so the collector's reads are refused until 2026-11-01. It needs a key with a larger allowance. Minting an internal production key was refused by this session's permission check, so this is left to the owner.
+- **Found: the recalls IndexNow feed is rate-limited.** Its 18:17 run got 429 and the watermark did not advance; the product feed is current. Not yet diagnosed.
+- **RapidAPI:** the adapter and `?channel=rapidapi` OpenAPI (8 paths, no account paths) are live and closed (`RAPIDAPI_ENABLED = "0"`). With acceptance passed, the only remaining gate is `UA-004` (owner enrollment, agreement, payout).
+
 ## Current session — 2026-10-01: ENERGY STAR Model Index PROTOTYPED
 
 - **Merged.** #84 (`0f4949c`): collector live, ADR-0018, the ENERGY STAR rights record, the snapshot archive workflow and
