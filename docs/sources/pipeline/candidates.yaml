@@ -2645,7 +2645,7 @@ candidates:
     structuring: normalization
     format: structured
     publisher: US EPA ENERGY STAR
-    stage: SCREENED
+    stage: PROTOTYPED
     rights: GREEN
     sources:
       [
@@ -2684,15 +2684,16 @@ candidates:
       [
         docs/sources/pipeline/research-2026-09-27-composites.md,
         docs/sources/pipeline/evidence/2026-09-27-composites/equipment,
-        docs/sources/equipment-energystar-model-index-rights-record-20260930.md
+        docs/sources/equipment-energystar-model-index-rights-record-20260930.md,
+        docs/sources/pipeline/research-2026-10-01.md,
+        docs/sources/pipeline/evidence/2026-10-01,
+        docs/sources/pipeline/prototypes/equipment-energystar-model-index/README.md
       ]
-    next_action: 1,796,876 rows (Central AC split 1,491,897 collapse to 3,253 brand x filer x outdoor-pattern
-      groups via $group). Use it as the identity spine and the source of the markets flag (1,644,779 rows list
-      Canada). Ratings still come from the category datasets. On 2026-09-30 the rights record was written (GREEN, § 105;
-      ADR-0018 applies too); UPC Codes 37,686/38,993 check-digit-valid GTINs. The deterministic parser
-      (packages/equipment-model-structuring) structures all 1,796,876 rows with 0 errors
-      (docs/sources/pipeline/prototypes/equipment-energystar-model-index). Next, archive the snapshot in R2 with the
-      Archive source snapshot workflow and commit the replayable evidence round, then advance the stages.
+    next_action: PROTOTYPED on 2026-10-01. The snapshot is archived in R2 (Archive source snapshot run 36878079058,
+      read back and verified), the evidence round is research-2026-10-01, and the deterministic parser
+      (packages/equipment-model-structuring) structures all 1,796,876 rows with 0 errors. Next, build it into the
+      home-equipment-model-registry dataset (storage, daily sync, API/MCP surface), with GTIN as the only automatic
+      link to recalls.
   - key: equipment-nrcan-energuide-2017
     name: NRCan EnerGuide energy consumption of home appliances (historical 2017 snapshot)
     category: home-services

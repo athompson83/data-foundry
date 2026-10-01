@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "f66d877c5e3ce967af9ea8f24183ea3eb6d7307f2c1bb585ba2aff363d7f79b6",
+  "registry_sha256": "ffafe16d204ddeb38f265f123e686009c6c8c3614500ffb8e182515584120b38",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -1136,14 +1136,12 @@
     "equipment-energystar-model-index": {
       "name": "ENERGY STAR Model Index (all certified models, all categories incl. central AC) and UPC Codes index",
       "rights": "GREEN",
-      "stage": "SCREENED",
+      "stage": "PROTOTYPED",
       "format": "structured",
       "publisher": "US EPA ENERGY STAR",
-      "acquisition": "blocked",
+      "acquisition": "permitted-no-adapter",
       "tasks": [],
-      "blocked_because": [
-        "stage SCREENED is before PROTOTYPED"
-      ]
+      "blocked_because": []
     },
     "equipment-nrcan-energuide-2017": {
       "name": "NRCan EnerGuide energy consumption of home appliances (historical 2017 snapshot)",

@@ -1,5 +1,21 @@
 # Progress
 
+## Current session — 2026-10-01: ENERGY STAR Model Index PROTOTYPED
+
+- **Merged.** #84 (`0f4949c`): collector live, ADR-0018, the ENERGY STAR rights record, the snapshot archive workflow and
+  the equipment-model parser.
+- **Archived.** `Archive source snapshot` run 36878079058 wrote
+  `research/pipeline/snapshots/equipment-energystar-model-index/2026-10-01/snapshot.tar.gz` (25,677,258 bytes, SHA-256
+  `e3a5c579…1b17f7`) to `data-foundry-raw-artifacts` and verified it by read-back. The model-index CSV is byte-identical
+  to the 2026-09-30 local run.
+- **Evidence round** `research-2026-10-01` (`evidence/2026-10-01`, replayable from the archive). An independent Python
+  assessment reproduces the parser's counts: 11,719 models with check-digit-valid GTINs, 886 rejected codes,
+  1,576,700 pattern listings and 1,644,779 Canada listings.
+- **Prototype.** 0 errors over 1,796,876 rows on the archived snapshot. `equipment-energystar-model-index` is now
+  `PROTOTYPED`, the first member of `home-equipment-model-registry` past screening.
+- **Next.** Build it (storage, daily sync, API/MCP), with GTIN as the only automatic recall link. Then archive and
+  prototype the next free sources the same way (WaterSense, CEC solar lists, the international recall feeds).
+
 ## Current session — 2026-09-30 (afternoon): collector running against production
 
 - **Deploy.** #83 merged as `12007d9`; `Deploy recalls Worker` run #10 green, live version
