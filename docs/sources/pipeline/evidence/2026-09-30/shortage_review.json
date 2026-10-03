@@ -1,0 +1,305 @@
+{
+ "checked": 30,
+ "correct": 17,
+ "rows": [
+  {
+   "ema_inn": "concentrate of proteolytic enzymes enriched in bromelain",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Cromolyn Sodium Concentrate"
+   ],
+   "same_active_substance": false,
+   "reason": "different substance (cromolyn)"
+  },
+  {
+   "ema_inn": "liraglutide",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Liraglutide Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "insulin human",
+   "ema_status": "Medicine discontinued",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "methotrexate",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Methotrexate Sodium Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "pancreas powder;pancrelipase",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Aprepitant Oral Powder for Suspension",
+    "Cefotaxime Sodium Powder, for Solution",
+    "Ritonavir Oral Powder",
+    "Streptozocin Powder, For Solution"
+   ],
+   "same_active_substance": false,
+   "reason": "token 'powder' only"
+  },
+  {
+   "ema_inn": "ifosfamide",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Ifosfamide Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "somatropin",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Somatropin Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "insulin degludec",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "semaglutide",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Semaglutide Tablet"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "insulin aspart",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "insulin aspart",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "insulin lispro",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "atomoxetine;methylphenidate;lisdexamfetamine",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Lisdexamfetamine Dimesylate Capsule",
+    "Lisdexamfetamine Dimesylate Tablet, Chewable",
+    "Methylphenidate Film, Extended Release",
+    "Methylphenidate Hydrochloride Tablet, Extended Release"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "hydroxocobalamin",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Hydroxocobalamin Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "aprepitant",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Aprepitant Oral Powder for Suspension"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "liraglutide",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Liraglutide Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "amoxicillin;clavulanic acid",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Amino Acid Injection",
+    "Polyethylene glycol 3350, Sodium Ascorbate, Sodium Sulfate Anhydrous, Ascorbic Acid, Sodium Chloride, and Potassium Chloride  Oral Solution"
+   ],
+   "same_active_substance": false,
+   "reason": "token 'acid' only"
+  },
+  {
+   "ema_inn": "eptacog alfa (activated)",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Activated Charcoal Oral Suspension",
+    "Peginterferon alfa-2a Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "token 'activated' only"
+  },
+  {
+   "ema_inn": "peginterferon alfa-2a",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Peginterferon alfa-2a Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "semaglutide",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Semaglutide Tablet"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "insulin human",
+   "ema_status": "Shortage ongoing",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "alteplase",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Alteplase Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "ceftolozane;tazobactam",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Piperacillin and Tazobactam Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "only tazobactam shared, partner substance differs"
+  },
+  {
+   "ema_inn": "cetrorelix acetate",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Cetrorelix Acetate Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "voriconazole",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Voriconazole Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "arsenic trioxide",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Arsenic Trioxide Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "dibotermin alfa",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Peginterferon alfa-2a Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "token 'alfa' only"
+  },
+  {
+   "ema_inn": "docetaxel",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Docetaxel Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  },
+  {
+   "ema_inn": "insulin human",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Insulin Glargine Injection",
+    "Insulin Glargine-aglr Injection",
+    "Insulin Lispro Injection",
+    "Insulin Lispro Protamine and Insulin Lispro Injection"
+   ],
+   "same_active_substance": false,
+   "reason": "different insulin (glargine)"
+  },
+  {
+   "ema_inn": "midazolam",
+   "ema_status": "Shortage resolved",
+   "fda_generic_names": [
+    "Midazolam Hydrochloride Injection"
+   ],
+   "same_active_substance": true,
+   "reason": null
+  }
+ ]
+}

@@ -1,0 +1,153 @@
+# Paste into docs/sources/pipeline/candidates.yaml. nhtsa-recalls REPLACES the existing entry of that key (extend, not duplicate).
+candidates:
+  - key: nhtsa-recalls
+    name: NHTSA vehicle, equipment, child-restraint and tire recalls (flat files; recall API for per-campaign detail)
+    category: product-safety
+    structuring: normalization
+    format: structured
+    publisher: US NHTSA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip',
+        'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip',
+        'https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt',
+        'https://api.nhtsa.gov/recalls/campaignNumber'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://api.nhtsa.gov/',
+          quote: 'This API is NOT meant to be used by any other applications to perform bulk VIN lookups. Users/Applications attempting bulk VIN lookups will be controlled by an automated traffic rate control mechanism'
+        }
+    conditions:
+      - 'Acquire from the static.nhtsa.gov flat files (two zips, 22 MB), never by bulk API lookups: the API use policy bars bulk VIN lookups and rate-controls them. Use api.nhtsa.gov/recalls/campaignNumber only for single-campaign detail.'
+      - 'No licence or terms page was readable: www.nhtsa.gov, transportation.gov and dot.gov return Akamai 403 from this egress and static.nhtsa.gov has no robots.txt (404). Rights rest on ADR-0018 (free public download, no login, no terms found that forbid reuse) and the US-government-work basis; write the ADR-0013 record and re-read the NHTSA terms from Worker egress before build.'
+      - 'Attribute as manufacturer-reported Part 573 data, not an NHTSA finding; no endorsement claim. Exclude the NOTES free text from publication (it can carry contact details) until reviewed.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md, verticals/vehicles/sources/nhtsa-recalls.yaml ]
+    next_action: >-
+      Candidate 2026-10-03 widening member of consumer-product-recalls-north-america (child restraints 253, tires 788,
+      equipment 2,866 campaigns; vehicles 26,376 as a separate category). Measured: 30,347 campaigns / 327,429 rows
+      1966-01-19..2026-10-01, 29 fields. Joins to Transport Canada on the manufacturer campaign number (4,665/13,195,
+      20/20 hand-checked). Build after the Transport Canada member (the only measured declared join to CPSC runs
+      through it); write the ADR-0013 rights record first.
+
+  - key: ca-tc-vehicle-recalls-database
+    name: Transport Canada Vehicle Recalls Database (vehicles, child car seats, boosters, tires, equipment; OGL-Canada CSV)
+    category: product-safety
+    structuring: normalization
+    format: free-text
+    publisher: Transport Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://opendatatc.tc.canada.ca/vrdb_full_monthly.csv',
+        'https://opendatatc.tc.canada.ca/vrdb_60days_daily.csv',
+        'https://data.tc.gc.ca/v1.3/api/eng/vehicle-recall-database/recall',
+        'https://open.canada.ca/data/dataset/1ec92326-47ef-4110-b7ca-959fab03f96d'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 5,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+        }
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'If the Information Provider does not provide a specific attribution statement, or if you are using Information from several information providers and multiple attributions are not practical for your product or application, you must use the following attribution statement: Contains information licensed under the Open Government Licence – Canada.'
+        }
+    conditions:
+      - 'Attribute with "Contains information licensed under the Open Government Licence – Canada." and link the licence.'
+      - 'Keep the dataset note that the database excludes inconsequential or non-safety recalls; do not present absence as safety.'
+      - 'Full file is 207 MB (146,894 rows, one per model): stream it to R2 and parse in chunks; the "60 days" file in fact spans 2025-06-11 to 2026-09-22.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md ]
+    next_action: >-
+      Candidate 2026-10-03 widening member of consumer-product-recalls-north-america. Measured: 17,978 recalls /
+      146,894 rows 1975-01-14..2026-09-22 (updated daily), 15 fields, bilingual COMMENT text. 76/81 CPSC recalls that
+      cite a wwwapps.tc.gc.ca VRDB URL resolve to a recall number here (declared); Health Canada's index lists 9,904
+      Transport Canada notices of which 9,468 resolve here, while 8,514 VRDB recalls are not in the index. Build as
+      the first widening member; parse COMMENT_ETXT (Issue / Safety Risk / Corrective Actions) into hazard and remedy
+      classes.
+
+  - key: us-fsis-recall-api-2026
+    name: USDA FSIS recall API (meat, poultry, egg products), 2026 re-screen
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: USDA Food Safety and Inspection Service
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fsis.usda.gov/fsis/api/recall/v/1' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md ]
+    next_action: 'PARKED: re-tested 2026-10-03, HTTP 403 Akamai Access Denied for the API and for the RCL.txt media file with the scout User-Agent; terms unread. Not a consumer-product member in any case (food); belongs to food-and-health-recalls-global. Retry from Cloudflare Worker egress.'
+
+# ---------------------------------------------------------------------------------------------------------------------
+# DATASET EDIT for consumer-product-recalls-north-america. DO NOT APPLY WHILE THE MEMBERS ARE SCREENED:
+# tooling/test/source-pipeline.test.ts requires every member of a BUILDING dataset to be BUILDING or later. Apply
+# when ca-tc-vehicle-recalls-database (then nhtsa-recalls) reaches BUILDING. Also decide scope: these members add
+# vehicle, child-restraint, tire and vehicle-equipment recalls; the dataset name and entity stay "recall_notice".
+# ---------------------------------------------------------------------------------------------------------------------
+dataset_edit:
+  key: consumer-product-recalls-north-america
+  sources_add:
+    - ca-tc-vehicle-recalls-database
+    - nhtsa-recalls
+  join_keys_add:
+    - key: cited Transport Canada notice URL (CPSC Inconjunctions[].URL ?rn= recall number)
+      between:
+        - cpsc-recalls
+        - ca-tc-vehicle-recalls-database
+      measured: 76/81 CPSC recalls citing a wwwapps.tc.gc.ca VRDB URL resolve to a recall number in the full VRDB CSV
+        of 2026-10-03 (ATV, snowmobile, off-road vehicle, motorcycle and equipment recalls; 5 cite a number absent from the file)
+      mode: declared
+    - key: cited manufacturer campaign reference number (TC MANUFACTURER_RECALL_NO_TXT equals NHTSA MFGCAMPNO, same make)
+      between:
+        - ca-tc-vehicle-recalls-database
+        - nhtsa-recalls
+      measured: 4,665/13,195 Transport Canada recalls that carry a manufacturer number match an NHTSA campaign on the
+        exact number with the same make or manufacturer (5,384 match on the number alone); random 20 hand-checked
+        20/20 same OEM and defect
+      mode: declared
+    - key: NHTSA named in the CPSC title + manufacturer + model + date within 120 days
+      between:
+        - cpsc-recalls
+        - nhtsa-recalls
+      measured: 10/13 CPSC recalls whose text names NHTSA are joint child-seat recalls with an NHTSA C campaign
+        (1998-2016; 2 of them cite the NHTSA number as 02E-027 and 99E-022 for campaigns 02C027000 and 99C022000);
+        of the other 3, one is a 1990 Kolcraft car-seat repair with no NHTSA campaign in the files and two (a gas regulator, a fire extinguisher) name NHTSA incidentally
+      mode: candidate
+      reviewed: { correct: 10, checked: 10 }
+    - key: make + shared model token + date within 90 days (child seat, booster, tire, equipment)
+      between:
+        - ca-tc-vehicle-recalls-database
+        - nhtsa-recalls
+      measured: 130/443 Transport Canada child-seat, booster, tire and equipment recalls since 2010 match an NHTSA
+        C, T or E campaign on make, a shared model token and a date within 90 days; the 82 tire matches dominate
+      mode: candidate
+      reviewed: { correct: 16, checked: 20 }
+  taxonomy_add:
+    - "agency: NHTSA | TC (jurisdiction US | CA)"
+    - "vehicle_class: vehicle | child-restraint | tire | equipment (NHTSA RCLTYPECD V/C/T/E; Transport Canada CATEGORY_ETXT)"
+  agent_questions_add:
+    - Is this child car seat, tire or vehicle-equipment recall also issued in Canada, and under what manufacturer campaign number?

@@ -1,0 +1,1144 @@
+{
+ "justice_laws_index": {
+  "status": 200,
+  "bytes": 5281575,
+  "acts_eng": 971,
+  "acts_with_session_chapter_number": 499,
+  "current_to_newest": "2026-09-21",
+  "current_to_oldest": "2026-09-21"
+ },
+ "justice_laws_sample": [
+  {
+   "uid": "A-17.5",
+   "chapter": "1979, c. 7",
+   "status": 200,
+   "bytes": 3180,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "7",
+   "Session": null,
+   "Parliament": null,
+   "sections": 1,
+   "amendment_citations": [],
+   "in_force_dates": 15,
+   "free_text_chars": 1106
+  },
+  {
+   "uid": "N-1.4",
+   "chapter": "2003, c. 11",
+   "status": 200,
+   "bytes": 5440,
+   "BillNumber": "S-5",
+   "AnnualStatuteNumber": "11",
+   "Session": "2",
+   "Parliament": "37",
+   "sections": 3,
+   "amendment_citations": [],
+   "in_force_dates": 27,
+   "free_text_chars": 1378
+  },
+  {
+   "uid": "U-1.5",
+   "chapter": "1987, c. 17",
+   "status": 200,
+   "bytes": 14333,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "17",
+   "Session": null,
+   "Parliament": null,
+   "sections": 10,
+   "amendment_citations": [],
+   "in_force_dates": 60,
+   "free_text_chars": 5961
+  },
+  {
+   "uid": "A-3.7",
+   "chapter": "1997, c. 20",
+   "status": 200,
+   "bytes": 138850,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "20",
+   "Session": null,
+   "Parliament": null,
+   "sections": 61,
+   "amendment_citations": [],
+   "in_force_dates": 548,
+   "free_text_chars": 67231
+  },
+  {
+   "uid": "E-1.3",
+   "chapter": "2005, c. 26",
+   "status": 200,
+   "bytes": 41980,
+   "BillNumber": "C-9",
+   "AnnualStatuteNumber": "26",
+   "Session": "1",
+   "Parliament": "38",
+   "sections": 28,
+   "amendment_citations": [],
+   "in_force_dates": 187,
+   "free_text_chars": 16609
+  },
+  {
+   "uid": "T-19.8",
+   "chapter": "1991, c. 45",
+   "status": 200,
+   "bytes": 1473897,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "45",
+   "Session": null,
+   "Parliament": null,
+   "sections": 656,
+   "amendment_citations": [
+    "2026, c. 7",
+    "2026, c. 3",
+    "2005, c. 54, s. 392(2)",
+    "2022, c. 10",
+    "2024, c. 17"
+   ],
+   "in_force_dates": 6009,
+   "free_text_chars": 697193
+  },
+  {
+   "uid": "C-10.2",
+   "chapter": "1998, c. 36",
+   "status": 200,
+   "bytes": 48812,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "36",
+   "Session": null,
+   "Parliament": null,
+   "sections": 22,
+   "amendment_citations": [
+    "2021, c. 23",
+    "2021, c. 23"
+   ],
+   "in_force_dates": 202,
+   "free_text_chars": 22376
+  },
+  {
+   "uid": "S-8.5",
+   "chapter": "2008, c. 8",
+   "status": 200,
+   "bytes": 110153,
+   "BillNumber": "C-9",
+   "AnnualStatuteNumber": "8",
+   "Session": "2",
+   "Parliament": "39",
+   "sections": 12,
+   "amendment_citations": [],
+   "in_force_dates": 436,
+   "free_text_chars": 45734
+  },
+  {
+   "uid": "I-9.8",
+   "chapter": "2003, c. 14",
+   "status": 200,
+   "bytes": 34695,
+   "BillNumber": "C-44",
+   "AnnualStatuteNumber": "14",
+   "Session": "2",
+   "Parliament": "37",
+   "sections": 23,
+   "amendment_citations": [],
+   "in_force_dates": 144,
+   "free_text_chars": 12815
+  },
+  {
+   "uid": "C-45.6",
+   "chapter": "2022, c. 2",
+   "status": 200,
+   "bytes": 3842,
+   "BillNumber": "C-10",
+   "AnnualStatuteNumber": "2",
+   "Session": "1",
+   "Parliament": "44",
+   "sections": 2,
+   "amendment_citations": [],
+   "in_force_dates": 16,
+   "free_text_chars": 870
+  },
+  {
+   "uid": "J-0.9",
+   "chapter": "2015, c. 14",
+   "status": 200,
+   "bytes": 7707,
+   "BillNumber": "S-219",
+   "AnnualStatuteNumber": "14",
+   "Session": "2",
+   "Parliament": "41",
+   "sections": 3,
+   "amendment_citations": [],
+   "in_force_dates": 30,
+   "free_text_chars": 3208
+  },
+  {
+   "uid": "C-1.68",
+   "chapter": "2010, c. 21",
+   "status": 200,
+   "bytes": 161851,
+   "BillNumber": "C-36",
+   "AnnualStatuteNumber": "21",
+   "Session": "3",
+   "Parliament": "40",
+   "sections": 83,
+   "amendment_citations": [
+    "SOR/2024-218",
+    "2022, c. 17",
+    "2018, c. 9, s. 75(3)"
+   ],
+   "in_force_dates": 657,
+   "free_text_chars": 69405
+  },
+  {
+   "uid": "N-4.5",
+   "chapter": "2021, c. 11",
+   "status": 200,
+   "bytes": 6690,
+   "BillNumber": "C-5",
+   "AnnualStatuteNumber": "11",
+   "Session": "2",
+   "Parliament": "43",
+   "sections": 6,
+   "amendment_citations": [],
+   "in_force_dates": 28,
+   "free_text_chars": 1520
+  },
+  {
+   "uid": "F-7.35",
+   "chapter": "2014, c. 37",
+   "status": 200,
+   "bytes": 12647,
+   "BillNumber": "C-442",
+   "AnnualStatuteNumber": "37",
+   "Session": "2",
+   "Parliament": "41",
+   "sections": 6,
+   "amendment_citations": [],
+   "in_force_dates": 48,
+   "free_text_chars": 5509
+  },
+  {
+   "uid": "I-20.7",
+   "chapter": "2011, c. 4",
+   "status": 200,
+   "bytes": 27903,
+   "BillNumber": "C-22",
+   "AnnualStatuteNumber": "4",
+   "Session": "3",
+   "Parliament": "40",
+   "sections": 25,
+   "amendment_citations": [
+    "2024, c. 23"
+   ],
+   "in_force_dates": 83,
+   "free_text_chars": 10963
+  },
+  {
+   "uid": "D-1.5",
+   "chapter": "2015, c. 24",
+   "status": 200,
+   "bytes": 30829,
+   "BillNumber": "C-63",
+   "AnnualStatuteNumber": "24",
+   "Session": "2",
+   "Parliament": "41",
+   "sections": 43,
+   "amendment_citations": [],
+   "in_force_dates": 141,
+   "free_text_chars": 10101
+  },
+  {
+   "uid": "B-9.6",
+   "chapter": "2007, c. 35",
+   "status": 200,
+   "bytes": 54218,
+   "BillNumber": "C-28",
+   "AnnualStatuteNumber": "35",
+   "Session": "2",
+   "Parliament": "39",
+   "sections": 209,
+   "amendment_citations": [],
+   "in_force_dates": 297,
+   "free_text_chars": 9302
+  },
+  {
+   "uid": "A-11.44",
+   "chapter": "2003, c. 20",
+   "status": 200,
+   "bytes": 220181,
+   "BillNumber": "C-42",
+   "AnnualStatuteNumber": "20",
+   "Session": "2",
+   "Parliament": "37",
+   "sections": 102,
+   "amendment_citations": [
+    "2026, c. 3"
+   ],
+   "in_force_dates": 968,
+   "free_text_chars": 101246
+  },
+  {
+   "uid": "N-16.77",
+   "chapter": "2024, c. 28",
+   "status": 200,
+   "bytes": 12938,
+   "BillNumber": "C-284",
+   "AnnualStatuteNumber": "28",
+   "Session": "1",
+   "Parliament": "44",
+   "sections": 5,
+   "amendment_citations": [],
+   "in_force_dates": 51,
+   "free_text_chars": 4287
+  },
+  {
+   "uid": "I-3.51",
+   "chapter": "1997, c. 27",
+   "status": 200,
+   "bytes": 536671,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "27",
+   "Session": null,
+   "Parliament": null,
+   "sections": 31,
+   "amendment_citations": [],
+   "in_force_dates": 1539,
+   "free_text_chars": 280408
+  },
+  {
+   "uid": "F-2.2",
+   "chapter": "1993, c. 14",
+   "status": 200,
+   "bytes": 41077,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "14",
+   "Session": null,
+   "Parliament": null,
+   "sections": 21,
+   "amendment_citations": [
+    "2026, c. 3",
+    "2020, c. 5"
+   ],
+   "in_force_dates": 179,
+   "free_text_chars": 16329
+  },
+  {
+   "uid": "Y-2.6",
+   "chapter": "1994, c. 35",
+   "status": 200,
+   "bytes": 91526,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "35",
+   "Session": null,
+   "Parliament": null,
+   "sections": 36,
+   "amendment_citations": [
+    "2022, c. 9",
+    "2019, c. 29"
+   ],
+   "in_force_dates": 350,
+   "free_text_chars": 36412
+  },
+  {
+   "uid": "R-3.2",
+   "chapter": "1927, c. 116",
+   "status": 200,
+   "bytes": 9947,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "116",
+   "Session": null,
+   "Parliament": null,
+   "sections": 7,
+   "amendment_citations": [],
+   "in_force_dates": 36,
+   "free_text_chars": 4677
+  },
+  {
+   "uid": "C-6.1",
+   "chapter": "2000, c. 35",
+   "status": 200,
+   "bytes": 7138,
+   "BillNumber": null,
+   "AnnualStatuteNumber": "35",
+   "Session": null,
+   "Parliament": null,
+   "sections": 5,
+   "amendment_citations": [],
+   "in_force_dates": 34,
+   "free_text_chars": 2579
+  },
+  {
+   "uid": "N-10.5",
+   "chapter": "2011, c. 13",
+   "status": 200,
+   "bytes": 15039,
+   "BillNumber": "C-442",
+   "AnnualStatuteNumber": "13",
+   "Session": "3",
+   "Parliament": "40",
+   "sections": 11,
+   "amendment_citations": [],
+   "in_force_dates": 76,
+   "free_text_chars": 4651
+  }
+ ],
+ "gazette_part3": {
+  "years_ok": 26,
+  "chapters_listed": 136,
+  "per_year": {
+   "2000": 0,
+   "2001": 0,
+   "2002": 0,
+   "2003": 0,
+   "2004": 0,
+   "2005": 0,
+   "2006": 0,
+   "2007": 0,
+   "2008": 0,
+   "2009": 0,
+   "2010": 0,
+   "2011": 0,
+   "2012": 0,
+   "2013": 0,
+   "2014": 0,
+   "2015": 0,
+   "2016": 0,
+   "2017": 0,
+   "2018": 0,
+   "2019": 0,
+   "2020": 15,
+   "2021": 27,
+   "2022": 21,
+   "2023": 33,
+   "2024": 34,
+   "2025": 6
+  },
+  "newest_page_modified": "",
+  "pdf_probe": {
+   "status": 206,
+   "bytes_read": 400001,
+   "starts_pdf": true
+  }
+ },
+ "join_gazette_to_justice_laws": {
+  "key": "cited statute chapter reference number (S.C. YYYY, c. N)",
+  "gazette_chapters": 136,
+  "matched": 39,
+  "matched_sample": [
+   [
+    2020,
+    1
+   ],
+   [
+    2020,
+    7
+   ],
+   [
+    2021,
+    1
+   ],
+   [
+    2021,
+    6
+   ],
+   [
+    2021,
+    7
+   ],
+   [
+    2021,
+    9
+   ],
+   [
+    2021,
+    11
+   ],
+   [
+    2021,
+    14
+   ],
+   [
+    2021,
+    18
+   ],
+   [
+    2021,
+    19
+   ],
+   [
+    2021,
+    22
+   ],
+   [
+    2021,
+    23
+   ],
+   [
+    2022,
+    2
+   ],
+   [
+    2022,
+    5
+   ],
+   [
+    2022,
+    6
+   ],
+   [
+    2022,
+    10
+   ],
+   [
+    2022,
+    16
+   ],
+   [
+    2022,
+    19
+   ],
+   [
+    2022,
+    21
+   ],
+   [
+    2023,
+    2
+   ],
+   [
+    2023,
+    5
+   ],
+   [
+    2023,
+    9
+   ],
+   [
+    2023,
+    10
+   ],
+   [
+    2023,
+    13
+   ],
+   [
+    2023,
+    17
+   ]
+  ],
+  "justice_chapters_in_gazette_year_range": 255,
+  "justice_chapters_matched_pct_of_range": 15.3
+ },
+ "legisinfo": {
+  "status": 200,
+  "bills": 7145,
+  "sessions": 20,
+  "newest_assent": "2026-06-18",
+  "statute_chapter_populated": 0,
+  "royal_assent": 1081
+ },
+ "join_justice_laws_to_legisinfo": {
+  "key": "Parliament-session-bill reference",
+  "matched": 15,
+  "of": 15,
+  "note": "LEGISinfo is PARKED (terms unreadable); measured as evidence only"
+ },
+ "uk_legislation": {
+  "status": 200,
+  "ukpga_total": 17560,
+  "feed_updated": "2026-10-02T23:59:59+01:00",
+  "entries_page1": 20,
+  "identifier_example": [
+   "http://www.legislation.gov.uk/id/ukpga/2026/27",
+   "http://www.legislation.gov.uk/id/ukpga/2026/26"
+  ],
+  "sample": [
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/36",
+    "title": "Employment Rights Act 2025",
+    "year": "2025",
+    "number": "36",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/35",
+    "title": "Space Industry (Indemnities) Act 2025",
+    "year": "2025",
+    "number": "35",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/34",
+    "title": "Planning and Infrastructure Act 2025",
+    "year": "2025",
+    "number": "34",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/33",
+    "title": "Mental Health Act 2025",
+    "year": "2025",
+    "number": "33",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/32",
+    "title": "Dogs (Protection of Livestock) (Amendment) Act 2025",
+    "year": "2025",
+    "number": "32",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/31",
+    "title": "Border Security, Asylum and Immigration Act 2025",
+    "year": "2025",
+    "number": "31",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/30",
+    "title": "Animal Welfare (Import of Dogs, Cats and Ferrets) Act 2025",
+    "year": "2025",
+    "number": "30",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2025/29",
+    "title": "Property (Digital Assets etc) Act 2025",
+    "year": "2025",
+    "number": "29",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/34",
+    "title": "Homes (Fitness for Human Habitation) Act 2018",
+    "year": "2018",
+    "number": "34",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/33",
+    "title": "Courts and Tribunals (Judiciary and Functions of Staff) Act 2018",
+    "year": "2018",
+    "number": "33",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/32",
+    "title": "Prisons (Interference with Wireless Telegraphy) Act 2018",
+    "year": "2018",
+    "number": "32",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/31",
+    "title": "Health and Social Care (National Data Guardian) Act 2018",
+    "year": "2018",
+    "number": "31",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/30",
+    "title": "Ivory Act 2018",
+    "year": "2018",
+    "number": "30",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/29",
+    "title": "Civil Liability Act 2018",
+    "year": "2018",
+    "number": "29",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/28",
+    "title": "Northern Ireland (Executive Formation and Exercise of Functions) Act 2018 (repealed)",
+    "year": "2018",
+    "number": "28",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2018/27",
+    "title": "Mental Health Units (Use of Force) Act 2018",
+    "year": "2018",
+    "number": "27",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/41",
+    "title": "Loans to Ireland Act 2010",
+    "year": "2010",
+    "number": "41",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/40",
+    "title": "Identity Documents Act 2010",
+    "year": "2010",
+    "number": "40",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/39",
+    "title": "Consolidated Fund Act 2010",
+    "year": "2010",
+    "number": "39",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/38",
+    "title": "Terrorist Asset-Freezing etc. Act 2010",
+    "year": "2010",
+    "number": "38",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/37",
+    "title": "Superannuation Act 2010",
+    "year": "2010",
+    "number": "37",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/36",
+    "title": "Savings Accounts and Health in Pregnancy Grant Act 2010",
+    "year": "2010",
+    "number": "36",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/35",
+    "title": "Local Government Act 2010",
+    "year": "2010",
+    "number": "35",
+    "royal_assent": null
+   },
+   {
+    "id": "http://www.legislation.gov.uk/id/ukpga/2010/34",
+    "title": "Equitable Life (Payments) Act 2010",
+    "year": "2010",
+    "number": "34",
+    "royal_assent": null
+   }
+  ],
+  "dpa2018_xml": {
+   "status": 200,
+   "bytes": 5919263,
+   "sections": 306,
+   "restrict_start_dates": 1803,
+   "commentaries": 2086
+  }
+ },
+ "us_billstatus": {
+  "listing_status": 200,
+  "hr_119_files": 10714,
+  "sample": [
+   {
+    "bill": "HR 1",
+    "status": 200,
+    "bytes": 1979603,
+    "updateDate": "2026-05-08T14:41:30Z",
+    "introduced": "2025-05-20",
+    "actions": 1262,
+    "law": [
+     "119-21"
+    ],
+    "has_summary": true,
+    "has_cbo": true,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 4",
+    "status": 200,
+    "bytes": 223211,
+    "updateDate": "2026-07-11T16:08:26Z",
+    "introduced": "2025-06-06",
+    "actions": 208,
+    "law": [
+     "119-28"
+    ],
+    "has_summary": true,
+    "has_cbo": true,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 2227",
+    "status": 200,
+    "bytes": 10132,
+    "updateDate": "2025-09-03T08:05:21Z",
+    "introduced": "2025-03-18",
+    "actions": 5,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 9495",
+    "status": 200,
+    "bytes": 21766,
+    "updateDate": "2026-08-13T13:28:46Z",
+    "introduced": "2026-06-26",
+    "actions": 6,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 79",
+    "status": 200,
+    "bytes": 14540,
+    "updateDate": "2026-03-04T09:06:50Z",
+    "introduced": "2025-01-03",
+    "actions": 8,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 1187",
+    "status": 200,
+    "bytes": 8438,
+    "updateDate": "2025-06-13T18:50:13Z",
+    "introduced": "2025-02-11",
+    "actions": 5,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 3674",
+    "status": 200,
+    "bytes": 8307,
+    "updateDate": "2026-07-21T08:06:06Z",
+    "introduced": "2025-06-03",
+    "actions": 4,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 863",
+    "status": 200,
+    "bytes": 12716,
+    "updateDate": "2025-12-19T09:08:04Z",
+    "introduced": "2025-01-31",
+    "actions": 6,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 7595",
+    "status": 200,
+    "bytes": 6548,
+    "updateDate": "2026-04-30T12:58:49Z",
+    "introduced": "2026-02-17",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 2474",
+    "status": 200,
+    "bytes": 20099,
+    "updateDate": "2026-09-08T18:12:22Z",
+    "introduced": "2025-03-27",
+    "actions": 21,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": true,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 3761",
+    "status": 200,
+    "bytes": 11085,
+    "updateDate": "2026-01-12T19:44:39Z",
+    "introduced": "2025-06-05",
+    "actions": 8,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 4835",
+    "status": 200,
+    "bytes": 6852,
+    "updateDate": "2026-01-14T16:23:24Z",
+    "introduced": "2025-08-01",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 5377",
+    "status": 200,
+    "bytes": 6263,
+    "updateDate": "2025-09-25T14:15:12Z",
+    "introduced": "2025-09-16",
+    "actions": 4,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 9861",
+    "status": 200,
+    "bytes": 6521,
+    "updateDate": "2026-08-11T14:01:04Z",
+    "introduced": "2026-07-22",
+    "actions": 4,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 5261",
+    "status": 200,
+    "bytes": 7833,
+    "updateDate": "2026-04-01T01:18:50Z",
+    "introduced": "2025-09-10",
+    "actions": 6,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 10525",
+    "status": 200,
+    "bytes": 7002,
+    "updateDate": "2026-09-29T16:39:44Z",
+    "introduced": "2026-09-21",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 407",
+    "status": 200,
+    "bytes": 39203,
+    "updateDate": "2026-09-19T23:07:52Z",
+    "introduced": "2025-01-15",
+    "actions": 6,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 3063",
+    "status": 200,
+    "bytes": 12145,
+    "updateDate": "2025-12-03T23:26:15Z",
+    "introduced": "2025-04-29",
+    "actions": 4,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 786",
+    "status": 200,
+    "bytes": 12990,
+    "updateDate": "2025-12-05T21:46:18Z",
+    "introduced": "2025-01-28",
+    "actions": 9,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 1057",
+    "status": 200,
+    "bytes": 15636,
+    "updateDate": "2025-10-15T08:05:28Z",
+    "introduced": "2025-02-06",
+    "actions": 5,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 5072",
+    "status": 200,
+    "bytes": 7194,
+    "updateDate": "2025-10-07T08:05:17Z",
+    "introduced": "2025-08-29",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 7017",
+    "status": 200,
+    "bytes": 7464,
+    "updateDate": "2026-02-03T15:43:00Z",
+    "introduced": "2026-01-12",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 5661",
+    "status": 200,
+    "bytes": 9458,
+    "updateDate": "2026-09-19T23:24:00Z",
+    "introduced": "2025-09-30",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 10464",
+    "status": 200,
+    "bytes": 7307,
+    "updateDate": "2026-09-24T03:08:20Z",
+    "introduced": "2026-09-16",
+    "actions": 5,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 3156",
+    "status": 200,
+    "bytes": 9624,
+    "updateDate": "2026-07-23T23:06:19Z",
+    "introduced": "2025-05-01",
+    "actions": 6,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 1611",
+    "status": 200,
+    "bytes": 32400,
+    "updateDate": "2026-01-26T19:35:51Z",
+    "introduced": "2025-02-26",
+    "actions": 7,
+    "law": [],
+    "has_summary": true,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   },
+   {
+    "bill": "HR 5124",
+    "status": 200,
+    "bytes": 6698,
+    "updateDate": "2025-09-23T16:08:12Z",
+    "introduced": "2025-09-03",
+    "actions": 4,
+    "law": [],
+    "has_summary": false,
+    "has_cbo": false,
+    "sponsor_bioguide": true
+   }
+  ],
+  "newest_update": "2026-09-29T16:39:44Z",
+  "terms": {
+   "url": "https://www.govinfo.gov/about/policies",
+   "status": 200,
+   "found": true,
+   "quote": "Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignmen"
+  }
+ },
+ "au_frl": {
+  "status": 200,
+  "acts_count": 13744,
+  "newest_status": 200,
+  "newest": [
+   {
+    "id": "C2025A00046",
+    "name": "Treasury Laws Amendment (Payments System Modernisation) Act 2025",
+    "makingDate": "2025-09-19T00:00:00",
+    "status": "InForce",
+    "originatingBillUri": "https://parlinfo.aph.gov.au/parlInfo/search/display/display.w3p;query=Id%3A\"legislation%2Fbillhome%2Fr7351\"",
+    "year": 2025,
+    "number": 46
+   },
+   {
+    "id": "C2025A00027",
+    "name": "National Broadband Network Companies Amendment (Commitment to Public Ownership) Act 2025",
+    "makingDate": "2025-03-27T00:00:00",
+    "status": "InForce",
+    "originatingBillUri": "https://parlinfo.aph.gov.au/parlInfo/search/display/display.w3p;query=Id%3A\"legislation%2Fbillhome%2Fr7259\"",
+    "year": 2025,
+    "number": 27
+   },
+   {
+    "id": "C2025A00035",
+    "name": "Universities Accord (National Higher Education Code to Prevent and Respond to Gender-based Violence) (Consequential Amendments) Act 2025",
+    "makingDate": "2025-08-28T00:00:00",
+    "status": "InForce",
+    "originatingBillUri": "https://parlinfo.aph.gov.au/parlInfo/search/display/display.w3p;query=Id%3A\"legislation%2Fbillhome%2Fs1460\"",
+    "year": 2025,
+    "number": 35
+   }
+  ],
+  "copyright_page_text_readable": false
+ },
+ "terms": {
+  "justice_order": {
+   "url": "https://laws-lois.justice.gc.ca/eng/XML/SI-97-5.xml",
+   "quote": "Anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada",
+   "found": true
+  },
+  "justice_notice": {
+   "url": "https://laws-lois.justice.gc.ca/eng/ImportantNote",
+   "status": 200,
+   "found": true,
+   "quote": "The Department of Justice Canada assumes no responsibility for the accuracy or reliability of any reproduction derived from the legislative material on this site. Interpretation and Application For all purposes of interpreting and applying the law, users should consult: the origin"
+  },
+  "parl_notice": {
+   "url": "https://www.parl.ca/ImportantNotices-e.html",
+   "status": 200,
+   "found": true,
+   "quote": "Permission to reproduce\u2014in whole or in part\u2014or to otherwise use the content of this website may be sought from the appropriate source. This website also includes material that is subject to copyrights held by third parties. Visitors should therefore be "
+  },
+  "ourcommons_notice": {
+   "url": "https://www.ourcommons.ca/en/important-notices",
+   "status": 200,
+   "found": true,
+   "quote": "Permission to reproduce\u2014in whole or in part\u2014or to otherwise use the content of this website may be sought from the appropriate source. This web"
+  },
+  "parl_notices": {
+   "url": "https://www.parl.ca/ImportantNotices-e.html",
+   "status": 200
+  },
+  "legislation_gov_uk_ogl": {
+   "url": "https://www.legislation.gov.uk/developer/formats/xml",
+   "status": 200,
+   "found": true,
+   "quote": "All content is available under the Open Government Licence v3.0 except where otherwise stated . This site additionally contains content derived from EUR-Lex, reused under the terms of the Commission Decision 2011/"
+  }
+ }
+}

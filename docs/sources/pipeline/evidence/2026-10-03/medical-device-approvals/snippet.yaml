@@ -1,0 +1,172 @@
+candidates:
+  - key: fda-device-510k-pma-clearances
+    name: FDA device 510(k) clearances and PMA approvals (openFDA endpoints, 510(k) summary PDFs, product classification)
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/device/510k.json
+      - https://api.fda.gov/device/pma.json
+      - https://api.fda.gov/device/classification.json
+      - https://www.accessdata.fda.gov/cdrh_docs/pdf25/K250001.pdf
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive the 176,223 510(k) and 57,183 PMA records to R2, fetch the 93,850 summary PDFs and extract indications for use, predicate K-numbers and product code deterministically.
+
+  - key: fda-gudid-udi-devices
+    name: FDA GUDID device identifiers (openFDA UDI endpoint, with GMDN terms and cited premarket submissions)
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/device/udi.json
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Use the openFDA bulk download for the 5,182,695 UDI records (not paged API), keep only premarket_submissions, product_codes and primary DIs, and link to 510(k) by cited K-number.
+
+  - key: hc-mdall-device-licences
+    name: Health Canada Medical Devices Active Licence Listing (MDALL) licences, devices, companies and device identifiers
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://health-products.canada.ca/api/medical-devices/licence/
+      - https://health-products.canada.ca/api/medical-devices/device/
+      - https://health-products.canada.ca/api/medical-devices/company/
+      - https://health-products.canada.ca/api/medical-devices/deviceidentifier/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+    conditions:
+      - 'Open Government Licence - Canada (the licence MDALL is published under on open.canada.ca): acknowledge the source and link to the licence; where no attribution is specified use "Contains information licensed under the Open Government Licence - Canada."'
+      - Class I devices, investigational testing and special access are not in MDALL, so no coverage claim for them.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive the 35,844 active licences, 7,670 companies and the device and device-identifier lists to R2 and measure device-identifier overlap with GUDID on the full files.
+
+  - key: tga-artg-medical-devices
+    name: Australian Register of Therapeutic Goods (ARTG) medical device entries with intended purpose
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Therapeutic Goods Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.tga.gov.au/resources/artg
+      - https://compliance.health.gov.au/artg/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Re-screen when tga.gov.au serves our egress (HTTP/2 INTERNAL_ERROR on every path) and a readable copyright page and ARTG data export or API exist.
+
+datasets:
+  - key: medical-device-approvals
+    name: Medical device clearances and approvals (US FDA 510(k)/PMA, GUDID, Health Canada MDALL) with intended use and recalls
+    category: health
+    entity: device_approval (one regulator clearance, approval or licence for a medical device) with intended-use text, product code, device identifiers, applicant and the recalls citing it
+    stage: SCREENED
+    description: 'One record per regulator clearance, approval or licence for a medical device. FDA 510(k) summary PDFs are parsed deterministically into indications for use, predicate K-numbers and product code, and joined to PMA, product classification and GUDID device identifiers. A K-number cited by a GUDID record or by an FDA device recall links to the 510(k) automatically, at the clearance level only. Health Canada MDALL licences link to FDA clearances only as reviewed candidates on company and device name, because no declared identifier was found to match. Never merges two approvals or auto-links on names.'
+    sources:
+      - fda-device-510k-pma-clearances
+      - fda-gudid-udi-devices
+      - hc-mdall-device-licences
+      - fda-recalls
+    join_keys:
+      - key: cited premarket submission reference number (K-number), GUDID premarket_submissions to 510(k) k_number
+        between:
+          - fda-gudid-udi-devices
+          - fda-device-510k-pma-clearances
+        measured: '29/30 GUDID records (random in-distribution sample) cite a K-number that resolves to an openFDA 510(k) record'
+        mode: declared
+      - key: cited recall reference number (Z-number to K-number through openFDA device/recall) to 510(k) k_number
+        between:
+          - fda-recalls
+          - fda-device-510k-pma-clearances
+        measured: '58/100 sampled FDA device enforcement-report recalls resolve through device/recall (99/100 found by recall number) to a cited K-number present in the 510(k) endpoint'
+        mode: declared
+      - key: normalised company name + device name tokens, FDA 510(k) applicant to Health Canada licence_name
+        between:
+          - fda-device-510k-pma-clearances
+          - hc-mdall-device-licences
+        measured: '54/150 sampled 2025-2026 FDA 510(k) clearances have a Health Canada licence from the same normalised company with shared device-name tokens; 72/150 matched the company only'
+        mode: candidate
+        reviewed: { correct: 19, checked: 23 }
+      - key: device identifier (GTIN/UDI-DI), GUDID primary DI to Health Canada device_identifier
+        between:
+          - fda-gudid-udi-devices
+          - hc-mdall-device-licences
+        measured: '0/120 GUDID primary DIs (zero-stripped) appear as a Health Canada device_identifier'
+        mode: declared
+    taxonomy:
+      - 'jurisdiction: US | CA'
+      - 'pathway: 510k-traditional | 510k-special | 510k-abbreviated | de-novo | pma | pma-supplement | hc-licence'
+      - 'device_class: FDA 1 | 2 | 3 and Health Canada 1 to 4, kept verbatim per regulator'
+      - 'product_code: FDA three-letter code and review panel; regulation_number from classification'
+      - 'status: SESE | DENG | approved | issued-active | cancelled, kept verbatim and mapped to cleared | refused | active | inactive'
+    agent_questions:
+      - Is this device cleared in the US and licensed in Canada, and under which K-number, PMA or licence number?
+      - What is the intended use (indications for use) and predicate device of this 510(k) clearance?
+      - Which recalls cite this 510(k), and what were the class and reason?
+      - Which devices under this FDA product code were cleared in the last 12 months, and by whom?
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 5
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-10-03.md
+    next_action: Archive 510(k)/PMA/GUDID/MDALL snapshots in R2, extract indications and predicates from the summary PDFs, and re-measure the Canada link on full files; request FDA-to-Canada identifier links only if a declared field appears.
