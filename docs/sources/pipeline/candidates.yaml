@@ -72,30 +72,46 @@ candidates:
       and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
       check refused the write); it is routine verification, not an owner decision.
   - key: nhtsa-recalls
-    name: NHTSA vehicle recalls in the recall API
-    category: transport
+    name: NHTSA vehicle, equipment, child-restraint and tire recalls (flat files; recall API for per-campaign detail)
+    category: product-safety
     structuring: normalization
+    format: structured
+    publisher: US NHTSA
     stage: SCREENED
-    rights: GREEN
+    rights: AMBER
     sources:
       [
-        https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip,
-        https://api.nhtsa.gov/recalls/recallsByVehicle
+        'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_POST_2010.zip',
+        'https://static.nhtsa.gov/odi/ffdd/rcl/FLAT_RCL_PRE_2010.zip',
+        'https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt',
+        'https://api.nhtsa.gov/recalls/campaignNumber'
       ]
     scores:
       {
-        agent_demand: 3,
-        rights_clarity: 4,
-        acquisition_ease: 4,
-        structuring_value: 2,
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 3,
         freshness: 5,
         low_onboarding_cost: 4,
         poor_existing_access: 2
       }
-    evidence: [ docs/sources/pipeline/research-2026-09-27.md, verticals/vehicles/sources/nhtsa-recalls.yaml ]
+    terms:
+      - {
+          url: 'https://api.nhtsa.gov/',
+          quote: 'This API is NOT meant to be used by any other applications to perform bulk VIN lookups. Users/Applications attempting bulk VIN lookups will be controlled by an automated traffic rate control mechanism'
+        }
+    conditions:
+      - 'Acquire from the static.nhtsa.gov flat files (two zips, 22 MB), never by bulk API lookups: the API use policy bars bulk VIN lookups and rate-controls them. Use api.nhtsa.gov/recalls/campaignNumber only for single-campaign detail.'
+      - 'No licence or terms page was readable: www.nhtsa.gov, transportation.gov and dot.gov return Akamai 403 from this egress and static.nhtsa.gov has no robots.txt (404). Rights rest on ADR-0018 (free public download, no login, no terms found that forbid reuse) and the US-government-work basis; write the ADR-0013 record and re-read the NHTSA terms from Worker egress before build.'
+      - 'Attribute as manufacturer-reported Part 573 data, not an NHTSA finding; no endorsement claim. Exclude the NOTES free text from publication (it can carry contact details) until reviewed.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md, verticals/vehicles/sources/nhtsa-recalls.yaml ]
     next_action: >-
-      Low structuring value alone (already structured, no VIN ranges); fold into the recall API after CPSC.
-      The flat file is now FLAT_RCL_POST_2010.zip (29 fields); FLAT_RCL.zip is 404.
+      Candidate 2026-10-03 widening member of consumer-product-recalls-north-america (child restraints 253, tires 788,
+      equipment 2,866 campaigns; vehicles 26,376 as a separate category). Measured: 30,347 campaigns / 327,429 rows
+      1966-01-19..2026-10-01, 29 fields. Joins to Transport Canada on the manufacturer campaign number (4,665/13,195,
+      20/20 hand-checked). Build after the Transport Canada member (the only measured declared join to CPSC runs
+      through it); write the ADR-0013 rights record first.
 
   - key: fsis-recalls
     name: USDA FSIS meat, poultry and egg recalls
@@ -183,10 +199,18 @@ candidates:
     terms:
       - url: https://www.govinfo.gov/about/policies
         quote: "Copyright protection under this title is not available for any work of the United States Government"
-    evidence: [ docs/sources/pipeline/research-2026-09-27.md ]
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27.md,
+        docs/sources/pipeline/evidence/2026-10-03/federal-register-obligations/notes.md,
+        docs/sources/federal-register-obligations-rights-record-20261003.md
+      ]
     next_action: >-
-      Prototype the compliance-date and stay-chain parser over 12 months of rules (2,719) using the API
-      metadata and GovInfo full text; FederalRegister.gov full text is bot-blocked, so do not use it.
+      Rights record written 2026-10-03 (GREEN, § 105 and ADR-0018) and the source added to tooling/snapshots/plans.json.
+      The stage moves to RIGHTS_DETERMINED once the Archive source snapshot workflow has run on main and the
+      replayable round is committed (the registry requires an archived snapshot past EVIDENCED). Then prototype the compliance-date and stay-chain parser over 12 months of rules (2,727) using FR API
+      metadata and GovInfo bulk XML for text (FederalRegister.gov and eCFR.gov HTML are CAPTCHA-blocked; use
+      the APIs and govinfo.gov/bulkdata/FR only).
 
   - key: drug-label-facts
     name: Drug label facts (boxed warnings, contraindications, pregnancy/lactation)
@@ -4503,18 +4527,9 @@ candidates:
     stage: PARKED
     rights: UNKNOWN
     sources: [ 'https://www.fsis.usda.gov/fsis/api/recall/v/1' ]
-    scores:
-      {
-        agent_demand: 3,
-        rights_clarity: 2,
-        acquisition_ease: 1,
-        structuring_value: 4,
-        freshness: 4,
-        low_onboarding_cost: 3,
-        poor_existing_access: 3
-      }
-    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
-    next_action: 'PARKED: HTTP 403 Access Denied (Akamai) from this egress with the scout User-Agent on 2026-10-01, terms unread; retry from Cloudflare Worker egress and merge with the existing fsis-recalls entry rather than creating a second one.'
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md ]
+    next_action: 'PARKED: re-tested 2026-10-03, HTTP 403 Akamai Access Denied for the API and for the RCL.txt media file with the scout User-Agent; terms unread. Not a consumer-product member in any case (food); belongs to food-and-health-recalls-global. Retry from Cloudflare Worker egress.'
 
   - key: eu-rasff-notifications
     name: EU RASFF food and feed safety notifications
@@ -5288,6 +5303,1015 @@ candidates:
       second publisher covering the same bank-failure population was found reachable this round (FINRA
       BrokerCheck is a different entity population - individuals/firms, not failed banks - and its own
       redistribution terms were not readable from this egress, so it is not used here).
+
+  - key: building-permits-seattle-sdci
+    name: Seattle SDCI building permits (free-text work description, contractor company name)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Seattle SDCI
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.seattle.gov/resource/76t5-zqzr.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://data.seattle.gov/stories/s/Data-Policy/6ukr-wvup/',
+          quote: 'To the extent the data consists of a list of individuals or can be readily sorted, filtered, or configured as a list of individuals, it is not to be used for a commercial purpose.'
+        }
+      - {
+          url: 'https://data.seattle.gov/stories/s/Data-Policy/6ukr-wvup/',
+          quote: 'Unless otherwise indicated, data on this site does not require specific attribution.'
+        }
+    conditions:
+      [
+        'Dataset licence is Public Domain (Socrata metadata, fetched 2026-10-03); the portal terms bar commercial use of any extract that works as a list of individuals, so publish permits per property and per business only.',
+        'contractorcompanyname is present on 32,086 of 193,407 rows (16.6 percent) and sometimes holds a natural person (for example a personal name); publish it only when it normalises to a business entity and matches a licensed business.',
+        'The dataset carries no contractor licence number and no parcel number, so contractor links are review candidates only and the property link is address or coordinates.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive a full snapshot (193,407 rows), then measure address-to-parcel linkage against King County parcel data and contractor name linkage against WA L&I on the full population.
+
+  - key: building-permits-sf-dbi
+    name: San Francisco DBI building permits with permit contacts (firm and CSLB licence number)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: San Francisco Department of Building Inspection
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.sfgov.org/resource/i98e-djp9.json',
+        'https://data.sfgov.org/resource/3pee-9qhc.json'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.sf.gov/reports/april-2017/datasf-terms-use',
+          quote: 'Except where otherwise stated in the file containing such Data or on the page from which such Data is accessed, including its metadata, Data is made available under the Public Domain Dedication and License v1.0'
+        }
+    conditions:
+      [
+        'Both datasets carry the PDDL in their Socrata metadata; the DataSF terms forbid re-identifying individuals, so publish from the contacts table only firm_name, firm address and licence number for role contractor, never first_name, last_name or agent_address.',
+        'Exclude contact rows where firm_name is empty (the contractor is then a natural person) and the contact roles lessee and payor.',
+        'The contacts table holds invalid dates (newest from_date is 2048); do not use from_date as a freshness signal.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Link contractor licence numbers (license1, 585,340 of 585,805 contractor rows) to the CSLB licence master once that file is reachable, and measure the declared join on 50 permits.
+
+  - key: building-permits-sf-assessor-roll
+    name: San Francisco Assessor secured property tax roll (parcel attributes)
+    category: home-services
+    structuring: normalization
+    format: structured
+    publisher: San Francisco Assessor-Recorder
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.sfgov.org/resource/wv5m-vpq2.json' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.sf.gov/reports/april-2017/datasf-terms-use',
+          quote: 'Except where otherwise stated in the file containing such Data or on the page from which such Data is accessed, including its metadata, Data is made available under the Public Domain Dedication and License v1.0'
+        }
+    conditions:
+      [
+        'Annual roll (latest closed_roll_year 2025); show the roll year as the as-of date.',
+        'Publish parcel attributes only (use, year built, units, zoning, assessed values); the dataset has no owner names and none may be added.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive the latest roll year only and measure block+lot coverage against all SF DBI permits issued since 2020.
+
+  - key: building-permits-chicago-dbs
+    name: Chicago Department of Buildings building permits (work description, up to 15 contacts)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Chicago
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.cityofchicago.org/resource/ydr8-5enu.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked UNKNOWN - the portal terms of use page (cityofchicago.org data_disclaimer) returned 403 and dataset licence is the placeholder SEE_TERMS_OF_USE; contact_N_name holds owners and natural persons and there is no licence number column. Reopen if the terms become readable.
+
+  - key: building-permits-nyc-dob
+    name: NYC DOB NOW approved permits and DOB permit issuance (job description, BBL, permittee licence)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: NYC Department of Buildings
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      [
+        'https://data.cityofnewyork.us/resource/rbx6-tga4.json',
+        'https://data.cityofnewyork.us/resource/ipu4-2q9a.json'
+      ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 1,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked UNKNOWN - dataset licence is null, the NYC terms resolve to the Admin Code page that returned 403 in the 2026-09-27 round, and rows carry owner_name, applicant names and permittee phone (natural persons). Reopen if a readable open-data licence appears; the BBL and hic_license keys are strong.
+
+  - key: building-permits-la-ladbs
+    name: Los Angeles LADBS building permits issued 2020 to present (work description, APN)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Los Angeles Building and Safety
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.lacity.org/resource/pi9x-tg5x.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked UNKNOWN - dataset licence is null and the lacity.gov terms page returned 403; the dataset also has no contractor column. Reopen if terms become readable; APN and PIN are strong parcel keys.
+
+  - key: chemical-niosh-pocket-guide
+    name: NIOSH Pocket Guide to Chemical Hazards (per-chemical pages, symptoms, target organs, first aid)
+    category: chemical-safety
+    structuring: normalization
+    format: free-text
+    publisher: US CDC NIOSH
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cdc.gov/niosh/npg/npgdcas.html', 'https://www.cdc.gov/niosh/npg/default.html' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: 'Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission.'
+    conditions:
+      - 'CDC public-domain content requires attribution to the developing agency (for example "Source: CDC") and a disclaimer that use does not imply endorsement by CDC, ATSDR, HHS or the US Government; the page lists a few copyrighted exceptions, so serve only NIOSH-authored fields.'
+      - 'Content is static: the sampled entry says "Page last reviewed: October 30, 2019". Sell it as a stable reference layer, not a fresh feed; never imply it is current.'
+      - 'No bulk file: acquisition is the CAS index page (626 CAS-to-page links) plus one HTML page per entry; fetch politely and archive each page in R2.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parse all NPG pages (CAS, RTECS, IDLH, REL, PEL, symptoms, target organs, first aid) into typed fields and write the ADR-0013 rights record with the attribution text.
+
+  - key: chemical-pubchem-ghs
+    name: PubChem GHS Classification (PUG-View hazard statements, signal word, pictograms by compound)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: NCBI PubChem (NLM)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/702/JSON?heading=GHS+Classification', 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/75-07-0/cids/JSON' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: 'NCBI itself places no restrictions on the use or distribution of the data contained therein. Nor do we accept data when the submitter has requested restrictions on reuse or redistribution.'
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: 'However, some submitters of the original data (or the country of origin of such data) may claim patent, copyright, or other intellectual property rights in all or a portion of the data (that has been submitted).'
+    conditions:
+      - 'NCBI is not the rights holder: submitters may claim rights. The GHS section aggregates depositors (the ethanol record cites the ECHA C&L Notifications Summary, 13886 reports from 79 notifications), so store the depositor and source name per hazard statement and serve a depositor only after its own terms are read.'
+      - 'ECHA legal notice could not be fetched (HTTP 403, Azure WAF challenge), so ECHA-derived statements stay unserved until that notice is read from a permitted route.'
+      - 'Hazard statements are crowd-reported with per-statement notifier percentages (for example H315 77.4%); keep the percentages and never present a union of statements as one official classification.'
+      - 'Use PUG REST/PUG-View politely (observed fine at under 2 requests per second); name lookup by CAS returned no CID for 3 of 30 NIOSH CAS numbers (mixtures and UVCB entries).'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Resolve the per-depositor terms (read ECHA's legal notice via a permitted route), then ingest the PubChem GHS classification bulk FTP by CID with depositor attribution preserved.
+
+  - key: chemical-epa-tsca-inventory
+    name: EPA TSCA Chemical Substance Inventory (non-confidential, CAS number and active or inactive status)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.epa.gov/tsca-inventory/how-access-tsca-inventory', 'https://www.epa.gov/system/files/other-files/2026-05/csv-non-cbi-tsca-inventory.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'The EPA disclaimer reserves commercial-use copyright for some documents; the inventory is an EPA-authored regulatory list, so serve only CASRN, activity flag, UVCB/definition flags and the TSCA listing status, and resolve the sentence in an ADR-0013 rights record before paid delivery.'
+      - 'CA Index Names are Chemical Abstracts Service nomenclature carried inside the EPA list; confirm in the rights record whether to serve them or keep only the CAS number.'
+      - 'The file is refreshed about every six months (TSCAINV_072026.csv, 70,774 rows: 36,522 ACTIVE and 34,252 INACTIVE); it has no hazard data and no free text.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Write the ADR-0013 rights record for the TSCA inventory fields, then archive the semiannual CSV zip in R2 with SHA-256.
+
+  - key: chemical-echa-cl-inventory
+    name: ECHA C&L Inventory and registered substances (EU harmonised and notified classifications)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: ECHA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://echa.europa.eu/information-on-chemicals/cl-inventory-database', 'https://echa.europa.eu/legal-notice' ]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parked. Both ECHA pages return HTTP 403 with an Azure WAF challenge from our egress; reopen only if ECHA offers a documented download or API reachable without bypassing the challenge, and its legal notice can be read.
+
+  - key: chemical-nite-chrip
+    name: Japan NITE-CHRIP / GHS classification results
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: NITE Japan
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.chemicals.nite.go.jp/en/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parked. The host is unreachable from our egress (proxy tunnel returned 502 Bad Gateway) so no terms could be read; retry on a later run.
+
+  - key: chemical-epa-comptox
+    name: EPA CompTox Chemicals Dashboard (identifiers, hazard and toxicity data)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://comptox.epa.gov/dashboard/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parked. The dashboard is a JavaScript app (HTTP 200); the guessed downloadable-data and FAQ pages returned 404 and no keyless bulk URL or terms page was found. Reopen once EPA's current CompTox download page is located.
+
+  - key: legislation-ca-justice-laws
+    name: Justice Laws consolidated federal Acts (Canada, XML with amendment and in-force data)
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: Department of Justice Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://laws-lois.justice.gc.ca/eng/XML/Legis.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://laws-lois.justice.gc.ca/eng/XML/SI-97-5.xml
+        quote: 'Anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada, and decisions and reasons for decisions of federally-constituted courts and administrative tribunals, provided due diligence is exercised in ensuring the accuracy of the materials reproduced and the reproduction is not represented as an official version.'
+    conditions:
+      - Exercise due diligence on accuracy of every reproduction (Reproduction of Federal Law Order, SI/97-5).
+      - Never represent the reproduction as an official version; carry the Justice Laws currency date (CurrentToDate) and a pointer to the official source on every record.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Archive Legis.xml and the 971 English Act XMLs to R2, parse Identification (Parliament, Session, BillNumber, AnnualStatuteNumber), RecentAmendments and lims in-force dates into typed sections, and write the ADR-0013 rights record citing SI/97-5.
+
+  - key: legislation-ca-gazette-part3
+    name: Canada Gazette Part III (enacted Acts of Parliament as published, S.C. chapters)
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Public Services and Procurement Canada (Canada Gazette)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://gazette.gc.ca/rp-pr/p3/2025/index-eng.html' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    terms:
+      - url: https://laws-lois.justice.gc.ca/eng/XML/SI-97-5.xml
+        quote: 'Anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada, and decisions and reasons for decisions of federally-constituted courts and administrative tribunals, provided due diligence is exercised in ensuring the accuracy of the materials reproduced and the reproduction is not represented as an official version.'
+    conditions:
+      - Rights rest on the Reproduction of Federal Law Order covering enactments; the Gazette site itself falls under canada.ca terms that grant only non-commercial reproduction for other material, so publish enactment text only.
+      - Due diligence on accuracy and never present the copy as official.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Index pages for 2020 to 2025 list 136 chapters with PDF links (pre-2020 index pages use a different layout and parsed to 0); add a parser for those, fetch PDFs and extract enacting text, royal assent and coming-into-force clauses.
+
+  - key: legislation-ca-parl-legisinfo
+    name: Parliament of Canada LEGISinfo bills (JSON export, bill stages and royal assent dates)
+    category: legal
+    structuring: event-extraction
+    format: structured
+    publisher: Parliament of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.parl.ca/legisinfo/en/bills/json?parlsession=all' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Parked - the only published terms say 'Permission to reproduce may be sought from the appropriate source' and name no open licence. Reopen if the Library of Parliament confirms an open licence for the LEGISinfo export (7,145 bills, 15/15 sampled Justice Laws bill numbers match it).
+
+  - key: legislation-uk-gov-acts
+    name: legislation.gov.uk UK Public General Acts (Atom feed and CLML XML with point-in-time and commencement data)
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: UK National Archives (legislation.gov.uk)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.legislation.gov.uk/ukpga/data.feed' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.legislation.gov.uk/developer/formats/xml
+        quote: 'All content is available under the Open Government Licence v3.0 except where otherwise stated'
+    conditions:
+      - Open Government Licence v3.0 attribution statement on every record or page.
+      - Exclude content marked as derived from EUR-Lex or otherwise stated, and check third-party rights in explanatory notes.
+      - Observe the legislation.gov.uk fair use policy for request rates.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Needs a second UK publisher naming the Act (UK Parliament Bills API answers 403 from this egress); ukpga/2018/12 XML carries 306 section groups and 1,803 RestrictStartDate attributes ready for effective-date extraction.
+
+  - key: legislation-us-govinfo-billstatus
+    name: GovInfo BILLSTATUS bulk XML (US Congress bills, actions, sponsors, laws)
+    category: legal
+    structuring: event-extraction
+    format: structured
+    publisher: US Government Publishing Office
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.govinfo.gov/bulkdata/BILLSTATUS' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: 'Copyright protection under this title is not available for any work of the United States Government'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Needs an independent counterpart naming the public law (OLRC US Code is under maintenance, congress.gov API needs a key); test Federal Register rules that cite 'Public Law 119-21' against BILLSTATUS laws, then archive 119th Congress files to R2.
+
+  - key: legislation-au-federal-register
+    name: Federal Register of Legislation (Australia) titles API
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: Office of Parliamentary Counsel (Australia)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.prod.legislation.gov.au/v1/titles' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Parked - the open OData API answers (13,744 Acts, originatingBillUri to ParlInfo) but the copyright page is a script-rendered shell with no readable terms from this egress. Reopen once licence text is fetched verbatim.
+
+  - key: maritime-uk-maib-reports
+    name: UK MAIB marine accident investigation reports (gov.uk content API)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Marine Accident Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=maib_report', 'https://www.gov.uk/maib-reports' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    terms:
+      - {
+          url: 'https://www.gov.uk/help/terms-conditions',
+          quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt.'
+        }
+    conditions:
+      - Attribute 'Contains public sector information licensed under the Open Government Licence v3.0'.
+      - Exclude personal data and third-party images or material inside the report PDFs (OGL exemptions).
+      - Do not suggest endorsement by the MAIB.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Fetch all 1,104 content-API records and their PDFs into R2, extract the IMO number from the vessel-particulars table (22 of 60 sampled PDFs have one; fishing and recreational craft have none), and extract cause and injury text.
+
+  - key: maritime-ntsb-marine-investigation-reports
+    name: US NTSB marine investigation report PDFs (MIR series)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ntsb.gov/investigations/AccidentReports/Pages/Reports.aspx', 'https://www.ntsb.gov/investigations/AccidentReports/Reports/MIR2404.pdf' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
+          quote: 'By publishing its reports and recommendations and opening public dockets, the NTSB has placed the contents prepared by its staff in the public domain.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Enumerate MIR{yy}{nn}.pdf by GET (HEAD returns 200 for non-PDFs), extract IMO, vessel, casualty type and probable cause from the 22 sampled reports' layout, and exclude identified third-party copyrighted figures.
+
+  - key: maritime-ca-tsb-marine-occurrences
+    name: Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/MARSISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv', 'https://open.canada.ca/data/api/action/package_show?id=ad8d1b73-df09-4521-9bdb-61c529328218' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - CSV and report pages answer 403 Forbidden from this egress (a 403 is not permission). The CKAN record names the Open Government Licence - Canada and monthly updates; re-test from another egress and read the data dictionary for an IMO column.
+
+  - key: maritime-au-atsb-marine-investigations
+    name: Australian Transport Safety Bureau marine occurrence investigations
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Australian Transport Safety Bureau
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.atsb.gov.au/marine-investigations' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - atsb.gov.au resets the connection on every URL tried from this egress, so nothing was measured and no terms were read; retry later or from another egress.
+
+  - key: maritime-fi-otkes-marine-reports
+    name: Finland Safety Investigation Authority (OTKES) marine investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Safety Investigation Authority Finland
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.turvallisuustutkinta.fi/wp-json/wp/v2/tutkinta', 'https://www.turvallisuustutkinta.fi/en/investigations/investigation-reports/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.turvallisuustutkinta.fi/en/information-about-webpage/',
+          quote: 'The content of these pages shall not be used or cited in other contexts without prior consent and acknowledgement of source.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - the published copyright notice requires prior consent for reuse and names no open licence; the WordPress API is reachable (36 English M-series marine reports 2013-2024) if a written permission or licence is found.
+
+  - key: maritime-de-bsu-investigation-reports
+    name: German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: German Federal Bureau of Maritime Casualty Investigation
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.bsu-bund.de/EN/Publications/Unfallberichte/Unfallberichte_node.html' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.bsu-bund.de/EN/Service/Termsandconditions/Terms_and_conditions_node.html',
+          quote: 'Image copyright for the pictures used on this website is clarified. If you feel your rights are being violated please contact the BSU.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - the terms page gives picture credits only and no reuse licence for report text. The report list (per-year tables, English PDFs, some joint with MAIB) is reachable; make a rights determination, then test BSU-to-MAIB joint cases on IMO.
+
+  - key: fda-device-510k-pma-clearances
+    name: FDA device 510(k) clearances and PMA approvals (openFDA endpoints, 510(k) summary PDFs, product classification)
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/device/510k.json
+      - https://api.fda.gov/device/pma.json
+      - https://api.fda.gov/device/classification.json
+      - https://www.accessdata.fda.gov/cdrh_docs/pdf25/K250001.pdf
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive the 176,223 510(k) and 57,183 PMA records to R2, fetch the 93,850 summary PDFs and extract indications for use, predicate K-numbers and product code deterministically.
+
+  - key: fda-gudid-udi-devices
+    name: FDA GUDID device identifiers (openFDA UDI endpoint, with GMDN terms and cited premarket submissions)
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/device/udi.json
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Use the openFDA bulk download for the 5,182,695 UDI records (not paged API), keep only premarket_submissions, product_codes and primary DIs, and link to 510(k) by cited K-number.
+
+  - key: hc-mdall-device-licences
+    name: Health Canada Medical Devices Active Licence Listing (MDALL) licences, devices, companies and device identifiers
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://health-products.canada.ca/api/medical-devices/licence/
+      - https://health-products.canada.ca/api/medical-devices/device/
+      - https://health-products.canada.ca/api/medical-devices/company/
+      - https://health-products.canada.ca/api/medical-devices/deviceidentifier/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+    conditions:
+      - 'Open Government Licence - Canada (the licence MDALL is published under on open.canada.ca): acknowledge the source and link to the licence; where no attribution is specified use "Contains information licensed under the Open Government Licence - Canada."'
+      - Class I devices, investigational testing and special access are not in MDALL, so no coverage claim for them.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive the 35,844 active licences, 7,670 companies and the device and device-identifier lists to R2 and measure device-identifier overlap with GUDID on the full files.
+
+  - key: tga-artg-medical-devices
+    name: Australian Register of Therapeutic Goods (ARTG) medical device entries with intended purpose
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Therapeutic Goods Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.tga.gov.au/resources/artg
+      - https://compliance.health.gov.au/artg/
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Re-screen when tga.gov.au serves our egress (HTTP/2 INTERNAL_ERROR on every path) and a readable copyright page and ARTG data export or API exist.
+
+  - key: ca-tc-vehicle-recalls-database
+    name: Transport Canada Vehicle Recalls Database (vehicles, child car seats, boosters, tires, equipment; OGL-Canada CSV)
+    category: product-safety
+    structuring: normalization
+    format: free-text
+    publisher: Transport Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://opendatatc.tc.canada.ca/vrdb_full_monthly.csv',
+        'https://opendatatc.tc.canada.ca/vrdb_60days_daily.csv',
+        'https://data.tc.gc.ca/v1.3/api/eng/vehicle-recall-database/recall',
+        'https://open.canada.ca/data/dataset/1ec92326-47ef-4110-b7ca-959fab03f96d'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 5,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+        }
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'If the Information Provider does not provide a specific attribution statement, or if you are using Information from several information providers and multiple attributions are not practical for your product or application, you must use the following attribution statement: Contains information licensed under the Open Government Licence – Canada.'
+        }
+    conditions:
+      - 'Attribute with "Contains information licensed under the Open Government Licence – Canada." and link the licence.'
+      - 'Keep the dataset note that the database excludes inconsequential or non-safety recalls; do not present absence as safety.'
+      - 'Full file is 207 MB (146,894 rows, one per model): stream it to R2 and parse in chunks; the "60 days" file in fact spans 2025-06-11 to 2026-09-22.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md ]
+    next_action: >-
+      Candidate 2026-10-03 widening member of consumer-product-recalls-north-america. Measured: 17,978 recalls /
+      146,894 rows 1975-01-14..2026-09-22 (updated daily), 15 fields, bilingual COMMENT text. 76/81 CPSC recalls that
+      cite a wwwapps.tc.gc.ca VRDB URL resolve to a recall number here (declared); Health Canada's index lists 9,904
+      Transport Canada notices of which 9,468 resolve here, while 8,514 VRDB recalls are not in the index. Build as
+      the first widening member; parse COMMENT_ETXT (Issue / Safety Risk / Corrective Actions) into hazard and remedy
+      classes.
+
+  - key: food-safety-uk-fsa-hygiene-ratings
+    name: UK Food Standards Agency Food Hygiene Rating Scheme API (614k establishments, FHRSID)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: Food Standards Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.ratings.food.gov.uk/Establishments' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.food.gov.uk/terms-and-conditions
+        quote: 'Use of proprietary food hygiene ratings information and services is subject to the terms of the Open Government Licence (OGL)'
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+    conditions:
+      - Attribute the Food Standards Agency and link the OGL v3.0.
+      - Show the rating date and refresh often; the terms warn that displaying an invalid or inaccurate rating may be an offence.
+      - Do not use FSA logos. Acquire per local authority (unfiltered queries return 403).
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Page all 363 authorities, measure RightToReply fill rate beyond the Cambridge page, and write the OGL rights record.
+
+  - key: food-safety-osm-fhrs-venues
+    name: OpenStreetMap venues tagged with fhrs:id (declared pointer to the FSA record)
+    category: food-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: OpenStreetMap contributors
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://taginfo.openstreetmap.org/api/4/key/stats?key=fhrs:id', 'https://api.openstreetmap.org/api/0.6/map.json' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.openstreetmap.org/copyright
+        quote: 'You are free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors.'
+      - url: https://www.openstreetmap.org/copyright
+        quote: 'If you alter or build upon our data, you may distribute the result only under the same license.'
+    conditions:
+      - ODbL attribution to OpenStreetMap and its contributors.
+      - Share-alike applies to derived databases; keep OSM-derived fields in a separable layer and decide per delivery channel.
+      - Overpass endpoints failed from this egress; use a planet or regional extract rather than the public API for bulk.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Pull a UK extract, count fhrs:id coverage against the FSA total, and write the ODbL separation plan.
+
+  - key: food-safety-sf-lives-inspections
+    name: San Francisco health inspection scores and violations 2016-2019 (LIVES, frozen)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: San Francisco Department of Public Health
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://data.sfgov.org/resource/pyih-qa8i.json' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://opendatacommons.org/licenses/pddl/1.0/
+        quote: 'The Open Data Commons – Public Domain Dedication and Licence is a document intended to allow you to freely share, modify, and use this work for any purpose and without any restrictions.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Locate the successor feed that replaced LIVES (vendor site named in the dataset description) and check its terms before building.
+
+  - key: food-safety-austin-inspection-scores
+    name: Austin Public Health food establishment inspection scores (3-year rolling window)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: City of Austin
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.austintexas.gov/resource/ecmv-9xxi.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    conditions:
+      - Portal metadata says Public Domain but no terms page could be fetched and quoted; confirm before any publication.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Find and quote the Austin open-data terms page, then decide whether score-only data justifies membership.
+
+  - key: food-safety-nyc-dohmh-inspections
+    name: NYC DOHMH restaurant inspection results (violation text, CAMIS permit id)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: NYC Department of Health and Mental Hygiene
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.cityofnewyork.us/resource/43nn-pn8j.json' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    terms:
+      - url: https://www.nyc.gov/home/terms-of-use.page
+        quote: 'To request permission to use City intellectual property located on NYC.gov, please visit the'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, no open-data terms readable (296,175 rows, daily). Retry reading NYC Open Data terms from a browser-capable egress.
+
+  - key: food-safety-chicago-food-inspections
+    name: Chicago Department of Public Health food inspections (violation comments, licence number)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Chicago
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.cityofchicago.org/resource/4ijn-s7e5.json' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, the terms page returns 403 from this egress and the licence is SEE_TERMS_OF_USE. Retry the terms read from another egress.
+
+  - key: food-safety-dallas-inspections
+    name: Dallas restaurant and food establishment inspections 2016-2024 (sunset)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Dallas Code Compliance
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.dallasopendata.com/resource/dri5-wcct.json' ]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 4, structuring_value: 3, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, no licence in metadata, no establishment id, and the feed ended 2024-02-29.
+
+  - key: food-safety-king-county-inspections
+    name: King County and Seattle food establishment inspection data
+    category: food-safety
+    structuring: event-extraction
+    format: structured
+    publisher: Public Health Seattle and King County
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.kingcounty.gov/resource/f29f-zza5.json' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, the inspections view answers 403 requiring login. Look for a public bulk file or the vendor inspections site.
+
+  - key: species-ecos-fws-listings-recovery
+    name: US FWS ECOS species listings and recovery documents (ESA status, listing date, recovery-plan PDFs)
+    category: environment
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: U.S. Fish and Wildlife Service
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://ecos.fws.gov/ecp/pullreports/catalog/species/report/species/export?format=json',
+        'https://ecos.fws.gov/ecp/pullreports/catalog/species/report/recoveryDocs/export?format=json'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.fws.gov/disclaimer',
+          quote: 'There is no need to request permission. Not all the information on our site is in the public domain. Some images/graphics are licensed'
+        }
+    conditions:
+      [
+        'Publish only the listing facts (names, ESA status, population, listing date, region) and the recovery-document metadata and links; do not cache recovery-plan images or graphics, which the FWS disclaimer says may be copyright-licensed.',
+        'The documented bulk export returns no ITIS TSN or other taxon identifier (species columns tried: cn, sn, status, desc, listing_date, id, sid, vipcode, status_category), so the link to other publishers is the scientific name only.',
+        'Recovery-plan and critical-habitat text lives in PDFs (1,830 of 1,834 recovery-document rows link a PDF); extraction of listing rules and recovery criteria from those PDFs is not yet measured.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Pull 20 recovery-plan PDFs, measure deterministic extraction of recovery criteria and critical-habitat statements, and map ECOS status codes (E, T, Species of Concern) to the shared status taxonomy.
+
+  - key: species-eccc-sara-critical-habitat
+    name: Environment Canada SARA critical habitat national dataset (COSEWIC id, SARA status, recovery document)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Environment and Climate Change Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://maps-cartes.ec.gc.ca/arcgis/rest/services/CWS_SCF/CriticalHabitat/MapServer/3' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+        }
+    conditions:
+      [
+        'Open Government Licence - Canada: acknowledge the source and link to the licence in every published view.',
+        'Layer covers only species with a posted recovery document that identifies critical habitat (273 unique scientific names, 459 distinct species/population/document rows), not the full SARA schedule 1 list; the full registry (species-registry.canada.ca) was reachable but exposes no bulk species API that was measured.',
+        'Sensitive_E marks sensitive locations; honour it and never publish geometry flagged sensitive.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Page the 25,180 area features without geometry, confirm the Sensitive_E semantics, and map SARA_Status codes 1/2/3 to the shared status taxonomy using the layer's coded-value domain.
+
+  - key: species-epbc-threatened-list-au
+    name: Australia EPBC Act threatened species state lists (status, SPRAT taxon id, profile link)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Australian Department of Climate Change, Energy, the Environment and Water
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.gov.au/data/dataset/ae652011-f39e-4c6c-91b8-1dc2d2dfee8f',
+        'https://data.gov.au/data/dataset/ae652011-f39e-4c6c-91b8-1dc2d2dfee8f/resource/78401dce-1f40-49d3-92c4-3713d6e34974/download/20260828spcs.csv'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://data.gov.au/data/api/3/action/package_show?id=ae652011-f39e-4c6c-91b8-1dc2d2dfee8f',
+          quote: 'Creative Commons Attribution 3.0 Australia'
+        }
+    conditions:
+      [
+        'CC BY 3.0 Australia: attribute the Commonwealth of Australia (DCCEEW) and the dataset in every published view.',
+        'The CSV carries a SPRAT taxon id and a profile URL but no ITIS TSN or GBIF key, so cross-publisher links are by scientific name only.',
+        'The SPRAT species profile pages (environment.gov.au) returned HTTP 403 from this egress, so profile free text is not acquired and is out of scope until a supported route is found.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Confirm the data.gov.au dataset notes on licence scope, then map Threatened status values and the state flag columns to the shared status taxonomy.
+
+  - key: species-gbif-backbone-taxonomy
+    name: GBIF Backbone Taxonomy species API (usage key, accepted name, synonyms, classification)
+    category: environment
+    structuring: identifier-extraction
+    format: structured
+    publisher: GBIF Secretariat
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://api.gbif.org/v1/species/match',
+        'https://api.gbif.org/v1/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://api.gbif.org/v1/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c',
+          quote: 'http://creativecommons.org/licenses/by/4.0/legalcode'
+        }
+    conditions:
+      [
+        'The backbone dataset record declares CC BY 4.0 (not CC0): attribute the GBIF Backbone Taxonomy, DOI 10.15468/39omei, in every published view.',
+        'gbif.org/terms and gbif.org/terms/data-user returned HTTP 403 from this egress, so the portal terms were not read and no workaround was attempted; rely on the dataset licence field only.',
+        'Backbone metadata modified 2023-11-17, so it is a stable name resolver, not a freshness source; the match API had frequent connection resets and needs retry with backoff at 2 req/s or less.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Decide whether to use the GBIF match API at runtime or load the backbone checklist download once; measure accepted-name resolution for synonyms across all four status publishers.
+
+  - key: species-itis-taxonomy
+    name: ITIS integrated taxonomic information system (TSN, valid name, hierarchy)
+    category: environment
+    structuring: identifier-extraction
+    format: structured
+    publisher: Integrated Taxonomic Information System (ITIS)
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      [
+        'https://www.itis.gov/ITISWebService/jsonservice/searchByScientificName',
+        'https://www.itis.gov/downloads/index.html'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://www.itis.gov/privacy.html',
+          quote: 'Information presented on the ITIS website is considered public information and may be distributed or copied. Use of the appropriate citation is requested.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Use the monthly export (1,000,636 scientific names on 22-Sep-2026) as the TSN lookup table, check accepted versus invalid names, and cite ITIS as requested.
+
+  - key: species-iucn-red-list
+    name: IUCN Red List assessments (global threat category, criteria, habitat and threat text)
+    category: environment
+    structuring: eligibility-criteria
+    format: structured
+    publisher: International Union for Conservation of Nature
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.iucnredlist.org/terms/terms-of-use' ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/species-conservation-status/notes.md ]
+    next_action: Parked, no workaround. The terms page returned HTTP 403 with a Cloudflare challenge from this egress and the Red List API needs a token; reopen only if an unauthenticated, redistributable licence is published and readable.
+
+  - key: species-noaa-fisheries-directory
+    name: NOAA Fisheries species directory (threatened and endangered marine species, status by region)
+    category: environment
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: NOAA Fisheries
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fisheries.noaa.gov/species-directory/threatened-endangered' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 2,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/species-conservation-status/notes.md ]
+    next_action: Parked. The page is reachable (HTTP 200, 105 results listed) but is an HTML listing with no documented API, and the privacy-policy URL tried returned 404 so terms were not read; the ESA marine species are already in ECOS, so revisit only for NOAA-only species text.
+
+  - key: species-jncc-uk-conservation
+    name: UK JNCC species conservation designations (priority species, Annex lists)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Joint Nature Conservation Committee
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.jncc.gov.uk/' ]
+    scores:
+      {
+        agent_demand: 2,
+        rights_clarity: 2,
+        acquisition_ease: 2,
+        structuring_value: 3,
+        freshness: 2,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/species-conservation-status/notes.md ]
+    next_action: Parked as not screened. data.jncc.gov.uk returned HTTP 200 but no machine-readable species-status dataset with a readable licence was identified this round; revisit with a targeted search of the JNCC catalogue.
 
 datasets:
   - key: home-product-recalls-global
@@ -6478,3 +7502,239 @@ datasets:
       structured member yet, so it cannot reach EVIDENCED (README's two-format rule) until one is added — either
       a genuinely structured third source, or a separately modeled structured slice of faa-airworthiness-directives
       itself (document_number/effective_date/type, independent of model-name text-matching).
+
+  - key: building-permits
+    name: Building permits (work description, parcel and licensed contractor)
+    category: home-services
+    entity: BuildingPermit - one municipal building or trade permit with its free-text work description, the property it is for and, where published, the contractor business
+    stage: SCREENED
+    description: One record per permit from city open-data portals (Seattle SDCI and San Francisco DBI live now, Chicago, NYC and LA parked on unreadable terms), linked to its parcel through exact block and lot or address and to the licensed contractor business through the state licence record. Personal owner and applicant names are never published.
+    sources:
+      - building-permits-seattle-sdci
+      - building-permits-sf-dbi
+      - building-permits-sf-assessor-roll
+      - contractors-wa-lni-licences
+    join_keys:
+      - key: parcel block+lot (exact)
+        between:
+          - building-permits-sf-dbi
+          - building-permits-sf-assessor-roll
+        measured: 60/60
+        mode: candidate
+        reviewed: { correct: 8, checked: 8 }
+      - key: normalised contractor name
+        between:
+          - building-permits-seattle-sdci
+          - contractors-wa-lni-licences
+        measured: 22/40
+        mode: candidate
+        reviewed: { correct: 18, checked: 22 }
+    taxonomy:
+      - permit type (new construction, alteration, re-roof, electrical, plumbing, mechanical, demolition, sign)
+      - trade scope extracted from the work description
+      - residential or commercial use
+      - permit status (applied, issued, completed, expired)
+    agent_questions:
+      - What work was permitted on this property, when, and at what declared cost?
+      - Which licensed contractor business did the work, and is its licence active?
+      - Which re-roof or HVAC permits were issued in this neighbourhood in the last year?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive Seattle and SF snapshots, add a King County parcel or SF CSLB-licence declared join, and re-measure the contractor-name link on the full Seattle population before EVIDENCED.
+
+  - key: chemical-hazard-classifications
+    name: Chemical hazard classifications linked by CAS number (NIOSH, PubChem GHS, EPA TSCA)
+    category: chemical-safety
+    entity: chemical_substance (one substance identified by CAS number, with GHS hazard statements and signal word, occupational exposure text, and US TSCA listing status)
+    stage: SCREENED
+    description: 'One record per substance, keyed by CAS number. NIOSH supplies occupational symptoms, target organs and first aid prose (626 CAS entries), PubChem supplies depositor-attributed GHS hazard statements, signal word and pictograms, and the EPA TSCA inventory supplies active or inactive US commerce status (70,774 rows). CAS number is an identifier that names the same substance in each source, so it links automatically at the substance level; names and synonyms only propose reviewed links. Mixtures, UVCB entries and multi-CAS NIOSH entries are not auto-linked. ECHA C&L, NITE-CHRIP and CompTox are parked.'
+    sources: [ chemical-niosh-pocket-guide, chemical-pubchem-ghs, chemical-epa-tsca-inventory ]
+    join_keys:
+      - key: CAS number (exact; NIOSH CAS to a PubChem compound whose synonym list contains that exact CAS number)
+        between: [ chemical-niosh-pocket-guide, chemical-pubchem-ghs ]
+        measured: 27/30 sampled NIOSH CAS numbers (seed 7) resolve to a PubChem CID whose synonyms contain the exact CAS number, and all 27 have GHS hazard statements; the 3 misses are cemented tungsten carbide, VM&P naphtha and decaborane
+        mode: declared
+      - key: CAS number (exact; NIOSH CAS to TSCA CASRN)
+        between: [ chemical-niosh-pocket-guide, chemical-epa-tsca-inventory ]
+        measured: 28/30 sampled NIOSH CAS numbers are on the TSCA inventory (all 28 ACTIVE); across the whole NIOSH index 539/626 CAS numbers are on TSCA
+        mode: declared
+    taxonomy:
+      - 'ghs_hazard_statement: H-code and text, per depositor, verbatim from PubChem'
+      - 'signal_word: Danger | Warning, as PubChem reports it'
+      - 'occupational_target_organs: NIOSH target organs, verbatim'
+      - 'tsca_status: ACTIVE | INACTIVE from the EPA inventory activity flag'
+    agent_questions:
+      - What are the GHS hazard statements for CAS 75-07-0 and which organs does NIOSH say it targets?
+      - Is this substance active on the US TSCA inventory, and what first aid does NIOSH list for exposure?
+      - Which substances carry H350 (may cause cancer) and are also flagged as potential occupational carcinogens by NIOSH?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/results.json, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Write rights records for NIOSH (attribution), PubChem (per-depositor) and TSCA; read ECHA terms via a permitted route; add the CAS number phrase to the declared-join regex in tooling/test/source-pipeline.test.ts; re-measure on a larger sample before EVIDENCED.
+
+  - key: medical-device-approvals
+    name: Medical device clearances and approvals (US FDA 510(k)/PMA, GUDID, Health Canada MDALL) with intended use and recalls
+    category: health
+    entity: device_approval (one regulator clearance, approval or licence for a medical device) with intended-use text, product code, device identifiers, applicant and the recalls citing it
+    stage: SCREENED
+    description: 'One record per regulator clearance, approval or licence for a medical device. FDA 510(k) summary PDFs are parsed deterministically into indications for use, predicate K-numbers and product code, and joined to PMA, product classification and GUDID device identifiers. A K-number cited by a GUDID record or by an FDA device recall links to the 510(k) automatically, at the clearance level only. Health Canada MDALL licences link to FDA clearances only as reviewed candidates on company and device name, because no declared identifier was found to match. Never merges two approvals or auto-links on names.'
+    sources:
+      - fda-device-510k-pma-clearances
+      - fda-gudid-udi-devices
+      - hc-mdall-device-licences
+      - fda-recalls
+    join_keys:
+      - key: cited premarket submission reference number (K-number), GUDID premarket_submissions to 510(k) k_number
+        between:
+          - fda-gudid-udi-devices
+          - fda-device-510k-pma-clearances
+        measured: '29/30 GUDID records (random in-distribution sample) cite a K-number that resolves to an openFDA 510(k) record'
+        mode: declared
+      - key: cited recall reference number (Z-number to K-number through openFDA device/recall) to 510(k) k_number
+        between:
+          - fda-recalls
+          - fda-device-510k-pma-clearances
+        measured: '58/100 sampled FDA device enforcement-report recalls resolve through device/recall (99/100 found by recall number) to a cited K-number present in the 510(k) endpoint'
+        mode: declared
+      - key: normalised company name + device name tokens, FDA 510(k) applicant to Health Canada licence_name
+        between:
+          - fda-device-510k-pma-clearances
+          - hc-mdall-device-licences
+        measured: '54/150 sampled 2025-2026 FDA 510(k) clearances have a Health Canada licence from the same normalised company with shared device-name tokens; 72/150 matched the company only'
+        mode: candidate
+        reviewed: { correct: 19, checked: 23 }
+      - key: device identifier (GTIN/UDI-DI), GUDID primary DI to Health Canada device_identifier
+        between:
+          - fda-gudid-udi-devices
+          - hc-mdall-device-licences
+        measured: '0/120 GUDID primary DIs (zero-stripped) appear as a Health Canada device_identifier'
+        mode: declared
+    taxonomy:
+      - 'jurisdiction: US | CA'
+      - 'pathway: 510k-traditional | 510k-special | 510k-abbreviated | de-novo | pma | pma-supplement | hc-licence'
+      - 'device_class: FDA 1 | 2 | 3 and Health Canada 1 to 4, kept verbatim per regulator'
+      - 'product_code: FDA three-letter code and review panel; regulation_number from classification'
+      - 'status: SESE | DENG | approved | issued-active | cancelled, kept verbatim and mapped to cleared | refused | active | inactive'
+    agent_questions:
+      - Is this device cleared in the US and licensed in Canada, and under which K-number, PMA or licence number?
+      - What is the intended use (indications for use) and predicate device of this 510(k) clearance?
+      - Which recalls cite this 510(k), and what were the class and reason?
+      - Which devices under this FDA product code were cleared in the last 12 months, and by whom?
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 5
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-10-03.md
+    next_action: Archive 510(k)/PMA/GUDID/MDALL snapshots in R2, extract indications and predicates from the summary PDFs, and re-measure the Canada link on full files; request FDA-to-Canada identifier links only if a declared field appears.
+
+  - key: restaurant-health-inspections
+    name: Food-establishment inspection and hygiene-rating record with violation text
+    category: food-safety
+    entity: food_establishment (one licensed or permitted food business) with inspections, scores or ratings and violations
+    stage: SCREENED
+    description: 'One record per food establishment, assembled from per-jurisdiction inspection feeds (violation text and scores) and the UK FSA hygiene ratings, linked to OpenStreetMap venues by the FSA establishment id that OSM volunteers tag. Each jurisdiction links on its own permit id; no identifier is shared across jurisdictions. Free-text violations are normalised to one violation taxonomy with the source row cited.'
+    sources:
+      - food-safety-uk-fsa-hygiene-ratings
+      - food-safety-osm-fhrs-venues
+      - food-safety-sf-lives-inspections
+    join_keys:
+      - key: cited FHRS establishment reference number (OSM fhrs:id tag naming the FSA FHRSID record)
+        between:
+          - food-safety-osm-fhrs-venues
+          - food-safety-uk-fsa-hygiene-ratings
+        measured: 38/40 sampled Cambridge OSM venues resolved to the FSA record (2 stale ids); postcode equal 38/38, business name equal 22/38
+        mode: declared
+    taxonomy:
+      - food business type (FSA BusinessType, Chicago facility_type, NYC cuisine)
+      - violation class (temperature control, cross contamination, pests, cleanliness, structure, management)
+      - severity (critical, non-critical, priority)
+      - result (pass, conditional, fail, rating 0-5)
+    agent_questions:
+      - Is this establishment safe, and what is its latest rating or score?
+      - Which violations recurred at this establishment across inspections?
+      - Which food businesses near a point were rated 0 or 1 in the last year?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Free-text member is stale (SF ends 2019). Read NYC and Chicago open-data terms to unpark the live violation feeds, then measure full FSA coverage in OSM.
+
+  - key: species-conservation-status
+    name: Species conservation status (listing, critical habitat, recovery documents, taxonomy)
+    category: environment
+    entity: A species or subspecies conservation-status record with its jurisdictional listings, critical-habitat and recovery-document references, linked through scientific name
+    stage: SCREENED
+    description: >-
+      One record per taxon assembled from US FWS ECOS (ESA status and recovery plan PDFs), Environment Canada
+      (SARA critical habitat with COSEWIC id), Australia EPBC (threatened status with SPRAT id), the GBIF backbone
+      (usage key, accepted name) and ITIS (TSN). The same taxon carries different statuses in different
+      jurisdictions, which no single feed shows. No declared taxon-id join exists between the status publishers
+      (none publishes an ITIS TSN or GBIF key), so scientific name is a reviewed candidate join and taxon keys are
+      derived from it.
+    sources:
+      - species-ecos-fws-listings-recovery
+      - species-eccc-sara-critical-habitat
+      - species-epbc-threatened-list-au
+      - species-gbif-backbone-taxonomy
+      - species-itis-taxonomy
+    join_keys:
+      - key: scientific name exact match (ECOS listed vs Canada SARA critical habitat)
+        between: [ species-ecos-fws-listings-recovery, species-eccc-sara-critical-habitat ]
+        measured: '19/273 Canada scientific names equal an ECOS-listed name after dropping parenthetical synonyms and lower-casing; hand-checked 19 of 19 as the same taxon by binomial and common name.'
+        mode: candidate
+        reviewed: { correct: 19, checked: 19 }
+      - key: scientific name exact match (ECOS listed vs Australia EPBC)
+        between: [ species-ecos-fws-listings-recovery, species-epbc-threatened-list-au ]
+        measured: '51/2222 EPBC rows share a scientific name with an ECOS-listed species (28 pairs have different status words, for example Quokka Endangered in ECOS and Vulnerable in EPBC); hand-checked 51 of 51 as the same taxon by binomial and common name.'
+        mode: candidate
+        reviewed: { correct: 51, checked: 51 }
+      - key: scientific name exact match (Canada SARA vs Australia EPBC)
+        between: [ species-eccc-sara-critical-habitat, species-epbc-threatened-list-au ]
+        measured: '0/273 Canada scientific names appear in the EPBC list: no overlap.'
+        mode: candidate
+      - key: GBIF backbone usage key resolved from scientific name (ECOS vs Canada SARA)
+        between: [ species-ecos-fws-listings-recovery, species-eccc-sara-critical-habitat ]
+        measured: '21/273 Canada names share a GBIF accepted key with an ECOS name (180 ECOS names in shared genera looked up); hand-checked 19 of 21 correct, the 2 wrong are species versus subspecies rank (Vulpes velox vs V. v. hebes, Ambystoma mavortium vs A. m. stebbinsi), which must not merge.'
+        mode: candidate
+        reviewed: { correct: 19, checked: 21 }
+      - key: scientific name lookup to GBIF backbone usage key (ECOS vs GBIF)
+        between: [ species-ecos-fws-listings-recovery, species-gbif-backbone-taxonomy ]
+        measured: '175/180 looked-up ECOS names returned an EXACT GBIF match (3 HIGHERRANK, 2 NONE); derived from the name, so a candidate.'
+        mode: candidate
+      - key: scientific name lookup to ITIS TSN (ECOS vs ITIS)
+        between: [ species-ecos-fws-listings-recovery, species-itis-taxonomy ]
+        measured: '68/70 overlap names resolved to exactly one ITIS TSN by exact combined-name match (1 none, 1 error); accepted-versus-invalid TSN status was not checked.'
+        mode: candidate
+    taxonomy:
+      - jurisdiction (US federal, Canada federal, Australia federal)
+      - status category (extinct, critically endangered, endangered, threatened or vulnerable, species of concern)
+      - taxon group (mammals, birds, reptiles, amphibians, fishes, invertebrates, plants)
+      - recovery stage (draft, final, revision)
+      - critical-habitat designation (final, proposed, none)
+    agent_questions:
+      - Which species are listed as threatened or endangered in both the United States and Canada, and do the two statuses agree?
+      - Which ESA-listed species have a recovery plan newer than a given date, and what recovery criteria does it state?
+      - What is a species' accepted scientific name, its ITIS TSN and GBIF key, and every jurisdiction that lists it?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Measure criteria extraction on 20 ECOS recovery PDFs, add Canada SARA schedule 1 listing text if a bulk route appears, and review the candidate scientific-name links before any publication.

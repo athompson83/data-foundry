@@ -1,5 +1,15 @@
 # Progress
 
+## Current session — 2026-10-03: daily dataset scout (round 5)
+
+- **Health.** FDA Recall Intelligence last sync 2026-10-03T12:18Z, newest report 2026-09-23 (openFDA `last_updated` 2026-09-23); D1 29,461 / 17,986 / 40,056 vs openFDA 29,463 / 17,988 / 40,057 (the known 2/2/1 placeholder records). North American Consumer Product Recalls last sync CPSC 00:19Z, HC 12:18Z; newest CPSC 2026-09-24 and HC 2026-10-01 match the sources. No regression. Capture check: raw response bytes are archived in R2 before parsing and both agencies are read as full-history passes; no gap found.
+- **Added at SCREENED (5):** restaurant-health-inspections (weak: its only free-text member, SF, froze in 2019; NYC and Chicago parked on unreadable terms), building-permits (Seattle x WA L&I 18/22 hand-checked; no declared licence join), medical-device-approvals (declared K-number joins 29/30 and 58/100 to recalls), chemical-hazard-classifications (declared CAS join 27/30 and 28/30), species-conservation-status (candidate scientific-name joins only; 19/19 and 51/51 hand-checked).
+- **Screened, not added (2):** maritime-casualty-investigations (MAIB x NTSB 0/11 IMO overlap), legislation-bills-and-acts (members share a registrable domain; UK and US members have no counterpart).
+- **Widening.** Transport Canada VRDB (17,978 recalls, declared 76/81 CPSC link) and NHTSA (30,347 campaigns, declared 4,665/13,195 TC link) recorded as candidate members of consumer-product-recalls-north-america; the dataset edit is not applied until they reach BUILDING.
+- **Advanced.** `federal-register-obligations` has a GREEN rights record and a snapshot plan; it moves to RIGHTS_DETERMINED after the archive workflow runs on main. No source in `plans.json` lacked an archive today.
+- **Verified locally.** `npx vitest run tooling/test/source-pipeline.test.ts` (2100 pass) and `tooling/test/source-snapshots.test.ts`. Nothing deployed; no production change.
+- **Disclosures.** Two agents fetched files over the 50 MB guideline (TC VRDB 207 MB; MAIB PDFs ~230 MB); measured only, not redistributed.
+
 ## Current session — 2026-10-01 (evening): revenue-readiness check; product-recall acceptance passed
 
 - **Revenue path verified live.** `data.aroqon.com` pages, pricing, docs, terms, privacy, sitemap and `llms.txt` answer 200. `api.data.aroqon.com` answers 401 without a key. A live `POST /recalls/checkout` for Developer redirects to a `cs_live_` Stripe Checkout session (left unpaid). Stripe live mode has the four prices active and the webhook to `/stripe/webhook` enabled.

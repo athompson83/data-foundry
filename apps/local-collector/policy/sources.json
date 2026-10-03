@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "cdc3d87f5afc96e4954decba97eb9b6cb04dcdc3b7840f4e9830de0fbfe7b339",
+  "registry_sha256": "c08fba645ad8d04e434b4d88037a1b363b0084e8272e8c35243e47713e56cc8c",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -199,6 +199,55 @@
         "ntsb-aviation-accidents",
         "faa-airworthiness-directives"
       ]
+    },
+    "building-permits": {
+      "name": "Building permits (work description, parcel and licensed contractor)",
+      "stage": "SCREENED",
+      "sources": [
+        "building-permits-seattle-sdci",
+        "building-permits-sf-dbi",
+        "building-permits-sf-assessor-roll",
+        "contractors-wa-lni-licences"
+      ]
+    },
+    "chemical-hazard-classifications": {
+      "name": "Chemical hazard classifications linked by CAS number (NIOSH, PubChem GHS, EPA TSCA)",
+      "stage": "SCREENED",
+      "sources": [
+        "chemical-niosh-pocket-guide",
+        "chemical-pubchem-ghs",
+        "chemical-epa-tsca-inventory"
+      ]
+    },
+    "medical-device-approvals": {
+      "name": "Medical device clearances and approvals (US FDA 510(k)/PMA, GUDID, Health Canada MDALL) with intended use and recalls",
+      "stage": "SCREENED",
+      "sources": [
+        "fda-device-510k-pma-clearances",
+        "fda-gudid-udi-devices",
+        "hc-mdall-device-licences",
+        "fda-recalls"
+      ]
+    },
+    "restaurant-health-inspections": {
+      "name": "Food-establishment inspection and hygiene-rating record with violation text",
+      "stage": "SCREENED",
+      "sources": [
+        "food-safety-uk-fsa-hygiene-ratings",
+        "food-safety-osm-fhrs-venues",
+        "food-safety-sf-lives-inspections"
+      ]
+    },
+    "species-conservation-status": {
+      "name": "Species conservation status (listing, critical habitat, recovery documents, taxonomy)",
+      "stage": "SCREENED",
+      "sources": [
+        "species-ecos-fws-listings-recovery",
+        "species-eccc-sara-critical-habitat",
+        "species-epbc-threatened-list-au",
+        "species-gbif-backbone-taxonomy",
+        "species-itis-taxonomy"
+      ]
     }
   },
   "sources": {
@@ -225,11 +274,11 @@
       "blocked_because": []
     },
     "nhtsa-recalls": {
-      "name": "NHTSA vehicle recalls in the recall API",
-      "rights": "GREEN",
+      "name": "NHTSA vehicle, equipment, child-restraint and tire recalls (flat files; recall API for per-campaign detail)",
+      "rights": "AMBER",
       "stage": "SCREENED",
-      "format": null,
-      "publisher": null,
+      "format": "structured",
+      "publisher": "US NHTSA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
@@ -272,7 +321,6 @@
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
         "stage EVIDENCED is before PROTOTYPED"
       ]
     },
@@ -2517,6 +2565,591 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-permits-seattle-sdci": {
+      "name": "Seattle SDCI building permits (free-text work description, contractor company name)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "City of Seattle SDCI",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-permits-sf-dbi": {
+      "name": "San Francisco DBI building permits with permit contacts (firm and CSLB licence number)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "San Francisco Department of Building Inspection",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-permits-sf-assessor-roll": {
+      "name": "San Francisco Assessor secured property tax roll (parcel attributes)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "San Francisco Assessor-Recorder",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "building-permits-chicago-dbs": {
+      "name": "Chicago Department of Buildings building permits (work description, up to 15 contacts)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "City of Chicago",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-permits-nyc-dob": {
+      "name": "NYC DOB NOW approved permits and DOB permit issuance (job description, BBL, permittee licence)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "NYC Department of Buildings",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "building-permits-la-ladbs": {
+      "name": "Los Angeles LADBS building permits issued 2020 to present (work description, APN)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "City of Los Angeles Building and Safety",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "chemical-niosh-pocket-guide": {
+      "name": "NIOSH Pocket Guide to Chemical Hazards (per-chemical pages, symptoms, target organs, first aid)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CDC NIOSH",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "chemical-pubchem-ghs": {
+      "name": "PubChem GHS Classification (PUG-View hazard statements, signal word, pictograms by compound)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NCBI PubChem (NLM)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "chemical-epa-tsca-inventory": {
+      "name": "EPA TSCA Chemical Substance Inventory (non-confidential, CAS number and active or inactive status)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "chemical-echa-cl-inventory": {
+      "name": "ECHA C&L Inventory and registered substances (EU harmonised and notified classifications)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "ECHA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "chemical-nite-chrip": {
+      "name": "Japan NITE-CHRIP / GHS classification results",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "NITE Japan",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "chemical-epa-comptox": {
+      "name": "EPA CompTox Chemicals Dashboard (identifiers, hazard and toxicity data)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "legislation-ca-justice-laws": {
+      "name": "Justice Laws consolidated federal Acts (Canada, XML with amendment and in-force data)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Department of Justice Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "legislation-ca-gazette-part3": {
+      "name": "Canada Gazette Part III (enacted Acts of Parliament as published, S.C. chapters)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Public Services and Procurement Canada (Canada Gazette)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "legislation-ca-parl-legisinfo": {
+      "name": "Parliament of Canada LEGISinfo bills (JSON export, bill stages and royal assent dates)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Parliament of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "legislation-uk-gov-acts": {
+      "name": "legislation.gov.uk UK Public General Acts (Atom feed and CLML XML with point-in-time and commencement data)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "UK National Archives (legislation.gov.uk)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "legislation-us-govinfo-billstatus": {
+      "name": "GovInfo BILLSTATUS bulk XML (US Congress bills, actions, sponsors, laws)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Government Publishing Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "legislation-au-federal-register": {
+      "name": "Federal Register of Legislation (Australia) titles API",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Office of Parliamentary Counsel (Australia)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "maritime-uk-maib-reports": {
+      "name": "UK MAIB marine accident investigation reports (gov.uk content API)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Marine Accident Investigation Branch",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "maritime-ntsb-marine-investigation-reports": {
+      "name": "US NTSB marine investigation report PDFs (MIR series)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Transportation Safety Board",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "maritime-ca-tsb-marine-occurrences": {
+      "name": "Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Transportation Safety Board of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "maritime-au-atsb-marine-investigations": {
+      "name": "Australian Transport Safety Bureau marine occurrence investigations",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Australian Transport Safety Bureau",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "maritime-fi-otkes-marine-reports": {
+      "name": "Finland Safety Investigation Authority (OTKES) marine investigation reports",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Safety Investigation Authority Finland",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "maritime-de-bsu-investigation-reports": {
+      "name": "German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "German Federal Bureau of Maritime Casualty Investigation",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fda-device-510k-pma-clearances": {
+      "name": "FDA device 510(k) clearances and PMA approvals (openFDA endpoints, 510(k) summary PDFs, product classification)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fda-gudid-udi-devices": {
+      "name": "FDA GUDID device identifiers (openFDA UDI endpoint, with GMDN terms and cited premarket submissions)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hc-mdall-device-licences": {
+      "name": "Health Canada Medical Devices Active Licence Listing (MDALL) licences, devices, companies and device identifiers",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Health Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tga-artg-medical-devices": {
+      "name": "Australian Register of Therapeutic Goods (ARTG) medical device entries with intended purpose",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Therapeutic Goods Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ca-tc-vehicle-recalls-database": {
+      "name": "Transport Canada Vehicle Recalls Database (vehicles, child car seats, boosters, tires, equipment; OGL-Canada CSV)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Transport Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-uk-fsa-hygiene-ratings": {
+      "name": "UK Food Standards Agency Food Hygiene Rating Scheme API (614k establishments, FHRSID)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Food Standards Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-osm-fhrs-venues": {
+      "name": "OpenStreetMap venues tagged with fhrs:id (declared pointer to the FSA record)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "OpenStreetMap contributors",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-sf-lives-inspections": {
+      "name": "San Francisco health inspection scores and violations 2016-2019 (LIVES, frozen)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "San Francisco Department of Public Health",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-austin-inspection-scores": {
+      "name": "Austin Public Health food establishment inspection scores (3-year rolling window)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "City of Austin",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-nyc-dohmh-inspections": {
+      "name": "NYC DOHMH restaurant inspection results (violation text, CAMIS permit id)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "NYC Department of Health and Mental Hygiene",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-chicago-food-inspections": {
+      "name": "Chicago Department of Public Health food inspections (violation comments, licence number)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "City of Chicago",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-dallas-inspections": {
+      "name": "Dallas restaurant and food establishment inspections 2016-2024 (sunset)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "City of Dallas Code Compliance",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "food-safety-king-county-inspections": {
+      "name": "King County and Seattle food establishment inspection data",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Public Health Seattle and King County",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "species-ecos-fws-listings-recovery": {
+      "name": "US FWS ECOS species listings and recovery documents (ESA status, listing date, recovery-plan PDFs)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "U.S. Fish and Wildlife Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "species-eccc-sara-critical-habitat": {
+      "name": "Environment Canada SARA critical habitat national dataset (COSEWIC id, SARA status, recovery document)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Environment and Climate Change Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "species-epbc-threatened-list-au": {
+      "name": "Australia EPBC Act threatened species state lists (status, SPRAT taxon id, profile link)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Australian Department of Climate Change, Energy, the Environment and Water",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "species-gbif-backbone-taxonomy": {
+      "name": "GBIF Backbone Taxonomy species API (usage key, accepted name, synonyms, classification)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "GBIF Secretariat",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "species-itis-taxonomy": {
+      "name": "ITIS integrated taxonomic information system (TSN, valid name, hierarchy)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Integrated Taxonomic Information System (ITIS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "species-iucn-red-list": {
+      "name": "IUCN Red List assessments (global threat category, criteria, habitat and threat text)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "International Union for Conservation of Nature",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "species-noaa-fisheries-directory": {
+      "name": "NOAA Fisheries species directory (threatened and endangered marine species, status by region)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "NOAA Fisheries",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "species-jncc-uk-conservation": {
+      "name": "UK JNCC species conservation designations (priority species, Annex lists)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Joint Nature Conservation Committee",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },

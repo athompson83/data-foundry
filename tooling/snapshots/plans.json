@@ -31,6 +31,63 @@
           "url": "https://edg.epa.gov/EPA_Data_License.html"
         }
       ]
+    },
+    "federal-register-obligations": {
+      "rights_record": "docs/sources/federal-register-obligations-rights-record-20261003.md",
+      "files": [
+        {
+          "name": "fr-rules-2025-10.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2025-10-01&conditions%5Bpublication_date%5D%5Blte%5D=2025-10-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2025-11.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2025-11-01&conditions%5Bpublication_date%5D%5Blte%5D=2025-11-30&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2025-12.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2025-12-01&conditions%5Bpublication_date%5D%5Blte%5D=2025-12-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-01.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-01-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-01-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-02.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-02-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-02-28&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-03.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-03-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-03-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-04.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-04-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-04-30&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-05.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-05-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-05-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-06.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-06-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-06-30&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-07.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-07-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-07-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-08.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-08-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-08-31&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "fr-rules-2026-09.json",
+          "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=1000&order=oldest&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bpublication_date%5D%5Bgte%5D=2026-09-01&conditions%5Bpublication_date%5D%5Blte%5D=2026-09-30&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=type&fields%5B%5D=agency_names&fields%5B%5D=cfr_references&fields%5B%5D=effective_on&fields%5B%5D=dates&fields%5B%5D=citation&fields%5B%5D=html_url&fields%5B%5D=docket_ids&fields%5B%5D=regulation_id_numbers&fields%5B%5D=correction_of&fields%5B%5D=abstract&fields%5B%5D=full_text_xml_url"
+        },
+        {
+          "name": "govinfo-public-domain-notice.html",
+          "url": "https://www.govinfo.gov/about/policies"
+        }
+      ]
     }
   }
 }

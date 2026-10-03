@@ -1,0 +1,126 @@
+# Paste under `candidates:` / `datasets:` in docs/sources/pipeline/candidates.yaml (orchestrator merges).
+candidates:
+  - key: legislation-ca-justice-laws
+    name: Justice Laws consolidated federal Acts (Canada, XML with amendment and in-force data)
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: Department of Justice Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://laws-lois.justice.gc.ca/eng/XML/Legis.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://laws-lois.justice.gc.ca/eng/XML/SI-97-5.xml
+        quote: 'Anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada, and decisions and reasons for decisions of federally-constituted courts and administrative tribunals, provided due diligence is exercised in ensuring the accuracy of the materials reproduced and the reproduction is not represented as an official version.'
+    conditions:
+      - Exercise due diligence on accuracy of every reproduction (Reproduction of Federal Law Order, SI/97-5).
+      - Never represent the reproduction as an official version; carry the Justice Laws currency date (CurrentToDate) and a pointer to the official source on every record.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Archive Legis.xml and the 971 English Act XMLs to R2, parse Identification (Parliament, Session, BillNumber, AnnualStatuteNumber), RecentAmendments and lims in-force dates into typed sections, and write the ADR-0013 rights record citing SI/97-5.
+  - key: legislation-ca-gazette-part3
+    name: Canada Gazette Part III (enacted Acts of Parliament as published, S.C. chapters)
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Public Services and Procurement Canada (Canada Gazette)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://gazette.gc.ca/rp-pr/p3/2025/index-eng.html' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    terms:
+      - url: https://laws-lois.justice.gc.ca/eng/XML/SI-97-5.xml
+        quote: 'Anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada, and decisions and reasons for decisions of federally-constituted courts and administrative tribunals, provided due diligence is exercised in ensuring the accuracy of the materials reproduced and the reproduction is not represented as an official version.'
+    conditions:
+      - Rights rest on the Reproduction of Federal Law Order covering enactments; the Gazette site itself falls under canada.ca terms that grant only non-commercial reproduction for other material, so publish enactment text only.
+      - Due diligence on accuracy and never present the copy as official.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Index pages for 2020 to 2025 list 136 chapters with PDF links (pre-2020 index pages use a different layout and parsed to 0); add a parser for those, fetch PDFs and extract enacting text, royal assent and coming-into-force clauses.
+  - key: legislation-ca-parl-legisinfo
+    name: Parliament of Canada LEGISinfo bills (JSON export, bill stages and royal assent dates)
+    category: legal
+    structuring: event-extraction
+    format: structured
+    publisher: Parliament of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.parl.ca/legisinfo/en/bills/json?parlsession=all' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Parked - the only published terms say 'Permission to reproduce may be sought from the appropriate source' and name no open licence. Reopen if the Library of Parliament confirms an open licence for the LEGISinfo export (7,145 bills, 15/15 sampled Justice Laws bill numbers match it).
+  - key: legislation-uk-gov-acts
+    name: legislation.gov.uk UK Public General Acts (Atom feed and CLML XML with point-in-time and commencement data)
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: UK National Archives (legislation.gov.uk)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.legislation.gov.uk/ukpga/data.feed' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.legislation.gov.uk/developer/formats/xml
+        quote: 'All content is available under the Open Government Licence v3.0 except where otherwise stated'
+    conditions:
+      - Open Government Licence v3.0 attribution statement on every record or page.
+      - Exclude content marked as derived from EUR-Lex or otherwise stated, and check third-party rights in explanatory notes.
+      - Observe the legislation.gov.uk fair use policy for request rates.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Needs a second UK publisher naming the Act (UK Parliament Bills API answers 403 from this egress); ukpga/2018/12 XML carries 306 section groups and 1,803 RestrictStartDate attributes ready for effective-date extraction.
+  - key: legislation-us-govinfo-billstatus
+    name: GovInfo BILLSTATUS bulk XML (US Congress bills, actions, sponsors, laws)
+    category: legal
+    structuring: event-extraction
+    format: structured
+    publisher: US Government Publishing Office
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.govinfo.gov/bulkdata/BILLSTATUS' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: 'Copyright protection under this title is not available for any work of the United States Government'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Needs an independent counterpart naming the public law (OLRC US Code is under maintenance, congress.gov API needs a key); test Federal Register rules that cite 'Public Law 119-21' against BILLSTATUS laws, then archive 119th Congress files to R2.
+  - key: legislation-au-federal-register
+    name: Federal Register of Legislation (Australia) titles API
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: Office of Parliamentary Counsel (Australia)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.prod.legislation.gov.au/v1/titles' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Parked - the open OData API answers (13,744 Acts, originatingBillUri to ParlInfo) but the copyright page is a script-rendered shell with no readable terms from this egress. Reopen once licence text is fetched verbatim.
+
+datasets:
+  - key: legislation-bills-and-acts
+    name: Legislation - bills and Acts with status history, sections and amendments (Canada first)
+    category: legal
+    entity: act (one federal Act or bill with its enacting chapter, parliament and session, bill number, amendment citations, in-force dates and section structure)
+    stage: SCREENED
+    description: 'One record per Act, assembled from the consolidated, point-in-time Act XML (sections, amendment citations, in-force dates, bill number, parliament and session) and the as-enacted Canada Gazette Part III text. The cited statute chapter reference number (S.C. year, chapter) links an enacted chapter to its consolidated Act automatically; a bill number links an Act to its parliamentary stage history once the LEGISinfo terms are confirmed. Titles only propose reviewed links. Measured on 2026-10-03: 39 of 136 Gazette chapters from 2020 to 2025 resolve to a standalone consolidated Act (the rest amend existing Acts), and all 9 matched 2023 titles agree. UK, US and Australian feeds are screened separately and are not yet linked to a counterpart.'
+    sources:
+      - legislation-ca-justice-laws
+      - legislation-ca-gazette-part3
+    join_keys:
+      - key: cited statute chapter reference number (S.C. year, chapter), Gazette Part III to Justice Laws OfficialNumber
+        between:
+          - legislation-ca-gazette-part3
+          - legislation-ca-justice-laws
+        measured: '39/136 Gazette Part III chapters (2020-2025) equal a Justice Laws OfficialNumber; unmatched chapters are amending Acts with no standalone consolidation; 9/9 matched 2023 chapters show identical titles'
+        mode: declared
+    taxonomy:
+      - legal.legislation.act
+      - legal.legislation.bill_stage
+      - legal.legislation.amendment
+      - legal.legislation.in_force_date
+    agent_questions:
+      - Which federal Acts were enacted in 2023, and which sections of each are in force or not yet in force today?
+      - Which Acts amended the Criminal Code in the last two years, by chapter citation, with the enacting text?
+      - What bill number, parliament and session produced a given Act, and when did it receive royal assent?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
+    next_action: Write the SI/97-5 rights record, archive Legis.xml, Act XMLs and 2020-2025 Part III PDFs to R2, extend the Gazette parser to pre-2020 index pages, then re-screen LEGISinfo terms to add bill stages.
