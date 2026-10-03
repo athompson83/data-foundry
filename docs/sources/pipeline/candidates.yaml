@@ -206,7 +206,9 @@ candidates:
         docs/sources/federal-register-obligations-rights-record-20261003.md
       ]
     next_action: >-
-      Rights record written 2026-10-03 (GREEN, § 105 and ADR-0018) and the source added to tooling/snapshots/plans.json.
+      Rights record written 2026-10-03 (GREEN, § 105 and ADR-0018) and the source added to tooling/snapshots/plans.json
+      (monthly FR rule metadata, 1994-01 to 2026-10, with abstract, dates, CFR references and full_text_xml_url; the daily
+      GovInfo XML text and eCFR versions are not in that plan and must be archived before PROTOTYPED).
       The stage moves to RIGHTS_DETERMINED once the Archive source snapshot workflow has run on main and the
       replayable round is committed (the registry requires an archived snapshot past EVIDENCED). Then prototype the compliance-date and stay-chain parser over 12 months of rules (2,727) using FR API
       metadata and GovInfo bulk XML for text (FederalRegister.gov and eCFR.gov HTML are CAPTCHA-blocked; use
