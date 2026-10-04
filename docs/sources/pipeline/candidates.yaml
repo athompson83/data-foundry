@@ -6314,6 +6314,758 @@ candidates:
       }
     evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/species-conservation-status/notes.md ]
     next_action: Parked as not screened. data.jncc.gov.uk returned HTTP 200 but no machine-readable species-status dataset with a readable licence was identified this round; revisit with a targeted search of the JNCC catalogue.
+  - key: charity-acnc-register-au
+    name: Australia ACNC Charity Register (registered charities, purposes, beneficiaries)
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: Australian Charities and Not-for-profits Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.gov.au/data/dataset/b050b242-4487-4306-abf5-07ca073e5594' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://creativecommons.org/licenses/by/3.0/au/
+        quote: 'Share — copy and redistribute the material in any medium or format for any purpose, even commercially.'
+    conditions:
+      - Attribute the ACNC, link the Creative Commons Attribution 3.0 Australia licence, and state that the data was changed.
+      - Do not imply ACNC endorsement.
+      - Each annual AIS finance dataset carries its own licence (CC BY 2.5, 3.0, 4.0 or notspecified), so read the licence per year before using it.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured 66,399 rows (weekly CSV, 69 columns, ABN on 65,792). Add the AIS finance datasets per year after reading each licence, and flag the one future-dated registration row.
+
+  - key: charity-cra-list-of-charities-ca
+    name: Canada CRA List of charities (T3010 identification, programs, finances)
+    category: regulatory
+    structuring: normalization
+    format: free-text
+    publisher: Canada Revenue Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/dataset/80c00cdb-1358-415c-bb8b-0de7f12675b8' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - Include the attribution statement Contains information licensed under the Open Government Licence - Canada.
+      - Exclude the directors/officers and compensation files, since the licence does not grant any right to use Personal Information.
+      - Do not imply CRA endorsement; files are served by a 302 to a short-lived signed blob URL, so re-resolve on each fetch.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured 83,761 charities in the 2024 return year (annual) and program descriptions of median 206 characters. Fetch the full programs file and measure purpose-category extraction against the CRA code list.
+
+  - key: charity-uk-charity-commission-register
+    name: Charity Commission for England and Wales register extract (charities, activities, income)
+    category: regulatory
+    structuring: normalization
+    format: free-text
+    publisher: Charity Commission for England and Wales
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://register-of-charities.charitycommission.gov.uk/en/register/full-register-download' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://register-of-charities.charitycommission.gov.uk/en/register/full-register-download
+        quote: 'All content is available under the Open Government Licence v3.0'
+    conditions:
+      - Attribute with Contains public sector information licensed under the Open Government Licence v3.0 and link the licence.
+      - Exclude contact email, contact phone and the trustee table by default as personal data.
+      - Publish removal status and date so removed charities are never shown as active (212,207 of 396,297 rows are not Registered).
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured 184,090 registered charities with charity_activities prose on 163,277 (daily 44 MB zip). Add the classification and annual-return tables and map classification codes to the shared taxonomy.
+
+  - key: charity-irs-teos-eo-bmf-990
+    name: IRS Exempt Organizations Business Master File and Form 990 e-file XML
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: Internal Revenue Service
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf', 'https://www.irs.gov/charities-non-profits/form-990-series-downloads' ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.copyright.gov/title17/92chap1.html
+        quote: 'Copyright protection under this title is not available for any work of the United States Government'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured BMF page count 1,964,958 and 1,284 of 1,470 sampled 990 XML filings with mission text. Exclude officer, signer and phone fields, and plan batch handling for the 314 MB monthly XML zips.
+
+  - key: charity-propublica-nonprofit-explorer
+    name: ProPublica Nonprofit Explorer API (IRS data republished)
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: ProPublica
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://projects.propublica.org/nonprofits/api' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 4,
+        structuring_value: 2,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.propublica.org/about/propublica-data-terms-of-use
+        quote: 'You can’t republish the raw data in its entirety or otherwise distribute the data (in whole or in part) on a stand-alone basis.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Parked as RED. The API page (HTTP 200) ties usage to ProPublica's Data Terms of Use, which forbid republishing, sub-licensing and resale; use the IRS primary files instead.
+  - key: dsp-nih-dsld-labels
+    name: NIH ODS Dietary Supplement Label Database (DSLD) label API
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: NIH Office of Dietary Supplements
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.ods.od.nih.gov/dsld/v9/
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://api.ods.od.nih.gov/dsld/v9/
+        quote: 'CC0 1.0 Universal (CC0 1.0) https://creativecommons.org/publicdomain/zero/1.0/'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive the full label set (214,780 labels, UNII-coded ingredient rows, statements) to R2 and extract NPN and UPC from statements; never republish label PDFs or thumbnails.
+  - key: dsp-health-canada-lnhpd
+    name: Health Canada Licensed Natural Health Products Database (LNHPD) API
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://health-products.canada.ca/api/natural-licences/
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Attribution: Contains information licensed under the Open Government Licence – Canada.'
+      - Exclude personal information and third-party rights; do not imply Health Canada endorsement.
+      - 'The productlicence endpoint returns the entire table (about 148 MB JSON, 15 MB gzip) with no paging, so sync by full pull with Accept-Encoding gzip, once a day at most.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Pull productlicence, medicinalingredient, productpurpose and productrisk nightly to R2; carry the OGL-Canada attribution; join to DSLD on the NPN cited in label text.
+  - key: dsp-fda-health-fraud-database
+    name: FDA Health Fraud Product Database (tainted supplements, public notifications, warning letters)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.fda.gov/consumers/health-fraud-scams/health-fraud-product-database
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: 'Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parse the 2,202-row table plus each linked public-notification page into hidden-ingredient events (undeclared drug, product, firm, date); do not republish product photos.
+  - key: dsp-open-food-facts-supplements
+    name: Open Food Facts dietary-supplements category (GTIN-keyed product records)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Open Food Facts association
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://world.openfoodfacts.org/api/v2/search
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://world.openfoodfacts.org/terms-of-use
+        quote: 'The Open Food Facts database is available under the Open Database License'
+      - url: https://world.openfoodfacts.org/terms-of-use
+        quote: 'have to mention the licence and to attribute the authorship to Open Food Facts with a link to https://openfoodfacts.org'
+    conditions:
+      - 'ODbL: attribute Open Food Facts and keep derived databases of its content under the same licence (share-alike); decide per product whether the dataset is a derived database before mixing.'
+      - 'Product images are CC BY-SA and often third-party rights; do not cache or republish images (AGENTS.md rule 9).'
+      - Use as a GTIN enrichment member only; the dietary-supplements category is mostly sports foods and bars, so keep it filter-scoped.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Treat as an optional enrichment member; confirm with a rights record whether a GTIN lookup join creates an ODbL derived database before enabling it.
+  - key: dsp-tga-artg-listed-medicines
+    name: TGA Australian Register of Therapeutic Goods listed medicines
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Therapeutic Goods Administration (Australia)
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.tga.gov.au/resources/artg
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Reopen when www.tga.gov.au can be fetched from our egress (HTTP/2 INTERNAL_ERROR and empty reply on HTTP/1.1) and its copyright terms and a bulk or API path can be read.
+  - key: fda-maude-device-adverse-events
+    name: FDA MAUDE device adverse-event reports with manufacturer and user narratives (openFDA device/event)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/device/event.json
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Measured 2026-10-04: 26,136,889 reports, 2,503,728 received in 2026, newest date_received 20260831 (API last_updated 2026-09-22); 124 of 300 recent reports carry mdr_text narratives; archive the openFDA bulk event files to R2 (paged API is capped), extract event, patient-outcome and device-problem facts from mdr_text, link to 510(k) by cited K-number (32/32) and to product code.'
+
+  - key: hc-medical-device-incidents
+    name: Health Canada Medical Device Incidents extract (incident, device, company and patient/device problem codes)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://hpr-rps.hres.ca/mdi_landing.php?lang=en
+      - https://hpr-rps.hres.ca/files/extract.zip
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://hpr-rps.hres.ca/files/extract.zip
+        quote: 'This information is provided with the understanding that the data will be appropriately referenced and used in conjunction with this Terms of Use statement.'
+      - url: https://hpr-rps.hres.ca/static/content/mdidisclaim.php
+        quote: 'Information related to the identity of people who report a voluntary incident is protected under the Privacy Act.'
+    conditions:
+      - 'Reference Health Canada as the source on every record and carry the extract Terms of use (Terms of use.pdf inside extract.zip) with the data.'
+      - 'No incidence, prevalence or comparative-risk claims: the Terms of use say the counts are not suitable for inferring risk, so serve counts as reported with that caveat.'
+      - 'Serve only the coded fields in the extract (no reporter or patient identity exists in it); no free-text narrative is published by this source.'
+      - 'No express open licence is stated on the extract; rights record under ADR-0018 must confirm the extract terms before publication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Measured 2026-10-04: 327,430 incidents received 1998-07-15 to 2026-07-29 (6,505 in 2026) in a 21 MB extract.zip refreshed 2026-10-01, joined to MDALL by Health Canada device ID (17,801/22,977); archive the zip to R2 and map PREF_NAME_CODE (FDA product code with a 2-digit specialty prefix) and patient/device codes to the shared taxonomy.'
+
+  - key: mhra-device-field-safety-notices
+    name: MHRA medical device Field Safety Notices (weekly GOV.UK lists with manufacturer, device, model, MHRA reference and FSN documents)
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Medicines and Healthcare products Regulatory Agency
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.gov.uk/drug-device-alerts
+      - https://www.gov.uk/api/search.json?filter_document_type=medical_safety_alert
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence (OGL), which also sets out which content is exempt.'
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'You are free to: copy, publish, distribute and transmit the Information; adapt the Information; exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+    conditions:
+      - 'Open Government Licence v3.0: attribute MHRA and link the licence; the OGL excludes third-party rights.'
+      - 'The FSN documents themselves are manufacturer-authored files on the third-party host mhra-gov.filecamp.com; serve only the GOV.UK list metadata until the document rights are separately determined.'
+      - 'MHRA states the FSN lists are published for information only; keep that wording with any served record.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Measured 2026-10-04: 618 weekly FSN list pages (newest 2026-09-29), 122 entries parsed from the newest 12 pages, 117 with an MHRA reference; archive the 618 list pages through the GOV.UK content API and parse manufacturer, device, model and MHRA reference; fetch FSN PDFs only after a rights check of the filecamp host.'
+
+  - key: swissmedic-device-fsca-notices
+    name: Swissmedic list of medical device Field Safety Corrective Actions (fsca.swissmedic.ch publication service)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Swissmedic
+    stage: PARKED
+    rights: RED
+    sources:
+      - https://fsca.swissmedic.ch/mep/
+      - https://www.swissmedic.ch/swissmedic/en/home/legal-framework.html
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.swissmedic.ch/swissmedic/en/home/legal-framework.html
+        quote: 'Information provided on the website must not be reproduced in any form without the express authorisation of Swissmedic or the respective rights owner. This includes in particular any form of automated information extraction and storage (scraping/data mining).'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: Swissmedic terms prohibit reproduction and automated extraction and storage (scraping/data mining) of the FSCA list (11,092 publications, newest 2026-10-01, JSON behind the site). Reopen only if Swissmedic publishes a licence or a feed expressly intended for automated use.'
+
+  - key: tga-daen-device-adverse-events
+    name: TGA Database of Adverse Event Notifications (DAEN), medical device reports
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Therapeutic Goods Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://apps.tga.gov.au/PROD/DAEN/daen-entry.aspx
+      - https://www.tga.gov.au/resources/copyright
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: tga.gov.au copyright page fails from our egress (HTTP/2 INTERNAL_ERROR), apps.tga.gov.au DAEN entry returned 404, no terms readable and no bulk or API found. Re-screen when the terms page loads and a DAEN export or API is documented.'
+
+  - key: bfarm-device-field-safety-notices
+    name: BfArM (Germany) medical device field safety notices (Kundeninformationen zu Sicherheitsmassnahmen)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Bundesinstitut fuer Arzneimittel und Medizinprodukte
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.bfarm.de/EN/Medical-devices/_node.html
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: the BfArM customer-information search form returned HTTP 403 and the guessed English FSCA and imprint paths returned 404, so neither data nor terms were readable. Re-screen with the correct list URL and imprint terms.'
+  - key: pesticide-epa-ppis
+    name: EPA Pesticide Product Information System (PPIS) weekly ASCII files (FIFRA Section 3 products, formulations, CAS crosswalk)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US EPA Office of Pesticide Programs
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.epa.gov/ingredients-used-pesticide-products/ppis-download-product-information-data', 'https://www3.epa.gov/pesticides/PPISdata/product.zip', 'https://www3.epa.gov/pesticides/PPISdata/formula.zip', 'https://www3.epa.gov/pesticides/PPISdata/chemcas.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'The EPA disclaimer reserves commercial-use copyright for some documents; PPIS rows are EPA-authored registration facts (registration number, product name, status, approval date, active-ingredient code and percentage, CAS), so serve only those fields and resolve the commercial-use wording in an ADR-0013 rights record.'
+      - 'Fixed-width ASCII with no label text: product names and company names are registrant-supplied; exclude company contact fields (company.txt carries personal contact names and phone numbers) from publication.'
+      - 'Files are refreshed every Tuesday (EPA page); archive each snapshot in R2 and record the file date so freshness is never overstated.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Write the ADR-0013 rights record for PPIS, parse product/formula/chemcas/chemname/prodsite/prodpest into typed records keyed by registration number and PC_CODE, and archive the weekly zips in R2.
+
+  - key: pesticide-pmra-ppid
+    name: Health Canada PMRA Pesticide Product Information Database (daily CSV extracts, OGL-Canada)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: Health Canada Pest Management Regulatory Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/en/dataset/e10b0d6e-04ac-4014-a64a-666c3874bbe0', 'https://pest-control.canada.ca/pesticide-registry-api/api/extract/product', 'https://pest-control.canada.ca/pesticide-registry-api/api/extract/ingredient' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Open Government Licence - Canada: include the attribution statement and do not suggest official status or endorsement by the Information Provider.'
+      - 'Extracts are Windows-1252 CSV (bilingual); decode explicitly. Historical products carry placeholder text for missing active ingredients; filter on the Current / Historical column.'
+      - 'The label extract lists only registration number, registrant, product name and status (no label text); label PDFs are not bulk-served, so use-direction text must come from the Sites of Use and Pests fields until a label source is acquired.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Write the ADR-0013 rights record (OGL-Canada attribution), ingest the product, ingredient, application and mrl extracts nightly keyed by registration number and CAS, and probe the registry for label PDF URLs.
+
+  - key: pesticide-apvma-pubcris
+    name: APVMA PubCRIS registered agricultural and veterinary chemical products (data.gov.au CSV, CC BY 3.0 AU)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: Australian Pesticides and Veterinary Medicines Authority
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.gov.au/data/dataset/0de37904-43e0-4814-b21b-5b64fafefe6f', 'https://portal.apvma.gov.au/pubcris' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://creativecommons.org/licenses/by/3.0/au/
+        quote: 'Share — copy and redistribute the material in any medium or format for any purpose, even commercially.'
+    conditions:
+      - 'CC BY 3.0 AU: attribute the APVMA, link the licence and indicate changes. The licence is declared in data.gov.au metadata for the dataset; the PubCRIS portal copyright page returned HTTP 404 from the guessed URL, so confirm the portal notice in the rights record.'
+      - 'Constituents are identified by APVMA code and name only (no CAS number in constit.csv), so links to chemical datasets are name-based review candidates.'
+      - 'No label text or use-direction prose in the bulk CSVs (produse.csv holds host and pest codes); label documents are portal-only.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Confirm the PubCRIS portal copyright notice, ingest product, prodcon, constit, pest and host CSVs weekly, and decode host and pest codes via the alias tables.
+
+  - key: pesticide-epa-ppls-labels
+    name: EPA Pesticide Product and Label System (PPLS) accepted-label PDFs
+    category: chemical-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US EPA Office of Pesticide Programs
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://ordspub.epa.gov/ords/pesticides/f?p=PPLS:1' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 1, structuring_value: 5, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: 'PARKED: PPLS is a session-bound Oracle APEX search (f?p=PPLS:1, search by registration number) with no bulk file or documented PDF listing; label PDF URLs were not discovered, so no label text was measured. Reopen when a stable label PDF URL list or bulk is found (the PPIS prodtype/prodxfer files carry no label dates).'
+
+  - key: pesticide-eu-pesticides-database
+    name: EU Pesticides Database (active substances, approval status, MRLs)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG SANTE
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://ec.europa.eu/food/plant/pesticides/eu-pesticides-database/api/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: 'PARKED: every probe of the database API path returned HTTP 200 with a "Server temporarily unavailable" error page (40,691 bytes) and no JSON; terms unread. Retry from Cloudflare Worker egress; the database lists active substances, not products or labels, so it is a chemical-reference member rather than a product member.'
+  - key: hazmat-uscg-nrc-incident-reports
+    name: US Coast Guard National Response Center incident reports (narratives, materials with CAS numbers, pipeline and hazmat releases)
+    category: chemical-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US Coast Guard National Response Center
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://nrc.uscg.mil/', 'https://nrc.uscg.mil/FOIAFiles/CY26.xlsx' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://nrc.uscg.mil/
+        quote: 'The spreadsheets posted to the NRC website contain INITIAL incident data that has not been validated or investigated by a federal/state response agency.'
+    conditions:
+      - 'The page states no licence; this rests on ADR-0018 free public access (free download, no login). The USCG privacy and security policy at uscg.mil/Disclaim returned HTTP 403 and was not read; read it from a permitted route before paid delivery.'
+      - 'Label every record as an initial, unvalidated report; exclude drills (CALLTYPE DRL).'
+      - 'Redact personal data in narratives (89 of 16,552 CY2026 descriptions match a phone-number pattern) and publish no caller identity.'
+      - 'Only 8.8% of material rows carry a real CAS number and UN_NUMBER is empty in CY2026, so oil and fuel releases link by name only.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parse the yearly workbooks and decade bundles (CY90 to CY26) into incident, material and narrative tables, extract cited NRC report numbers, and write the ADR-0013 rights record after reading the USCG policy.'
+
+  - key: pipeline-ca-cer-incidents
+    name: Canada Energy Regulator pipeline incident data (2008 to present, cause, substance, volume, operator)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: Canada Energy Regulator
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cer-rec.gc.ca/open/incident/pipeline-incidents-comprehensive-data.csv', 'https://open.canada.ca/data/en/dataset/7dffedc4-23fa-440c-a36d-adf5a6cc09f1' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+    conditions:
+      - 'Attribute with "Contains information licensed under the Open Government Licence - Canada" and link the licence; do not imply CER endorsement.'
+      - 'The licence excludes Personal Information and third-party rights; serve no personal data.'
+      - 'No narrative text: cause fields are coded categories, and there is no CAS or UN column, so substance links to chemical records only by hand. Zero same-event matches against NRC in 2026 (0/9).'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Ingest the comprehensive CSV (2,034 incidents, 102 columns) with the dictionary and map substance categories to a common substance taxonomy; write the ADR-0013 rights record with the attribution text.'
+
+  - key: pipeline-us-phmsa-incident-data
+    name: PHMSA pipeline incident and hazmat incident data downloads (operator reports with narratives and costs)
+    category: chemical-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US PHMSA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.phmsa.dot.gov/data-and-statistics/pipeline/source-data' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: phmsa.dot.gov returns HTTP 403 (Akamai) from our egress for the data pages and downloads and the terms were not read; reopen from a permitted route, then join on the NRC report number its records cite.'
+
+  - key: pipeline-ca-tsb-pods-occurrences
+    name: Transportation Safety Board of Canada pipeline occurrence data (PODS, 1979 to present)
+    category: chemical-safety
+    structuring: event-extraction
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/PODSdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: tsb.gc.ca returns HTTP 403 for the CSV, dictionary and robots.txt from our egress; the catalogue lists the Open Government Licence - Canada, but counts and dates are unmeasured.'
+  - key: rail-us-fra-form54-accidents
+    name: FRA Rail Equipment Accident/Incident Data (Form 54), data.transportation.gov
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: US Federal Railroad Administration
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.transportation.gov/resource/85tf-25kj.json', 'https://data.transportation.gov/api/views/85tf-25kj.json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: 'https://www.usa.gov/government-copyright'
+        quote: 'Government work is something created by a U.S. government officer or employee as part of their official duties.'
+    conditions:
+      - 'The dataset metadata names the licence USGOV_WORKS ("Public Domain U.S. Government"), but the narrative text is submitted by the reporting railroad, not written by FRA; keep narrative redistribution under the same free-public-data presumption and drop it if a railroad claim appears.'
+      - Attribute FRA (metadata attribution "FRA Safe Team") and state the data lag; the newest record is 2026-07-31 while the dataset refreshed 2026-10-04.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Re-measure from an archived snapshot with the Form 55a casualty and Form 57 crossing datasets as extra members; confirm the narrative holds no personal data beyond train and car identifiers.
+  - key: rail-us-ntsb-railroad-investigation-reports
+    name: NTSB Railroad Investigation Reports (RIR PDFs and case numbers)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ntsb.gov/investigations/AccidentReports/Reports/RIR2301.pdf', 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 2, structuring_value: 5, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx'
+        quote: 'By publishing its reports and recommendations and opening public dockets, the NTSB has placed the contents prepared by its staff in the public domain.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Find a stable listing for RIR reports (the CAROL POST API rejects a guessed schema, see accidents-ntsb-carol) or enumerate RIRyynn.pdf under a recorded method; extract cause, probable-cause and recommendation sections and the RRD case number deterministically.
+  - key: rail-uk-raib-reports
+    name: UK Rail Accident Investigation Branch reports (GOV.UK search and content API)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Rail Accident Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=raib_report', 'https://www.gov.uk/api/content/raib-reports' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: 'https://www.gov.uk/raib-reports/report-10-slash-2026-collision-between-a-tram-and-two-pedestrians-at-staniforth-road'
+        quote: 'All content is available under the Open Government Licence v3.0'
+      - url: 'https://assets.publishing.service.gov.uk/media/6a6756e7f02dfa8e78093918/R102026_260728_Staniforth_Road.pdf'
+        quote: 'You may reuse this document/publication (not including departmental or agency logos) free of charge in any format or medium.'
+    conditions:
+      - 'Acknowledge the material as Crown copyright, give the title of the source publication and reuse it accurately and not in a misleading context (report PDF notice).'
+      - 'Attribute under OGL v3.0: "Contains public sector information licensed under the Open Government Licence v3.0"; third-party copyright material identified in a report needs its holder''s permission, so images stay excluded (rule 9).'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Pull the 446 investigation-report PDFs into R2 and extract cause, causal factors and recommendations; map RAIB occurrence classes to the shared taxonomy.
+  - key: rail-ca-tsb-rods-occurrences
+    name: Transportation Safety Board of Canada RODS rail occurrence data (open.canada.ca)
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/RODSdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv', 'https://open.canada.ca/data/api/3/action/package_show?id=4f8d9b0d-c4af-4be2-b751-3f5a403993ff' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked - the TSB CSV, the data dictionary and the TSB rail data page all answer 403 from this egress (a 403 is not permission). The CKAN record names the Open Government Licence - Canada with monthly updates; retry from another egress and read the dictionary for the identifier columns.
+  - key: rail-au-atsb-rail-investigations
+    name: Australian Transport Safety Bureau rail investigations
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Australian Transport Safety Bureau
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.atsb.gov.au/rail-investigations' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked - atsb.gov.au gives no HTTP response from this egress on any URL (status 0), so nothing was measured and no terms were read; retry later or from another egress.
+  - key: rail-eu-era-erail-investigations
+    name: European Union Agency for Railways ERAIL investigation reports database
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: European Union Agency for Railways
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://erail.era.europa.eu/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked - the egress proxy refused the connection to erail.era.europa.eu (policy block, status 0), and www.era.europa.eu legal-notice URLs tried answer 404; nothing measured and no terms read. Revisit if the host becomes reachable.
+  - key: water-epa-sdwis-violations-enforcement
+    name: US EPA SDWIS violations and enforcement actions per public water system (Envirofacts API)
+    category: environment
+    structuring: event-extraction
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.epa.gov/efservice/WATER_SYSTEM/rows/0:2/JSON',
+        'https://data.epa.gov/efservice/VIOLATION/rows/0:2/JSON',
+        'https://data.epa.gov/efservice/ENFORCEMENT_ACTION/rows/0:2/JSON'
+      ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: 'https://www.epa.gov/web-policies-and-procedures/epa-disclaimers'
+        quote: 'Unless otherwise specified, geospatial data produced by the EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105.'
+      - url: 'https://www.epa.gov/web-policies-and-procedures/epa-disclaimers'
+        quote: 'Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'Publish facts only (system, violation, enforcement dates and codes); do not reproduce EPA documents, and quote enforcement_comment_text only as short factual excerpts.'
+      - 'Exclude personal contact fields (admin_name, phone_number, email_addr, fax_number, alt_phone_number).'
+      - 'Credit US EPA SDWIS, show the extraction date, and keep compliance status and dates so resolved violations are not shown as current.'
+      - 'Page the Envirofacts API politely (a few requests per second), and use ECHO bulk downloads for full snapshots.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Measure free-text hit rates on enforcement_comment_text (56 percent filled in 5,000 CA rows) and archive a full CA snapshot to R2.
+
+  - key: water-ca-swrcb-safer-risk-assessment
+    name: California State Water Board SAFER failing and at-risk drinking water systems (risk assessment file)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: California State Water Resources Control Board
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      [
+        'https://data.ca.gov/dataset/safer-failing-and-at-risk-drinking-water-systems',
+        'https://data.ca.gov/api/3/action/package_show?id=safer-failing-and-at-risk-drinking-water-systems'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: 'https://data.ca.gov/dataset/safer-failing-and-at-risk-drinking-water-systems'
+        quote: 'Public Access Level Public Rights No restrictions on public use'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive the CSV (resolve the expiring blob link via the CKAN API each run) and measure daily change; map risk criteria to a typed schema.
+
+  - key: water-ontario-dws-orders-awqi
+    name: Ontario drinking water systems - provincial orders, adverse water quality incidents and inspections
+    category: environment
+    structuring: event-extraction
+    format: free-text
+    publisher: Ontario Ministry of the Environment, Conservation and Parks
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.ontario.ca/dataset/drinking-water-quality-and-enforcement',
+        'https://files.ontario.ca/moe_mapping/downloads/2Water/DWMD/DW_2024-25-EN.zip'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: 'https://www.ontario.ca/page/open-government-licence-ontario'
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Acknowledge the source and include the Open Government Licence - Ontario attribution statement and link.'
+      - 'Exclude or aggregate natural-person owner names (sole-proprietor owners appear in Owner Legal Name).'
+      - 'Orders are few per year (14 in 2024-25); pull all fiscal years from 2014-15 and re-fetch yearly.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Pull earlier fiscal years of DWS Orders, parse Order Summary prose into typed requirements, and find an Ontario or Canadian registry that links DWS numbers to the other members.
+
+  - key: water-epa-echo-sdw-rest
+    name: EPA ECHO drinking water REST services (get_systems)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://echodata.epa.gov/echo/sdw_rest_services.get_systems' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 1,
+        structuring_value: 2,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked 2026-10-04 on HTTP 502 proxy errors (three attempts); retest later, as the Envirofacts SDWIS tables serve the same data.
 
 datasets:
   - key: home-product-recalls-global
@@ -7740,3 +8492,325 @@ datasets:
       }
     evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
     next_action: Measure criteria extraction on 20 ECOS recovery PDFs, add Canada SARA schedule 1 listing text if a bulk route appears, and review the candidate scientific-name links before any publication.
+  - key: charity-nonprofit-registry
+    name: Charity and nonprofit registry (multi-country regulator registers with purposes, activities and finances)
+    category: regulatory
+    entity: A registered charity or tax-exempt nonprofit with its national identifier, status, purposes, activities and finances, linked to affiliated organisations in other countries
+    stage: SCREENED
+    description: >-
+      One record per registered charity assembled from the Australian ACNC register, the Canada Revenue Agency
+      List of charities, the Charity Commission for England and Wales extract and the IRS Exempt Organizations
+      master file with Form 990 XML. Each regulator keys on its own national identifier and none cites another's, so
+      no declared cross-country join exists. Website domain is the strongest candidate key and links affiliate
+      charities of the same international parent (separate legal entities, so a reviewed affiliate-of link, never a
+      merge). Prose purposes and activities come from CRA program descriptions, UK charity_activities and 990 mission text.
+    sources:
+      - charity-acnc-register-au
+      - charity-cra-list-of-charities-ca
+      - charity-uk-charity-commission-register
+      - charity-irs-teos-eo-bmf-990
+    join_keys:
+      - key: website domain (ACNC vs CRA)
+        between: [ charity-acnc-register-au, charity-cra-list-of-charities-ca ]
+        measured: '36/34371 CRA charity website rows share a non-platform host with an ACNC charity website (46 before dropping facebook, google and similar hosts); hand-checked 29 of 36 as the same named organisation or national affiliate (wrong: shared bahai.org and jw.org local units, differently named charities).'
+        mode: candidate
+        reviewed: { correct: 29, checked: 36 }
+      - key: website domain (ACNC vs UK)
+        between: [ charity-acnc-register-au, charity-uk-charity-commission-register ]
+        measured: '151/102495 UK registered charity websites share a non-platform host with an ACNC charity website (161 raw); hand-checked 124 of 151 as the same named organisation or national affiliate.'
+        mode: candidate
+        reviewed: { correct: 124, checked: 151 }
+      - key: website domain (CRA vs UK)
+        between: [ charity-cra-list-of-charities-ca, charity-uk-charity-commission-register ]
+        measured: '59/34371 CRA charity website rows share a non-platform host with a UK registered charity website (66 raw); hand-checked 45 of 59 as the same named organisation or national affiliate.'
+        mode: candidate
+        reviewed: { correct: 45, checked: 59 }
+      - key: exact normalised legal name (ACNC vs UK)
+        between: [ charity-acnc-register-au, charity-uk-charity-commission-register ]
+        measured: '820/64337 ACNC distinct normalised names equal a UK registered charity name; a random sample of 25 hand-checked 8 of 25 as the same organisation (the rest are generic names such as all saints church or hastings), so names alone are a weak candidate.'
+        mode: candidate
+        reviewed: { correct: 8, checked: 25 }
+      - key: exact normalised legal name (IRS 990 filer sample vs UK)
+        between: [ charity-irs-teos-eo-bmf-990, charity-uk-charity-commission-register ]
+        measured: '15/1416 filer names in the first 8 MB of 2026_TEOS_XML_01A equal a UK registered charity name; hand-checked 2 of 15 as the same organisation (Love146, Variety the Children''s Charity).'
+        mode: candidate
+        reviewed: { correct: 2, checked: 15 }
+      - key: exact normalised legal name (IRS 990 filer sample vs CRA)
+        between: [ charity-irs-teos-eo-bmf-990, charity-cra-list-of-charities-ca ]
+        measured: '12/1416 filer names in the first 8 MB of 2026_TEOS_XML_01A equal a CRA charity name; hand-checked 1 of 12 as the same organisation (The Mission of Tao-Confucianism).'
+        mode: candidate
+        reviewed: { correct: 1, checked: 12 }
+    taxonomy:
+      - jurisdiction (Australia, Canada, England and Wales, United States)
+      - charitable purpose class (relief of poverty, education, health, religion, environment, animals, community, arts and culture)
+      - beneficiary group (children, aged persons, people with disabilities, veterans, communities overseas)
+      - legal form (company limited by guarantee, incorporated association, trust, CIO, 501(c)(3) public charity, private foundation)
+      - registration status (registered, removed, revoked)
+      - income band (ACNC size small/medium/large, UK income, IRS asset and income codes)
+    agent_questions:
+      - Is this organisation a registered charity in Australia, Canada, England and Wales or the United States, and what is its status and registration date?
+      - What does the charity say it does (purposes, programs and activities), and what were its latest income and expenditure?
+      - Which national affiliates of the same international charity are registered in other countries?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Add OSCR, NZ Charities Services and the Irish register, measure purpose-class extraction from prose, and keep every affiliate link a reviewed candidate until a declared cross-border identifier is found.
+  - key: dietary-supplement-product-labels
+    name: Dietary supplement and natural health product register (US and Canada labels, ingredients, claims, enforcement)
+    category: health
+    entity: dietary supplement or natural health product (brand, product name, UPC/GTIN, NPN, ingredient rows with UNII, claims, label statements, regulator enforcement events)
+    stage: SCREENED
+    description: "One record per supplement product, assembled from the NIH DSLD US label corpus (ingredient rows with UNII codes, claims, directions, warnings, UPC), Health Canada's licensed-NHP register (NPN licence, medicinal and non-medicinal ingredients, approved purpose, risk statements), the FDA Health Fraud Product Database (undeclared-drug and warning events, free text) and Open Food Facts GTIN records. A Natural Product Number cited in a DSLD label statement is the declared link to the Health Canada licence, and a check-digit-valid UPC/GTIN links to Open Food Facts; names, brands and ingredient names only propose reviewed links. FDA tainted-product events attach to a product only by reviewed name match because the FDA table carries no UPC or NPN. Every fact keeps its source record, and disagreements between regulators are kept per source."
+    sources:
+      - dsp-nih-dsld-labels
+      - dsp-health-canada-lnhpd
+      - dsp-fda-health-fraud-database
+      - dsp-open-food-facts-supplements
+    join_keys:
+      - key: Natural Product Number (NPN) cited in DSLD statement text equals the LNHPD licence number
+        between:
+          - dsp-nih-dsld-labels
+          - dsp-health-canada-lnhpd
+        measured: 120/120 DSLD labels returned by an NPN keyword search carry an 8-digit NPN present in LNHPD (93/123 distinct label-NPN pairs resolve); only 334 of 214,780 DSLD labels (0.16%) mention NPN at all
+        mode: declared
+        reviewed: { correct: 11, checked: 12 }
+      - key: UPC/GTIN (check-digit valid, normalised to GTIN-13) shared by a DSLD record and an Open Food Facts product
+        between:
+          - dsp-nih-dsld-labels
+          - dsp-open-food-facts-supplements
+        measured: 3/37 check-digit-valid DSLD UPCs from a random 48-label sample exist in Open Food Facts (1 of 3 in its supplements category)
+        mode: declared
+        reviewed: { correct: 3, checked: 3 }
+      - key: FDA Health Fraud product name exactly equals a DSLD product name (candidate only, no shared identifier)
+        between:
+          - dsp-fda-health-fraud-database
+          - dsp-nih-dsld-labels
+        measured: 1/40 sampled FDA Public Notification products has an exact-name DSLD label (Arize); firm differs, so the match is unconfirmed
+        mode: candidate
+    taxonomy:
+      - 'product class: dietary-supplement | natural-health-product | homeopathic | sports-nutrition'
+      - 'LanguaL physical state and product type codes (DSLD) mapped to LNHPD dosage form'
+      - 'ingredient category: vitamin | mineral | botanical | amino-acid | blend | other, keyed to UNII where DSLD supplies it'
+      - 'claim type: structure-function | health-claim | approved-NHP-purpose'
+      - 'enforcement event: undeclared-drug | warning-letter | recall | advisory'
+    agent_questions:
+      - Is this US supplement also licensed in Canada, under which NPN, and with what approved purpose and risk statements?
+      - Which products with this UPC or NPN have an FDA hidden-ingredient notice, warning letter or recall, and what undeclared drug was found?
+      - Which supplements on the market contain a given ingredient (by UNII) at or above a stated amount per serving?
+      - Which label claims are structure-function statements and which are Health Canada approved purposes for the same formulation?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Re-measure the NPN and UPC joins from archived inputs on a random DSLD sample (not an NPN keyword search), extract NPN and UPC from DSLD statements, and review the FDA name links before EVIDENCED.
+  - key: medical-device-adverse-events
+    name: Medical device adverse events and field safety actions (multi-regulator, product-code and cited-510(k)-linked)
+    category: health
+    entity: device_incident_report (one regulator report or notice) linked to the device model, product code, premarket clearance and manufacturer, with outcome, device problem and narrative-derived facts
+    stage: SCREENED
+    description: 'One record per regulator report or notice about a medical device problem: FDA MAUDE reports with manufacturer and user narratives (26.1 million reports), Health Canada coded incident records (327,430), and MHRA field safety notices. Free text is parsed deterministically into event type, patient outcome, device problem, model, catalogue and lot identifiers. A cited 510(k) K-number links a MAUDE report to its FDA clearance automatically (32 of 32 measured); Health Canada device IDs link incidents to the MDALL licence register. Catalogue-number, manufacturer plus model and trade-name matches across regulators only propose reviewed links, never merges. Every fact carries its source report; disagreements are kept per source.'
+    sources:
+      - fda-maude-device-adverse-events
+      - hc-medical-device-incidents
+      - mhra-device-field-safety-notices
+      - hc-mdall-device-licences
+      - fda-device-510k-pma-clearances
+    join_keys:
+      - key: cited premarket notification reference number (MAUDE pma_pmn_number holds a K-number) to FDA 510(k) k_number
+        between:
+          - fda-maude-device-adverse-events
+          - fda-device-510k-pma-clearances
+        measured: '32/32 distinct K-numbers cited in 300 recent MAUDE reports found in openFDA 510(k); same publisher, so not counted as independent'
+        mode: declared
+      - key: MAUDE UDI-DI as GTIN against Health Canada device identifier
+        between:
+          - fda-maude-device-adverse-events
+          - hc-mdall-device-licences
+        measured: '0/101 UDI-DI in recent MAUDE reports match any of 3,152,063 MDALL device identifiers (0/500 in a larger sample); MDALL holds catalogue numbers, only 261,520 of 1,550,527 normalised identifiers are GTIN-like'
+        mode: declared
+      - key: manufacturer name plus device model token (MHRA FSN to MAUDE model_number)
+        between:
+          - mhra-device-field-safety-notices
+          - fda-maude-device-adverse-events
+        measured: '20/36 MHRA FSN model tokens (122 entries parsed, 36 with a usable token) appear as MAUDE model_number; 19/20 correct on hand check (the miss: a different manufacturer name)'
+        mode: candidate
+        reviewed: { correct: 19, checked: 20 }
+      - key: catalogue number token (MAUDE catalog_number to MDALL device identifier)
+        between:
+          - fda-maude-device-adverse-events
+          - hc-mdall-device-licences
+        measured: '62/196 recent MAUDE reports with a catalogue number of 6+ characters match an MDALL device identifier; 15/17 distinct product matches same product on hand check'
+        mode: candidate
+        reviewed: { correct: 15, checked: 17 }
+      - key: exact trade name (HC incident device to MAUDE brand_name)
+        between:
+          - hc-medical-device-incidents
+          - fda-maude-device-adverse-events
+        measured: '21/40 recent Health Canada trade names have an exact MAUDE brand_name hit; 14/21 correct on hand check (UNKNOWN placeholders and generic names are wrong)'
+        mode: candidate
+        reviewed: { correct: 14, checked: 21 }
+    taxonomy:
+      - event_type (death, injury, malfunction, other)
+      - device_problem and patient_problem (FDA and Health Canada coded terms, mapped to one list)
+      - product_code and medical_specialty (FDA three-letter code, Health Canada 2-digit specialty prefix)
+      - device_class (I to IV)
+      - report_source (manufacturer, user facility, voluntary, foreign compiled)
+      - safety_action (field safety notice, recall)
+    agent_questions:
+      - Which adverse events were reported for this device model, UDI or 510(k) clearance, and what did the manufacturer narrative say happened?
+      - Has this device model been the subject of a field safety notice in the UK, and do FDA or Health Canada hold reports for the same model?
+      - Which product codes show a rising count of death or injury reports in the last 12 months across both North American regulators?
+      - Which cleared devices (by 510(k) K-number) have reports citing them, and what device problems recur?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Archive the openFDA MAUDE bulk files, the Health Canada extract.zip and the 618 MHRA FSN pages to R2, then re-measure the K-number, catalogue-number and trade-name links on the full files; the MDALL UDI-DI link is 0/101, so do not rely on it.'
+  - key: pesticide-product-labels
+    name: Registered pesticide products with active ingredients, CAS numbers and use sites (US, Canada, Australia)
+    category: chemical-safety
+    entity: pesticide_product (one registered product per national registration number) with active ingredients, CAS numbers, registration status and use sites or pests
+    stage: SCREENED
+    description: 'One record per registered pesticide product from the US EPA (PPIS), Health Canada PMRA (PPID) and the APVMA (PubCRIS), linked to chemicals by the active ingredient CAS number. EPA names a CAS number per active-ingredient code (983 of 1220 codes in active-product formulations carry one) and PMRA lists a CAS number per active ingredient (943 of 1315); 641 CAS numbers appear in both. The label-text member (EPA PPLS accepted-label PDFs) is parked until a bulk or stable PDF route is found, so the composite has no free-text member yet and cannot advance to EVIDENCED.'
+    sources: [ pesticide-epa-ppis, pesticide-pmra-ppid, pesticide-apvma-pubcris ]
+    join_keys:
+      - key: CAS number (EPA PC_CODE to CAS crosswalk against PMRA ingredient CAS number)
+        between: [ pesticide-epa-ppis, pesticide-pmra-ppid ]
+        measured: '641/1069 EPA active-ingredient CAS numbers (all PC_CODEs in Section 3 active-product formulations that carry a CAS) also appear among the 943 PMRA ingredient CAS numbers (641/943); hand-check of 25 sampled pairs: all 25 name the same substance, 3 differ in how mixture composition is described'
+        mode: declared
+      - key: active ingredient name (PMRA ingredient list against APVMA constituent list, exact after removing punctuation and case)
+        between: [ pesticide-pmra-ppid, pesticide-apvma-pubcris ]
+        measured: '418/1315 PMRA ingredient names equal an APVMA constituent name after normalisation; APVMA constituents carry no CAS number'
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - 'Pesticide type (insecticide, herbicide, fungicide, rodenticide, disinfectant, biopesticide)'
+      - 'Registration status (registered, conditionally registered, cancelled, historical)'
+      - 'Use site category and target pest'
+      - 'Active ingredient by CAS number and chemical group'
+      - 'Restricted-use classification (EPA RUP flag)'
+    agent_questions:
+      - 'Which registered pesticide products in the US and Canada contain this active ingredient (by CAS number) and what is each product status?'
+      - 'Is this active ingredient registered in all three jurisdictions, and what products carry it in each?'
+      - 'Which active products are restricted use in the US and what are their registration numbers and approval dates?'
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Find a bulk or stable-URL route to the EPA PPLS label PDFs (the free-text member), write ADR-0013 rights records for PPIS, PPID and PubCRIS, and extend the CAS link to the chemical-hazard-classifications dataset (86 of 1069 EPA CAS numbers appear in the NIOSH index).
+  - key: pipeline-hazmat-incidents
+    name: Pipeline and hazardous-materials release incidents with narrative, substance, cause and damages
+    category: chemical-safety
+    entity: hazmat_release_incident (one reported pipeline or hazardous-materials release with narrative, substance by CAS number, operator, cause and damages) linked to the substance hazard record
+    stage: SCREENED
+    description: 'One record per reported release, assembled from the US Coast Guard National Response Center (initial reports with narratives, materials and amounts), the Canada Energy Regulator (investigated pipeline incidents with cause and volume) and the NIOSH Pocket Guide for the substance. A CAS number in an NRC material row links the incident to the substance hazard record automatically (62 of 89 distinct CY2026 CAS numbers); NRC report numbers cited in narratives link updates to their originals. Operators and dates only propose reviewed links (0 of 9 NRC to CER pairs were the same event, so the two incident feeds are not cross-linked). PHMSA and TSB are parked (HTTP 403). Narratives are structured into cause, substance, amount and damage fields; personal data in narratives is redacted. Every fact carries its source.'
+    sources: [ hazmat-uscg-nrc-incident-reports, pipeline-ca-cer-incidents, chemical-niosh-pocket-guide ]
+    join_keys:
+      - key: CAS number (exact, leading zeros stripped; NRC MATERIAL_INVOLVED CAS number to NIOSH Pocket Guide CAS number)
+        between: [ hazmat-uscg-nrc-incident-reports, chemical-niosh-pocket-guide ]
+        measured: '62/89 distinct CY2026 NRC CAS numbers are in the NIOSH index of 626 CAS entries (1321/1453 material rows; 1264 incidents, 18 of them pipeline); 25/25 same substance on hand check of the most frequent'
+        mode: declared
+      - key: operator company (first word) within 7 days, NRC pipeline incident to CER incident, 2026
+        between: [ hazmat-uscg-nrc-incident-reports, pipeline-ca-cer-incidents ]
+        measured: '0/9 candidate pairs were the same event on hand check (US releases against Canadian incidents); no cross-border link found'
+        mode: candidate
+        reviewed: { correct: 0, checked: 9 }
+    taxonomy:
+      - 'incident class: pipeline, fixed facility, mobile, rail, vessel, storage tank (NRC TYPE_OF_INCIDENT)'
+      - 'release substance by CAS number and CHRIS code, with the CER substance category as fallback'
+      - 'cause category (NRC INCIDENT_CAUSE and CER why-it-happened category)'
+      - 'consequence: fire, evacuation, injuries, fatalities, damage amount'
+    agent_questions:
+      - 'Which pipeline or chemical releases involved benzene or ammonia in the last year, with the reporter narrative and the NIOSH exposure guidance for the substance?'
+      - 'Which operators had repeated crude oil pipeline releases, what caused them and what was the damage?'
+      - 'What updates were filed to NRC report 1460339 and what did the caller say changed?'
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Reopen PHMSA and TSB from a permitted route to add the operator-filed incident reports (join on the cited NRC report number); measure the CAS link over 2010 to 2025 NRC files; read the USCG privacy policy.'
+  - key: rail-accident-investigations
+    name: Rail accident and incident investigations
+    category: transport-safety
+    entity: rail accident or incident investigation with findings and causes
+    stage: SCREENED
+    description: "One record per rail accident or serious incident, assembled from the FRA Form 54 railroad-reported accident
+      data (structured: railroad, cause codes, damage, casualties, coordinates, railroad narrative), the NTSB Railroad
+      Investigation Reports (free-text findings, probable cause and recommendations, with the RRD case number) and the UK RAIB
+      reports (free-text investigation reports and summaries, a second jurisdiction). Within the US, an NTSB investigation
+      links to its FRA Form 54 record by occurrence date and state, then railroad, place and train identifier; this is a
+      reviewed candidate link because FRA records never cite an NTSB case number. RAIB covers Great Britain and joins only
+      through the shared taxonomy. Every fact carries its source; personal data is excluded."
+    sources:
+      - rail-us-fra-form54-accidents
+      - rail-us-ntsb-railroad-investigation-reports
+      - rail-uk-raib-reports
+    join_keys:
+      - key: occurrence date + state, then railroad reporting mark, place and train identifier (NTSB case to FRA accident number)
+        between:
+          - rail-us-ntsb-railroad-investigation-reports
+          - rail-us-fra-form54-accidents
+        measured: 12/33 NTSB RIRs (2021 to 2026 occurrences, date and state parsed) have an FRA Form 54 record on the same date in the same state; 9/12 are the same accident on hand check (3 rejected on place or railroad); 0 of the 36 FRA narratives that mention NTSB cite a case number, so no declared join exists; 21 NTSB reports match no same-day same-state FRA record (many are transit or non-FRA-reportable, or the date differs)
+        mode: candidate
+        reviewed: { correct: 9, checked: 12 }
+    taxonomy:
+      - accident type (derailment, collision, grade-crossing, fatality, other impact)
+      - primary and contributing cause (FRA cause code, NTSB probable cause, RAIB causal factor)
+      - railroad and operation type (freight, passenger, transit, yard, heritage)
+      - consequence (fatalities, injuries, damage cost, hazmat release)
+      - investigating authority and jurisdiction
+    agent_questions:
+      - Which NTSB-investigated railroad accidents involved a conductor fatality in a shoving movement, and what did the railroad report to FRA?
+      - What probable causes did the NTSB and the FRA cause codes assign to derailments on a given railroad in the last five years?
+      - Which RAIB investigations of level-crossing or tram collisions list the same causal factor as a US collision investigation?
+      - What safety recommendations followed an accident, and has the same railroad had repeat Form 54 reports at that location?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive the FRA dataset snapshot and the NTSB RIR set to R2, extract probable cause and recommendations deterministically, and re-measure the date, state, railroad and train link on the full set before EVIDENCED.
+  - key: water-system-compliance
+    name: Public water system compliance register (violations, enforcement actions and regulator orders)
+    category: environment
+    entity: public_water_system (one PWSID) with violation, enforcement_action, risk-assessment and regulator-order records
+    stage: SCREENED
+    description: "One record per public water system, keyed by the US PWSID. Violations and enforcement actions from US EPA SDWIS (with free-text enforcement comments that cite dockets and rules) are linked automatically by exact PWSID to the California State Water Board SAFER risk assessment, which carries failing/at-risk status and the reasons. Ontario's drinking water system orders and adverse incident records add provincial order prose (Order Summary) structured into typed requirements, but Ontario uses its own DWS number and does not yet link to the US members. Every fact carries its source; California and EPA data both originate in state SDWIS reporting, so agreement is not treated as independent corroboration."
+    sources:
+      - water-epa-sdwis-violations-enforcement
+      - water-ca-swrcb-safer-risk-assessment
+      - water-ontario-dws-orders-awqi
+    join_keys:
+      - key: exact PWSID (the cited public water system reference number, SAFER WATER_SYSTEM_NUMBER equals SDWIS pwsid)
+        between:
+          - water-ca-swrcb-safer-risk-assessment
+          - water-epa-sdwis-violations-enforcement
+        measured: 3190/3190 SAFER systems found among 18,607 California EPA SDWIS water systems (population equal for 2,241; 19/25 sampled SAFER primary-MCL flags have an EPA MCL record)
+        mode: declared
+    taxonomy:
+      - 'violation category: MCL, treatment technique, monitoring and reporting, public notification'
+      - 'health-based or not, contaminant group and rule'
+      - 'system type (community, non-transient, transient), source water and size class'
+      - 'enforcement action type and status; failing / at-risk status'
+    agent_questions:
+      - Which public water systems serving more than 10,000 people have an open health-based violation, and what enforcement has followed?
+      - Is the water system that serves a given address failing or at risk, and for which contaminants?
+      - What did the regulator order the owner of a given water system to do, and by when?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive full CA SDWIS and SAFER snapshots to R2, add a US-wide second state source with PWSID, and link Ontario through a Canadian registry or split it out.
