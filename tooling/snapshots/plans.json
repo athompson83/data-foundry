@@ -1616,6 +1616,31 @@
           "url": "https://www.govinfo.gov/about/policies"
         }
       ]
+    },
+    "fda-device-510k-pma-clearances": {
+      "rights_record": "docs/sources/openfda-device-clearances-rights-record-20261004.md",
+      "files": [
+        {
+          "name": "download.json",
+          "url": "https://api.fda.gov/download.json"
+        },
+        {
+          "name": "device-510k.json.zip",
+          "url": "https://download.open.fda.gov/device/510k/device-510k-0001-of-0001.json.zip"
+        },
+        {
+          "name": "device-pma.json.zip",
+          "url": "https://download.open.fda.gov/device/pma/device-pma-0001-of-0001.json.zip"
+        },
+        {
+          "name": "device-classification.json.zip",
+          "url": "https://download.open.fda.gov/device/classification/device-classification-0001-of-0001.json.zip"
+        },
+        {
+          "name": "openfda-terms.html",
+          "url": "https://open.fda.gov/terms/"
+        }
+      ]
     }
   }
 }

@@ -5812,8 +5812,8 @@ candidates:
     terms:
       - url: https://open.fda.gov/terms/
         quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
-    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
-    next_action: Archive the 176,223 510(k) and 57,183 PMA records to R2, fetch the 93,850 summary PDFs and extract indications for use, predicate K-numbers and product code deterministically.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/openfda-device-clearances-rights-record-20261004.md ]
+    next_action: 'Rights record written 2026-10-04 (GREEN, openFDA CC0 and § 105) and the source added to tooling/snapshots/plans.json (510(k) 176,223, PMA 57,183 and classification 7,094 bulk partitions). Dispatch Archive source snapshot on main once merged and commit the replayable round, then fetch the 93,850 summary PDFs and extract indications for use, predicate K-numbers and product code deterministically.'
 
   - key: fda-gudid-udi-devices
     name: FDA GUDID device identifiers (openFDA UDI endpoint, with GMDN terms and cited premarket submissions)
