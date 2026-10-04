@@ -4,8 +4,9 @@ import csv, io, json, os, re, statistics, sys, time, urllib.request, zipfile, ra
 W = sys.argv[1] if len(sys.argv) > 1 else '/tmp/wsc'; os.makedirs(W, exist_ok=True)
 H = {"User-Agent": "data-foundry-scout (data@mail.proviciency.com)"}
 def get(u, timeout=60):
-    print("GET", u[:110], flush=True)
-    time.sleep(0.6); return urllib.request.urlopen(urllib.request.Request(u, headers=H), timeout=timeout).read()
+    import subprocess
+    print("GET", u[:110], flush=True); time.sleep(0.6)
+    return subprocess.run(['curl', '-sS', '-m', str(timeout), '-H', 'User-Agent: ' + H['User-Agent'], u], capture_output=True, check=True).stdout
 def cached(name, u):
     p = f'{W}/{name}'
     if not os.path.exists(p): open(p, 'wb').write(get(u))

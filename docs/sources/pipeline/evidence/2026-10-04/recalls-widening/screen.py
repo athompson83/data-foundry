@@ -48,17 +48,24 @@ res['hc'] = {'index_records': len(hc_all), 'by_organisation': dict(org), 'consum
              'last_updated_min': min(r['Last updated'] for r in hc if r['Last updated']), 'last_updated_max': max(r['Last updated'] for r in hc if r['Last updated']),
              'fields': list(hc_all[0].keys()), 'with_gtin_in_title_product_issue': sum(1 for x in hcr if x['g']), 'joint_marker': sum(1 for x in hcr if x['joint']), 'profeco_named_in_joint_text': sum(1 for x in hcr if x['profeco']),
              'consumer_categories': dict(collections.Counter(r['Category'] for r in hc).most_common(30))}
-# ---- CPSC (SaferProducts export Recalls.csv: Title, Date, Summary, Repair Number = CPSC recall number) ----
-rows = list(csv.reader(open(f'{R}/spdb/Recalls.csv', encoding='utf-8-sig', errors='replace')))
-hdr = rows[1]; cp = [dict(zip(hdr, x)) for x in rows[2:]]
+# ---- CPSC Recall API list (cpsc_collect.py; windows split when the API answers its HTTP-200 error body) ----
+cj = json.load(open(f'{R}/cpsc.json'))
 cpr = []
-for r in cp:
-    txt = r['Title'] + ' ' + r['Summary']
-    cpr.append({'id': 'cpsc-' + r['Repair Number'], 'title': r['Title'], 'date': d(r['Date']), 'g': gtins(txt), 'toks': toks(r['Title']), 'text': txt})
-res['cpsc_export'] = {'rows': len(cp), 'date_min': str(min(x['date'] for x in cpr if x['date'])), 'date_max': str(max(x['date'] for x in cpr if x['date'])), 'with_gtin_in_summary': sum(1 for x in cpr if x['g']),
-                      'names_profeco': sum(1 for x in cpr if re.search(r'(?i)profeco', x['text'])), 'names_safety_gate_or_rapex': sum(1 for x in cpr if re.search(r'(?i)safety gate|rapex', x['text'])),
-                      'names_opss_or_uk': sum(1 for x in cpr if re.search(r'(?i)\bOPSS\b|office for product safety', x['text'])), 'names_accc': sum(1 for x in cpr if re.search(r'\bACCC\b|Australian Competition', x['text'])),
-                      'names_health_canada': sum(1 for x in cpr if re.search(r'(?i)health canada', x['text']))}
+hosts = collections.Counter()
+for r in cj:
+    upcs = ' '.join((u.get('UPC') if isinstance(u, dict) else str(u)) or '' for u in (r.get('ProductUPCs') or []))
+    models = ' '.join((p.get('Model') or '') for p in (r.get('Products') or []))
+    txt = ' '.join([r.get('Title') or '', r.get('Description') or '', upcs])
+    for i in r.get('Inconjunctions') or []:
+        hosts[re.sub(r'^https?://(www\.)?([^/]+).*', r'\2', (i.get('URL') or '').strip().lower())] += 1
+    cpr.append({'id': 'cpsc-' + r['RecallNumber'], 'title': r.get('Title') or '', 'date': d((r.get('RecallDate') or '')[:10]), 'g': gtins(txt), 'toks': toks(r.get('Title') or ''), 'text': txt, 'models': models})
+rows = list(csv.reader(open(f'{R}/spdb/Recalls.csv', encoding='utf-8-sig', errors='replace'))); ex = {dict(zip(rows[1], x))['Repair Number'] for x in rows[2:]}
+api = {r['RecallNumber'] for r in cj}
+res['cpsc_api'] = {'records': len(cj), 'date_min': str(min(x['date'] for x in cpr if x['date'])), 'date_max': str(max(x['date'] for x in cpr if x['date'])), 'with_ProductUPCs': sum(1 for r in cj if r.get('ProductUPCs')), 'with_gtin_anywhere': sum(1 for x in cpr if x['g']),
+                   'fields': list(cj[0].keys()), 'inconjunction_url_hosts': dict(hosts.most_common(12)),
+                   'names_profeco_anywhere_in_record': sum(1 for r in cj if re.search(r'(?i)profeco', json.dumps(r))), 'names_safety_gate_or_rapex': sum(1 for r in cj if re.search(r'(?i)safety gate|rapex', json.dumps(r))),
+                   'names_opss_or_office_for_product_safety': sum(1 for r in cj if re.search(r'(?i)\bOPSS\b|office for product safety', json.dumps(r))), 'names_accc': sum(1 for r in cj if re.search(r'\bACCC\b|Australian Competition', json.dumps(r))),
+                   'spdb_export_recall_rows': len(ex), 'spdb_export_numbers_missing_from_api': sorted(x for x in ex - api if x != 'Recall Number'), 'api_numbers_missing_from_spdb_export': len(api - ex)}
 # ---- UK OPSS ----
 ukr = []
 for f in glob.glob(f'{R}/uk/*.json'):
