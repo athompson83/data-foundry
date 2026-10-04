@@ -1,0 +1,210 @@
+candidates:
+  - key: charity-acnc-register-au
+    name: Australia ACNC Charity Register (registered charities, purposes, beneficiaries)
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: Australian Charities and Not-for-profits Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.gov.au/data/dataset/b050b242-4487-4306-abf5-07ca073e5594' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://creativecommons.org/licenses/by/3.0/au/
+        quote: 'Share — copy and redistribute the material in any medium or format for any purpose, even commercially.'
+    conditions:
+      - Attribute the ACNC, link the Creative Commons Attribution 3.0 Australia licence, and state that the data was changed.
+      - Do not imply ACNC endorsement.
+      - Each annual AIS finance dataset carries its own licence (CC BY 2.5, 3.0, 4.0 or notspecified), so read the licence per year before using it.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured 66,399 rows (weekly CSV, 69 columns, ABN on 65,792). Add the AIS finance datasets per year after reading each licence, and flag the one future-dated registration row.
+
+  - key: charity-cra-list-of-charities-ca
+    name: Canada CRA List of charities (T3010 identification, programs, finances)
+    category: regulatory
+    structuring: normalization
+    format: free-text
+    publisher: Canada Revenue Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/dataset/80c00cdb-1358-415c-bb8b-0de7f12675b8' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - Include the attribution statement Contains information licensed under the Open Government Licence - Canada.
+      - Exclude the directors/officers and compensation files, since the licence does not grant any right to use Personal Information.
+      - Do not imply CRA endorsement; files are served by a 302 to a short-lived signed blob URL, so re-resolve on each fetch.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured 83,761 charities in the 2024 return year (annual) and program descriptions of median 206 characters. Fetch the full programs file and measure purpose-category extraction against the CRA code list.
+
+  - key: charity-uk-charity-commission-register
+    name: Charity Commission for England and Wales register extract (charities, activities, income)
+    category: regulatory
+    structuring: normalization
+    format: free-text
+    publisher: Charity Commission for England and Wales
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://register-of-charities.charitycommission.gov.uk/en/register/full-register-download' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://register-of-charities.charitycommission.gov.uk/en/register/full-register-download
+        quote: 'All content is available under the Open Government Licence v3.0'
+    conditions:
+      - Attribute with Contains public sector information licensed under the Open Government Licence v3.0 and link the licence.
+      - Exclude contact email, contact phone and the trustee table by default as personal data.
+      - Publish removal status and date so removed charities are never shown as active (212,207 of 396,297 rows are not Registered).
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured 184,090 registered charities with charity_activities prose on 163,277 (daily 44 MB zip). Add the classification and annual-return tables and map classification codes to the shared taxonomy.
+
+  - key: charity-irs-teos-eo-bmf-990
+    name: IRS Exempt Organizations Business Master File and Form 990 e-file XML
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: Internal Revenue Service
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.irs.gov/charities-non-profits/exempt-organizations-business-master-file-extract-eo-bmf', 'https://www.irs.gov/charities-non-profits/form-990-series-downloads' ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.copyright.gov/title17/92chap1.html
+        quote: 'Copyright protection under this title is not available for any work of the United States Government'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Measured BMF page count 1,964,958 and 1,284 of 1,470 sampled 990 XML filings with mission text. Exclude officer, signer and phone fields, and plan batch handling for the 314 MB monthly XML zips.
+
+  - key: charity-propublica-nonprofit-explorer
+    name: ProPublica Nonprofit Explorer API (IRS data republished)
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: ProPublica
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://projects.propublica.org/nonprofits/api' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 4,
+        structuring_value: 2,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.propublica.org/about/propublica-data-terms-of-use
+        quote: 'You can’t republish the raw data in its entirety or otherwise distribute the data (in whole or in part) on a stand-alone basis.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Parked as RED. The API page (HTTP 200) ties usage to ProPublica's Data Terms of Use, which forbid republishing, sub-licensing and resale; use the IRS primary files instead.
+
+datasets:
+  - key: charity-nonprofit-registry
+    name: Charity and nonprofit registry (multi-country regulator registers with purposes, activities and finances)
+    category: regulatory
+    entity: A registered charity or tax-exempt nonprofit with its national identifier, status, purposes, activities and finances, linked to affiliated organisations in other countries
+    stage: SCREENED
+    description: >-
+      One record per registered charity assembled from the Australian ACNC register, the Canada Revenue Agency
+      List of charities, the Charity Commission for England and Wales extract and the IRS Exempt Organizations
+      master file with Form 990 XML. Each regulator keys on its own national identifier and none cites another's, so
+      no declared cross-country join exists. Website domain is the strongest candidate key and links affiliate
+      charities of the same international parent (separate legal entities, so a reviewed affiliate-of link, never a
+      merge). Prose purposes and activities come from CRA program descriptions, UK charity_activities and 990 mission text.
+    sources:
+      - charity-acnc-register-au
+      - charity-cra-list-of-charities-ca
+      - charity-uk-charity-commission-register
+      - charity-irs-teos-eo-bmf-990
+    join_keys:
+      - key: website domain (ACNC vs CRA)
+        between: [ charity-acnc-register-au, charity-cra-list-of-charities-ca ]
+        measured: '36/34371 CRA charity website rows share a non-platform host with an ACNC charity website (46 before dropping facebook, google and similar hosts); hand-checked 29 of 36 as the same named organisation or national affiliate (wrong: shared bahai.org and jw.org local units, differently named charities).'
+        mode: candidate
+        reviewed: { correct: 29, checked: 36 }
+      - key: website domain (ACNC vs UK)
+        between: [ charity-acnc-register-au, charity-uk-charity-commission-register ]
+        measured: '151/102495 UK registered charity websites share a non-platform host with an ACNC charity website (161 raw); hand-checked 124 of 151 as the same named organisation or national affiliate.'
+        mode: candidate
+        reviewed: { correct: 124, checked: 151 }
+      - key: website domain (CRA vs UK)
+        between: [ charity-cra-list-of-charities-ca, charity-uk-charity-commission-register ]
+        measured: '59/34371 CRA charity website rows share a non-platform host with a UK registered charity website (66 raw); hand-checked 45 of 59 as the same named organisation or national affiliate.'
+        mode: candidate
+        reviewed: { correct: 45, checked: 59 }
+      - key: exact normalised legal name (ACNC vs UK)
+        between: [ charity-acnc-register-au, charity-uk-charity-commission-register ]
+        measured: '820/64337 ACNC distinct normalised names equal a UK registered charity name; a random sample of 25 hand-checked 8 of 25 as the same organisation (the rest are generic names such as all saints church or hastings), so names alone are a weak candidate.'
+        mode: candidate
+        reviewed: { correct: 8, checked: 25 }
+      - key: exact normalised legal name (IRS 990 filer sample vs UK)
+        between: [ charity-irs-teos-eo-bmf-990, charity-uk-charity-commission-register ]
+        measured: '15/1416 filer names in the first 8 MB of 2026_TEOS_XML_01A equal a UK registered charity name; hand-checked 2 of 15 as the same organisation (Love146, Variety the Children''s Charity).'
+        mode: candidate
+        reviewed: { correct: 2, checked: 15 }
+      - key: exact normalised legal name (IRS 990 filer sample vs CRA)
+        between: [ charity-irs-teos-eo-bmf-990, charity-cra-list-of-charities-ca ]
+        measured: '12/1416 filer names in the first 8 MB of 2026_TEOS_XML_01A equal a CRA charity name; hand-checked 1 of 12 as the same organisation (The Mission of Tao-Confucianism).'
+        mode: candidate
+        reviewed: { correct: 1, checked: 12 }
+    taxonomy:
+      - jurisdiction (Australia, Canada, England and Wales, United States)
+      - charitable purpose class (relief of poverty, education, health, religion, environment, animals, community, arts and culture)
+      - beneficiary group (children, aged persons, people with disabilities, veterans, communities overseas)
+      - legal form (company limited by guarantee, incorporated association, trust, CIO, 501(c)(3) public charity, private foundation)
+      - registration status (registered, removed, revoked)
+      - income band (ACNC size small/medium/large, UK income, IRS asset and income codes)
+    agent_questions:
+      - Is this organisation a registered charity in Australia, Canada, England and Wales or the United States, and what is its status and registration date?
+      - What does the charity say it does (purposes, programs and activities), and what were its latest income and expenditure?
+      - Which national affiliates of the same international charity are registered in other countries?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/charity-nonprofit-registry/notes.md ]
+    next_action: Add OSCR, NZ Charities Services and the Irish register, measure purpose-class extraction from prose, and keep every affiliate link a reviewed candidate until a declared cross-border identifier is found.

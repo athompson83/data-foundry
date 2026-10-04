@@ -1,0 +1,124 @@
+{
+ "rule": [
+  "show the same named organisation or a direct national affiliate of the same named parent. This is an affiliate",
+  "relationship between separate legal entities in different countries, NOT an identity merge. Platform / shared-host",
+  "domains and different local units (individual congregations, parishes, branches) are `wrong`.",
+  "Reads results.json, writes hand_check.json."
+ ],
+ "website_domain": {
+  "acnc-cra": {
+   "shared_domains_raw": 46,
+   "after_dropping_platform_domains": 36,
+   "wrong": 7,
+   "correct": 29,
+   "checked": 36,
+   "wrong_domains": [
+    "bahai.org",
+    "cycnow.com",
+    "goethe.de",
+    "jw.org",
+    "kingdomofjesuschrist.org",
+    "kresy-siberia.org",
+    "svenskakyrkan.se"
+   ]
+  },
+  "acnc-uk": {
+   "shared_domains_raw": 161,
+   "after_dropping_platform_domains": 151,
+   "wrong": 27,
+   "correct": 124,
+   "checked": 151,
+   "wrong_domains": [
+    "africanrevival.com",
+    "anu.edu.au",
+    "bahai.org",
+    "cambridge.org",
+    "cdfcharity.org",
+    "cmiaid.org",
+    "fb.com",
+    "fb.me",
+    "healcharity.org",
+    "lr.org",
+    "m.facebook.com",
+    "m.me",
+    "none.com",
+    "nowebsite.com",
+    "oneschoolglobal.com",
+    "paypal.com",
+    "plymouthbrethrenchristianchurch.org",
+    "purebhakti.com",
+    "rccg.org",
+    "sarzspiritfoundation.org",
+    "soroptimistinternational.org",
+    "tandfonline.com",
+    "thisisyourbible.com",
+    "tjc.org",
+    "ucl.ac.uk",
+    "web.facebook.com",
+    "world-outreach.com"
+   ]
+  },
+  "cra-uk": {
+   "shared_domains_raw": 66,
+   "after_dropping_platform_domains": 59,
+   "wrong": 14,
+   "correct": 45,
+   "checked": 59,
+   "wrong_domains": [
+    "africanchildrenschoir.com",
+    "bahai.org",
+    "churchesofgod.info",
+    "cibc.com",
+    "e-clubhouse.org",
+    "freewebs.com",
+    "geocities.com",
+    "medium.com",
+    "members.tjc.org",
+    "mun.ca",
+    "queensu.ca",
+    "swaminarayan.info",
+    "tjc.org",
+    "yasodhara.org"
+   ]
+  }
+ },
+ "name_only_acnc_uk": {
+  "checked": 25,
+  "correct": 8,
+  "correct_names": [
+   "baps charities",
+   "hothouse theatre",
+   "empart",
+   "justsow giving",
+   "muslim care",
+   "british council",
+   "child migrants",
+   "bible league"
+  ]
+ },
+ "irs990_sample_name": {
+  "uk": {
+   "matched": 15,
+   "checked": 15,
+   "correct": 2,
+   "correct_names": [
+    "love146",
+    "variety the children's charity"
+   ]
+  },
+  "cra": {
+   "matched": 12,
+   "checked": 12,
+   "correct": 1,
+   "correct_names": [
+    "the mission of tao-confucianism"
+   ]
+  },
+  "acnc": {
+   "matched": 5,
+   "checked": 5,
+   "correct": 0,
+   "correct_names": []
+  }
+ }
+}
