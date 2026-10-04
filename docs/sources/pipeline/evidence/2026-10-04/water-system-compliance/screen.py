@@ -57,7 +57,7 @@ flagged = [r for r in safer if r['PRIMARY_MCL_VIOLATION'] == 'YES']
 samp = random.sample(flagged, 25)
 chk = []
 for r in samp:
-    try: v = jget(f"{EF}/VIOLATION/pwsid/{r['WATER_SYSTEM_NUMBER']}/rows/0:1000/JSON")
+    try: v = jget(f"{EF}/VIOLATION/pwsid/{r['WATER_SYSTEM_NUMBER']}/rows/0:300/JSON")
     except Exception as e:
         chk.append({'pwsid': r['WATER_SYSTEM_NUMBER'], 'error': str(e)}); continue
     chk.append({'pwsid': r['WATER_SYSTEM_NUMBER'], 'epa_violations': len(v), 'epa_mcl_violations': sum(1 for x in v if x['violation_category_code'] == 'MCL')})
