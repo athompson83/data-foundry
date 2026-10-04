@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "a58aa0b47116e3f4e33df0a6231fad88ee68f944ee4f05318568c2053c8158b4",
+  "registry_sha256": "fbd7d7a1e4fc969eab06f28ca0f669b87d79ba87a9f1e4c50cb6822ee383990a",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -3666,6 +3666,19 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "mx-red-alerta-rapida-alertas-gob-mx": {
+      "name": "Mexico Red de Alerta Rapida (PROFECO consumer-product alerts, alertas.gob.mx)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Mexico PROFECO (Red de Alerta Rapida)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
