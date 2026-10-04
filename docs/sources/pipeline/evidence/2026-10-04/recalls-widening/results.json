@@ -1,0 +1,1633 @@
+{
+ "generated": "2026-10-04",
+ "hc": {
+  "index_records": 34168,
+  "by_organisation": {
+   "Medical devices": 8666,
+   "Consumer product safety": 5210,
+   "CFIA": 5318,
+   "TC": 9904,
+   "Drugs and health products": 1934,
+   "Communications and Public Affairs Branch": 1814,
+   "Controlled substances and cannabis": 99,
+   "Marketed health products": 1161,
+   "HC": 62
+  },
+  "consumer_records": 5210,
+  "archived_flag_1": 3094,
+  "last_updated_min": "1995-01-01",
+  "last_updated_max": "2026-10-01",
+  "fields": [
+   "NID",
+   "Title",
+   "URL",
+   "Organization",
+   "Product",
+   "Issue",
+   "What you should do",
+   "Category",
+   "Recall class",
+   "Last updated",
+   "Archived"
+  ],
+  "with_gtin_in_title_product_issue": 0,
+  "joint_marker": 354,
+  "profeco_named_in_joint_text": 9,
+  "consumer_categories": {
+   "Household items": 1256,
+   "Toys and games": 657,
+   "Sports and fitness": 452,
+   "Clothing and accessories": 449,
+   "Chemicals": 325,
+   "Other": 262,
+   "Electronics": 247,
+   "Tools and accessories": 237,
+   "Beauty and personal care": 170,
+   "Household items - Other": 119,
+   "Outdoor living": 117,
+   "Jewellery": 93,
+   "Household items - Tools and accessories": 85,
+   "Clothing": 82,
+   "Appliances": 79,
+   "Food": 62,
+   "Appliances - Household items": 54,
+   "Specialized products": 44,
+   "Furniture and furnishings": 29,
+   "Consumer products": 24,
+   "Hobby and craft items": 19,
+   "Household items - Specialized products": 14,
+   "Household items - Toys and games": 14,
+   "Electronics - Household items": 14,
+   "Hobby and craft items - Toys and games": 13,
+   "Sports and fitness - Other": 12,
+   "Household items - Sports and fitness": 12,
+   "Vaping and tobacco products": 11,
+   "Household items - Outdoor living": 11,
+   "Chemicals - Household items": 11
+  }
+ },
+ "cpsc_export": {
+  "rows": 10029,
+  "date_min": "1973-06-08",
+  "date_max": "2026-09-24",
+  "with_gtin_in_summary": 577,
+  "names_profeco": 0,
+  "names_safety_gate_or_rapex": 14,
+  "names_opss_or_uk": 0,
+  "names_accc": 0,
+  "names_health_canada": 0
+ },
+ "uk": {
+  "collected": 631,
+  "index_total": 3746,
+  "types": {
+   "product-recall": 253,
+   "product-safety-report": 377,
+   "product-safety-alert": 1
+  },
+  "date_min": "2024-01-22",
+  "date_max": "2026-10-02",
+  "with_gtin": 110,
+  "with_barcode_row": 121,
+  "with_model_row": 277,
+  "with_psd_in_title": 607,
+  "cites": {
+   "cpsc": 0,
+   "health_canada": 0,
+   "safety_gate": 0,
+   "accc": 1,
+   "profeco": 0
+  },
+  "with_safety_gate_case_no": 0
+ },
+ "eu": {
+  "weekly_reports_read": 62,
+  "notifications": 4574,
+  "date_min": "2025-01-08",
+  "date_max": "2026-12-06",
+  "with_barcode_field": 2492,
+  "with_valid_gtin": 2189,
+  "with_model": 3382,
+  "with_url_recall": 575,
+  "url_recall_hosts": {
+   "rappel.conso.gouv.fr": 132,
+   "m.shein.com": 42,
+   "bmw.de": 23,
+   "ford.com": 21,
+   "ages.at": 17,
+   "mercedes-benz.de": 15,
+   "savers.co.uk": 14,
+   "fr.aliexpress.com": 8,
+   "primark.com": 7,
+   "facebook.com": 7,
+   "jojomamanbebe.zendesk.com": 6,
+   "ford.de": 5,
+   "aldi.pl": 5,
+   "4008.seu.cleverreach.com": 4,
+   "temu.com": 4
+  },
+  "cites": {
+   "cpsc": 0,
+   "health_canada": 0,
+   "profeco": 0
+  }
+ },
+ "accc": {
+  "items_in_rss": 100,
+  "date_min": "2026-05-15",
+  "date_max": "2026-09-29",
+  "with_valid_gtin": 7,
+  "names_cpsc_or_health_canada": 0
+ },
+ "links": {
+  "uk_to_hc_gtin": {
+   "pairs_365d": 0,
+   "distinct_source_notices": 0,
+   "pairs_any_date": 0,
+   "sample": []
+  },
+  "uk_to_cpsc_gtin": {
+   "pairs_365d": 0,
+   "distinct_source_notices": 0,
+   "pairs_any_date": 0,
+   "sample": []
+  },
+  "eu_to_hc_gtin": {
+   "pairs_365d": 0,
+   "distinct_source_notices": 0,
+   "pairs_any_date": 0,
+   "sample": []
+  },
+  "eu_to_cpsc_gtin": {
+   "pairs_365d": 0,
+   "distinct_source_notices": 0,
+   "pairs_any_date": 0,
+   "sample": []
+  },
+  "accc_to_hc_gtin": {
+   "pairs_365d": 0,
+   "distinct_source_notices": 0,
+   "pairs_any_date": 0,
+   "sample": []
+  },
+  "accc_to_cpsc_gtin": {
+   "pairs_365d": 0,
+   "distinct_source_notices": 0,
+   "pairs_any_date": 0,
+   "sample": []
+  },
+  "hc_to_cpsc_gtin_reference": {
+   "pairs_365d": 0,
+   "distinct_hc": 0,
+   "sample": []
+  },
+  "uk_to_hc_title_tokens_90d": {
+   "matched": 35,
+   "of": 631,
+   "sample_for_hand_check": [
+    [
+     "uk-product-recall-gt-labomba-bicycles-and-frameset-model-years-2019-2023-2403-0080",
+     "Product Recall: GT LaBomba Bicycles and Frameset Model Years 2019-2023 (2403-008",
+     "hc-75161",
+     "GT LaBomba Bicycles and Framesets Recalled Due to Fall Hazard",
+     [
+      "bicycles",
+      "labomba"
+     ],
+     "2024-03-25",
+     "2024-03-07"
+    ],
+    [
+     "uk-product-recall-stihl-ride-on-lawn-mowers-2605-0119",
+     "Product Recall: Stihl Ride-on Lawn Mowers (2605-0119)",
+     "hc-82415",
+     "\u200b\u200bDR Power PRO MAX30 30\u201d Deck Wide Cut Walk-Behind Power Lawn Mowers\u200b recalled d",
+     [
+      "lawn",
+      "mowers"
+     ],
+     "2026-05-29",
+     "2026-08-06"
+    ],
+    [
+     "uk-product-safety-report-power-adapter-180500-2401-0080",
+     "Product Safety Report: Power Adapter, 180500 (2401-0080)",
+     "hc-75393",
+     "Yamaha PA-10B AC Power Adapter recalled due to electric shock hazard",
+     [
+      "adapter",
+      "power"
+     ],
+     "2024-04-19",
+     "2024-04-18"
+    ],
+    [
+     "uk-product-recall-msr-r-trail-lite-and-reactor-r-camping-cooking-pots-2402-0314",
+     "Product Recall: MSR\u00ae, Trail Lite\u2122 and Reactor\u00ae Camping Cooking Pots (2402-0314)",
+     "hc-75115",
+     "MSR Camping Cooking Pots by Cascade Designs recalled due to burn and scald hazar",
+     [
+      "camping",
+      "cooking",
+      "pots"
+     ],
+     "2024-03-25",
+     "2024-02-22"
+    ],
+    [
+     "uk-product-recall-thule-ridealong-rear-mounted-child-bike-seats-2404-0047",
+     "Product Recall: Thule RideAlong Rear-Mounted Child Bike Seats (2404-0047)",
+     "hc-75269",
+     "Thule RideAlong Child Bike Seat recalled due to potential chemical hazard",
+     [
+      "bike",
+      "ridealong",
+      "thule"
+     ],
+     "2024-04-12",
+     "2024-04-04"
+    ],
+    [
+     "uk-product-recall-char-broil-patio-bistro-bbq-grills-2608-0120",
+     "Product Recall: Char-Broil Patio Bistro BBQ Grills (2608-0120) ",
+     "hc-82607",
+     "Certain Char-Broil Bistro Pro\u2122 Electric Grill + Charcoal Mode\u200b recalled due to p",
+     [
+      "bistro",
+      "char-broil"
+     ],
+     "2026-08-17",
+     "2026-09-17"
+    ],
+    [
+     "uk-product-recall-4-in-1-handheld-cordless-vacuum-sold-via-ebay-2609-0144",
+     "Product Recall: 4-in-1 Handheld Cordless Vacuum sold via eBay (2609-0144)",
+     "hc-82288",
+     "Rowenta Cordless Vacuum Cleaners recalled due to fire and burn hazards",
+     [
+      "cordless",
+      "vacuum"
+     ],
+     "2026-10-01",
+     "2026-07-08"
+    ],
+    [
+     "uk-product-recall-cambridge-audio-yoyo-m-portable-bluetooth-speaker-2608-0060",
+     "Product Recall: Cambridge Audio Yoyo (M) Portable Bluetooth Speaker (2608-0060)",
+     "hc-82647",
+     "Cambridge Audio Yoyo (M) Portable Bluetooth Speakers recalled due to fire hazard",
+     [
+      "audio",
+      "bluetooth",
+      "cambridge",
+      "portable",
+      "yoyo"
+     ],
+     "2026-08-27",
+     "2026-09-22"
+    ],
+    [
+     "uk-product-recall-cambridge-audio-ceiling-speaker-fire-hood-2609-0010",
+     "Product Recall: Cambridge Audio Ceiling Speaker Fire Hood (2609-0010)",
+     "hc-82647",
+     "Cambridge Audio Yoyo (M) Portable Bluetooth Speakers recalled due to fire hazard",
+     [
+      "audio",
+      "cambridge",
+      "fire"
+     ],
+     "2026-09-16",
+     "2026-09-22"
+    ],
+    [
+     "uk-product-recall-babboe-cargo-bikes-2403-0064",
+     "Product Recall: Babboe Cargo Bikes (2403-0064)",
+     "hc-75666",
+     "Babboe N.V. Cargo Bicycles recalled due to potential fall hazard",
+     [
+      "babboe",
+      "cargo"
+     ],
+     "2024-04-04",
+     "2024-06-20"
+    ],
+    [
+     "uk-product-recall-chillz-crystal-clear-chlorine-tablets-for-ice-baths-sold-via-amazon-2609-0142",
+     "Product Recall: CHILLZ Crystal Clear Chlorine Tablets for Ice Baths sold via Ama",
+     "hc-82419",
+     "Health Canada warns that TQELFSS Crystal Clear Epoxy Resin Kits previously avail",
+     [
+      "amazon",
+      "clear",
+      "crystal"
+     ],
+     "2026-10-01",
+     "2026-07-31"
+    ],
+    [
+     "uk-product-safety-report-joyin-animal-plush-toys-sold-via-amazon-2509-0189",
+     "Product Safety Report: JOYIN Animal Plush Toys sold via Amazon (2509-0189)",
+     "hc-77929",
+     "Various Inkari Plush Alpaca Toys recalled due to choking hazard",
+     [
+      "plush",
+      "toys"
+     ],
+     "2025-09-30",
+     "2025-08-21"
+    ],
+    [
+     "uk-product-safety-report-tuehakny-electric-kettle-sold-via-amazon-2607-0210",
+     "Product Safety Report: TUEHAKNY Electric Kettle sold via Amazon (2607-0210)",
+     "hc-82052",
+     "Zwilling Enfinigy Electric Kettle and Zwilling Enfinigy Electric Kettle Pro reca",
+     [
+      "electric",
+      "kettle"
+     ],
+     "2026-07-29",
+     "2026-05-14"
+    ],
+    [
+     "uk-product-recall-groovy-baby-i-spy-a-fly-book-2609-0049",
+     "Product Recall: Groovy Baby \u201cI Spy a Fly\u201d Book (2609-0049)",
+     "hc-82659",
+     "Make Believe Ideas Groovy Baby 'I Spy a Fly!' board book recalled due to choking",
+     [
+      "book",
+      "groovy"
+     ],
+     "2026-09-15",
+     "2026-09-22"
+    ],
+    [
+     "uk-product-recall-outdoor-heavy-duty-tree-climbing-half-body-safety-harness-sold-via-wish-2310-0205",
+     "Product Recall: Outdoor Heavy Duty Tree Climbing Half Body Safety Harness sold v",
+     "hc-75105",
+     "iTrust Heavy Duty Wall Charger Real 2.1 A recalled due to electric shock hazard",
+     [
+      "duty",
+      "heavy"
+     ],
+     "2024-04-12",
+     "2024-02-21"
+    ],
+    [
+     "uk-product-safety-report-cook-n-repeat-electric-indoor-grill-sold-via-amazon-2606-0201",
+     "Product Safety Report: Cook N Repeat Electric Indoor Grill sold via Amazon (2606",
+     "hc-82607",
+     "Certain Char-Broil Bistro Pro\u2122 Electric Grill + Charcoal Mode\u200b recalled due to p",
+     [
+      "electric",
+      "grill"
+     ],
+     "2026-07-09",
+     "2026-09-17"
+    ],
+    [
+     "uk-product-safety-report-canitu-mini-cordless-chainsaws-2401-0103",
+     "Product Safety Report: Canitu Mini Cordless Chainsaws (2401-0103)",
+     "hc-75020",
+     "Health Canada warns that Achim Cordless GII Morningstar Light Filtering Mini Bli",
+     [
+      "cordless",
+      "mini"
+     ],
+     "2024-05-01",
+     "2024-02-07"
+    ],
+    [
+     "uk-product-recall-joolz-aer2-car-seat-adapter-set-2605-0189",
+     "Product Recall: Joolz Aer2 Car Seat Adapter Set (2605-0189)",
+     "hc-82207",
+     "Joolz Aer2 Car Seat Adapter Set recalled due to fall hazard",
+     [
+      "adapter",
+      "aer2",
+      "joolz",
+      "seat"
+     ],
+     "2026-05-29",
+     "2026-06-18"
+    ],
+    [
+     "uk-product-safety-report-type-c-power-adapter-sold-via-amazon-2508-0042-and-2508-0048",
+     "Product Safety Report: Type-C Power Adapter sold via Amazon (2508-0042 and 2508-",
+     "hc-77650",
+     "Anker Power Bank A1647 and Anker Zolo Power Banks A1681 and A1689 sold on Amazon",
+     [
+      "amazon",
+      "power"
+     ],
+     "2025-08-22",
+     "2025-06-27"
+    ],
+    [
+     "uk-product-safety-report-electric-pressure-cooker-6l-2608-0125",
+     "Product Safety Report: Electric Pressure Cooker 6L (2608-0125)",
+     "hc-82498",
+     "Workbless Electric Pressure Washers recalled due to electric shock hazard",
+     [
+      "electric",
+      "pressure"
+     ],
+     "2026-08-18",
+     "2026-08-20"
+    ]
+   ]
+  },
+  "uk_to_cpsc_title_tokens_90d": {
+   "matched": 68,
+   "of": 631,
+   "sample_for_hand_check": [
+    [
+     "uk-product-recall-misco-sports-light-up-racket-set-2606-0102",
+     "Product Recall: Misco Sports Light Up Racket Set (2606-0102)",
+     "cpsc-26514",
+     "Missry Associates Recalls Misco Sports Light-Up Racket Sets Due to Risk of Serio",
+     [
+      "misco",
+      "racket",
+      "sports"
+     ],
+     "2026-06-19",
+     "2026-05-28"
+    ],
+    [
+     "uk-product-safety-report-aleenfoon-bath-toys-sold-via-amazon-2608-0036",
+     "Product Safety Report: ALEENFOON Bath Toys sold via Amazon (2608-0036) ",
+     "cpsc-26738",
+     "GIHNJSI Squeezy Dumplings Toys Recalled Due to Serious Ingestion, Choking and Ob",
+     [
+      "amazon",
+      "toys"
+     ],
+     "2026-08-11",
+     "2026-09-03"
+    ],
+    [
+     "uk-product-recall-cambridge-audio-ceiling-speaker-fire-hood-2609-0010",
+     "Product Recall: Cambridge Audio Ceiling Speaker Fire Hood (2609-0010)",
+     "cpsc-26731",
+     "Audio Partnership Recalls Cambridge Audio Yoyo (M) Portable Bluetooth Speakers D",
+     [
+      "audio",
+      "cambridge",
+      "fire"
+     ],
+     "2026-09-16",
+     "2026-09-03"
+    ],
+    [
+     "uk-product-safety-report-yoto-mini-2404-0142",
+     "Product Safety Report: Yoto Mini (2404-0142)",
+     "cpsc-24190",
+     "Yoto Recalls Yoto Mini Speakers for Children Due to Burn and Fire Hazards",
+     [
+      "mini",
+      "yoto"
+     ],
+     "2024-05-07",
+     "2024-04-11"
+    ],
+    [
+     "uk-product-recall-joolz-aer2-car-seat-adapter-set-2605-0189",
+     "Product Recall: Joolz Aer2 Car Seat Adapter Set (2605-0189)",
+     "cpsc-26568",
+     "Joolz Recalls Aer2 Car Seat Adapters for Strollers Due to Risk of Serious Injury",
+     [
+      "aer2",
+      "joolz",
+      "seat"
+     ],
+     "2026-05-29",
+     "2026-06-18"
+    ],
+    [
+     "uk-product-recall-cavius-4002-slash-cv4002-carbon-monoxide-alarm-2403-0152",
+     "Product Recall: Cavius 4002 / CV4002 Carbon Monoxide Alarm (2403-0152)",
+     "cpsc-24236",
+     "CHZHVAN Combination Smoke and Carbon Monoxide Detectors Recalled Due to Failure ",
+     [
+      "carbon",
+      "monoxide"
+     ],
+     "2024-04-03",
+     "2024-05-16"
+    ],
+    [
+     "uk-product-recall-smyths-toys-wooden-cornhole-board-with-bean-bags-2609-0108",
+     "Product Recall: Smyths Toys Wooden Cornhole Board with Bean Bags (2609-0108)",
+     "cpsc-26780",
+     "Melissa & Doug Recalls Fire Truck Activity Board Toys Due to Risk of Serious Inj",
+     [
+      "board",
+      "toys"
+     ],
+     "2026-09-16",
+     "2026-09-17"
+    ],
+    [
+     "uk-product-safety-report-joyin-animal-plush-toys-sold-via-amazon-2509-0189",
+     "Product Safety Report: JOYIN Animal Plush Toys sold via Amazon (2509-0189)",
+     "cpsc-26164",
+     "Meaicezli Play Purse Sets Recalled Due to Risk of Serious Injury or Death from B",
+     [
+      "amazon",
+      "toys"
+     ],
+     "2025-09-30",
+     "2025-12-18"
+    ],
+    [
+     "uk-product-recall-msr-r-trail-lite-and-reactor-r-camping-cooking-pots-2402-0314",
+     "Product Recall: MSR\u00ae, Trail Lite\u2122 and Reactor\u00ae Camping Cooking Pots (2402-0314)",
+     "cpsc-24126",
+     "Cascade Designs Recalls Camping Cooking Pots Due to Burn and Scald Hazards",
+     [
+      "camping",
+      "cooking",
+      "pots"
+     ],
+     "2024-03-25",
+     "2024-02-22"
+    ],
+    [
+     "uk-product-recall-stihl-ride-on-lawn-mowers-2605-0119",
+     "Product Recall: Stihl Ride-on Lawn Mowers (2605-0119)",
+     "cpsc-26648",
+     "DR Power Equipment Recalls Lawn Mowers Due to Risk of Serious Injury or Death fr",
+     [
+      "lawn",
+      "mowers"
+     ],
+     "2026-05-29",
+     "2026-08-06"
+    ],
+    [
+     "uk-product-recall-thule-ridealong-rear-mounted-child-bike-seats-2404-0047",
+     "Product Recall: Thule RideAlong Rear-Mounted Child Bike Seats (2404-0047)",
+     "cpsc-24182",
+     "Thule Recalls RideAlong Rear-Mounted Child Bike Seats Due to Chemical Ingestion ",
+     [
+      "bike",
+      "rear-mounted",
+      "ridealong",
+      "seats",
+      "thule"
+     ],
+     "2024-04-12",
+     "2024-04-04"
+    ],
+    [
+     "uk-product-recall-char-broil-patio-bistro-bbq-grills-2608-0120",
+     "Product Recall: Char-Broil Patio Bistro BBQ Grills (2608-0120) ",
+     "cpsc-26773",
+     "Char-Broil Recalls Bistro Pro Electric Grills Due to Risk of Electric Shock",
+     [
+      "bistro",
+      "char-broil",
+      "grills"
+     ],
+     "2026-08-17",
+     "2026-09-17"
+    ],
+    [
+     "uk-product-recall-squeezy-dumplings-2606-0196",
+     "Product Recall: Squeezy Dumplings (2606-0196)",
+     "cpsc-26738",
+     "GIHNJSI Squeezy Dumplings Toys Recalled Due to Serious Ingestion, Choking and Ob",
+     [
+      "dumplings",
+      "squeezy"
+     ],
+     "2026-06-25",
+     "2026-09-03"
+    ],
+    [
+     "uk-product-recall-pom-power-banks-sold-by-tk-maxx-2605-0127",
+     "Product Recall: POM Power Banks sold by TK Maxx (2605-0127)",
+     "cpsc-26575",
+     "Super Off-Road Solar Power Banks Recalled Due to Overheating; Imported by Specto",
+     [
+      "banks",
+      "power"
+     ],
+     "2026-06-01",
+     "2026-06-25"
+    ],
+    [
+     "uk-product-recall-yamaha-zj-and-store-life-jacket-sold-via-amazon-2401-0088",
+     "Product Recall: YAMAHA ZJ&Store Life Jacket sold via Amazon (2401-0088)",
+     "cpsc-24202",
+     "Randder Liquid Fuel Bottles Recalled Due to Risk of Burn and Poisoning; Violatio",
+     [
+      "amazon",
+      "store"
+     ],
+     "2024-04-11",
+     "2024-04-18"
+    ],
+    [
+     "uk-product-safety-report-playworld-systems-unity-teeter-tunnel-2507-0178",
+     "Product Safety Report: Playworld Systems Unity Teeter Tunnel (2507-0178)",
+     "cpsc-25303",
+     "Playworld Systems Recalls Unity Teeter Tunnels with Lexan Tops Due to Risk of Se",
+     [
+      "playworld",
+      "systems",
+      "teeter",
+      "unity"
+     ],
+     "2025-08-18",
+     "2025-05-29"
+    ],
+    [
+     "uk-product-safety-report-han-bei-babdy-baby-dining-chair-2303-0123",
+     "Product Safety Report: Han Bei Babdy Baby Dining Chair (2303-0123)",
+     "cpsc-24314",
+     "Grand Rapids Chair Company Recalls Wood Dining Chairs Due to Fall Hazard",
+     [
+      "chair",
+      "dining"
+     ],
+     "2024-05-07",
+     "2024-07-25"
+    ],
+    [
+     "uk-product-recall-benq-gv31-portable-mini-projector-2605-0190",
+     "Product Recall: BenQ GV31 Portable Mini Projector  (2605-0190)",
+     "cpsc-26647",
+     "BenQ America Recalls GV31 Portable Projectors Due to Risk of Serious Injury or D",
+     [
+      "benq",
+      "gv31",
+      "portable"
+     ],
+     "2026-05-29",
+     "2026-07-30"
+    ],
+    [
+     "uk-product-safety-report-lueden-2-gang-2-way-double-wall-light-switch-sold-via-amazon-2606-0148",
+     "Product Safety Report: Lueden 2 Gang 2 Way Double Wall Light Switch sold via Ama",
+     "cpsc-26617",
+     "Oitnlaughter Projecting Finger Light Toys Recalled Due to Risk of Serious Injury",
+     [
+      "amazon",
+      "light"
+     ],
+     "2026-07-20",
+     "2026-07-16"
+    ],
+    [
+     "uk-product-safety-report-xibeile-toy-factory-manhattan-atomic-spinning-ball-sold-via-amazon-2605-0051",
+     "Product Safety Report: Xibeile Toy Factory Manhattan Atomic Spinning Ball sold v",
+     "cpsc-26365",
+     "Children's Toys Recalled Due to Risk of Serious Injury or Death from Choking Haz",
+     [
+      "amazon",
+      "ball"
+     ],
+     "2026-05-29",
+     "2026-04-02"
+    ]
+   ]
+  },
+  "eu_to_hc_title_tokens_90d": {
+   "matched": 73,
+   "of": 4574,
+   "sample_for_hand_check": [
+    [
+     "eu-SR/00800/26",
+     "B\u00e2ton \u00e0 grelots Montessori / Interesting Finger Toys Toy rattle",
+     "hc-82121",
+     "TheKiddoSpace Children\u2019s Montessori Egg Toys recalled due to choking hazard",
+     [
+      "montessori",
+      "toys"
+     ],
+     "2026-03-20",
+     "2026-05-27"
+    ],
+    [
+     "eu-SR/02354/26",
+     "Simond D\u00e9gaine ALPINISM - D\u00e9gaine VERTIKA Carabiner",
+     "hc-82616",
+     "Simond brand Alpinism quickdraws recalled due to injury hazard",
+     [
+      "alpinism",
+      "simond"
+     ],
+     "2026-08-28",
+     "2026-09-15"
+    ],
+    [
+     "eu-SR/04251/25",
+     "Shenzhen Zhuoxin Technology Co. Ltd Magnetic Effect Chess Intelligence Strategy ",
+     "hc-81699",
+     "Magnetic Chess Game recalled due to ingestion hazard",
+     [
+      "chess",
+      "game",
+      "magnetic"
+     ],
+     "2025-12-12",
+     "2026-03-06"
+    ],
+    [
+     "eu-SR/04352/25",
+     "4 seasons Four seasons hair spray Hairspray",
+     "hc-78328",
+     "Kao Cape - 3D Extra Keep Hair spray recalled due to missing mandatory hazard lab",
+     [
+      "hair",
+      "spray"
+     ],
+     "2025-12-19",
+     "2025-10-21"
+    ],
+    [
+     "eu-SR/04281/25",
+     "Cielo Alto Sole Hair and body cream",
+     "hc-81510",
+     "Truly Tallow All-in-1 Mens Face + Body + Hair Whipped Tallow recalled due to a c",
+     [
+      "body",
+      "hair"
+     ],
+     "2025-12-12",
+     "2026-01-21"
+    ],
+    [
+     "eu-SR/00488/26",
+     "HEAD Ski boots",
+     "hc-81790",
+     "HEAD Alpine Ski Boots recalled due to injury hazard",
+     [
+      "boots",
+      "head"
+     ],
+     "2026-02-13",
+     "2026-04-09"
+    ],
+    [
+     "eu-SR/01391/26",
+     "SCUBAPRO Monorail Weight Pockets for Buoyancy Compensator Devices (BCDs) Monorai",
+     "hc-81819",
+     "SCUBAPRO Monorail Weight Pockets recalled due to drowning hazard",
+     [
+      "monorail",
+      "pockets",
+      "scubapro",
+      "weight"
+     ],
+     "2026-05-15",
+     "2026-04-09"
+    ],
+    [
+     "eu-SR/01876/26",
+     "Build-A-Bear Workshop Heartwarming Hugs Bear Plush toy",
+     "hc-81999",
+     "Build-A-Bear Workshop Heartwarming Hugs Bear 2 recalled due to choking hazard",
+     [
+      "bear",
+      "build-a-bear",
+      "heartwarming",
+      "hugs",
+      "workshop"
+     ],
+     "2026-06-26",
+     "2026-04-30"
+    ],
+    [
+     "eu-SR/01136/26",
+     "Extralink Carbon Monoxide Smoke Detector Carbon monoxide detector",
+     "hc-81719",
+     "Modofo Tool 5 in 1 Smoke and Carbon Monoxide Detector recalled due to potential ",
+     [
+      "carbon",
+      "detector",
+      "monoxide",
+      "smoke"
+     ],
+     "2026-04-17",
+     "2026-03-12"
+    ],
+    [
+     "eu-SR/03286/25",
+     "Inkari Plush Alpacas Soft toy",
+     "hc-77929",
+     "Various Inkari Plush Alpaca Toys recalled due to choking hazard",
+     [
+      "inkari",
+      "plush"
+     ],
+     "2025-09-19",
+     "2025-08-21"
+    ],
+    [
+     "eu-SR/01791/26",
+     "Solhaga Fl\u00e4kt Portable mini fan",
+     "hc-82426",
+     "Portable Clip-On Rechargeable Mini Fan recalled due to fire hazard",
+     [
+      "mini",
+      "portable"
+     ],
+     "2026-06-19",
+     "2026-08-12"
+    ],
+    [
+     "eu-OR/00130/25",
+     "INKAX PORTABLE AND COMPACT POWER ADAPTER USB charger",
+     "hc-77661",
+     "iStore Branded Magnetic Wireless Power Banks 5000 mAH Charger recalled due to bu",
+     [
+      "charger",
+      "power"
+     ],
+     "2025-08-22",
+     "2025-07-17"
+    ],
+    [
+     "eu-SR/00731/26",
+     "FOLDING ELECTRIC KETTLE Electric kettle",
+     "hc-82052",
+     "Zwilling Enfinigy Electric Kettle and Zwilling Enfinigy Electric Kettle Pro reca",
+     [
+      "electric",
+      "kettle"
+     ],
+     "2026-03-13",
+     "2026-05-14"
+    ],
+    [
+     "eu-OR/00066/26",
+     "hoco. MINI PORTABLE TRUE WIRELESS SPEAKER Wireless speaker",
+     "hc-81914",
+     "EcoSmart Fire Stix Portable Fire Pit and Mini T Designer Fireplace recalled due ",
+     [
+      "mini",
+      "portable"
+     ],
+     "2026-05-06",
+     "2026-04-21"
+    ],
+    [
+     "eu-SR/00459/26",
+     "TRAVEL FOLDING ELECTEIC KETTLE Electric kettle",
+     "hc-82052",
+     "Zwilling Enfinigy Electric Kettle and Zwilling Enfinigy Electric Kettle Pro reca",
+     [
+      "electric",
+      "kettle"
+     ],
+     "2026-02-13",
+     "2026-05-14"
+    ],
+    [
+     "eu-SR/03807/25",
+     "Schwarzkopf & Henkel Syoss, Professional Performance, Sanoplex Professional anti",
+     "hc-78149",
+     "Expanded recall: Various Rocco Donna Professional hair products recalled due to ",
+     [
+      "hair",
+      "professional"
+     ],
+     "2025-10-31",
+     "2025-10-02"
+    ],
+    [
+     "eu-SR/03076/25",
+     "Bered Multifunctional emergency radio Emergency radio",
+     "hc-77899",
+     "Wireless microphone component of Foniq Atom wireless party speaker recalled due ",
+     [
+      "emergency",
+      "radio"
+     ],
+     "2025-08-29",
+     "2025-08-15"
+    ],
+    [
+     "eu-SR/00927/26",
+     "Travel electric kettle Electric kettle",
+     "hc-82052",
+     "Zwilling Enfinigy Electric Kettle and Zwilling Enfinigy Electric Kettle Pro reca",
+     [
+      "electric",
+      "kettle"
+     ],
+     "2026-03-04",
+     "2026-05-14"
+    ],
+    [
+     "eu-SR/03586/25",
+     "REBEL LED projector with speaker Wireless LED projector",
+     "hc-77899",
+     "Wireless microphone component of Foniq Atom wireless party speaker recalled due ",
+     [
+      "speaker",
+      "wireless"
+     ],
+     "2025-10-17",
+     "2025-08-15"
+    ],
+    [
+     "eu-SR/00306/26",
+     "Highlands International Solar power generator, 12V, 10W Power generator",
+     "hc-82213",
+     "Super Off-Road 12,000 mAh Solar Wireless Power Bank recalled due to fire hazard",
+     [
+      "power",
+      "solar"
+     ],
+     "2026-06-02",
+     "2026-06-25"
+    ]
+   ]
+  },
+  "eu_to_cpsc_title_tokens_90d": {
+   "matched": 160,
+   "of": 4574,
+   "sample_for_hand_check": [
+    [
+     "eu-SR/04445/25",
+     "Hitway Pedelec Electric bicycle",
+     "cpsc-26330",
+     "Specialized Bicycle Components Recalls Specialized Turbo Como SL Electric Bicycl",
+     [
+      "bicycle",
+      "electric"
+     ],
+     "2025-12-26",
+     "2026-03-19"
+    ],
+    [
+     "eu-SR/02043/26",
+     "Mini Laser stage lighting Laser projector",
+     "cpsc-26673",
+     "KC Imports and Exports Recalls Mini Laser Pointer Keychains Due to Risk of Serio",
+     [
+      "laser",
+      "mini"
+     ],
+     "2026-07-17",
+     "2026-08-06"
+    ],
+    [
+     "eu-SR/00604/26",
+     "Solhaga Garden Solcellsbelysning Solar cell light",
+     "cpsc-26447",
+     "Malker Bicycle Light Sets Recalled Due to Risk of Serious Injury or Death from B",
+     [
+      "cell",
+      "light"
+     ],
+     "2026-02-27",
+     "2026-04-30"
+    ],
+    [
+     "eu-SR/04319/25",
+     "New Energy Batteries Charger Battery charger",
+     "cpsc-26305",
+     "SumDirect LED Mini Lights Recalled Due to Risk of Serious Injury or Death from B",
+     [
+      "batteries",
+      "battery"
+     ],
+     "2025-12-12",
+     "2026-02-26"
+    ],
+    [
+     "eu-SR/01095/26",
+     "GBV-Weco Vuurwerk B.V. Unity of Lights Fireworks",
+     "cpsc-26602",
+     "Winco Fireworks International Recalls Unity 7 Shot 200 Gram Aerial Cake Firework",
+     [
+      "fireworks",
+      "unity"
+     ],
+     "2026-04-17",
+     "2026-07-02"
+    ],
+    [
+     "eu-SR/01995/26",
+     "MoMi Bicycle helmet",
+     "cpsc-26789",
+     "5Color Recalls Children\ufffds Bicycle Helmet and Pads Sets Due to Risk of Serious In",
+     [
+      "bicycle",
+      "helmet"
+     ],
+     "2026-10-07",
+     "2026-09-24"
+    ],
+    [
+     "eu-SR/00058/26",
+     "L\u00b4OREAL PARIS HAIR SPRAY STUDIO SILK A GLOSS Hair spray",
+     "cpsc-26381",
+     "Tuymec Minoxidil Hair Growth Spray Bottles Recalled Due to Risk of Serious Injur",
+     [
+      "hair",
+      "spray"
+     ],
+     "2026-01-16",
+     "2026-04-02"
+    ],
+    [
+     "eu-SR/02386/26",
+     "WONDER FULL POWER Lithium - 5 batteries - 3V Button batteries",
+     "cpsc-26600",
+     "Junpower CR2032 Lithium Coin Batteries Recalled Due to Risk of Serious Injury or",
+     [
+      "batteries",
+      "lithium"
+     ],
+     "2026-04-09",
+     "2026-07-02"
+    ],
+    [
+     "eu-SR/01276/26",
+     "Shenzhen Feixianghang Trading Co Ltd Professional Hair Dryer Hair dryer",
+     "cpsc-26348",
+     "FUNTOK Ride-On Trucks Recalled Due to Fire and Burn Hazards; Risk of Serious Inj",
+     [
+      "shenzhen",
+      "trading"
+     ],
+     "2026-01-05",
+     "2026-03-26"
+    ],
+    [
+     "eu-SR/03427/25",
+     "Iggy Ziggy MUSICAL BUS & SHAPE SORTER Musical toy",
+     "cpsc-25237",
+     "Deals Oasis Recalls Shape Sorter Car Toys Due to Choking Hazard; Violation of Sm",
+     [
+      "shape",
+      "sorter"
+     ],
+     "2025-03-10",
+     "2025-04-24"
+    ],
+    [
+     "eu-SR/01605/26",
+     "Amped Electric Bike Electric bicycle",
+     "cpsc-26330",
+     "Specialized Bicycle Components Recalls Specialized Turbo Como SL Electric Bicycl",
+     [
+      "bicycle",
+      "electric"
+     ],
+     "2026-05-06",
+     "2026-03-19"
+    ],
+    [
+     "eu-SR/00305/26",
+     "*Shenzhen Meiduojiao Technology Co., Ltd.* Straightener steam styler KLY088 Hair",
+     "cpsc-26659",
+     "OCOOPA Direct Recalls 1.5 Million Rechargeable Hand Warmers Due to Risk of Serio",
+     [
+      "shenzhen",
+      "technology"
+     ],
+     "2026-06-02",
+     "2026-07-30"
+    ],
+    [
+     "eu-SR/00185/26",
+     "Jouet en peluche de Capybara de 22 cm/8,66 pouces- Nom figurant sur l'emballage:",
+     "cpsc-26226",
+     "Hobby Lobby Recalls Giraffe and Llama Plush Toys with Clips Due to Choking Hazar",
+     [
+      "plush",
+      "toys"
+     ],
+     "2026-01-30",
+     "2026-01-29"
+    ],
+    [
+     "eu-SR/01345/26",
+     "One Step One STEP Hair Dryer and Styler - Blower Brush Hair dryer brush",
+     "cpsc-26754",
+     "Guang Zhou Recalls Wantefully Hair Dryer Brushes Due to Risk of Serious Injury o",
+     [
+      "dryer",
+      "hair"
+     ],
+     "2026-08-05",
+     "2026-09-10"
+    ],
+    [
+     "eu-SR/00054/26",
+     "Blower brush Interchangeable hot hair styler Hair dryer brush",
+     "cpsc-26046",
+     "J & D Brush Recalls Bio Ionic Hair Curling Irons Due to Burn Hazard",
+     [
+      "brush",
+      "hair"
+     ],
+     "2026-01-16",
+     "2025-10-23"
+    ],
+    [
+     "eu-SR/03003/25",
+     "Power 12 Inch Mini Battery Electric Chainsaw Electric chainsaw",
+     "cpsc-26092",
+     "Tesla Recalls Powerwall 2 AC Battery Power Systems Due to Fire and Burn Hazards;",
+     [
+      "battery",
+      "power"
+     ],
+     "2025-08-15",
+     "2025-11-13"
+    ],
+    [
+     "eu-SR/01410/26",
+     "LEAN Toys Magnetic Stick Magnetic toy set",
+     "cpsc-26436",
+     "Magnetic Stick Figure Sets Recalled Due to Risk of Serious Injury or Death from ",
+     [
+      "magnetic",
+      "stick",
+      "toys"
+     ],
+     "2026-05-15",
+     "2026-04-23"
+    ],
+    [
+     "eu-SR/02715/26",
+     "Fidget pen Magnetic ball point pen",
+     "cpsc-26345",
+     "GLMZZ Fidget Magnet Ball Toys Recalled Due to Risk of Serious Injury or Death fr",
+     [
+      "ball",
+      "fidget"
+     ],
+     "2026-02-10",
+     "2026-03-26"
+    ],
+    [
+     "eu-SR/02388/26",
+     "WARRIORS Lithium Battery Button batteries",
+     "cpsc-26600",
+     "Junpower CR2032 Lithium Coin Batteries Recalled Due to Risk of Serious Injury or",
+     [
+      "batteries",
+      "battery",
+      "lithium"
+     ],
+     "2026-04-09",
+     "2026-07-02"
+    ],
+    [
+     "eu-SR/02781/25",
+     "Head Rush Technologies TRUBLUE iQ and TRUBLUE SPEED Climbing Auto Belays Auto be",
+     "cpsc-25165",
+     "Head Rush Technologies Recalls TRUBLUE iQ and TRUBLUE iQ+ Auto Belays Due to Fal",
+     [
+      "auto",
+      "belays",
+      "head",
+      "rush",
+      "technologies",
+      "trublue"
+     ],
+     "2025-01-08",
+     "2025-02-27"
+    ]
+   ]
+  },
+  "accc_to_hc_title_tokens_90d": {
+   "matched": 13,
+   "of": 100,
+   "sample_for_hand_check": [
+    [
+     "accc-b4c6683c",
+     "Children's Peg Dolls in Cups",
+     "hc-82112",
+     "TheKiddoSpace Peg Dolls in Cups Toy recalled due to choking hazard",
+     [
+      "cups",
+      "dolls"
+     ],
+     "2026-05-15",
+     "2026-05-27"
+    ],
+    [
+     "accc-b7a3c22a",
+     "Qinbeer silicone pull string toys sold through Amazon",
+     "hc-82627",
+     "Pull & Chew Montessori Teething Toys recalled due to choking hazard",
+     [
+      "pull",
+      "toys"
+     ],
+     "2026-09-15",
+     "2026-09-17"
+    ],
+    [
+     "accc-8ab92b1f",
+     "Joolz Aer2 car seat adapter set",
+     "hc-82207",
+     "Joolz Aer2 Car Seat Adapter Set recalled due to fall hazard",
+     [
+      "adapter",
+      "aer2",
+      "joolz",
+      "seat"
+     ],
+     "2026-05-26",
+     "2026-06-18"
+    ],
+    [
+     "accc-cb13b889",
+     "LED soccer hover ball (small)",
+     "hc-82117",
+     "TheKiddoSpace LED Soccer Hover Ball recalled due to burn hazard",
+     [
+      "ball",
+      "hover",
+      "soccer"
+     ],
+     "2026-05-15",
+     "2026-05-27"
+    ],
+    [
+     "accc-1f0dbea8",
+     "GV31 Portable mini projector",
+     "hc-82291",
+     "\u200b\u200bBenQ GV31 Portable Projector\u200b recalled due to burn and fire hazard",
+     [
+      "gv31",
+      "portable",
+      "projector"
+     ],
+     "2026-06-05",
+     "2026-07-30"
+    ],
+    [
+     "accc-d8bde89d",
+     "Children's Christmas Tree Play Set",
+     "hc-82111",
+     "TheKiddoSpace Children\u2019s Christmas Tree Toy Play Sets recalled due to chemical a",
+     [
+      "christmas",
+      "play",
+      "tree"
+     ],
+     "2026-05-15",
+     "2026-05-27"
+    ],
+    [
+     "accc-068a2991",
+     "Kpop Demon Hunters 500mL Double Wall Stainless Steel Drink Bottle \u2013 sold at Offi",
+     "hc-82370",
+     "RAINS Stainless Steel Tumbler recalled due to burn hazard",
+     [
+      "stainless",
+      "steel"
+     ],
+     "2026-05-27",
+     "2026-07-21"
+    ],
+    [
+     "accc-29c2a5fd",
+     "Pull String Interactive Toys",
+     "hc-82627",
+     "Pull & Chew Montessori Teething Toys recalled due to choking hazard",
+     [
+      "pull",
+      "toys"
+     ],
+     "2026-08-18",
+     "2026-09-17"
+    ],
+    [
+     "accc-07e5e420",
+     "RAINS insulated stainless steel tumbler 450ml",
+     "hc-82370",
+     "RAINS Stainless Steel Tumbler recalled due to burn hazard",
+     [
+      "rains",
+      "stainless",
+      "steel",
+      "tumbler"
+     ],
+     "2026-06-17",
+     "2026-07-21"
+    ],
+    [
+     "accc-7da01fbb",
+     "Apeks XL4, XL4+ and Ocea scuba diving second-stage regulator",
+     "hc-82408",
+     "Apeks Scuba Regulators recalled due to risk of inaccurate air supply causing a d",
+     [
+      "apeks",
+      "scuba"
+     ],
+     "2026-07-06",
+     "2026-08-06"
+    ],
+    [
+     "accc-a4341d6f",
+     "Stainless King\u2122 Food Jars",
+     "hc-82252",
+     "Certain Thermos Stainless King Food Jars and Sportsman Food & Beverage Bottles r",
+     [
+      "food",
+      "jars",
+      "king",
+      "stainless"
+     ],
+     "2026-06-03",
+     "2026-06-29"
+    ],
+    [
+     "accc-5364fd76",
+     "Children's sensory swing",
+     "hc-82118",
+     "TheKiddoSpace Children\u2019s Sensory Swing recalled due to strangulation hazard",
+     [
+      "sensory",
+      "swing"
+     ],
+     "2026-05-15",
+     "2026-05-27"
+    ],
+    [
+     "accc-bbfbad15",
+     "Yoyo (M) Portable Bluetooth Speakers",
+     "hc-82647",
+     "Cambridge Audio Yoyo (M) Portable Bluetooth Speakers recalled due to fire hazard",
+     [
+      "bluetooth",
+      "portable",
+      "speakers",
+      "yoyo"
+     ],
+     "2026-09-29",
+     "2026-09-22"
+    ]
+   ]
+  },
+  "accc_to_cpsc_title_tokens_90d": {
+   "matched": 23,
+   "of": 100,
+   "sample_for_hand_check": [
+    [
+     "accc-b7a3c22a",
+     "Qinbeer silicone pull string toys sold through Amazon",
+     "cpsc-26671",
+     "Little Rawr Pull String Teething Toys Recalled Due to Risk of Serious Injury or ",
+     [
+      "amazon",
+      "pull",
+      "string",
+      "toys"
+     ],
+     "2026-09-15",
+     "2026-08-06"
+    ],
+    [
+     "accc-4b49280a",
+     "Jollybaby baby sensory pull string toy whale",
+     "cpsc-26671",
+     "Little Rawr Pull String Teething Toys Recalled Due to Risk of Serious Injury or ",
+     [
+      "pull",
+      "string"
+     ],
+     "2026-08-03",
+     "2026-08-06"
+    ],
+    [
+     "accc-1f0dbea8",
+     "GV31 Portable mini projector",
+     "cpsc-26647",
+     "BenQ America Recalls GV31 Portable Projectors Due to Risk of Serious Injury or D",
+     [
+      "gv31",
+      "portable"
+     ],
+     "2026-06-05",
+     "2026-07-30"
+    ],
+    [
+     "accc-d8bde89d",
+     "Children's Christmas Tree Play Set",
+     "cpsc-26300",
+     "TheKiddoSpace Recalls Children's Christmas Tree Play Sets Due to Risk of Injury ",
+     [
+      "christmas",
+      "play",
+      "tree"
+     ],
+     "2026-05-15",
+     "2026-02-26"
+    ],
+    [
+     "accc-31c2981a",
+     "Baby Sensory Activity Toys",
+     "cpsc-26780",
+     "Melissa & Doug Recalls Fire Truck Activity Board Toys Due to Risk of Serious Inj",
+     [
+      "activity",
+      "toys"
+     ],
+     "2026-09-18",
+     "2026-09-17"
+    ],
+    [
+     "accc-2fc23161",
+     "Glow Crown Headbands with LED battery pack",
+     "cpsc-26662",
+     "OKK Trading Recalls Easter LED Headbands Due to Risk of Serious Injury or Death ",
+     [
+      "battery",
+      "headbands"
+     ],
+     "2026-07-31",
+     "2026-08-06"
+    ],
+    [
+     "accc-07e5e420",
+     "RAINS insulated stainless steel tumbler 450ml",
+     "cpsc-26343",
+     "DuraTrac Recalls Stainless Steel Gas Connectors Due to Fire Hazard",
+     [
+      "stainless",
+      "steel"
+     ],
+     "2026-06-17",
+     "2026-03-26"
+    ],
+    [
+     "accc-068a2991",
+     "Kpop Demon Hunters 500mL Double Wall Stainless Steel Drink Bottle \u2013 sold at Offi",
+     "cpsc-26343",
+     "DuraTrac Recalls Stainless Steel Gas Connectors Due to Fire Hazard",
+     [
+      "stainless",
+      "steel"
+     ],
+     "2026-05-27",
+     "2026-03-26"
+    ],
+    [
+     "accc-7da01fbb",
+     "Apeks XL4, XL4+ and Ocea scuba diving second-stage regulator",
+     "cpsc-26677",
+     "Head Watersports Recalls Apeks Second Stage Scuba Regulators Recalled Due to Ris",
+     [
+      "apeks",
+      "scuba"
+     ],
+     "2026-07-06",
+     "2026-08-06"
+    ],
+    [
+     "accc-29c2a5fd",
+     "Pull String Interactive Toys",
+     "cpsc-26671",
+     "Little Rawr Pull String Teething Toys Recalled Due to Risk of Serious Injury or ",
+     [
+      "pull",
+      "string",
+      "toys"
+     ],
+     "2026-08-18",
+     "2026-08-06"
+    ],
+    [
+     "accc-5f875772",
+     "Mondraker ONOFF S9 carbon MTB handlebar",
+     "cpsc-26746",
+     "MONDRAKER USA Recalls Mountain Bicycles Equipped with ONOFF S9 Carbon MTB Handle",
+     [
+      "carbon",
+      "mondraker",
+      "onoff"
+     ],
+     "2026-07-24",
+     "2026-09-03"
+    ],
+    [
+     "accc-1f51e2cc",
+     "Babybee toddler board with detachable seat",
+     "cpsc-26775",
+     "Esjay US Recalls Toddler Busy Board Montessori Toys Due to Risk of Serious Injur",
+     [
+      "board",
+      "toddler"
+     ],
+     "2026-08-21",
+     "2026-09-17"
+    ],
+    [
+     "accc-bbfbad15",
+     "Yoyo (M) Portable Bluetooth Speakers",
+     "cpsc-26731",
+     "Audio Partnership Recalls Cambridge Audio Yoyo (M) Portable Bluetooth Speakers D",
+     [
+      "bluetooth",
+      "portable",
+      "speakers",
+      "yoyo"
+     ],
+     "2026-09-29",
+     "2026-09-03"
+    ],
+    [
+     "accc-2b980a2c",
+     "Nevenka Baby pull string giraffe toy",
+     "cpsc-26671",
+     "Little Rawr Pull String Teething Toys Recalled Due to Risk of Serious Injury or ",
+     [
+      "pull",
+      "string"
+     ],
+     "2026-08-12",
+     "2026-08-06"
+    ],
+    [
+     "accc-a4341d6f",
+     "Stainless King\u2122 Food Jars",
+     "cpsc-26444",
+     "Thermos Recalls 8.2 Million Stainless King Food Jars and Bottles Due to Serious ",
+     [
+      "food",
+      "jars",
+      "king",
+      "stainless"
+     ],
+     "2026-06-03",
+     "2026-04-30"
+    ],
+    [
+     "accc-cb13b889",
+     "LED soccer hover ball (small)",
+     "cpsc-26298",
+     "TheKiddoSpace Recalls LED Soccer Hover Balls Due to Serious Risk of Injury from ",
+     [
+      "hover",
+      "soccer"
+     ],
+     "2026-05-15",
+     "2026-02-26"
+    ],
+    [
+     "accc-63349b35",
+     "XL magnetic building blocks",
+     "cpsc-26686",
+     "Goody King Magnetic Building Cubes and Blocks Recalled Due to Risk of Serious In",
+     [
+      "blocks",
+      "building",
+      "magnetic"
+     ],
+     "2026-09-02",
+     "2026-08-13"
+    ],
+    [
+     "accc-74e2d49c",
+     "Courant Kalimba arborist rope range",
+     "cpsc-26675",
+     "Wichard Groupe North America Recalls Courant Spliced Kalimba Climbing Ropes Due ",
+     [
+      "courant",
+      "kalimba"
+     ],
+     "2026-07-03",
+     "2026-08-06"
+    ],
+    [
+     "accc-fa7d2ae7",
+     "Love to Dream Sleep Machine",
+     "cpsc-26798",
+     "Love To Dream Recalls Portable Sleep Machines Due to Risk of Injury from Fire an",
+     [
+      "dream",
+      "love",
+      "sleep"
+     ],
+     "2026-09-08",
+     "2026-09-24"
+    ],
+    [
+     "accc-5364fd76",
+     "Children's sensory swing",
+     "cpsc-26301",
+     "TheKiddoSpace Recalls Children's Sensory Swing Due to Risk of Serious Injury or ",
+     [
+      "sensory",
+      "swing"
+     ],
+     "2026-05-15",
+     "2026-02-26"
+    ]
+   ]
+  }
+ }
+}
