@@ -77,7 +77,7 @@ res['uk'] = {'collected': len(ukr), 'index_total': json.load(open(f'{R}/uk/uk_in
 # ---- EU Safety Gate ----
 eur = []
 for f in glob.glob(f'{R}/sg/*.xml'):
-    t = open(f, encoding='utf-8').read(); rd = re.search(r'<report_date>([^<]+)', t); rdt = d(rd.group(1)) if rd else None
+    t = open(f, encoding='utf-8').read(); rd = re.search(r'<report_date>([^<]+)', t); rdt = dt.datetime.strptime(rd.group(1), '%d/%m/%Y').date() if rd else None
     for n in re.findall(r'<notifications[\s\S]*?</notifications>', t):
         g = lambda tag: (lambda m: strip(m.group(1)) if m else '')(re.search(rf'<{tag}>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?</{tag}>', n))
         txt = ' '.join(g(k) for k in ('product', 'brand', 'name', 'description', 'danger', 'measures'))

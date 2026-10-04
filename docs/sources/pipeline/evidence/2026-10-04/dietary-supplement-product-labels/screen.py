@@ -9,19 +9,26 @@ W = '/tmp/dsp'; os.makedirs(W, exist_ok=True)
 R = {}
 
 
-def get(url, timeout=60, raw=False):
-    time.sleep(0.6)
-    req = urllib.request.Request(url, headers=UA)
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            b = r.read()
-            if r.headers.get('Content-Encoding') == 'gzip':
-                b = gzip.decompress(b)
-            return r.status, b if raw else b.decode('utf8', 'replace')
-    except urllib.error.HTTPError as e:
-        return e.code, ''
-    except Exception as e:  # noqa
-        return 0, str(e)
+def get(url, timeout=60, raw=False, tries=3):
+    for k in range(tries):
+        time.sleep(0.6)
+        req = urllib.request.Request(url, headers=UA)
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                b = r.read()
+                if r.headers.get('Content-Encoding') == 'gzip':
+                    b = gzip.decompress(b)
+                if not b and k < tries - 1:
+                    continue
+                return r.status, b if raw else b.decode('utf8', 'replace')
+        except urllib.error.HTTPError as e:
+            if e.code in (404, 400):
+                return e.code, ''
+            last = (e.code, '')
+        except Exception as e:  # noqa
+            last = (0, str(e))
+        time.sleep(2)
+    return last
 
 
 def gtin_ok(code):
@@ -58,7 +65,9 @@ for i in ids:
     st, b = get(f'{A}/label/{i}')
     if st == 200:
         try:
-            labels.append(json.loads(b))
+            o = json.loads(b)
+            if isinstance(o, dict) and o.get('id'):
+                labels.append(o)
         except Exception:
             pass
     if len(labels) >= 60:
@@ -91,7 +100,9 @@ npn_labels = []
 for i in npn_ids[:120]:
     st, bb = get(f'{A}/label/{i}')
     if st == 200:
-        npn_labels.append(json.loads(bb))
+        o = json.loads(bb)
+        if isinstance(o, dict) and o.get('id'):
+            npn_labels.append(o)
 NPN_RE = re.compile(r'(?i)(?:NPN|Natural Product Number)[^0-9]{0,12}(\d{8})')
 npn_found = []
 for l in npn_labels:
