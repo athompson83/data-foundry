@@ -7066,6 +7066,52 @@ candidates:
       }
     evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
     next_action: Parked 2026-10-04 on HTTP 502 proxy errors (three attempts); retest later, as the Envirofacts SDWIS tables serve the same data.
+  - key: mx-red-alerta-rapida-alertas-gob-mx
+    name: Mexico Red de Alerta Rapida (PROFECO consumer-product alerts, alertas.gob.mx)
+    category: product-safety
+    structuring: normalization
+    format: free-text
+    publisher: Mexico PROFECO (Red de Alerta Rapida)
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      [
+        'https://alertas.gob.mx/alertas.php?site=RAR&filtro=PROFECO',
+        'https://alertas.gob.mx/detallealerta.php?site=RAR&alerta=739',
+        'https://www.gob.mx/terminos'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - {
+          url: 'https://www.gob.mx/terminos',
+          quote: 'Se autoriza al Usuario a visualizar y descargar los materiales contenidos en el sitio solamente para su uso personal y no para un uso comercial.'
+        }
+      - {
+          url: 'https://www.gob.mx/terminos',
+          quote: 'La información del portal gob.mx es pública a menos que se indique lo contrario, en cuyo caso antes de reproducirla, deberás observar si tiene derechos reservados y respetarlos en términos de las normas relativas a derechos de autor y propiedad industrial.'
+        }
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-10-04.md,
+        docs/sources/pipeline/evidence/2026-10-04/recalls-widening/notes.md
+      ]
+    next_action: >-
+      PARKED 2026-10-04: reachable and structured (listing 168 alerts per page, ids up to 1291, newest 2026-09-22; detail
+      fields Organismo notificador, Fecha, Marca, Modelo, Categoria, Riesgo, Descripcion with units sold in Mexico, the
+      US and worldwide), and CPSC declares links to it (7 CPSC recalls cite an alertas.gob.mx alert, 6 detail pages
+      resolve, all 6 same firm, 5/6 identical product; HC joint-recall text names PROFECO in 9 notices), but the gob.mx
+      terms restrict materials to personal, non-commercial use and alertas.gob.mx has no licence page (footer says
+      Derechos Reservados). Unblock only with a published Libre Uso MX or open-data licence for the RAR dataset or a
+      written permission; until then record the cited URLs as links and ingest nothing.
 
 datasets:
   - key: home-product-recalls-global
@@ -7732,6 +7778,14 @@ datasets:
           other 50 stay unlinked candidates (341/352 matched as candidates in round 3, 25/25 correct)
         mode: candidate
         reviewed: { correct: 25, checked: 25 }
+      - key: cited legacy Health Canada notice URL (CPSC Inconjunctions[].URL on healthycanadians.gc.ca, resolved by its redirect to the recalls-rappels.canada.ca notice URL)
+        between:
+          - cpsc-recalls
+          - health-canada-consumer-product-recalls
+        measured: 831/834 CPSC recalls citing a healthycanadians.gc.ca recall URL redirect (one HEAD each, 834/834 answered 200)
+          to a Consumer product safety notice in the Health Canada open-data index of 2026-10-04 (CPSC list 2026-10-04,
+          10,027 recalls); none of the 831 also cites a current URL, so they add to the 342/371 already linked
+        mode: declared
     taxonomy:
       - "agency: CPSC | HC; jurisdiction: US | CA"
       - "hazard: fire | burn | electric-shock | carbon-monoxide | explosion | laceration | fall | tip-over |
@@ -7769,6 +7823,12 @@ datasets:
       acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
       and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
       check refused the write); it is routine verification, not an owner decision.
+      2026-10-04 widening round 2 (evidence/2026-10-04/recalls-widening): resolve the 834 legacy Health Canada
+      citations at ingest (about +831 declared links, 343 to about 1,174); treat the CPSC API HTTP-200 error body as
+      a failed fetch and split the window; add CPSC recall 15190 (in the SaferProducts export, absent from the API
+      list); persist Transport Canada, PROFECO and ACCC citations; widen the Health Canada organisation filter
+      (about 93 consumer-type notices sit under other organisation values). PROFECO's Red de Alerta Rapida is
+      PARKED on its gob.mx terms.
   - key: sanctions-designations-global
     name: Global sanctions designations (OFAC, UN Security Council, EU, UK) with cited-reference links
     category: regulatory

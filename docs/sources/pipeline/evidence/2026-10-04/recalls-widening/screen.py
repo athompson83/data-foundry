@@ -48,6 +48,12 @@ res['hc'] = {'index_records': len(hc_all), 'by_organisation': dict(org), 'consum
              'last_updated_min': min(r['Last updated'] for r in hc if r['Last updated']), 'last_updated_max': max(r['Last updated'] for r in hc if r['Last updated']),
              'fields': list(hc_all[0].keys()), 'with_gtin_in_title_product_issue': sum(1 for x in hcr if x['g']), 'joint_marker': sum(1 for x in hcr if x['joint']), 'profeco_named_in_joint_text': sum(1 for x in hcr if x['profeco']),
              'consumer_categories': dict(collections.Counter(r['Category'] for r in hc).most_common(30))}
+
+# Consumer-type notices filed under another HC organisation value (the Worker keeps only Organization == "Consumer product safety")
+cps_cats = {r['Category'] for r in hc if r['Category']}
+other = [r for r in hc_all if r['Organization'] != 'Consumer product safety' and r['Organization'] not in ('TC', 'CFIA', 'Medical devices')]
+miss = [r for r in other if (r['Category'] in cps_cats and r['Category'] not in ('Drugs', 'Food', 'Medical devices', 'Other', 'Natural health products', 'Biologic or vaccine')) or (r['Category'] or '').startswith('Consumer products')]
+res['hc']['consumer_type_notices_under_other_organisations'] = {'count': len(miss), 'by_org_category': {f"{o} | {c}": n for (o, c), n in collections.Counter((r['Organization'], r['Category']) for r in miss).most_common(12)}, 'examples': [(r['NID'], strip(r['Title'])[:70], r['Last updated']) for r in miss[:5]]}
 # ---- CPSC Recall API list (cpsc_collect.py; windows split when the API answers its HTTP-200 error body) ----
 cj = json.load(open(f'{R}/cpsc.json'))
 cpr = []
@@ -89,7 +95,7 @@ for f in glob.glob(f'{R}/sg/*.xml'):
         g = lambda tag: (lambda m: strip(m.group(1)) if m else '')(re.search(rf'<{tag}>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?</{tag}>', n))
         txt = ' '.join(g(k) for k in ('product', 'brand', 'name', 'description', 'danger', 'measures'))
         bc = g('barcode')
-        eur.append({'id': 'eu-' + g('caseNumber'), 'title': ' '.join(x for x in (g('brand'), g('name'), g('product')) if x), 'date': rdt, 'g': gtins(bc) | gtins(g('description')), 'barcode_field': bc, 'model': g('type_numberOfModel'), 'toks': toks(g('brand') + ' ' + g('name') + ' ' + g('product')), 'text': txt,
+        eur.append({'id': 'eu-' + g('caseNumber'), 'title': ' '.join(x for x in (g('brand'), g('name'), g('product')) if x), 'date': rdt, 'g': gtins(bc) | gtins(g('description')), 'barcode_field': bc, 'model': g('type_numberOfModel'), 'brand': g('brand'), 'toks': toks(g('brand') + ' ' + g('name') + ' ' + g('product')), 'text': txt,
                     'url_recall': g('URLrecall'), 'company_code': g('companyRecallCode'), 'country': g('notifyingCountry'), 'category': g('category'),
                     'cites': {k: bool(re.search(p, txt + ' ' + g('URLrecall'), re.I)) for k, p in {'cpsc': r'cpsc|consumer product safety commission|saferproducts', 'health_canada': r'health canada|recalls-rappels', 'profeco': r'profeco'}.items()}})
 res['eu'] = {'weekly_reports_read': len(glob.glob(f'{R}/sg/*.xml')), 'notifications': len(eur), 'date_min': str(min((x['date'] for x in eur if x['date']), default='')), 'date_max': str(max((x['date'] for x in eur if x['date']), default='')),
@@ -140,7 +146,52 @@ for nm, A in (('uk', ukr), ('eu', eur), ('accc', acr)):
         c = cand_join(A, B)
         cands[f'{nm}_to_{ag.lower()}'] = c
         links[f'{nm}_to_{ag.lower()}_title_tokens_90d'] = {'matched': len(c), 'of': len(A), 'sample_for_hand_check': [(a['id'], a['title'][:80], b['id'], b['title'][:80], t, str(a['date']), str(b['date'])) for a, b, t in random.sample(c, min(20, len(c)))]}
+
+# candidate: EU Safety Gate brand field appears as a whole word in a CPSC/HC title, plus >=1 shared product token, dates within 120 days
+GEN = {'unknown', 'no brand', 'not available', 'n/a', 'none', 'generic', 'various', 'other', 'noname', 'no name', 'unbranded'}
+def brand_join(A, B, win=120):
+    out = []
+    for x in A:
+        b = re.sub(r'[^a-z0-9 ]', '', (x.get('brand') or '').lower()).strip()
+        if len(b) < 4 or b in GEN or not x['date']: continue
+        rx = re.compile(r'(?<![a-z0-9])' + re.escape(b) + r'(?![a-z0-9])')
+        best = None
+        for y in B:
+            if not y['date'] or abs((x['date'] - y['date']).days) > win: continue
+            if rx.search(re.sub(r'[^a-z0-9 ]', '', y['title'].lower())):
+                c = (x['toks'] - toks(x['brand'])) & y['toks']
+                if c: best = (y, sorted(c)); break
+        if best: out.append((x, best[0], best[1]))
+    return out
+for ag, B in na.items():
+    c = brand_join(eur, B)
+    links[f'eu_to_{ag.lower()}_brand_plus_product_token_120d'] = {'matched': len(c), 'distinct_eu_notices': len({x[0]['id'] for x in c}), 'of': len(eur), 'sample_for_hand_check': [(a['id'], a['title'][:80], b['id'], b['title'][:80], t, str(a['date']), str(b['date'])) for a, b, t in random.sample(c, min(20, len(c)))]}
 res['links'] = links
-json.dump(res, open(f'{OUT}/results.json', 'w'), indent=1, default=str)
+
+# Hand-check verdicts on the seeded samples, in the order of results.json sample_for_hand_check (c = same recall, i = different, u = not confirmable from the fields).
+HAND = {'uk_to_cpsc_title_tokens_90d': 'iciciiiiiiciiiccicci', 'uk_to_hc_title_tokens_90d': 'uicccicccucciiiciiii', 'eu_to_hc_title_tokens_90d': 'iiiiiiiiiiiiiiiiiiii', 'eu_to_cpsc_title_tokens_90d': 'iiiiiiciiuiciciuiuii', 'eu_to_hc_brand_plus_product_token_120d': 'cccicccicccccccuiccc', 'eu_to_cpsc_brand_plus_product_token_120d': 'cciccuucucccccicucii'}
+for k, verdicts in HAND.items():
+    sm = links[k]['sample_for_hand_check']
+    assert len(sm) == len(verdicts) == 20, k
+    links[k]['hand_verdicts'] = verdicts
+    links[k]['reviewed'] = {'correct': verdicts.count('c'), 'checked': len(verdicts), 'not_confirmable': verdicts.count('u')}
+
+# ---- declared CPSC -> Health Canada through legacy healthycanadians.gc.ca URLs (legacy_resolve.py) and CPSC -> PROFECO (profeco_probe) ----
+lg = json.load(open(f'{R}/legacy_resolve.json'))
+cur = collections.defaultdict(set)
+for r in cj:
+    for i in r.get('Inconjunctions') or []:
+        u = (i.get('URL') or '').strip().lower()
+        if 'recalls-rappels.canada.ca/en/alert-recall/' in u or 'recalls-rappels.canada.ca/fr/avis-rappel/' in u: cur[r['RecallNumber']].add(u.split('?')[0].rstrip('/'))
+legacy_recalls = {x['recall'] for x in lg}
+res['links']['cpsc_to_hc_legacy_url_declared'] = {'cpsc_recalls_citing_legacy_url': len(legacy_recalls), 'urls_resolved': len(lg), 'http_200': sum(1 for x in lg if x['status'] == '200'),
+    'resolve_to_hc_consumer_notice_in_index': sum(1 for x in lg if x['in_consumer_index']), 'distinct_cpsc_recalls_resolving': len({x['recall'] for x in lg if x['in_consumer_index']}),
+    'of_those_also_citing_a_current_recalls_rappels_url': len({x['recall'] for x in lg if x['in_consumer_index']} & set(cur)), 'unresolved': [(x['recall'], x['cited'][-45:], x['status'], x['final'][:80]) for x in lg if not x['in_consumer_index']],
+    'cpsc_recalls_citing_current_recalls_rappels_url': len(cur), 'mode': 'declared'}
+pf = json.load(open(f'{R}/profeco_probe.json')) if os.path.exists(f'{R}/profeco_probe.json') else []
+res['links']['cpsc_to_profeco_declared'] = {'cpsc_recalls_with_alertas_gob_mx_detail_url': len(pf), 'detail_pages_found': sum(1 for x in pf if x['profeco']), 'hand_checked': {'same_firm': 6, 'identical_product': 5, 'checked': 6, 'not_confirmable': 1},
+    'cpsc_inconjunction_hosts_gob_mx_family': {k: v for k, v in hosts.items() if 'gob.mx' in k}, 'hc_notices_naming_profeco_in_joint_text': res['hc']['profeco_named_in_joint_text'], 'rows': pf}
+json.dump(res, open(f'{OUT}/results.json', 'w'), indent=1, default=str, ensure_ascii=False)
+print(json.dumps(res['links']['cpsc_to_hc_legacy_url_declared'], indent=1)[:1500])
 print(json.dumps({k: v for k, v in res.items() if k != 'links'}, indent=1, default=str)[:6000])
 for k, v in links.items(): print(k, {a: b for a, b in v.items() if a != 'sample_for_hand_check'})

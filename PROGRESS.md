@@ -1,5 +1,15 @@
 # Progress
 
+## Current session — 2026-10-04: daily dataset scout (round 6)
+
+- **Health.** FDA Recall Intelligence last sync 2026-10-04T12:17Z, newest report 2026-09-23 (openFDA `last_updated` 2026-09-23); D1 29,461 / 17,986 / 40,056 vs openFDA 29,463 / 17,988 / 40,057 (the known 2/2/1 placeholder records). North American Consumer Product Recalls last sync CPSC and HC 12:17Z; newest CPSC 2026-09-24, HC 2026-10-01. No regression.
+- **Added at SCREENED (7):** charity-nonprofit-registry, pesticide-product-labels (no free-text member yet), medical-device-adverse-events, rail-accident-investigations, pipeline-hazmat-incidents, dietary-supplement-product-labels, water-system-compliance (see research-2026-10-04.md for links and caveats; most links are candidate-only). Parked members: ProPublica (RED), Swissmedic (RED), PHMSA, TSB Canada, ATSB, ERA, EPA PPLS, EU pesticides, TGA, BfArM, EPA ECHO REST, PROFECO (UNKNOWN).
+- **Widening.** Declared join added to consumer-product-recalls-north-america: 831/834 CPSC recalls citing legacy healthycanadians.gc.ca URLs resolve to a Health Canada notice (about +831 links, not yet ingested). Mexico PROFECO parked (gob.mx personal-use terms).
+- **Capture gap fixed.** The recalls Worker treated a CPSC HTTP 200 error body as an empty successful window; it now fails the run (test added). Open gaps recorded in the dataset next_action: CPSC recall 15190, Health Canada organisation filter, TC/PROFECO/ACCC citations.
+- **Advanced.** fda-device-510k-pma-clearances: GREEN rights record and R2 snapshot plan. federal-register-obligations still waits for PR #88 to merge so the archive can run.
+- **Verified locally.** `npx vitest run tooling/test/source-pipeline.test.ts` (2452 pass), `apps/recalls-worker` (143 pass), recalls-worker typecheck. Nothing deployed.
+- **Disclosures.** Some agents fetched files over the 50 MB guideline (MDALL 422 MB, LNHPD 148 MB); measured only, deleted.
+
 ## Current session — 2026-10-03: daily dataset scout (round 5)
 
 - **Health.** FDA Recall Intelligence last sync 2026-10-03T12:18Z, newest report 2026-09-23 (openFDA `last_updated` 2026-09-23); D1 29,461 / 17,986 / 40,056 vs openFDA 29,463 / 17,988 / 40,057 (the known 2/2/1 placeholder records). North American Consumer Product Recalls last sync CPSC 00:19Z, HC 12:18Z; newest CPSC 2026-09-24 and HC 2026-10-01 match the sources. No regression. Capture check: raw response bytes are archived in R2 before parsing and both agencies are read as full-history passes; no gap found.
