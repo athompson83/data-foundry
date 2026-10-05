@@ -12,7 +12,8 @@ import {
   stubFetch,
 } from './helpers.js';
 
-const BASE_URL = 'http://crawl4ai.internal:11235';
+const BASE_URL = 'http://127.0.0.1:11235';
+const REMOTE_BASE_URL = 'https://crawl4ai.internal';
 const childRequest = () => makeRequest({
   resultUrlPolicy: {
     allowedOrigins: [new URL(TARGET_URL).origin],
@@ -72,13 +73,48 @@ describe('Crawl4AI provider — configuration', () => {
     const api = stubFetch(() => results({ success: true, results: [] }));
     const provider = new Crawl4AIAcquisitionProvider({
       deps: harness.deps,
-      baseUrl: BASE_URL,
+      baseUrl: REMOTE_BASE_URL,
       apiToken: 'secret',
       fetch: api.fetch,
     });
 
     await provider.fetch(makeRequest());
+    expect(api.calls[0]?.url).toBe(`${REMOTE_BASE_URL}/crawl`);
     expect(api.calls[0]?.init?.headers?.['authorization']).toBe('Bearer secret');
+  });
+
+  it('requires authentication for a non-loopback service', () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    expect(
+      () =>
+        new Crawl4AIAcquisitionProvider({
+          deps: harness.deps,
+          baseUrl: REMOTE_BASE_URL,
+          fetch: stubFetch(() => results({ success: true, results: [] })).fetch,
+        }),
+    ).toThrow(/require an API token/i);
+  });
+
+  it('refuses Docker API fields that v0.9 rejects at the network boundary', () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    expect(
+      () =>
+        new Crawl4AIAcquisitionProvider({
+          deps: harness.deps,
+          baseUrl: BASE_URL,
+          browserConfig: { headers: { 'x-test': 'forbidden' } },
+          fetch: stubFetch(() => results({ success: true, results: [] })).fetch,
+        }),
+    ).toThrow(/browser_config field.*headers/i);
+    expect(
+      () =>
+        new Crawl4AIAcquisitionProvider({
+          deps: harness.deps,
+          baseUrl: BASE_URL,
+          crawlerConfig: { js_code: 'document.body.innerHTML' },
+          fetch: stubFetch(() => results({ success: true, results: [] })).fetch,
+        }),
+    ).toThrow(/crawler_config field.*js_code/i);
   });
 
   it('forwards the crawler identity to the service', async () => {
@@ -93,11 +129,15 @@ describe('Crawl4AI provider — configuration', () => {
     await provider.fetch(makeRequest());
 
     const payload = JSON.parse(api.calls[0]?.init?.body ?? '{}') as {
-      browser_config?: { user_agent?: string };
-      crawler_config?: { headers?: Record<string, string> };
+      browser_config?: { type?: string; params?: { user_agent?: string } };
+      crawler_config?: { type?: string; params?: { headers?: Record<string, string> } };
     };
-    expect(payload.browser_config?.user_agent).toBe('DataFoundryBot/test');
-    expect(payload.crawler_config?.headers).toBeUndefined();
+    expect(payload.browser_config).toMatchObject({
+      type: 'BrowserConfig',
+      params: { user_agent: 'DataFoundryBot/test' },
+    });
+    expect(payload.crawler_config?.type).toBe('CrawlerRunConfig');
+    expect(payload.crawler_config?.params?.headers).toBeUndefined();
   });
 
   it('refuses source-specific headers instead of sending forbidden network config', async () => {
