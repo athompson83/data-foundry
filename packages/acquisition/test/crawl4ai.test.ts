@@ -95,6 +95,32 @@ describe('Crawl4AI provider — configuration', () => {
     ).toThrow(/require an API token/i);
   });
 
+  it('treats a blank token as missing for a non-loopback service', () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    expect(
+      () =>
+        new Crawl4AIAcquisitionProvider({
+          deps: harness.deps,
+          baseUrl: REMOTE_BASE_URL,
+          apiToken: '   ',
+          fetch: stubFetch(() => results({ success: true, results: [] })).fetch,
+        }),
+    ).toThrow(/require an API token/i);
+  });
+
+  it('requires an absolute service URL even when a token is configured', () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    expect(
+      () =>
+        new Crawl4AIAcquisitionProvider({
+          deps: harness.deps,
+          baseUrl: 'crawl4ai.internal',
+          apiToken: 'secret',
+          fetch: stubFetch(() => results({ success: true, results: [] })).fetch,
+        }),
+    ).toThrow(/absolute URL/i);
+  });
+
   it('refuses Docker API fields that v0.9 rejects at the network boundary', () => {
     const harness = makeHarness({ entry: crawl4aiEntry() });
     expect(
