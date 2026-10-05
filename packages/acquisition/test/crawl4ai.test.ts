@@ -93,9 +93,26 @@ describe('Crawl4AI provider — configuration', () => {
     await provider.fetch(makeRequest());
 
     const payload = JSON.parse(api.calls[0]?.init?.body ?? '{}') as {
+      browser_config?: { user_agent?: string };
       crawler_config?: { headers?: Record<string, string> };
     };
-    expect(payload.crawler_config?.headers?.['user-agent']).toBe('DataFoundryBot/test');
+    expect(payload.browser_config?.user_agent).toBe('DataFoundryBot/test');
+    expect(payload.crawler_config?.headers).toBeUndefined();
+  });
+
+  it('refuses source-specific headers instead of sending forbidden network config', async () => {
+    const harness = makeHarness({ entry: crawl4aiEntry() });
+    const api = stubFetch(() => results({ success: true, results: [] }));
+    const provider = new Crawl4AIAcquisitionProvider({
+      deps: harness.deps,
+      baseUrl: BASE_URL,
+      fetch: api.fetch,
+    });
+
+    await expect(
+      provider.fetch(makeRequest({ headers: { 'x-source-token': 'secret' } })),
+    ).rejects.toThrow(/does not support source-specific request headers/i);
+    expect(api.calls).toHaveLength(0);
   });
 });
 
