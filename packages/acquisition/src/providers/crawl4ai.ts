@@ -106,6 +106,16 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
     };
     const signal = timeoutSignal(context.request.timeoutMs ?? this.#timeoutMs);
 
+    // Crawl4AI Docker API v0.9+ treats the request body as an untrusted boundary.
+    // Request-supplied `headers` are rejected; the crawler identity is one of the
+    // allowed declarative browser fields. Source-specific custom headers therefore
+    // cannot be represented safely by this remote adapter.
+    if (Object.keys(context.request.headers ?? {}).length > 0) {
+      throw new AcquisitionConfigurationError(
+        'Crawl4AI remote acquisition does not support source-specific request headers; configure the source with a supported acquisition method instead.',
+      );
+    }
+
     const response = await this.#fetch(`${this.#baseUrl}/crawl`, {
       method: 'POST',
       headers: {
@@ -114,11 +124,13 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
       },
       body: JSON.stringify({
         urls: [context.request.url],
-        browser_config: this.#browserConfig,
-        crawler_config: {
-          ...this.#crawlerConfig,
-          ...(Object.keys(context.headers).length > 0 ? { headers: context.headers } : {}),
+        browser_config: {
+          ...this.#browserConfig,
+          // v0.9+ permits the scalar user_agent field while rejecting arbitrary
+          // request headers. This preserves Data Foundry's declared crawler identity.
+          user_agent: context.userAgent,
         },
+        crawler_config: this.#crawlerConfig,
       }),
       ...(signal !== undefined ? { signal } : {}),
     });
