@@ -108,8 +108,9 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
     }
     this.#fetch = requireFetch('crawl4ai', options.fetch);
     this.#baseUrl = options.baseUrl.replace(/\/+$/, '');
-    this.#apiToken = options.apiToken ?? null;
-    if (this.#apiToken === null && !isLoopbackService(this.#baseUrl)) {
+    const serviceUrl = parseServiceUrl(this.#baseUrl);
+    this.#apiToken = options.apiToken?.trim() || null;
+    if (this.#apiToken === null && !isLoopbackService(serviceUrl)) {
       throw new AcquisitionConfigurationError(
         'Crawl4AI remote services require an API token; tokenless mode is allowed only on loopback.',
       );
@@ -280,13 +281,15 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
   }
 }
 
-function isLoopbackService(baseUrl: string): boolean {
-  let parsed: URL;
+function parseServiceUrl(baseUrl: string): URL {
   try {
-    parsed = new URL(baseUrl);
+    return new URL(baseUrl);
   } catch {
     throw new AcquisitionConfigurationError('Crawl4AI base URL must be an absolute URL.');
   }
+}
+
+function isLoopbackService(parsed: URL): boolean {
   const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '');
   return host === 'localhost' || host === '127.0.0.1' || host === '::1';
 }
