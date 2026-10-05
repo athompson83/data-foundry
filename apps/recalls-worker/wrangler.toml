@@ -47,7 +47,7 @@ PRODUCT_RECALLS_OPEN = "1"
 PRODUCT_RECALLS_KILL_SWITCH = "0"
 # Local-collector extraction intake (ADR-0017). Opened 2026-09-30 at the owner's direction: submissions are checked
 # and stored, never published by this gate alone, and each needs an ingestion credential (/admin/ingest-credentials).
-# EXTRACTED_IDENTIFIERS_OPEN publishes accepted candidates only after the benchmark's quality bar is met.
+# EXTRACTED_IDENTIFIERS_OPEN publishes accepted candidates only after the benchmark's quality bar is met; opened 2026-10-05 after the pinned build passed that bar.
 # INTAKE_WITHDRAWN_SOURCES lists source keys whose submissions are refused (a per-source withdrawal).
 COLLECTOR_INTAKE_OPEN = "1"
 EXTRACTED_IDENTIFIERS_OPEN = "1"
