@@ -1,5 +1,15 @@
 # Progress
 
+
+## Current session — 2026-10-05: browser acquisition hardening
+
+- **Objective.** Implement the collection-engine recommendations from the Maxun/Crawl4AI review without adding duplicate infrastructure.
+- **Decision.** Crawl4AI remains the programmatic browser-acquisition adapter. Maxun remains reference-only; reconsider its recorder only if measured source-onboarding or page-repair time remains a bottleneck.
+- **Crawl4AI repair (PR #90).** The existing adapter was stale against the secure v0.9+ Docker API contract. It now emits typed `BrowserConfig` / `CrawlerRunConfig` payloads, carries the Data Foundry crawler identity through the declarative `user_agent` field, requires an API token for non-loopback services, refuses network-forbidden config fields, and refuses sources that require arbitrary per-request headers instead of silently dropping or transmitting them.
+- **Tests.** Regression coverage was added for typed payloads, crawler identity, non-loopback authentication, forbidden remote configuration and custom-header refusal. Hosted CI/review evidence is pending on PR #90 at this checkpoint.
+- **Publication gate.** The existing CPSC extractor has a passing held-out benchmark, but the attempted repository write that would open `EXTRACTED_IDENTIFIERS_OPEN` was blocked by the connected-tool safety boundary. Production remains unchanged; do not claim extracted identifiers are live until a reviewed deploy and authenticated readback prove it.
+- **Next.** Get PR #90 green and merged, then qualify Crawl4AI v0.9.4 against one rights-admitted JavaScript-dependent source through raw evidence → extraction → canonical publication → authenticated query. Keep direct APIs/files ahead of browser acquisition when equivalent.
+
 ## Current session — 2026-09-30 (afternoon): collector running against production
 
 - **Deploy.** #83 merged as `12007d9`; `Deploy recalls Worker` run #10 green, live version
