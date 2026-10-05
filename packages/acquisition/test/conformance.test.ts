@@ -144,7 +144,7 @@ const scenarios: readonly Scenario[] = [
       return {
         provider: new Crawl4AIAcquisitionProvider({
           deps: harness.deps,
-          baseUrl: 'http://crawl4ai.internal:11235',
+          baseUrl: 'http://127.0.0.1:11235',
           fetch: net.fetch,
         }),
         transportCalls: () => net.calls.length,
