@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-10-06: collector runtime and PR #90 CI repair
+
+- **Runtime measured.** The existing Windows collector (PID 13280) and uploader (PID 30412) are running. They have 8 extracted notices, 12 server-accepted identifiers, 13 agency duplicates and 0 queryable identifiers. Read and verification jobs are waiting on HTTP 429 allowance responses, with an hourly retry. No limit, credential or account setting was changed.
+- **Bounded live cycle.** The existing catalog job was run once through its loopback dashboard. It made exactly three requests (daily counter 33 → 36), refreshed both hosted datasets and reported 1 executable CPSC task, 2 permitted sources without adapters and 24 blocked sources. This proves catalog refresh, not a new extraction/upload or arbitrary dataset publication. Evidence: `docs/evidence/collector-runtime-20261006.md`.
+- **PR #90 repair.** Restored standalone `pnpm ingestion:check`, with generated-drift diagnostics in a separate failure-only step that cannot recover a failed gate. Regenerated the ingestion implementation fingerprint required by the Crawl4AI source change. Fixed portable paths and CRLF stdout handling in collector test assertions.
+- **Publication boundary.** Removed PR #90's denied `EXTRACTED_IDENTIFIERS_OPEN` opening from the release candidate: the recalls manifest now matches main and publication stays closed. The separate blocked paid-path candidate and PR #88 were not combined. Ollama currently reports 0.35.0; only 0.34.4 has the committed publication benchmark.
+- **Validation.** 102 focused workflow/acquisition/implementation tests, 5 collector benchmark/fingerprint tests and 16 Python network/model/shared-vector tests pass, as do typecheck, ingestion drift and collector policy checks. The full native Windows Python fixture suite encounters existing unclosed-SQLite cleanup failures; do not describe it as passing. Required hosted CI must pass on the repaired PR head before merge. No provider deploy was performed by this checkpoint.
+- **Remaining.** The existing Evaluate read key's allowance blocks productive collection; do not bypass it or buy/issue credentials. Crawl4AI still needs an existing service and one rights-admitted source qualified through the acquisition worker's governed release. New datasets remain quarantined.
+
 
 ## Current session — 2026-10-05: browser acquisition hardening
 
