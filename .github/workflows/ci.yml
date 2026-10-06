@@ -189,8 +189,19 @@ jobs:
         run: pnpm acquisition:check
 
       - name: Ingestion runtime matches the schema and normalizer definitions
+        id: ingestion-runtime
         if: needs.scope.outputs.run_verify == 'true'
         run: pnpm ingestion:check
+
+      - name: Report generated ingestion drift
+        id: ingestion-drift
+        if: failure() && needs.scope.outputs.run_verify == 'true' && steps.ingestion-runtime.outcome == 'failure'
+        shell: bash
+        run: |
+          echo "::error::Generated ingestion runtime is stale; expected diff follows."
+          pnpm ingestion:compile
+          git diff -- apps/ingestion-worker/generated
+          exit 1
 
       # 7. MCP advertises the same six executable generic tools implemented by
       #    apps/mcp, plus compiled vertical query/server metadata. Drift would

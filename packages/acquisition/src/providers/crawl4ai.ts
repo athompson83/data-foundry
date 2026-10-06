@@ -40,6 +40,31 @@ export const CRAWL4AI_MAX_DIAGNOSTIC_BYTES = 256 * 1024;
 const CRAWL4AI_MAX_RESULT_URL_BYTES = 8 * 1024;
 const CRAWL4AI_MAX_ERROR_MESSAGE_BYTES = 1_024;
 
+const CRAWL4AI_FORBIDDEN_BROWSER_FIELDS = new Set([
+  'cdp_url',
+  'cookies',
+  'extra_args',
+  'headers',
+  'init_scripts',
+  'proxy',
+  'proxy_config',
+  'user_data_dir',
+]);
+
+const CRAWL4AI_FORBIDDEN_CRAWLER_FIELDS = new Set([
+  'base_url',
+  'c4a_script',
+  'deep_crawl_strategy',
+  'headers',
+  'js_code',
+  'js_code_before_wait',
+  'magic',
+  'process_in_browser',
+  'proxy',
+  'proxy_config',
+  'simulate_user',
+]);
+
 export interface Crawl4AiAcquisitionProviderOptions {
   readonly deps: AcquisitionProviderDeps;
   /** Base URL of the Crawl4AI service, e.g. `http://crawl4ai.internal:11235`. */
@@ -83,10 +108,18 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
     }
     this.#fetch = requireFetch('crawl4ai', options.fetch);
     this.#baseUrl = options.baseUrl.replace(/\/+$/, '');
-    this.#apiToken = options.apiToken ?? null;
+    const serviceUrl = parseServiceUrl(this.#baseUrl);
+    this.#apiToken = options.apiToken?.trim() || null;
+    if (this.#apiToken === null && !isLoopbackService(serviceUrl)) {
+      throw new AcquisitionConfigurationError(
+        'Crawl4AI remote services require an API token; tokenless mode is allowed only on loopback.',
+      );
+    }
     this.#formats = options.formats ?? ['html', 'cleaned_html', 'markdown'];
     this.#browserConfig = options.browserConfig ?? {};
     this.#crawlerConfig = options.crawlerConfig ?? {};
+    assertRemoteConfigSafe('browser_config', this.#browserConfig, CRAWL4AI_FORBIDDEN_BROWSER_FIELDS);
+    assertRemoteConfigSafe('crawler_config', this.#crawlerConfig, CRAWL4AI_FORBIDDEN_CRAWLER_FIELDS);
     this.#timeoutMs = options.timeoutMs ?? 120_000;
   }
 
@@ -106,6 +139,16 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
     };
     const signal = timeoutSignal(context.request.timeoutMs ?? this.#timeoutMs);
 
+    // Crawl4AI Docker API v0.9+ treats the request body as an untrusted boundary.
+    // Request-supplied `headers` are rejected; the crawler identity is one of the
+    // allowed declarative browser fields. Source-specific custom headers therefore
+    // cannot be represented safely by this remote adapter.
+    if (Object.keys(context.request.headers ?? {}).length > 0) {
+      throw new AcquisitionConfigurationError(
+        'Crawl4AI remote acquisition does not support source-specific request headers; configure the source with a supported acquisition method instead.',
+      );
+    }
+
     const response = await this.#fetch(`${this.#baseUrl}/crawl`, {
       method: 'POST',
       headers: {
@@ -114,10 +157,18 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
       },
       body: JSON.stringify({
         urls: [context.request.url],
-        browser_config: this.#browserConfig,
+        browser_config: {
+          type: 'BrowserConfig',
+          params: {
+            ...this.#browserConfig,
+            // v0.9+ permits the scalar user_agent field while rejecting arbitrary
+            // request headers. This preserves Data Foundry's declared crawler identity.
+            user_agent: context.userAgent,
+          },
+        },
         crawler_config: {
-          ...this.#crawlerConfig,
-          ...(Object.keys(context.headers).length > 0 ? { headers: context.headers } : {}),
+          type: 'CrawlerRunConfig',
+          params: this.#crawlerConfig,
         },
       }),
       ...(signal !== undefined ? { signal } : {}),
@@ -227,6 +278,32 @@ export class Crawl4AIAcquisitionProvider extends BaseAcquisitionProvider {
       notModified: resources.length === 0 && unchanged > 0,
       diagnostics,
     };
+  }
+}
+
+function parseServiceUrl(baseUrl: string): URL {
+  try {
+    return new URL(baseUrl);
+  } catch {
+    throw new AcquisitionConfigurationError('Crawl4AI base URL must be an absolute URL.');
+  }
+}
+
+function isLoopbackService(parsed: URL): boolean {
+  const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+}
+
+function assertRemoteConfigSafe(
+  label: string,
+  config: Readonly<Record<string, unknown>>,
+  forbidden: ReadonlySet<string>,
+): void {
+  const rejected = Object.keys(config).filter((key) => forbidden.has(key)).sort();
+  if (rejected.length > 0) {
+    throw new AcquisitionConfigurationError(
+      `Crawl4AI v0.9+ rejects ${label} field(s) over the network: ${rejected.join(', ')}.`,
+    );
   }
 }
 
