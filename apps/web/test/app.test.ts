@@ -184,6 +184,51 @@ describe('the parent site', () => {
     const response = await app({ method: 'GET', url: '/' });
     expect(response.body).toContain('name="robots" content="index,follow"');
   });
+
+  it('declares the is-agentic site type and an Organization entity', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/' });
+    expect(response.body).toContain('<meta name="is-agentic-site-type" content="app">');
+    expect(response.body).toContain('"@type":"Organization"');
+    expect(response.body).toContain('"contactPoint"');
+    expect(response.body).toContain('data@mail.proviciency.com');
+  });
+
+  it('serves Markdown with Vary: Accept when an agent negotiates text/markdown', async () => {
+    const app = await appHandler();
+    const response = await app({
+      method: 'GET',
+      url: '/',
+      headers: { accept: 'text/markdown' },
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toContain('text/markdown');
+    expect(response.headers['vary']).toBe('Accept');
+    expect(response.body).toContain('# Data Foundry');
+    expect(response.body).toContain('/hvac');
+    expect(response.body).toContain('/sitemap-index.xml');
+    expect(response.body).not.toContain('<!doctype html>');
+  });
+
+  it('keeps serving HTML with Vary: Accept to browsers', async () => {
+    const app = await appHandler();
+    const response = await app({
+      method: 'GET',
+      url: '/',
+      headers: { accept: 'text/html,application/xhtml+xml' },
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toContain('text/html');
+    expect(response.headers['vary']).toBe('Accept');
+    expect(response.body).toContain('<!doctype html>');
+  });
+
+  it('keeps serving HTML when no Accept header is present', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/' });
+    expect(response.headers['content-type']).toContain('text/html');
+    expect(response.body).toContain('<!doctype html>');
+  });
 });
 
 describe('robots.txt and the sitemap index', () => {
@@ -399,6 +444,13 @@ describe('llms.txt', () => {
     expect(response.headers['content-type']).toContain('text/plain');
     expect(response.body).toContain('HVAC Equipment');
   });
+
+  it('tells agents when to reach for the vertical', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/hvac/llms.txt' });
+    expect(response.body).toContain('## When to use this');
+    expect(response.body).toContain('Reach for');
+  });
 });
 
 describe('unmatched requests', () => {
@@ -418,6 +470,33 @@ describe('unmatched requests', () => {
     const app = await appHandler();
     const response = await app({ method: 'GET', url: '/hvac/equipment/does-not-exist' });
     expect(response.status).toBe(404);
+  });
+
+  it('answers a Markdown 404 with discovery links when an agent negotiates text/markdown', async () => {
+    const app = await appHandler();
+    for (const url of ['/nothing-here', '/hvac/this-is-not-a-route', '/hvac/equipment/does-not-exist']) {
+      const response = await app({
+        method: 'GET',
+        url,
+        headers: { accept: 'text/markdown' },
+      });
+      expect(response.status).toBe(404);
+      expect(response.headers['content-type']).toContain('text/markdown');
+      expect(response.headers['vary']).toBe('Accept');
+      expect(response.body.length).toBeGreaterThan(20);
+      expect(response.body).toContain('# Not found');
+      expect(response.body).toContain('/sitemap-index.xml');
+      expect(response.body).not.toContain('<!doctype html>');
+    }
+  });
+
+  it('keeps the HTML 404 for browsers', async () => {
+    const app = await appHandler();
+    const response = await app({ method: 'GET', url: '/nothing-here' });
+    expect(response.status).toBe(404);
+    expect(response.headers['content-type']).toContain('text/html');
+    expect(response.headers['vary']).toBe('Accept');
+    expect(response.body).toContain('<!doctype html>');
   });
 
   it('refuses a write method — this surface is exactly as read-only as the metered API', async () => {
