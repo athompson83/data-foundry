@@ -6,6 +6,7 @@ import worker from '../src/index.js';
 import { ingestRecords } from '../src/product-sync.js';
 import { ndjsonBundle, prepareRecall, rawRef, writeRecallStatements } from '../src/store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
+import { homePage } from '../src/site.js';
 
 const FOOD = {
   recall_number: 'F-0001-2026',
@@ -61,6 +62,34 @@ beforeEach(() => {
 });
 
 describe('homepage and catalog', () => {
+  it('counts the published portfolio and provides dataset-specific discovery links', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const { body } = await page(env, '/');
+    expect(body).toContain('<dt>Live datasets</dt><dd>2</dd>');
+    expect(body).toContain('<dt>Records across datasets</dt><dd>2</dd>');
+    for (const entry of Object.values(DATASETS)) {
+      expect(body).toContain(`href="/docs${entry.docsAnchor}"`);
+      expect(body).toContain(`href="${entry.browsePath}"`);
+    }
+    const withdrawn = (await page(makeEnv({ SOURCE_KILL_SWITCH: '1' }), '/')).body;
+    expect(withdrawn).toContain('<dt>Live datasets</dt><dd>1</dd>');
+    expect(withdrawn).toContain('<dt>Source agencies</dt><dd>CPSC · Health Canada</dd>');
+  });
+
+  it('never presents partial coverage as the complete portfolio total', () => {
+    const body = homePage({ publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 'data@mail.proviciency.com' }, {
+      salesOpen: false,
+      datasets: [
+        { entry: DATASETS.recalls, coverage: { records: 87581, breakdown: '', latestRecord: null, lastSuccessfulSync: null } },
+        { entry: DATASETS['product-recalls'], coverage: null },
+      ],
+    });
+    expect(body).toContain('<dt>Records across datasets</dt><dd>Unavailable</dd>');
+    expect(body).not.toContain('Start free with 100 requests');
+    expect(body).not.toContain('action="/recalls/checkout"');
+  });
+
   it('lists every published dataset with live coverage and working actions', async () => {
     const env = makeEnv();
     await seed(env);
@@ -81,6 +110,28 @@ describe('homepage and catalog', () => {
     expect(rows[1]).toMatch(/<dt>Last refresh<\/dt><dd>(\d{4}-\d\d-\d\d \d\d:\d\d UTC|not yet recorded)<\/dd>/);
     expect(rows[1]).toContain('<span class="tag">Consumer products</span>');
     expect(body).toContain('Snapshot of a real response, not live.');
+  });
+
+  it('renders #datasets, the product pages and the JSON-LD from the whole catalog, so a new entry needs no page edits', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const entries = Object.values(DATASETS);
+    expect(publishedDatasets(env)).toEqual(entries);
+    const { body } = await page(env, '/');
+    const section = body.slice(body.indexOf('<h2 id="datasets">'), body.indexOf('<h2 id="inspect">'));
+    expect(section.match(/<li class="catalog-row">/g)).toHaveLength(entries.length);
+    const ld = JSON.parse(/<script type="application\/ld\+json">(.*?)<\/script>/.exec(body)![1]!) as { dataset: Array<{ name: string }> };
+    expect(ld.dataset.map((dataset) => dataset.name)).toEqual(entries.map((entry) => entry.name));
+    const docs = (await page(env, '/docs')).body;
+    for (const entry of entries) {
+      expect(section, entry.key).toContain(`<a href="${entry.path}">${entry.name}</a>`);
+      const product = await page(env, entry.path);
+      expect(product.status, entry.path).toBe(200);
+      expect(product.body).toContain(`href="${entry.browsePath}"`);
+      expect(docs, entry.docsAnchor).toContain(`id="${entry.docsAnchor.slice(1)}"`);
+    }
+    const api = (await (await worker.fetch(new Request('https://api.data.aroqon.com/'), env)).json()) as { datasets: Record<string, { registry: string }> };
+    expect(Object.keys(api.datasets)).toEqual(entries.map((entry) => entry.key));
   });
 
   it('shows only published datasets and follows each dataset gate', async () => {
