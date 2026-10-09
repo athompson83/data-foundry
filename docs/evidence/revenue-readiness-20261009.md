@@ -15,11 +15,11 @@
 - Stripe live prices are active: Evaluate $0/100, Developer $49/5,000, Growth $149/25,000 and Scale $299/75,000 monthly. The live Developer button opens a $49 monthly Checkout page. No purchase was executed.
 - The subscription-state webhook is enabled at `https://data.aroqon.com/stripe/webhook`; D1 records the free subscription's checkout/subscription webhook events. Stripe has one active Evaluate subscription and no paid subscription. Internal fixtures or manually provisioned D1 customers are not paid revenue evidence.
 
-## Stripe requirement — pending formal submission
+## Stripe requirement ? resolved
 
-Charges and payouts are currently enabled. The Dashboard says payouts will pause on October 11 unless the business-model form is supplied. The API also returns `invalid_url_website_incomplete` for the existing website. The account's old description describes broad SaaS for first responders, healthcare, education and government, while the current site sells recall-data API access.
+The owner had submitted the form. During the session it progressed from In review to Completed. Dashboard: no active tasks and payments/payouts active. Live account API: charges_enabled and payouts_enabled true; no due, eventually-due, past-due or pending-verification requirements and no errors. The October 11 payout warning is gone. No duplicate submission was made.
 
-The owner submitted the form. On October 9 the Dashboard shows "In review"; no duplicate submission was made. This is receipt of the submission, not Stripe clearance, and the Dashboard still displays the October 11 payout deadline. The site's existing terms already show the operator, support email, refund rule and cancellation policy. This change makes the support process for billing questions, refund requests and disputes explicit; it preserves the existing refund rule. Website acceptance remains Stripe's decision.
+The account product description now matches Data Foundry. The verified support email, support URL, privacy URL and terms URL were saved. Legal identity, tax details, bank and credentials were unchanged. This source change makes the existing billing/refund/dispute support process explicit without changing the refund rule.
 
 ## RapidAPI — configuration repaired, launch incomplete
 
@@ -35,7 +35,7 @@ Remaining launch steps:
 4. This candidate opens `RAPIDAPI_ENABLED=1` through reviewed source and the pinned deploy workflow. `RAPIDAPI_PROXY_SECRET` is installed; activation is pending deployment. Both extracted-identifier publication flags remain closed.
 5. Prove a request through the RapidAPI gateway, failure with an incorrect proxy secret, and no change to direct Stripe usage before publication.
 
-Direct paid access is operational within the evidence above; the Stripe review and unfinished marketplace launch prevent a claim that every commercial setup task is complete.
+Direct paid access is operational within the evidence above and Stripe is clear. The marketplace remains private at this pre-deployment checkpoint. Subsequent deployment, gateway proof and publication status are recorded in [release PR #93](https://github.com/athompson83/data-foundry/pull/93).
 
 ## Candidate validation
 
@@ -43,4 +43,4 @@ Direct paid access is operational within the evidence above; the Stripe review a
 - `corepack pnpm exec vitest run --root apps/recalls-worker test/site.test.ts --maxWorkers=1 --no-file-parallelism`: 16 passed.
 - `corepack pnpm exec vitest run --root apps/recalls-worker test/worker.test.ts -t 'RapidAPI channel' --maxWorkers=1 --no-file-parallelism`: 6 passed; 53 unrelated tests skipped.
 - Rendered the changed terms page and checked the billing-help heading and support link. `git diff --check`: passed.
-- The marketplace tests prove isolation and no double billing in the local harness; they do not certify the closed live channel.
+- All 75 site/API tests and [hosted full CI](https://github.com/athompson83/data-foundry/actions/runs/37932155041) passed before this documentation-only reconciliation. The tested Worker source is unchanged. Live channel proof still follows the pinned deployment.
