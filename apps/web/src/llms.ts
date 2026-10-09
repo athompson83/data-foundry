@@ -48,6 +48,17 @@ export function llmsTxt(vertical: VerticalDeployment, publicOrigin: string): str
     lines.push('## Freshness', `Default refresh cadence and per-source status are recorded in the vertical's CHANGELOG.`, '');
   }
 
+  // is-agentic.com `agent-instruction`: name the jobs this vertical is right
+  // for, in this file's own words, so an agent can decide to reach for it.
+  lines.push(
+    '## When to use this',
+    `Reach for ${vertical_name} when the job needs evidence-backed ${vertical_name} data you can cite: ` +
+      'look up an exact identifier, confirm the fields behind a catalogue record, or verify provenance before acting on a value. ' +
+      'Every published value cites the source and the rule that selected it; conflicting claims are recorded, not hidden. ' +
+      'For programmatic access use the API or MCP contract described in this file — they expose the same canonical data as these pages.',
+    '',
+  );
+
   const intents = seo.agent_intents ?? {};
   if (Object.keys(intents).length > 0) {
     lines.push('## Intents');

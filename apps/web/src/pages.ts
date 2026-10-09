@@ -92,8 +92,17 @@ function datasetStructuredData(
   return complete ? candidate : undefined;
 }
 
-/** The parent site: every industry this deployment serves (ADR-0011). */
-export async function renderParentIndex(deployment: RequestWebDeployment): Promise<string> {
+interface ParentIndexEntry {
+  readonly href: string;
+  readonly name: string;
+  readonly status: string;
+}
+
+/** Shared eligibility pass behind the HTML and Markdown twins of the parent index. */
+async function parentIndexData(deployment: RequestWebDeployment): Promise<{
+  readonly entries: readonly ParentIndexEntry[];
+  readonly indexable: boolean;
+}> {
   const verticals = [...deployment.verticals.values()].sort((a, b) =>
     a.slug.localeCompare(b.slug),
   );
@@ -105,11 +114,50 @@ export async function renderParentIndex(deployment: RequestWebDeployment): Promi
   const published = verticals
     .map((vertical, index) => ({ vertical, eligibility: eligibility[index] }))
     .filter((entry) => entry.eligibility?.publicWeb === true);
-  const items = published
-    .map(({ vertical: v }) => {
-      const href = escapeAttr(v.runtime.seo.url_prefix);
-      return `<a href="${href}">${escapeHtml(v.runtime.vertical_name)}</a> — <span>${escapeHtml(v.runtime.vertical_status)}</span>`;
-    });
+  const entries = published.map(({ vertical: v }) => ({
+    href: v.runtime.seo.url_prefix,
+    name: v.runtime.vertical_name,
+    status: v.runtime.vertical_status,
+  }));
+  const indexable =
+    published.length > 0 &&
+    published.every((entry) => entry.eligibility?.searchIndex === true);
+  return { entries, indexable };
+}
+
+/**
+ * Organization identity for the parent site. Only fields this deployment can
+ * substantiate from its own records: no postal address is published because
+ * the business has no public business address (is-agentic.com
+ * `org-schema-completeness` / `json-ld`).
+ */
+function parentOrganizationStructuredData(
+  publicOrigin: string,
+): Readonly<Record<string, unknown>> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${publicOrigin}/#org`,
+    name: 'Data Foundry by Aroqon Data',
+    url: `${publicOrigin}/`,
+    description:
+      'Evidence-backed industry data: every published value cites the source it came from and the rule that selected it.',
+    email: 'data@mail.proviciency.com',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'data@mail.proviciency.com',
+      contactType: 'customer support',
+    },
+  };
+}
+
+/** The parent site: every industry this deployment serves (ADR-0011). */
+export async function renderParentIndex(deployment: RequestWebDeployment): Promise<string> {
+  const { entries, indexable } = await parentIndexData(deployment);
+  const items = entries.map((entry) => {
+    const href = escapeAttr(entry.href);
+    return `<a href="${href}">${escapeHtml(entry.name)}</a> — <span>${escapeHtml(entry.status)}</span>`;
+  });
 
   const body = `
 <h1>Industry data you can trace to its source</h1>
@@ -123,11 +171,55 @@ ${items.length === 0 ? '<p>No industry is currently serving data from this deplo
     description:
       'Look up industry products, enrich specifications and inspect source evidence through human pages, API and MCP.',
     canonicalUrl: `${deployment.publicOrigin}/`,
-    robots: published.length > 0 && published.every((entry) => entry.eligibility?.searchIndex === true)
-      ? 'index,follow'
-      : 'noindex,follow',
+    robots: indexable ? 'index,follow' : 'noindex,follow',
+    structuredData: parentOrganizationStructuredData(deployment.publicOrigin),
     bodyHtml: body,
   });
+}
+
+/**
+ * Markdown twin of the parent index for agents that negotiate
+ * `Accept: text/markdown` — the same discovery content, no HTML shell
+ * (is-agentic.com `markdown-negotiation-vary`).
+ */
+export async function renderParentIndexMarkdown(
+  deployment: RequestWebDeployment,
+): Promise<string> {
+  const { entries } = await parentIndexData(deployment);
+  const origin = deployment.publicOrigin;
+  const lines = [
+    '# Data Foundry',
+    '',
+    'Industry data you can trace to its source. Look up a product, enrich your catalogue with supported specifications, and keep the evidence behind each value. Every published value cites the source it came from and the rule that selected it.',
+    '',
+    'Licensing and data rights: https://github.com/athompson83/data-foundry/blob/main/DATA_RIGHTS.md',
+    '',
+    '## Industries',
+    '',
+  ];
+  if (entries.length === 0) {
+    lines.push('No industry is currently serving data from this deployment.', '');
+  } else {
+    for (const entry of entries) {
+      lines.push(`- [${entry.name}](${origin}${entry.href}) — ${entry.status}`);
+    }
+    lines.push('');
+  }
+  lines.push(
+    '## Build on evidence',
+    '',
+    'Browse the available catalogue, confirm identifiers and coverage, then integrate through the API or MCP. Each industry guide explains its fields, limitations and access options. Missing data stays explicit so your application can handle it honestly.',
+    '',
+    '## Machine-readable discovery',
+    '',
+    `- Sitemap index: ${origin}/sitemap-index.xml`,
+    `- robots.txt: ${origin}/robots.txt`,
+  );
+  for (const entry of entries) {
+    lines.push(`- ${entry.name} agent summary: ${origin}${entry.href}/llms.txt`);
+  }
+  lines.push('');
+  return `${lines.join('\n')}\n`;
 }
 
 interface RenderedPage {
@@ -668,4 +760,22 @@ export function render404(publicOrigin: string): RenderedPage {
     bodyHtml: '<h1>Not found</h1><p>Nothing is published at this address. <a href="/">Back to all industries.</a></p>',
   });
   return { html, status: 404 };
+}
+
+/**
+ * Markdown twin of the 404 for agents that negotiate `Accept: text/markdown`:
+ * an explanation plus links into the site's discovery documents
+ * (is-agentic.com `agent-friendly-404`).
+ */
+export function render404Markdown(publicOrigin: string): string {
+  return [
+    '# Not found',
+    '',
+    'Nothing is published at this address on Data Foundry. The page may have moved, or the address was typed incorrectly.',
+    '',
+    `- [All industries](${publicOrigin}/)`,
+    `- [Sitemap index](${publicOrigin}/sitemap-index.xml)`,
+    `- [robots.txt](${publicOrigin}/robots.txt)`,
+    '',
+  ].join('\n');
 }

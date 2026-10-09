@@ -13,6 +13,7 @@ import type { WebContext } from './config.js';
 import {
   capacityUnavailable,
   htmlResponse,
+  markdownResponse,
   notFound,
   serviceUnavailable,
   textResponse,
@@ -25,10 +26,12 @@ import { llmsTxt } from './llms.js';
 import {
   pageClassHref,
   render404,
+  render404Markdown,
   renderDatasetLanding,
   renderDocs,
   renderEntityDetail,
   renderParentIndex,
+  renderParentIndexMarkdown,
   renderReplacement,
   renderSearch,
 } from './pages.js';
@@ -96,6 +99,7 @@ function segmentFor(vertical: WebRoutingVertical, rest: string): SitemapSegmentM
 
 type VerticalResult =
   | { readonly kind: 'html'; readonly status: number; readonly body: string }
+  | { readonly kind: 'markdown'; readonly body: string }
   | { readonly kind: 'xml'; readonly body: string }
   | {
       readonly kind: 'text';
@@ -162,6 +166,7 @@ async function executeVerticalRoute(
   vertical: VerticalDeployment,
   context: WebContext,
   route: PreparedVerticalRoute,
+  wantsMarkdown: boolean,
 ): Promise<VerticalResult> {
   const origin = context.deployment.publicOrigin;
 
@@ -180,7 +185,9 @@ async function executeVerticalRoute(
 
   const eligibility = await verticalPublicationEligibility(vertical);
   if (!eligibility.publicWeb) {
-    return { kind: 'html', status: 404, body: render404(origin).html };
+    return wantsMarkdown
+      ? { kind: 'markdown', body: render404Markdown(origin) }
+      : { kind: 'html', status: 404, body: render404(origin).html };
   }
 
   if (route.kind === 'landing') {
@@ -222,7 +229,11 @@ async function executeVerticalRoute(
     route.entityType as never,
     route.slug as never,
   );
-  if (view === null) return { kind: 'html', status: 404, body: render404(origin).html };
+  if (view === null) {
+    return wantsMarkdown
+      ? { kind: 'markdown', body: render404Markdown(origin) }
+      : { kind: 'html', status: 404, body: render404(origin).html };
+  }
   if (
     view.redirected_from !== null &&
     vertical.runtime.seo.canonical.redirect_on_merge
@@ -263,11 +274,26 @@ function resultResponse(result: VerticalResult, cacheMode: WebContext['cacheMode
       };
     case 'xml':
       return xmlResponse(200, result.body, mode);
+    case 'markdown':
+      return markdownResponse(404, result.body, { vary: 'Accept' }, mode);
     case 'text':
       return textResponse(200, result.body, result.headers, mode);
     case 'html':
       return htmlResponse(result.status, result.body, {}, mode);
   }
+}
+
+/**
+ * Agents negotiate `Accept: text/markdown` for a Markdown representation of
+ * the parent index and of 404 explanations. Any other Accept value — a
+ * browser header, a wildcard, or no header at all — keeps the HTML surface.
+ */
+function acceptsMarkdown(request: WebRequest): boolean {
+  const accept = request.headers?.['accept'];
+  if (accept === undefined) return false;
+  return accept
+    .split(',')
+    .some((part) => part.split(';')[0]?.trim().toLowerCase() === 'text/markdown');
 }
 
 const staticResponse = (response: WebResponse): PreparedWebRequest => ({
@@ -290,6 +316,20 @@ export function prepareWebRequest(
 ): PreparedWebRequest {
   const notFoundHtml = (): string => render404(deployment.publicOrigin).html;
   const cacheMode = deployment.cacheMode ?? 'cache';
+  const markdown = acceptsMarkdown(request);
+  /** 404 in the representation the caller negotiated, always `Vary: Accept`. */
+  const notFoundResponse = (): WebResponse => {
+    if (markdown) {
+      return markdownResponse(
+        404,
+        render404Markdown(deployment.publicOrigin),
+        { vary: 'Accept' },
+        'no-store',
+      );
+    }
+    const html404 = notFound(notFoundHtml());
+    return { ...html404, headers: { ...html404.headers, vary: 'Accept' } };
+  };
 
   if (!READ_METHODS.has(request.method.toUpperCase())) {
     return staticResponse(htmlResponse(405, notFoundHtml(), {}, cacheMode));
@@ -299,7 +339,7 @@ export function prepareWebRequest(
   try {
     url = new URL(request.url, PARSE_BASE);
   } catch {
-    return staticResponse(notFound(notFoundHtml()));
+    return staticResponse(notFoundResponse());
   }
   const pathname = url.pathname;
   for (const vertical of deployment.verticals.values()) {
@@ -311,9 +351,22 @@ export function prepareWebRequest(
   }
 
   if (pathname === '/') {
-    return canonicalResponse(async (context) =>
-      htmlResponse(200, await renderParentIndex(context.deployment), {}, cacheMode),
-    );
+    return canonicalResponse(async (context) => {
+      if (markdown) {
+        return markdownResponse(
+          200,
+          await renderParentIndexMarkdown(context.deployment),
+          { vary: 'Accept' },
+          cacheMode,
+        );
+      }
+      return htmlResponse(
+        200,
+        await renderParentIndex(context.deployment),
+        { vary: 'Accept' },
+        cacheMode,
+      );
+    });
   }
   if (pathname === '/robots.txt') {
     return staticResponse(textResponse(200, robotsTxt(deployment), {}, cacheMode));
@@ -329,16 +382,16 @@ export function prepareWebRequest(
   }
 
   const vertical = verticalFor(deployment, pathname);
-  if (vertical === null) return staticResponse(notFound(notFoundHtml()));
+  if (vertical === null) return staticResponse(notFoundResponse());
 
   const route = prepareVerticalRoute(vertical, pathname, url.searchParams);
-  if (route === null) return staticResponse(notFound(notFoundHtml()));
+  if (route === null) return staticResponse(notFoundResponse());
 
   return canonicalResponse(async (context) => {
     const requestVertical = context.deployment.verticals.get(vertical.slug);
-    if (requestVertical === undefined) return notFound(notFoundHtml());
+    if (requestVertical === undefined) return notFoundResponse();
     return resultResponse(
-      await executeVerticalRoute(requestVertical, context, route),
+      await executeVerticalRoute(requestVertical, context, route, markdown),
       context.cacheMode,
     );
   });

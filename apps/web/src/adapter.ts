@@ -9,7 +9,17 @@ export function toWebRequest(request: Request): WebRequest {
   // Parsing and route classification belong to app.ts. Passing the original
   // target through avoids validating it once here and a second time there,
   // and lets malformed inputs take the app's ordinary DB-free 404 path.
-  return { method: request.method, url: request.url };
+  //
+  // `Accept` is the one request header the router reads (Markdown content
+  // negotiation for agents); everything else stays outside the app's view.
+  // Optional chaining keeps malformed inputs on the app's ordinary DB-free
+  // 404 path instead of throwing here.
+  const accept = request.headers?.get('accept') ?? null;
+  return {
+    method: request.method,
+    url: request.url,
+    ...(accept === null ? {} : { headers: { accept } }),
+  };
 }
 
 export function toFetchResponse(response: WebResponse, method: string): Response {
