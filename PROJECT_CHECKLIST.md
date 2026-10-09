@@ -1,6 +1,8 @@
 # Project Checklist
 
 ## Project State
+- **2026-10-09 — landing catalog redesign (IN_PROGRESS).** Local root/Worker typechecks, 148 Worker tests and 1,046 source-pipeline/inventory tests pass. Both currently published datasets and their 102,842 records were verified against the live API. Catalog/route/JSON-LD parity and LIVE-registry completeness safeguards integrate PR #86. Visual checks are blocked by another session owning the Chrome tab; hosted CI and deployment remain pending. See the current entry in PROGRESS.md.
+
 
 - Product: Data Foundry
 - Lifecycle stage: two datasets in production on the recalls Worker and open for sale: FDA Recall Intelligence (since 2026-09-27, ADR-0015) and North American Consumer Product Recalls (deployed 2026-09-28, ADR-0016; authenticated acceptance pending). The Postgres-backed six-role topology remains pre-deployment

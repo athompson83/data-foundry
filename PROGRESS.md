@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-10-09: landing-page redesign and dataset completeness
+
+- Redesigned the existing landing page with a compact source-backed sample, live portfolio totals, responsive dataset cards, labeled coverage/freshness and dataset-specific documentation/browse links. The shared catalog drives homepage entries, product routes, API-root discovery and DataCatalog JSON-LD.
+- Integrated the catalog safeguards from PR #86 (head `4c051a021333b5cf43def162a419f318c5eec13d`). A LIVE pipeline entry missing from the catalog now fails validation; publishing gates, coverage and structured descriptions are exhaustive per dataset key.
+- Current production inventory independently verified from the public API root and stats: FDA Recall Intelligence (87,581 records) and North American Consumer Product Recalls (15,261 notices), 102,842 total, captured 2026-10-09. Candidates still in development are not advertised as available. Source intake, publication gates, billing configuration, credentials and database schema were not changed.
+- Local validation: `corepack pnpm typecheck` passed; recalls-worker typecheck passed; `corepack pnpm exec vitest run --project recalls-worker` passed 148 tests; `corepack pnpm exec vitest run tooling/test/source-pipeline.test.ts tooling/test/readme-inventory.test.ts` passed 1,046 tests; `git diff --check` passed.
+- Visual verification is pending: the requested Chrome tab is owned by another Data Foundry readiness session, and this session cannot claim it. A standalone HTML preview was rendered with public live-stat snapshots; it does not prove browser appearance. Hosted CI, integration and production deployment remain pending at this checkpoint.
+
+
 ## Current session — 2026-10-06: collector runtime and PR #90 CI repair
 
 - **Runtime measured.** The existing Windows collector (PID 13280) and uploader (PID 30412) are running. They have 8 extracted notices, 12 server-accepted identifiers, 13 agency duplicates and 0 queryable identifiers. Read and verification jobs are waiting on HTTP 429 allowance responses, with an hourly retry. No limit, credential or account setting was changed.

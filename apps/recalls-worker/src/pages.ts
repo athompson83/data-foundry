@@ -56,7 +56,7 @@ dl.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-
 ol.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 ol.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
 ol.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-fg);font-weight:700;font-size:14px;margin-bottom:8px}
-button,.button{display:inline-block;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-fg);font:600 15px/1 inherit;padding:12px 17px;cursor:pointer;text-decoration:none}
+button,.button{display:inline-block;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-fg);font-family:inherit;font-weight:600;font-size:15px;line-height:1.4;padding:12px 17px;cursor:pointer;text-decoration:none}
 button.secondary,.button.secondary{background:transparent;color:var(--accent)}
 button.copy{font-size:13px;padding:6px 10px;background:transparent;color:var(--accent)}
 pre,code{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
@@ -73,9 +73,29 @@ p a,li a,td a,p code,li code{overflow-wrap:anywhere}
 details{border-bottom:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600}details p{margin:8px 0 0;color:var(--muted)}
 footer{max-width:1080px;margin:0 auto;padding:28px 20px 56px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.landing main,.landing header.site,.landing footer{max-width:1200px}
+.landing .hero{padding:64px 0 48px;gap:54px;align-items:center}
+.landing .hero h1{font-size:clamp(38px,4.8vw,62px);letter-spacing:-.045em;line-height:1.08;margin:20px 0 24px;max-width:16ch}
+.landing .hero .lede{font-size:19px;max-width:46ch}.landing .hero-note{margin-top:20px;max-width:44ch}
+.landing .hero-preview{min-width:0;padding:24px;background:var(--accent-soft);border:1px solid var(--line);border-radius:20px}
+.landing .hero-preview>.eyebrow{margin-bottom:16px;font-size:11px}.landing .hero-preview>p:last-child{margin-bottom:0;font-size:12px}
+.landing .hero-preview pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:320px}
+.portfolio-stats{display:grid;grid-template-columns:1fr 1.25fr 1.75fr 1.25fr;gap:24px;margin:0;padding:26px 0;border-block:1px solid var(--line)}
+.portfolio-stats dt{font-size:12px;color:var(--muted);margin-bottom:6px}.portfolio-stats dd{margin:0;font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}.portfolio-stats>div:first-child dd,.portfolio-stats>div:nth-child(2) dd{font-size:28px;letter-spacing:-.035em;line-height:1.3}
+.catalog-section{padding-top:64px}.catalog-section h2{margin-top:12px}.landing .catalog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0;border:0}
+.landing .catalog-row{display:flex;flex-direction:column;gap:24px;padding:28px;background:var(--card);border:1px solid var(--line);border-radius:16px;min-width:0;box-shadow:0 4px 18px #00000003}
+.landing .catalog-row h3{font-size:23px;letter-spacing:-.025em;line-height:1.25;margin:16px 0}.landing .catalog-row h3 a{text-decoration:none}
+.landing .catalog-row .eyebrow{display:flex;justify-content:space-between;align-items:center;font-size:11px;gap:12px}.catalog-status{color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:4px 10px;white-space:nowrap;letter-spacing:0;text-transform:none}
+.landing .catalog-row .tags{margin-bottom:16px}.landing .catalog-row .small{color:var(--muted);font-size:15px}.landing .catalog-row .catalog-meta{grid-template-columns:.8fr 1fr 1.25fr;border-top:1px solid var(--line);padding-top:18px;margin-top:auto;gap:12px;font-size:13px}
+.landing .catalog-meta dt{position:static;width:auto;height:auto;overflow:visible;clip:auto;font-size:11px;color:var(--muted);margin-bottom:6px}.landing .catalog-meta dd{overflow-wrap:anywhere}.landing .catalog-meta>div:first-child dd{font-size:22px;font-weight:650;line-height:1.3}
+.catalog-actions{display:flex;flex-wrap:wrap;gap:12px 20px;font-size:13px}.catalog-actions a{text-decoration:none}.catalog-actions a:first-child{font-weight:700;margin-right:auto}.catalog-actions a:hover{text-decoration:underline}
+.landing>.site .brand{font-size:20px}.landing h2{scroll-margin-top:24px}.landing .card{padding:24px}.landing .steps{margin:24px 0}.landing .window{min-width:0}
+@media(max-width:880px){.landing .hero{grid-template-columns:1fr;padding-top:40px;gap:32px}.landing .hero h1{max-width:20ch}.portfolio-stats{grid-template-columns:1fr 1fr;gap:24px}.landing .catalog{grid-template-columns:1fr}}
+@media(max-width:480px){.landing .hero-preview{padding:16px}.landing .catalog-row{padding:20px}.landing .catalog-row .catalog-meta{grid-template-columns:1fr 1fr;gap:16px}.landing .catalog-meta>div:last-child{grid-column:1/-1}.portfolio-stats dd{font-size:15px}.landing .hero .actions .button{flex:1;text-align:center}.landing .grid{grid-template-columns:minmax(0,1fr)}.landing .hero-preview .bar code{overflow-wrap:anywhere}}
 `;
 
 export interface LayoutOptions {
+  readonly bodyClass?: string;
   readonly noindex?: boolean;
   /** A robots directive other than plain noindex, e.g. "noindex, follow" for navigation hubs. */
   readonly robots?: string;
@@ -99,7 +119,7 @@ ${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<li
 <link rel="icon" href="data:,"><link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
 ${(options.jsonLd ?? []).map(jsonLdScript).join('')}
 <meta property="og:type" content="website"><meta property="og:site_name" content="Data Foundry"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}">${options.path ? `<meta property="og:url" content="${ctx.publicOrigin}${options.path}">` : ''}<meta name="twitter:card" content="summary">
-<style>${CSS}</style>${options.scripts ? '<script src="/assets/site.js" defer></script>' : ''}</head><body>
+<style>${CSS}</style>${options.scripts ? '<script src="/assets/site.js" defer></script>' : ''}</head><body${options.bodyClass ? ` class="${escapeHtml(options.bodyClass)}"` : ''}>
 <a class="skip" href="#main">Skip to content</a>
 <header class="site"><a class="brand" href="/">Data Foundry</a><nav aria-label="Main"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/#pricing">Pricing</a></nav></header>
 <main id="main">${body}</main>
