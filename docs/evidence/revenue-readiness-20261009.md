@@ -19,7 +19,7 @@
 
 Charges and payouts are currently enabled. The Dashboard says payouts will pause on October 11 unless the business-model form is supplied. The API also returns `invalid_url_website_incomplete` for the existing website. The account's old description describes broad SaaS for first responders, healthcare, education and government, while the current site sells recall-data API access.
 
-The form has been prepared with the verified digital products, B2B audience, current prices, electronic delivery and no physical goods. Submission requires owner approval; preparation is not Stripe review or clearance. The site's existing terms already show the operator, support email, refund rule and cancellation policy. This change makes the support process for billing questions, refund requests and disputes explicit; it preserves the existing refund rule. Website acceptance remains Stripe's decision.
+The owner submitted the form. On October 9 the Dashboard shows "In review"; no duplicate submission was made. This is receipt of the submission, not Stripe clearance, and the Dashboard still displays the October 11 payout deadline. The site's existing terms already show the operator, support email, refund rule and cancellation policy. This change makes the support process for billing questions, refund requests and disputes explicit; it preserves the existing refund rule. Website acceptance remains Stripe's decision.
 
 ## RapidAPI — configuration repaired, launch incomplete
 
@@ -29,10 +29,10 @@ The provider has a payout account linked and no transactions. On the owner's Oct
 
 Remaining launch steps:
 
-1. Import the current public marketplace OpenAPI contract (eight recall-data GET paths, no direct account endpoints), replacing the outdated generic definitions. Owner import approval is pending.
+1. Import the current public marketplace OpenAPI contract (eight recall-data GET paths, no direct account endpoints), replacing the outdated generic definitions. Completed: the eight endpoints imported successfully after converting the equivalent public contract to OpenAPI 3.0.3 (3.1 import returned an internal error). Base URL remains `https://api.data.aroqon.com`, with canonical website terms.
 2. Free-only plan configuration and the request hard limit are set; monitor actual calls after launch before deciding paid offers.
-3. Obtain action-time approval for the Hub ownership/terms declaration and for connecting the existing listing proxy secret to the Worker.
-4. Through reviewed source and the pinned deploy workflow, open `RAPIDAPI_ENABLED` after installing `RAPIDAPI_PROXY_SECRET`. Both are currently absent/closed in production. Keep extracted-identifier publication flags closed.
+3. Obtain action-time approval for the Hub ownership/terms declaration before public visibility. The owner authorized connecting the existing proxy secret; it was installed through pinned Wrangler without exposing it in source or logs.
+4. This candidate opens `RAPIDAPI_ENABLED=1` through reviewed source and the pinned deploy workflow. `RAPIDAPI_PROXY_SECRET` is installed; activation is pending deployment. Both extracted-identifier publication flags remain closed.
 5. Prove a request through the RapidAPI gateway, failure with an incorrect proxy secret, and no change to direct Stripe usage before publication.
 
 Direct paid access is operational within the evidence above; the Stripe review and unfinished marketplace launch prevent a claim that every commercial setup task is complete.
