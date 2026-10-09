@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-09: Stripe and revenue-path reconciliation
+
+- **Live acceptance passed.** Run [37929038201](https://github.com/athompson83/data-foundry/actions/runs/37929038201) passed all 23 checks on serving source `0f4949c3ea7f` and version `8ea7aba4-45a6-4ddc-9f76-31ff91b90661`, including both datasets, metering, raw evidence and temporary-key revocation. Current main `57e85e4` has green CI; later changes do not change the recall Worker.
+- **Stripe deadline.** Charges and payouts are currently enabled, but the business-model form is due October 11. The account also reports an incomplete website. The form is prepared; formal submission awaits owner approval. The website candidate makes the existing billing/refund/dispute support process explicit. It is not deployed or Stripe-cleared.
+- **Free marketplace launch.** The owner chose to start free and consider paid plans after actual calls. RapidAPI's existing private listing now has accurate recall copy, the correct website and a successful `/` health check. Only BASIC is enabled, with a 500-request/month hard limit; PRO, ULTRA and MEGA are hidden. Payouts are linked. Definition import, terms declaration, proxy-secret installation, activation and live proxy proof remain.
+- **Revenue evidence.** Direct live Checkout opens at $49 monthly. Stripe has one free Evaluate subscription and no paid subscriber; no purchase was made. Both datasets refreshed today. [Full record](docs/evidence/revenue-readiness-20261009.md).
+- **Validation.** Worker typecheck, 16 site tests, 6 marketplace isolation tests and rendered billing-help smoke check passed. Existing dataset publication and security gates remain intact.
+
 ## Current session — 2026-10-06: collector runtime and PR #90 CI repair
 
 - **Runtime measured.** The existing Windows collector (PID 13280) and uploader (PID 30412) are running. They have 8 extracted notices, 12 server-accepted identifiers, 13 agency duplicates and 0 queryable identifiers. Read and verification jobs are waiting on HTTP 429 allowance responses, with an hourly retry. No limit, credential or account setting was changed.
