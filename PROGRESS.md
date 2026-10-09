@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-09: Stripe and revenue-path reconciliation
+
+- **Live acceptance passed.** Run [37929038201](https://github.com/athompson83/data-foundry/actions/runs/37929038201) passed all 23 checks on serving source `0f4949c3ea7f` and version `8ea7aba4-45a6-4ddc-9f76-31ff91b90661`, including both datasets, metering, raw evidence and temporary-key revocation. Current main `57e85e4` has green CI; later changes do not change the recall Worker.
+- **Stripe cleared.** The owner had submitted the form; it progressed from In review to Completed during this session. Dashboard: no active tasks, payments/payouts active. API: no requirements, errors or pending verification. The product description, support email and current policy URLs were saved. No legal identity, tax details, bank or payment credential was changed.
+- **Free marketplace release checkpoint.** The owner chose BASIC only (500 requests/month, hard stop) and paid plans are hidden. The existing listing now has eight imported recall endpoints, a usage guide, accurate metadata and a successful origin health check. Payouts were already linked. Existing proxy-secret installation is complete. This reviewed release enables private gateway validation before action-time Hub ownership/terms confirmation and public visibility; see [PR #93](https://github.com/athompson83/data-foundry/pull/93) for subsequent deployment and acceptance records.
+- **Revenue evidence.** Direct live Checkout opens at $49 monthly. Stripe has one free Evaluate subscription and no paid subscriber; no purchase was made. Both datasets refreshed today. [Full record](docs/evidence/revenue-readiness-20261009.md).
+- **Validation.** Worker typecheck, all 75 site/API tests, rendered billing-help smoke check and [hosted full CI](https://github.com/athompson83/data-foundry/actions/runs/37932155041) passed. Both extracted-identifier publication gates remain closed. Review comments identified stale owner queues and ADR pricing; this update reconciles them without changing the tested Worker source.
+
 ## Current session — 2026-10-06: collector runtime and PR #90 CI repair
 
 - **Runtime measured.** The existing Windows collector (PID 13280) and uploader (PID 30412) are running. They have 8 extracted notices, 12 server-accepted identifiers, 13 agency duplicates and 0 queryable identifiers. Read and verification jobs are waiting on HTTP 429 allowance responses, with an hourly retry. No limit, credential or account setting was changed.
