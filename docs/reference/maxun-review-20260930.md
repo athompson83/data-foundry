@@ -71,3 +71,15 @@ no approved source needs them today. Wiring one in is a per-source acquisition-p
 
 Stealth and fingerprinting, proxy rotation, the no-code recorder UI, Maxun's scheduler, webhooks and MCP server,
 and its AGPL code in any form.
+
+
+## 2026-10-05 follow-up
+
+The Product Owner revisited Maxun and Crawl4AI as possible additions to the data-capturing engine. The decision remains:
+
+- **Crawl4AI is the programmatic browser-acquisition adapter.** The existing adapter is being aligned to Crawl4AI's secure v0.9+ Docker API contract and must be proven on a qualified source before production admission.
+- **Maxun remains reference-only.** Reconsider its recorder only if measured source-onboarding or page-repair time remains a material bottleneck after the native sitemap/selector workflow is in use.
+- **Prefer structured upstream interfaces.** Direct APIs, feeds and bulk files remain ahead of browser acquisition when they provide equivalent source coverage.
+- **Measure adoption value.** Compare time to onboard, time to repair, extraction accuracy/completeness, reliable scheduled completion, cost per accepted record and useful query coverage before adding another platform.
+
+This follow-up does not change the licensing or architecture decision above and does not copy Maxun code.

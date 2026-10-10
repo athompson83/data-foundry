@@ -40,7 +40,7 @@ merges entities, queries the canonical database or assigns publication rights.
 |---|---|
 | JSON / CSV | Existing extractors are admitted by the compiled ingestion runtime, within the bounds below. Source selectors and mappings still require representative fixtures and rights review. |
 | HTML / PDF | Existing local adapters remain available. Their dependencies, memory, CPU, extraction fidelity and deployment isolation require separate Cloudflare qualification before admission. |
-| Browser acquisition | Browser Run and Crawl4AI remain swappable acquisition adapters. Respect the reviewed origin, navigation, credential and content-use policy; pass acquired artifacts through the same downstream boundaries. |
+| Browser acquisition | Browser Run and Crawl4AI remain swappable acquisition adapters. The Crawl4AI remote adapter targets the secure v0.9+ Docker API contract: typed BrowserConfig/CrawlerRunConfig payloads, bearer authentication for non-loopback services, declarative crawler identity, and fail-closed rejection of request fields the server forbids. Sources that require per-request custom headers need another supported acquisition method or a separately reviewed server-side configuration. Respect the reviewed origin, navigation, credential and content-use policy; pass acquired artifacts through the same downstream boundaries. |
 | Future formats | Add a versioned provider and extraction schema with fixtures, byte/record limits, locator semantics and failure tests. Do not relax shared publication gates to admit a format. |
 
 ## Processing and snapshot boundary

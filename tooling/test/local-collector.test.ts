@@ -48,7 +48,7 @@ describe('local collector', () => {
   it("publishes only the collector's own benchmarked extractor build", () => {
     const python = process.env['PYTHON'] ?? 'python3';
     const out = spawnSync(python, ['-c', 'import json; from df_collector import extract, config; c = config.Config(); print(extract.EXTRACTOR_VERSION); print(extract.prompt_sha256()); print(c.model); print(c.model_digest); print(json.dumps(extract.generation(c.num_ctx, c.think), separators=(",", ":")))'], { cwd: APP, encoding: 'utf8' });
-    const [version, promptSha, model, pin, generation] = out.stdout.trim().split('\n');
+    const [version, promptSha, model, pin, generation] = out.stdout.trim().split(/\r?\n/);
     // The collector's current build must be the benchmarked, publishable one; changing the prompt or pin needs a new benchmark entry.
     const entry = PUBLISHABLE_EXTRACTORS.find((candidate) => candidate.version === version && candidate.promptSha256 === promptSha && candidate.model === model);
     expect(entry).toBeDefined();
@@ -80,6 +80,7 @@ describe('local collector', () => {
     const listed = new Set<string>(EXTRACTION_BEHAVIOUR_FILES);
     const seen = new Set<string>();
     const visit = (file: string): void => {
+      file = file.replaceAll('\\', '/');
       if (seen.has(file)) return;
       seen.add(file);
       const source = readFileSync(join(ROOT, file), 'utf8');

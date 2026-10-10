@@ -94,6 +94,7 @@ describe('CI workflow policy', () => {
       (step) =>
         step.name !== 'Fail when scope selection fails' &&
         step.name !== 'Documentation-only change' &&
+        step.id !== 'ingestion-drift' &&
         !step.uses?.startsWith('actions/checkout@'),
     );
 
@@ -126,6 +127,22 @@ describe('CI workflow policy', () => {
     ]) {
       expect(commands.filter((candidate) => candidate === command), command).toHaveLength(1);
     }
+  });
+
+  it('reports ingestion drift only after its standalone gate failed, without recovering the failure', () => {
+    const steps = workflow.jobs.verify.steps;
+    const gate = steps.find((step) => step.id === 'ingestion-runtime');
+    const diagnostic = steps.find((step) => step.id === 'ingestion-drift');
+    expect(gate).toMatchObject({ if: RUN_VERIFY, run: 'pnpm ingestion:check' });
+    expect(diagnostic).toMatchObject({
+      if: `failure() && ${RUN_VERIFY} && steps.ingestion-runtime.outcome == 'failure'`,
+      shell: 'bash',
+    });
+    expect(steps.indexOf(diagnostic!)).toBeGreaterThan(steps.indexOf(gate!));
+    expect(diagnostic?.run).toContain('pnpm ingestion:compile');
+    expect(diagnostic?.run).toContain('git diff -- apps/ingestion-worker/generated');
+    expect(diagnostic?.run?.trim().endsWith('exit 1')).toBe(true);
+    expect(workflowSource).not.toMatch(/continue-on-error/);
   });
 
   it('labels the artifact gate as ordinary and seven route-less private-canary artifacts', () => {
