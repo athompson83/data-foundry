@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "fbd7d7a1e4fc969eab06f28ca0f669b87d79ba87a9f1e4c50cb6822ee383990a",
+  "registry_sha256": "d6896ffbb0140da225bff7992bcab71f6dbdac7994e5af7922c820c78d848c6d",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -314,6 +314,14 @@
         "water-epa-sdwis-violations-enforcement",
         "water-ca-swrcb-safer-risk-assessment",
         "water-ontario-dws-orders-awqi"
+      ]
+    },
+    "wildfire-incidents": {
+      "name": "Wildland fire incidents (state and interagency incident records with status narratives)",
+      "stage": "SCREENED",
+      "sources": [
+        "wildfire-nifc-wfigs-incidents",
+        "wildfire-calfire-incidents"
       ]
     }
   },
@@ -3684,6 +3692,110 @@
       "blocked_because": [
         "rights verdict is UNKNOWN",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "wildfire-calfire-incidents": {
+      "name": "CAL FIRE incident list (JSON API, current and past incidents)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "California Department of Forestry and Fire Protection",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "wildfire-nifc-wfigs-incidents": {
+      "name": "NIFC WFIGS wildland fire incident locations (ArcGIS FeatureServer, current and year-to-date)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "National Interagency Fire Center",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "legislative-uk-hansard-debates": {
+      "name": "UK Parliament Hansard debates and speeches (Hansard API)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Parliament",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "legislative-ca-ourcommons-hansard": {
+      "name": "House of Commons of Canada Hansard (XML per sitting)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "House of Commons of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "complaints-nhtsa-vehicle-owner-complaints": {
+      "name": "NHTSA vehicle owner complaints (flat file and complaintsByVehicle API)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US NHTSA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "complaints-cfpb-consumer-financial": {
+      "name": "CFPB consumer complaint database (search API and bulk CSV)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Consumer Financial Protection Bureau",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "space-celestrak-satcat": {
+      "name": "CelesTrak satellite catalog (SATCAT CSV, derived from US Space Force data)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "CelesTrak",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "lobbying-ca-registrations": {
+      "name": "Office of the Commissioner of Lobbying of Canada registrations (open data CSV)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Office of the Commissioner of Lobbying of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },
