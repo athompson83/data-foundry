@@ -1,0 +1,1183 @@
+{
+ "run_date": "2026-10-04",
+ "members": {
+  "acnc": {
+   "http": 200,
+   "rows": 66399,
+   "columns": 69,
+   "newest_registration_date_not_future": "2026-09-15",
+   "future_dated_registration_rows": 1,
+   "id_field": "ABN",
+   "abn_present": 65792,
+   "website_present": 43775,
+   "free_text_fields": [
+    "Charity_Legal_Name",
+    "Other_Organisation_Names"
+   ],
+   "purpose_flags": 12,
+   "note": "no mission/activity prose in this extract; purposes and beneficiaries are Y/blank flags",
+   "ckan_metadata_modified": "2026-09-27T19:57:42Z (weekly)",
+   "sample": [
+    {
+     "ABN": "20613885410",
+     "Charity_Legal_Name": "Marradhali Aboriginal Corporation",
+     "State": "NSW",
+     "Charity_Size": "",
+     "Registration_Date": "11/10/2023"
+    },
+    {
+     "ABN": "45629238500",
+     "Charity_Legal_Name": "Margate Family Op Shop Trust",
+     "State": "QLD",
+     "Charity_Size": "Small",
+     "Registration_Date": "28/02/2024"
+    },
+    {
+     "ABN": "72886162186",
+     "Charity_Legal_Name": "Jonahs Wings",
+     "State": "VIC",
+     "Charity_Size": "",
+     "Registration_Date": "22/07/2024"
+    },
+    {
+     "ABN": "57328293880",
+     "Charity_Legal_Name": "Donnybrook Mens Shed Incorporated",
+     "State": "WA",
+     "Charity_Size": "Small",
+     "Registration_Date": "21/06/2024"
+    },
+    {
+     "ABN": "93812216359",
+     "Charity_Legal_Name": "Local Spiritual Assembly of the Baha'is of Armadale",
+     "State": "WA",
+     "Charity_Size": "Small",
+     "Registration_Date": "04/01/2024"
+    },
+    {
+     "ABN": "84769492637",
+     "Charity_Legal_Name": "THINK OF THE FIVE ARRIVE ALIVE INCORPORATED",
+     "State": "NSW",
+     "Charity_Size": "",
+     "Registration_Date": "06/11/2024"
+    },
+    {
+     "ABN": "24646991915",
+     "Charity_Legal_Name": "Mahamevnawa Jethawanaya Buddhist Monastery Limited",
+     "State": "VIC",
+     "Charity_Size": "Small",
+     "Registration_Date": "07/01/2021"
+    },
+    {
+     "ABN": "34363156657",
+     "Charity_Legal_Name": "The Trustee for The Lewis Family Foundation",
+     "State": "",
+     "Charity_Size": "Small",
+     "Registration_Date": "29/04/2021"
+    },
+    {
+     "ABN": "58144836077",
+     "Charity_Legal_Name": "The Trustee for Invasive Species Solutions Trust",
+     "State": "ACT",
+     "Charity_Size": "Small",
+     "Registration_Date": "01/07/2021"
+    },
+    {
+     "ABN": "12650045453",
+     "Charity_Legal_Name": "PASS TO ME LIMITED",
+     "State": "NSW",
+     "Charity_Size": "Small",
+     "Registration_Date": "10/05/2021"
+    },
+    {
+     "ABN": "24998086842",
+     "Charity_Legal_Name": "Narrabri Men's Shed Inc",
+     "State": "NSW",
+     "Charity_Size": "Small",
+     "Registration_Date": "03/12/2012"
+    },
+    {
+     "ABN": "37882449540",
+     "Charity_Legal_Name": "Pucker Farm Animal Sanctuary",
+     "State": "WA",
+     "Charity_Size": "Small",
+     "Registration_Date": "01/07/2021"
+    },
+    {
+     "ABN": "89686893612",
+     "Charity_Legal_Name": "CLARK COURT LTD",
+     "State": "WA",
+     "Charity_Size": "",
+     "Registration_Date": "08/05/2025"
+    },
+    {
+     "ABN": "32276245701",
+     "Charity_Legal_Name": "the Munro Seymour Foundation",
+     "State": "ACT",
+     "Charity_Size": "",
+     "Registration_Date": "12/11/2024"
+    },
+    {
+     "ABN": "61689641816",
+     "Charity_Legal_Name": "HS PURPOSE TOPCO LTD",
+     "State": "VIC",
+     "Charity_Size": "",
+     "Registration_Date": "12/08/2025"
+    },
+    {
+     "ABN": "25689983944",
+     "Charity_Legal_Name": "SHINE PROJECT AUSTRALIA LTD",
+     "State": "WA",
+     "Charity_Size": "Small",
+     "Registration_Date": "13/08/2025"
+    },
+    {
+     "ABN": "50309082431",
+     "Charity_Legal_Name": "The Eli Chatfield Foundation Incorporated",
+     "State": "NSW",
+     "Charity_Size": "",
+     "Registration_Date": "30/07/2025"
+    },
+    {
+     "ABN": "64306002161",
+     "Charity_Legal_Name": "Somali International Aid and Development Organisation Incorporated",
+     "State": "VIC",
+     "Charity_Size": "",
+     "Registration_Date": "04/07/2025"
+    },
+    {
+     "ABN": "94479700953",
+     "Charity_Legal_Name": "Jarrdimba Bayamuku (Strengthening the Children) Aboriginal Corporation",
+     "State": "NT",
+     "Charity_Size": "",
+     "Registration_Date": "14/10/2019"
+    },
+    {
+     "ABN": "95453823952",
+     "Charity_Legal_Name": "Seventh-day Adventist Church (Pacific) Trust",
+     "State": "NSW",
+     "Charity_Size": "Large",
+     "Registration_Date": "01/07/2020"
+    }
+   ]
+  },
+  "cra": {
+   "http": 200,
+   "ident_rows": 83761,
+   "web_rows": 34371,
+   "program_rows_in_first_4MB_sample": 11515,
+   "fiscal_period_ends_seen_in_programs_sample": [
+    "2024"
+   ],
+   "dataset_published": "2026-04-30 (annual, frequency P1Y); CKAN metadata_modified 2026-10-04",
+   "id_field": "BN (9 digits + RR0001)",
+   "free_text_fields": [
+    "Description (programs, new+ongoing)",
+    "Schedule 7 political-activity descriptions"
+   ],
+   "program_description_median_chars": 206,
+   "program_description_p90_chars": 664,
+   "sample": [
+    {
+     "BN": "854491511RR0001",
+     "Legal Name": "EQUINEABILITY THERAPEUTIC RIDING CENTRE",
+     "Province": "ON",
+     "Category": "0140"
+    },
+    {
+     "BN": "786811810RR0001",
+     "Legal Name": "A FOREVER HOME CAT RESCUE SOCIETY",
+     "Province": "BC",
+     "Category": "0180"
+    },
+    {
+     "BN": "747889004RR0001",
+     "Legal Name": "13766918 Canada Foundation",
+     "Province": "ON",
+     "Category": "0210"
+    },
+    {
+     "BN": "816895569RR0001",
+     "Legal Name": "Edson Run of Hope Foundation",
+     "Province": "AB",
+     "Category": "0210"
+    },
+    {
+     "BN": "836044719RR0001",
+     "Legal Name": "CONGREGATIONAL CHURCH OF CHEBOGUE PRESERVATION SOCIETY",
+     "Province": "NS",
+     "Category": "0200"
+    },
+    {
+     "BN": "891261398RR0001",
+     "Legal Name": "BIBLE RESEARCH INTERNATIONAL",
+     "Province": "ON",
+     "Category": "0070"
+    },
+    {
+     "BN": "890765845RR0001",
+     "Legal Name": "5T6 CIVILS SCHOLARSHIP FUND  THE",
+     "Province": "ON",
+     "Category": "0011"
+    },
+    {
+     "BN": "132410671RR0097",
+     "Legal Name": "Soci\u00e9t\u00e9 de Saint-Vincent de Paul-Conseil national du Canada Society of Saint-Vincent de Paul-National council of Canada",
+     "Province": "QC",
+     "Category": "0001"
+    },
+    {
+     "BN": "839860244RR0001",
+     "Legal Name": "GIVING HOPE TO CHILDREN SOCIETY",
+     "Province": "AB",
+     "Category": "0001"
+    },
+    {
+     "BN": "892469966RR0001",
+     "Legal Name": "Loughborough Christmas & Emergency Relief Committee",
+     "Province": "ON",
+     "Category": "0001"
+    },
+    {
+     "BN": "787710490RR0001",
+     "Legal Name": "Refugee Career Jumpstart Project",
+     "Province": "ON",
+     "Category": "0160"
+    },
+    {
+     "BN": "753533678RR0001",
+     "Legal Name": "DIVINE TABERNACLE CENTRE FOR PREACHERS BEYOND BORDERS",
+     "Province": "ON",
+     "Category": "0030"
+    },
+    {
+     "BN": "140412834RR0001",
+     "Legal Name": "DOULOS FOUNDATION",
+     "Province": "AB",
+     "Category": "0210"
+    },
+    {
+     "BN": "855970133RR0001",
+     "Legal Name": "ABILITY WORKSHOP SOCIETY",
+     "Province": "AB",
+     "Category": "0001"
+    },
+    {
+     "BN": "889258398RR0001",
+     "Legal Name": "The Bayview hospital centre auxiliary",
+     "Province": "QC",
+     "Category": "0110"
+    },
+    {
+     "BN": "849677091RR0001",
+     "Legal Name": "Malamulele Onward Canada",
+     "Province": "ON",
+     "Category": "0110"
+    },
+    {
+     "BN": "889307047RR0001",
+     "Legal Name": "YARROW RATEPAYER'S ASSOCIATION",
+     "Province": "BC",
+     "Category": "0200"
+    },
+    {
+     "BN": "828776583RR0001",
+     "Legal Name": "HORIZON PARENT SOCIETY",
+     "Province": "AB",
+     "Category": "0011"
+    },
+    {
+     "BN": "119222677RR0001",
+     "Legal Name": "THE CHRISTIAN ASSEMBLY CHURCH OF PORTAGE LA PRAIRIE",
+     "Province": "MB",
+     "Category": "0030"
+    },
+    {
+     "BN": "119033702RR0001",
+     "Legal Name": "MARMORA HISTORICAL FOUNDATION INC.",
+     "Province": "ON",
+     "Category": "0200"
+    }
+   ],
+   "program_sample": [
+    {
+     "BN": "854491511RR0001",
+     "FPE": "2024-01-31",
+     "type": "NP",
+     "desc": "No new programs were introduced."
+    },
+    {
+     "BN": "854491511RR0001",
+     "FPE": "2024-01-31",
+     "type": "NA",
+     "desc": "Carried on regular programming of riding/driving for challenged clients with continued care in observing COVID protocols.    ALL PROGRAMMING HAS BEEN DISCONTINU"
+    },
+    {
+     "BN": "786811810RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "Cat rescue organization  take in stray and unwanted cats  spay and neuter  adopt to loving homes."
+    },
+    {
+     "BN": "747889004RR0001",
+     "FPE": "2024-02-10",
+     "type": "OP",
+     "desc": "Receive and maintain funds and apply all or part of the principal and income to qualified donees"
+    },
+    {
+     "BN": "816895569RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "ORGANIZATION FUNDED BY PUBLIC DONATIONS. DONATION ARE  USED TO PURCHASE GIFT CARDS TO ASSIST AND ENHANCE  PEOPLE LIVING WITH CANCER."
+    },
+    {
+     "BN": "836044719RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "HAD ONE SIDE OF CHURCH BUILDING REPAIRED AND PAINTED  HELD THREE SERVICES FOR THE PUBLIC  OVER SEEN THE MAINTENANCE OF THE HISTORIC BUILDING AND PROPERTY"
+    },
+    {
+     "BN": "836044719RR0001",
+     "FPE": "2024-01-31",
+     "type": "NP",
+     "desc": "HELD A MAJOR FUND RAISING FOR THE REPAIRS OF THE FRONT OF THE BUILDING WHICH HOPEFULLY WILL BE CARRIED OUT DURING 2024  RENTED FACILITY FOR A WEDDING"
+    },
+    {
+     "BN": "891261398RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "PREPARE AND DISTRIBUTE BIBLE TEACHING COURSES; MARK PAPERS  EXAMS AND RESEARCH PAPERS/ASSIGNMENTS; DISTRIBUTE CHRISTIAN LITERATURE"
+    },
+    {
+     "BN": "890765845RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "AWARDS A SCHOLARSHIP TO A SECOND YEAR ENGINEERING STUDENT AT U OF T"
+    },
+    {
+     "BN": "132410671RR0097",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "D\u00c9PANNAGE ALIMENTAIRE \u00c0 DES PERSONNES DANS LE BESOIN  PANIERS DE NO\u00cbL (GUIGNOL\u00c9E)  OP\u00c9RATION BONNE MINE (RENTR\u00c9E SCOLAIRE ET ACTIVIT\u00c9S DURANT L'ANN\u00c9E)."
+    },
+    {
+     "BN": "839860244RR0001",
+     "FPE": "2024-02-11",
+     "type": "OP",
+     "desc": "Soccer Camp  Running by Local Volunteers"
+    },
+    {
+     "BN": "839860244RR0001",
+     "FPE": "2024-02-11",
+     "type": "NP",
+     "desc": "Soccer Camp  Running by Local Volunteers"
+    },
+    {
+     "BN": "892469966RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "We are a small group of 4 volunteers which help provide assistance during the holidays and all year round.  Through the generous donations of our community we c"
+    },
+    {
+     "BN": "787710490RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "Our first activity is to  provide employment related services to newly settled refugees in Canada to accelerate their career preparedness and access to meaningf"
+    },
+    {
+     "BN": "787710490RR0001",
+     "FPE": "2024-01-31",
+     "type": "NP",
+     "desc": "EMPP  Jumpstart has been funded by IRCC to support the EMPP program's economic immigration pathway to Canada. Our EMPP programming is very similar to our existi"
+    },
+    {
+     "BN": "753533678RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "Advancement of Religion  Participation in the community Volunteer Income Tax Program.-  We've engaged the services of volunteers to support the CVITP program wh"
+    },
+    {
+     "BN": "753533678RR0001",
+     "FPE": "2024-01-31",
+     "type": "NP",
+     "desc": "Advancement of Religion Free Tax Clinic for New comers  refugees  students  individual  Canadian families and seniors with low income."
+    },
+    {
+     "BN": "140412834RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "CONTRIBUTED TO VARIOUS REGISTERED CANADIAN CHARITABLE ORGANIZATIONS DEEMED WORTHY OF FINANCIAL SUPPORT"
+    },
+    {
+     "BN": "855970133RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "The All-Volunteer Charity assists handicapped persons by designing  constructing and/or modifying devices (that are not commercially available) to improve the l"
+    },
+    {
+     "BN": "889258398RR0001",
+     "FPE": "2024-01-31",
+     "type": "OP",
+     "desc": "OUTING PROGRAMS - TRANSPORTATION COSTS & EXPENSES  SPECIAL EVENTS & HOLIDAY ENTERTAINMENT  MISCELLANEOUS ITEMS TO ENHANCE RESIDENTS' QUALITY OF LIFE"
+    }
+   ]
+  },
+  "uk_charity_commission": {
+   "http": 200,
+   "rows_total": 396297,
+   "rows_registered": 184090,
+   "date_of_extract": "2026-10-04",
+   "id_fields": [
+    "registered_charity_number",
+    "organisation_number",
+    "charity_company_registration_number"
+   ],
+   "company_number_present_registered": 31303,
+   "activities_present_registered": 163277,
+   "web_present_registered": 102495,
+   "activities_median_chars": 203,
+   "sample": [
+    {
+     "num": "200009",
+     "name": "THE RALPH LEVY CHARITABLE COMPANY LIMITED",
+     "income": "722786",
+     "activities": "In making donations, particular consideration is given to educational and medical charitable bodies."
+    },
+    {
+     "num": "200012",
+     "name": "CHURCH AND POOR'S CHARITY",
+     "income": "3907",
+     "activities": "TO PROVIDE RELIEF IN POVERTY, SICKNESS OR SUDDEN DESTITUTION PARTICULARLY TO THE ELDERLY TO RESIDENTS OF WRESTLINGWORTH PARISH."
+    },
+    {
+     "num": "200017",
+     "name": "THE SHOWERING FUND",
+     "income": "179737",
+     "activities": "Supports research in the Department of Pathology, North Bristol NHS Trust, Bristol, UK."
+    },
+    {
+     "num": "200023",
+     "name": "MOSSWOOD MISSION HALL (TRUST 1188)",
+     "income": "527",
+     "activities": "Vicarage, parsonage, residence for curate, church or chapel, mission room, parish room, class room, meeting or lecture room, or sunday school. Known as St Barna"
+    },
+    {
+     "num": "200024",
+     "name": "THE D'OYLY CARTE OPERA TRUST LIMITED",
+     "income": "111646",
+     "activities": "The principal activities and objects of the charity company are the production of Gilbert and Sullivan and other Operas for nationwide tours and the raising of "
+    },
+    {
+     "num": "200027",
+     "name": "RURAL MINISTRIES",
+     "income": "154342",
+     "activities": "To support rural churches in their growth and development and assist in the planting of new rural churches."
+    },
+    {
+     "num": "200032",
+     "name": "JOSEPH FATTORINI CHARITABLE TRUST",
+     "income": "44295",
+     "activities": "Donations to other registered charities and the funding of educational activities. No donations to animal charities. No donations for individual activities such"
+    },
+    {
+     "num": "200034",
+     "name": "CLOPHILL UNITED CHARITIES",
+     "income": "13697",
+     "activities": "The charity only operates within Clophill parish making grants to individuals or organisations resident within the parish."
+    },
+    {
+     "num": "200040",
+     "name": "TURVEY NON-ECCLESIASTICAL CHARITIES",
+     "income": "1659",
+     "activities": "Relief of poverty"
+    },
+    {
+     "num": "200043",
+     "name": "HENRY SMITH AND MICHAEL EARLE CHARITIES",
+     "income": "6773",
+     "activities": "The charity provides relief in some way to local residents who are in need and to assist their advancement in life."
+    },
+    {
+     "num": "200044",
+     "name": "RECREATION GROUND CHARLWOOD",
+     "income": "0",
+     "activities": "Charlwood Parish Council is the trustee to Charlwood Recreation Ground which is an open space for the residents of Charlwood, Hookwood and the local area to enj"
+    },
+    {
+     "num": "200047",
+     "name": "NORTHILL PAROCHIAL CHARITIES",
+     "income": "1993",
+     "activities": "Making grants to individuals who are poor, elderly or sick."
+    },
+    {
+     "num": "200048",
+     "name": "THE FEDERATION OF BRITISH ARTISTS",
+     "income": "1863796",
+     "activities": "The Federation provides exhibition facilities and organises open art exhibitions for public viewing in the Mall Galleries.The open exhibitions provide opportuni"
+    },
+    {
+     "num": "200049",
+     "name": "THE PETER SAMUEL ROYAL FREE FUND",
+     "income": "34390",
+     "activities": "The Charity makes grants for research purposes."
+    },
+    {
+     "num": "200050",
+     "name": "HANDICAPPED CHILDREN'S AID COMMITTEE",
+     "income": "271763",
+     "activities": "The trusts objects are to promote the welfare and improve the quality of life of children with disabilities."
+    },
+    {
+     "num": "200051",
+     "name": "ESMEE FAIRBAIRN FOUNDATION",
+     "income": "8898000",
+     "activities": "We are one of the largest independent foundations in the UK.  Our primary interests are in the arts, children and young people, the environment and social chang"
+    },
+    {
+     "num": "200053",
+     "name": "FRIENDS OF THE HURTWOOD",
+     "income": "155256",
+     "activities": "Providing access to countryside by clearing paths, maintaining car parks, providing interpretation etc"
+    },
+    {
+     "num": "200054",
+     "name": "BLETSOE TOWN CLOSE CHARITY",
+     "income": "571",
+     "activities": "Helping old/poor people in the village"
+    },
+    {
+     "num": "200055",
+     "name": "GODSTONE RELIEF IN NEED CHARITY",
+     "income": "12125",
+     "activities": "We issued food vouchers for local shops 3 times between March 2023 and September 2023, and intend to give them out again in June 2023, due to the financial need"
+    },
+    {
+     "num": "200056",
+     "name": "OXTED UNITED CHARITIES",
+     "income": "5276",
+     "activities": "Assistance to the poor, sick and elderly in the Ancient Parish of Oxted"
+    }
+   ]
+  },
+  "irs_teos": {
+   "http": 200,
+   "bmf_record_count_stated_on_page": 1964958,
+   "bmf_posting_date_stated": "9/8/2026",
+   "bmf_vt_rows_measured": 6566,
+   "bmf_id_field": "EIN",
+   "bmf_fields": "NAME,NTEE_CD,SUBSECTION,RULING,ASSET_AMT,INCOME_AMT,REVENUE_AMT,STATUS (no prose)",
+   "bmf_vt_ntee_present": 4663,
+   "teos_xml_zip_bytes": 314704706,
+   "xml_filings_parsed_from_first_8MB_of_2026_TEOS_XML_01A": 1470,
+   "xml_with_mission_text": 1284,
+   "form_types": {
+    "990PF": 157,
+    "990EZ": 503,
+    "990": 781,
+    "990T": 29
+   },
+   "sample": [
+    {
+     "ein": "882789613",
+     "name": "RAVE Rural Animal Volunteer Effort",
+     "form": "990EZ",
+     "mission": "RAVE which stands for Rural Animal Volunteer Effort provides crucial care and support for the feral cat colonies and stray dogs in rural South Carolina"
+    },
+    {
+     "ein": "223488847",
+     "name": "NEW GRETNA VOLUNTEER FIRE CO",
+     "form": "990EZ",
+     "mission": "FIRE PROTECTION AND SAFETY EDUCATION"
+    },
+    {
+     "ein": "366140354",
+     "name": "KIWANIS INTERNATIONAL INC",
+     "form": "990EZ",
+     "mission": "Community Service"
+    },
+    {
+     "ein": "813918360",
+     "name": "CRESCENT LEARNING PROGRAM INC",
+     "form": "990EZ",
+     "mission": "Crescent Learning Program is a multicultural community program for underprivileged and low-income children in San Diego California and offers a curriculum that "
+    },
+    {
+     "ein": "843837166",
+     "name": "Restaurant Giving Circle Inc",
+     "form": "990EZ",
+     "mission": "Improve the lives of restaurant workers"
+    },
+    {
+     "ein": "830683511",
+     "name": "TOGETHER LETS RISE",
+     "form": "990EZ",
+     "mission": "Break Cycles of violence among Youth"
+    },
+    {
+     "ein": "993843767",
+     "name": "AMERICAN FRIENDS OF MOSDOS EITZ CHAIM INC",
+     "form": "990EZ",
+     "mission": "CHARITABLE, RELIGIOUS , EDUCATIONAL"
+    },
+    {
+     "ein": "581355391",
+     "name": "BANKS COUNTY CHAMBER OF COMMERCE",
+     "form": "990EZ",
+     "mission": "PROMOTE BUSINESS AND GROWTH IN COMMUNITY"
+    },
+    {
+     "ein": "232655257",
+     "name": "Natl Assoc of Women Business Owner",
+     "form": "990EZ",
+     "mission": "See Attached Statement"
+    },
+    {
+     "ein": "431696758",
+     "name": "Big Game Hunters Inc",
+     "form": "990EZ",
+     "mission": "See schedule O"
+    },
+    {
+     "ein": "814748450",
+     "name": "TIKKUN-KC INC",
+     "form": "990EZ",
+     "mission": "Working to transform the Kansas City urban core one house at a time by acquiring abandoned single-family homes and renovating them to create affordable housing "
+    },
+    {
+     "ein": "166067570",
+     "name": "CIVIL SERVICE EMPLOYEES ASSOCIATION",
+     "form": "990EZ",
+     "mission": "To improve and protect working conditions, Collective Bargaining, Contract Enforcement, and Member Services."
+    },
+    {
+     "ein": "332174742",
+     "name": "ISAACC18 Inc",
+     "form": "990EZ",
+     "mission": "The Corporation is formed specifically for the purpose of promoting access to healthcare through maximizing the academic, clinical, and research opportunities a"
+    },
+    {
+     "ein": "800737306",
+     "name": "SYLVIA-NUNN ANGELS",
+     "form": "990EZ",
+     "mission": "Our mission is to provide our young people with encouragement and enlightenment by teaching and providing leadership to help them on a path to achievement."
+    },
+    {
+     "ein": "815455386",
+     "name": "ST STEPHENS HIGH ATHLETIC BOOSTERS",
+     "form": "990EZ",
+     "mission": "Support St Stephens High School athletic programs"
+    },
+    {
+     "ein": "432080690",
+     "name": "Candlelighters Childhood Cancer Foundation of Southern Arizona",
+     "form": "990",
+     "mission": "Candlelighters supports serves and advocates for children and adolescents with cancer sickle cell and other blood disorders their families long term survivors b"
+    },
+    {
+     "ein": "871917945",
+     "name": "Eye Care Professional Education Inc",
+     "form": "990",
+     "mission": "AS AN ORGANIZATION WE ARE DRIVEN BY THE BELIEF THAT EDUCATION SHOULD BE ACCESSIBLE TO ALL. WE WORK TIRELESSLY TO ELIMINATE BARRIERS TO LEARNING BY OFFERING OUR "
+    },
+    {
+     "ein": "376047962",
+     "name": "ILLINOIS UNITED POSTMASTERS AND",
+     "form": "990",
+     "mission": "TO SUPPORT POSTMASTERS AND MANAGERS OF THE UNITED STATES POSTAL SERVICE IN EDUCATION, LEGISLATION, AND ADVERSE ACTION."
+    },
+    {
+     "ein": "581847144",
+     "name": "DELTA HOUSE INC",
+     "form": "990",
+     "mission": "PROVIDES HOUSING FOR DEVELOPMENTALLY DISABLED"
+    },
+    {
+     "ein": "200844569",
+     "name": "Pi Kappa Alpha Fraternity Beta Xi Chapter",
+     "form": "990",
+     "mission": "Social Club - Fraternity: 196 Members."
+    }
+   ]
+  }
+ },
+ "declared_identifier_check": {
+  "acnc_columns_with_id": [
+   "ABN"
+  ],
+  "cra_id": [
+   "BN"
+  ],
+  "uk_ids": [
+   "registered_charity_number",
+   "charity_company_registration_number"
+  ],
+  "irs_id": [
+   "EIN"
+  ],
+  "cross_references_found": 0,
+  "note": "Each register keys on its own national identifier (ABN, BN, charity number, EIN). No column in any member names another member's identifier."
+ },
+ "linkage_candidates": {
+  "acnc-cra": {
+   "name_matches": 483,
+   "name_match_sample": [
+    "9 lives cat rescue",
+    "abundant life centre",
+    "abundant life christian fellowship",
+    "abundant life church",
+    "access",
+    "all saints church",
+    "alliance church",
+    "amazing grace",
+    "anba abraam",
+    "anchor baptist church",
+    "ancient church east",
+    "anglican parish christ church",
+    "anglican parish good shepherd",
+    "apostolic pentecostal church",
+    "arabic presbyterian church",
+    "assembly god s people church",
+    "auxilium",
+    "avalon centre",
+    "balance",
+    "beacon",
+    "benevolent",
+    "bethany baptist church",
+    "bethany care",
+    "bethel bible baptist church",
+    "bethel christian church",
+    "bethel christian fellowship",
+    "bethel church",
+    "bethel lutheran church",
+    "bethel presbyterian church",
+    "bethel romanian baptist church",
+    "bethesda",
+    "bethlehem lutheran church",
+    "better living",
+    "beyond disability",
+    "bible baptist church",
+    "black family",
+    "blue sky",
+    "bread life ministries",
+    "bread life worship centre",
+    "bridge"
+   ],
+   "website_domain_matches": 46,
+   "website_match_sample": [
+    "againstmalaria.com",
+    "agapeinaction.com",
+    "aimint.org",
+    "bahai.org",
+    "biblicalministries.org",
+    "bridgesforpeace.com",
+    "bsfinternational.org",
+    "business.facebook.com",
+    "cafe.daum.net",
+    "camfed.org",
+    "cfan.org",
+    "cheetah.org",
+    "chinaconcern.org",
+    "copticorphans.org",
+    "cycnow.com",
+    "divinerenovation.org",
+    "facebook.com",
+    "focolare.org",
+    "goethe.de",
+    "google.com",
+    "hillsong.com",
+    "ica-international.org",
+    "idmji.org",
+    "impactnations.com",
+    "instagram.com",
+    "israaid.org",
+    "jw.org",
+    "kingdomofjesuschrist.org",
+    "kresy-siberia.org",
+    "labri.org",
+    "linktr.ee",
+    "realityoutreach.org",
+    "shalomworld.org",
+    "sites.google.com",
+    "smvs.org",
+    "svenskakyrkan.se",
+    "talentbeyondboundaries.org",
+    "teachbeyond.org",
+    "thepeacehouseministry.org",
+    "tinyurl.com"
+   ],
+   "denominators": {
+    "acnc": 64337,
+    "cra": 76147
+   }
+  },
+  "acnc-uk": {
+   "name_matches": 820,
+   "name_match_sample": [
+    "a21 campaign",
+    "abigail project",
+    "acacia",
+    "access",
+    "access church",
+    "acs international schools",
+    "act kindness",
+    "actasia",
+    "action for animals",
+    "african apostolic church",
+    "agape outreach",
+    "aghapy tv",
+    "al hikam",
+    "al khair",
+    "al kisa",
+    "al madina",
+    "al mahdi",
+    "al noor islamic",
+    "al qalam",
+    "al zahra",
+    "alexander",
+    "alexandra",
+    "alive project",
+    "all nations baptist church",
+    "all nations community church",
+    "all nations revival church",
+    "all together now",
+    "allegri singers",
+    "alongside africa",
+    "animal rescue and care",
+    "annandale",
+    "anoopam mission",
+    "apostolic faith church hq chitope",
+    "areopagus",
+    "arise international",
+    "armstrong",
+    "artemis",
+    "arts for all",
+    "aspire church",
+    "asthan babe ke"
+   ],
+   "website_domain_matches": 161,
+   "website_match_sample": [
+    "10x10philanthropy.com",
+    "a21.org",
+    "actasia.org",
+    "adaragroup.org",
+    "africanrevival.com",
+    "againstmalaria.com",
+    "aimint.org",
+    "animalsasia.org",
+    "anoopam-mission.org",
+    "answersingenesis.org",
+    "anu.edu.au",
+    "australianmusicfoundation.org",
+    "bahai.org",
+    "bapscharities.org",
+    "bennelongfoundation.com",
+    "beshara.org",
+    "bluedragon.org",
+    "bridgesforpeace.com",
+    "c-r.org",
+    "cambodianchildrensfund.org",
+    "cambridge.org",
+    "camfed.org",
+    "caremin.com",
+    "case.org",
+    "cdfcharity.org",
+    "centreforpublicimpact.org",
+    "childmigrantstrust.com",
+    "chinaconcern.org",
+    "cips.org",
+    "cmiaid.org",
+    "cncf.org",
+    "conservation.org",
+    "copticorphans.org",
+    "creation.com",
+    "cvglobal.co",
+    "daughtersofcharity.net",
+    "divinerenovation.org",
+    "dogstarfoundation.com",
+    "eagleswingschina.org",
+    "egyptequineaid.org"
+   ],
+   "denominators": {
+    "acnc": 64337,
+    "uk": 175926
+   }
+  },
+  "cra-uk": {
+   "name_matches": 773,
+   "name_match_sample": [
+    "a better life",
+    "abu bakr",
+    "abundant life community church",
+    "access",
+    "achievers faith international ministries",
+    "act one",
+    "acts kindness",
+    "agape christian fellowship",
+    "agape in action",
+    "agape ministries",
+    "al hikmah",
+    "al huda islamic centre",
+    "al ihsan",
+    "al kawthar",
+    "al mustafa academy",
+    "all saints",
+    "almond tree",
+    "alpha and omega christian ministries",
+    "amelia s light",
+    "amicus",
+    "amy s house",
+    "anchor church",
+    "angels hope",
+    "angels mercy",
+    "animal aid",
+    "ansaar",
+    "antioch community church",
+    "apple tree",
+    "appleton",
+    "aqueduct",
+    "ark church",
+    "art with a heart",
+    "arthritis research",
+    "artsreach",
+    "ascension",
+    "avanti",
+    "awaken church",
+    "balance",
+    "barnes family",
+    "basket hope"
+   ],
+   "website_domain_matches": 66,
+   "website_match_sample": [
+    "africanchildrenschoir.com",
+    "againstmalaria.com",
+    "aimint.org",
+    "ashanet.org",
+    "atonementfriars.org",
+    "bahai.org",
+    "barakacommunity.com",
+    "bethanykids.org",
+    "bridgesforpeace.com",
+    "camfed.org",
+    "catchthefire.com",
+    "chinaconcern.org",
+    "christsforgiveness.com",
+    "churchesofgod.info",
+    "cibc.com",
+    "copticorphans.org",
+    "daysforgirls.org",
+    "divinerenovation.org",
+    "e-clubhouse.org",
+    "facebook.com",
+    "focolare.org",
+    "fpa2.mc",
+    "freewebs.com",
+    "geocities.com",
+    "gmsa.org",
+    "google.com",
+    "hillsong.com",
+    "idmji.org",
+    "ifsfoundation.org",
+    "instagram.com",
+    "labri.org",
+    "lewa.org",
+    "linktr.ee",
+    "loveassembly.org",
+    "mcgi.org",
+    "members.tjc.org",
+    "ministrieswithoutborders.com",
+    "mun.ca",
+    "nexteinstein.org",
+    "onedrop.org"
+   ],
+   "denominators": {
+    "cra": 76147,
+    "uk": 175926
+   }
+  },
+  "irs990_sample-acnc": {
+   "name_matches": 5,
+   "name_match_sample": [
+    "helping hands",
+    "hope international",
+    "new hope international",
+    "schultz",
+    "upon this rock ministries"
+   ],
+   "denominator": 1416
+  },
+  "irs990_sample-cra": {
+   "name_matches": 12,
+   "name_match_sample": [
+    "bell family",
+    "burke family",
+    "cooper institute",
+    "ellis family",
+    "friends chamber music",
+    "helping hands",
+    "international assembly god",
+    "mission tao confucianism",
+    "pacific christian school",
+    "rogers family",
+    "sacred heart roman catholic church",
+    "stepping stones"
+   ],
+   "denominator": 1416
+  },
+  "irs990_sample-uk": {
+   "name_matches": 15,
+   "name_match_sample": [
+    "advocates for children",
+    "beyond classroom",
+    "care and share",
+    "contemporary art",
+    "forward assist",
+    "haven house",
+    "helping hands",
+    "her place",
+    "hope international",
+    "love146",
+    "music for all",
+    "revive ministries",
+    "salt earth",
+    "speak life",
+    "variety children s"
+   ],
+   "denominator": 1416
+  },
+  "irs_bmf_vt-acnc": {
+   "name_matches": 38,
+   "name_match_sample": [
+    "air force",
+    "albany historical",
+    "beyond orphanage",
+    "branches community church",
+    "calvary baptist church",
+    "carter",
+    "christ covenant church",
+    "church god prophecy",
+    "connect church",
+    "cornerstone church",
+    "crossroads christian church",
+    "emmanuel baptist church",
+    "family place",
+    "francis",
+    "grace baptist church",
+    "grace community church",
+    "green mountain community school",
+    "holy family parish",
+    "hope community",
+    "housing",
+    "immanuel church",
+    "legacy",
+    "liberty baptist church",
+    "lighthouse christian church",
+    "living hope church",
+    "living room theatre",
+    "new life baptist church",
+    "outpost",
+    "redeemed christian church god",
+    "redeemer lutheran church",
+    "revive church",
+    "rock church",
+    "st james",
+    "trinity baptist church",
+    "trinity lutheran church",
+    "united community services",
+    "we care",
+    "williamstown historical"
+   ],
+   "denominator": 5896
+  },
+  "irs_bmf_vt-cra": {
+   "name_matches": 59,
+   "name_match_sample": [
+    "abundant life community church",
+    "advent christian church",
+    "alliance community fellowship",
+    "ascension lutheran church",
+    "aurora school",
+    "bethel historical",
+    "calvary baptist church",
+    "calvary bible church",
+    "campus crusade for christ",
+    "christ king school",
+    "christ memorial church",
+    "church firstborn",
+    "church god prophecy",
+    "church incarnation",
+    "church rock",
+    "circle",
+    "community fellowship church",
+    "connect church",
+    "cooper family",
+    "corpus christi parish",
+    "emmanuel baptist church",
+    "evergreen cemetery",
+    "first baptist church",
+    "gateway",
+    "generation fund",
+    "gethsemane ministries",
+    "good shepherd lutheran church",
+    "grace baptist church",
+    "grace community church",
+    "harmony",
+    "holy family parish",
+    "holy trinity orthodox church",
+    "home base",
+    "homes first",
+    "isaiah 61",
+    "kids first",
+    "lake view cemetery",
+    "legacy",
+    "liberty baptist church",
+    "lighthouse assembly god"
+   ],
+   "denominator": 5896
+  },
+  "irs_bmf_vt-uk": {
+   "name_matches": 53,
+   "name_match_sample": [
+    "abundant life community church",
+    "accept",
+    "action for humanity",
+    "another way",
+    "argentine tango",
+    "burlington schools",
+    "calvary baptist church",
+    "cambridge historical",
+    "castanea",
+    "castleton historical",
+    "chasing zero",
+    "christ king school",
+    "christian ministries",
+    "church firstborn",
+    "church god prophecy",
+    "community house",
+    "concrete",
+    "emmanuel baptist church",
+    "family place",
+    "francis",
+    "gateway",
+    "giving world",
+    "global diversity",
+    "good shepherd",
+    "grace baptist church",
+    "grace community church",
+    "harmony",
+    "helping paws",
+    "holy trinity orthodox church",
+    "homestead",
+    "hope community",
+    "kids first",
+    "legacy",
+    "new life baptist church",
+    "oakland",
+    "praise chapel",
+    "redeemed christian church god",
+    "revive church",
+    "revolution youth",
+    "rock church"
+   ],
+   "denominator": 5896
+  }
+ }
+}

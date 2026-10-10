@@ -109,6 +109,11 @@ export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, 
     // Prepared one bounded chunk at a time, so the serialised raw and structured forms of the whole
     // response are never held at once. First occurrence per id wins, so a duplicate cannot flip-flop.
     const seen = new Set<string>();
+    // The CPSC API answers an invalid or failed request with HTTP 200 and an error object instead of recalls.
+    // A non-empty response in which no record is a CPSC notice is a failed fetch, never an empty window.
+    if (agency === 'CPSC' && records.length > 0 && !records.some((record) => isPublishable(agency, record))) {
+      throw new Error(`CPSC response of ${records.length} record(s) holds no recall notice (error body?)`);
+    }
     for (let start = 0; start < records.length; start += CHUNK) {
       const chunk: PreparedProductRecall[] = [];
       for (const record of records.slice(start, start + CHUNK)) {

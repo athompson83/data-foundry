@@ -1,0 +1,1085 @@
+{
+ "run_date": "2026-10-03",
+ "reachability": {
+  "https://echa.europa.eu/legal-notice": {
+   "status": 403,
+   "waf_challenge": false
+  },
+  "https://echa.europa.eu/information-on-chemicals/cl-inventory-database": {
+   "status": 403,
+   "waf_challenge": false
+  },
+  "https://www.chemicals.nite.go.jp/en/": {
+   "status": "<urlopen error Tunnel connection failed: 502 Bad Gateway>",
+   "waf_challenge": false
+  },
+  "https://www.osha.gov/hazcom": {
+   "status": 403,
+   "waf_challenge": false
+  },
+  "https://comptox.epa.gov/dashboard/": {
+   "status": 200,
+   "waf_challenge": false
+  }
+ },
+ "niosh_index": {
+  "status": 200,
+  "index_cas_rows": 589,
+  "cas_to_page": 626,
+  "last_modified": null
+ },
+ "niosh_sample": [
+  {
+   "cas": "542-88-1",
+   "page": "npgd0128.html",
+   "status": 200,
+   "page_cas": "542-88-1",
+   "symptoms": "irritation eyes, skin, mucous membrane, respiratory system; pulmonary congestion, edema; corneal damage, necrosis; decreased pulmonary function, cough, dyspnea (breathing difficulty), wheezing; blood-stained sputum, bronchial secretions; [potential occupational carcinogen]",
+   "target_organs": "Eyes, skin, respiratory system",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "bis-Chloromethyl ether"
+  },
+  {
+   "cas": "122-60-1",
+   "page": "npgd0498.html",
+   "status": 200,
+   "page_cas": "122-60-1",
+   "symptoms": "irritation eyes, skin; upper respiratory system; skin sensitization; narcosis; possible hematopoietic, reproductive effects; [potential occupational carcinogen]",
+   "target_organs": "Eyes, skin, central nervous system, hematopoietic system, reproductive system",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Phenyl glycidyl ether"
+  },
+  {
+   "cas": "71-23-8",
+   "page": "npgd0533.html",
+   "status": 200,
+   "page_cas": "71-23-8",
+   "symptoms": "irritation eyes, nose, throat; dry cracking skin; drowsiness, headache; ataxia, gastrointestinal pain; abdominal cramps, nausea, vomiting, diarrhea; In Animals: narcosis",
+   "target_organs": "Eyes, skin, respiratory system, gastrointestinal tract, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "n-Propyl alcohol"
+  },
+  {
+   "cas": "107-07-3",
+   "page": "npgd0268.html",
+   "status": 200,
+   "page_cas": "107-07-3",
+   "symptoms": "irritation mucous membrane; nausea, vomiting; dizziness, incoordination; numb; visual disturbance; headache; thirst; delirium; low blood pressure; collapse, shock, coma; liver, kidney damage",
+   "target_organs": "respiratory system, liver, kidneys, central nervous system, cardiovascular system, eyes",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Ethylene chlorohydrin"
+  },
+  {
+   "cas": "108-38-3",
+   "page": "npgd0669.html",
+   "status": 200,
+   "page_cas": "108-38-3",
+   "symptoms": "irritation eyes, skin, nose, throat; dizziness, excitement, drowsiness, incoordination, staggering gait; corneal vacuolization; anorexia, nausea, vomiting, abdominal pain; dermatitis",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system, gastrointestinal tract, blood, liver, kidneys",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "m-Xylene"
+  },
+  {
+   "cas": "79-34-5",
+   "page": "npgd0598.html",
+   "status": 200,
+   "page_cas": "79-34-5",
+   "symptoms": "nausea, vomiting, abdominal pain; tremor fingers; jaundice, hepatitis, liver tenderness; dermatitis; leukocytosis (increased blood leukocytes); kidney damage; [potential occupational carcinogen]",
+   "target_organs": "Skin, liver, kidneys, central nervous system, gastrointestinal tract",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "1,1,2,2-Tetrachloroethane"
+  },
+  {
+   "cas": "109-86-4",
+   "page": "npgd0401.html",
+   "status": 200,
+   "page_cas": "109-86-4",
+   "symptoms": "irritation eyes, nose, throat; headache, drowsiness, lassitude (weakness, exhaustion); ataxia, tremor; anemic pallor; In Animals: reproductive, teratogenic effects",
+   "target_organs": "Eyes, respiratory system, central nervous system, blood, kidneys, reproductive system, hematopoietic system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Methyl Cellosolve\u00ae"
+  },
+  {
+   "cas": "624-83-9",
+   "page": "npgd0423.html",
+   "status": 200,
+   "page_cas": "624-83-9",
+   "symptoms": "irritation eyes, skin, nose, throat; resp sensitization, cough, pulmonary secretions, chest pain, dyspnea (breathing difficulty); asthma; eye, skin damage; In Animals: pulmonary edema",
+   "target_organs": "Eyes, skin, respiratory system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Methyl isocyanate"
+  },
+  {
+   "cas": "92-94-4",
+   "page": "npgd0593.html",
+   "status": 200,
+   "page_cas": "92-94-4",
+   "symptoms": "irritation eyes, skin, mucous membrane; thermal skin burns; headache; sore throat; In Animals: liver, kidney damage",
+   "target_organs": "Eyes, skin, respiratory system, liver, kidneys",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "p-Terphenyl"
+  },
+  {
+   "cas": "107-31-3",
+   "page": "npgd0417.html",
+   "status": 200,
+   "page_cas": "107-31-3",
+   "symptoms": "irritation eyes, nose; chest tightness, dyspnea (breathing difficulty); visual disturbance; central nervous system depression; In Animals: pulmonary edema; narcosis",
+   "target_organs": "Eyes, respiratory system, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Methyl formate"
+  },
+  {
+   "cas": "7783-60-0",
+   "page": "npgd0580.html",
+   "status": 200,
+   "page_cas": "7783-60-0",
+   "symptoms": "irritation eyes, skin, mucous membrane; eye, skin burns (from SF 4 releasing hydrofluoric acid on exposure to moisture); liquid: frostbite; In Animals: dyspnea (breathing difficulty), lassitude (weakness, exhaustion), rhinorrhea (discharge of thin nasal mucus)",
+   "target_organs": "Eyes, skin, respiratory system",
+   "first_aid": "Eye: Frostbite Skin: Frostbite Breathing: Respiratory support",
+   "name": "Sulfur tetrafluoride"
+  },
+  {
+   "cas": "142-64-3",
+   "page": "npgd0517.html",
+   "status": 200,
+   "page_cas": "142-64-3",
+   "symptoms": "irritation eyes, skin, respiratory system; skin burns, sensitization; asthma; gastrointestinal upset, headache, nausea, vomiting, incoordination, muscle weak",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Piperazine dihydrochloride"
+  },
+  {
+   "cas": "106-51-4",
+   "page": "npgd0542.html",
+   "status": 200,
+   "page_cas": "106-51-4",
+   "symptoms": "Eye irritation, conjunctivitis; keratitis (inflammation of the cornea); skin irritation",
+   "target_organs": "Eyes, skin",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Quinone"
+  },
+  {
+   "cas": "108-98-5",
+   "page": "npgd0050.html",
+   "status": 200,
+   "page_cas": "108-98-5",
+   "symptoms": "irritation eyes, skin, respiratory system; dermatitis; cyanosis; cough, wheezing, dyspnea (breathing difficulty), pulmonary edema, pneumonitis; headache, dizziness, central nervous system depression; nausea, vomiting; kidney, liver, spleen damage",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system, kidneys, liver, spleen",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Benzenethiol"
+  },
+  {
+   "cas": "75-12-7",
+   "page": "npgd0295.html",
+   "status": 200,
+   "page_cas": "75-12-7",
+   "symptoms": "irritation eyes, skin, mucous membrane; drowsiness, lassitude (weakness, exhaustion); nausea; acidosis; skin eruptions; In Animals: reproductive effects",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system, reproductive system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water wash Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Formamide"
+  },
+  {
+   "cas": "7440-36-0",
+   "page": "npgd0036.html",
+   "status": 200,
+   "page_cas": "7440-36-0",
+   "symptoms": "irritation eyes, skin, nose, throat, mouth; cough; dizziness; headache; nausea, vomiting, diarrhea; stomach cramps; insomnia; anorexia; unable to smell properly",
+   "target_organs": "Eyes, skin, respiratory system, cardiovascular system",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Antimony"
+  },
+  {
+   "cas": "108-21-4",
+   "page": "npgd0358.html",
+   "status": 200,
+   "page_cas": "108-21-4",
+   "symptoms": "irritation eyes, skin, nose; dermatitis; In Animals: narcosis",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Isopropyl acetate"
+  },
+  {
+   "cas": "17702-41-9",
+   "page": "npgd0175.html",
+   "status": 200,
+   "page_cas": "17702-41-9",
+   "symptoms": "dizziness, headache, nausea, drowsiness; incoordination, localized muscle spasm, tremor, convulsions; lassitude (weakness, exhaustion); In Animals: dyspnea (breathing difficulty); lassitude (weakness, exhaustion); liver, kidney damage",
+   "target_organs": "central nervous system, liver, kidneys",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Decaborane"
+  },
+  {
+   "cas": "109-73-9",
+   "page": "npgd0079.html",
+   "status": 200,
+   "page_cas": "109-73-9",
+   "symptoms": "irritation eyes, skin, nose, throat; headache; skin flush, burns",
+   "target_organs": "Eyes, skin, respiratory system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "n-Butylamine"
+  },
+  {
+   "cas": "8032-32-4",
+   "page": "npgd0664.html",
+   "status": 200,
+   "page_cas": "8032-32-4",
+   "symptoms": "irritation eyes, upper respiratory system; dermatitis; central nervous system depression; chemical pneumonitis (aspiration liquid)",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "VM & P Naphtha"
+  },
+  {
+   "cas": "7440-74-6",
+   "page": "npgd0341.html",
+   "status": 200,
+   "page_cas": "7440-74-6",
+   "symptoms": "irritation eyes, skin, respiratory system; possible liver, kidney, heart, blood effects; pulmonary edema",
+   "target_organs": "Eyes, skin, respiratory system, liver, kidneys, heart, blood",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Indium"
+  },
+  {
+   "cas": "107-41-5",
+   "page": "npgd0328.html",
+   "status": 200,
+   "page_cas": "107-41-5",
+   "symptoms": "irritation eyes, skin, respiratory system; headache, dizziness, nausea, incoordination, central nervous system depression; dermatitis, skin sensitization",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Hexylene glycol"
+  },
+  {
+   "cas": "87-68-3",
+   "page": "npgd0314.html",
+   "status": 200,
+   "page_cas": "87-68-3",
+   "symptoms": "In Animals: irritation eyes, skin, respiratory system; kidney damage; [potential occupational carcinogen]",
+   "target_organs": "Eyes, skin, respiratory system, kidneys",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Hexachlorobutadiene"
+  },
+  {
+   "cas": "11107-01-0",
+   "page": "npgd0647.html",
+   "status": 200,
+   "page_cas": "1",
+   "symptoms": "irritation eyes, skin, respiratory system; possible skin sensitization to cobalt, nickel; diffuse pulmonary fibrosis; loss of appetite, nausea, cough; blood changes",
+   "target_organs": "Eyes, skin, respiratory system, blood",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash Breathing: Fresh air Swallow: Medical attention immediately",
+   "name": "Tungsten carbide (cemented)"
+  },
+  {
+   "cas": "148-01-6",
+   "page": "npgd0230.html",
+   "status": 200,
+   "page_cas": "148-01-6",
+   "symptoms": "Contact eczema; In Animals: methemoglobinemia, liver changes",
+   "target_organs": "Skin, liver, blood",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Dinitolmide"
+  },
+  {
+   "cas": "107-87-9",
+   "page": "npgd0488.html",
+   "status": 200,
+   "page_cas": "107-87-9",
+   "symptoms": "irritation eyes, skin, mucous membrane; headache; dermatitis; narcosis, coma",
+   "target_organs": "Eyes, skin, respiratory system, central nervous system",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "2-Pentanone"
+  },
+  {
+   "cas": "92-06-8",
+   "page": "npgd0592.html",
+   "status": 200,
+   "page_cas": "92-06-8",
+   "symptoms": "irritation eyes, skin, mucous membrane; thermal skin burns; headache; sore throat; In Animals: liver, kidney damage",
+   "target_organs": "Eyes, skin, respiratory system, liver, kidneys",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "m-Terphenyl"
+  },
+  {
+   "cas": "94-36-0",
+   "page": "npgd0052.html",
+   "status": 200,
+   "page_cas": "94-36-0",
+   "symptoms": "irritation eyes, skin, mucous membrane; sensitization dermatitis",
+   "target_organs": "Eyes, skin, respiratory system",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash promptly Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Benzoyl peroxide"
+  },
+  {
+   "cas": "71-43-2",
+   "page": "npgd0049.html",
+   "status": 200,
+   "page_cas": "71-43-2",
+   "symptoms": "irritation eyes, skin, nose, respiratory system; dizziness; headache, nausea, staggered gait; anorexia, lassitude (weakness, exhaustion); dermatitis; bone marrow depression; [potential occupational carcinogen]",
+   "target_organs": "Eyes, skin, respiratory system, blood, central nervous system, bone marrow",
+   "first_aid": "Eye: Irrigate immediately Skin: Soap wash immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Benzene"
+  },
+  {
+   "cas": "107-12-0",
+   "page": "npgd0530.html",
+   "status": 200,
+   "page_cas": "107-12-0",
+   "symptoms": "irritation eyes, skin, respiratory system; nausea, vomiting; chest pain; lassitude (weakness, exhaustion); stupor, convulsions; In Animals: liver, kidney damage",
+   "target_organs": "Eyes, skin, respiratory system, cardiovascular system, central nervous system, liver, kidneys",
+   "first_aid": "Eye: Irrigate immediately Skin: Water flush immediately Breathing: Respiratory support Swallow: Medical attention immediately",
+   "name": "Propionitrile"
+  }
+ ],
+ "niosh_free_text_fields_populated": {
+  "symptoms": 30,
+  "target_organs": 30,
+  "first_aid": 30
+ },
+ "niosh_cas_page_matches_index": 29,
+ "pubchem_sample": [
+  {
+   "cas": "542-88-1",
+   "cid_status": 200,
+   "cid": 10967,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H301",
+     "H302",
+     "H311",
+     "H330",
+     "H350",
+     "H372"
+    ],
+    "n_statement_lines": 21,
+    "example_statement": "H225: Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "122-60-1",
+   "cid_status": 200,
+   "cid": 31217,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H303",
+     "H312",
+     "H315",
+     "H317",
+     "H319",
+     "H332",
+     "H335",
+     "H336",
+     "H341",
+     "H350",
+     "H351",
+     "H361",
+     "H370",
+     "H372",
+     "H402",
+     "H412"
+    ],
+    "n_statement_lines": 45,
+    "example_statement": "H315: Causes skin irritation [Warning Skin corrosion/irritation]"
+   }
+  },
+  {
+   "cas": "71-23-8",
+   "cid_status": 200,
+   "cid": 1031,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H302",
+     "H303",
+     "H305",
+     "H313",
+     "H315",
+     "H318",
+     "H319",
+     "H335",
+     "H336",
+     "H351",
+     "H361"
+    ],
+    "n_statement_lines": 24,
+    "example_statement": "H225: Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "107-07-3",
+   "cid_status": 200,
+   "cid": 34,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H226",
+     "H290",
+     "H300",
+     "H301",
+     "H310",
+     "H318",
+     "H319",
+     "H330",
+     "H336",
+     "H341",
+     "H350",
+     "H361",
+     "H370",
+     "H372",
+     "H373",
+     "H402",
+     "H411",
+     "H412"
+    ],
+    "n_statement_lines": 36,
+    "example_statement": "H300: Fatal if swallowed [Danger Acute toxicity, oral]"
+   }
+  },
+  {
+   "cas": "108-38-3",
+   "cid_status": 200,
+   "cid": 7929,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Warning",
+    "h_codes": [
+     "H226",
+     "H304",
+     "H312",
+     "H315",
+     "H318",
+     "H319",
+     "H332",
+     "H335",
+     "H336",
+     "H361",
+     "H370",
+     "H372",
+     "H401",
+     "H402",
+     "H412"
+    ],
+    "n_statement_lines": 44,
+    "example_statement": "H226: Flammable liquid and vapor [Warning Flammable liquids]"
+   }
+  },
+  {
+   "cas": "79-34-5",
+   "cid_status": 200,
+   "cid": 6591,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H227",
+     "H301",
+     "H302",
+     "H310",
+     "H315",
+     "H319",
+     "H330",
+     "H331",
+     "H335",
+     "H336",
+     "H341",
+     "H350",
+     "H351",
+     "H370",
+     "H372",
+     "H401",
+     "H411"
+    ],
+    "n_statement_lines": 43,
+    "example_statement": "H310: Fatal in contact with skin [Danger Acute toxicity, dermal]"
+   }
+  },
+  {
+   "cas": "109-86-4",
+   "cid_status": 200,
+   "cid": 8019,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H226",
+     "H302",
+     "H303",
+     "H312",
+     "H316",
+     "H320",
+     "H331",
+     "H332",
+     "H335",
+     "H336",
+     "H360",
+     "H360FD",
+     "H370",
+     "H372",
+     "H373"
+    ],
+    "n_statement_lines": 47,
+    "example_statement": "H226: Flammable liquid and vapor [Warning Flammable liquids]"
+   }
+  },
+  {
+   "cas": "624-83-9",
+   "cid_status": 200,
+   "cid": 12228,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H301",
+     "H310",
+     "H311",
+     "H314",
+     "H315",
+     "H317",
+     "H318",
+     "H330",
+     "H334",
+     "H335",
+     "H341",
+     "H360",
+     "H361",
+     "H361d",
+     "H370",
+     "H372"
+    ],
+    "n_statement_lines": 53,
+    "example_statement": "H225: Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "92-94-4",
+   "cid_status": 200,
+   "cid": 7115,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Warning",
+    "h_codes": [
+     "H315",
+     "H319",
+     "H335",
+     "H400",
+     "H413"
+    ],
+    "n_statement_lines": 5,
+    "example_statement": "H315 (77.4%): Causes skin irritation [Warning Skin corrosion/irritation]"
+   }
+  },
+  {
+   "cas": "107-31-3",
+   "cid_status": 200,
+   "cid": 7865,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H224",
+     "H301",
+     "H302",
+     "H311",
+     "H315",
+     "H316",
+     "H319",
+     "H331",
+     "H332",
+     "H335",
+     "H336",
+     "H370",
+     "H371",
+     "H373"
+    ],
+    "n_statement_lines": 36,
+    "example_statement": "H224: Extremely flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "7783-60-0",
+   "cid_status": 200,
+   "cid": 24555,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H280",
+     "H314",
+     "H318",
+     "H330",
+     "H335",
+     "H370",
+     "H372",
+     "H373"
+    ],
+    "n_statement_lines": 17,
+    "example_statement": "H280 (100%): Contains gas under pressure; may explode if heated [Warning Gases under pressure]"
+   }
+  },
+  {
+   "cas": "142-64-3",
+   "cid_status": 200,
+   "cid": 8893,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H303",
+     "H315",
+     "H317",
+     "H319",
+     "H334",
+     "H361",
+     "H361fd",
+     "H370",
+     "H373",
+     "H412"
+    ],
+    "n_statement_lines": 23,
+    "example_statement": "H315: Causes skin irritation [Warning Skin corrosion/irritation]"
+   }
+  },
+  {
+   "cas": "106-51-4",
+   "cid_status": 200,
+   "cid": 4650,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H301",
+     "H315",
+     "H317",
+     "H319",
+     "H331",
+     "H335",
+     "H341",
+     "H370",
+     "H371",
+     "H400",
+     "H410"
+    ],
+    "n_statement_lines": 42,
+    "example_statement": "H301: Toxic if swallowed [Danger Acute toxicity, oral]"
+   }
+  },
+  {
+   "cas": "108-98-5",
+   "cid_status": 200,
+   "cid": 7969,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H226",
+     "H300",
+     "H301",
+     "H310",
+     "H311",
+     "H314",
+     "H315",
+     "H318",
+     "H319",
+     "H330",
+     "H335",
+     "H361",
+     "H371",
+     "H372",
+     "H400",
+     "H410"
+    ],
+    "n_statement_lines": 28,
+    "example_statement": "H226 (99.8%): Flammable liquid and vapor [Warning Flammable liquids]"
+   }
+  },
+  {
+   "cas": "75-12-7",
+   "cid_status": 200,
+   "cid": 713,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H290",
+     "H316",
+     "H320",
+     "H336",
+     "H351",
+     "H360",
+     "H360D",
+     "H360Df",
+     "H373"
+    ],
+    "n_statement_lines": 16,
+    "example_statement": "H360D ***: May damage the unborn child [Danger Reproductive toxicity]"
+   }
+  },
+  {
+   "cas": "7440-36-0",
+   "cid_status": 200,
+   "cid": 5354495,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H301",
+     "H302",
+     "H315",
+     "H319",
+     "H332",
+     "H335",
+     "H351",
+     "H370",
+     "H372",
+     "H373",
+     "H401",
+     "H411"
+    ],
+    "n_statement_lines": 20,
+    "example_statement": "H301 (18.2%): Toxic if swallowed [Danger Acute toxicity, oral]"
+   }
+  },
+  {
+   "cas": "108-21-4",
+   "cid_status": 200,
+   "cid": 7915,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H303",
+     "H305",
+     "H315",
+     "H319",
+     "H320",
+     "H332",
+     "H335",
+     "H336",
+     "H371",
+     "H373"
+    ],
+    "n_statement_lines": 22,
+    "example_statement": "H225: Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "17702-41-9",
+   "cid_status": 404
+  },
+  {
+   "cas": "109-73-9",
+   "cid_status": 200,
+   "cid": 8007,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H301",
+     "H302",
+     "H311",
+     "H312",
+     "H314",
+     "H318",
+     "H330",
+     "H331",
+     "H332",
+     "H335",
+     "H360",
+     "H370",
+     "H371",
+     "H372",
+     "H402"
+    ],
+    "n_statement_lines": 37,
+    "example_statement": "H225: Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "8032-32-4",
+   "cid_status": 404
+  },
+  {
+   "cas": "7440-74-6",
+   "cid_status": 200,
+   "cid": 5359967,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H302",
+     "H303",
+     "H312",
+     "H315",
+     "H319",
+     "H332",
+     "H335",
+     "H372"
+    ],
+    "n_statement_lines": 10,
+    "example_statement": "H302 (15.1%): Harmful if swallowed [Warning Acute toxicity, oral]"
+   }
+  },
+  {
+   "cas": "107-41-5",
+   "cid_status": 200,
+   "cid": 7870,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Warning",
+    "h_codes": [
+     "H227",
+     "H315",
+     "H319",
+     "H335",
+     "H336"
+    ],
+    "n_statement_lines": 12,
+    "example_statement": "H315: Causes skin irritation [Warning Skin corrosion/irritation]"
+   }
+  },
+  {
+   "cas": "87-68-3",
+   "cid_status": 200,
+   "cid": 6901,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H227",
+     "H301",
+     "H302",
+     "H310",
+     "H312",
+     "H315",
+     "H317",
+     "H318",
+     "H319",
+     "H330",
+     "H332",
+     "H341",
+     "H351",
+     "H361",
+     "H370",
+     "H371",
+     "H372",
+     "H400",
+     "H410"
+    ],
+    "n_statement_lines": 25,
+    "example_statement": "H301 (68.1%): Toxic if swallowed [Danger Acute toxicity, oral]"
+   }
+  },
+  {
+   "cas": "11107-01-0",
+   "cid_status": 404
+  },
+  {
+   "cas": "148-01-6",
+   "cid_status": 200,
+   "cid": 3092,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Warning",
+    "h_codes": [
+     "H302",
+     "H315"
+    ],
+    "n_statement_lines": 3,
+    "example_statement": "H302 (97.7%): Harmful if swallowed [Warning Acute toxicity, oral]"
+   }
+  },
+  {
+   "cas": "107-87-9",
+   "cid_status": 200,
+   "cid": 7895,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H302",
+     "H305",
+     "H316",
+     "H319",
+     "H331",
+     "H333",
+     "H335",
+     "H336"
+    ],
+    "n_statement_lines": 17,
+    "example_statement": "H225 (31.3%): Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "92-06-8",
+   "cid_status": 200,
+   "cid": 7076,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Warning",
+    "h_codes": [
+     "H315",
+     "H317",
+     "H319",
+     "H335",
+     "H400",
+     "H410"
+    ],
+    "n_statement_lines": 10,
+    "example_statement": "H317 (13.6%): May cause an allergic skin reaction [Warning Sensitization, Skin]"
+   }
+  },
+  {
+   "cas": "94-36-0",
+   "cid_status": 200,
+   "cid": 7187,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H241",
+     "H242",
+     "H251",
+     "H316",
+     "H317",
+     "H319",
+     "H335",
+     "H361",
+     "H400",
+     "H410"
+    ],
+    "n_statement_lines": 37,
+    "example_statement": "H241: Heating may cause a fire or explosion [Danger Self-reactive substances and mixtures; Organic peroxides]"
+   }
+  },
+  {
+   "cas": "71-43-2",
+   "cid_status": 200,
+   "cid": 241,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H302",
+     "H304",
+     "H315",
+     "H319",
+     "H332",
+     "H335",
+     "H336",
+     "H340",
+     "H341",
+     "H350",
+     "H361",
+     "H370",
+     "H372",
+     "H401",
+     "H411",
+     "H412"
+    ],
+    "n_statement_lines": 56,
+    "example_statement": "H225: Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  },
+  {
+   "cas": "107-12-0",
+   "cid_status": 200,
+   "cid": 7854,
+   "cas_in_synonyms_exact": true,
+   "ghs": {
+    "status": 200,
+    "signal": "Danger",
+    "h_codes": [
+     "H225",
+     "H300",
+     "H310",
+     "H319",
+     "H330",
+     "H331",
+     "H332",
+     "H360",
+     "H370",
+     "H412"
+    ],
+    "n_statement_lines": 15,
+    "example_statement": "H225 (100%): Highly Flammable liquid and vapor [Danger Flammable liquids]"
+   }
+  }
+ ],
+ "link_niosh_to_pubchem": {
+  "sampled": 30,
+  "cid_found": 27,
+  "declared_cas_exact_in_pubchem_synonyms": 27,
+  "with_ghs_hazard_statements": 27
+ },
+ "tsca": {
+  "file": "TSCAINV_072026.csv",
+  "rows": 70774,
+  "activity": {
+   "ACTIVE": 36522,
+   "INACTIVE": 34252
+  },
+  "columns": [
+   "ID",
+   "CASRN",
+   "casregno",
+   "UID",
+   "EXP",
+   "ChemName",
+   "DEF",
+   "UVCB",
+   "FLAG",
+   "ACTIVITY"
+  ]
+ },
+ "link_niosh_to_tsca": {
+  "sampled": 30,
+  "matched_exact_cas": 28,
+  "active": 28
+ },
+ "link_pubchem_to_tsca": {
+  "sampled": 30,
+  "matched_exact_cas": 26
+ },
+ "niosh_index_all_vs_tsca": {
+  "niosh_cas": 626,
+  "in_tsca": 539
+ }
+}

@@ -1,0 +1,36 @@
+model index rows: 1796876; distinct pd_id: 1796876; upc-codes rows: 39108
+brand: 1796876/1796876
+model: 1796875/1796876
+pattern: 1576700/1796876
+gtin: 11719/1796876
+rejected_upc: 886/1796876
+markets: 1796875/1796876
+canada: 1644779/1796876
+date_certified: 1796876/1796876
+date_available: 1796876/1796876
+sample (every 71875th row by pd_id):
+1723365	Commercial Griddles	Taylor Company	C835-23	pattern=False	gtins=-	certified=2011-03-31
+2491088	Central Air Conditioners and Air Source Heat Pumps	Keeprite	C4A7T48*K*WAA*	pattern=True	gtins=-	certified=2023-11-30
+2590100	Central Air Conditioners and Air Source Heat Pumps	MSH LEGACY	N4A5S24*K*WAA*	pattern=True	gtins=-	certified=2023-07-20
+2735384	Central Air Conditioners and Air Source Heat Pumps	Keeprite	N4H7T36*K*AAA*	pattern=True	gtins=-	certified=2025-01-27
+2850298	Central Air Conditioners and Air Source Heat Pumps	Airquest	HVH837GKA2*+TSTAT	pattern=True	gtins=-	certified=2025-05-15
+2946927	Central Air Conditioners and Air Source Heat Pumps	Kenmore	R4A5S30*K*WAA*	pattern=True	gtins=-	certified=2023-12-18
+3040393	Central Air Conditioners and Air Source Heat Pumps	Heil	H4A6S36*K*WAA*	pattern=True	gtins=-	certified=2023-12-19
+3119381	Central Air Conditioners and Air Source Heat Pumps	Keeprite	N4A7T48*K*WAA*	pattern=True	gtins=-	certified=2024-10-03
+3201926	Central Air Conditioners and Air Source Heat Pumps	Heil	N4A4S18*K*NAA*	pattern=True	gtins=-	certified=2023-12-19
+3280613	Central Air Conditioners and Air Source Heat Pumps	Carrier	GA4SAN424**NA*	pattern=True	gtins=-	certified=2023-12-19
+3361751	Central Air Conditioners and Air Source Heat Pumps	ACIQ	N4A7T36*K*WAA*	pattern=True	gtins=-	certified=2024-01-18
+3436398	Central Air Conditioners and Air Source Heat Pumps	Franklin	MSH123E23MCAA	pattern=False	gtins=-	certified=2025-03-04
+3517856	Central Air Conditioners and Air Source Heat Pumps	Airquest	H4A6S18*K*WAA*	pattern=True	gtins=-	certified=2024-05-20
+3598324	Central Air Conditioners and Air Source Heat Pumps	Comfortmaker	N4A5S30*K*WAA*	pattern=True	gtins=-	certified=2024-08-05
+3673175	Central Air Conditioners and Air Source Heat Pumps	Arcoaire	N5A5S24*K*WAA*	pattern=True	gtins=-	certified=2024-10-03
+3751592	Central Air Conditioners and Air Source Heat Pumps	Keeprite	N5A8T24*K*WAA*	pattern=True	gtins=-	certified=2024-11-11
+3828660	Central Air Conditioners and Air Source Heat Pumps	Airquest	H5A8T36*K*WAA*	pattern=True	gtins=-	certified=2024-11-29
+3908539	Central Air Conditioners and Air Source Heat Pumps	ACIQ	N5A5S18*K*WAA*	pattern=True	gtins=-	certified=2025-01-14
+3981248	Central Air Conditioners and Air Source Heat Pumps	Trane	5TWX7024A1	pattern=False	gtins=-	certified=2025-10-27
+4067800	Central Air Conditioners and Air Source Heat Pumps	Comfortmaker	R5A5S60*K*WAA*	pattern=True	gtins=-	certified=2025-05-21
+4139870	Central Air Conditioners and Air Source Heat Pumps	BRYANT HEATING AND COOLING SYSTEMS	GA5SAN536**WA*	pattern=True	gtins=-	certified=2025-05-21
+4211745	Central Air Conditioners and Air Source Heat Pumps	Arcoaire	N5A5S42*K*WAA*	pattern=True	gtins=-	certified=2025-05-21
+4283691	Central Air Conditioners and Air Source Heat Pumps	Comfortmaker	N5A4S42*K*NAA*	pattern=True	gtins=-	certified=2025-05-21
+4355612	Central Air Conditioners and Air Source Heat Pumps	Arcoaire	H5A6S24*K*WAA*	pattern=True	gtins=-	certified=2025-05-21
+4427487	Central Air Conditioners and Air Source Heat Pumps	Keeprite	N5A5S36*KDWAA*	pattern=True	gtins=-	certified=2025-05-21

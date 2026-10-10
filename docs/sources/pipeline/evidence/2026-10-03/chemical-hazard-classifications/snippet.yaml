@@ -1,0 +1,127 @@
+candidates:
+  - key: chemical-niosh-pocket-guide
+    name: NIOSH Pocket Guide to Chemical Hazards (per-chemical pages, symptoms, target organs, first aid)
+    category: chemical-safety
+    structuring: normalization
+    format: free-text
+    publisher: US CDC NIOSH
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cdc.gov/niosh/npg/npgdcas.html', 'https://www.cdc.gov/niosh/npg/default.html' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: 'Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission.'
+    conditions:
+      - 'CDC public-domain content requires attribution to the developing agency (for example "Source: CDC") and a disclaimer that use does not imply endorsement by CDC, ATSDR, HHS or the US Government; the page lists a few copyrighted exceptions, so serve only NIOSH-authored fields.'
+      - 'Content is static: the sampled entry says "Page last reviewed: October 30, 2019". Sell it as a stable reference layer, not a fresh feed; never imply it is current.'
+      - 'No bulk file: acquisition is the CAS index page (626 CAS-to-page links) plus one HTML page per entry; fetch politely and archive each page in R2.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parse all NPG pages (CAS, RTECS, IDLH, REL, PEL, symptoms, target organs, first aid) into typed fields and write the ADR-0013 rights record with the attribution text.
+  - key: chemical-pubchem-ghs
+    name: PubChem GHS Classification (PUG-View hazard statements, signal word, pictograms by compound)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: NCBI PubChem (NLM)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/702/JSON?heading=GHS+Classification', 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/75-07-0/cids/JSON' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: 'NCBI itself places no restrictions on the use or distribution of the data contained therein. Nor do we accept data when the submitter has requested restrictions on reuse or redistribution.'
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: 'However, some submitters of the original data (or the country of origin of such data) may claim patent, copyright, or other intellectual property rights in all or a portion of the data (that has been submitted).'
+    conditions:
+      - 'NCBI is not the rights holder: submitters may claim rights. The GHS section aggregates depositors (the ethanol record cites the ECHA C&L Notifications Summary, 13886 reports from 79 notifications), so store the depositor and source name per hazard statement and serve a depositor only after its own terms are read.'
+      - 'ECHA legal notice could not be fetched (HTTP 403, Azure WAF challenge), so ECHA-derived statements stay unserved until that notice is read from a permitted route.'
+      - 'Hazard statements are crowd-reported with per-statement notifier percentages (for example H315 77.4%); keep the percentages and never present a union of statements as one official classification.'
+      - 'Use PUG REST/PUG-View politely (observed fine at under 2 requests per second); name lookup by CAS returned no CID for 3 of 30 NIOSH CAS numbers (mixtures and UVCB entries).'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Resolve the per-depositor terms (read ECHA's legal notice via a permitted route), then ingest the PubChem GHS classification bulk FTP by CID with depositor attribution preserved.
+  - key: chemical-epa-tsca-inventory
+    name: EPA TSCA Chemical Substance Inventory (non-confidential, CAS number and active or inactive status)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.epa.gov/tsca-inventory/how-access-tsca-inventory', 'https://www.epa.gov/system/files/other-files/2026-05/csv-non-cbi-tsca-inventory.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'The EPA disclaimer reserves commercial-use copyright for some documents; the inventory is an EPA-authored regulatory list, so serve only CASRN, activity flag, UVCB/definition flags and the TSCA listing status, and resolve the sentence in an ADR-0013 rights record before paid delivery.'
+      - 'CA Index Names are Chemical Abstracts Service nomenclature carried inside the EPA list; confirm in the rights record whether to serve them or keep only the CAS number.'
+      - 'The file is refreshed about every six months (TSCAINV_072026.csv, 70,774 rows: 36,522 ACTIVE and 34,252 INACTIVE); it has no hazard data and no free text.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Write the ADR-0013 rights record for the TSCA inventory fields, then archive the semiannual CSV zip in R2 with SHA-256.
+  - key: chemical-echa-cl-inventory
+    name: ECHA C&L Inventory and registered substances (EU harmonised and notified classifications)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: ECHA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://echa.europa.eu/information-on-chemicals/cl-inventory-database', 'https://echa.europa.eu/legal-notice' ]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parked. Both ECHA pages return HTTP 403 with an Azure WAF challenge from our egress; reopen only if ECHA offers a documented download or API reachable without bypassing the challenge, and its legal notice can be read.
+  - key: chemical-nite-chrip
+    name: Japan NITE-CHRIP / GHS classification results
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: NITE Japan
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.chemicals.nite.go.jp/en/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parked. The host is unreachable from our egress (proxy tunnel returned 502 Bad Gateway) so no terms could be read; retry on a later run.
+  - key: chemical-epa-comptox
+    name: EPA CompTox Chemicals Dashboard (identifiers, hazard and toxicity data)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://comptox.epa.gov/dashboard/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Parked. The dashboard is a JavaScript app (HTTP 200); the guessed downloadable-data and FAQ pages returned 404 and no keyless bulk URL or terms page was found. Reopen once EPA's current CompTox download page is located.
+
+datasets:
+  - key: chemical-hazard-classifications
+    name: Chemical hazard classifications linked by CAS number (NIOSH, PubChem GHS, EPA TSCA)
+    category: chemical-safety
+    entity: chemical_substance (one substance identified by CAS number, with GHS hazard statements and signal word, occupational exposure text, and US TSCA listing status)
+    stage: SCREENED
+    description: 'One record per substance, keyed by CAS number. NIOSH supplies occupational symptoms, target organs and first aid prose (626 CAS entries), PubChem supplies depositor-attributed GHS hazard statements, signal word and pictograms, and the EPA TSCA inventory supplies active or inactive US commerce status (70,774 rows). CAS number is an identifier that names the same substance in each source, so it links automatically at the substance level; names and synonyms only propose reviewed links. Mixtures, UVCB entries and multi-CAS NIOSH entries are not auto-linked. ECHA C&L, NITE-CHRIP and CompTox are parked.'
+    sources: [ chemical-niosh-pocket-guide, chemical-pubchem-ghs, chemical-epa-tsca-inventory ]
+    join_keys:
+      - key: CAS number (exact; NIOSH CAS to a PubChem compound whose synonym list contains that exact CAS number)
+        between: [ chemical-niosh-pocket-guide, chemical-pubchem-ghs ]
+        measured: 27/30 sampled NIOSH CAS numbers (seed 7) resolve to a PubChem CID whose synonyms contain the exact CAS number, and all 27 have GHS hazard statements; the 3 misses are cemented tungsten carbide, VM&P naphtha and decaborane
+        mode: declared
+      - key: CAS number (exact; NIOSH CAS to TSCA CASRN)
+        between: [ chemical-niosh-pocket-guide, chemical-epa-tsca-inventory ]
+        measured: 28/30 sampled NIOSH CAS numbers are on the TSCA inventory (all 28 ACTIVE); across the whole NIOSH index 539/626 CAS numbers are on TSCA
+        mode: declared
+    taxonomy:
+      - 'ghs_hazard_statement: H-code and text, per depositor, verbatim from PubChem'
+      - 'signal_word: Danger | Warning, as PubChem reports it'
+      - 'occupational_target_organs: NIOSH target organs, verbatim'
+      - 'tsca_status: ACTIVE | INACTIVE from the EPA inventory activity flag'
+    agent_questions:
+      - What are the GHS hazard statements for CAS 75-07-0 and which organs does NIOSH say it targets?
+      - Is this substance active on the US TSCA inventory, and what first aid does NIOSH list for exposure?
+      - Which substances carry H350 (may cause cancer) and are also flagged as potential occupational carcinogens by NIOSH?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/results.json, docs/sources/pipeline/evidence/2026-10-03/chemical-hazard-classifications/notes.md ]
+    next_action: Write rights records for NIOSH (attribution), PubChem (per-depositor) and TSCA; read ECHA terms via a permitted route; add the CAS number phrase to the declared-join regex in tooling/test/source-pipeline.test.ts; re-measure on a larger sample before EVIDENCED.

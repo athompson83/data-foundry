@@ -1,0 +1,162 @@
+# Paste candidates under `candidates:` and the dataset under `datasets:` in candidates.yaml.
+candidates:
+  - key: food-safety-uk-fsa-hygiene-ratings
+    name: UK Food Standards Agency Food Hygiene Rating Scheme API (614k establishments, FHRSID)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: Food Standards Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.ratings.food.gov.uk/Establishments' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.food.gov.uk/terms-and-conditions
+        quote: 'Use of proprietary food hygiene ratings information and services is subject to the terms of the Open Government Licence (OGL)'
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+    conditions:
+      - Attribute the Food Standards Agency and link the OGL v3.0.
+      - Show the rating date and refresh often; the terms warn that displaying an invalid or inaccurate rating may be an offence.
+      - Do not use FSA logos. Acquire per local authority (unfiltered queries return 403).
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Page all 363 authorities, measure RightToReply fill rate beyond the Cambridge page, and write the OGL rights record.
+
+  - key: food-safety-osm-fhrs-venues
+    name: OpenStreetMap venues tagged with fhrs:id (declared pointer to the FSA record)
+    category: food-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: OpenStreetMap contributors
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://taginfo.openstreetmap.org/api/4/key/stats?key=fhrs:id', 'https://api.openstreetmap.org/api/0.6/map.json' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.openstreetmap.org/copyright
+        quote: 'You are free to copy, distribute, transmit and adapt our data, as long as you credit OpenStreetMap and its contributors.'
+      - url: https://www.openstreetmap.org/copyright
+        quote: 'If you alter or build upon our data, you may distribute the result only under the same license.'
+    conditions:
+      - ODbL attribution to OpenStreetMap and its contributors.
+      - Share-alike applies to derived databases; keep OSM-derived fields in a separable layer and decide per delivery channel.
+      - Overpass endpoints failed from this egress; use a planet or regional extract rather than the public API for bulk.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Pull a UK extract, count fhrs:id coverage against the FSA total, and write the ODbL separation plan.
+
+  - key: food-safety-sf-lives-inspections
+    name: San Francisco health inspection scores and violations 2016-2019 (LIVES, frozen)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: San Francisco Department of Public Health
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://data.sfgov.org/resource/pyih-qa8i.json' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://opendatacommons.org/licenses/pddl/1.0/
+        quote: 'The Open Data Commons – Public Domain Dedication and Licence is a document intended to allow you to freely share, modify, and use this work for any purpose and without any restrictions.'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Locate the successor feed that replaced LIVES (vendor site named in the dataset description) and check its terms before building.
+
+  - key: food-safety-austin-inspection-scores
+    name: Austin Public Health food establishment inspection scores (3-year rolling window)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: City of Austin
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.austintexas.gov/resource/ecmv-9xxi.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    conditions:
+      - Portal metadata says Public Domain but no terms page could be fetched and quoted; confirm before any publication.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Find and quote the Austin open-data terms page, then decide whether score-only data justifies membership.
+
+  - key: food-safety-nyc-dohmh-inspections
+    name: NYC DOHMH restaurant inspection results (violation text, CAMIS permit id)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: NYC Department of Health and Mental Hygiene
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.cityofnewyork.us/resource/43nn-pn8j.json' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    terms:
+      - url: https://www.nyc.gov/home/terms-of-use.page
+        quote: 'To request permission to use City intellectual property located on NYC.gov, please visit the'
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, no open-data terms readable (296,175 rows, daily). Retry reading NYC Open Data terms from a browser-capable egress.
+
+  - key: food-safety-chicago-food-inspections
+    name: Chicago Department of Public Health food inspections (violation comments, licence number)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Chicago
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.cityofchicago.org/resource/4ijn-s7e5.json' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, the terms page returns 403 from this egress and the licence is SEE_TERMS_OF_USE. Retry the terms read from another egress.
+
+  - key: food-safety-dallas-inspections
+    name: Dallas restaurant and food establishment inspections 2016-2024 (sunset)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Dallas Code Compliance
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.dallasopendata.com/resource/dri5-wcct.json' ]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 4, structuring_value: 3, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, no licence in metadata, no establishment id, and the feed ended 2024-02-29.
+
+  - key: food-safety-king-county-inspections
+    name: King County and Seattle food establishment inspection data
+    category: food-safety
+    structuring: event-extraction
+    format: structured
+    publisher: Public Health Seattle and King County
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.kingcounty.gov/resource/f29f-zza5.json' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked, the inspections view answers 403 requiring login. Look for a public bulk file or the vendor inspections site.
+
+datasets:
+  - key: restaurant-health-inspections
+    name: Food-establishment inspection and hygiene-rating record with violation text
+    category: food-safety
+    entity: food_establishment (one licensed or permitted food business) with inspections, scores or ratings and violations
+    stage: SCREENED
+    description: 'One record per food establishment, assembled from per-jurisdiction inspection feeds (violation text and scores) and the UK FSA hygiene ratings, linked to OpenStreetMap venues by the FSA establishment id that OSM volunteers tag. Each jurisdiction links on its own permit id; no identifier is shared across jurisdictions. Free-text violations are normalised to one violation taxonomy with the source row cited.'
+    sources:
+      - food-safety-uk-fsa-hygiene-ratings
+      - food-safety-osm-fhrs-venues
+      - food-safety-sf-lives-inspections
+    join_keys:
+      - key: cited FHRS establishment reference number (OSM fhrs:id tag naming the FSA FHRSID record)
+        between:
+          - food-safety-osm-fhrs-venues
+          - food-safety-uk-fsa-hygiene-ratings
+        measured: 38/40 sampled Cambridge OSM venues resolved to the FSA record (2 stale ids); postcode equal 38/38, business name equal 22/38
+        mode: declared
+    taxonomy:
+      - food business type (FSA BusinessType, Chicago facility_type, NYC cuisine)
+      - violation class (temperature control, cross contamination, pests, cleanliness, structure, management)
+      - severity (critical, non-critical, priority)
+      - result (pass, conditional, fail, rating 0-5)
+    agent_questions:
+      - Is this establishment safe, and what is its latest rating or score?
+      - Which violations recurred at this establishment across inspections?
+      - Which food businesses near a point were rated 0 or 1 in the last year?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Free-text member is stale (SF ends 2019). Read NYC and Chicago open-data terms to unpark the live violation feeds, then measure full FSA coverage in OSM.
