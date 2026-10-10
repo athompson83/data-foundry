@@ -7113,6 +7113,111 @@ candidates:
       Derechos Reservados). Unblock only with a published Libre Uso MX or open-data licence for the RAR dataset or a
       written permission; until then record the cited URLs as links and ingest nothing.
 
+  - key: wildfire-calfire-incidents
+    name: CAL FIRE incident list (JSON API, current and past incidents)
+    category: hazard
+    structuring: event-extraction
+    format: free-text
+    publisher: California Department of Forestry and Fire Protection
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://incidents.fire.ca.gov/umbraco/api/IncidentApi/List?inactive=true' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: HTTP 200, 539 incidents (522 wildfires) started 2026-01-24 to 2026-10-10, newest update 2026-10-10T04:54Z; fields Name, County, Location, AcresBurned, PercentContained, ControlStatement, Latitude, Longitude, Started, Updated and a link to the incident page. Read the fire.ca.gov terms of use before RIGHTS_DETERMINED; archive the list daily because past incidents roll off.
+  - key: wildfire-nifc-wfigs-incidents
+    name: NIFC WFIGS wildland fire incident locations (ArcGIS FeatureServer, current and year-to-date)
+    category: hazard
+    structuring: event-extraction
+    format: structured
+    publisher: National Interagency Fire Center
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_YearToDate/FeatureServer/0/query', 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: HTTP 200 without a key; 467 current incidents and 8,984 California year-to-date incident points (paged by OBJECTID, transfer limit 2,000); fields IncidentName, IrwinID, FireDiscoveryDateTime, IncidentSize, POOCounty, IncidentShortDescription (80 characters). The IRWIN id is the join key to InciWeb and agency feeds. Read the hub licence statement before RIGHTS_DETERMINED.
+  - key: legislative-uk-hansard-debates
+    name: UK Parliament Hansard debates and speeches (Hansard API)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Parliament
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://hansard-api.parliament.uk/search/debates.json', 'https://hansard-api.parliament.uk/debates/debate/{ExtId}.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: HTTP 200 without a key; search for housing returns 9,012 debate sections, 587 sections since 2026-09-01 across Commons and Lords; debate JSON carries Title, Date, House, Source, VolumeNo and ContentLastUpdated; Hansard begins in 1803. Not added as a data type: no second publisher joined yet (see ca-ourcommons-hansard). Read the Open Parliament Licence terms (the licence page returned a Cloudflare challenge to our egress) before RIGHTS_DETERMINED.
+  - key: legislative-ca-ourcommons-hansard
+    name: House of Commons of Canada Hansard (XML per sitting)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: House of Commons of Canada
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://www.ourcommons.ca/Content/House/451/Debates/001/HAN001-E.XML' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: sitting 001 of the 45th Parliament, 1st session returns XML (79,675 bytes) without a key. Terms: the important-notices page says reproduction of the proceedings, in whole or in part, is permitted under conditions of accuracy and no misrepresentation of privileged material (read in full and quote before RIGHTS_DETERMINED). The open-data page returned 403 to our egress.
+  - key: complaints-nhtsa-vehicle-owner-complaints
+    name: NHTSA vehicle owner complaints (flat file and complaintsByVehicle API)
+    category: transport
+    structuring: event-extraction
+    format: free-text
+    publisher: US NHTSA
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://static.nhtsa.gov/odi/ffdd/cmpl/FLAT_CMPL.zip', 'https://api.nhtsa.gov/complaints/complaintsByVehicle' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: FLAT_CMPL.zip 373,937,533 bytes, last modified 2026-10-10 10:22Z; the API returned 48 complaints for a 2020 Ford F-150 and 62 for a 2022 Toyota Camry, each with an ODI number, component, crash/fire/injury/death flags, a partial VIN and a free-text summary (owner narrative; check for personal data before any publication). Joins to nhtsa-recalls and investigations by make, model, year and component only (candidate). Needs a second publisher before it is a data type.
+  - key: complaints-cfpb-consumer-financial
+    name: CFPB consumer complaint database (search API and bulk CSV)
+    category: finance
+    structuring: event-extraction
+    format: free-text
+    publisher: US Consumer Financial Protection Bureau
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/', 'https://files.consumerfinance.gov/ccdb/complaints.csv.zip' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: search API HTTP 200 without a key, 18,329,250 complaints, 137,199 received 2026-10-01 to 2026-10-10, newest 2026-10-10T02:17Z; fields product, issue, company, state, response and (for consented complaints) a narrative; bulk CSV zip reachable. The narrative-bearing count was not isolated (the has_narrative filter was not honoured by the aggregate). Needs a second publisher before it is a data type.
+  - key: space-celestrak-satcat
+    name: CelesTrak satellite catalog (SATCAT CSV, derived from US Space Force data)
+    category: science
+    structuring: normalization
+    format: structured
+    publisher: CelesTrak
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://celestrak.org/pub/satcat.csv' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: CSV 6,766,323 bytes, 70,971 lines (70,970 objects) from 1957-001A; fields OBJECT_NAME, OBJECT_ID, NORAD_CAT_ID, OWNER, LAUNCH_DATE, DECAY_DATE, orbital elements. The GP element-set endpoint reset our connection. REJECTED as a data type for now: no second publisher reachable (UNOOSA index URL returned 404) and no free-text member.
+  - key: lobbying-ca-registrations
+    name: Office of the Commissioner of Lobbying of Canada registrations (open data CSV)
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: Office of the Commissioner of Lobbying of Canada
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://lobbycanada.gc.ca/media/zwcjycef/registrations_enregistrements_ocl_cal.zip', 'https://open.canada.ca/data/api/3/action/package_show?id=70ef2117-1095-4d77-80eb-b87f2bada2a4' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    next_action: >-
+      Screened 2026-10-10: open.canada.ca package 70ef2117 licence ca-odla-aldg, metadata modified 2026-10-05, CSV zip plus data dictionary. The US Senate LDA API answered 301 and then a Site Under Maintenance page, and the EU Transparency Register XML URL returned 404, so only one lobbying publisher was reachable today. Retry LDA and locate the EU register dataset on data.europa.eu.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -7829,6 +7934,10 @@ datasets:
       list); persist Transport Canada, PROFECO and ACCC citations; widen the Health Canada organisation filter
       (about 93 consumer-type notices sit under other organisation values). PROFECO's Red de Alerta Rapida is
       PARKED on its gob.mx terms.
+      2026-10-10 widening round 3 (evidence/2026-10-10/recalls-widening): UK OPSS alerts, reports and recalls
+      (3,767 documents, newest 2026-10-09) measured for declared links; none of 160 sampled pages (40 per
+      1,000-document band) cites a CPSC or Health Canada URL, so OPSS stays a candidate member (GTIN, brand and
+      model only) and is not added to sources. CPSC API still reachable (10,047 notices to 2026-10-08).
   - key: sanctions-designations-global
     name: Global sanctions designations (OFAC, UN Security Council, EU, UK) with cited-reference links
     category: regulatory
@@ -8874,3 +8983,32 @@ datasets:
       }
     evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
     next_action: Archive full CA SDWIS and SAFER snapshots to R2, add a US-wide second state source with PWSID, and link Ontario through a Canadian registry or split it out.
+  - key: wildfire-incidents
+    name: Wildland fire incidents (state and interagency incident records with status narratives)
+    category: hazard
+    entity: wildfire_incident (one fire, with location, size, containment and status narrative over time)
+    stage: SCREENED
+    description: "One record per wildland fire incident, assembled from the NIFC WFIGS interagency incident points (structured: IRWIN id, discovery time, size, county, state, short description) and the CAL FIRE incident list (free-text status statement and location description, acres, percent contained, incident page). In California the two describe the same fire; they share no declared identifier, so a CAL FIRE incident is linked to its WFIGS point by normalised name, start date within two days and county, as a reviewed candidate, and never merged by name alone. Every fact carries its source."
+    sources:
+      - wildfire-nifc-wfigs-incidents
+      - wildfire-calfire-incidents
+    join_keys:
+      - key: normalised incident name (trailing 'Fire' removed) + start date within 2 days, confirmed by county and acres
+        between:
+          - wildfire-calfire-incidents
+          - wildfire-nifc-wfigs-incidents
+        measured: 442/522 CAL FIRE wildfires (2026) have a WFIGS California year-to-date point with the same normalised name and a discovery date within 2 days (8,984 WFIGS points); 413 of the 442 also agree on county and 324 on county and acres within 25 percent (evidence/2026-10-10/wildfire/join.py)
+        mode: candidate
+        reviewed: { correct: 11, checked: 12 }
+    taxonomy:
+      - 'incident type: wildfire, prescribed fire, other'
+      - 'status: active, contained, controlled, out'
+      - 'size class by acres'
+      - 'jurisdiction: state, county, federal unit'
+    agent_questions:
+      - Which California fires over 1,000 acres are not yet contained, and what does the agency say about them?
+      - What is the interagency IRWIN id of this state-listed incident, and how did its acreage change?
+      - Which counties had the most fire starts this year?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md, docs/sources/pipeline/evidence/2026-10-10/wildfire/join.json ]
+    next_action: Add a Canadian (CIFFC) or other-state member and the InciWeb narrative; read both publishers' terms; archive both feeds daily because the CAL FIRE list drops past incidents and the WFIGS current layer is overwritten; hand-check a larger sample of the name-and-date links.

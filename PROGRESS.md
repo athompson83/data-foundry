@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-10: daily dataset scout (round 7)
+
+- **Merge.** Merged `main` (through #95) into the rolling scout PR #88; only `PROGRESS.md` conflicted (both sides kept); `pnpm collector:policy` produced no diff.
+- **Health.** Both recall datasets synced 2026-10-10T12:17Z (under 24 h); newest records match openFDA (`last_updated` 2026-09-30) and CPSC/Health Canada (2026-10-08). No regression.
+- **Added at SCREENED (1):** `wildfire-incidents` (CAL FIRE + NIFC WFIGS; 442/522 name-and-date candidate links, 11/12 hand-checked). Screened and not added (5): legislative debates, vehicle complaints, consumer financial complaints, space objects (PARKED), lobbying registrations. Below the 5 to 10 target: see [research-2026-10-10](docs/sources/pipeline/research-2026-10-10.md).
+- **Recalls widening.** UK OPSS: 0/160 sampled pages cite CPSC or Health Canada, so it stays a candidate. ACCC and FSIS returned 403 to our egress.
+- **Not done.** No stage advance and no archive dispatch (the other two snapshot plans are on the PR branch, not `main`). Nothing deployed.
+
 ## Current session — 2026-10-04: daily dataset scout (round 6)
 
 - **Health.** FDA Recall Intelligence last sync 2026-10-04T12:17Z, newest report 2026-09-23 (openFDA `last_updated` 2026-09-23); D1 29,461 / 17,986 / 40,056 vs openFDA 29,463 / 17,988 / 40,057 (the known 2/2/1 placeholder records). North American Consumer Product Recalls last sync CPSC and HC 12:17Z; newest CPSC 2026-09-24, HC 2026-10-01. No regression.
