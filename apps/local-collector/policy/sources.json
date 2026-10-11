@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "29c0a49e206fad978ab4cf681b195a7c23b483acbb387c9919101ac20a00f60e",
+  "registry_sha256": "4c0abdfe590ac536b7764209fd6c6218ea9a7c0538a58be8b4b67c8132acc348",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
