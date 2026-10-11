@@ -1,18 +1,32 @@
 {
  "isrctn_total": 28825,
- "isrctn_sampled": 400,
- "isrctn_citing_nct": 4,
- "nct_resolves_in_ctgov": 4,
- "ctgov_cites_back": 0,
+ "distinct_trials_sampled": 721,
+ "sampled_citing_nct": 23,
+ "isrctn_search_NCT_total": 89,
+ "search_NCT_returned": 89,
+ "search_NCT_returned_citing_nct": 70,
+ "checked_links": 93,
+ "nct_resolves_in_ctgov": 93,
+ "ctgov_cites_back": 3,
  "ctgov_total": 606601,
  "links": [
   {
-   "isrctn": "ISRCTN15612522",
+   "isrctn": "ISRCTN15262649",
    "nct": [
-    "NCT07539259"
+    "NCT07665450"
    ],
    "exists_in_ctgov": [
-    "NCT07539259"
+    "NCT07665450"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN62918594",
+   "nct": [
+    "NCT05057013"
+   ],
+   "exists_in_ctgov": [
+    "NCT05057013"
    ],
    "ctgov_cites_isrctn": false
   },
@@ -27,22 +41,904 @@
    "ctgov_cites_isrctn": false
   },
   {
-   "isrctn": "ISRCTN15612522",
+   "isrctn": "ISRCTN73563399",
    "nct": [
-    "NCT07539259"
+    "NCT07221227"
    ],
    "exists_in_ctgov": [
-    "NCT07539259"
+    "NCT07221227"
    ],
    "ctgov_cites_isrctn": false
   },
   {
-   "isrctn": "ISRCTN15612522",
+   "isrctn": "ISRCTN34498249",
    "nct": [
-    "NCT07539259"
+    "NCT07221188"
    ],
    "exists_in_ctgov": [
-    "NCT07539259"
+    "NCT07221188"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN77260709",
+   "nct": [
+    "NCT06842355"
+   ],
+   "exists_in_ctgov": [
+    "NCT06842355"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN88783091",
+   "nct": [
+    "NCT07192016"
+   ],
+   "exists_in_ctgov": [
+    "NCT07192016"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN12500352",
+   "nct": [
+    "NCT02351141"
+   ],
+   "exists_in_ctgov": [
+    "NCT02351141"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN34548434",
+   "nct": [
+    "NCT06786936"
+   ],
+   "exists_in_ctgov": [
+    "NCT06786936"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN18119805",
+   "nct": [
+    "NCT05825417"
+   ],
+   "exists_in_ctgov": [
+    "NCT05825417"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN23887564",
+   "nct": [
+    "NCT07465991"
+   ],
+   "exists_in_ctgov": [
+    "NCT07465991"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN80147609",
+   "nct": [
+    "NCT07258511"
+   ],
+   "exists_in_ctgov": [
+    "NCT07258511"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN69516953",
+   "nct": [
+    "NCT05870150"
+   ],
+   "exists_in_ctgov": [
+    "NCT05870150"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN88772403",
+   "nct": [
+    "NCT03970447"
+   ],
+   "exists_in_ctgov": [
+    "NCT03970447"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN90362708",
+   "nct": [
+    "NCT04811560"
+   ],
+   "exists_in_ctgov": [
+    "NCT04811560"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN13202059",
+   "nct": [
+    "NCT07245394"
+   ],
+   "exists_in_ctgov": [
+    "NCT07245394"
+   ],
+   "ctgov_cites_isrctn": true
+  },
+  {
+   "isrctn": "ISRCTN66014475",
+   "nct": [
+    "NCT07041190"
+   ],
+   "exists_in_ctgov": [
+    "NCT07041190"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN16925539",
+   "nct": [
+    "NCT06919965"
+   ],
+   "exists_in_ctgov": [
+    "NCT06919965"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN37340032",
+   "nct": [
+    "NCT06852222"
+   ],
+   "exists_in_ctgov": [
+    "NCT06852222"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN14716227",
+   "nct": [
+    "NCT05491135"
+   ],
+   "exists_in_ctgov": [
+    "NCT05491135"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN67463316",
+   "nct": [
+    "NCT06954480"
+   ],
+   "exists_in_ctgov": [
+    "NCT06954480"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN57691385",
+   "nct": [
+    "NCT03252847",
+    "NCT06646289"
+   ],
+   "exists_in_ctgov": [
+    "NCT03252847",
+    "NCT06646289"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN12595783",
+   "nct": [
+    "NCT06459869"
+   ],
+   "exists_in_ctgov": [
+    "NCT06459869"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN48890983",
+   "nct": [
+    "NCT06692959"
+   ],
+   "exists_in_ctgov": [
+    "NCT06692959"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN17891825",
+   "nct": [
+    "NCT07151040"
+   ],
+   "exists_in_ctgov": [
+    "NCT07151040"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN96851026",
+   "nct": [
+    "NCT06013514"
+   ],
+   "exists_in_ctgov": [
+    "NCT06013514"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN57043417",
+   "nct": [
+    "NCT06118385"
+   ],
+   "exists_in_ctgov": [
+    "NCT06118385"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN29144830",
+   "nct": [
+    "NCT05858268"
+   ],
+   "exists_in_ctgov": [
+    "NCT05858268"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN14891060",
+   "nct": [
+    "NCT05780645"
+   ],
+   "exists_in_ctgov": [
+    "NCT05780645"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN51624203",
+   "nct": [
+    "NCT04763746"
+   ],
+   "exists_in_ctgov": [
+    "NCT04763746"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15363958",
+   "nct": [
+    "NCT05445089"
+   ],
+   "exists_in_ctgov": [
+    "NCT05445089"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN46127225",
+   "nct": [
+    "NCT05364255"
+   ],
+   "exists_in_ctgov": [
+    "NCT05364255"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN54460428",
+   "nct": [
+    "NCT05256134"
+   ],
+   "exists_in_ctgov": [
+    "NCT05256134"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN12904794",
+   "nct": [
+    "NCT05089084"
+   ],
+   "exists_in_ctgov": [
+    "NCT05089084"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN14509154",
+   "nct": [
+    "NCT05179343"
+   ],
+   "exists_in_ctgov": [
+    "NCT05179343"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15728847",
+   "nct": [
+    "NCT04974294"
+   ],
+   "exists_in_ctgov": [
+    "NCT04974294"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN79334891",
+   "nct": [
+    "NCT04316494"
+   ],
+   "exists_in_ctgov": [
+    "NCT04316494"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN85436698",
+   "nct": [
+    "NCT04732949"
+   ],
+   "exists_in_ctgov": [
+    "NCT04732949"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN50290131",
+   "nct": [
+    "NCT04888741"
+   ],
+   "exists_in_ctgov": [
+    "NCT04888741"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN82411169",
+   "nct": [
+    "NCT04671017"
+   ],
+   "exists_in_ctgov": [
+    "NCT04671017"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN27106947",
+   "nct": [
+    "NCT04746183"
+   ],
+   "exists_in_ctgov": [
+    "NCT04746183"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15019599",
+   "nct": [
+    "NCT04603105"
+   ],
+   "exists_in_ctgov": [
+    "NCT04603105"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN14212905",
+   "nct": [
+    "NCT04473053"
+   ],
+   "exists_in_ctgov": [
+    "NCT04473053"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN50212645",
+   "nct": [
+    "NCT04405934"
+   ],
+   "exists_in_ctgov": [
+    "NCT04405934"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN88057279",
+   "nct": [
+    "NCT04870333"
+   ],
+   "exists_in_ctgov": [
+    "NCT04870333"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN41009897",
+   "nct": [
+    "NCT04181879"
+   ],
+   "exists_in_ctgov": [
+    "NCT04181879"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN12767014",
+   "nct": [
+    "NCT04000503"
+   ],
+   "exists_in_ctgov": [
+    "NCT04000503"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN27389669",
+   "nct": [
+    "NCT03913611"
+   ],
+   "exists_in_ctgov": [
+    "NCT03913611"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN76069316",
+   "nct": [
+    "NCT03679533"
+   ],
+   "exists_in_ctgov": [
+    "NCT03679533"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN88371138",
+   "nct": [
+    "NCT03603015"
+   ],
+   "exists_in_ctgov": [
+    "NCT03603015"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN10176118",
+   "nct": [
+    "NCT03717909"
+   ],
+   "exists_in_ctgov": [
+    "NCT03717909"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN27510582",
+   "nct": [
+    "NCT04458636"
+   ],
+   "exists_in_ctgov": [
+    "NCT04458636"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN84188565",
+   "nct": [
+    "NCT02655315"
+   ],
+   "exists_in_ctgov": [
+    "NCT02655315"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15730512",
+   "nct": [
+    "NCT03286725"
+   ],
+   "exists_in_ctgov": [
+    "NCT03286725"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN16862540",
+   "nct": [
+    "NCT03150992"
+   ],
+   "exists_in_ctgov": [
+    "NCT03150992"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN65795273",
+   "nct": [
+    "NCT02920125"
+   ],
+   "exists_in_ctgov": [
+    "NCT02920125"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN14228310",
+   "nct": [
+    "NCT03274882"
+   ],
+   "exists_in_ctgov": [
+    "NCT03274882"
+   ],
+   "ctgov_cites_isrctn": true
+  },
+  {
+   "isrctn": "ISRCTN27154417",
+   "nct": [
+    "NCT02777333"
+   ],
+   "exists_in_ctgov": [
+    "NCT02777333"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN10601890",
+   "nct": [
+    "NCT03181360"
+   ],
+   "exists_in_ctgov": [
+    "NCT03181360"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN11666384",
+   "nct": [
+    "NCT02591901"
+   ],
+   "exists_in_ctgov": [
+    "NCT02591901"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN11285604",
+   "nct": [
+    "NCT02894008"
+   ],
+   "exists_in_ctgov": [
+    "NCT02894008"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN14567609",
+   "nct": [
+    "NCT02902094"
+   ],
+   "exists_in_ctgov": [
+    "NCT02902094"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN16745373",
+   "nct": [
+    "NCT02924051"
+   ],
+   "exists_in_ctgov": [
+    "NCT02924051"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN12219184",
+   "nct": [
+    "NCT02327624"
+   ],
+   "exists_in_ctgov": [
+    "NCT02327624"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15090567",
+   "nct": [
+    "NCT02300701"
+   ],
+   "exists_in_ctgov": [
+    "NCT02300701"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN11821044",
+   "nct": [
+    "NCT02552017"
+   ],
+   "exists_in_ctgov": [
+    "NCT02552017"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN40476871",
+   "nct": [
+    "NCT02237339"
+   ],
+   "exists_in_ctgov": [
+    "NCT02237339"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN91737921",
+   "nct": [
+    "NCT02259127"
+   ],
+   "exists_in_ctgov": [
+    "NCT02259127"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN46349186",
+   "nct": [
+    "NCT02197299"
+   ],
+   "exists_in_ctgov": [
+    "NCT02197299"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN73630073",
+   "nct": [
+    "NCT00991029"
+   ],
+   "exists_in_ctgov": [
+    "NCT00991029"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN89404187",
+   "nct": [
+    "NCT02429908"
+   ],
+   "exists_in_ctgov": [
+    "NCT02429908"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN22893535",
+   "nct": [
+    "NCT01653912"
+   ],
+   "exists_in_ctgov": [
+    "NCT01653912"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN21662248",
+   "nct": [
+    "NCT01740479"
+   ],
+   "exists_in_ctgov": [
+    "NCT01740479"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN93472653",
+   "nct": [
+    "NCT01876264"
+   ],
+   "exists_in_ctgov": [
+    "NCT01876264"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN06134609",
+   "nct": [
+    "NCT02136329"
+   ],
+   "exists_in_ctgov": [
+    "NCT02136329"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN27374886",
+   "nct": [
+    "NCT01896596"
+   ],
+   "exists_in_ctgov": [
+    "NCT01896596"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN06254734",
+   "nct": [
+    "NCT04374240"
+   ],
+   "exists_in_ctgov": [
+    "NCT04374240"
+   ],
+   "ctgov_cites_isrctn": true
+  },
+  {
+   "isrctn": "ISRCTN10356387",
+   "nct": [
+    "NCT01654146"
+   ],
+   "exists_in_ctgov": [
+    "NCT01654146"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN66679782",
+   "nct": [
+    "NCT01401673"
+   ],
+   "exists_in_ctgov": [
+    "NCT01401673"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN28589999",
+   "nct": [
+    "NCT00429897"
+   ],
+   "exists_in_ctgov": [
+    "NCT00429897"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN30151023",
+   "nct": [
+    "NCT01014858"
+   ],
+   "exists_in_ctgov": [
+    "NCT01014858"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN25524122",
+   "nct": [
+    "NCT00761813"
+   ],
+   "exists_in_ctgov": [
+    "NCT00761813"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN96397434",
+   "nct": [
+    "NCT00058201"
+   ],
+   "exists_in_ctgov": [
+    "NCT00058201"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN00472141",
+   "nct": [
+    "NCT01105819"
+   ],
+   "exists_in_ctgov": [
+    "NCT01105819"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN17386851",
+   "nct": [
+    "NCT01405677"
+   ],
+   "exists_in_ctgov": [
+    "NCT01405677"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN81968533",
+   "nct": [
+    "NCT00368121"
+   ],
+   "exists_in_ctgov": [
+    "NCT00368121"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN12912185",
+   "nct": [
+    "NCT00325832"
+   ],
+   "exists_in_ctgov": [
+    "NCT00325832"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN47168298",
+   "nct": [
+    "NCT00297245"
+   ],
+   "exists_in_ctgov": [
+    "NCT00297245"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN24531831",
+   "nct": [
+    "NCT00377936"
+   ],
+   "exists_in_ctgov": [
+    "NCT00377936"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN58248439",
+   "nct": [
+    "NCT00102921"
+   ],
+   "exists_in_ctgov": [
+    "NCT00102921"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN45169013",
+   "nct": [
+    "NCT00302081"
+   ],
+   "exists_in_ctgov": [
+    "NCT00302081"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN35772094",
+   "nct": [
+    "NCT00148382"
+   ],
+   "exists_in_ctgov": [
+    "NCT00148382"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN55265355",
+   "nct": [
+    "NCT00124371"
+   ],
+   "exists_in_ctgov": [
+    "NCT00124371"
    ],
    "ctgov_cites_isrctn": false
   }

@@ -7248,8 +7248,8 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/clinical-trials/join.json ]
     next_action: >-
       Screened 2026-10-11: HTTP 200 without a key, 28,825 trials, XML with publicIdentifierCanonical, lastUpdated (newest
-      2026-10-07) and secondary identifiers. Sampled 400 trials across the register: 4 cite an NCT number and all 4 resolve in
-      ClinicalTrials.gov. Read the ISRCTN terms of use (not yet read) before RIGHTS_DETERMINED; the search CSV route answered a
+      2026-10-07) and secondary identifiers. Sampled 721 distinct trials through 12 topic queries (the API ignores offset and page): 23 cite an NCT number, and all 93
+      NCT numbers found resolve in ClinicalTrials.gov. Read the ISRCTN terms of use (not yet read) before RIGHTS_DETERMINED; the search CSV route answered a
       303 redirect, so use the XML API.
 
 datasets:
@@ -9090,7 +9090,7 @@ datasets:
         between:
           - clinical-isrctn-registry
           - clinical-trial-eligibility
-        measured: '4/400 ISRCTN trials sampled across the register cite an NCT number, and 4/4 resolve in ClinicalTrials.gov; 0/4 of those ClinicalTrials.gov records cite the ISRCTN back (evidence/2026-10-11/clinical-trials/join.py)'
+        measured: '23/721 distinct ISRCTN trials (12 topic queries; the API has no working paging) cite an NCT number; across those and the 89 trials the register returns for the search NCT, 93/93 cited NCT numbers resolve in ClinicalTrials.gov and 3 of the 93 ClinicalTrials.gov records cite the ISRCTN back (evidence/2026-10-11/clinical-trials/join.py)'
         mode: declared
     taxonomy:
       - 'recruitment status: recruiting, not yet recruiting, active, completed, terminated, withdrawn'
@@ -9103,7 +9103,7 @@ datasets:
       - Which trials for this condition exclude patients on a given drug class?
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/clinical-trials/join.json ]
-    next_action: The declared join is sparse (1 percent of ISRCTN trials), so add a third registry that cites NCT numbers more often (EU CTIS, ANZCTR or WHO ICTRP) and read the ISRCTN terms. ClinicalTrials.gov is already EVIDENCED with an AMBER rights verdict; archive the ISRCTN XML in R2 before RIGHTS_DETERMINED.
+    next_action: The declared join is sparse (about 3 percent of sampled ISRCTN trials), so add a third registry that cites NCT numbers more often (EU CTIS, ANZCTR or WHO ICTRP) and read the ISRCTN terms. ClinicalTrials.gov is already EVIDENCED with an AMBER rights verdict; archive the ISRCTN XML in R2 before RIGHTS_DETERMINED.
 
   - key: packaged-food-products
     name: Packaged food products (USDA FoodData Central branded foods and Open Food Facts, linked by GTIN)
