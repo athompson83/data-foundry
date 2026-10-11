@@ -1,0 +1,50 @@
+{
+ "isrctn_total": 28825,
+ "isrctn_sampled": 400,
+ "isrctn_citing_nct": 4,
+ "nct_resolves_in_ctgov": 4,
+ "ctgov_cites_back": 0,
+ "ctgov_total": 606601,
+ "links": [
+  {
+   "isrctn": "ISRCTN15612522",
+   "nct": [
+    "NCT07539259"
+   ],
+   "exists_in_ctgov": [
+    "NCT07539259"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15612522",
+   "nct": [
+    "NCT07539259"
+   ],
+   "exists_in_ctgov": [
+    "NCT07539259"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15612522",
+   "nct": [
+    "NCT07539259"
+   ],
+   "exists_in_ctgov": [
+    "NCT07539259"
+   ],
+   "ctgov_cites_isrctn": false
+  },
+  {
+   "isrctn": "ISRCTN15612522",
+   "nct": [
+    "NCT07539259"
+   ],
+   "exists_in_ctgov": [
+    "NCT07539259"
+   ],
+   "ctgov_cites_isrctn": false
+  }
+ ]
+}

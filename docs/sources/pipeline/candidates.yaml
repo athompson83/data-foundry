@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-01
+updated: 2026-10-11
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -138,6 +138,8 @@ candidates:
     name: ClinicalTrials.gov structured eligibility criteria
     category: health
     structuring: eligibility-criteria
+    format: free-text
+    publisher: US National Library of Medicine
     stage: EVIDENCED
     rights: AMBER
     sources:
@@ -2446,9 +2448,13 @@ candidates:
         docs/sources/pipeline/research-2026-09-28.md,
         docs/sources/pipeline/evidence/2026-09-28/eu-safety-gate
       ]
-    next_action: Backfill all 1,117 weekly XML reports (2005-2026, about 180 KB each) into the recall notice
+    next_action: >-
+      Backfill all 1,117 weekly XML reports (2005-2026, about 180 KB each) into the recall notice
       store; parse type_numberOfModel/barcode/batchNumber into model, GTIN and lot keys; write the ADR-0013
-      rights record (CC0 distribution + CC BY 4.0 site notice, images excluded).
+      rights record (CC0 distribution + CC BY 4.0 site notice, images excluded). Measured 2026-10-11 (research-2026-10-11.md):
+      list of 1,119 weekly reports to Report-2026-40; the last 52 reports hold 3,977 alerts, 2,149 with a barcode, and none
+      cite a CPSC or Health Canada URL, so it has no declared link to the live members; the GTIN overlap with them is unmeasured
+      (the lookup API needs a key).
   - key: uk-opss-product-safety-alerts
     name: UK OPSS product safety alerts, reports and recalls (GOV.UK finder) — brand/model/barcode tables and PSD
       notification numbers
@@ -2589,8 +2595,9 @@ candidates:
           prose.'
       ]
     evidence: *id001
-    next_action: Enumerate the 1,619 /recalls/ URLs from the sitemap; parse Product Identifiers and the supplier;
-      low priority (0 of 31 sampled NZ recalls with models matched a CPSC recall).
+    next_action: >-
+      Enumerate the 1,619 /recalls/ URLs from the sitemap; parse Product Identifiers and the supplier;
+      low priority (0 of 31 sampled NZ recalls with models matched a CPSC recall; on 2026-10-11, 0 of 200 detail pages cite CPSC or Health Canada).
   - key: fr-rappelconso-v2
     name: France RappelConso V2 product recalls with GTIN (DGCCRF, data.economie.gouv.fr)
     category: product-safety
@@ -2835,7 +2842,7 @@ candidates:
     structuring: obligation-timeline
     format: free-text
     publisher: US EPA (eCFR)
-    stage: DISCOVERED
+    stage: SCREENED
     rights: GREEN
     sources:
       [
@@ -2856,10 +2863,13 @@ candidates:
           url: 'https://www.govinfo.gov/about/policies',
           quote: Copyright protection under this title is not available for any work of the United States Government
         }
-    evidence: *id002
-    next_action: 129 EPA SNAP rules. Fold them into federal-register-obligations with
-      hvac-refrigerant-transition-rules as the refrigerant x end-use overlay, and parse the substitute tables
-      deterministically.
+    evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/snap/screen.json ]
+    next_action: >-
+      Screened 2026-10-11: Federal Register API returns 129 EPA rules that mention the Significant New Alternatives Policy,
+      1995-01-13 to 2026-05-26 (39 name the programme in the title, 101 have an effective date, 129 an abstract). Rule text
+      must come from GovInfo bulk XML because FederalRegister.gov full text answers a CAPTCHA page to scripted clients.
+      Fold into federal-register-obligations with hvac-refrigerant-transition-rules as the refrigerant x end-use overlay and
+      parse the substitute tables deterministically.
   - key: equipment-irs-energy-credit-criteria
     name: IRS 25C / 25D energy credit eligibility criteria applied to model ratings
     category: home-services
@@ -4072,24 +4082,31 @@ candidates:
     structuring: normalization
     format: structured
     publisher: Open Food Facts
-    stage: PARKED
+    stage: SCREENED
     rights: UNKNOWN
-    sources: [ 'https://world.openfoodfacts.org/api/v2/search' ]
+    sources: [ 'https://world.openfoodfacts.org/api/v2/product/{gtin}.json', 'https://static.openfoodfacts.org/data/openfoodfacts-products.jsonl.gz' ]
     scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
-    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
-    next_action: Parked for this round - the API answered 503 and the database licence (share-alike) has not been read. Retry, then read the licence.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt, docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/packaged-food/join.json ]
+    next_action: >-
+      Re-screened 2026-10-11: per-barcode product lookup answers 200 with ingredients_text and allergens_tags (85 of 100
+      sampled USDA GTINs found, 73 with ingredient text); bulk openfoodfacts-products.jsonl.gz is 1,240,132,404 bytes. The
+      search endpoint answered 'Page temporarily unavailable', so use the bulk file. Read the ODbL (share-alike) database
+      licence and the contents licence before RIGHTS_DETERMINED; share-alike may bind a redistributed derived database.
   - key: food-usda-fooddata-central
     name: USDA FoodData Central branded foods (GTIN and ingredients)
     category: food
     structuring: identifier-extraction
     format: free-text
     publisher: US USDA
-    stage: PARKED
+    stage: SCREENED
     rights: UNKNOWN
-    sources: [ 'https://api.nal.usda.gov/fdc/v1/foods/list' ]
+    sources: [ 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_branded_food_csv_2026-04-30.zip' ]
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
-    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
-    next_action: Parked for this round - the shared DEMO_KEY answered 429. Use the bulk CSV download rather than the API, and pair it with Open Food Facts on GTIN.
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt, docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/packaged-food/join.json ]
+    next_action: >-
+      Re-screened 2026-10-11 through the bulk file: FoodData_Central_branded_food_csv_2026-04-30.zip is 448,767,220 bytes
+      with 442,180 distinct GTINs in branded_food.csv (gtin_upc, ingredients, brand, category). Read the FoodData Central
+      licence page (the API answered 429 for DEMO_KEY) and quote it before RIGHTS_DETERMINED; archive the zip in R2.
 
   - key: aviation-ntsb-accident-database
     name: NTSB aviation accident and incident database with narratives
@@ -7218,6 +7235,23 @@ candidates:
     next_action: >-
       Screened 2026-10-10: open.canada.ca package 70ef2117 licence ca-odla-aldg, metadata modified 2026-10-05, CSV zip plus data dictionary. The US Senate LDA API answered 301 and then a Site Under Maintenance page, and the EU Transparency Register XML URL returned 404, so only one lobbying publisher was reachable today. Retry LDA and locate the EU register dataset on data.europa.eu.
 
+  - key: clinical-isrctn-registry
+    name: ISRCTN clinical trial registry (UK; XML query API with secondary identifiers and eligibility text)
+    category: health
+    structuring: eligibility-criteria
+    format: structured
+    publisher: BioMed Central / ISRCTN registry
+    stage: SCREENED
+    rights: UNKNOWN
+    sources: [ 'https://www.isrctn.com/api/query/format/default' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/clinical-trials/join.json ]
+    next_action: >-
+      Screened 2026-10-11: HTTP 200 without a key, 28,825 trials, XML with publicIdentifierCanonical, lastUpdated (newest
+      2026-10-07) and secondary identifiers. Sampled 400 trials across the register: 4 cite an NCT number and all 4 resolve in
+      ClinicalTrials.gov. Read the ISRCTN terms of use (not yet read) before RIGHTS_DETERMINED; the search CSV route answered a
+      303 redirect, so use the XML API.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -9012,3 +9046,90 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-10.md, docs/sources/pipeline/evidence/2026-10-10/wildfire/join.json ]
     next_action: Add a Canadian (CIFFC) or other-state member and the InciWeb narrative; read both publishers' terms; archive both feeds daily because the CAL FIRE list drops past incidents and the WFIGS current layer is overwritten; hand-check a larger sample of the name-and-date links.
+
+  - key: vehicle-safety-recalls
+    name: Motor-vehicle and vehicle-equipment recalls (US NHTSA and Transport Canada, joined on the manufacturer's recall number)
+    category: transport
+    entity: vehicle_recall (one manufacturer recall campaign) with make, model-year range, component, defect, consequence and remedy
+    stage: SCREENED
+    description: "One record per vehicle, child-seat, tire or equipment recall campaign, assembled from the NHTSA recall flat files (structured: campaign number, make, model, years, component, units, report date, defect, consequence and remedy text) and the Transport Canada Vehicle Recalls Database (bilingual Issue / Safety Risk / Corrective Actions text, units and system type). Both publishers carry the manufacturer's own recall number, so a Transport Canada recall links to its NHTSA campaign when the manufacturer number is equal and the make agrees; the link never merges campaigns by make, model or title. Every fact carries its source."
+    sources:
+      - nhtsa-recalls
+      - ca-tc-vehicle-recalls-database
+    join_keys:
+      - key: cited manufacturer reference number (manufacturer recall number, equal, scoped by make)
+        between:
+          - ca-tc-vehicle-recalls-database
+          - nhtsa-recalls
+        measured: '157/314 Transport Canada recalls (numbers 2022001 to 2025090) carry a manufacturer recall number equal to one NHTSA campaign of the same make; 149 of the 157 agree on the campaign year (evidence/2026-10-11/vehicle-recalls/join.py). The 2026-10-03 round measured 4,665/13,195 with 20/20 hand-checked.'
+        mode: declared
+    taxonomy:
+      - 'vehicle class: car, truck, motorcycle, bus, trailer, motorhome, child seat, tire, equipment'
+      - 'component system (NHTSA component text mapped to Transport Canada system type)'
+      - 'remedy: repair, replace, refund, software update, do-not-drive or park-outside advisory'
+      - 'jurisdiction: US, CA, both'
+    agent_questions:
+      - Is this make, model and year under an open recall in the US or Canada, and what is the defect and remedy?
+      - Which recalls in both countries share one manufacturer recall number, and did the remedy or unit count differ?
+      - Which airbag, brake or fuel-system recalls were issued for this make since 2024?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/vehicle-recalls/join.json ]
+    next_action: Write the ADR-0013 rights records for both members (NHTSA is a US government work; read the Transport Canada OGL-Canada licence), archive the NHTSA flat files and the Transport Canada CSV in R2 through tooling/snapshots/plans.json, then hand-check a larger sample of the manufacturer-number links and the 2 make-ambiguous matches. Decide with the Product Owner's standing direction whether to build it as a recalls-Worker category or fold it into the consumer-product dataset.
+
+  - key: clinical-trials-registry
+    name: Clinical trial registrations (ClinicalTrials.gov and ISRCTN, linked by cited NCT number)
+    category: health
+    entity: clinical_trial (one registered study) with conditions, interventions, status and inclusion and exclusion criteria
+    stage: SCREENED
+    description: "One record per registered clinical trial, assembled from ClinicalTrials.gov (free-text eligibility criteria, 606,601 studies) and the ISRCTN registry (28,825 trials, with secondary identifiers). A trial registered in both carries the other registry's identifier, so an ISRCTN record that cites an NCT number links to that ClinicalTrials.gov study automatically; titles and sponsors only propose a reviewed link. Eligibility prose is split into inclusion and exclusion criteria and typed (age, sex, condition stage, prior therapy) by deterministic parsers."
+    sources:
+      - clinical-trial-eligibility
+      - clinical-isrctn-registry
+    join_keys:
+      - key: cited NCT reference number (ISRCTN secondary identifier naming a ClinicalTrials.gov study)
+        between:
+          - clinical-isrctn-registry
+          - clinical-trial-eligibility
+        measured: '4/400 ISRCTN trials sampled across the register cite an NCT number, and 4/4 resolve in ClinicalTrials.gov; 0/4 of those ClinicalTrials.gov records cite the ISRCTN back (evidence/2026-10-11/clinical-trials/join.py)'
+        mode: declared
+    taxonomy:
+      - 'recruitment status: recruiting, not yet recruiting, active, completed, terminated, withdrawn'
+      - 'study type and phase'
+      - 'condition category (MeSH tree where given)'
+      - 'eligibility: age band, sex, healthy volunteers, inclusion and exclusion clause types'
+    agent_questions:
+      - Which recruiting trials accept this patient profile (age, condition, prior therapy), and where are they registered?
+      - Is this UK-registered trial also in ClinicalTrials.gov, and do the two agree on status?
+      - Which trials for this condition exclude patients on a given drug class?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/clinical-trials/join.json ]
+    next_action: The declared join is sparse (1 percent of ISRCTN trials), so add a third registry that cites NCT numbers more often (EU CTIS, ANZCTR or WHO ICTRP) and read the ISRCTN terms. ClinicalTrials.gov is already EVIDENCED with an AMBER rights verdict; archive the ISRCTN XML in R2 before RIGHTS_DETERMINED.
+
+  - key: packaged-food-products
+    name: Packaged food products (USDA FoodData Central branded foods and Open Food Facts, linked by GTIN)
+    category: food
+    entity: packaged_food_product (one barcoded product) with brand, ingredient statement, allergens and nutrition
+    stage: SCREENED
+    description: "One record per barcoded packaged food, assembled from USDA FoodData Central branded foods (US label data, free-text ingredient statements) and Open Food Facts (crowd-sourced product pages with ingredient text and allergen tags). The GTIN is the declared join key, normalised by dropping leading zeros; names, brands and ingredient text only propose reviewed candidates. Ingredient statements are parsed deterministically into ingredient lists and allergen declarations, and each fact keeps its source."
+    sources:
+      - food-usda-fooddata-central
+      - food-open-food-facts
+    join_keys:
+      - key: GTIN (UPC/EAN barcode, leading zeros removed)
+        between:
+          - food-usda-fooddata-central
+          - food-open-food-facts
+        measured: '85/100 USDA branded GTINs sampled evenly (rows with an ingredient statement) are found in Open Food Facts, 73 of them with ingredient text (evidence/2026-10-11/packaged-food/join.py; 442,180 distinct USDA GTINs)'
+        mode: declared
+    taxonomy:
+      - 'allergen: the nine US major allergens plus EU and Canadian additions, kept as declared'
+      - 'ingredient class: additive, sweetener, preservative, colour, other'
+      - 'food category: USDA branded category mapped to Open Food Facts categories'
+      - 'jurisdiction of the label: US, other'
+    agent_questions:
+      - Does this barcode contain a given allergen, and do the US label and the crowd-sourced entry agree?
+      - Which products in a category list this ingredient?
+      - Is this barcoded product under a recall (join to the FDA recall dataset on the same GTIN)?
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/packaged-food/join.json ]
+    next_action: Read the FoodData Central licence page and the Open Food Facts ODbL and contents licences and decide whether share-alike binds a derived database before any redistribution; archive the FoodData Central zip in R2; measure the GTIN overlap with the FDA recall GTINs already served (food-and-health-recalls-global) as the recall join.

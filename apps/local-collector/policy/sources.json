@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "d6896ffbb0140da225bff7992bcab71f6dbdac7994e5af7922c820c78d848c6d",
+  "registry_sha256": "29c0a49e206fad978ab4cf681b195a7c23b483acbb387c9919101ac20a00f60e",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -323,6 +323,30 @@
         "wildfire-nifc-wfigs-incidents",
         "wildfire-calfire-incidents"
       ]
+    },
+    "vehicle-safety-recalls": {
+      "name": "Motor-vehicle and vehicle-equipment recalls (US NHTSA and Transport Canada, joined on the manufacturer's recall number)",
+      "stage": "SCREENED",
+      "sources": [
+        "nhtsa-recalls",
+        "ca-tc-vehicle-recalls-database"
+      ]
+    },
+    "clinical-trials-registry": {
+      "name": "Clinical trial registrations (ClinicalTrials.gov and ISRCTN, linked by cited NCT number)",
+      "stage": "SCREENED",
+      "sources": [
+        "clinical-trial-eligibility",
+        "clinical-isrctn-registry"
+      ]
+    },
+    "packaged-food-products": {
+      "name": "Packaged food products (USDA FoodData Central branded foods and Open Food Facts, linked by GTIN)",
+      "stage": "SCREENED",
+      "sources": [
+        "food-usda-fooddata-central",
+        "food-open-food-facts"
+      ]
     }
   },
   "sources": {
@@ -378,8 +402,8 @@
       "name": "ClinicalTrials.gov structured eligibility criteria",
       "rights": "AMBER",
       "stage": "EVIDENCED",
-      "format": null,
-      "publisher": null,
+      "format": "free-text",
+      "publisher": "US National Library of Medicine",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
@@ -1400,14 +1424,14 @@
     "equipment-epa-snap-substitutes": {
       "name": "EPA SNAP acceptable/unacceptable refrigerant substitutes by end-use (Federal Register / 40 CFR 82 subpart G)",
       "rights": "GREEN",
-      "stage": "DISCOVERED",
+      "stage": "SCREENED",
       "format": "free-text",
       "publisher": "US EPA (eCFR)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
-        "stage DISCOVERED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "equipment-irs-energy-credit-criteria": {
@@ -2008,27 +2032,27 @@
     "food-open-food-facts": {
       "name": "Open Food Facts product search API",
       "rights": "UNKNOWN",
-      "stage": "PARKED",
+      "stage": "SCREENED",
       "format": "structured",
       "publisher": "Open Food Facts",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "food-usda-fooddata-central": {
       "name": "USDA FoodData Central branded foods (GTIN and ingredients)",
       "rights": "UNKNOWN",
-      "stage": "PARKED",
+      "stage": "SCREENED",
       "format": "free-text",
       "publisher": "US USDA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "aviation-ntsb-accident-database": {
@@ -3791,6 +3815,19 @@
       "stage": "SCREENED",
       "format": "free-text",
       "publisher": "Office of the Commissioner of Lobbying of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "clinical-isrctn-registry": {
+      "name": "ISRCTN clinical trial registry (UK; XML query API with secondary identifiers and eligibility text)",
+      "rights": "UNKNOWN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "BioMed Central / ISRCTN registry",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
