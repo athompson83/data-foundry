@@ -1,5 +1,7 @@
 # Revenue recovery — 2026-10-15
 
+**Shipped closeout:** the technical selling-path repair is deployed and verified; see [the exact release, browser and API evidence](../evidence/revenue-release-20261015.md). The initial observations below remain a dated snapshot, including operator checkout probes. No independent paid customer or sent outreach is claimed.
+
 ## Decision
 
 Prioritize selling the two live datasets and removing purchase friction. Keep the accepted direct prices ($49/$149/$299 monthly), existing infrastructure, source rights and publication gates. Additional datasets and paid crawling do not gate this work. A technically working API is not evidence of paying demand.
