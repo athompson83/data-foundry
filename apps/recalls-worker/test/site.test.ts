@@ -63,7 +63,7 @@ beforeEach(() => {
 
 describe('homepage and catalog', () => {
   it('makes free signup and existing-account billing accessible from the homepage', async () => {
-    const env = makeEnv({ RAPIDAPI_ENABLED: '1' });
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: 'marketplace-test-proxy-secret' });
     const { body } = await page(env, '/');
     expect(body).toContain('href="#pricing">Get API access');
     expect(body).toContain('No card needed');
@@ -89,6 +89,12 @@ describe('homepage and catalog', () => {
   it('does not advertise a closed marketplace channel', async () => {
     const { body } = await page(makeEnv({ RAPIDAPI_ENABLED: '0' }), '/');
     expect(body).not.toContain('https://rapidapi.com/athompson83/api/data-foundry');
+  });
+
+  it.each([null, 'short'])('does not advertise a marketplace with an absent or unusable proxy secret: %s', async (secret) => {
+    const env = makeEnv({ RAPIDAPI_ENABLED: '1', ...(secret === null ? {} : { RAPIDAPI_PROXY_SECRET: secret }) });
+    const { body } = await page(env, '/');
+    expect(body.includes('https://rapidapi.com/athompson83/api/data-foundry')).toBe(false);
   });
 
   it('authenticates browser account calls on the same host and enforces request methods', async () => {

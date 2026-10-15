@@ -6,7 +6,7 @@ Prioritize selling the two live datasets and removing purchase friction. Keep th
 
 ## Fresh evidence
 
-Snapshot collected 2026-10-15 around 13:30–13:55 UTC, independently of old handoffs:
+Snapshot collected 2026-10-15, independently of old handoffs:
 
 | Source and scope | Observation | What it establishes |
 | --- | --- | --- |

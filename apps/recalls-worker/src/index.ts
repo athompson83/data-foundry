@@ -22,7 +22,7 @@ import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchPr
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
 import { createIngestCredential, extractedServed, handleIntake, IntakeRefused, productsServed, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
-import { logMarketplaceRejection, logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
+import { logMarketplaceRejection, logMarketplaceRequest, marketplaceEnabled, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -452,7 +452,7 @@ async function route(request: Request, env: Env): Promise<Response> {
       const published = publishedDatasets(env);
       // The cache key names the published datasets and the sales gate, so a withdrawn dataset or a closed gate never
       // serves a cached page that still lists or sells it.
-      const marketplaceOpen = env.RAPIDAPI_ENABLED === '1' && published.length > 0;
+      const marketplaceOpen = marketplaceEnabled(env) && published.length > 0;
       const variant = `${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}`;
       return cached(cacheKey(ctx, `/_home/${variant}`), async () => {
         const datasets = await Promise.all(published.map(async (entry) => ({ entry, coverage: await coverage(env, entry.key) })));
