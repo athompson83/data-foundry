@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-15: revenue diagnosis and purchase-journey repair
+
+- **Fresh diagnosis:** live Aroqon Data Stripe has one $0 Evaluate subscription and no paid subscribers; all 8 paid Checkout Sessions expired and may include operator probes. Production D1 separates the exhausted owner Evaluate key from revoked/internal Developer fixtures. FDA and consumer-product syncs are current. RapidAPI now publicly shows paid $29/$99/$299 tiers; the October 9 free-only handoff is stale. Marketplace subscriber/revenue totals remain unavailable.
+- **Candidate:** isolated `codex/revenue-20261015` from canonical main `e551c89`, integrating the existing landing PR #94 without touching the older dirty chat checkout. Adds clear API-access/no-card evaluation CTAs, registry-defined use cases, accurate marketplace terms/link, `/pricing` redirect, and private browser usage/billing through the existing account API and Stripe portal. No schema, price, subscription, payment-destination or publication-gate changes.
+- **Verification:** root and Worker typechecks; 250 Worker/parser tests; 1,046 pipeline/inventory tests; focused account-script and route regressions; `git diff --check`. Real Chrome local key entry shows exhausted quota and upgrade guidance, no browser storage, and 390px pages have no horizontal overflow. The discovered cross-host redirect/CSP failure was fixed. A live unmetered owner-account/portal probe returned 100/100 usage and an HTTPS Stripe portal without changing a subscription or making a payment.
+- **Release:** candidate must pass protected PR checks, exact-main CI, guarded recalls deployment and fresh production verification. These gates remain pending at this candidate checkpoint; final run IDs belong in the release evidence.
+- **Commercial next:** three researched integration prospects and exact unsent drafts are in [revenue recovery](docs/commercial-validation/revenue-recovery-20261015.md). Sending requires explicit owner instruction; no message, purchase or paid revenue is claimed. REV-008 remains IN_PROGRESS until an independent paid request. REV-012 tracks the repaired purchase journey; REV-013 tracks independent buyers.
+
 ## Current session — 2026-10-09: Stripe cleared and free RapidAPI published
 
 - **Stripe cleared.** Dashboard: no active tasks, payments/payouts active. API: no requirements, errors or pending verification. The owner had submitted the form; it completed during this session without a duplicate submission. Product, support and policy details are saved.
@@ -9,6 +17,14 @@
 - **Free-first publication completed.** The owner explicitly approved accepting the Hub ownership/Terms declaration at the prepared action. The saved Studio state is Public, and the [Hub listing](https://rapidapi.com/athompson83/api/data-foundry) shows eight endpoints, a usage guide and free BASIC: $0, 500 requests/month, hard limit. Paid plans are hidden; the separately displayed platform bandwidth fee remains. The existing owner test application retains its deprecated free plan; no new subscription was purchased.
 - **Revenue evidence.** Direct Checkout opens at $49 monthly. One free Evaluate subscription and no paid subscriber are verified. Recall data refreshes every six hours. [Full record](docs/evidence/revenue-readiness-20261009.md).
 - **Validation.** Typecheck and all 75 relevant site/API tests passed locally, required candidate/main CI passed, deployment checks passed, and exact-version direct plus real marketplace acceptance passed. This closeout changes documentation only; the deployed Worker source/config is unchanged.
+## Current session — 2026-10-09: landing-page redesign and dataset completeness
+
+- Redesigned the existing landing page with a compact source-backed sample, live portfolio totals, responsive dataset cards, labeled coverage/freshness and dataset-specific documentation/browse links. The shared catalog drives homepage entries, product routes, API-root discovery and DataCatalog JSON-LD.
+- Integrated the catalog safeguards from PR #86 (head `4c051a021333b5cf43def162a419f318c5eec13d`). A LIVE pipeline entry missing from the catalog now fails validation; publishing gates, coverage and structured descriptions are exhaustive per dataset key.
+- Current production inventory independently verified from the public API root and stats: FDA Recall Intelligence (87,581 records) and North American Consumer Product Recalls (15,261 notices), 102,842 total, captured 2026-10-09. Candidates still in development are not advertised as available. Source intake, publication gates, billing configuration, credentials and database schema were not changed.
+- Local validation: `corepack pnpm typecheck` passed; recalls-worker typecheck passed; `corepack pnpm exec vitest run --project recalls-worker` passed 148 tests; `corepack pnpm exec vitest run tooling/test/source-pipeline.test.ts tooling/test/readme-inventory.test.ts` passed 1,046 tests; `git diff --check` passed.
+- Visual verification is pending: the requested Chrome tab is owned by another Data Foundry readiness session, and this session cannot claim it. A standalone HTML preview was rendered with public live-stat snapshots; it does not prove browser appearance. Hosted CI, integration and production deployment remain pending at this checkpoint.
+
 
 ## Current session — 2026-10-06: collector runtime and PR #90 CI repair
 

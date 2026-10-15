@@ -7,6 +7,7 @@
 
 import { RECALL_NUMBER_SOURCE } from '@data-foundry/recall-structuring';
 
+import type { DatasetKey } from './catalog.js';
 import type { D1Database, R2Bucket } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 
@@ -142,9 +143,15 @@ export function productDataset(ctx: PageContext): Record<string, unknown> {
   };
 }
 
+/** schema.org Dataset per catalog key; a Record so a new dataset key does not compile without its own description. */
+export const DATASET_JSON_LD: Readonly<Record<DatasetKey, (ctx: PageContext) => Record<string, unknown>>> = {
+  recalls: recallsDataset,
+  'product-recalls': productDataset,
+};
+
 /** The catalog lists exactly the datasets the caller says are published, so a withdrawn dataset is never advertised. */
-export function catalogJsonLd(ctx: PageContext, published: { readonly recalls: boolean; readonly products: boolean }): Record<string, unknown> {
-  const dataset = [...(published.recalls ? [recallsDataset(ctx)] : []), ...(published.products ? [productDataset(ctx)] : [])];
+export function catalogJsonLd(ctx: PageContext, published: readonly DatasetKey[]): Record<string, unknown> {
+  const dataset = published.map((key) => DATASET_JSON_LD[key](ctx));
   return { '@context': 'https://schema.org', '@type': 'DataCatalog', name: 'Data Foundry', url: `${ctx.publicOrigin}/`, publisher: organization(ctx), dataset };
 }
 

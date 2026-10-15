@@ -10,10 +10,11 @@
 
 import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
+import { accountPage, ACCOUNT_JS } from './account-page.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
 import { docsPage, messagePage, privacyPage, termsPage, welcomePage, type PageContext } from './pages.js';
-import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetKey } from './catalog.js';
+import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetEntry, type DatasetKey } from './catalog.js';
 import { datasetPage, homePage, SITE_JS, type Coverage } from './site.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
@@ -57,12 +58,14 @@ const SECURITY_HEADERS: Record<string, string> = {
   'strict-transport-security': 'max-age=31536000; includeSubDomains',
 };
 
+const PAGE_CSP = "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self' https://checkout.stripe.com; base-uri 'none'; frame-ancestors 'none'";
+
 function html(body: string, status = 200, extra: Record<string, string> = {}): Response {
   return new Response(body, {
     status,
     headers: {
       'content-type': 'text/html; charset=utf-8',
-      'content-security-policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self' https://checkout.stripe.com; base-uri 'none'; frame-ancestors 'none'",
+      'content-security-policy': PAGE_CSP,
       ...SECURITY_HEADERS,
       ...extra,
     },
@@ -151,7 +154,7 @@ async function accountApi(env: Env, request: Request, url: URL): Promise<Respons
     const customer = key ? await findCustomerByKey(env.DB, key) : null;
     // Internal acceptance fixtures (expired lease, closed fixture) never reach Stripe.
     if (!customer?.stripeCustomerId || ACCEPTANCE_FIXTURE_ID.test(customer.stripeCustomerId)) return auth;
-    return json({ url: await createPortalSession(env, customer.stripeCustomerId) });
+    return json({ url: await createPortalSession(env, customer.stripeCustomerId) }, 200, { 'cache-control': 'private, no-store' });
   }
   if (url.pathname === '/v1/account' && request.method === 'GET') {
     const used = await currentUsage(env.DB, auth.customerId);
@@ -164,7 +167,7 @@ async function accountApi(env: Env, request: Request, url: URL): Promise<Respons
   }
   if (url.pathname === '/v1/account/billing-portal' && request.method === 'POST') {
     if (!auth.stripeCustomerId) return apiError(409, 'no_billing_account', 'This key has no billing account.');
-    return json({ url: await createPortalSession(env, auth.stripeCustomerId) });
+    return json({ url: await createPortalSession(env, auth.stripeCustomerId) }, 200, { 'cache-control': 'private, no-store' });
   }
   return apiError(405, 'method_not_allowed', 'Unsupported method for this endpoint.');
 }
@@ -427,37 +430,56 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === '/')
       return json({
         name: 'Data Foundry API',
-        datasets: {
-          // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
-          // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
-          ...(env.SOURCE_KILL_SWITCH !== '1' ? { recalls: { name: DATASETS.recalls.name, registry: DATASETS.recalls.registry, docs: `${ctx.publicOrigin}/docs#fda-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS.recalls.statsPath}` } } : {}),
-          ...(productsServed(env) ? { 'product-recalls': { name: DATASETS['product-recalls'].name, registry: DATASETS['product-recalls'].registry, docs: `${ctx.publicOrigin}/docs#product-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS['product-recalls'].statsPath}` } } : {}),
-        },
+        // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
+        // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
+        datasets: Object.fromEntries(
+          publishedDatasets(env).map((entry) => [
+            entry.key,
+            { name: entry.name, registry: entry.registry, docs: `${ctx.publicOrigin}/docs${entry.docsAnchor}`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${entry.statsPath}` },
+          ]),
+        ),
       });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/docs');
   }
+
+  // Every catalog entry's product page, at the path the catalog gives it.
+  const datasetAt = (Object.values(DATASETS) as DatasetEntry[]).find((entry) => entry.path === url.pathname);
+  if (datasetAt) return datasetRoute(env, ctx, datasetAt.key);
 
   switch (url.pathname) {
     case '/': {
       const published = publishedDatasets(env);
       // The cache key names the published datasets and the sales gate, so a withdrawn dataset or a closed gate never
       // serves a cached page that still lists or sells it.
-      const variant = `${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}`;
+      const marketplaceOpen = env.RAPIDAPI_ENABLED === '1' && published.length > 0;
+      const variant = `${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}`;
       return cached(cacheKey(ctx, `/_home/${variant}`), async () => {
         const datasets = await Promise.all(published.map(async (entry) => ({ entry, coverage: await coverage(env, entry.key) })));
-        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env) }), 200, { 'cache-control': 'public, max-age=300' });
+        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env), marketplaceOpen }), 200, { 'cache-control': 'public, max-age=300' });
       });
     }
     case '/assets/site.js':
       return new Response(SITE_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=3600', ...SECURITY_HEADERS } });
-    case '/product-recalls':
-      return datasetRoute(env, ctx, 'product-recalls');
+    case '/assets/account.js':
+      return new Response(ACCOUNT_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=3600', ...SECURITY_HEADERS } });
+    case '/account':
+      return html(accountPage(ctx), 200, { 'cache-control': 'private, no-store', 'referrer-policy': 'no-referrer', 'content-security-policy': `${PAGE_CSP}; connect-src 'self'` });
+    case '/account/usage':
+    case '/account/billing-portal': {
+      // Same-origin browser entry points reuse direct authentication without a cross-host redirect.
+      const billing = url.pathname === '/account/billing-portal';
+      if (request.method !== (billing ? 'POST' : 'GET')) return apiError(405, 'method_not_allowed', billing ? 'POST only.' : 'GET only.', { 'cache-control': 'private, no-store' });
+      if ((await resolveChannel(env, request)).channel !== 'direct') return apiError(403, 'not_available_on_marketplace', 'Use a direct Data Foundry key for account management.', { 'cache-control': 'private, no-store' });
+      const response = await accountApi(env, request, new URL(`${ctx.apiOrigin}${billing ? '/v1/account/billing-portal' : '/v1/account'}`));
+      response.headers.set('cache-control', 'private, no-store');
+      return response;
+    }
+    case '/pricing':
+      return Response.redirect(`${ctx.publicOrigin}/#pricing`, 301);
     case '/product-recalls/browse':
       if (!productsServed(env)) return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await productBrowseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
-    case '/recalls':
-      return datasetRoute(env, ctx, 'recalls');
     case '/recalls/docs':
       return Response.redirect(`${ctx.publicOrigin}/docs`, 301);
     case '/docs':
@@ -608,24 +630,28 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
 /** Public coverage for a dataset, from the same queries as its stats endpoint. */
 async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
   try {
-    if (key === 'recalls') {
-      const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
-      return {
-        records: s.categories.reduce((total, row) => total + row.recalls, 0),
-        breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
-        latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
-        lastSuccessfulSync: s.last_successful_sync,
-      };
+    switch (key) {
+      case 'recalls': {
+        const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
+        return {
+          records: s.categories.reduce((total, row) => total + row.recalls, 0),
+          breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
+          latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+          lastSuccessfulSync: s.last_successful_sync,
+        };
+      }
+      case 'product-recalls': {
+        const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
+        const syncs = Object.values(s.last_successful_sync).sort();
+        return {
+          records: s.agencies.reduce((total, row) => total + row.notices, 0),
+          breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
+          latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+          // The oldest of the per-source last successes: every source has refreshed at least that recently.
+          lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
+        };
+      }
     }
-    const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
-    const syncs = Object.values(s.last_successful_sync).sort();
-    return {
-      records: s.agencies.reduce((total, row) => total + row.notices, 0),
-      breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
-      latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
-      // The oldest of the per-source last successes: every source has refreshed at least that recently.
-      lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
-    };
   } catch (error) {
     console.error('coverage_error', key, error instanceof Error ? error.message : String(error));
     return null;
