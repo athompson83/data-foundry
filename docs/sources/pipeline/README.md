@@ -86,7 +86,11 @@ A candidate moves forward only on evidence, one stage at a time:
    precision where it was measured.
 6. `BUILDING`: storage, sync, API/MCP surface and billing, in a reviewed PR.
 7. `LIVE`: deployed, reconciled to the source, and hosted acceptance passed.
-   Selling stays gated by `SALES_OPEN` per dataset.
+   Selling stays gated by `SALES_OPEN` per dataset. A LIVE dataset must have an
+   entry in `DATASETS` (`apps/recalls-worker/src/catalog.ts`), which is what
+   the data.aroqon.com `#datasets` catalog, its product page, the DataCatalog
+   JSON-LD and the API root listing render from;
+   `apps/recalls-worker/test/catalog-registry.test.ts` fails until it does.
 8. `PARKED`: stopped, with the reason recorded. May be reopened when the
    reason changes.
 
