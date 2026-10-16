@@ -79,7 +79,8 @@ The collector is built to run unattended, and to leave nothing on the computer o
 | --- | --- |
 | Local model down | It waits and retries, with backoff |
 | A notice the model keeps failing on | Dead-lettered after 3 attempts; the queue moves on |
-| Network or 5xx errors, 429 / Retry-After, the daily request cap | Jobs back off and retry, then dead-letter at the ceiling |
+| Network or 5xx errors | Jobs back off and retry, then dead-letter at the ceiling |
+| HTTP 429 / Retry-After or the daily request cap | Jobs wait without charging an attempt or dead-lettering; the server's retry delay takes precedence, including a monthly allowance reset |
 | A cap reached (disk, free space) | It pauses, then resumes by itself once the sweep or the drain clears it |
 | Ingestion credential refused | Uploads pause and are retried hourly, so a fixed credential resumes without anyone touching it |
 | Upload rejected by the intake (400, 409, 413) | Kept and retried every 6 hours, never discarded; it counts toward the outbox cap, so a systematic rejection pauses extraction until the Worker or collector is fixed |
@@ -126,6 +127,11 @@ python -m df_collector purge --everything --remove-model   # and removes the mod
 Measured on a 4-core CPU with no GPU: a median of 12 s per notice sent to the model (p95 about 50 s). The full backfill
 therefore takes on the order of a day of CPU time on such a machine. Throughput on your computer is shown in the
 dashboard.
+
+The local daily request cap and the read key's monthly allowance are independent. An exhausted direct monthly
+allowance returns 429 with `Retry-After` until the next UTC month; the collector releases the job until then.
+It does not buy more requests, upgrade the plan or bypass the hard stop. A local CPU-time estimate does not
+promise that an entire backfill fits within the current plan's remaining requests.
 
 ## What it collects: the live catalog
 

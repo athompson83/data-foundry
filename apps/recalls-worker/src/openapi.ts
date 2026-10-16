@@ -341,6 +341,23 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
     for (const path of ['/v1/account', '/v1/account/rotate-key', '/v1/account/billing-portal']) delete (document.paths as Record<string, unknown>)[path];
     (document as { security: unknown[] }).security = [];
     delete (document.components as { securitySchemes?: unknown }).securitySchemes;
+  } else {
+    const headers = {
+      'X-RateLimit-Limit': { description: 'Direct monthly request allowance.', schema: { type: 'integer', minimum: 0 } },
+      'X-RateLimit-Remaining': { description: 'Direct requests remaining in this UTC calendar month.', schema: { type: 'integer', minimum: 0 } },
+      'X-RateLimit-Reset': { description: 'Unix seconds at the next UTC month boundary. Browser clients can read these quota headers through CORS.', schema: { type: 'integer', format: 'int64' } },
+    };
+    for (const [path, item] of Object.entries(document.paths)) {
+      const get = (item as { get?: { security?: unknown[]; responses: Record<string, Record<string, unknown>> } }).get;
+      // Free operations declare security: []; account operations do not consume quota.
+      if (!get || get.security?.length === 0 || path.startsWith('/v1/account')) continue;
+      get.responses['200']!['headers'] = headers;
+      get.responses['429'] = {
+        ...document.components.responses.Error,
+        description: 'Direct monthly allowance exhausted. Wait until reset unless the plan changes; GET /v1/account is unmetered. No overage is billed.',
+        headers: { ...headers, 'Retry-After': { description: 'Whole seconds to wait until the UTC monthly reset.', schema: { type: 'integer', minimum: 1 } } },
+      };
+    }
   }
   return document;
 }

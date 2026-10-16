@@ -102,6 +102,11 @@ export function usageMonth(now = new Date()): string {
   return `${now.toISOString().slice(0, 7)}-01`;
 }
 
+/** Unix seconds when the current UTC calendar-month allowance resets. */
+export function usageReset(now: Date): number {
+  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000;
+}
+
 /**
  * Count one request against the month's allowance. Returns the new count, or
  * null when the allowance is already spent (the hard stop).
