@@ -18,7 +18,7 @@ Existing RapidAPI project `api_ba3c8244-55fa-4a3f-8226-c040dcf03bab`, version `a
 
 The landing page omitted the new APIs, and its release-independent edge cache could keep an old page after deployment. Three regression tests cover new links, publication gates and release cache isolation. Review found the runbook's assumed five-minute coverage cache duration was inaccurate: `cached()` uses the existing one-hour `EDGE_TTL_SECONDS`; the documentation and PR description were corrected. The finding was resolved. The superseded CI run was canceled, and the final candidate was checked afresh.
 
-The public RapidAPI guide omitted discovery/unified lookup and described unavailable coverage as 403. It now documents 503 dataset unavailability and separates it from 403 inactive-channel/restricted-route errors. The public direct catalog being unmetered does not make RapidAPI catalog calls free of marketplace allowance. The old September listing package is marked historical, with current operating guidance above it.
+The public RapidAPI guide omitted discovery/unified lookup and described unavailable coverage as 403. It now documents 503 dataset unavailability and separates it from 403 inactive-channel/restricted-route errors. The public direct catalog being unmetered does not make RapidAPI catalog calls free of marketplace allowance. The old September listing package is marked historical, with current operating guidance above it. Closeout review also found ADR-0016 still described hidden paid tiers: its October 15 amendment records the observed public provider state, without inventing when/by whom it changed or claiming a new financial approval. The historical October 9 activation remains intact.
 
 ## Required user actions
 
