@@ -350,13 +350,14 @@ export function productLookupCandidates(code: string): Array<{ kind: string; val
 }
 
 /** Every exact interpretation of one scanned or typed code: GTIN (check-digit valid) and model key. */
-export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false): Promise<Record<string, unknown>> {
-  const interpretations = productLookupCandidates(code);
+export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false, identifierKind?: 'gtin' | 'model'): Promise<Record<string, unknown>> {
+  // Inventory fields have a known kind: filter before limiting, so ambiguous numeric model matches cannot hide a GTIN notice.
+  const interpretations = productLookupCandidates(code).filter(item => !identifierKind || item.kind === identifierKind);
   const key = modelKey(code.trim());
-  const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ');
+  const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ') || '0';
   const binds = interpretations.flatMap((item) => [item.kind, item.value]);
   // Published extracted identifiers match only on the notice's current source bytes, reported as their own kind.
-  const withExtracted = extracted && key.length >= 2;
+  const withExtracted = extracted && identifierKind !== 'gtin' && key.length >= 2;
   // Only rows from a publishable extractor build (PUBLISHABLE_EXTRACTORS) are matched.
   const publishable = publishableExtractorClause();
   const EXTRACTED = `SELECT e.recall_id FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256

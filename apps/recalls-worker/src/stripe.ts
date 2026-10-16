@@ -38,7 +38,7 @@ export class StripeError extends Error {
   }
 }
 
-export async function stripe<T>(env: Env, method: 'GET' | 'POST', path: string, params: FormObject = {}): Promise<T> {
+export async function stripe<T>(env: Env, method: 'GET' | 'POST', path: string, params: FormObject = {}, idempotencyKey?: string): Promise<T> {
   if (!env.STRIPE_SECRET_KEY) throw new StripeError('Stripe is not configured', 503);
   const body = formEncode(params).join('&');
   const url = method === 'GET' && body ? `https://api.stripe.com/v1/${path}?${body}` : `https://api.stripe.com/v1/${path}`;
@@ -48,6 +48,7 @@ export async function stripe<T>(env: Env, method: 'GET' | 'POST', path: string, 
       authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
       'content-type': 'application/x-www-form-urlencoded',
       'stripe-version': '2024-06-20',
+      ...(idempotencyKey ? { 'idempotency-key': idempotencyKey } : {}),
     },
     ...(method === 'POST' ? { body } : {}),
   });
@@ -194,6 +195,11 @@ export async function handleStripeWebhook(env: Env, request: Request): Promise<R
   // failure is retried by Stripe rather than remembered as done.
   let subscriptionId: string | null = null;
   let email: string | null = null;
+  const checkoutMetadata = event.data.object['metadata'] as Record<string, unknown> | undefined;
+  if ((event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') && event.data.object['mode'] === 'payment' && checkoutMetadata?.['product'] === 'screening-report-v1') {
+    const { fulfillScreeningSession } = await import('./screening-payment.js');
+    await fulfillScreeningSession(env, String(event.data.object['id'] ?? ''));
+  }
   if (event.type.startsWith('customer.subscription.')) {
     subscriptionId = String(event.data.object['id'] ?? '') || null;
   } else if (event.type === 'checkout.session.completed') {

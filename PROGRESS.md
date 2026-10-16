@@ -1,6 +1,12 @@
 # Progress
 
-## Current session — 2026-10-16: public source sync status
+## Current session — 2026-10-16: batch screening revenue offers
+
+- **IN_PROGRESS, REV-019; PR #108:** free complete findings preview for up to 50 inventory rows, $29 standard / $49 branded one-time reports, durable snapshots, CSV, printable output and remedy worksheet. Uses the canonical recalls Worker/D1/Stripe, with additive migration 0005. The stale dirty attached checkout is preserved.
+- **Verification:** 302 local tests / 14 files, typecheck and dry-run passed; real Stripe sandbox payments at both prices and app-bound branded fulfillment, plus real refund receipt/local denial. Desktop/mobile preview and durable reopen passed. Retention, abandoned Checkout deletion, repeatable internal acceptance, required branding, actionable checkout errors and pre-limit identifier-kind filtering were repaired after review. Final exact counts and provider boundaries are maintained in [the release evidence](docs/evidence/screening-reports-20261016.md).
+- **Release gates:** protected final-candidate/main CI, additive migration with recovery bookmark, guarded deploy with purchases closed, authenticated create/reopen/delete/revocation and live browser acceptance. A separate reviewed activation follows that deployed proof; no paid demand or production charge is claimed. Automated monitoring, widgets, ads and affiliates remain deferred. Owner actions: none; remaining delivery is agent-owned.
+
+## Previous session — 2026-10-16: public source sync status
 
 - **IN_PROGRESS, REV-018; locally qualified:** both stats endpoints add latest per-source attempts beside successful clocks through the existing D1 ledger. Failed/running attempts cannot advance success; no-run/running nulls and CPSC subwindow exclusion are explicit. Errors/artifact keys/internal ids stay private. No migration or new endpoint.
 - **Validation:** 268 tests / 13 files pass (219 Worker, including 16 acceptance cases), typecheck and dry-run pass. Desktop 1366×900/mobile 375×812 preview freshness journey has no overflow/console errors. Version-scoped stats caches prevent stale post-deploy contracts; rights gates precede cache. Source OpenAPI, catalog, landing, docs and agent references align.

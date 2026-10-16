@@ -66,8 +66,9 @@ describe('production acceptance script', () => {
     const serialized = JSON.stringify(evidence);
     expect(serialized).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
     expect(serialized).not.toContain(ADMIN);
-    // A second run is possible: acceptance is repeatable.
-    expect((await runAcceptance(options(env))).ok).toBe(true);
+    // More than five runs in a day remain possible; only the dedicated admin fixture is reset.
+    for (let run = 0; run < 5; run++) expect((await runAcceptance(options(env))).ok).toBe(true);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report').first()).toEqual({ n: 0 });
   });
 
   it('fails and revokes when a successful direct response omits the quota reset signal', async () => {
@@ -83,6 +84,23 @@ describe('production acceptance script', () => {
     const evidence = await runAcceptance(options(env, { fetch: tampered }));
     expect(evidence.ok).toBe(false);
     expect(evidence.checks.find((check) => check.name.startsWith('direct quota reset'))?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
+  it('rejects changed saved screening contents and still removes the synthetic inventory', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (request.method !== 'GET' || !/^\/screening\/reports\/[0-9a-f-]{36}$/.test(new URL(request.url).pathname) || response.status !== 200) return response;
+      const body = await response.json() as { result: Record<string, unknown> };
+      body.result['checked_at'] = 'changed';
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find(check => check.name.startsWith('screening: saved snapshot'))?.ok).toBe(false);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report WHERE result_json IS NOT NULL').first()).toEqual({ n: 0 });
     expect(evidence.revocation.rejected_after).toBe(true);
   });
 

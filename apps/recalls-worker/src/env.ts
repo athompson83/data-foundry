@@ -38,6 +38,8 @@ export interface Env {
   readonly PRODUCT_RECALLS_OPEN?: string;
   /** "1" accepts new checkouts; anything else shows an opening-soon page. */
   readonly SALES_OPEN?: string;
+  /** Separately admits one-time screening purchases after the screening release gates. */
+  readonly SCREENING_SALES_OPEN?: string;
   readonly STRIPE_SECRET_KEY?: string;
   readonly STRIPE_WEBHOOK_SECRET?: string;
   readonly STRIPE_PRICE_EVALUATE?: string;
