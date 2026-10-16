@@ -262,7 +262,7 @@ async function v1Api(request: Request, env: Env, url: URL, ctx: PageContext, mar
   if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
   if (url.pathname === '/v1/recalls/stats') {
     const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
-    const cacheKey = new Request(`${ctx.apiOrigin}/v1/recalls/stats`);
+    const cacheKey = new Request(`${ctx.apiOrigin}/v1/recalls/stats?version=${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}`);
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
     const response = json(await stats(env.DB), 200, { 'cache-control': 'public, max-age=600' });
@@ -272,7 +272,7 @@ async function v1Api(request: Request, env: Env, url: URL, ctx: PageContext, mar
   if (url.pathname === '/v1/product-recalls/stats') {
     if (!productsServed(env)) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
     const cache = (globalThis as unknown as { caches: { default: EdgeCache } }).caches.default;
-    const cacheKey = new Request(`${ctx.apiOrigin}/v1/product-recalls/stats`);
+    const cacheKey = new Request(`${ctx.apiOrigin}/v1/product-recalls/stats?version=${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}`);
     const hit = await cache.match(cacheKey);
     if (hit) return hit;
     const response = json(await productStats(env.DB), 200, { 'cache-control': 'public, max-age=600' });

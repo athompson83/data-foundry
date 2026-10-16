@@ -167,7 +167,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       { method: 'GET', path: '/v1/recalls/lookup?code=…', summary: 'Every recall that names one code: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial or model.', docs: '/docs#recalls-lookup' },
       { method: 'GET', path: '/v1/recalls', summary: 'Filter and page through recalls, newest report first.', docs: '/docs#recalls-search' },
       { method: 'GET', path: '/v1/recalls/{recall_number}', summary: 'One recall, optionally with the verbatim FDA record.', docs: '/docs#recalls-one' },
-      { method: 'GET', path: '/v1/recalls/stats', summary: 'Public coverage counts and last successful sync (no key).', docs: '/docs#recalls-stats' },
+      { method: 'GET', path: '/v1/recalls/stats', summary: 'Public coverage, successful clocks and latest source sync attempts (no key).', docs: '/docs#recalls-stats' },
     ],
     fields: [
       { name: 'codes', meaning: 'GTIN-14 (from UPC/EAN/UDI with a valid check digit), NDC, lots, serials, models and expiry dates found in the FDA text.' },
@@ -223,7 +223,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       { method: 'GET', path: '/v1/product-recalls/lookup?code=…', summary: 'Every notice that names one model number or UPC/GTIN.', docs: '/docs#product-recalls-lookup' },
       { method: 'GET', path: '/v1/product-recalls', summary: 'Filter notices by agency, hazard, remedy, trade facet, firm, dates or text.', docs: '/docs#product-recalls-search' },
       { method: 'GET', path: '/v1/product-recalls/{id}', summary: 'One notice (cpsc-… or hc-…) with its linked notices.', docs: '/docs#product-recalls-one' },
-      { method: 'GET', path: '/v1/product-recalls/stats', summary: 'Public coverage counts and last successful sync per source (no key).', docs: '/docs#product-recalls-stats' },
+      { method: 'GET', path: '/v1/product-recalls/stats', summary: 'Public coverage, successful clocks and latest agency sync attempts (no key).', docs: '/docs#product-recalls-stats' },
     ],
     fields: [
       { name: 'identifiers', meaning: 'Model numbers as printed, their normalised keys, and GTIN-14s with a valid GS1 check digit.' },

@@ -93,7 +93,7 @@ ${codeWindow('inspect-response', `${live ? 'Response · snapshot captured' : 'Pa
   const faq: Array<[string, string]> = [
     [
       'What does each dataset cover, and how current is it?',
-      `Each dataset page shows live record counts, the newest record and the last refresh that actually succeeded. ${state.datasets.map(({ entry }) => `${escapeHtml(entry.name)}: ${escapeHtml(entry.refreshSchedule.toLowerCase())}`).join(' ')} How recent the newest record is depends on when the source agency publishes.`,
+      `Each dataset page shows live record counts, the newest record and the last refresh that actually succeeded. ${state.datasets.map(({ entry }) => `${escapeHtml(entry.name)}: ${escapeHtml(entry.refreshSchedule.toLowerCase())}`).join(' ')} How recent the newest record is depends on when the source agency publishes.${state.datasets.length ? ' Stats also show each source’s latest failed, running or successful attempt and its window: see <a href="/docs#source-sync">source sync status</a>. A successful window does not establish complete history; stats may be cached for ten minutes.' : ''}`,
     ],
     ['How do I authenticate?', 'Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Keys are shown once at checkout and stored only as hashes; rotate one any time with <code>POST /v1/account/rotate-key</code>.'],
     ['What happens when I reach my monthly allowance?', 'Requests return <code>429 allowance_exhausted</code>. Your direct allowance renews at 00:00 UTC on the first day of each month; there are no overage charges. Check usage or choose a different plan from your <a href="/account">account</a>. API clients receive the reset time and a retry delay: see <a href="/docs#allowance">allowance headers</a>. Account reads and stats do not use your direct allowance.'],
@@ -157,6 +157,7 @@ export function datasetPage(ctx: PageContext, entry: DatasetEntry, coverage: Cov
 <h2>What you can do with it</h2><ul>${entry.useCases.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
 <h2>Coverage and freshness</h2>${coverageFacts(coverage)}
 <p class="small muted">Schedule: ${escapeHtml(entry.refreshSchedule)} The “last successful refresh” above is when a sync last completed, not the schedule. Live figures: <a href="${ctx.apiOrigin}${entry.statsPath}"><code>GET ${escapeHtml(entry.statsPath)}</code></a> (no key needed).</p>
+<p class="small muted">Stats also expose the latest attempt and its window for each source, separately from successful refresh clocks. Read <a href="/docs#source-sync">source sync status</a> to interpret failures, running attempts and the ten-minute cache. A successful window does not establish complete source history.</p>
 <h2>First request</h2>${codeWindow('first-request', 'Request', entry.sample.request)}
 <p class="small muted">Replace <code>$DATA_FOUNDRY_KEY</code> with your key.</p>
 <h2>${entry.sample.origin === 'live-api' ? 'Sample response' : 'Sample record'}</h2><p class="small muted">${escapeHtml(entry.sample.note)} Captured ${escapeHtml(entry.sample.capturedOn)}.</p>

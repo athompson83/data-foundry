@@ -205,6 +205,11 @@ ${served.fda || served.products ? `<h2 id="cross-dataset-lookup">Cross-dataset i
 <h3>GET /v1/account</h3><p>Your plan, this month's usage and allowance.</p>
 <h3>POST /v1/account/rotate-key</h3><p>Revokes the presented key and returns a new one.</p>
 <h3>POST /v1/account/billing-portal</h3><p>Returns a Stripe billing-portal URL to upgrade, downgrade or cancel.</p>
+${served.fda || served.products ? `<h2 id="source-sync">Source sync status</h2>
+<p>${served.fda && served.products ? 'Both stats endpoints include' : 'The stats endpoint includes'} <code>source_sync</code>, keyed by ${[served.fda ? 'FDA category (<code>food</code>, <code>drug</code>, <code>device</code>)' : '', served.products ? 'product agency (<code>CPSC</code>, <code>HC</code>)' : ''].filter(Boolean).join(' or ')}. Each source has <code>last_successful_sync</code> and <code>latest_attempt</code>. A newer failed or running attempt does not advance the successful clock.</p>
+<p><code>latest_attempt</code> contains <code>status</code> (<code>RUNNING</code>, <code>SUCCEEDED</code> or <code>FAILED</code>), <code>started_at</code>, nullable <code>finished_at</code>, and the attempted <code>window_from</code>/<code>window_to</code>. The most recently created ledger run wins. A source with no runs has null for both fields; a running attempt has no finish time. Error details and artifact locations stay private.</p>
+<p>Stats can be cached for ten minutes. A successful window does not establish complete history, an agency's newest publication or an uptime guarantee.${served.fda ? ' FDA checks can cover a historical rolling window.' : ''}${served.products ? ' CPSC subwindows are excluded until the whole agency pass completes.' : ''} Existing top-level successful clocks keep their meaning. Direct stats require no key and spend no direct allowance; RapidAPI stats follow marketplace allowances.</p>
+<pre><code>curl -s "${api}/v1/${served.products ? 'product-recalls' : 'recalls'}/stats" | jq '.source_sync'</code></pre>` : ''}
 ${
       served.fda
         ? `<h2 id="fda-recalls">FDA Recall Intelligence endpoints</h2>
@@ -214,7 +219,7 @@ ${
 <div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Meaning</th></tr></thead><tbody>${rows.map(([name, text]) => `<tr><td><code>${name}</code></td><td>${text}</td></tr>`).join('')}</tbody></table></div>
 <pre><code>curl "${api}/v1/recalls?state=TX&amp;category=food&amp;allergen=peanut&amp;status=Ongoing" -H "Authorization: Bearer $KEY"</code></pre>
 <h3 id="recalls-one">GET /v1/recalls/{recall_number}</h3><p>One recall, e.g. <code>/v1/recalls/H-1331-2026?include=raw</code>.</p>
-<h3 id="recalls-stats">GET /v1/recalls/stats</h3><p>Public coverage counts and last refresh time.</p>
+<h3 id="recalls-stats">GET /v1/recalls/stats</h3><p>Public coverage counts, last successful refresh and per-category <code>source_sync</code>. See <a href="#source-sync">source sync status</a>.</p>
 <h2 id="record-shape">FDA record shape</h2>
 <pre><code>${FDA_RECORD_SHAPE}</code></pre>
 <p class="notice">Derived FDA fields come from deterministic parsers over FDA prose. They are conservative — a code is only reported when an explicit marker or a valid check digit supports it — but they can be incomplete. The verbatim FDA text is always included for verification. This is not medical or legal advice; do not rely on it for decisions about medical care.</p>`
@@ -228,7 +233,7 @@ ${
 <pre><code>curl "${api}/v1/product-recalls/lookup?code=DXH70CFAVX" -H "Authorization: Bearer $KEY"</code></pre>
 <h3 id="product-recalls-search">GET /v1/product-recalls</h3><p>Filters (AND): <code>gtin</code>, <code>model</code>, <code>agency</code> (CPSC|HC), <code>hazard</code>, <code>remedy</code>, <code>facet</code>, <code>category</code>, <code>manufacturer_country</code>, <code>firm</code>, <code>q</code>, <code>linked</code>, <code>from</code>, <code>to</code>, <code>changed_since</code>, <code>limit</code> (≤100), <code>cursor</code>, <code>include=raw</code>. Newest first.</p>
 <h3 id="product-recalls-one">GET /v1/product-recalls/{id}</h3><p>One notice, e.g. <code>/v1/product-recalls/cpsc-25203</code> or <code>/v1/product-recalls/hc-77184</code>, with <code>linked_notices</code> (declared citations only). With <code>include=raw</code>, <code>raw</code> is the source record without contact text and images, and <code>raw_redaction</code> names the withheld fields and gives the SHA-256 of <code>raw</code> as returned; <code>provenance.raw_sha256</code> stays the digest of the stored original.</p>
-<h3 id="product-recalls-stats">GET /v1/product-recalls/stats</h3><p>Public notice counts per agency, identifier counts, declared links and the last successful sync per source. Not counted.</p>
+<h3 id="product-recalls-stats">GET /v1/product-recalls/stats</h3><p>Public notice counts per agency, identifier counts, declared links, successful refresh clocks and per-agency <code>source_sync</code>. No direct allowance charge. See <a href="#source-sync">source sync status</a>.</p>
 <p>Full field and enum reference: <a href="/llms-full.txt">llms-full.txt</a> and the <a href="${api}/openapi.json">OpenAPI description</a>.</p>`
         : ''
     }
