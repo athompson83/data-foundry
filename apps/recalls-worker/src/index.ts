@@ -8,12 +8,14 @@
  * the dataset current from openFDA.
  */
 
-import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
+import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, usageReset, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
+import { accountPage, ACCOUNT_JS } from './account-page.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
+import { datasetCatalog, lookupAcrossDatasets, parseLookupQuery, type LookupQuery } from './portfolio-api.js';
 import { docsPage, messagePage, privacyPage, termsPage, welcomePage, type PageContext } from './pages.js';
-import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetKey } from './catalog.js';
+import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetEntry, type DatasetKey } from './catalog.js';
 import { datasetPage, homePage, SITE_JS, type Coverage } from './site.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
@@ -21,7 +23,7 @@ import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchPr
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
 import { createIngestCredential, extractedServed, handleIntake, IntakeRefused, productsServed, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
-import { logMarketplaceRejection, logMarketplaceRequest, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
+import { logMarketplaceRejection, logMarketplaceRequest, marketplaceEnabled, resolveChannel, type MarketplacePrincipal } from './marketplace.js';
 import { BROWSE_PATTERN, EDGE_TTL_SECONDS, RECALL_API_PATTERN, RECALL_PAGE_PATTERN, SITEMAP_PATTERN, browseCount, browseInRange, browseIndex, browsePage, indexableCount, shardInRange, llmsFullTxt, llmsTxt, pagesSitemap, FDA_INDEXNOW_FEED, lastRunKey, pingChanged, recallPage, recordIndexNowRun, recallSitemap, robotsTxt, sitemapIndex, type PresentedRecall } from './seo.js';
 import { RECALL_CATEGORIES, type RecallCategory } from '@data-foundry/recall-structuring';
 
@@ -57,12 +59,14 @@ const SECURITY_HEADERS: Record<string, string> = {
   'strict-transport-security': 'max-age=31536000; includeSubDomains',
 };
 
+const PAGE_CSP = "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self' https://checkout.stripe.com; base-uri 'none'; frame-ancestors 'none'";
+
 function html(body: string, status = 200, extra: Record<string, string> = {}): Response {
   return new Response(body, {
     status,
     headers: {
       'content-type': 'text/html; charset=utf-8',
-      'content-security-policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self' https://checkout.stripe.com; base-uri 'none'; frame-ancestors 'none'",
+      'content-security-policy': PAGE_CSP,
       ...SECURITY_HEADERS,
       ...extra,
     },
@@ -92,25 +96,39 @@ async function authenticate(env: Env, request: Request): Promise<AuthenticatedCu
 }
 
 async function meteredApi(env: Env, request: Request, url: URL, marketplace: MarketplacePrincipal | null): Promise<Response> {
+  const lookup = url.pathname === '/v1/lookup' ? parseLookupQuery(url.searchParams) : undefined;
   const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
-  if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+  if (lookup ? lookup.datasets.some((key) => !isPublished(env, key)) : products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') {
+    return apiError(503, 'dataset_unavailable', 'A requested dataset is temporarily unavailable. Select an available subset explicitly with datasets; GET /v1/datasets lists current coverage.', { 'cache-control': 'private, no-store' });
+  }
   // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
-  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi');
+  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi', lookup);
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
-  const count = await consumeRequest(env.DB, auth);
+  // Keep the ledger period and response reset in the same snapshot, even across midnight.
+  const now = new Date();
+  const count = await consumeRequest(env.DB, auth, now);
   const limit = PLANS[auth.plan].requests;
+  const reset = usageReset(now);
+  const quotaHeaders = {
+    'x-ratelimit-limit': String(limit),
+    'x-ratelimit-remaining': String(count === null ? 0 : Math.max(0, limit - count)),
+    'x-ratelimit-reset': String(reset),
+    'access-control-expose-headers': 'x-ratelimit-limit, x-ratelimit-remaining, x-ratelimit-reset, retry-after',
+    'cache-control': 'private, no-store',
+  };
   if (count === null) {
-    return apiError(429, 'allowance_exhausted', `Your ${PLANS[auth.plan].name} allowance of ${limit} requests this month is used. Upgrade via POST /v1/account/billing-portal.`, {
-      'x-ratelimit-limit': String(limit),
-      'x-ratelimit-remaining': '0',
+    return apiError(429, 'allowance_exhausted', `Your ${PLANS[auth.plan].name} allowance of ${limit} requests this month is used. It resets at ${new Date(reset * 1000).toISOString()}. Check usage with GET /v1/account; manage your plan via POST /v1/account/billing-portal.`, {
+      ...quotaHeaders,
+      'retry-after': String(Math.max(1, Math.ceil(reset - now.getTime() / 1000))),
     });
   }
-  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' }, 'direct');
+  return serveData(env, url, quotaHeaders, 'direct', lookup);
 }
 
 /** The data endpoints, after the request's channel has authorised (and, if direct, metered) it. */
-async function serveData(env: Env, url: URL, headers: Record<string, string>, channel: 'direct' | 'rapidapi'): Promise<Response> {
+async function serveData(env: Env, url: URL, headers: Record<string, string>, channel: 'direct' | 'rapidapi', lookup?: LookupQuery): Promise<Response> {
+  if (lookup) return json(await lookupAcrossDatasets(env, lookup, channel), 200, headers);
   const includeRaw = url.searchParams.get('include') === 'raw';
   const extracted = extractedServed(env, channel);
 
@@ -151,7 +169,7 @@ async function accountApi(env: Env, request: Request, url: URL): Promise<Respons
     const customer = key ? await findCustomerByKey(env.DB, key) : null;
     // Internal acceptance fixtures (expired lease, closed fixture) never reach Stripe.
     if (!customer?.stripeCustomerId || ACCEPTANCE_FIXTURE_ID.test(customer.stripeCustomerId)) return auth;
-    return json({ url: await createPortalSession(env, customer.stripeCustomerId) });
+    return json({ url: await createPortalSession(env, customer.stripeCustomerId) }, 200, { 'cache-control': 'private, no-store' });
   }
   if (url.pathname === '/v1/account' && request.method === 'GET') {
     const used = await currentUsage(env.DB, auth.customerId);
@@ -164,7 +182,7 @@ async function accountApi(env: Env, request: Request, url: URL): Promise<Respons
   }
   if (url.pathname === '/v1/account/billing-portal' && request.method === 'POST') {
     if (!auth.stripeCustomerId) return apiError(409, 'no_billing_account', 'This key has no billing account.');
-    return json({ url: await createPortalSession(env, auth.stripeCustomerId) });
+    return json({ url: await createPortalSession(env, auth.stripeCustomerId) }, 200, { 'cache-control': 'private, no-store' });
   }
   return apiError(405, 'method_not_allowed', 'Unsupported method for this endpoint.');
 }
@@ -236,6 +254,10 @@ function isAuthorizedAdmin(env: Env, request: Request): boolean {
 
 /** The /v1/ API once the request's channel is decided: stats, account and metered data endpoints. */
 async function v1Api(request: Request, env: Env, url: URL, ctx: PageContext, marketplace: MarketplacePrincipal | null): Promise<Response> {
+  if (url.pathname === '/v1/datasets') {
+    if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'GET only.');
+    return json(datasetCatalog(env, ctx), 200, { 'cache-control': GATED });
+  }
   // The kill switch withdraws every dataset-derived response, cached or not.
   if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
   if (url.pathname === '/v1/recalls/stats') {
@@ -427,37 +449,57 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === '/')
       return json({
         name: 'Data Foundry API',
-        datasets: {
-          // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
-          // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
-          ...(env.SOURCE_KILL_SWITCH !== '1' ? { recalls: { name: DATASETS.recalls.name, registry: DATASETS.recalls.registry, docs: `${ctx.publicOrigin}/docs#fda-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS.recalls.statsPath}` } } : {}),
-          ...(productsServed(env) ? { 'product-recalls': { name: DATASETS['product-recalls'].name, registry: DATASETS['product-recalls'].registry, docs: `${ctx.publicOrigin}/docs#product-recalls`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${DATASETS['product-recalls'].statsPath}` } } : {}),
-        },
-      });
+        catalog: `${ctx.apiOrigin}/v1/datasets`,
+        ...(publishedDatasets(env).length ? { lookup: `${ctx.apiOrigin}/v1/lookup` } : {}),
+        // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
+        // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
+        datasets: Object.fromEntries(
+          publishedDatasets(env).map((entry) => [
+            entry.key,
+            { name: entry.name, registry: entry.registry, docs: `${ctx.publicOrigin}/docs${entry.docsAnchor}`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${entry.statsPath}` },
+          ]),
+        ),
+      }, 200, { 'cache-control': GATED });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/docs');
   }
 
+  // Every catalog entry's product page, at the path the catalog gives it.
+  const datasetAt = (Object.values(DATASETS) as DatasetEntry[]).find((entry) => entry.path === url.pathname);
+  if (datasetAt) return datasetRoute(env, ctx, datasetAt.key);
+
   switch (url.pathname) {
     case '/': {
       const published = publishedDatasets(env);
-      // The cache key names the published datasets and the sales gate, so a withdrawn dataset or a closed gate never
-      // serves a cached page that still lists or sells it.
-      const variant = `${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}`;
+      // Scope the cache to the release as well as publication/sales gates: a deploy must not serve the old landing page.
+      const marketplaceOpen = marketplaceEnabled(env) && published.length > 0;
+      const variant = `${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}/${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}`;
       return cached(cacheKey(ctx, `/_home/${variant}`), async () => {
         const datasets = await Promise.all(published.map(async (entry) => ({ entry, coverage: await coverage(env, entry.key) })));
-        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env) }), 200, { 'cache-control': 'public, max-age=300' });
+        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env), marketplaceOpen }), 200, { 'cache-control': 'public, max-age=300' });
       });
     }
     case '/assets/site.js':
       return new Response(SITE_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=3600', ...SECURITY_HEADERS } });
-    case '/product-recalls':
-      return datasetRoute(env, ctx, 'product-recalls');
+    case '/assets/account.js':
+      return new Response(ACCOUNT_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'public, max-age=3600', ...SECURITY_HEADERS } });
+    case '/account':
+      return html(accountPage(ctx), 200, { 'cache-control': 'private, no-store', 'referrer-policy': 'no-referrer', 'content-security-policy': `${PAGE_CSP}; connect-src 'self'` });
+    case '/account/usage':
+    case '/account/billing-portal': {
+      // Same-origin browser entry points reuse direct authentication without a cross-host redirect.
+      const billing = url.pathname === '/account/billing-portal';
+      if (request.method !== (billing ? 'POST' : 'GET')) return apiError(405, 'method_not_allowed', billing ? 'POST only.' : 'GET only.', { 'cache-control': 'private, no-store' });
+      if ((await resolveChannel(env, request)).channel !== 'direct') return apiError(403, 'not_available_on_marketplace', 'Use a direct Data Foundry key for account management.', { 'cache-control': 'private, no-store' });
+      const response = await accountApi(env, request, new URL(`${ctx.apiOrigin}${billing ? '/v1/account/billing-portal' : '/v1/account'}`));
+      response.headers.set('cache-control', 'private, no-store');
+      return response;
+    }
+    case '/pricing':
+      return Response.redirect(`${ctx.publicOrigin}/#pricing`, 301);
     case '/product-recalls/browse':
       if (!productsServed(env)) return withdrawn(ctx);
       return cached(cacheKey(ctx, url.pathname), async () => html(await productBrowseIndex(ctx, env.DB), 200, { 'cache-control': 'public, max-age=3600' }));
-    case '/recalls':
-      return datasetRoute(env, ctx, 'recalls');
     case '/recalls/docs':
       return Response.redirect(`${ctx.publicOrigin}/docs`, 301);
     case '/docs':
@@ -608,24 +650,28 @@ async function publicDataPage(env: Env, ctx: PageContext, request: Request, url:
 /** Public coverage for a dataset, from the same queries as its stats endpoint. */
 async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
   try {
-    if (key === 'recalls') {
-      const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
-      return {
-        records: s.categories.reduce((total, row) => total + row.recalls, 0),
-        breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
-        latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
-        lastSuccessfulSync: s.last_successful_sync,
-      };
+    switch (key) {
+      case 'recalls': {
+        const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
+        return {
+          records: s.categories.reduce((total, row) => total + row.recalls, 0),
+          breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
+          latestRecord: s.categories.map((row) => row.latest_report).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+          lastSuccessfulSync: s.last_successful_sync,
+        };
+      }
+      case 'product-recalls': {
+        const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
+        const syncs = Object.values(s.last_successful_sync).sort();
+        return {
+          records: s.agencies.reduce((total, row) => total + row.notices, 0),
+          breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
+          latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
+          // The oldest of the per-source last successes: every source has refreshed at least that recently.
+          lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
+        };
+      }
     }
-    const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
-    const syncs = Object.values(s.last_successful_sync).sort();
-    return {
-      records: s.agencies.reduce((total, row) => total + row.notices, 0),
-      breakdown: s.agencies.map((row) => `${row.agency === 'HC' ? 'Health Canada' : row.agency} ${row.notices.toLocaleString('en-US')}`).join(' · '),
-      latestRecord: s.agencies.map((row) => row.latest).filter((date): date is string => Boolean(date)).sort().at(-1) ?? null,
-      // The oldest of the per-source last successes: every source has refreshed at least that recently.
-      lastSuccessfulSync: syncs.length === s.agencies.length ? (syncs[0] ?? null) : null,
-    };
   } catch (error) {
     console.error('coverage_error', key, error instanceof Error ? error.message : String(error));
     return null;

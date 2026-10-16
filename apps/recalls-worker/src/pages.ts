@@ -56,7 +56,7 @@ dl.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-
 ol.steps{counter-reset:s;list-style:none;padding:0;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
 ol.steps li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
 ol.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-fg);font-weight:700;font-size:14px;margin-bottom:8px}
-button,.button{display:inline-block;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-fg);font:600 15px/1 inherit;padding:12px 17px;cursor:pointer;text-decoration:none}
+button,.button{display:inline-block;border:1px solid var(--accent);border-radius:9px;background:var(--accent);color:var(--accent-fg);font-family:inherit;font-weight:600;font-size:15px;line-height:1.4;padding:12px 17px;cursor:pointer;text-decoration:none}
 button.secondary,.button.secondary{background:transparent;color:var(--accent)}
 button.copy{font-size:13px;padding:6px 10px;background:transparent;color:var(--accent)}
 pre,code{font:13.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
@@ -73,9 +73,29 @@ p a,li a,td a,p code,li code{overflow-wrap:anywhere}
 details{border-bottom:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:600}details p{margin:8px 0 0;color:var(--muted)}
 footer{max-width:1080px;margin:0 auto;padding:28px 20px 56px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
 footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+.landing main,.landing header.site,.landing footer{max-width:1200px}
+.landing .hero{padding:64px 0 48px;gap:54px;align-items:center}
+.landing .hero h1{font-size:clamp(38px,4.8vw,62px);letter-spacing:-.045em;line-height:1.08;margin:20px 0 24px;max-width:16ch}
+.landing .hero .lede{font-size:19px;max-width:46ch}.landing .hero-note{margin-top:20px;max-width:44ch}
+.landing .hero-preview{min-width:0;padding:24px;background:var(--accent-soft);border:1px solid var(--line);border-radius:20px}
+.landing .hero-preview>.eyebrow{margin-bottom:16px;font-size:11px}.landing .hero-preview>p:last-child{margin-bottom:0;font-size:12px}
+.landing .hero-preview pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:320px}
+.portfolio-stats{display:grid;grid-template-columns:1fr 1.25fr 1.75fr 1.25fr;gap:24px;margin:0;padding:26px 0;border-block:1px solid var(--line)}
+.portfolio-stats dt{font-size:12px;color:var(--muted);margin-bottom:6px}.portfolio-stats dd{margin:0;font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}.portfolio-stats>div:first-child dd,.portfolio-stats>div:nth-child(2) dd{font-size:28px;letter-spacing:-.035em;line-height:1.3}
+.catalog-section{padding-top:64px}.catalog-section h2{margin-top:12px}.landing .catalog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin:24px 0;border:0}
+.landing .catalog-row{display:flex;flex-direction:column;gap:24px;padding:28px;background:var(--card);border:1px solid var(--line);border-radius:16px;min-width:0;box-shadow:0 4px 18px #00000003}
+.landing .catalog-row h3{font-size:23px;letter-spacing:-.025em;line-height:1.25;margin:16px 0}.landing .catalog-row h3 a{text-decoration:none}
+.landing .catalog-row .eyebrow{display:flex;justify-content:space-between;align-items:center;font-size:11px;gap:12px}.catalog-status{color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:4px 10px;white-space:nowrap;letter-spacing:0;text-transform:none}
+.landing .catalog-row .tags{margin-bottom:16px}.landing .catalog-row .small{color:var(--muted);font-size:15px}.landing .catalog-row .catalog-meta{grid-template-columns:.8fr 1fr 1.25fr;border-top:1px solid var(--line);padding-top:18px;margin-top:auto;gap:12px;font-size:13px}
+.landing .catalog-meta dt{position:static;width:auto;height:auto;overflow:visible;clip:auto;font-size:11px;color:var(--muted);margin-bottom:6px}.landing .catalog-meta dd{overflow-wrap:anywhere}.landing .catalog-meta>div:first-child dd{font-size:22px;font-weight:650;line-height:1.3}
+.catalog-actions{display:flex;flex-wrap:wrap;gap:12px 20px;font-size:13px}.catalog-actions a{text-decoration:none}.catalog-actions a:first-child{font-weight:700;margin-right:auto}.catalog-actions a:hover{text-decoration:underline}
+.landing>.site .brand{font-size:20px}.landing h2{scroll-margin-top:24px}.landing .card{padding:24px}.landing .steps{margin:24px 0}.landing .window{min-width:0}
+@media(max-width:880px){.landing .hero{grid-template-columns:1fr;padding-top:40px;gap:32px}.landing .hero h1{max-width:20ch}.portfolio-stats{grid-template-columns:1fr 1fr;gap:24px}.landing .catalog{grid-template-columns:1fr}}
+@media(max-width:480px){.landing .hero-preview{padding:16px}.landing .catalog-row{padding:20px}.landing .catalog-row .catalog-meta{grid-template-columns:1fr 1fr;gap:16px}.landing .catalog-meta>div:last-child{grid-column:1/-1}.portfolio-stats dd{font-size:15px}.landing .hero .actions .button{flex:1;text-align:center}.landing .grid{grid-template-columns:minmax(0,1fr)}.landing .hero-preview .bar code{overflow-wrap:anywhere}}
 `;
 
 export interface LayoutOptions {
+  readonly bodyClass?: string;
   readonly noindex?: boolean;
   /** A robots directive other than plain noindex, e.g. "noindex, follow" for navigation hubs. */
   readonly robots?: string;
@@ -99,9 +119,9 @@ ${robots ? `<meta name="robots" content="${robots}">` : ''}${options.path ? `<li
 <link rel="icon" href="data:,"><link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt"><link rel="service-desc" type="application/json" href="${ctx.apiOrigin}/openapi.json">
 ${(options.jsonLd ?? []).map(jsonLdScript).join('')}
 <meta property="og:type" content="website"><meta property="og:site_name" content="Data Foundry"><meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(description)}">${options.path ? `<meta property="og:url" content="${ctx.publicOrigin}${options.path}">` : ''}<meta name="twitter:card" content="summary">
-<style>${CSS}</style>${options.scripts ? '<script src="/assets/site.js" defer></script>' : ''}</head><body>
+<style>${CSS}</style>${options.scripts ? '<script src="/assets/site.js" defer></script>' : ''}</head><body${options.bodyClass ? ` class="${escapeHtml(options.bodyClass)}"` : ''}>
 <a class="skip" href="#main">Skip to content</a>
-<header class="site"><a class="brand" href="/">Data Foundry</a><nav aria-label="Main"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/#pricing">Pricing</a></nav></header>
+<header class="site"><a class="brand" href="/">Data Foundry</a><nav aria-label="Main"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="/#pricing">Pricing</a><a href="/account">Usage and billing</a></nav></header>
 <main id="main">${body}</main>
 <footer><nav aria-label="Footer"><a href="/#datasets">Datasets</a><a href="/docs">API docs</a><a href="${ctx.apiOrigin}/openapi.json">OpenAPI</a><a href="/llms.txt">llms.txt</a><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a></nav>
 Data Foundry by Aroqon Data. Source agencies are credited on each dataset page and in every API response; Data Foundry is not affiliated with or endorsed by them.</footer>
@@ -164,7 +184,23 @@ export function docsPage(ctx: PageContext, served: { readonly fda: boolean; read
     `<h1>API documentation</h1>
 <p class="lede">Base URL <code>${api}</code>. JSON over HTTPS. OpenAPI: <a href="${api}/openapi.json">${api}/openapi.json</a>.${served.fda || served.products ? '' : ' No dataset is available right now.'}</p>
 <h2 id="authentication">Authentication</h2>
-<p>Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Every authenticated data request counts toward your monthly allowance; when it is spent, requests return <code>429</code> until the next UTC month or an upgrade. <code>/v1/account</code> and <code>/v1/recalls/stats</code> are not counted.</p>
+<p>Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Every authenticated data request counts toward your monthly allowance; when it is spent, requests return <code>429</code> until the next UTC month or an upgrade. Account reads, dataset discovery and coverage stats are not counted.</p>
+<h3 id="allowance">Allowance and retries</h3>
+<p>Successful direct data responses and <code>429 allowance_exhausted</code> responses include the headers below. Browser clients can read them through CORS. Allowances reset at 00:00 UTC on the first day of each month; there are no overage charges.</p>
+<table><thead><tr><th scope="col">Header</th><th scope="col">Meaning</th></tr></thead><tbody>
+<tr><td><code>X-RateLimit-Limit</code></td><td>Your direct monthly request allowance.</td></tr>
+<tr><td><code>X-RateLimit-Remaining</code></td><td>Requests left in this UTC calendar month.</td></tr>
+<tr><td><code>X-RateLimit-Reset</code></td><td>Reset time as Unix seconds, not milliseconds.</td></tr>
+<tr><td><code>Retry-After</code></td><td>On an exhausted 429 response only: whole seconds to wait until reset.</td></tr>
+</tbody></table>
+<p>On 429, wait for <code>Retry-After</code> before retrying data requests unless your plan changes. <code>GET /v1/account</code> checks usage without spending allowance. RapidAPI has separate plans, keys, allowances and reset rules; these direct headers do not describe your marketplace subscription.</p>
+<h2 id="dataset-discovery">Dataset discovery</h2>
+<h3>GET /v1/datasets</h3><p>No key required. Lists the currently published datasets with their IDs, source terms, fields, limitations, endpoint paths and documentation links. Read each <code>stats_url</code> for live counts and freshness. A withdrawn dataset disappears from the catalog immediately on the next request.</p>
+${served.fda || served.products ? `<h2 id="cross-dataset-lookup">Cross-dataset identifier lookup</h2>
+<h3>GET /v1/lookup?code=…</h3><p>Check one code across FDA and North American consumer-product recalls in one request. Uses one unit of your direct monthly allowance. Returns <code>results</code>, one entry per requested dataset, with the same <code>data</code>, <code>matched_on</code>, <code>interpreted_as</code>, <code>total_matches</code>, <code>truncated</code> and attribution as that dataset's lookup. Source notices stay separate.</p>
+<pre><code>curl "${api}/v1/lookup?code=012345678905" -H "Authorization: Bearer $KEY"</code></pre>
+<p>Optional <code>datasets=recalls,product-recalls</code> selects unique dataset IDs. Omitting it requests both, including when one is withdrawn; an unavailable requested dataset returns <code>503</code> before any direct usage is spent. Select an available subset explicitly, for example <code>datasets=${served.fda ? 'recalls' : 'product-recalls'}</code>. <code>include=raw</code> requires exactly one explicit dataset; combined raw requests return <code>400</code> before direct metering to preserve the existing response memory limit. Evidence verification and redactions are unchanged; raw results are bounded to 10 FDA or 25 consumer-product notices, or 100 per dataset otherwise. The top-level <code>truncated</code> is true if any dataset has more matches.</p>
+<p class="notice">An empty result means no exact indexed identifier matched in the requested datasets. It does not prove a product is safe or has never been recalled: source notices and extracted identifiers can be incomplete. A model or lot code can identify different products; verify the notice and <code>matched_on</code> before acting.</p>` : ''}
 <h2 id="account">Account endpoints</h2>
 <h3>GET /v1/account</h3><p>Your plan, this month's usage and allowance.</p>
 <h3>POST /v1/account/rotate-key</h3><p>Revokes the presented key and returns a new one.</p>
@@ -210,7 +246,7 @@ export function welcomePage(ctx: PageContext, key: string, planName: string): st
     `<h1>You're in.</h1><p class="lede">Plan: <strong>${escapeHtml(planName)}</strong>. Here is your API key. It is shown <strong>only once</strong> — copy it into your secret store now.</p>
 <p class="key"><code>${escapeHtml(key)}</code></p>
 <pre><code>curl "${ctx.apiOrigin}/v1/recalls?limit=3" -H "Authorization: Bearer ${escapeHtml(key)}"</code></pre>
-<p>Next: <a href="/docs">read the docs</a>. Manage billing any time with <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
+<p>Next: <a href="/docs">read the docs</a> or <a href="/account">check usage and manage billing</a>. The API also supports <code>POST ${ctx.apiOrigin}/v1/account/billing-portal</code>. Lost key? Email <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> from the email address you checked out with; we will verify it against your billing record, revoke the old key and send a new one.</p>`,
     { noindex: true },
   );
 }
@@ -228,6 +264,7 @@ export function termsPage(ctx: PageContext): string {
 <h3>1. The service</h3><p>We provide API access to datasets we compile and structure from lawfully obtained sources. The FDA Recall Intelligence dataset is derived from U.S. Food and Drug Administration enforcement reports published through openFDA under CC0. The North American Consumer Product Recalls dataset is derived from U.S. Consumer Product Safety Commission recall notices (US Government works) and Health Canada's Recalls and Safety Alerts open data, which contains information licensed under the Open Government Licence – Canada. We are not affiliated with or endorsed by FDA, CPSC, Health Canada or the Government of Canada.</p>
 <h3>2. Accounts and keys</h3><p>Keep your API key secret; you are responsible for use of your key. You may rotate it at any time. We may suspend keys used abusively or in breach of these terms.</p>
 <h3>3. Plans, billing and cancellation</h3><p>Paid plans are billed monthly in advance in USD by Stripe and renew until cancelled. Each plan includes a monthly request allowance; requests beyond it are refused (HTTP 429) and never billed as overage. You can upgrade, downgrade or cancel from the billing portal; cancellation takes effect at the end of the paid period. Fees are non-refundable except where required by law. Access ends if payment fails and is not resolved.</p>
+<h3>Billing questions, refund requests and disputes</h3><p>Contact <a href="mailto:${ctx.supportEmail}">${ctx.supportEmail}</a> with your billing email and the date or receipt number of the charge you want us to review. Do not send your full payment-card details or API key. Refund requests are subject to the refund policy above. To stop future subscription renewals, cancel through the billing portal.</p>
 <h3>4. Acceptable use</h3><p>Do not attempt to circumvent allowances, share keys across unrelated organisations, overload the service, or use it unlawfully. You may use and redistribute the data returned to you, including commercially, with attribution to the source agency where practicable (FDA/openFDA; CPSC; for Health Canada data, the statement “Contains information licensed under the Open Government Licence – Canada”).</p>
 <h3>5. No warranty</h3><p>The data is provided “as is”. Derived fields are produced by automated parsers from agency text and may be incomplete or inaccurate; the verbatim source record is provided for verification. The service is not medical, legal or regulatory advice and must not be the sole basis for decisions about medical care, product safety or compliance. Always confirm against the official agency recall notice.</p>
 <h3>6. Liability</h3><p>To the maximum extent permitted by law, our total liability for any claim is limited to the fees you paid in the three months before the claim, and we are not liable for indirect or consequential losses.</p>

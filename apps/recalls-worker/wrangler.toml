@@ -54,9 +54,9 @@ EXTRACTED_IDENTIFIERS_OPEN = "0"
 # Marketplace (RapidAPI) delivery of extracted identifiers is its own product decision, independent of the direct API.
 MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN = "0"
 INTAKE_WITHDRAWN_SOURCES = ""
-# RapidAPI channel (ADR-0016). "1" opens it once the listing, agreements, payouts and the
-# RAPIDAPI_PROXY_SECRET Worker secret exist and proxy acceptance has passed. Owner decision.
-RAPIDAPI_ENABLED = "0"
+# RapidAPI channel (ADR-0016). Owner-directed free-first launch, 2026-10-09.
+# Existing listing proxy secret is installed; gateway acceptance precedes Hub publication.
+RAPIDAPI_ENABLED = "1"
 # Live Stripe price ids for the accepted plan ladder (not secrets).
 STRIPE_PRICE_EVALUATE = "price_1UK1SWLlvU3ZaHdipjWWJ8d1"
 STRIPE_PRICE_DEVELOPER = "price_1UK1SXLlvU3ZaHdihexV3i4r"

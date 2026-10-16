@@ -7,6 +7,7 @@
 
 import { RECALL_NUMBER_SOURCE } from '@data-foundry/recall-structuring';
 
+import type { DatasetKey } from './catalog.js';
 import type { D1Database, R2Bucket } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 
@@ -142,9 +143,15 @@ export function productDataset(ctx: PageContext): Record<string, unknown> {
   };
 }
 
+/** schema.org Dataset per catalog key; a Record so a new dataset key does not compile without its own description. */
+export const DATASET_JSON_LD: Readonly<Record<DatasetKey, (ctx: PageContext) => Record<string, unknown>>> = {
+  recalls: recallsDataset,
+  'product-recalls': productDataset,
+};
+
 /** The catalog lists exactly the datasets the caller says are published, so a withdrawn dataset is never advertised. */
-export function catalogJsonLd(ctx: PageContext, published: { readonly recalls: boolean; readonly products: boolean }): Record<string, unknown> {
-  const dataset = [...(published.recalls ? [recallsDataset(ctx)] : []), ...(published.products ? [productDataset(ctx)] : [])];
+export function catalogJsonLd(ctx: PageContext, published: readonly DatasetKey[]): Record<string, unknown> {
+  const dataset = published.map((key) => DATASET_JSON_LD[key](ctx));
   return { '@context': 'https://schema.org', '@type': 'DataCatalog', name: 'Data Foundry', url: `${ctx.publicOrigin}/`, publisher: organization(ctx), dataset };
 }
 
@@ -363,6 +370,8 @@ export function llmsTxt(ctx: PageContext, served: ServedDatasets): string {
 ${served.fda ? FDA_LLMS_FACTS(ctx) : ''}${served.products ? PRODUCT_LLMS_FACTS(ctx) : ''}${served.fda || served.products ? '' : '\nNo dataset is available right now.\n'}
 ## Docs
 
+- [Live dataset catalog](${ctx.apiOrigin}/v1/datasets): public JSON with source terms, fields, limitations and endpoint paths.
+${served.fda || served.products ? `- Cross-dataset lookup: \`GET ${ctx.apiOrigin}/v1/lookup?code=<code>\` with your bearer key. One direct request unit; results stay separate by dataset. Defaults to both datasets; an unavailable requested dataset returns 503 without a direct charge. Use \`datasets=<id>\` for an explicit subset from the catalog. An empty result does not establish product safety.\n` : ''}
 - [Recall API documentation](${ctx.publicOrigin}/docs): parameters, identifiers, response shape, errors.
 - [OpenAPI 3.1 description](${ctx.apiOrigin}/openapi.json): machine-readable contract for tool use.
 - [Full LLM reference](${ctx.publicOrigin}/llms-full.txt): this file plus the complete parameter reference.
@@ -436,7 +445,8 @@ Record counts and latest FDA report date per category, distinct identifier count
 const ERRORS_REFERENCE = `
 ## Errors and limits (every dataset)
 
-401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable. Rate-limit headers: x-ratelimit-limit, x-ratelimit-remaining.
+401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable.
+Successful direct data responses and exhausted 429 responses expose x-ratelimit-limit, x-ratelimit-remaining and x-ratelimit-reset (Unix seconds at the next UTC month boundary). Exhausted 429 also provides Retry-After in whole seconds; wait before retrying unless the plan changes. GET /v1/account is unmetered. These headers are readable through CORS. RapidAPI allowances/reset rules are independent; origin direct quota headers are not emitted on marketplace calls.
 `;
 
 /**

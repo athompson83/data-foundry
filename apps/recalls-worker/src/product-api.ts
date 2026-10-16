@@ -337,14 +337,21 @@ export async function getProductRecall(db: D1Database, bucket: R2Bucket, id: str
 
 export const PRODUCT_LOOKUP_LIMIT = 100;
 
-/** Every exact interpretation of one scanned or typed code: GTIN (check-digit valid) and model key. */
-export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false): Promise<Record<string, unknown>> {
+/** Validate and interpret a code before any query or allowance is spent. */
+export function productLookupCandidates(code: string): Array<{ kind: string; value: string }> {
   const trimmed = code.trim();
   if (!trimmed || trimmed.length > 64) throw new BadRequest('code must be 1–64 characters');
   const interpretations: Array<{ kind: string; value: string }> = gtinCandidates(trimmed).map((value) => ({ kind: 'gtin', value }));
   const key = modelKey(trimmed);
   if (key.length >= 2) interpretations.push({ kind: 'model', value: key });
   if (interpretations.length === 0) throw new BadRequest('code must contain letters or digits');
+  return interpretations;
+}
+
+/** Every exact interpretation of one scanned or typed code: GTIN (check-digit valid) and model key. */
+export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false): Promise<Record<string, unknown>> {
+  const interpretations = productLookupCandidates(code);
+  const key = modelKey(code.trim());
   const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ');
   const binds = interpretations.flatMap((item) => [item.kind, item.value]);
   // Published extracted identifiers match only on the notice's current source bytes, reported as their own kind.

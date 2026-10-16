@@ -1,6 +1,14 @@
 # RapidAPI listing package: Recall Intelligence API (FDA + North American consumer products)
 
-**Status (2026-09-28): adapter built and tested, channel closed, not publishable.** Do not create the listing until every gate in [Before you publish](#before-you-publish) holds.
+**Current status (2026-10-16): the existing Data Foundry listing is Public and updated.** It retains ten endpoints, including `GET /v1/datasets` and `GET /v1/lookup`. The existing guide's quota/reset section was saved and read back on the public Hub after deployment; an actual cross-dataset gateway lookup returns 200 without direct quota headers or a direct usage increase. Coverage, raw-evidence limits and separate marketplace metering remain aligned. Use the existing project `api_ba3c8244-55fa-4a3f-8226-c040dcf03bab`, current version 1.0.0, canonical origin `https://api.data.aroqon.com`, and marketplace contract `https://api.data.aroqon.com/openapi.json?channel=rapidapi`. Preserve existing endpoints, plans and proxy secret when extending it. See [quota release evidence](../evidence/quota-reset-20261016.md) and [October 15 endpoint alignment](../evidence/channel-alignment-20261015.md).
+
+The October 15 public plans are BASIC $0/500 requests, PRO $29/15,000, ULTRA $99/100,000 and MEGA $299/1,000,000; paid request overages and separate bandwidth fees apply as shown on the current marketplace Pricing page. These are observed provider settings, not a price change made by this release. Every RapidAPI endpoint call, including catalog/stats, follows the marketplace allowance. Direct keys, plans and allowances are separate. No independent paid subscriber or settlement is established by the operator BASIC tests.
+
+**Quota guidance for the October 16 direct API release.** Successful direct data responses and exhausted direct 429 responses include `X-RateLimit-Reset` (Unix seconds at the next UTC month boundary), plus the existing limit/remaining headers. Exhausted direct 429 also includes `Retry-After` (whole seconds); clients should wait rather than poll a spent allowance. Browser clients can read these headers through CORS; `GET /v1/account` is unmetered. These origin direct headers are absent from marketplace responses and its OpenAPI definition. RapidAPI subscribers follow the marketplace's own quota/reset/overage rules. Keep this distinction in the existing public guide; no endpoint, plan, price or proxy-secret replacement is needed.
+
+## Historical preparation record — 2026-09-28
+
+The remainder is the archived pre-launch package. Its closed-channel instructions, proposed plan mapping and owner-action list describe September 28; they are superseded by the October 9 launch and October 15 distribution records above. Do not use them as current activation instructions.
 
 Billing sells access. It never creates permission (ADR-0013, ADR-0014). Both product-recall rights records permit RapidAPI. The channel decision and the adapter's behaviour are in ADR-0016, section "RapidAPI channel".
 
