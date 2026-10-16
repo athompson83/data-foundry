@@ -3,7 +3,7 @@ import { BadRequest } from './api.js';
 import type { Env } from './env.js';
 import { productsServed } from './intake.js';
 import { resolveChannel } from './marketplace.js';
-import { recoverAbandonedCheckout, reportCheckout, reportPayment, screeningSalesOpen, type StoredReport } from './screening-payment.js';
+import { recoverAbandonedCheckout, reportCheckout, reportPayment, ScreeningCheckoutError, screeningSalesOpen, type StoredReport } from './screening-payment.js';
 import { parseInventory, reportCsv, screenInventory, SCREENING_TIERS, type ScreeningResult, type ScreeningTier } from './screening.js';
 import { printableReport } from './screening-page.js';
 import { stripe, StripeError } from './stripe.js';
@@ -27,6 +27,7 @@ export async function screeningRoutes(request: Request, env: Env): Promise<Respo
   try { return await route(request, env); }
   catch (cause) {
     if (cause instanceof BadRequest) return error(400, 'invalid_request', cause.message);
+    if (cause instanceof ScreeningCheckoutError) return error(cause.status, 'checkout_unavailable', cause.message);
     if (cause instanceof StripeError) return error(503, 'billing_unavailable', 'Billing could not be verified. No report access was granted. Please retry or contact support.');
     // Never log inventory, payment objects, tokens or database errors containing them.
     console.error('screening_request_failed');
@@ -58,6 +59,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (tier !== 'standard' && tier !== 'branded') throw new BadRequest('Choose standard or branded.');
     const brand = input['brand'] ?? '';
     if (typeof brand !== 'string' || brand.length > 80 || /[\u0000-\u001f\u007f]/.test(brand) || (tier === 'standard' && brand)) throw new BadRequest('A brand name of up to 80 characters is available with branded reports.');
+    if (tier === 'branded' && !brand.trim()) throw new BadRequest('Enter a business name for the branded report, or choose the $29 standard report.');
     const id = crypto.randomUUID(); const now = new Date();
     // Reserve first: concurrent expensive previews cannot bypass the five-per-day cap. Failed attempts count.
     const reserved = await env.DB.prepare(`INSERT INTO screening_report (id, customer_id, tier, brand, created_at, expires_at)

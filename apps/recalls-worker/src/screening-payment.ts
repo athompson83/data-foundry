@@ -15,6 +15,10 @@ interface ReportCheckout {
   payment_intent?: { status: string; latest_charge?: { paid: boolean; refunded: boolean; disputed: boolean; amount_refunded: number } } | string;
 }
 export const screeningSalesOpen = (env: Env): boolean => env.SALES_OPEN === '1' && env.SCREENING_SALES_OPEN === '1';
+/** Only deliberately public local errors use this type; Stripe response text stays opaque. */
+export class ScreeningCheckoutError extends Error {
+  constructor(message: string, readonly status: 400 | 409 | 503) { super(message); this.name = 'ScreeningCheckoutError'; }
+}
 
 /** After the fixed session expiry, reconcile an ambiguous attempt before allowing erasure. */
 export async function recoverAbandonedCheckout(env: Env, report: StoredReport, customerId: string): Promise<string | null> {
@@ -77,9 +81,9 @@ export async function fulfillScreeningSession(env: Env, sessionId: string): Prom
 }
 
 export async function reportCheckout(env: Env, report: StoredReport, customer: AuthenticatedCustomer): Promise<{ url?: string; paid?: boolean }> {
-  if (!screeningSalesOpen(env)) throw new StripeError('Screening purchases are not open', 503);
-  if (!customer.stripeCustomerId || ACCEPTANCE_FIXTURE_ID.test(customer.stripeCustomerId)) throw new StripeError('A real direct billing account is required', 400);
-  if (Date.parse(report.expires_at) - Date.now() < 31 * 60_000) throw new StripeError('This preview is expiring. Run a new check before purchasing.', 400);
+  if (!screeningSalesOpen(env)) throw new ScreeningCheckoutError('Screening purchases are not open yet. Your free preview remains available.', 503);
+  if (!customer.stripeCustomerId || ACCEPTANCE_FIXTURE_ID.test(customer.stripeCustomerId)) throw new ScreeningCheckoutError('A real direct billing account is required.', 400);
+  if (Date.parse(report.expires_at) - Date.now() < 31 * 60_000) throw new ScreeningCheckoutError('This preview is expiring. Run a new check before purchasing.', 400);
   if (report.checkout_session_id) {
     const session = await stripe<ReportCheckout>(env, 'GET', `checkout/sessions/${encodeURIComponent(report.checkout_session_id)}`);
     if (!bound(session, report, customer.stripeCustomerId, env)) throw new StripeError('Checkout identity mismatch', 503);
@@ -92,9 +96,9 @@ export async function reportCheckout(env: Env, report: StoredReport, customer: A
   }
   await env.DB.prepare('UPDATE screening_report SET checkout_started_at = COALESCE(checkout_started_at, ?) WHERE id = ?').bind(new Date().toISOString(), report.id).run();
   const current = await env.DB.prepare('SELECT * FROM screening_report WHERE id = ?').bind(report.id).first<StoredReport>();
-  if (!current || current.deleted_at || !current.result_json) throw new StripeError('Report unavailable', 400);
+  if (!current || current.deleted_at || !current.result_json) throw new ScreeningCheckoutError('This report is no longer available. Run a new preview.', 400);
   // Stripe retains idempotency keys for at least 24h. Do not silently recreate an ambiguous older attempt.
-  if (Date.now() - Date.parse(current.checkout_started_at!) > 23 * 3600_000) throw new StripeError('Checkout recovery needs support. Your preview remains available.', 400);
+  if (Date.now() - Date.parse(current.checkout_started_at!) > 23 * 3600_000) throw new ScreeningCheckoutError('Checkout recovery needs support. Your preview remains available, or you can delete it after payment reconciliation.', 400);
   const session = await stripe<ReportCheckout>(env, 'POST', 'checkout/sessions', {
     mode: 'payment', customer: customer.stripeCustomerId, payment_method_types: ['card'],
     expires_at: Math.floor(Math.min(Date.parse(current.expires_at), Date.parse(current.checkout_started_at!) + 23 * 3600_000) / 1000),
@@ -110,7 +114,7 @@ export async function reportCheckout(env: Env, report: StoredReport, customer: A
     .bind(session.id, current.id, current.checkout_attempt).first<{ id: string }>();
   if (!saved) {
     await stripe(env, 'POST', `checkout/sessions/${encodeURIComponent(session.id)}/expire`);
-    throw new StripeError('Report no longer available', 400);
+    throw new ScreeningCheckoutError('This report is no longer available. Run a new preview.', 400);
   }
   return { url: checkoutUrl.href };
 }

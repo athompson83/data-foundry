@@ -29,6 +29,12 @@ describe('inventory screening', () => {
   it('parses quoted CSV without losing barcode leading zeros', () => {
     expect(parseInventory('\uFEFFitem,gtin,model\r\n"Box, ""A""",089301008588,')).toEqual([{ item: 'Box, "A"', gtin: '089301008588', model: '' }]);
   });
+  it.each(['', '   '])('rejects an empty branded name before reserving or charging (%j)', async brand => {
+    const response = await request('/screening/reports', 'POST', { csv, tier: 'branded', brand });
+    expect(response.status).toBe(400);
+    expect((await response.json() as { error: { message: string } }).error.message).toContain('business name');
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report').first()).toEqual({ n: 0 });
+  });
   it.each(['item,item\na,b', 'item,unknown\na,b', 'item,gtin\n"broken,1', 'item,gtin\na', 'item\n', 'item\n' + 'a\n'.repeat(51)])('rejects malformed or out-of-bounds CSV', value => expect(() => parseInventory(value)).toThrow());
   it('distinguishes four outcomes and retains evidence and remedy information in the free preview', async () => {
     const report = await create();
@@ -161,10 +167,11 @@ describe('one-time report purchases', () => {
   it('refuses new checkout of an expiring preview and never sells internal acceptance fixtures', async () => {
     const { path, report, fetcher } = await checkoutFixture();
     await env.DB.prepare('UPDATE screening_report SET expires_at = ? WHERE id = ?').bind(new Date(Date.now() + 10 * 60_000).toISOString(), report.id).run();
-    expect((await request(path + '/checkout', 'POST')).status).toBe(503); expect(fetcher).not.toHaveBeenCalled();
+    const expiring = await request(path + '/checkout', 'POST');
+    expect(expiring.status).toBe(400); expect((await expiring.json() as { error: { message: string } }).error.message).toContain('Run a new check'); expect(fetcher).not.toHaveBeenCalled();
     await env.DB.prepare('UPDATE screening_report SET expires_at = ? WHERE id = ?').bind(new Date(Date.now() + 86400_000).toISOString(), report.id).run();
     await env.DB.prepare("UPDATE customer SET stripe_customer_id = 'cus_acceptance_internal_20261016', updated_at = ? WHERE id = 'one'").bind(new Date().toISOString()).run();
-    expect((await request(path + '/checkout', 'POST')).status).toBe(503); expect(fetcher).not.toHaveBeenCalled();
+    expect((await request(path + '/checkout', 'POST')).status).toBe(400); expect(fetcher).not.toHaveBeenCalled();
   });
   it('fulfills signed one-time webhook deliveries idempotently and rejects an unsigned claim', async () => {
     const { path, report, session } = await checkoutFixture(); await request(path + '/checkout', 'POST'); session.status = 'complete'; session.payment_status = 'paid';
