@@ -2,7 +2,7 @@
 
 ## Verdict
 
-**SHIPPED:** the Windows policy CLI and CPSC false-freshness repair passed protected checks and exact-source production acceptance. Health Canada's scoped identity set is independently reconciled; CPSC/composite qualification remains open. No independent revenue is verified by this package.
+**DEPLOYED; scheduled sync verification PENDING.** The Windows policy CLI is verified on Windows. The CPSC false-freshness guard passed local/CI regressions and is deployed, with exact-source authenticated API acceptance. That API acceptance does not exercise scheduled failure handling: qualify the source-error retention, prior freshness and independent HC continuation on an ordinary hosted pass before calling the reliability repair complete. Health Canada's scoped identity set is independently reconciled; CPSC/composite qualification remains open. No independent revenue is verified by this package.
 
 ## Checklist Snapshot
 
@@ -61,11 +61,11 @@ Fresh observation `2026-10-16T03:50Z`, Cloudflare account `c2832821a9ab36419cde6
 
 ### Verification and recovery
 
-Before repair, captured-error regressions failed: recent sync falsely succeeded; full sync requested all 29 erroneous windows before failing its count floor. After repair, both paths preserve freshness/notices/evidence, stop after one CPSC fetch, and complete HC; the empty-window regression passes. Windows CLI/permission parity remains qualified. Final protected candidate/main CI, guarded deployment and fresh authenticated acceptance are recorded in PR #102 and the delivery closeout; no live repair claim precedes those gates.
+Before repair, captured-error regressions failed: recent sync falsely succeeded; full sync requested all 29 erroneous windows before failing its count floor. After repair, both paths preserve freshness/notices/evidence, stop after one CPSC fetch, and complete HC; the empty-window regression passes. Windows CLI/permission parity remains qualified. Protected candidate/main CI, guarded deployment and authenticated API acceptance are recorded below. They qualify the source/API rollout; scheduled failure verification remains pending.
 
 Local checks: `corepack pnpm run typecheck` passed. `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/source-pipeline.test.ts tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts tooling/test/local-collector-policy-cli.test.ts tooling/test/cli-entry.test.ts --maxWorkers=2` passed 14 files / 1,291 tests. Three additional focused collector policy/rights checks passed. Windows generation/current-policy check, semantic permission comparison, sample/D1 comparison and `git diff --check` passed. Logs are ignored `.data/consumer-final-*` and `.data/cpsc-error-regression-*`.
 
-### Delivery qualification
+### Deployment and API verification
 
 - Final-head [CI 38851114916](https://github.com/athompson83/data-foundry/actions/runs/38851114916) passed 263 files / 5,271 tests. The real-Postgres job was correctly unselected for this PR's paths. Exact-main [CI 38852323029](https://github.com/athompson83/data-foundry/actions/runs/38852323029) passed the same 5,271 tests, generated/runtime checks and the required real-Postgres job.
 - Guarded [deployment 38853619299](https://github.com/athompson83/data-foundry/actions/runs/38853619299) passed its exact-main guard, typechecks, 67 structuring-package tests, 197 Worker tests, migrations and origin checks. Bundle SHA-256 `4cc3fdc3b5b68b57fc921a0203738cd964b716c34636bd5beeba53423aef6445`.
