@@ -2,6 +2,7 @@ import { HAZARD_CLASSES, REMEDY_CLASSES, TRADE_FACETS } from '@data-foundry/prod
 import { ALLERGENS, PATHOGENS, REASON_CLASSES } from '@data-foundry/recall-structuring';
 
 import type { PageContext } from './pages.js';
+import { LOOKUP_COVERAGE_NOTE } from './portfolio-api.js';
 
 const stringParam = (name: string, description: string, extra: Record<string, unknown> = {}) => ({
   name,
@@ -10,6 +11,69 @@ const stringParam = (name: string, description: string, extra: Record<string, un
   description,
   schema: { type: 'string', ...extra },
 });
+
+const lookupSchema = (record: string) => ({
+  type: 'object',
+  required: ['data', 'total_matches', 'truncated', 'interpreted_as', 'attribution'],
+  properties: {
+    data: { type: 'array', items: { type: 'object', required: ['matched_on', 'recall'], properties: {
+      matched_on: { type: 'array', items: { type: 'object', required: ['kind', 'value'], properties: { kind: { type: 'string' }, value: { type: 'string' } } } },
+      recall: { $ref: `#/components/schemas/${record}` },
+    } } },
+    total_matches: { type: 'integer', minimum: 0 },
+    truncated: { type: 'boolean' },
+    interpreted_as: { type: 'array', items: { type: 'object', properties: { kind: { type: 'string' }, value: { type: 'string' } } } },
+    attribution: { type: 'object' },
+    complete_results: { type: 'array', items: { type: 'string' }, description: 'FDA filters for paging through all matches.' },
+  },
+});
+
+function portfolioPaths(errors: Record<string, unknown>, served: { readonly fda: boolean; readonly products: boolean }): Record<string, unknown> {
+  const available = [...(served.fda ? ['recalls'] : []), ...(served.products ? ['product-recalls'] : [])];
+  const text = { type: 'string' };
+  const strings = { type: 'array', items: text };
+  return {
+    '/v1/datasets': { get: {
+      operationId: 'listDatasets', summary: 'Discover currently published datasets, source terms, fields and endpoints (not metered)', security: [],
+      responses: { '200': { description: 'The live catalog; an empty array means no dataset is currently published. Freshness and counts are at each stats_url.', content: { 'application/json': { schema: {
+        type: 'object', required: ['data', 'openapi_url'], properties: {
+          openapi_url: { type: 'string', format: 'uri' },
+          data: { type: 'array', items: { type: 'object', required: ['id', 'name', 'summary', 'documentation_url', 'stats_url', 'sources', 'fields', 'limitations'], properties: {
+            id: available.length ? { type: 'string', enum: available } : text,
+            registry: text, name: text, summary: text, domain: text, record_type: text, region: text,
+            documentation_url: { type: 'string', format: 'uri' }, stats_url: { type: 'string', format: 'uri' },
+            endpoints: { type: 'array', items: { type: 'object', properties: { method: { type: 'string', enum: ['GET'] }, path: text, summary: text } } },
+            fields: { type: 'array', items: { type: 'object', properties: { name: text, meaning: text } } },
+            sources: { type: 'array', items: { type: 'object', properties: { name: text, short: text, url: text, terms: text } } },
+            attribution: text, limitations: strings, refresh_schedule: text,
+          } } },
+        },
+      } } } } },
+    } },
+    ...(available.length ? { '/v1/lookup': { get: {
+      operationId: 'lookupAcrossDatasets', summary: 'Look up one identifier across selected recall datasets (one metered request)',
+      description: `The existing exact lookup results, kept separate by dataset, with their own attribution, match counts and bounds. ${LOOKUP_COVERAGE_NOTE} The default requests both datasets even if one is withdrawn; select an available subset explicitly to narrow coverage.`,
+      parameters: [
+        { ...stringParam('code', 'Code as printed. Each selected dataset applies its existing identifier validation and normalization.', { minLength: 1, maxLength: 64 }), required: true },
+        { name: 'datasets', in: 'query', required: false, style: 'form', explode: false, description: 'Comma-separated unique dataset IDs; defaults to recalls,product-recalls. Any unavailable requested dataset returns 503 before direct metering.', schema: { type: 'array', minItems: 1, maxItems: available.length, uniqueItems: true, items: { type: 'string', enum: available } } },
+        stringParam('include', 'raw requires exactly one explicit datasets ID; otherwise 400 before direct metering. Includes digest-verified evidence with existing redactions and bounds (FDA: 10, consumer products: 25; otherwise 100 each).', { enum: ['raw'] }),
+      ],
+      responses: {
+        '200': { description: 'Per-dataset matches; truncated is true if any dataset is truncated. A CPSC and HC notice can describe the same recall and are never silently merged.', content: { 'application/json': { schema: {
+          type: 'object', required: ['code', 'results', 'truncated', 'coverage_note'], properties: {
+            code: text, truncated: { type: 'boolean' }, coverage_note: text,
+            results: { type: 'array', minItems: 1, maxItems: available.length, items: { oneOf: [
+              ...(served.fda ? [{ allOf: [lookupSchema('Recall'), { type: 'object', required: ['dataset'], properties: { dataset: { const: 'recalls' } } }] }] : []),
+              ...(served.products ? [{ allOf: [lookupSchema('ProductRecall'), { type: 'object', required: ['dataset'], properties: { dataset: { const: 'product-recalls' } } }] }] : []),
+            ] } },
+          },
+        } } } },
+        ...errors,
+        '503': { $ref: '#/components/responses/Error' },
+      },
+    } } } : {}),
+  };
+}
 
 /** Paths of the CPSC/Health Canada product-recall dataset, listed only while it is served. */
 function productPaths(errors: Record<string, unknown>): Record<string, unknown> {
@@ -146,6 +210,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
     servers: [{ url: ctx.apiOrigin }],
     security: [{ bearer: [] }],
     paths: {
+      ...portfolioPaths(errors, served),
       '/v1/recalls/lookup': {
         get: {
           operationId: 'lookupCode',

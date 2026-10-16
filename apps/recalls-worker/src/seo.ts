@@ -370,6 +370,8 @@ export function llmsTxt(ctx: PageContext, served: ServedDatasets): string {
 ${served.fda ? FDA_LLMS_FACTS(ctx) : ''}${served.products ? PRODUCT_LLMS_FACTS(ctx) : ''}${served.fda || served.products ? '' : '\nNo dataset is available right now.\n'}
 ## Docs
 
+- [Live dataset catalog](${ctx.apiOrigin}/v1/datasets): public JSON with source terms, fields, limitations and endpoint paths.
+${served.fda || served.products ? `- Cross-dataset lookup: \`GET ${ctx.apiOrigin}/v1/lookup?code=<code>\` with your bearer key. One direct request unit; results stay separate by dataset. Defaults to both datasets; an unavailable requested dataset returns 503 without a direct charge. Use \`datasets=<id>\` for an explicit subset from the catalog. An empty result does not establish product safety.\n` : ''}
 - [Recall API documentation](${ctx.publicOrigin}/docs): parameters, identifiers, response shape, errors.
 - [OpenAPI 3.1 description](${ctx.apiOrigin}/openapi.json): machine-readable contract for tool use.
 - [Full LLM reference](${ctx.publicOrigin}/llms-full.txt): this file plus the complete parameter reference.

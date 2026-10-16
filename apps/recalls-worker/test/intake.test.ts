@@ -498,7 +498,7 @@ describe('publication of extracted identifiers', () => {
 
   it('serves extracted identifiers on the RapidAPI channel only with its own marketplace entitlement', async () => {
     const secret = 'p'.repeat(40);
-    const { env } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1', RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: secret });
+    const { env, apiKey } = await accepted({ EXTRACTED_IDENTIFIERS_OPEN: '1', RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: secret });
     const viaMarketplace = async (target: Env) => {
       const response = await call(target, '/v1/product-recalls/cpsc-15034', { headers: { 'x-rapidapi-proxy-secret': secret, 'x-rapidapi-user': 'someone', 'x-rapidapi-subscription': 'pro' } });
       expect(response.status).toBe(200);
@@ -507,6 +507,16 @@ describe('publication of extracted identifiers', () => {
     // The direct API serves them; the marketplace does not until its own gate opens.
     expect(await viaMarketplace(env)).toEqual([]);
     expect(await viaMarketplace({ ...env, MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN: '1' })).toEqual([expect.objectContaining({ value: 'SA904' })]);
+    const lookupCount = async (target: Env, marketplace: boolean): Promise<number> => {
+      const headers = marketplace ? { 'x-rapidapi-proxy-secret': secret, 'x-rapidapi-user': 'someone' } : { authorization: `Bearer ${apiKey}` };
+      const response = await call(target, '/v1/lookup?code=SA904&datasets=product-recalls', { headers });
+      expect(response.status).toBe(200);
+      return ((await response.json()) as { results: Array<{ total_matches: number }> }).results[0]!.total_matches;
+    };
+    expect(await lookupCount(env, false)).toBe(1);
+    expect(await lookupCount(env, true)).toBe(0);
+    expect(await lookupCount({ ...env, MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN: '1' }, true)).toBe(1);
+    expect(await lookupCount({ ...env, EXTRACTED_IDENTIFIERS_OPEN: '0', MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN: '1' }, true)).toBe(0);
   });
 
   it('keeps a withdrawn extractor version withdrawn for submissions that arrive after the withdrawal', async () => {
