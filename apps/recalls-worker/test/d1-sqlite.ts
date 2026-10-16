@@ -31,7 +31,7 @@ class Statement implements D1PreparedStatement {
 
 export function createTestDatabase(): { db: D1Database; sqlite: DatabaseSync } {
   const sqlite = new DatabaseSync(':memory:');
-  for (const migration of ['0001_init.sql', '0002_raw_in_r2.sql', '0003_product_recalls.sql', '0004_extraction_intake.sql']) {
+  for (const migration of ['0001_init.sql', '0002_raw_in_r2.sql', '0003_product_recalls.sql', '0004_extraction_intake.sql', '0005_screening_reports.sql']) {
     sqlite.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), 'utf8'));
   }
   const db: D1Database = {

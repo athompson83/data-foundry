@@ -11,6 +11,9 @@
 import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, usageReset, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import { accountPage, ACCOUNT_JS } from './account-page.js';
+import { screeningPage, SCREENING_JS } from './screening-page.js';
+import { screeningRoutes, expireScreeningReports } from './screening-routes.js';
+import { screeningSalesOpen } from './screening-payment.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
 import { datasetCatalog, lookupAcrossDatasets, parseLookupQuery, type LookupQuery } from './portfolio-api.js';
@@ -333,6 +336,7 @@ async function route(request: Request, env: Env): Promise<Response> {
       await logMarketplaceRequest(marketplace, url.pathname, status);
     }
   }
+  if (!isApiHost && url.pathname.startsWith('/screening/reports')) return screeningRoutes(request, env);
   if (url.pathname === '/openapi.json') {
     const marketplace = url.searchParams.get('channel') === 'rapidapi';
     return json(openApiDocument(ctx, { fda: env.SOURCE_KILL_SWITCH !== '1', products: productsServed(env), marketplace }), 200, { 'cache-control': GATED });
@@ -469,6 +473,11 @@ async function route(request: Request, env: Env): Promise<Response> {
   if (datasetAt) return datasetRoute(env, ctx, datasetAt.key);
 
   switch (url.pathname) {
+    case '/screening':
+      if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'GET only.');
+      return html(screeningPage(ctx, productsServed(env), screeningSalesOpen(env)), 200, { 'cache-control': 'private, no-store', 'referrer-policy': 'no-referrer', 'content-security-policy': `${PAGE_CSP}; connect-src 'self'` });
+    case '/assets/screening.js':
+      return new Response(SCREENING_JS, { headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-cache', ...SECURITY_HEADERS } });
     case '/': {
       const published = publishedDatasets(env);
       // Scope the cache to the release as well as publication/sales gates: a deploy must not serve the old landing page.
@@ -751,6 +760,7 @@ export default {
   },
 
   async scheduled(controller: { scheduledTime?: number } | undefined, env: Env): Promise<void> {
+    try { await expireScreeningReports(env); } catch { console.error('screening_retention_retry'); }
     const started = new Date().toISOString();
     const results = await scheduledSync(env);
     console.log('recall_sync', JSON.stringify(results));

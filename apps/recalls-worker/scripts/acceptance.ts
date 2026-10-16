@@ -95,11 +95,12 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     checks.push({ name, ok, detail });
     return ok;
   };
-  const call = async (origin: string, path: string, init: { method?: string; key?: string | null; admin?: boolean } = {}): Promise<{ status: number; body: Json | null; headers: Headers }> => {
+  const call = async (origin: string, path: string, init: { method?: string; key?: string | null; admin?: boolean; body?: Json } = {}): Promise<{ status: number; body: Json | null; headers: Headers }> => {
     const headers: Record<string, string> = { accept: 'application/json', 'user-agent': 'data-foundry-acceptance' };
     if (init.admin) headers['authorization'] = `Bearer ${options.adminToken}`;
     else if (init.key) headers['authorization'] = `Bearer ${init.key}`;
-    const response = await options.fetch(new Request(`${origin}${path}`, { method: init.method ?? 'GET', headers }));
+    if (init.body) headers['content-type'] = 'application/json';
+    const response = await options.fetch(new Request(`${origin}${path}`, { method: init.method ?? 'GET', headers, ...(init.body ? { body: JSON.stringify(init.body) } : {}) }));
     const text = await response.text();
     let body: Json | null = null;
     try {
@@ -265,6 +266,28 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       check(`FDA record ${number} include=raw`, one.status === 200 && ((one.body?.['data'] as Json | undefined)?.['recall_number'] === number) && 'raw' in ((one.body?.['data'] as Json | undefined) ?? {}), String(one.status));
     }
 
+    // A synthetic inventory exercises the durable report journey without creating a payment.
+    metered += 1;
+    const preview = await call(options.publicOrigin, '/screening/reports', { method: 'POST', key: k, body: { csv: 'item,gtin,model\nAcceptance fixture,,', tier: 'standard' } });
+    const reportId = preview.body?.['id'];
+    const result = preview.body?.['result'] as Json | undefined;
+    const items = result?.['items'] as Json[] | undefined;
+    check('screening: authenticated preview records insufficient identifiers honestly', preview.status === 201 && typeof reportId === 'string' && items?.[0]?.['outcome'] === 'insufficient_information' && preview.headers.get('cache-control') === 'private, no-store', `${preview.status} report=${String(reportId)}`);
+    if (typeof reportId === 'string') {
+      const path = `/screening/reports/${encodeURIComponent(reportId)}`;
+      try {
+        const saved = await call(options.publicOrigin, path, { key: k });
+        const list = await call(options.publicOrigin, '/screening/reports', { key: k });
+        check('screening: saved snapshot survives a new request and appears in history', saved.status === 200 && JSON.stringify(saved.body?.['result']) === JSON.stringify(result) && (list.body?.['reports'] as Json[] | undefined)?.some(row => row['id'] === reportId) === true, `${saved.status}/${list.status}`);
+        const unpaid = await call(options.publicOrigin, `${path}/csv`, { key: k });
+        check('screening: unpaid download denied', unpaid.status === 402, String(unpaid.status));
+      } finally {
+        const removed = await call(options.publicOrigin, `${path}/delete`, { method: 'POST', key: k });
+        const gone = await call(options.publicOrigin, path, { key: k });
+        check('screening: synthetic inventory deleted and no longer accessible', removed.status === 200 && removed.body?.['deleted'] === true && gone.status === 404, `${removed.status}/${gone.status}`);
+      }
+    }
+
     const after = await call(api, '/v1/account', { key: k });
     const usedAfter = Number(after.body?.['month_requests']);
     check('metering: each data request counted once, account reads not counted', after.status === 200 && usedAfter - usedBefore === metered, `delta=${usedAfter - usedBefore} metered=${metered} allowance=${String(after.body?.['month_allowance'])}`);
@@ -307,6 +330,8 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
         const rejected = await call(api, '/v1/account', { key });
         const rejectedData = await call(api, '/v1/product-recalls?limit=1', { key });
         const rejectedLookup = await call(api, '/v1/lookup?code=DXH70CFAVX', { key });
+        const rejectedReports = await call(options.publicOrigin, '/screening/reports', { key });
+        check('screening: revoked key cannot list saved reports', rejectedReports.status === 401, String(rejectedReports.status));
         revocation = { revoked: closedOk, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && rejectedLookup.status === 401 && errorCode(rejectedData.body) === 'invalid_key' && errorCode(rejectedLookup.body) === 'invalid_key' };
         check('fixture closed: key revoked, fixture suspended, key rejected afterwards', closedOk && revocation.rejected_after, `close=${closed.status} status=${String(closed.body?.['status'])} active_keys=${activeKeys} after=${rejected.status}/${rejectedData.status}/${rejectedLookup.status}`);
       } else {

@@ -86,6 +86,23 @@ describe('production acceptance script', () => {
     expect(evidence.revocation.rejected_after).toBe(true);
   });
 
+  it('rejects changed saved screening contents and still removes the synthetic inventory', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (request.method !== 'GET' || !/^\/screening\/reports\/[0-9a-f-]{36}$/.test(new URL(request.url).pathname) || response.status !== 200) return response;
+      const body = await response.json() as { result: Record<string, unknown> };
+      body.result['checked_at'] = 'changed';
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find(check => check.name.startsWith('screening: saved snapshot'))?.ok).toBe(false);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report WHERE result_json IS NOT NULL').first()).toEqual({ n: 0 });
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
   it('revokes the key even when a check throws midway', async () => {
     const env = makeEnv();
     await seed(env);
