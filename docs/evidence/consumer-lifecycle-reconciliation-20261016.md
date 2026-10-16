@@ -2,7 +2,7 @@
 
 ## Verdict
 
-The Windows policy CLI and CPSC false-freshness defect are repaired in source. Health Canada's scoped identity set is independently reconciled; CPSC/composite qualification remains open. Exact-source deployment acceptance is a separate delivery gate. No independent revenue is verified by this package.
+**SHIPPED:** the Windows policy CLI and CPSC false-freshness repair passed protected checks and exact-source production acceptance. Health Canada's scoped identity set is independently reconciled; CPSC/composite qualification remains open. No independent revenue is verified by this package.
 
 ## Checklist Snapshot
 
@@ -11,6 +11,8 @@ The Windows policy CLI and CPSC false-freshness defect are repaired in source. H
 ## Progress Report
 
 Base `075544f2471cf594b427039726b45799744e86d8`, canonical repo `C:/Users/Adam/data-foundry`, reused worktree `C:/Users/Adam/data-foundry-worktrees/revenue-20261015`, branch `codex/consumer-lifecycle-20261016`, PR #102. The old dirty chat checkout and ignored receipts are preserved. Documentation-main CI 38844322835 is successful.
+
+PR #102 merged as `38d9a87f91fc4a7afd39d82b48105ec9c375c6d7`; that exact source is serving both [landing](https://data.aroqon.com) and [API](https://api.data.aroqon.com) on the existing Worker. The review finding was fixed, resolved and independently re-reviewed with no findings on final head `97ba177d87cdcf13d447b8c212ab47b438718783`. The merged source branch was ancestry-checked and removed with a remote-head lease; unrelated branches remain. Delivery evidence is recorded below; this follow-up changes documentation only.
 
 The policy generator now executes on Windows. Health Canada's scope/name and stage describe its reconciled consumer-product slice. CPSC/composite next actions name the missing source gate instead of repeating completed hosted acceptance. Source-rights channel notes reflect prior RapidAPI activation; rights grants are unchanged. Generated policy changes are metadata only: tasks, rates, rights, acquisition classes, memberships and prohibited domains remain identical. No collector reinstall, restart or permission change was executed.
 
@@ -32,7 +34,9 @@ None. Upstream CPSC availability is an external gate with agent-owned follow-up.
 
 ## Recommended Next Steps
 
-After evidence of CPSC recovery, compare the full upstream ID set with storage and explain differences before LIVE qualification. Avoid repeated failing downloads. Continue collector/service improvements within existing allowance and closed extraction-publication gates. Operator fixtures do not establish independent paid buyers for REV-008/REV-013.
+After evidence of CPSC recovery, compare the full upstream ID set with storage and explain differences before LIVE qualification. Avoid repeated failing downloads. Observe the next ordinary Cron outcome without forcing another full pass. Continue collector/service improvements within existing allowance and closed extraction-publication gates. Operator fixtures do not establish independent paid buyers for REV-008/REV-013.
+
+Read-only collector assessment around 04:35Z: existing dashboard and SQLite show 8 extracted / 8 skipped, 25 locally accepted proposals, 12 server-accepted identifiers / 13 agency duplicates, 6 acknowledged submissions, zero queryable, no queued notices or pending outbox. These are historical totals, not new productive collection. It waits on the exhausted Evaluate allowance; no forced read or subscription change was made. Actual Ollama is 0.40.4 with the pinned local model digest; publication is qualified only for 0.34.4. The cached 130-notice benchmark can qualify the new runtime without paid API calls, independently of publication authorization. Another bounded follow-up is precise API quota-reset signaling: exhausted responses currently omit Retry-After, so the collector retries monthly exhaustion hourly.
 
 ## Repository and Evidence Record
 
@@ -60,5 +64,16 @@ Fresh observation `2026-10-16T03:50Z`, Cloudflare account `c2832821a9ab36419cde6
 Before repair, captured-error regressions failed: recent sync falsely succeeded; full sync requested all 29 erroneous windows before failing its count floor. After repair, both paths preserve freshness/notices/evidence, stop after one CPSC fetch, and complete HC; the empty-window regression passes. Windows CLI/permission parity remains qualified. Final protected candidate/main CI, guarded deployment and fresh authenticated acceptance are recorded in PR #102 and the delivery closeout; no live repair claim precedes those gates.
 
 Local checks: `corepack pnpm run typecheck` passed. `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/source-pipeline.test.ts tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts tooling/test/local-collector-policy-cli.test.ts tooling/test/cli-entry.test.ts --maxWorkers=2` passed 14 files / 1,291 tests. Three additional focused collector policy/rights checks passed. Windows generation/current-policy check, semantic permission comparison, sample/D1 comparison and `git diff --check` passed. Logs are ignored `.data/consumer-final-*` and `.data/cpsc-error-regression-*`.
+
+### Delivery qualification
+
+- Final-head [CI 38851114916](https://github.com/athompson83/data-foundry/actions/runs/38851114916) passed 263 files / 5,271 tests. The real-Postgres job was correctly unselected for this PR's paths. Exact-main [CI 38852323029](https://github.com/athompson83/data-foundry/actions/runs/38852323029) passed the same 5,271 tests, generated/runtime checks and the required real-Postgres job.
+- Guarded [deployment 38853619299](https://github.com/athompson83/data-foundry/actions/runs/38853619299) passed its exact-main guard, typechecks, 67 structuring-package tests, 197 Worker tests, migrations and origin checks. Bundle SHA-256 `4cc3fdc3b5b68b57fc921a0203738cd964b716c34636bd5beeba53423aef6445`.
+- Fresh Cloudflare read-back: deployment `2504eb05-ed3d-49e6-896b-483e4d0d2f55`, created `2026-10-16T05:02:17.349867Z`; version `ba74649a-13ca-4fec-b2b1-82c9b617bdb8` at 100%. Annotation names full source `38d9a87f91fc4a7afd39d82b48105ec9c375c6d7` and deployment run 38853619299; tag `38d9a87f91fc`.
+- Fresh [authenticated acceptance 38853818365](https://github.com/athompson83/data-foundry/actions/runs/38853818365), `05:04:08.310Z`–`05:04:13.926Z`: 27/27 checks, raw evidence/redactions, filters and lookup parity; 13 metered requests and exact delta 13, account reads excluded; serving version unchanged. Closure returned 200/suspended/zero active keys; subsequent checks were 401/401/401. Independent D1 read-back confirms suspended/zero active keys, updated `05:04:13.689Z`.
+- Provider read-back preserves SALES_OPEN=1, PRODUCT_RECALLS_OPEN=1, RAPIDAPI_ENABLED=1, COLLECTOR_INTAKE_OPEN=1, both source kills=0, EXTRACTED_IDENTIFIERS_OPEN=0 and MARKETPLACE_EXTRACTED_IDENTIFIERS_OPEN=0. Prices, subscriptions, payouts, source grants and public contracts are unchanged. No new gateway/browser run is claimed for this non-interface repair; those interfaces' accepted evidence remains the linked channel-alignment record.
+- The captured source-error retention/freshness behavior is replayed by local/CI scheduled-sync regressions and its guard is deployed. No postdeployment Cron result or forced production error replay is claimed at closeout; the next ordinary scheduled pass is around 06:17 UTC. Authenticated API acceptance and upstream completeness are separate evidence layers.
+
+Secret-free receipts/logs remain in ignored `.data/consumer-{candidate,main,deploy,acceptance}-*`. Documentation closeout does not change the serving source or require another deployment.
 
 Recovery: revert the bounded code/metadata changes and regenerate policy. Deployed rollback uses the recorded baseline version through the established operations workflow. No deletion/migration is needed.
