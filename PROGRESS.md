@@ -1,6 +1,12 @@
 # Progress
 
-## Current session — 2026-10-16: TOML security and build qualification
+## Current session — 2026-10-16: public source sync status
+
+- **IN_PROGRESS, REV-018; locally qualified:** both stats endpoints add latest per-source attempts beside successful clocks through the existing D1 ledger. Failed/running attempts cannot advance success; no-run/running nulls and CPSC subwindow exclusion are explicit. Errors/artifact keys/internal ids stay private. No migration or new endpoint.
+- **Validation:** 268 tests / 13 files pass (219 Worker, including 16 acceptance cases), typecheck and dry-run pass. Desktop 1366×900/mobile 375×812 preview freshness journey has no overflow/console errors. Version-scoped stats caches prevent stale post-deploy contracts; rights gates precede cache. Source OpenAPI, catalog, landing, docs and agent references align.
+- **Release gates:** review/CI, exact-main CI, guarded deploy, authenticated acceptance/revocation, live browser and RapidAPI guide/definition/gateway read-back pending. Accepted runtime remains 1fb2cb8 / cb45d589, extraction gates 0. [Evidence/recovery](docs/evidence/source-sync-status-20261016.md). History/collector/model/paid-buyer gates unchanged; owner actions none.
+
+## Previous session — 2026-10-16: TOML security and build qualification
 
 - **COMPLETE, bounded PR #91 repair:** smol-toml 1.9.0's four synthetic-profile failures are repaired without changing strict capability/type/value matching. Four new negative cases reject type confusion, typed dates and extra nested capabilities. Final reviewed head ba9dfe4 has zero findings; merged source a20a2e890a6eb77fd13f0c4f5a8d2276de73d3eb. Candidate CI 38868759631 and exact-main CI 38870579003 pass all 5,286 tests / 264 files plus real Postgres and generated-artifact assurances.
 - **Validation:** root typecheck, frozen install, 23 synthetic-profile tests, 11 files / 299 affected consumer/ingestion tests and four identity tests pass. All 16 tracked Wrangler manifests parse to identical values across 1.8.0/1.9.0. Ordinary/private-canary/vertical and synthetic artifact builds pass; governed regeneration changes only two digest fields and keeps dependency coverage. The public recalls bundle remains byte-identical (`b2ef98f2…`).

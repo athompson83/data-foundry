@@ -4,6 +4,62 @@ import { ALLERGENS, PATHOGENS, REASON_CLASSES } from '@data-foundry/recall-struc
 import type { PageContext } from './pages.js';
 import { LOOKUP_COVERAGE_NOTE } from './portfolio-api.js';
 
+const nullableTime = { type: ['string', 'null'], format: 'date-time' };
+const counts = { type: 'object', additionalProperties: { type: 'integer', minimum: 0 } };
+const sourceMap = (keys: readonly string[]) => ({
+  type: 'object', required: keys, additionalProperties: false,
+  properties: Object.fromEntries(keys.map((key) => [key, { $ref: '#/components/schemas/SourceSync' }])),
+});
+const SOURCE_SYNC_SCHEMA = {
+  type: 'object', required: ['last_successful_sync', 'latest_attempt'], additionalProperties: false,
+  description: 'Sync ledger state, cached for up to ten minutes. A successful window is not proof of complete history or current agency publication. No run means both fields are null.',
+  properties: {
+    last_successful_sync: nullableTime,
+    latest_attempt: { anyOf: [{ type: 'null' }, {
+      type: 'object', required: ['status', 'started_at', 'finished_at', 'window_from', 'window_to'], additionalProperties: false,
+      description: 'Most recently created source run (highest ledger id). A running attempt has no finish time. Product subwindows do not count as agency passes. Failure details and artifact keys are private.',
+      properties: {
+        status: { type: 'string', enum: ['RUNNING', 'SUCCEEDED', 'FAILED'] },
+        started_at: { type: 'string', format: 'date-time' }, finished_at: nullableTime,
+        window_from: { type: 'string', description: 'Source window label: a date, full, or another acquisition window label.' },
+        window_to: { type: 'string', description: 'End of the attempted acquisition window, not the newest record date.' },
+      },
+    }] },
+  },
+};
+const statsResponse = (products: boolean) => ({
+  description: 'Coverage and per-source sync attempts; cached for up to ten minutes. Direct stats are unmetered; marketplace stats follow RapidAPI allowances.',
+  content: { 'application/json': { schema: {
+    type: 'object', required: products
+      ? ['agencies', 'identifiers', 'trade_facets', 'declared_cross_agency_links', 'last_successful_sync', 'source_sync', 'attribution']
+      : ['categories', 'identifiers', 'last_successful_sync', 'source_sync', 'attribution'],
+    properties: {
+      ...(products ? {
+        agencies: { type: 'array', items: { type: 'object', required: ['agency', 'notices', 'latest'], properties: {
+          agency: { type: 'string', enum: ['CPSC', 'HC'] }, notices: { type: 'integer', minimum: 0 }, latest: { type: ['string', 'null'] },
+        } } },
+        trade_facets: counts, declared_cross_agency_links: { type: 'integer', minimum: 0 },
+        last_successful_sync: { type: 'object', additionalProperties: { type: 'string', format: 'date-time' } },
+        source_sync: sourceMap(['CPSC', 'HC']),
+        attribution: { type: 'object', required: ['sources', 'disclaimer'], properties: {
+          sources: { type: 'array', items: { type: 'object', required: ['agency', 'source', 'license'], properties: {
+            agency: { type: 'string' }, source: { type: 'string' }, license: { type: 'string' },
+          } } }, disclaimer: { type: 'string' },
+        } },
+      } : {
+        categories: { type: 'array', items: { type: 'object', required: ['category', 'recalls', 'latest_report'], properties: {
+          category: { type: 'string', enum: ['food', 'drug', 'device'] }, recalls: { type: 'integer', minimum: 0 }, latest_report: { type: ['string', 'null'] },
+        } } },
+        last_successful_sync: nullableTime, source_sync: sourceMap(['food', 'drug', 'device']),
+        attribution: { type: 'object', required: ['source', 'license', 'disclaimer'], properties: {
+          source: { type: 'string' }, license: { type: 'string' }, disclaimer: { type: 'string' },
+        } },
+      }),
+      identifiers: counts,
+    },
+  } } },
+});
+
 const stringParam = (name: string, description: string, extra: Record<string, unknown> = {}) => ({
   name,
   in: 'query',
@@ -125,7 +181,7 @@ function productPaths(errors: Record<string, unknown>): Record<string, unknown> 
         responses: { '200': { description: 'The notice', content: { 'application/json': { schema: { type: 'object', properties: { data: noticeRef } } } } }, '404': { $ref: '#/components/responses/Error' }, ...errors },
       },
     },
-    '/v1/product-recalls/stats': { get: { operationId: 'getProductRecallStats', summary: 'Public coverage counts', security: [], responses: { '200': { description: 'Coverage' } } } },
+    '/v1/product-recalls/stats': { get: { operationId: 'getProductRecallStats', summary: 'Coverage and source sync attempts', security: [], responses: { '200': statsResponse(true) } } },
   };
 }
 
@@ -272,7 +328,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
       '/v1/account': { get: { operationId: 'getAccount', summary: 'Plan, usage and allowance (not metered)', responses: { '200': { description: 'Account' }, ...errors } } },
       '/v1/account/rotate-key': { post: { operationId: 'rotateKey', summary: 'Revoke this key and issue a new one', responses: { '200': { description: 'New key' }, ...errors } } },
       '/v1/account/billing-portal': { post: { operationId: 'billingPortal', summary: 'Stripe billing portal URL', responses: { '200': { description: 'Portal URL' }, ...errors } } },
-      '/v1/recalls/stats': { get: { operationId: 'getStats', summary: 'Public coverage counts', security: [], responses: { '200': { description: 'Coverage' } } } },
+      '/v1/recalls/stats': { get: { operationId: 'getStats', summary: 'Coverage and source sync attempts', security: [], responses: { '200': statsResponse(false) } } },
       ...(products ? productPaths(errors) : {}),
     },
     components: {
@@ -284,6 +340,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
         },
       },
       schemas: {
+        SourceSync: SOURCE_SYNC_SCHEMA,
         ...(products ? { ProductRecall: PRODUCT_RECALL_SCHEMA } : {}),
         Recall: {
           type: 'object',

@@ -339,7 +339,7 @@ Consumer product recalls (US and Canada):
 - Look up a model number or UPC across CPSC and Health Canada recalls: \`GET ${ctx.apiOrigin}/v1/product-recalls/lookup?code=<model or UPC>\` with the same key.
 - Search with filters (agency CPSC|HC, hazard, remedy, facet appliance|hvac|plumbing-water-heating|electrical|building-products, category, firm, manufacturer_country, from/to dates, linked, text): \`GET ${ctx.apiOrigin}/v1/product-recalls?...\`.
 - One notice: \`GET ${ctx.apiOrigin}/v1/product-recalls/<id>\` (ids look like cpsc-25203 or hc-77184); public page: \`${ctx.publicOrigin}/product-recalls/<id>\`.
-- Live coverage, no key needed: \`GET ${ctx.apiOrigin}/v1/product-recalls/stats\`.
+- Live coverage and source sync attempts, no key needed: \`GET ${ctx.apiOrigin}/v1/product-recalls/stats\`; \`source_sync\` keeps the latest attempt separate from successful clocks (ten-minute cache).
 - A US notice is linked to a Canadian one only where CPSC cites the Health Canada notice; names and titles never link notices.
 - Data: U.S. Consumer Product Safety Commission (US Government work); Health Canada Recalls and Safety Alerts, which contain information licensed under the Open Government Licence – Canada. Not affiliated with or endorsed by CPSC or Health Canada.
 `;
@@ -357,7 +357,7 @@ Key facts for agents:
 - Look up one scanned or typed code (UPC, EAN, GTIN, UDI-DI, NDC or lot): \`GET ${ctx.apiOrigin}/v1/recalls/lookup?code=<code>\` with \`Authorization: Bearer <key>\`.
 - Search with filters (state, category, classification, status, reason_class, allergen, dates, text): \`GET ${ctx.apiOrigin}/v1/recalls?...\`.
 - One recall: \`GET ${ctx.apiOrigin}/v1/recalls/<recall_number>\`; public page: \`${ctx.publicOrigin}/recalls/<recall_number>\`.
-- Live coverage and freshness, no key needed: \`GET ${ctx.apiOrigin}/v1/recalls/stats\`.
+- Live coverage and source sync attempts, no key needed: \`GET ${ctx.apiOrigin}/v1/recalls/stats\`; \`source_sync\` keeps the latest attempt separate from successful clocks (ten-minute cache).
 - Keys: a free Evaluate plan and paid monthly plans at ${ctx.publicOrigin}/#pricing. The source is refreshed from openFDA every six hours.
 - Every record carries its FDA source URL, parser version and the SHA-256 of the verbatim FDA record. Cite the recall number and ${ctx.publicOrigin}/recalls/<recall_number>.
 - Data: U.S. FDA via openFDA (CC0). Not affiliated with or endorsed by FDA. Not medical or legal advice.
@@ -411,6 +411,7 @@ One notice. Fields: id, agency, jurisdiction, source_id, title, url, published_o
 ### GET /v1/product-recalls/stats (no key)
 
 Notice counts and latest date per agency, distinct GTIN and model counts, trade-facet counts, declared cross-agency links and the last successful sync per source.
+\`source_sync\` has CPSC and HC entries, each with \`last_successful_sync\` and nullable \`latest_attempt\` {status RUNNING|SUCCEEDED|FAILED, started_at, finished_at (null while running), window_from, window_to}. Latest means highest ledger id. No run means both fields are null. CPSC subwindows do not count as completed agency passes. Cached for up to ten minutes; success does not prove complete history or current agency publication. Direct stats are unmetered; RapidAPI stats follow marketplace allowances.
 `;
 
 export function llmsFullTxt(ctx: PageContext, served: ServedDatasets): string {
@@ -440,6 +441,7 @@ One recall. Fields: recall_number, category, event_id, classification, status, v
 ### GET /v1/recalls/stats (no key)
 
 Record counts and latest FDA report date per category, distinct identifier counts, and the last successful sync time.
+\`source_sync\` has food, drug and device entries, each with \`last_successful_sync\` and nullable \`latest_attempt\` {status RUNNING|SUCCEEDED|FAILED, started_at, finished_at (null while running), window_from, window_to}. Latest means highest ledger id. No run means both fields are null. A newer failed/running attempt does not advance the successful clock. A successful historical rolling window is not proof of complete history or newest publication. Cached for up to ten minutes. Direct stats are unmetered; RapidAPI stats follow marketplace allowances.
 `;
 
 const ERRORS_REFERENCE = `

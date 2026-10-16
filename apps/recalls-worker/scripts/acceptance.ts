@@ -63,6 +63,28 @@ function unissuedKey(): string {
 
 type Json = Record<string, unknown>;
 
+/** Independent public-contract check: no internal ledger fields or raw failure details may escape. */
+function sourceSyncValid(body: Json | null, sources: readonly string[]): boolean {
+  const object = (value: unknown): value is Json => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const time = (value: unknown): boolean => typeof value === 'string' && Number.isFinite(Date.parse(value));
+  const sync = body?.['source_sync'];
+  if (!object(sync) || Object.keys(sync).sort().join(',') !== [...sources].sort().join(',')) return false;
+  return sources.every((source) => {
+    const state = sync[source];
+    if (!object(state) || Object.keys(state).sort().join(',') !== 'last_successful_sync,latest_attempt') return false;
+    const success = state['last_successful_sync'];
+    if (success !== null && !time(success)) return false;
+    const attempt = state['latest_attempt'];
+    if (attempt === null) return success === null;
+    if (!object(attempt) || Object.keys(attempt).sort().join(',') !== 'finished_at,started_at,status,window_from,window_to') return false;
+    const status = attempt['status'];
+    return ['RUNNING', 'SUCCEEDED', 'FAILED'].includes(String(status)) && time(attempt['started_at'])
+      && (status === 'RUNNING' ? attempt['finished_at'] === null : time(attempt['finished_at']))
+      && (status !== 'SUCCEEDED' || success !== null)
+      && typeof attempt['window_from'] === 'string' && typeof attempt['window_to'] === 'string';
+  });
+}
+
 /** A refresh of unchanged source bytes updates last_seen_at between HTTP requests. */
 const stableLookup = (payload: Json | null): string => JSON.stringify(payload, (key, value: unknown) => key === 'last_seen_at' ? undefined : value);
 
@@ -151,6 +173,12 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     const catalog = await call(api, '/v1/datasets');
     const ids = Array.isArray(catalog.body?.['data']) ? (catalog.body['data'] as Json[]).map((d) => d['id']) : [];
     check('dataset discovery: both live datasets, public and revalidated', catalog.status === 200 && ids.join(',') === 'recalls,product-recalls' && catalog.headers.get('cache-control') === 'no-cache', `${catalog.status} datasets=${ids.join(',')}`);
+
+    for (const [dataset, sources] of [['recalls', ['food', 'drug', 'device']], ['product-recalls', ['CPSC', 'HC']]] as const) {
+      const response = await call(api, `/v1/${dataset}/stats`);
+      check(`source sync: ${dataset} public contract`, response.status === 200 && sourceSyncValid(response.body, sources)
+        && response.headers.get('cache-control') === 'public, max-age=600', `${response.status} sources=${sources.join(',')}`);
+    }
 
     const crossLookup = async (code: string, dataset: string, original: Json | null): Promise<void> => {
       const lookup = await metered200(`/v1/lookup?code=${encodeURIComponent(code)}`);

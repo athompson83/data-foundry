@@ -113,6 +113,23 @@ describe('production acceptance script', () => {
     expect(evidence.revocation.rejected_after).toBe(true);
   });
 
+  it.each(['missing', 'private'])('fails and revokes when public source-sync metadata is %s', async (mode) => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname !== '/v1/product-recalls/stats') return response;
+      const body = await response.json() as { source_sync: Record<string, { latest_attempt: Record<string, unknown> }> };
+      if (mode === 'missing') delete body.source_sync['CPSC']!.latest_attempt['status'];
+      else body.source_sync['CPSC']!.latest_attempt['error'] = 'private';
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name === 'source sync: product-recalls public contract')?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
   it('fails and revokes when cross-dataset lookup loses payload parity', async () => {
     const env = makeEnv();
     await seed(env);
