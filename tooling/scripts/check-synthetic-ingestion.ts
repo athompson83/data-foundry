@@ -5,7 +5,7 @@ import { SYNTHETIC_INGESTION_BUCKET, SYNTHETIC_INGESTION_FIXTURES } from '../../
 import { readFile } from 'node:fs/promises';
 import { isDeepStrictEqual } from 'node:util';
 import { join } from 'node:path';
-import { parse } from 'smol-toml';
+import { parse, stringify } from 'smol-toml';
 import { REPO_ROOT, validateCloudflareTopology, type CloudflareTopologyOptions } from './check-cloudflare-topology.js';
 import { isMain } from '../lib/cli-entry.js';
 
@@ -20,6 +20,9 @@ const expected: Config = {
   queues: { consumers: [{ queue: 'data-foundry-private-ingestion', max_batch_size: 1, max_batch_timeout: 5,
     max_retries: 5, max_concurrency: 1, dead_letter_queue: 'data-foundry-private-ingestion-dlq' }] },
 };
+// Compare against TOML tables too: smol-toml 1.9 uses null prototypes for nested tables.
+// Only the representation changes; strict equality still checks every capability, type and value.
+const expectedToml: Config = { ...parse(stringify(expected)) };
 function resources(value: unknown): string[] {
   if (Array.isArray(value)) return value.flatMap(resources);
   if (value === null || typeof value !== 'object') return [];
@@ -47,7 +50,7 @@ export function checkSyntheticIngestionConfig(config: Config, otherProfiles: rea
     }
     delete reduced['account_id']; delete reduced['hyperdrive'];
   }
-  if (!isDeepStrictEqual(reduced, expected)) errors.push('Synthetic ingestion profile must match the closed queue-only fixed-fixture capability contract.');
+  if (!isDeepStrictEqual(reduced, expectedToml)) errors.push('Synthetic ingestion profile must match the closed queue-only fixed-fixture capability contract.');
   const privateResources = new Set(resources(config));
   if (otherProfiles.flatMap(resources).some(resource => privateResources.has(resource))) {
     errors.push('Synthetic ingestion Queue, DLQ and artifact bucket must be distinct from ordinary and receipt-phase resources.');

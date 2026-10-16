@@ -1,6 +1,13 @@
 # Progress
 
-## Current session — 2026-10-16: direct quota reset and retry contract
+## Current session — 2026-10-16: TOML security and build qualification
+
+- **SOURCE QUALIFIED, PR #91; protected review/exact-main CI PENDING:** repair the existing smol-toml 1.9.0 update's four synthetic-profile failures. The fixed expected contract uses TOML's table representation; strict capability/type/value matching remains intact. Four new negative cases reject type confusion, typed dates and extra nested capabilities.
+- **Validation:** root typecheck, frozen install, 23 synthetic-profile tests, 11 files / 299 affected consumer/ingestion tests and four identity tests pass. All 16 tracked Wrangler manifests parse to identical values across 1.8.0/1.9.0. Ordinary/private-canary/vertical and synthetic artifact builds pass; governed regeneration changes only two digest fields and keeps dependency coverage. The public recalls bundle remains byte-identical (`b2ef98f2…`).
+- **Local limit:** the broader Windows tooling attempt stalled in unrelated Bash fixtures through the WindowsApps WSL alias; only the owned test tree was stopped. No full Windows suite pass is claimed. The complete Linux suite remains a protected PR/main gate. No CI rerun was used to diagnose the older failure.
+- **Runtime/closeout:** serving source 1fb2cb8 / version cb45d589 remains accepted; both extraction gates stay 0, with no provider deployment or paid consumption. PR #105 is merged as 711c123; its exact-main CI 38865114438 passes 5,282 tests plus real Postgres. [Maintenance evidence](docs/evidence/smol-toml-maintenance-20261016.md). Finish review and exact-main qualification; #48 and other dependency alerts remain open. Owner actions: none.
+
+## Previous session — 2026-10-16: direct quota reset and retry contract
 
 - **COMPLETE, REV-017:** direct data responses expose X-RateLimit-Reset; exhausted 429s add Retry-After, private/no-store and browser-readable CORS headers. The installed collector's ordinary response now pauses until the UTC monthly reset. One clock snapshot drives the existing atomic ledger and reset metadata. Prices, allowances, subscriptions and publication gates are unchanged; marketplace metering remains independent.
 - **Validation:** root typecheck and 12 files / 257 focused tests pass, including ten quota regressions and missing-header acceptance/revocation coverage. PR #104 review clears final head 15adaee with zero findings; candidate CI 38858104865 and exact-main CI 38859476948 pass 5,282 tests / 264 files, with main real-Postgres checks green. Guarded deploy 38860860175 passes 25/67 package and 208 Worker tests; uploaded/local bundle SHA-256 matches.
