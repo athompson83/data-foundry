@@ -41,10 +41,12 @@ Local checks use at most two test workers to preserve Windows resource headroom:
 
 - `corepack pnpm run typecheck` — passed.
 - `corepack pnpm --filter @data-foundry/recalls-worker typecheck` — passed.
-- `corepack pnpm exec vitest run apps/recalls-worker/test packages/recall-structuring/test packages/product-recall-structuring/test --maxWorkers=2` — 11 files, 282 tests passed after the raw-response review repair, including the production acceptance runner against the real Worker and SQLite/R2 adapters.
+- `corepack pnpm exec vitest run apps/recalls-worker/test packages/recall-structuring/test packages/product-recall-structuring/test --maxWorkers=2` — 11 files, 283 tests passed after the review repairs, including the production acceptance runner against the real Worker and SQLite/R2 adapters.
 - `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/api-expansion-bundle` — bundle qualification; this does not publish.
 - `git diff --check` — passed.
 
 The lookup registry is exhaustive over `DatasetKey`: adding a third dataset without its own validator and query fails typechecking instead of silently labeling consumer-recall results as another product. Existing public-behavior parity tests cover dispatch for both current datasets and explicit subsets.
+
+Acceptance parity excludes only `last_seen_at`, which an unchanged-byte scheduled refresh may update between HTTP requests. Identity, raw digest, parser version, changed-at, record fields, counts, bounds, matches and attribution still compare exactly; a tampered count still fails acceptance and revokes the fixture key. A regression reproduced and repairs the freshness-only false failure.
 
 Hosted checks and exact production identities remain to be recorded after qualification.

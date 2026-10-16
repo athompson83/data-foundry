@@ -63,6 +63,9 @@ function unissuedKey(): string {
 
 type Json = Record<string, unknown>;
 
+/** A refresh of unchanged source bytes updates last_seen_at between HTTP requests. */
+const stableLookup = (payload: Json | null): string => JSON.stringify(payload, (key, value: unknown) => key === 'last_seen_at' ? undefined : value);
+
 export async function runAcceptance(options: AcceptanceOptions): Promise<AcceptanceEvidence> {
   const startedAt = new Date().toISOString();
   const checks: Check[] = [];
@@ -143,7 +146,8 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       const results = Array.isArray(lookup.body?.['results']) ? lookup.body['results'] as Json[] : [];
       const result = results.find((r) => r['dataset'] === dataset);
       const payload = result ? Object.fromEntries(Object.entries(result).filter(([key]) => key !== 'dataset')) : null;
-      check(`cross-dataset lookup: ${dataset} payload parity and separate coverage`, lookup.status === 200 && results.map((r) => r['dataset']).join(',') === 'recalls,product-recalls' && JSON.stringify(payload) === JSON.stringify(original) && typeof lookup.body?.['coverage_note'] === 'string' && lookup.headers.get('cache-control') === 'private, no-store', `${lookup.status} parity=${JSON.stringify(payload) === JSON.stringify(original)} datasets=${results.length}`);
+      const parity = stableLookup(payload) === stableLookup(original);
+      check(`cross-dataset lookup: ${dataset} payload parity and separate coverage`, lookup.status === 200 && results.map((r) => r['dataset']).join(',') === 'recalls,product-recalls' && parity && typeof lookup.body?.['coverage_note'] === 'string' && lookup.headers.get('cache-control') === 'private, no-store', `${lookup.status} parity=${parity} datasets=${results.length}`);
     };
 
     // Product recalls: CPSC and Health Canada.
