@@ -45,4 +45,6 @@ Local checks use at most two test workers to preserve Windows resource headroom:
 - `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/api-expansion-bundle` — bundle qualification; this does not publish.
 - `git diff --check` — passed.
 
+The lookup registry is exhaustive over `DatasetKey`: adding a third dataset without its own validator and query fails typechecking instead of silently labeling consumer-recall results as another product. Existing public-behavior parity tests cover dispatch for both current datasets and explicit subsets.
+
 Hosted checks and exact production identities remain to be recorded after qualification.
