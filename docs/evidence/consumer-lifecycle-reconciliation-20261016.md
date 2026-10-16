@@ -1,5 +1,7 @@
 # Consumer-recall source reconciliation and freshness repair — 2026-10-16
 
+**Runtime follow-up:** PR #102's serving version below was superseded at `06:23Z` by [the quota release](quota-reset-20261016.md), source `1fb2cb8d0846ab69e5b2e46ff0f525c4b9739106`, version `cb45d589-0006-4501-bef1-a3731c719116`. Its CPSC guard remains included. The ordinary `06:17:28.260Z` pass on the prior version succeeded for 51 recent CPSC notices (finished `06:17:30.385Z`) and all 5,216 HC notices (finished `06:17:37.288Z`), with zero inserts/changes and preserved notice totals. This qualifies healthy scheduled execution only; full-history reconciliation and the scheduled error-retention/freshness path remain pending. No forced failing-source replay was made.
+
 ## Verdict
 
 **DEPLOYED; scheduled sync verification PENDING.** The Windows policy CLI is verified on Windows. The CPSC false-freshness guard passed local/CI regressions and is deployed, with exact-source authenticated API acceptance. That API acceptance does not exercise scheduled failure handling: qualify the source-error retention, prior freshness and independent HC continuation on an ordinary hosted pass before calling the reliability repair complete. Health Canada's scoped identity set is independently reconciled; CPSC/composite qualification remains open. No independent revenue is verified by this package.
@@ -12,7 +14,7 @@
 
 Base `075544f2471cf594b427039726b45799744e86d8`, canonical repo `C:/Users/Adam/data-foundry`, reused worktree `C:/Users/Adam/data-foundry-worktrees/revenue-20261015`, branch `codex/consumer-lifecycle-20261016`, PR #102. The old dirty chat checkout and ignored receipts are preserved. Documentation-main CI 38844322835 is successful.
 
-PR #102 merged as `38d9a87f91fc4a7afd39d82b48105ec9c375c6d7`; that exact source is serving both [landing](https://data.aroqon.com) and [API](https://api.data.aroqon.com) on the existing Worker. The review finding was fixed, resolved and independently re-reviewed with no findings on final head `97ba177d87cdcf13d447b8c212ab47b438718783`. The merged source branch was ancestry-checked and removed with a remote-head lease; unrelated branches remain. Delivery evidence is recorded below; this follow-up changes documentation only.
+PR #102 merged as `38d9a87f91fc4a7afd39d82b48105ec9c375c6d7`; that exact source served both [landing](https://data.aroqon.com) and [API](https://api.data.aroqon.com) on the existing Worker at this release. The review finding was fixed, resolved and independently re-reviewed with no findings on final head `97ba177d87cdcf13d447b8c212ab47b438718783`. The merged source branch was ancestry-checked and removed with a remote-head lease; unrelated branches remain. Delivery evidence is recorded below; this follow-up changes documentation only.
 
 The policy generator now executes on Windows. Health Canada's scope/name and stage describe its reconciled consumer-product slice. CPSC/composite next actions name the missing source gate instead of repeating completed hosted acceptance. Source-rights channel notes reflect prior RapidAPI activation; rights grants are unchanged. Generated policy changes are metadata only: tasks, rates, rights, acquisition classes, memberships and prohibited domains remain identical. No collector reinstall, restart or permission change was executed.
 
