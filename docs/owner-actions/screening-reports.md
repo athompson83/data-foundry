@@ -36,4 +36,6 @@ If Checkout creation loses its response, retry the same report/attempt within 23
 
 Deletion of an abandoned attempt after 23 hours automatically scans the customer's recent Checkout sessions (bounded to 1,000), matches report/attempt/product/price/mode, preserves any recovered payment reference and expires an open session before erasure. A provider outage or incomplete/ambiguous scan fails closed. Failed preview reservations with no checkout are removed at their seven-day expiry, including their private brand metadata.
 
+Scheduled cleanup performs the same reconciliation for up to ten expired abandoned attempts per invocation before any erasure. Confirmed missing sessions remove the row; recovered purchases receive their paid retention; failures preserve the inventory for a later retry. Known Checkout sessions are reconciled separately in batches of 50. A cleanup error cannot stop source ingestion.
+
 Retained inventory is private: do not publish report screenshots or upload customer files to issue threads. Logged errors intentionally exclude CSV, keys, Stripe response bodies and database parameters. Automated cleanup can defer for a billing outage; inspect `screening_retention_billing_retry` and reconcile before erasing uncertain paid records.

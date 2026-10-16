@@ -112,6 +112,15 @@ async function route(request: Request, env: Env): Promise<Response> {
 /** Drop inventory content on the disclosed retention schedule; preserve payment references. */
 export async function expireScreeningReports(env: Env): Promise<void> {
   const now = new Date().toISOString();
+  // Reconcile lost Checkout responses before removing content or leaving abandoned metadata behind.
+  const abandoned = await env.DB.prepare('SELECT r.*, c.stripe_customer_id FROM screening_report r JOIN customer c ON c.id = r.customer_id WHERE r.expires_at <= ? AND r.checkout_started_at IS NOT NULL AND r.checkout_session_id IS NULL AND r.paid_at IS NULL LIMIT 10')
+    .bind(now).all<StoredReport & { stripe_customer_id: string }>();
+  for (const report of abandoned.results) {
+    try {
+      const session = await recoverAbandonedCheckout(env, report, report.stripe_customer_id);
+      if (!session) await env.DB.prepare('DELETE FROM screening_report WHERE id = ? AND checkout_session_id IS NULL AND paid_at IS NULL AND expires_at <= ?').bind(report.id, now).run();
+    } catch { console.error('screening_retention_checkout_retry'); }
+  }
   // Reconcile missed webhooks before purging an unpaid snapshot. Billing outages retain content for recovery.
   const pending = await env.DB.prepare('SELECT r.*, c.stripe_customer_id FROM screening_report r JOIN customer c ON c.id = r.customer_id WHERE r.expires_at <= ? AND r.result_json IS NOT NULL AND r.checkout_session_id IS NOT NULL AND r.paid_at IS NULL LIMIT 50')
     .bind(now).all<StoredReport & { stripe_customer_id: string }>();
@@ -120,7 +129,7 @@ export async function expireScreeningReports(env: Env): Promise<void> {
       if (!await reportPayment(env, report, report.stripe_customer_id)) await env.DB.prepare("UPDATE screening_report SET result_json = NULL, brand = '' WHERE id = ? AND paid_at IS NULL AND expires_at <= ?").bind(report.id, now).run();
     } catch { console.error('screening_retention_billing_retry'); }
   }
-  await env.DB.prepare("UPDATE screening_report SET result_json = NULL, brand = '' WHERE expires_at <= ? AND result_json IS NOT NULL AND (checkout_session_id IS NULL OR paid_at IS NOT NULL)").bind(now).run();
+  await env.DB.prepare("UPDATE screening_report SET result_json = NULL, brand = '' WHERE expires_at <= ? AND result_json IS NOT NULL AND ((checkout_session_id IS NULL AND checkout_started_at IS NULL) OR paid_at IS NOT NULL)").bind(now).run();
   // Failed reservations still count toward the rolling limit, then leave no private metadata behind.
   await env.DB.prepare('DELETE FROM screening_report WHERE expires_at <= ? AND result_json IS NULL AND checkout_session_id IS NULL AND checkout_started_at IS NULL AND paid_at IS NULL').bind(now).run();
 }

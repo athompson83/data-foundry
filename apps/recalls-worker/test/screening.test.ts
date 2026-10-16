@@ -181,6 +181,26 @@ describe('one-time report purchases', () => {
     expect((await request(path + '/csv')).status).toBe(200);
     expect(await env.DB.prepare('SELECT paid_at FROM screening_report WHERE id = ?').bind(report.id).first()).toEqual({paid_at:expect.any(String)});
   });
+  it('retries abandoned-attempt cleanup on provider outage, then removes a confirmed missing session', async () => {
+    const { report, fetcher } = await checkoutFixture();
+    await env.DB.prepare('UPDATE screening_report SET checkout_started_at = ?, expires_at = ? WHERE id = ?').bind(new Date(Date.now() - 8 * 86400_000).toISOString(), new Date(Date.now() - 86400_000).toISOString(), report.id).run();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    fetcher.mockImplementationOnce(async () => { throw new Error('provider unavailable'); });
+    await expireScreeningReports(env);
+    expect((await env.DB.prepare('SELECT result_json FROM screening_report WHERE id = ?').bind(report.id).first<{ result_json: string }>())?.result_json).toBeTruthy();
+    fetcher.mockImplementationOnce(async () => Response.json({ data: [], has_more: false }));
+    await expireScreeningReports(env);
+    expect(await env.DB.prepare('SELECT id FROM screening_report WHERE id = ?').bind(report.id).first()).toBeNull();
+  });
+  it('recovers an unbound completed purchase during cleanup before erasing its inventory', async () => {
+    const { report, session, fetcher } = await checkoutFixture();
+    await env.DB.prepare('UPDATE screening_report SET checkout_started_at = ?, expires_at = ? WHERE id = ?').bind(new Date(Date.now() - 8 * 86400_000).toISOString(), new Date(Date.now() - 86400_000).toISOString(), report.id).run();
+    session.status = 'complete'; session.payment_status = 'paid';
+    fetcher.mockImplementationOnce(async () => Response.json({ data: [session], has_more: false }));
+    await expireScreeningReports(env);
+    const row = await env.DB.prepare('SELECT result_json, checkout_session_id, paid_at, expires_at FROM screening_report WHERE id = ?').bind(report.id).first<{ result_json: string; checkout_session_id: string; paid_at: string; expires_at: string }>();
+    expect(row?.result_json).toBeTruthy(); expect(row?.checkout_session_id).toBe(session.id); expect(row?.paid_at).toBeTruthy(); expect(row!.expires_at > new Date().toISOString()).toBe(true);
+  });
   it('refuses new checkout of an expiring preview and never sells internal acceptance fixtures', async () => {
     const { path, report, fetcher } = await checkoutFixture();
     await env.DB.prepare('UPDATE screening_report SET expires_at = ? WHERE id = ?').bind(new Date(Date.now() + 10 * 60_000).toISOString(), report.id).run();
