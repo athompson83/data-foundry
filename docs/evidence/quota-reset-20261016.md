@@ -2,11 +2,11 @@
 
 ## Verdict
 
-**DEPLOYED; ordinary collector verification PENDING.** The direct quota contract is serving on Cloudflare with exact-main CI, authenticated acceptance, live browser/docs and public RapidAPI guide/gateway verification. Direct data responses describe the existing UTC monthly reset; exhausted calls provide Retry-After. The next ordinary installed collector request is due `06:50:47Z`; its long wait has not yet been observed, so REV-017 stays IN_PROGRESS. No subscription, price, allowance, billing ledger, source permission or publication gate is expanded.
+**COMPLETE for REV-017.** The direct quota contract is serving on Cloudflare with exact-main CI, authenticated acceptance, live browser/docs and public RapidAPI guide/gateway verification. The installed collector's ordinary `06:50Z` response supplies a 1,357,751-second wait and reschedules until November 1 UTC, with attempts and direct usage unchanged. Direct data responses describe the existing UTC monthly reset; exhausted calls provide Retry-After. No subscription, price, allowance, billing ledger, source permission or publication gate is expanded.
 
 ## Checklist Snapshot
 
-REV-017 stays IN_PROGRESS only for the ordinary hosted consumer quota wait. REV-011 stays IN_PROGRESS for CPSC full-history reconciliation and scheduled source-error verification; the healthy 06:17Z source pass does not close either. REV-012 still requires productive collection, current-runtime benchmark and separately authorized publication. REV-008/REV-013 independent paid consumption/buyers remain unverified. No unstable portfolio percentage is asserted.
+REV-017 is DONE with the ordinary hosted consumer quota wait observed. REV-011 stays IN_PROGRESS for CPSC full-history reconciliation and scheduled source-error verification; the healthy 06:17Z source pass does not close either. REV-012 still requires productive collection, current-runtime benchmark and separately authorized publication. REV-008/REV-013 independent paid consumption/buyers remain unverified. No unstable portfolio percentage is asserted.
 
 ## Progress Report
 
@@ -32,7 +32,7 @@ None. No plan upgrade, purchase, new agreement, credential replacement or prospe
 
 ## Recommended Next Steps
 
-Observe the collector's next ordinary quota response and due time, without dispatching an exhausted data request. Then qualify the cached local-model fixtures on Ollama 0.40.4 without paid API calls, while keeping publication closed. Keep scheduled source-error qualification separate: an ordinary healthy Cron pass does not prove its negative path, and recent CPSC success does not reconcile full history. A separate bounded development-dependency repair lane is available: 16 open Dependabot alerts were read, all marked development scope, including two tinypool critical advisories; public Worker exploitability was not established by this inventory. Do not treat that scope label as full security qualification.
+Qualify the cached local-model fixtures on Ollama 0.40.4 without paid API calls when memory headroom permits, while keeping publication closed. Preflight measures 6.5 GiB free RAM versus the historical benchmark's 8.5 GB peak, so no heavy model run is started during concurrent work. Keep scheduled source-error qualification separate: an ordinary healthy Cron pass does not prove its negative path, and recent CPSC success does not reconcile full history. Next bounded repair: finish existing PR #91's smol-toml security update, whose complete failing logs show null-prototype TOML tables rejected by strict profile comparison. Sixteen open Dependabot alerts were read, all marked development scope, including two tinypool critical advisories; public Worker exploitability was not established by this inventory. Do not treat that scope label as full security qualification.
 
 ## Repository and Evidence Record
 
@@ -41,6 +41,8 @@ Baseline refreshed around 05:30Z: existing Worker `data-foundry-recalls`, source
 Read-only collector receipt `05:46:07.825Z`: 8 extracted / 8 skipped, 12 historical server accepted / 13 agency duplicates, zero queryable, six historical acknowledged submissions. Read job pending, attempts 0, due `05:50:42.634Z`; latest allowance wait 3,600 seconds. Verify job due `05:47:19.485Z`, attempts 0. Five API requests used in the current local daily counter. These are existing totals, not new productive output. Secret-free receipt: ignored `.data/quota-collector-before.json`.
 
 Read-only predeployment receipt `06:10:43.576Z`: the normal read had retried at `05:50:47Z`, received another 3,600-second wait and remained pending / attempts 0, due `06:50:47.191Z`. Local daily API counter 6; historical output unchanged. This is the baseline for the next ordinary postdeployment response, not proof of the longer wait. Receipt: ignored `.data/quota-collector-predeploy.json`.
+
+Read-only postdeployment receipt `06:51:37.163Z`: the ordinary read records an allowance wait at `06:50:50.056Z` of 1,357,751 seconds; pending / attempts 0, next due `2026-11-01T00:00:00.963Z`. The subsecond offset follows integer Retry-After and network/processing time. Local daily API count is 7 (one normal request); output remains 8 extracted / 8 skipped, 12 server accepted / 13 agency duplicates, 0 queryable and 6 acknowledged uploads. At `06:51:37.921Z`, independent D1 read-back stays four usage rows / 5,296 requests and owner Evaluate 100/100. No key, plan, scheduler setting or due time was changed by the observer; no exhausted request was forced. Receipt: ignored `.data/quota-collector-after-0651.json`.
 
 Local verification: `corepack pnpm run typecheck` passed. `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts --maxWorkers=2` passed 12 files / 257 tests. Focused quota/acceptance tests passed 24 tests after repair; final documentation checks passed 49. `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/quota-bundle` and `git diff --check` passed. Logs are ignored `.data/quota-*`.
 
