@@ -106,4 +106,4 @@ No message has been sent. Before sending, select each company's published busine
 
 ## Next acceptance criteria
 
-REV-012: ship the repaired buyer/upgrade journey with exact deployed-source and authenticated portal evidence. REV-013: three independent buyer conversations, one useful integration test on the buyer's own identifiers, then one real paid subscription **and metered request**. These are targets, not observed results. Interview non-buyers before cutting prices or adding more datasets. Track external evaluations, useful matches, paid completions and first metered requests separately from operator tests.
+REV-015: ship the repaired buyer/upgrade journey with exact deployed-source and authenticated portal evidence. REV-013: three independent buyer conversations, one useful integration test on the buyer's own identifiers, then one real paid subscription **and metered request**. These are targets, not observed results. Interview non-buyers before cutting prices or adding more datasets. Track external evaluations, useful matches, paid completions and first metered requests separately from operator tests.

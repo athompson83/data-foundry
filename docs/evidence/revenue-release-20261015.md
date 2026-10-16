@@ -8,7 +8,7 @@ Follow-on service work: [recall API expansion](recall-api-expansion-20261015.md)
 
 ## Checklist snapshot
 
-- REV-012: DONE — deployed buyer access, browser usage and Stripe upgrade selection independently verified.
+- REV-015: DONE — deployed buyer access, browser usage and Stripe upgrade selection independently verified.
 - REV-008: IN_PROGRESS — needs an independent paid subscription followed by a useful metered request.
 - REV-013: IN_PROGRESS — three researched integration prospects and prepared drafts; no independent buyer conversation or sent message is claimed.
 - PRs #86 and #94 were incorporated and automatically marked merged through #96. One review finding was repaired and resolved. No roadmap percentage is reported because its denominator changes.
