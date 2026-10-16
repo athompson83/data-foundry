@@ -13,6 +13,7 @@ import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.j
 import { accountPage, ACCOUNT_JS } from './account-page.js';
 import type { Env } from './env.js';
 import { openApiDocument } from './openapi.js';
+import { datasetCatalog, lookupAcrossDatasets, parseLookupQuery, type LookupQuery } from './portfolio-api.js';
 import { docsPage, messagePage, privacyPage, termsPage, welcomePage, type PageContext } from './pages.js';
 import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetEntry, type DatasetKey } from './catalog.js';
 import { datasetPage, homePage, SITE_JS, type Coverage } from './site.js';
@@ -95,10 +96,13 @@ async function authenticate(env: Env, request: Request): Promise<AuthenticatedCu
 }
 
 async function meteredApi(env: Env, request: Request, url: URL, marketplace: MarketplacePrincipal | null): Promise<Response> {
+  const lookup = url.pathname === '/v1/lookup' ? parseLookupQuery(url.searchParams) : undefined;
   const products = url.pathname === '/v1/product-recalls' || url.pathname.startsWith('/v1/product-recalls/');
-  if (products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
+  if (lookup ? lookup.datasets.some((key) => !isPublished(env, key)) : products ? !productsServed(env) : env.SOURCE_KILL_SWITCH === '1') {
+    return apiError(503, 'dataset_unavailable', 'A requested dataset is temporarily unavailable. Select an available subset explicitly with datasets; GET /v1/datasets lists current coverage.', { 'cache-control': 'private, no-store' });
+  }
   // RapidAPI meters and bills this request; no Stripe customer or allowance is touched.
-  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi');
+  if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi', lookup);
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
   const count = await consumeRequest(env.DB, auth);
@@ -109,11 +113,12 @@ async function meteredApi(env: Env, request: Request, url: URL, marketplace: Mar
       'x-ratelimit-remaining': '0',
     });
   }
-  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' }, 'direct');
+  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' }, 'direct', lookup);
 }
 
 /** The data endpoints, after the request's channel has authorised (and, if direct, metered) it. */
-async function serveData(env: Env, url: URL, headers: Record<string, string>, channel: 'direct' | 'rapidapi'): Promise<Response> {
+async function serveData(env: Env, url: URL, headers: Record<string, string>, channel: 'direct' | 'rapidapi', lookup?: LookupQuery): Promise<Response> {
+  if (lookup) return json(await lookupAcrossDatasets(env, lookup, channel), 200, headers);
   const includeRaw = url.searchParams.get('include') === 'raw';
   const extracted = extractedServed(env, channel);
 
@@ -239,6 +244,10 @@ function isAuthorizedAdmin(env: Env, request: Request): boolean {
 
 /** The /v1/ API once the request's channel is decided: stats, account and metered data endpoints. */
 async function v1Api(request: Request, env: Env, url: URL, ctx: PageContext, marketplace: MarketplacePrincipal | null): Promise<Response> {
+  if (url.pathname === '/v1/datasets') {
+    if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'GET only.');
+    return json(datasetCatalog(env, ctx), 200, { 'cache-control': GATED });
+  }
   // The kill switch withdraws every dataset-derived response, cached or not.
   if (env.SOURCE_KILL_SWITCH === '1' && url.pathname.startsWith('/v1/recalls')) return apiError(503, 'dataset_unavailable', 'The dataset is temporarily unavailable.');
   if (url.pathname === '/v1/recalls/stats') {
@@ -430,6 +439,8 @@ async function route(request: Request, env: Env): Promise<Response> {
     if (url.pathname === '/')
       return json({
         name: 'Data Foundry API',
+        catalog: `${ctx.apiOrigin}/v1/datasets`,
+        ...(publishedDatasets(env).length ? { lookup: `${ctx.apiOrigin}/v1/lookup` } : {}),
         // The same independent gates as the homepage, docs and OpenAPI: a withdrawn dataset is not listed.
         // `registry` names the pipeline registry entry, so a client (the local collector) can map what is hosted to its sources.
         datasets: Object.fromEntries(
@@ -438,7 +449,7 @@ async function route(request: Request, env: Env): Promise<Response> {
             { name: entry.name, registry: entry.registry, docs: `${ctx.publicOrigin}/docs${entry.docsAnchor}`, openapi: `${ctx.apiOrigin}/openapi.json`, stats: `${ctx.apiOrigin}${entry.statsPath}` },
           ]),
         ),
-      });
+      }, 200, { 'cache-control': GATED });
     if (url.pathname === '/robots.txt') return new Response('User-agent: *\nDisallow: /\n', { headers: { 'content-type': 'text/plain' } });
     return apiError(404, 'not_found', 'Unknown endpoint. See https://data.aroqon.com/docs');
   }

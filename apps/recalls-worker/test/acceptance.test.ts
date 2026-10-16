@@ -97,6 +97,22 @@ describe('production acceptance script', () => {
     expect(evidence.revocation.rejected_after).toBe(true);
   });
 
+  it('fails and revokes when cross-dataset lookup loses payload parity', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname !== '/v1/lookup' || response.status !== 200) return response;
+      const body = await response.json() as { results: Array<Record<string, unknown>> };
+      body.results[0]!['total_matches'] = 987654321;
+      return Response.json(body, { headers: { 'cache-control': 'private, no-store' } });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((c) => c.name.startsWith('cross-dataset lookup: recalls'))?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
   it('refuses any customer that is not an internal acceptance fixture, before issuing a key', async () => {
     const env = makeEnv();
     await seed(env);

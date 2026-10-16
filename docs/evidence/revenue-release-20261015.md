@@ -1,5 +1,7 @@
 # Revenue recovery closeout — 2026-10-15
 
+Follow-on service work: [recall API expansion](recall-api-expansion-20261015.md) adds public dataset discovery and a cross-dataset identifier query; it records its own qualification and deployment evidence separately from this selling-path recovery.
+
 ## Verdict
 
 **COMPLETE for the technical selling-path recovery.** First independent paid revenue remains IN_PROGRESS. Final live Stripe read still shows one active $0 Evaluate subscription and no paid subscription. Marketplace revenue is unknown; public paid offers are not receipts. See [the diagnosis and unsent outreach packet](../commercial-validation/revenue-recovery-20261015.md).
