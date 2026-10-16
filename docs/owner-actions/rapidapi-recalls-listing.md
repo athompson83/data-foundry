@@ -1,6 +1,12 @@
 # RapidAPI listing package: Recall Intelligence API (FDA + North American consumer products)
 
-**Status (2026-09-28): adapter built and tested, channel closed, not publishable.** Do not create the listing until every gate in [Before you publish](#before-you-publish) holds.
+**Current status (2026-10-15): the existing Data Foundry listing is Public and updated.** It publishes ten endpoints, including `GET /v1/datasets` and `GET /v1/lookup`. The saved overview/guide and query help reflect current coverage, raw-evidence limits and separate marketplace metering; real gateway calls pass. Use the existing project `api_ba3c8244-55fa-4a3f-8226-c040dcf03bab`, current version 1.0.0, canonical origin `https://api.data.aroqon.com`, and marketplace contract `https://api.data.aroqon.com/openapi.json?channel=rapidapi`. Preserve existing endpoints, plans and proxy secret when extending it. See [current release evidence](../evidence/channel-alignment-20261015.md).
+
+The October 15 public plans are BASIC $0/500 requests, PRO $29/15,000, ULTRA $99/100,000 and MEGA $299/1,000,000; paid request overages and separate bandwidth fees apply as shown on the current marketplace Pricing page. These are observed provider settings, not a price change made by this release. Every RapidAPI endpoint call, including catalog/stats, follows the marketplace allowance. Direct keys, plans and allowances are separate. No independent paid subscriber or settlement is established by the operator BASIC tests.
+
+## Historical preparation record — 2026-09-28
+
+The remainder is the archived pre-launch package. Its closed-channel instructions, proposed plan mapping and owner-action list describe September 28; they are superseded by the October 9 launch and October 15 distribution records above. Do not use them as current activation instructions.
 
 Billing sells access. It never creates permission (ADR-0013, ADR-0014). Both product-recall rights records permit RapidAPI. The channel decision and the adapter's behaviour are in ADR-0016, section "RapidAPI channel".
 

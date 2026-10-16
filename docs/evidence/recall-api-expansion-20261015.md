@@ -1,5 +1,7 @@
 # Recall API expansion — 2026-10-15
 
+Distribution follow-up: the [channel-alignment release](channel-alignment-20261015.md) supersedes this serving version and verifies the two new endpoints on the public RapidAPI listing. The evidence below remains historical to source `68c4ad7`.
+
 ## Verdict
 
 **COMPLETE for this API expansion.** Source `68c4ad7d3800b9480c4277d01548c9e12fbb3e64` is deployed and accepted on both canonical hosts. All 27 authenticated production checks pass; desktop and mobile documentation journeys pass. This extends the two existing live recall datasets; it does not publish another source or establish paid revenue.
