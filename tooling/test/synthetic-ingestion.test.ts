@@ -23,6 +23,18 @@ describe('separate synthetic ingestion phase', () => {
       { sourceKey: 'acme-hvac-catalog', bytes: 4597 }, { sourceKey: 'ahri-directory-export', bytes: 1868 },
     ] });
   });
+  it.each([
+    ['quoted boolean', 'workers_dev = false', 'workers_dev = "false"'],
+    ['quoted number', 'cpu_ms = 30000', 'cpu_ms = "30000"'],
+    ['date instead of string', 'compatibility_date = "2026-09-08"', 'compatibility_date = 2026-09-08'],
+    ['extra nested capability', '[limits]', '[limits]\nroute = "api.example.com/*"'],
+  ])('preserves the closed TOML contract for %s', async (_label, before, after) => {
+    const source = await readFile(SYNTHETIC_CONFIG_PATH, 'utf8');
+    expect(source).toContain(before);
+    expect(checkSyntheticIngestionConfig(parse(source), [])).toEqual([]);
+    expect(checkSyntheticIngestionConfig(parse(source.replace(before, after)), []))
+      .toContain('Synthetic ingestion profile must match the closed queue-only fixed-fixture capability contract.');
+  });
   it.each(['triggers', 'routes', 'services', 'send_email', 'env', 'hyperdrive', 'account_id'])('refuses unexpected %s capability', async key => {
     expect(checkSyntheticIngestionConfig({ ...await config(), [key]: {} }, [])).not.toEqual([]);
   });
