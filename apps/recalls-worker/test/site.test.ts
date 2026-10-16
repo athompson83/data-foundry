@@ -62,6 +62,42 @@ beforeEach(() => {
 });
 
 describe('homepage and catalog', () => {
+  it('makes dataset discovery and cross-dataset lookup visible on the landing page', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const { body } = await page(env, '/');
+    expect(body).toContain('id="apis"');
+    expect(body).toContain('href="https://api.data.aroqon.com/v1/datasets"');
+    expect(body).toContain('/v1/lookup?code=DXH70CFAVX');
+    expect(body).toContain('datasets=recalls,product-recalls');
+    expect(body).toContain('href="/docs#cross-dataset-lookup"');
+    expect(body).toContain('one request from your direct monthly allowance');
+    expect(body).toContain('does not prove a product is safe');
+  });
+
+  it('limits landing-page examples to published coverage and hides lookup when none is available', async () => {
+    const productOnly = (await page(makeEnv({ SOURCE_KILL_SWITCH: '1' }), '/')).body;
+    expect(productOnly).toContain('/v1/lookup?code=DXH70CFAVX');
+    expect(productOnly).toContain('datasets=product-recalls');
+    expect(productOnly).not.toContain('datasets=recalls,product-recalls');
+    const empty = (await page(makeEnv({ SOURCE_KILL_SWITCH: '1', PRODUCT_RECALLS_OPEN: '0' }), '/')).body;
+    expect(empty).not.toContain('/v1/lookup?code=');
+    expect(empty).toContain('href="https://api.data.aroqon.com/v1/datasets"');
+  });
+
+  it('renders a fresh landing page on a new Worker version instead of reusing the previous release cache', async () => {
+    const env = makeEnv({ CF_VERSION_METADATA: { id: 'release-one', tag: 'one', timestamp: '2026-10-15T00:00:00Z' } });
+    await seed(env);
+    expect((await page(env, '/')).body).toContain('<dt>Records across datasets</dt><dd>2</dd>');
+    const prepared = await prepareRecall('food', { ...FOOD, recall_number: 'F-0002-2026' });
+    const bundle = ndjsonBundle([prepared.raw]);
+    await env.RAW_ARTIFACTS.put('recalls/second.ndjson', bundle.body);
+    await env.DB.batch(writeRecallStatements(prepared, rawRef('recalls/second.ndjson', 0, bundle.ranges[0]!.length), '2026-10-15T00:00:00Z').map((s) => env.DB.prepare(s.sql).bind(...s.params)));
+    expect((await page(env, '/')).body).toContain('<dt>Records across datasets</dt><dd>2</dd>');
+    const next = { ...env, CF_VERSION_METADATA: { id: 'release-two', tag: 'two', timestamp: '2026-10-15T01:00:00Z' } };
+    expect((await page(next, '/')).body).toContain('<dt>Records across datasets</dt><dd>3</dd>');
+  });
+
   it('makes free signup and existing-account billing accessible from the homepage', async () => {
     const env = makeEnv({ RAPIDAPI_ENABLED: '1', RAPIDAPI_PROXY_SECRET: 'marketplace-test-proxy-secret' });
     const { body } = await page(env, '/');

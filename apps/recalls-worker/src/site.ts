@@ -102,6 +102,17 @@ ${codeWindow('inspect-response', `${live ? 'Response · snapshot captured' : 'Pa
     ['Where can I buy access?', `${state.salesOpen ? 'Directly on this site: monthly subscriptions billed by Stripe. Existing customers can <a href="/account">check usage and manage billing</a> without creating another account.' : 'Direct sign-ups are not open yet.'}${state.marketplaceOpen ? ' You can also subscribe through <a href="https://rapidapi.com/athompson83/api/data-foundry/pricing">RapidAPI</a>. Its plans, keys, allowances and overage terms are separate from direct subscriptions; review the marketplace pricing before subscribing.' : ''}`],
   ];
   const sources = [...new Set(state.datasets.flatMap(({ entry }) => entry.sources.map((source) => source.short)))];
+  const lookupPath = `/v1/lookup?code=${multiAgency ? 'DXH70CFAVX' : '05708932072526'}&datasets=${state.datasets.map(({ entry }) => entry.key).join(',')}`;
+  const apis = `<section class="catalog-section" aria-labelledby="apis"><p class="eyebrow">Build your first integration</p><h2 id="apis">Discover the data. Check a code.</h2>
+<div class="grid">${state.datasets.length ? `<div class="card"><h3>One lookup across selected datasets</h3>
+<p>Check an identifier against ${state.datasets.map(({ entry }) => escapeHtml(entry.name)).join(' and ')}. Results keep each dataset's match details, source evidence and attribution separate.</p>
+${codeWindow('portfolio-lookup-request', 'Request', `curl "${ctx.apiOrigin}${lookupPath}" -H "Authorization: Bearer $DATA_FOUNDRY_KEY"`)}
+<p class="small muted">Each lookup uses one request from your direct monthly allowance. Raw evidence requires one explicitly selected dataset.</p>
+<a href="/docs#cross-dataset-lookup">Cross-dataset lookup reference</a></div>` : ''}
+<div class="card"><h3>Machine-readable dataset catalog</h3><p>Discover currently published datasets, fields, sources, terms and endpoint paths as JSON. No key is required on the direct API; discovery does not use your direct allowance.</p>
+<p><a href="${escapeHtml(ctx.apiOrigin)}/v1/datasets"><code>GET /v1/datasets</code></a></p><a href="/docs#dataset-discovery">Dataset discovery reference</a>
+<p class="small muted">Read each dataset's stats endpoint for actual coverage and freshness.</p></div></div>
+${state.datasets.length ? '<p class="notice">An empty match does not prove a product is safe or has never been recalled. Exact codes can refer to different products; verify the source notice. An unavailable requested dataset returns an error instead of silently narrowing coverage.</p>' : '<p class="notice">No dataset is available for lookup right now. The catalog reflects current availability.</p>'}</section>`;
   const completeCoverage = state.datasets.length > 0 && state.datasets.every(({ coverage }) => coverage !== null);
   const records = state.datasets.reduce((total, { coverage }) => total + (coverage?.records ?? 0), 0);
   const body = `<section class="hero"><div><p class="eyebrow">Source-backed data. Ready to build with.</p><h1>Clean data for applications and AI agents.</h1>
@@ -109,6 +120,7 @@ ${codeWindow('inspect-response', `${live ? 'Response · snapshot captured' : 'Pa
 <div class="actions"><a class="button" href="${state.salesOpen ? '#pricing' : '#datasets'}">${state.salesOpen ? 'Get API access' : 'Explore datasets'}</a><a class="button secondary" href="#datasets">Explore datasets <span aria-hidden="true">↗</span></a><a href="/docs">API docs</a></div>
 <p class="hero-note small muted">${state.salesOpen ? 'Start free with 100 requests per month. No card needed. Paid plans from $49/month. One key covers every dataset.' : 'Explore public documentation and samples. Sign-ups are not open yet.'}</p></div>${hero}</section>
 ${state.datasets.length ? `<dl class="portfolio-stats"><div><dt>Live datasets</dt><dd>${number(state.datasets.length)}</dd></div><div><dt>Records across datasets</dt><dd>${completeCoverage ? number(records) : 'Unavailable'}</dd></div><div><dt>Source agencies</dt><dd>${escapeHtml(sources.join(' · '))}</dd></div><div><dt>Delivery</dt><dd>JSON over HTTPS</dd></div></dl>` : ''}
+${apis}
 <section class="catalog-section" aria-labelledby="datasets"><p class="eyebrow">The current collection</p><h2 id="datasets">Datasets</h2><p class="lede">Every dataset listed here is live on the API. One key covers all of them.</p>
 <p>${accessLine(state.salesOpen)}</p>
 ${cards ? `<ul class="catalog">${cards}</ul><p class="small muted">Counts and refresh times come from the API’s public coverage stats. Each dataset page explains its sources, update schedule and limitations.</p>` : '<p class="notice">No dataset is available right now.</p>'}</section>

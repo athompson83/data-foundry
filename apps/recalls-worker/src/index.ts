@@ -461,10 +461,9 @@ async function route(request: Request, env: Env): Promise<Response> {
   switch (url.pathname) {
     case '/': {
       const published = publishedDatasets(env);
-      // The cache key names the published datasets and the sales gate, so a withdrawn dataset or a closed gate never
-      // serves a cached page that still lists or sells it.
+      // Scope the cache to the release as well as publication/sales gates: a deploy must not serve the old landing page.
       const marketplaceOpen = marketplaceEnabled(env) && published.length > 0;
-      const variant = `${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}`;
+      const variant = `${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}/${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}`;
       return cached(cacheKey(ctx, `/_home/${variant}`), async () => {
         const datasets = await Promise.all(published.map(async (entry) => ({ entry, coverage: await coverage(env, entry.key) })));
         return html(homePage(ctx, { datasets, salesOpen: salesOpen(env), marketplaceOpen }), 200, { 'cache-control': 'public, max-age=300' });
