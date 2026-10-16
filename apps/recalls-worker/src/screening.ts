@@ -50,7 +50,7 @@ export function parseInventory(csv: unknown): InventoryItem[] {
     if (values.length !== header.length) throw new BadRequest(`Row ${index + 2} has a different number of columns.`);
     const read = (name: string) => (values[header.indexOf(name)] ?? '').trim();
     const item = { item: read('item'), gtin: read('gtin'), model: read('model') };
-    if (!item.item || item.item.length > 160 || item.gtin.length > 32 || item.model.length > 80 || Object.values(item).some(value => /[\u0000-\u001f\u007f]/.test(value))) throw new BadRequest(`Row ${index + 2}: use an item label (1–160 characters), GTIN (up to 32) and model (up to 80), without control characters.`);
+    if (!item.item || item.item.length > 160 || item.gtin.length > 32 || item.model.length > 64 || Object.values(item).some(value => /[\u0000-\u001f\u007f]/.test(value))) throw new BadRequest(`Row ${index + 2}: use an item label (1–160 characters), GTIN (up to 32) and model (up to 64), without control characters.`);
     return item;
   });
 }
@@ -68,12 +68,13 @@ export async function screenInventory(env: Env, items: InventoryItem[], now = ne
     const gtins = gtinCandidates(item.gtin);
     const model = modelKey(item.model);
     const valid = (!item.gtin || gtins.length > 0) && (!item.model || model.length >= 2);
-    const queries = [ ...(gtins.length ? [{ code: item.gtin, kind: 'gtin' }] : []), ...(model.length >= 2 ? [{ code: item.model, kind: 'model' }] : []) ];
+    const queries = [ ...(gtins.length ? [{ code: item.gtin, kind: 'gtin' as const }] : []), ...(model.length >= 2 ? [{ code: item.model, kind: 'model' as const }] : []) ];
     const notices = new Map<string, ScreeningNotice>(); let truncated = false; let exactGtin = false;
     for (const query of queries) {
       // Existing published deterministic identifiers only; the extraction gate is not expanded.
-      let response = memo.get(query.code);
-      if (!response) { response = await lookupProductCode(env.DB, env.RAW_ARTIFACTS, query.code, false, false); memo.set(query.code, response); }
+      const cacheKey = `${query.kind}:${query.code}`;
+      let response = memo.get(cacheKey);
+      if (!response) { response = await lookupProductCode(env.DB, env.RAW_ARTIFACTS, query.code, false, false, query.kind); memo.set(cacheKey, response); }
       truncated ||= response['truncated'] === true;
       const matches = response['data'] as Array<{ matched_on: Array<{ kind: string; value: string }>; recall: PresentedProductRecall }>;
       for (const match of matches) {

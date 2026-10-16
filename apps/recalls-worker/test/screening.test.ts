@@ -3,6 +3,7 @@ import { issueKey } from '../src/account.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
 import { ingestRecords } from '../src/product-sync.js';
+import { lookupProductCode } from '../src/product-api.js';
 import { csvCell, parseInventory, reportCsv, screenInventory } from '../src/screening.js';
 import { printableReport, SCREENING_JS } from '../src/screening-page.js';
 import { expireScreeningReports } from '../src/screening-routes.js';
@@ -35,7 +36,7 @@ describe('inventory screening', () => {
     expect((await response.json() as { error: { message: string } }).error.message).toContain('business name');
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report').first()).toEqual({ n: 0 });
   });
-  it.each(['item,item\na,b', 'item,unknown\na,b', 'item,gtin\n"broken,1', 'item,gtin\na', 'item\n', 'item\n' + 'a\n'.repeat(51)])('rejects malformed or out-of-bounds CSV', value => expect(() => parseInventory(value)).toThrow());
+  it.each(['item,item\na,b', 'item,unknown\na,b', 'item,gtin\n"broken,1', 'item,gtin\na', 'item\n', 'item\n' + 'a\n'.repeat(51), 'item,model\nBox,' + 'x'.repeat(65)])('rejects malformed or out-of-bounds CSV', value => expect(() => parseInventory(value)).toThrow());
   it('distinguishes four outcomes and retains evidence and remedy information in the free preview', async () => {
     const report = await create();
     expect(report.result.items.map(item => item.outcome)).toEqual(['matched_notice', 'possible_match', 'no_match_in_coverage', 'insufficient_information']);
@@ -48,6 +49,22 @@ describe('inventory screening', () => {
     const report = await create();
     expect(report.result.items[2]?.outcome).toBe('insufficient_information');
     expect(report.result.items[0]?.outcome).toBe('matched_notice');
+  });
+  it('applies identifier kind before the lookup cap and caches barcode/model fields separately', async () => {
+    const code = '089301008588';
+    const crowd = Array.from({ length: 101 }, (_, index) => ({ ...CPSC, RecallID: 20000 + index, RecallNumber: String(60000 + index), RecallDate: '2026-01-01T00:00:00',
+      URL: CPSC.URL + '-' + index, ProductUPCs: [], Description: 'This recall involves heaters; the model is supplied in the structured product field.', Products: [{ ...CPSC.Products[0]!, Model: code }] }));
+    await ingestRecords(env, 'CPSC', crowd, 'full', now);
+    expect(await env.DB.prepare("SELECT COUNT(*) AS n FROM product_recall_key WHERE kind = 'model' AND value = ?").bind(code).first()).toEqual({ n: 101 });
+    const ambiguous = await lookupProductCode(env.DB, env.RAW_ARTIFACTS, code, false);
+    expect(ambiguous['truncated']).toBe(true);
+    expect((ambiguous['data'] as Array<{ recall: { id: string } }>).some(match => match.recall.id === 'cpsc-25203')).toBe(false);
+    const result = await screenInventory(env, [{ item: 'Barcode', gtin: code, model: '' }, { item: 'Numeric model', gtin: '', model: code }]);
+    expect(result.items[0]).toMatchObject({ outcome: 'matched_notice', truncated: false });
+    expect(result.items[0]!.notices.some(notice => notice.id === 'cpsc-25203')).toBe(true);
+    expect(result.items[1]).toMatchObject({ outcome: 'possible_match', truncated: true });
+    expect(result.items[1]!.notices).toHaveLength(100);
+    expect(result.items[1]!.notices.every(notice => notice.matched_on.every(on => on.kind === 'model'))).toBe(true);
   });
   it('invalid barcodes do not silently become clear results or model matches', async () => {
     const result = await screenInventory(env, [{ item: 'Bad UPC', gtin: '089301008589', model: '' }]);

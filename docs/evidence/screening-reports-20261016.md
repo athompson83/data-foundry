@@ -12,8 +12,8 @@ Canonical target: Cloudflare account `c2832821a9ab36419cde6ee08112f6d3`, Worker 
 
 - `corepack pnpm install --frozen-lockfile` — passed (Node 24.19.0, pnpm 9.15.4).
 - `corepack pnpm run typecheck` — passed.
-- `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts --maxWorkers=2 --reporter=json --outputFile=.data/final-tests.json` — 298 passed, 14 files.
-- `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/screening-bundle` — passed; 400.56 KiB / gzip 112.99 KiB.
+- `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts --maxWorkers=2 --reporter=json --outputFile=.data/final-tests.json` — 300 passed, 14 files.
+- `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/screening-bundle` — passed; 400.74 KiB / gzip 113.05 KiB.
 - `git diff --check` — passed.
 
 Uses SQLite running the actual D1 schema and additive 0005. Coverage includes four outcomes, source freshness, deterministic identifier gates, malformed uploads, same-account durable reload, other-account denial, five-preview concurrency cap, current rights withdrawal on stored contents, escaped/formula-safe output and source attribution, deletion/retention, signed webhook replay, forged webhook denial, server-owned prices, duplicate Checkout idempotency, wrong customer/report/amount/mode denial, refunds/disputes, missed-webhook recovery, billing failure and revoked keys. Provider-failure tests use mocks; they are not provider event-delivery proof.
@@ -23,6 +23,8 @@ Chrome at 1366×900 and 375×812: actual local Worker preview created all four o
 Automated review identified expired failed reservations retaining metadata and an abandoned Checkout blocking deletion. Both were repaired with regression coverage: expired non-financial reservations are removed; deletion after the fixed 23-hour Checkout expiry reconciles customer sessions, preserves a recovered payment reference, and then erases inventory. An incomplete scan or provider failure grants no deletion. The local test server was stopped after acceptance.
 
 Further review requires a nonblank business name before reserving a branded preview. Safe local checkout errors preserve actionable status/message (for example, an expiring preview returns 400 and asks for a new check); provider error text remains opaque. Both cases have regression coverage. The canonical checklist/progress records track REV-019 and the staged release gates.
+
+Review also identified kind filtering after the canonical lookup cap. The shared query now accepts an optional known identifier kind and filters before limiting; existing API callers retain their combined interpretation. A real-parser fixture with 101 newer numeric-model-only notices proves the barcode's older matched notice remains visible and that per-kind memoization stays separate. Inventory model length now matches the canonical query's 64-character bound.
 
 ## Real Stripe sandbox evidence
 
