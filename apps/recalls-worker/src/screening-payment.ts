@@ -16,6 +16,33 @@ interface ReportCheckout {
 }
 export const screeningSalesOpen = (env: Env): boolean => env.SALES_OPEN === '1' && env.SCREENING_SALES_OPEN === '1';
 
+/** After the fixed session expiry, reconcile an ambiguous attempt before allowing erasure. */
+export async function recoverAbandonedCheckout(env: Env, report: StoredReport, customerId: string): Promise<string | null> {
+  const started = Date.parse(report.checkout_started_at ?? '');
+  if (!Number.isFinite(started) || Date.now() - started <= 23 * 3600_000) throw new StripeError('Checkout may still be in progress', 409);
+  let cursor: string | undefined; let found: ReportCheckout | undefined;
+  for (let page = 0; page < 10; page++) {
+    const sessions = await stripe<{ data: ReportCheckout[]; has_more: boolean }>(env, 'GET', 'checkout/sessions', {
+      customer: customerId, limit: 100, created: { gte: Math.floor(started / 1000) - 60 }, ...(cursor ? { starting_after: cursor } : {}),
+    });
+    for (const session of sessions.data) {
+      if (session.metadata?.['report_id'] !== report.id || session.metadata?.['product'] !== 'screening-report-v1' || session.metadata?.['attempt'] !== String(report.checkout_attempt)) continue;
+      if (found || !bound(session, { ...report, checkout_session_id: session.id }, customerId, env)) throw new StripeError('Ambiguous checkout identity', 503);
+      found = session;
+    }
+    if (!sessions.has_more) {
+      if (!found) return null; // The fixed expires_at has passed; an in-flight create cannot open a new valid session.
+      await env.DB.prepare('UPDATE screening_report SET checkout_session_id = ? WHERE id = ? AND checkout_session_id IS NULL AND checkout_attempt = ?')
+        .bind(found.id, report.id, report.checkout_attempt).run();
+      if (found.status === 'complete') await reportPayment(env, { ...report, checkout_session_id: found.id }, customerId);
+      return found.id;
+    }
+    cursor = sessions.data.at(-1)?.id;
+    if (!cursor) break;
+  }
+  throw new StripeError('Checkout reconciliation incomplete; retry or contact support', 503);
+}
+
 function bound(session: ReportCheckout, report: StoredReport, customerId: string, env: Env): boolean {
   return session.id === report.checkout_session_id && session.mode === 'payment' && session.customer === customerId &&
     session.currency === 'usd' && session.amount_total === SCREENING_TIERS[report.tier].cents &&

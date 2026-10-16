@@ -77,8 +77,13 @@ describe('inventory screening', () => {
     const report = await create(); expect((await request('/screening/reports/' + report.id + '/delete', 'POST')).status).toBe(200);
     expect((await request('/screening/reports/' + report.id)).status).toBe(404);
     const another = await create(); await env.DB.prepare("UPDATE screening_report SET expires_at = '2000-01-01' WHERE id = ?").bind(another.id).run(); await expireScreeningReports(env);
-    expect(await env.DB.prepare('SELECT result_json FROM screening_report WHERE id = ?').bind(another.id).first()).toEqual({ result_json: null });
+    expect(await env.DB.prepare('SELECT result_json FROM screening_report WHERE id = ?').bind(another.id).first()).toBeNull();
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall').first()).toEqual({ n: 2 });
+  });
+  it('removes expired failed reservations including brand metadata', async () => {
+    await env.DB.prepare("INSERT INTO screening_report (id,customer_id,tier,brand,created_at,expires_at) VALUES ('failed','one','branded','Private label','2000-01-01','2000-01-08')").run();
+    await expireScreeningReports(env);
+    expect(await env.DB.prepare("SELECT * FROM screening_report WHERE id = 'failed'").first()).toBeNull();
   });
 });
 
@@ -98,6 +103,18 @@ describe('one-time report purchases', () => {
     expect(body.get('line_items[0][price_data][unit_amount]')).toBe('4900'); expect(body.get('mode')).toBe('payment');
     expect(new Headers(init[1].headers).get('idempotency-key')).toMatch(/^screening:/);
     await request(path + '/checkout', 'POST'); expect(fetcher.mock.calls).toHaveLength(2);
+  });
+  it('reconciles an abandoned checkout before allowing inventory deletion', async () => {
+    const { path, report, session, fetcher } = await checkoutFixture();
+    await env.DB.prepare('UPDATE screening_report SET checkout_started_at = ? WHERE id = ?').bind(new Date().toISOString(), report.id).run();
+    expect((await request(path + '/delete', 'POST')).status).toBe(409);
+    expect(fetcher).not.toHaveBeenCalled();
+    await env.DB.prepare('UPDATE screening_report SET checkout_started_at = ? WHERE id = ?').bind(new Date(Date.now() - 24 * 3600_000).toISOString(), report.id).run();
+    session.status = 'expired';
+    fetcher.mockImplementation(async () => Response.json(session));
+    fetcher.mockImplementationOnce(async () => Response.json({ data: [session], has_more: false }));
+    expect((await request(path + '/delete', 'POST')).status).toBe(200);
+    expect(await env.DB.prepare('SELECT result_json, checkout_session_id FROM screening_report WHERE id = ?').bind(report.id).first()).toEqual({ result_json: null, checkout_session_id: session.id });
   });
   it('unlocks only verified payment and rejects refunds, disputes, wrong amounts and wrong customers', async () => {
     const { path, session } = await checkoutFixture(); await request(path + '/checkout', 'POST');

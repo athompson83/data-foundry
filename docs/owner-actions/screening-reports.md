@@ -33,4 +33,6 @@ Close new purchases with `SCREENING_SALES_OPEN=0`; existing paid reads still ver
 
 If Checkout creation loses its response, retry the same report/attempt within 23 hours: its idempotency key is stable. For an older ambiguous attempt, use Stripe's customer/session inventory to locate the exact report metadata before repairing its reference. Do not blindly clear the attempt or create another charge. An expired known session can be retried normally. Never label an unverified/refunded purchase paid to repair access.
 
+Deletion of an abandoned attempt after 23 hours automatically scans the customer's recent Checkout sessions (bounded to 1,000), matches report/attempt/product/price/mode, preserves any recovered payment reference and expires an open session before erasure. A provider outage or incomplete/ambiguous scan fails closed. Failed preview reservations with no checkout are removed at their seven-day expiry, including their private brand metadata.
+
 Retained inventory is private: do not publish report screenshots or upload customer files to issue threads. Logged errors intentionally exclude CSV, keys, Stripe response bodies and database parameters. Automated cleanup can defer for a billing outage; inspect `screening_retention_billing_retry` and reconcile before erasing uncertain paid records.

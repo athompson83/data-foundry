@@ -12,19 +12,23 @@ Canonical target: Cloudflare account `c2832821a9ab36419cde6ee08112f6d3`, Worker 
 
 - `corepack pnpm install --frozen-lockfile` — passed (Node 24.19.0, pnpm 9.15.4).
 - `corepack pnpm run typecheck` — passed.
-- `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts --maxWorkers=2 --reporter=json --outputFile=.data/final-tests.json` — 294 passed, 14 files.
-- `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/screening-bundle` — passed; 397.24 KiB / gzip 112.24 KiB.
+- `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts --maxWorkers=2 --reporter=json --outputFile=.data/final-tests.json` — 296 passed, 14 files.
+- `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/screening-bundle` — passed; 399.37 KiB / gzip 112.75 KiB.
 - `git diff --check` — passed.
 
 Uses SQLite running the actual D1 schema and additive 0005. Coverage includes four outcomes, source freshness, deterministic identifier gates, malformed uploads, same-account durable reload, other-account denial, five-preview concurrency cap, current rights withdrawal on stored contents, escaped/formula-safe output and source attribution, deletion/retention, signed webhook replay, forged webhook denial, server-owned prices, duplicate Checkout idempotency, wrong customer/report/amount/mode denial, refunds/disputes, missed-webhook recovery, billing failure and revoked keys. Provider-failure tests use mocks; they are not provider event-delivery proof.
 
 Chrome at 1366×900 and 375×812: actual local Worker preview created all four outcomes, history reopened the original snapshot, no horizontal overflow, no console warnings/errors. Keys clear across navigation and must be re-entered after Checkout. UI screenshots were inspected inline; no customer records were published.
 
+Automated review identified expired failed reservations retaining metadata and an abandoned Checkout blocking deletion. Both were repaired with regression coverage: expired non-financial reservations are removed; deletion after the fixed 23-hour Checkout expiry reconciles customer sessions, preserves a recovered payment reference, and then erases inventory. An incomplete scan or provider failure grants no deletion. The local test server was stopped after acceptance.
+
 ## Real Stripe sandbox evidence
 
 Account `acct_1U3gItLlvU3ZaHdi`, test mode only; synthetic customer and card, no real money. Standard $29 Checkout `cs_test_a1L8zRZvz0tXcarqnYqGzs2D7F0Fpi3byltR8ti3fw3kW6ajiekovqAkgC`: completed/paid with succeeded intent, paid non-refunded non-disputed charge. This first session was an isolated price probe, not an app-bound report.
 
 Branded $49 app-generated report `3639d210-bb64-48f4-b1a9-c4fcb21c54fb` bound to Checkout `cs_test_a17SyE0cfZGQruyhIqtRGiRu6fAGmgmp4UOF0iVm6M0CjqnMMkLrigcBuu`: completed/paid, succeeded intent, charge paid, refunded=false, disputed=false, amount_refunded=0. Browser returned, re-entered the local fixture key, reopened the saved report and downloaded printable output through the actual Worker handler's verification.
+
+After that successful download, test refund `re_3URBVcLlvU3ZaHdi0XY9zzPK` succeeded for all 4,900 cents. A fresh connector read showed refunded=true/amount_refunded=4900. Replaying the minimal real refund receipt through the local Worker download route returned 402 `payment_required` (`corepack pnpm exec tsx .data/refund-check.ts`). This is real sandbox refund state plus local access-denial proof, not a production refund or provider webhook-delivery test.
 
 Transport boundary: a private ignored local adapter relayed the Worker's generated requests to the authenticated Stripe connector. The connector uses API `2026-09-30.preview` and required `allowed_payment_method_types`; only that field was translated from the Worker's `payment_method_types` for this test. Production retains the existing pinned `2024-06-20` transport and card-only parameter ([Stripe Checkout API](https://docs.stripe.com/api/checkout/sessions/create)). This proves real sandbox payment objects and app fulfillment, not a deployed test-mode Worker or production charge.
 

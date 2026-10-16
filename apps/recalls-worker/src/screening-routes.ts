@@ -3,7 +3,7 @@ import { BadRequest } from './api.js';
 import type { Env } from './env.js';
 import { productsServed } from './intake.js';
 import { resolveChannel } from './marketplace.js';
-import { reportCheckout, reportPayment, screeningSalesOpen, type StoredReport } from './screening-payment.js';
+import { recoverAbandonedCheckout, reportCheckout, reportPayment, screeningSalesOpen, type StoredReport } from './screening-payment.js';
 import { parseInventory, reportCsv, screenInventory, SCREENING_TIERS, type ScreeningResult, type ScreeningTier } from './screening.js';
 import { printableReport } from './screening-page.js';
 import { stripe, StripeError } from './stripe.js';
@@ -79,7 +79,10 @@ async function route(request: Request, env: Env): Promise<Response> {
     .bind(match[1]!, customer.customerId).first<StoredReport>();
   if (!report || !report.result_json || report.expires_at <= new Date().toISOString()) return error(404, 'not_found', 'Report not found or its retention period ended.');
   if (action === 'delete') {
-    if (report.checkout_started_at && !report.checkout_session_id) return error(409, 'checkout_pending', 'Checkout is still being prepared. Retry the checkout, then delete the report.');
+    if (report.checkout_started_at && !report.checkout_session_id) {
+      if (Date.now() - Date.parse(report.checkout_started_at) <= 23 * 3600_000 || !customer.stripeCustomerId) return error(409, 'checkout_pending', 'Checkout may still be in progress. Retry checkout, then delete; an abandoned attempt can be reconciled for deletion after 23 hours.');
+      report.checkout_session_id = await recoverAbandonedCheckout(env, report, customer.stripeCustomerId);
+    }
     // Close an outstanding payment link before removing the deliverable.
     if (report.checkout_session_id) {
       const session = await stripe<{ status: string }>(env, 'GET', `checkout/sessions/${encodeURIComponent(report.checkout_session_id)}`);
@@ -116,4 +119,6 @@ export async function expireScreeningReports(env: Env): Promise<void> {
     } catch { console.error('screening_retention_billing_retry'); }
   }
   await env.DB.prepare("UPDATE screening_report SET result_json = NULL, brand = '' WHERE expires_at <= ? AND result_json IS NOT NULL AND (checkout_session_id IS NULL OR paid_at IS NOT NULL)").bind(now).run();
+  // Failed reservations still count toward the rolling limit, then leave no private metadata behind.
+  await env.DB.prepare('DELETE FROM screening_report WHERE expires_at <= ? AND result_json IS NULL AND checkout_session_id IS NULL AND checkout_started_at IS NULL AND paid_at IS NULL').bind(now).run();
 }
