@@ -52,12 +52,14 @@ Not served: `ConsumerContact`, `Images` (and their captions), `SoldAtLabel`.
 | ACQUIRE, STORE, CACHE, NORMALIZE, DERIVE | — | ALLOW |
 | SERVE_API_ACCESS, SELL_API_ACCESS, REDISTRIBUTE_NORMALIZED | DIRECT_CUSTOMER_API | ALLOW |
 | Public web and indexing | — | ALLOW for notices with a substantive description and hazard statement (rule 8). Others are served `noindex` |
-| RapidAPI, MCP, bulk export | — | Rights-permitted but **not enabled**; each needs its own product decision |
+| RapidAPI, MCP, bulk export | — | Rights-permitted; RapidAPI activated 2026-10-09 under ADR-0016; MCP and bulk export remain **not enabled** |
 
 ## Attribution carried
 
 "U.S. Consumer Product Safety Commission recalls via the CPSC Recall API". This appears in the API `attribution` object, every notice page, the footer and the terms, together with the non-endorsement statement.
 
 ## Kill switch
+
+Operational state reconciled 2026-10-16: the existing RapidAPI channel was activated and accepted on October 9, and its ten-endpoint distribution was verified on October 15. See [lifecycle reconciliation](../evidence/consumer-lifecycle-reconciliation-20261016.md). This note changes no rights grant, field scope or publication gate; other delivery channels and extracted identifiers remain independently gated.
 
 Set `PRODUCT_RECALLS_KILL_SWITCH = "1"` on the `data-foundry-recalls` Worker. Acquisition stops, and every product-recall API route and page returns 503. The kill switch covers both CPSC and Health Canada.

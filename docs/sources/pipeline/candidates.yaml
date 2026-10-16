@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-09-27
+updated: 2026-10-16
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -35,7 +35,7 @@ candidates:
     structuring: identifier-extraction
     format: free-text
     publisher: US CPSC
-    stage: BUILDING
+    stage: LIVE
     rights: GREEN
     sources: [ https://www.saferproducts.gov/RestWebServices/Recall?format=json ]
     scores:
@@ -57,18 +57,15 @@ candidates:
         docs/sources/pipeline/research-2026-09-27.md,
         docs/sources/pipeline/research-2026-09-27-service-trades.md,
         docs/sources/cpsc-recalls-rights-record-20260927.md,
-        docs/sources/pipeline/prototypes/cpsc-recalls/README.md
+        docs/sources/pipeline/prototypes/cpsc-recalls/README.md,
+        docs/evidence/consumer-lifecycle-reconciliation-20261016.md
       ]
     next_action: >-
-      Member of consumer-product-recalls-north-america; see that dataset. Deployed 2026-09-28 (#69, Worker version
-      40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
-      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
-      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
-      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
-      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
-      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
-      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
-      check refused the write); it is routine verification, not an owner decision.
+      Maintain the LIVE member feed and six-hour source refresh; assess additional lawful source members without weakening declared-identifier linkage or provenance.
+      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246,
+      including filters, raw-evidence integrity, exact metering and key revocation. Current lifecycle, source
+      counts and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
+
   - key: nhtsa-recalls
     name: NHTSA vehicle recalls in the recall API
     category: transport
@@ -3743,12 +3740,12 @@ candidates:
 # Composite datasets (research round 3, 2026-09-27): one entity type assembled from
 # several candidate sources linked by measured deterministic join keys. See README.md.
   - key: health-canada-consumer-product-recalls
-    name: Health Canada consumer-product recalls and alerts (open-data index, all categories)
+    name: Health Canada consumer-product recalls and alerts (consumer-product slice of the open-data index)
     category: product-safety
     structuring: normalization
     format: structured
     publisher: Health Canada
-    stage: BUILDING
+    stage: LIVE
     rights: AMBER
     sources: [ "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json" ]
     scores:
@@ -3778,20 +3775,14 @@ candidates:
       [
         docs/sources/pipeline/research-2026-09-27.md,
         docs/sources/health-canada-consumer-product-recalls-rights-record-20260927.md,
-        docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md
+        docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md,
+        docs/evidence/consumer-lifecycle-reconciliation-20261016.md
       ]
     next_action: >-
-      Member of consumer-product-recalls-north-america; see that dataset. Next source widening: Health Canada's
-      other recall organisations (food, health products, vehicles) under an extended rights record. Deployed
-      2026-09-28 (#69, Worker version 40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
-      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
-      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
-      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
-      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
-      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
-      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
-      check refused the write); it is routine verification, not an owner decision. The appliance slice above stays a member of
-      home-product-recalls-global.
+      Maintain the LIVE consumer-product slice and its attribution/personal-data exclusions. Other Health Canada organisations require an extended rights record and independent product qualification before publication.
+      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246,
+      including filters, raw-evidence integrity, exact metering and key revocation. Current lifecycle, source
+      counts and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
 
 datasets:
   - key: home-product-recalls-global
@@ -4431,8 +4422,8 @@ datasets:
     name: North American consumer-product recalls (CPSC + Health Canada, declared cross-agency links)
     category: product-safety
     entity: recall_notice (one agency notice), linked to the other agency's notice where one cites the other
-    stage: BUILDING
-    description: "The first shippable slice of home-product-recalls-global. Every CPSC recall (US, since 1973) and
+    stage: LIVE
+    description: "The live North American slice of home-product-recalls-global. Every CPSC recall (US, since 1973) and
       every Health Canada consumer-product recall or alert, in one schema: CPSC free text is parsed deterministically
       into model numbers, check-digit-valid GTINs, US/Canada/Mexico units, hazard and remedy classes and trade
       facets; Health Canada's structured index fields are normalised into the same taxonomy. A CPSC notice that cites
@@ -4486,12 +4477,9 @@ datasets:
       - docs/sources/pipeline/prototypes/cpsc-recalls/README.md
       - docs/sources/pipeline/prototypes/health-canada-consumer-product-recalls/README.md
       - docs/decisions/ADR-0016-product-recalls-on-the-recalls-worker.md
+      - docs/evidence/consumer-lifecycle-reconciliation-20261016.md
     next_action: >-
-      Deployed 2026-09-28 (#69, Worker version 40ea452b) and serving on data.aroqon.com and api.data.aroqon.com
-      behind PRODUCT_RECALLS_OPEN; parser product-recall-structuring@2. Reconciled: the first scheduled full pass
-      (00:17 UTC) read all 10,027 CPSC notices in 29 RecallDate windows and all 5,206 Health Canada consumer notices,
-      rewrote every record under @2 with 0 failures, and kept 343 declared links. Keyless acceptance passed (pages,
-      stats, 401 without a valid key, OpenAPI, checkout to cs_live). Remaining before LIVE: authenticated hosted
-      acceptance (lookup, filters, include=raw digests, $0 Evaluate checkout) with a revocable acceptance key, run
-      and revoked by any session permitted to write that key to production D1 (the 2026-09-28 session's permission
-      check refused the write); it is routine verification, not an owner decision.
+      Maintain the LIVE composite; assess useful lawful member-source widening and independent paid integrations. New sources and other delivery channels retain their own rights, quality and acceptance gates.
+      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246,
+      including filters, raw-evidence integrity, exact metering and key revocation. Current lifecycle, source
+      counts and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
