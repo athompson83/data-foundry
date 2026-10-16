@@ -29,11 +29,12 @@ export function parseLookupQuery(params: URLSearchParams): LookupQuery {
   if (datasets.includes('product-recalls')) productLookupCandidates(code);
   const include = params.get('include');
   if (include !== null && include !== 'raw') throw new BadRequest('include must be raw when supplied');
+  if (include === 'raw' && datasets.length !== 1) throw new BadRequest('include=raw requires exactly one explicit dataset, e.g. datasets=recalls or datasets=product-recalls');
   return { code, datasets, includeRaw: include === 'raw' };
 }
 
 export async function lookupAcrossDatasets(env: Env, query: LookupQuery, channel: 'direct' | 'rapidapi'): Promise<Record<string, unknown>> {
-  // Sequential queries bound D1/R2 fan-out, including when raw records are large.
+  // Raw evidence is admitted for one dataset only; do not retain two raw response envelopes.
   const results: Array<Record<string, unknown>> = [];
   for (const dataset of query.datasets) {
     const payload = dataset === 'recalls'

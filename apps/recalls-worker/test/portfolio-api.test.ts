@@ -29,6 +29,15 @@ async function seed(e: Env): Promise<string> {
 }
 
 describe('portfolio APIs', () => {
+  it('requires exactly one explicitly selected dataset for raw evidence before spending allowance', async () => {
+    const e = env();
+    const key = await seed(e);
+    for (const selection of ['', '&datasets=recalls,product-recalls', '&datasets=product-recalls,recalls']) {
+      const response = await worker.fetch(request('/v1/lookup?code=AC2601&include=raw' + selection, key), e);
+      expect(response.status).toBe(400);
+    }
+    expect(await currentUsage(e.DB, 'portfolio')).toBe(0);
+  });
   it('lists the published catalog without a key, database reads, or usage charges', async () => {
     const e = env({ DB: { prepare: () => { throw new Error('discovery must not read the database'); } } as unknown as Env['DB'] });
     const response = await worker.fetch(request('/v1/datasets'), e);
@@ -53,7 +62,7 @@ describe('portfolio APIs', () => {
   it.each(['012345678905', 'DXH70CFAVX'])('returns the existing lookup payloads with separate attribution and one usage unit: %s', async (code) => {
     const e = env();
     const key = await seed(e);
-    const response = await worker.fetch(request(`/v1/lookup?code=${code}&include=raw`, key), e);
+    const response = await worker.fetch(request(`/v1/lookup?code=${code}`, key), e);
     expect(response.status).toBe(200);
     expect(response.headers.get('x-ratelimit-remaining')).toBe('99');
     expect(response.headers.get('cache-control')).toBe('private, no-store');
@@ -62,8 +71,16 @@ describe('portfolio APIs', () => {
     expect(body.results.map((r) => r['dataset'])).toEqual(['recalls', 'product-recalls']);
     for (const result of body.results) {
       const { dataset, ...payload } = result;
-      const original = await worker.fetch(request(`/v1/${dataset}/lookup?code=${code}&include=raw`, key), e);
+      const original = await worker.fetch(request(`/v1/${dataset}/lookup?code=${code}`, key), e);
       expect(payload).toEqual(await original.json());
+      const raw = await worker.fetch(request(`/v1/lookup?code=${code}&include=raw&datasets=${dataset}`, key), e);
+      expect(raw.status).toBe(200);
+      const rawBody = await raw.json() as { results: Array<Record<string, unknown>> };
+      expect(rawBody.results).toHaveLength(1);
+      const { dataset: rawDataset, ...rawPayload } = rawBody.results[0]!;
+      expect(rawDataset).toBe(dataset);
+      const originalRaw = await worker.fetch(request(`/v1/${dataset}/lookup?code=${code}&include=raw`, key), e);
+      expect(rawPayload).toEqual(await originalRaw.json());
     }
     expect(body.results.some((r) => (r['data'] as unknown[]).length > 0)).toBe(true);
     expect(body.coverage_note).toMatch(/does not prove/i);
@@ -125,14 +142,14 @@ describe('portfolio APIs', () => {
       const range = bundle.ranges[i]!;
       await e.DB.batch(writeRecallStatements(item, rawRef('recalls/many.ndjson', range.offset, range.length), '2026-10-15T00:00:00Z').map((s) => e.DB.prepare(s.sql).bind(...s.params)));
     }
-    for (const include of ['', '&include=raw']) {
+    for (const include of ['', '&include=raw&datasets=recalls']) {
       const response = await worker.fetch(request('/v1/lookup?code=AC2601' + include, key), e);
       expect(response.status).toBe(200);
       const body = await response.json() as { truncated: boolean; results: Array<{ dataset: string; data: unknown[]; total_matches: number; truncated: boolean }> };
       expect(body.truncated).toBe(true);
       expect(body.results[0]).toMatchObject({ dataset: 'recalls', total_matches: 102, truncated: true });
       expect(body.results[0]!.data).toHaveLength(include ? 10 : 100);
-      expect(body.results[1]).toMatchObject({ dataset: 'product-recalls', data: [], total_matches: 0, truncated: false });
+      if (!include) expect(body.results[1]).toMatchObject({ dataset: 'product-recalls', data: [], total_matches: 0, truncated: false });
     }
   });
 
@@ -140,7 +157,7 @@ describe('portfolio APIs', () => {
     const e = env();
     const key = await seed(e);
     await e.RAW_ARTIFACTS.put('recalls/test.ndjson', '{}');
-    const response = await worker.fetch(request('/v1/lookup?code=AC2601&include=raw', key), e);
+    const response = await worker.fetch(request('/v1/lookup?code=AC2601&include=raw&datasets=recalls', key), e);
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: { code: 'internal_error', message: expect.any(String) } });
   });

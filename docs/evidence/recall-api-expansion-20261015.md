@@ -15,12 +15,12 @@ Canonical base: `986b3170d83e90754678874bcb2eb50963b5aff0`; prior serving source
 - `GET /v1/datasets`: public, unmetered, revalidated JSON from the same catalog and gates as the site. Includes stable dataset/registry IDs, fields, sources and terms, limitations, refresh intention, stats and documentation URLs. Counts and actual freshness remain at each stats endpoint.
 - `GET /v1/lookup?code=...`: authenticated exact lookup across both datasets; `datasets=recalls` or `datasets=product-recalls` explicitly narrows coverage. One direct HTTP data request consumes one monthly request unit. Results preserve each dataset's complete existing lookup payload, match details, attribution and evidence; notices are not merged. The aggregate truncation flag is true when any dataset is truncated.
 - Default coverage always requests both datasets. Any withdrawn requested dataset yields 503 before direct metering; no silent omission. Malformed/duplicate/unknown parameters are rejected before metering. The existing gateway authentication and independent marketplace extracted-identifier entitlement remain in force.
-- `include=raw` uses the existing digest verification, consumer-record redactions and per-dataset caps (FDA 10, consumer products 25; otherwise 100 each). Evidence failure yields an error, never partial success. Empty results explicitly do not establish safety or complete recall coverage.
+- `include=raw` requires exactly one explicitly selected dataset (400 before direct metering otherwise), preserving the existing response memory envelope. It uses the existing digest verification, consumer-record redactions and caps (FDA 10 or consumer products 25; otherwise 100 each). Evidence failure yields an error, never partial success. Empty results explicitly do not establish safety or complete recall coverage.
 - OpenAPI, human docs, API root and llms references expose these interfaces under the same publication gates. The existing production acceptance runner now checks public discovery, both lookup payloads against their original endpoints, exact metering and post-run revocation on the new route.
 
 ## Problems found and fixed
 
-Integrators previously had to discover fields from HTML/OpenAPI and make separate identifier requests to each dataset. The new interfaces reduce this work without creating another canonical store, parser or billing ledger. A new route could otherwise silently omit withdrawn sources or expose extracted identifiers on the wrong channel: regression tests cover both boundaries.
+Integrators previously had to discover fields from HTML/OpenAPI and make separate identifier requests to each dataset. The new interfaces reduce this work without creating another canonical store, parser or billing ledger. A new route could otherwise silently omit withdrawn sources or expose extracted identifiers on the wrong channel: regression tests cover both boundaries. Review identified that retaining both datasets' raw payloads could exceed the original per-response memory envelope. Raw queries now require a single dataset; a failing regression reproduced the combined-response admission before the repair.
 
 ## Required user actions
 
@@ -41,7 +41,7 @@ Local checks use at most two test workers to preserve Windows resource headroom:
 
 - `corepack pnpm run typecheck` — passed.
 - `corepack pnpm --filter @data-foundry/recalls-worker typecheck` — passed.
-- `corepack pnpm exec vitest run apps/recalls-worker/test packages/recall-structuring/test packages/product-recall-structuring/test --maxWorkers=2` — 11 files, 281 tests passed, including the production acceptance runner against the real Worker and SQLite/R2 adapters.
+- `corepack pnpm exec vitest run apps/recalls-worker/test packages/recall-structuring/test packages/product-recall-structuring/test --maxWorkers=2` — 11 files, 282 tests passed after the raw-response review repair, including the production acceptance runner against the real Worker and SQLite/R2 adapters.
 - `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/api-expansion-bundle` — bundle qualification; this does not publish.
 - `git diff --check` — passed.
 

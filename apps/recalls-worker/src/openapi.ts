@@ -56,7 +56,7 @@ function portfolioPaths(errors: Record<string, unknown>, served: { readonly fda:
       parameters: [
         { ...stringParam('code', 'Code as printed. Each selected dataset applies its existing identifier validation and normalization.', { minLength: 1, maxLength: 64 }), required: true },
         { name: 'datasets', in: 'query', required: false, style: 'form', explode: false, description: 'Comma-separated unique dataset IDs; defaults to recalls,product-recalls. Any unavailable requested dataset returns 503 before direct metering.', schema: { type: 'array', minItems: 1, maxItems: available.length, uniqueItems: true, items: { type: 'string', enum: available } } },
-        stringParam('include', 'raw includes digest-verified evidence, with the same redactions and bounds as each dataset lookup (FDA: 10, consumer products: 25; otherwise 100 each).', { enum: ['raw'] }),
+        stringParam('include', 'raw requires exactly one explicit datasets ID; otherwise 400 before direct metering. Includes digest-verified evidence with existing redactions and bounds (FDA: 10, consumer products: 25; otherwise 100 each).', { enum: ['raw'] }),
       ],
       responses: {
         '200': { description: 'Per-dataset matches; truncated is true if any dataset is truncated. A CPSC and HC notice can describe the same recall and are never silently merged.', content: { 'application/json': { schema: {
