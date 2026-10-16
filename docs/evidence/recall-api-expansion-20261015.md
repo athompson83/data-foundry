@@ -26,7 +26,7 @@ Integrators previously had to discover fields from HTML/OpenAPI and make separat
 
 Live browser acceptance found a pre-existing zone-wide Cloudflare analytics injection blocked by the site's self-only CSP. The analytics product's rule limit refused a hostname exclusion without changing its existing rule. A dry-run-validated configuration rule now sets `disable_rum: true` only for `http.host eq "data.aroqon.com"`: ruleset `66857bb7be08463a8cb2b031fce0faaf`, rule `ec80292c2ea54ac9bf8d3ca4044865db`. The existing zone analytics configuration is preserved. The strict CSP is unchanged, and both browser viewports now have zero failed requests. [Cloudflare documents this host-scoped setting and its precedence](https://developers.cloudflare.com/rules/configuration-rules/settings/#disable-real-user-monitoring-rum).
 
-The checklist ID collision was corrected so completed billing work cannot imply the unfinished collector is published. No unrelated issue was closed; development-dependency/CI backlog #48 remains separate.
+The checklist ID collision was corrected so completed billing work cannot imply the unfinished collector is published. Documentation review also caught stale current-version fields: the recovery deployment is now explicitly historical, and Protected-main state names the new serving source/version and acceptance run. No unrelated issue was closed; development-dependency/CI backlog #48 remains separate.
 
 ## Required user actions
 
