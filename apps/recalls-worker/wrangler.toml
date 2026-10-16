@@ -42,7 +42,7 @@ SOURCE_KILL_SWITCH = "0"
 # instruction; set "0" to stop new sales (docs/owner-actions/recalls-operations.md).
 SALES_OPEN = "1"
 # Open only after this implementation passes authenticated production acceptance.
-SCREENING_SALES_OPEN = "0"
+SCREENING_SALES_OPEN = "1"
 # North American consumer-product recalls (ADR-0016). OPEN serves the dataset's API and pages under the existing
 # plans; KILL_SWITCH = "1" stops its acquisition and serving (rights kill switch for CPSC and Health Canada).
 PRODUCT_RECALLS_OPEN = "1"

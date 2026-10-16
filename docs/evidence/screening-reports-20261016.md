@@ -42,7 +42,15 @@ Read-only live webhook verification: `we_1UK1TtLlvU3ZaHdiy7KqSNdW`, enabled at `
 
 ## Release record
 
-Pending protected PR/main checks, additive migration, guarded deploy and authenticated production acceptance. The initial candidate keeps `SCREENING_SALES_OPEN=0`. After that exact implementation passes production acceptance, a separate reviewed activation change can set it to 1 and pass the guarded release path again. Automated review also required this staging and repeatable acceptance: closing the admin-only, .invalid fixture now clears its non-financial report rows; six consecutive acceptance runs pass without bypassing the ordinary customer preview cap.
+Implementation PR #108 merged as `cd7ed4db5fe6ee5e222193ca6fff3cdde4b7bb26`. Final-candidate CI `38920228401` passed 5,331 tests / 266 files, typecheck, generated artifacts and deployment builds. Exact-main CI `38922400711` passed those gates and the real-Postgres migration/privilege checks. Automated Codex review completed clean on final head `741987fbe28959e917cf6f2701c099dab1d47d97`; all prior findings were resolved. The superseded feature branch was removed only after its tree matched merged main.
+
+Before migration, D1 had only 0001–0004 and no report table. Recovery bookmark: `00000ea3-00000000-00005106-1a10e74fcd9ef87808c98bcc268ed4e9`. At 2026-10-16 15:30:18 UTC, additive 0005 was applied through the authenticated canonical Cloudflare connector, followed by the migration-ledger entry. Read-back verified the exact table, uniqueness constraints, both indexes, ledger row and zero initial reports. Migration SHA-256: `4dab94301637426b66fe340659145a18fa737c372e7abb377375c7ace5d71a0e`. Local Wrangler could not authenticate this account (7403), so the connector executed the reviewed SQL; no credentials were copied and no existing data was changed.
+
+Guarded deployment `38924498971` succeeded for the implementation SHA with `SCREENING_SALES_OPEN=0`: deployment `bdead394-7e42-48f6-ac22-3f94caf940d0`, version `578d0abe-8a92-479f-8de2-bbf679641b89`, 100% at 2026-10-16 15:43:37 UTC. Authenticated production acceptance `38926323130` passed 35 checks / 14 metered requests, including report creation, durable reopen/history, unpaid download denial, deletion/404 and revoked-key denial. The fixture closed with no active keys. The version remained unchanged throughout.
+
+Live Chrome at 1366×900 and 375×812 confirmed the sales-closed message, working form, required branded name without an accidental request, invalid-key 401 with actionable text, key clearing after reload, no horizontal overflow and no console warnings/errors after clean reload. This is hosted browser UI/negative-path proof; authenticated persistence is the separate protected acceptance above.
+
+The separate activation candidate now sets only `SCREENING_SALES_OPEN=1` plus these release records/runbook clarification. Candidate/main checks, guarded deployment and fresh authenticated acceptance must pass before calling sales live. The live webhook was re-read immediately before activation and remains enabled for `checkout.session.completed`. Automated review required staging and repeatable acceptance: closing the admin-only, .invalid fixture clears its non-financial report rows; six consecutive local acceptance runs pass without bypassing the ordinary customer preview cap.
 
 ## Deferred
 
