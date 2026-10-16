@@ -424,6 +424,8 @@ async function route(request: Request, env: Env): Promise<Response> {
       await env.DB.batch([
         env.DB.prepare('UPDATE api_key SET revoked_at = ? WHERE customer_id = ? AND revoked_at IS NULL').bind(now, fixture.id),
         env.DB.prepare("UPDATE customer SET status = 'suspended', updated_at = ? WHERE id = ?").bind(now, fixture.id),
+        // This admin-only, .invalid fixture cannot buy reports. Reset its preview slots for repeatable acceptance.
+        env.DB.prepare('DELETE FROM screening_report WHERE customer_id = ? AND checkout_session_id IS NULL AND checkout_started_at IS NULL AND paid_at IS NULL').bind(fixture.id),
       ]);
     }
     const after = await env.DB.prepare('SELECT status, (SELECT count(*) FROM api_key WHERE customer_id = customer.id AND revoked_at IS NULL) AS active_keys FROM customer WHERE id = ?').bind(fixture.id).first<{ status: string; active_keys: number }>();

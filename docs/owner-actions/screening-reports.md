@@ -26,6 +26,7 @@ Error responses retain private/no-store headers. 400 invalid upload, 401 invalid
 3. Use `.github/workflows/deploy-recalls.yml` with `expected_sha` and `confirm=deploy-recalls`. Verify deployed source/version. Run the existing authenticated acceptance with fixture revocation, plus a report create/read/recheck/delete journey under a bounded test identity. Never use the exhausted owner's Evaluate key.
 4. Validate real test-mode Checkout and successful payment, repeat download, wrong-account refusal, cancellation, replay and refund behavior. Keep test and live receipts separate. `SCREENING_SALES_OPEN=1` is an explicit release change, never implied by `SALES_OPEN`.
 5. Verify the existing live Stripe webhook still subscribes to `checkout.session.completed`; delayed payment methods additionally need `checkout.session.async_payment_succeeded`. The pinned API requests cards only. Do not replace the existing webhook or reveal its signing secret.
+6. Keep purchases closed for the first deployed create/reopen/delete acceptance. Once that implementation passes, submit the separate `SCREENING_SALES_OPEN=1` activation with its evidence, require protected candidate/main checks, deploy through the same guarded workflow, and repeat authenticated acceptance. The admin-only internal fixture resets its non-financial previews on close, so repeated releases do not exhaust its daily preview slots; ordinary customer limits remain unchanged.
 
 ## Recovery
 

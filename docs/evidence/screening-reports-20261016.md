@@ -13,7 +13,7 @@ Canonical target: Cloudflare account `c2832821a9ab36419cde6ee08112f6d3`, Worker 
 - `corepack pnpm install --frozen-lockfile` — passed (Node 24.19.0, pnpm 9.15.4).
 - `corepack pnpm run typecheck` — passed.
 - `corepack pnpm exec vitest run apps/recalls-worker/test tooling/test/readme-inventory.test.ts tooling/test/private-canary-provenance-doc.test.ts tooling/test/repository-policy.test.ts --maxWorkers=2 --reporter=json --outputFile=.data/final-tests.json` — 296 passed, 14 files.
-- `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/screening-bundle` — passed; 399.37 KiB / gzip 112.75 KiB.
+- `corepack pnpm exec wrangler deploy --dry-run --config apps/recalls-worker/wrangler.toml --outdir .data/screening-bundle` — passed; 399.66 KiB / gzip 112.83 KiB.
 - `git diff --check` — passed.
 
 Uses SQLite running the actual D1 schema and additive 0005. Coverage includes four outcomes, source freshness, deterministic identifier gates, malformed uploads, same-account durable reload, other-account denial, five-preview concurrency cap, current rights withdrawal on stored contents, escaped/formula-safe output and source attribution, deletion/retention, signed webhook replay, forged webhook denial, server-owned prices, duplicate Checkout idempotency, wrong customer/report/amount/mode denial, refunds/disputes, missed-webhook recovery, billing failure and revoked keys. Provider-failure tests use mocks; they are not provider event-delivery proof.
@@ -36,7 +36,7 @@ Read-only live webhook verification: `we_1UK1TtLlvU3ZaHdiy7KqSNdW`, enabled at `
 
 ## Release record
 
-Pending protected PR/main checks, additive migration, guarded deploy and authenticated production acceptance. `SCREENING_SALES_OPEN=1` is the explicit candidate release setting. It must not be described as deployed before the record below is completed.
+Pending protected PR/main checks, additive migration, guarded deploy and authenticated production acceptance. The initial candidate keeps `SCREENING_SALES_OPEN=0`. After that exact implementation passes production acceptance, a separate reviewed activation change can set it to 1 and pass the guarded release path again. Automated review also required this staging and repeatable acceptance: closing the admin-only, .invalid fixture now clears its non-financial report rows; six consecutive acceptance runs pass without bypassing the ordinary customer preview cap.
 
 ## Deferred
 

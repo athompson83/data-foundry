@@ -66,8 +66,9 @@ describe('production acceptance script', () => {
     const serialized = JSON.stringify(evidence);
     expect(serialized).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
     expect(serialized).not.toContain(ADMIN);
-    // A second run is possible: acceptance is repeatable.
-    expect((await runAcceptance(options(env))).ok).toBe(true);
+    // More than five runs in a day remain possible; only the dedicated admin fixture is reset.
+    for (let run = 0; run < 5; run++) expect((await runAcceptance(options(env))).ok).toBe(true);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report').first()).toEqual({ n: 0 });
   });
 
   it('fails and revokes when a successful direct response omits the quota reset signal', async () => {
