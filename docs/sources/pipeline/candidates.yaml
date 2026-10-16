@@ -35,7 +35,7 @@ candidates:
     structuring: identifier-extraction
     format: free-text
     publisher: US CPSC
-    stage: LIVE
+    stage: BUILDING
     rights: GREEN
     sources: [ https://www.saferproducts.gov/RestWebServices/Recall?format=json ]
     scores:
@@ -61,10 +61,11 @@ candidates:
         docs/evidence/consumer-lifecycle-reconciliation-20261016.md
       ]
     next_action: >-
-      Maintain the LIVE member feed and six-hour source refresh; assess additional lawful source members without weakening declared-identifier linkage or provenance.
-      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246,
-      including filters, raw-evidence integrity, exact metering and key revocation. Current lifecycle, source
-      counts and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
+      Complete independent full-history source-ID reconciliation before LIVE qualification. The API is deployed
+      and hosted acceptance 38843342262 passed 27 checks, but current unfiltered and historical CPSC queries
+      return HTTP-200 error records; a working 2025 window alone does not reconcile the stored 10,053 IDs.
+      Reject error bodies without advancing freshness, retaining raw evidence and the last good dataset.
+      See docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
 
   - key: nhtsa-recalls
     name: NHTSA vehicle recalls in the recall API
@@ -3780,9 +3781,9 @@ candidates:
       ]
     next_action: >-
       Maintain the LIVE consumer-product slice and its attribution/personal-data exclusions. Other Health Canada organisations require an extended rights record and independent product qualification before publication.
-      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246,
-      including filters, raw-evidence integrity, exact metering and key revocation. Current lifecycle, source
-      counts and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
+      The 2026-10-16 official index reconciles exactly to all 5,216 stored consumer-product IDs.
+      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246.
+      Independent source hashes and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
 
 datasets:
   - key: home-product-recalls-global
@@ -4422,8 +4423,8 @@ datasets:
     name: North American consumer-product recalls (CPSC + Health Canada, declared cross-agency links)
     category: product-safety
     entity: recall_notice (one agency notice), linked to the other agency's notice where one cites the other
-    stage: LIVE
-    description: "The live North American slice of home-product-recalls-global. Every CPSC recall (US, since 1973) and
+    stage: BUILDING
+    description: "The deployed North American slice of home-product-recalls-global. Every CPSC recall (US, since 1973) and
       every Health Canada consumer-product recall or alert, in one schema: CPSC free text is parsed deterministically
       into model numbers, check-digit-valid GTINs, US/Canada/Mexico units, hazard and remedy classes and trade
       facets; Health Canada's structured index fields are normalised into the same taxonomy. A CPSC notice that cites
@@ -4479,7 +4480,8 @@ datasets:
       - docs/decisions/ADR-0016-product-recalls-on-the-recalls-worker.md
       - docs/evidence/consumer-lifecycle-reconciliation-20261016.md
     next_action: >-
-      Maintain the LIVE composite; assess useful lawful member-source widening and independent paid integrations. New sources and other delivery channels retain their own rights, quality and acceptance gates.
-      Hosted acceptance 38843342262 passed 27 checks on serving source f84280c, Worker version 07ee9246,
-      including filters, raw-evidence integrity, exact metering and key revocation. Current lifecycle, source
-      counts and historical-sample reconciliation are recorded in docs/evidence/consumer-lifecycle-reconciliation-20261016.md.
+      Complete independent CPSC full-history source-ID reconciliation before advancing this composite to LIVE.
+      Health Canada's 5,216 consumer-product IDs are reconciled and its member is LIVE; CPSC remains BUILDING
+      because historical source queries return error records. Existing deployed API and marketplace access
+      passed hosted acceptance 38843342262 (27 checks); that does not prove upstream completeness.
+      See docs/evidence/consumer-lifecycle-reconciliation-20261016.md. Additional members retain separate rights and quality gates.

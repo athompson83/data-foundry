@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "90147990b40b8b7c78087602897558fefe37212ed487ea872a12e451c0ca8f40",
+  "registry_sha256": "b5b5bc2b80624d548415c5826ad945f59e30746daca9784c25949393ed82c37e",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -20,7 +20,7 @@
       "intake_path": "/v1/intake/product-recalls/identifiers",
       "min_interval_s": 2,
       "rights": "GREEN",
-      "stage": "LIVE",
+      "stage": "BUILDING",
       "enabled": true,
       "refused_because": []
     }
@@ -102,7 +102,7 @@
     },
     "consumer-product-recalls-north-america": {
       "name": "North American consumer-product recalls (CPSC + Health Canada, declared cross-agency links)",
-      "stage": "LIVE",
+      "stage": "BUILDING",
       "sources": [
         "cpsc-recalls",
         "health-canada-consumer-product-recalls"
@@ -123,7 +123,7 @@
     "cpsc-recalls": {
       "name": "CPSC consumer-product recalls in the recall API",
       "rights": "GREEN",
-      "stage": "LIVE",
+      "stage": "BUILDING",
       "format": "free-text",
       "publisher": "US CPSC",
       "acquisition": "task",
