@@ -93,6 +93,8 @@ Set `SOURCE_KILL_SWITCH = "1"` in `apps/recalls-worker/wrangler.toml` and deploy
 
 ## Pausing the scheduled sync
 
+CPSC can return HTTP 200 containing a recall-shaped error instead of notices. A nonempty response with no publishable recall fails the source run, retains its archived response, and leaves the last successful freshness timestamp and stored notices intact. An empty recent window is valid; a full pass still requires every window and the full-list count floor. Health Canada runs independently after a CPSC failure. Do not interpret HTTP 200 or a stored/public count match as upstream reconciliation, and do not repeatedly force failing full passes.
+
 To stop ingestion from racing a migration or import, clear the Cron trigger and confirm it is empty:
 
 ```sh

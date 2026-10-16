@@ -24,6 +24,7 @@ import { join } from 'node:path';
 import { parse } from 'yaml';
 
 import { PROHIBITED_SOURCES, prohibitedSourceFor } from '../../packages/source-registry/src/prohibited-sources.js';
+import { isMain } from '../lib/cli-entry.js';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const REGISTRY = 'docs/sources/pipeline/candidates.yaml';
@@ -133,7 +134,7 @@ export function compilePolicy(registryText: string = readFileSync(join(ROOT, REG
   return `${JSON.stringify(policy, null, 2)}\n`;
 }
 
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop() as string)) {
+if (isMain(import.meta.url)) {
   const next = compilePolicy();
   const path = join(ROOT, OUT);
   if (process.argv.includes('--check')) {

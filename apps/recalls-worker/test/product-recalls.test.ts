@@ -134,6 +134,42 @@ describe('product-recall ingestion', () => {
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall').first()).toEqual({ n: MIN_FULL_HC_CONSUMER + 2 });
   });
 
+  it.each([false, true])('rejects a CPSC HTTP-200 error body without advancing freshness or blocking Health Canada (full=%s)', async (full) => {
+    const env = makeEnv();
+    await ingestRecords(env, 'CPSC', [CPSC], 'full', NOW);
+    await env.DB.prepare("UPDATE sync_run SET finished_at = ? WHERE category = 'product:CPSC'").bind(NOW).run();
+    const before = await env.DB.prepare("SELECT * FROM product_recall WHERE id = 'cpsc-25203'").first();
+    // Observed from the official API on 2026-10-16: HTTP 200 with a recall-shaped error, not an empty window.
+    const body = '[{"RecallID":0,"RecallNumber":null,"RecallDate":null,"Description":null,"URL":null,"Title":"Error retrieving Recalls: The underlying provider failed on Open.","ConsumerContact":null,"LastPublishDate":null,"Products":[],"Inconjunctions":[],"Images":[],"Injuries":[],"Manufacturers":[],"Retailers":[],"Importers":[],"Distributors":[],"SoldAtLabel":null,"ManufacturerCountries":[],"ProductUPCs":[],"Hazards":[],"Remedies":[],"RemedyOptions":[]}]';
+    const many = Array.from({ length: MIN_FULL_HC_CONSUMER }, (_, index) => ({ ...HC_ONLY, NID: String(100000 + index), URL: `https://recalls-rappels.canada.ca/en/alert-recall/n-${index}` }));
+    const fetcher = vi.fn(async (url: string) => new Response(String(url).includes('canada.ca') ? JSON.stringify(many) : body, { status: 200 }));
+    const [cpsc, hc] = await scheduledProductSync(env, { full, today: '2026-10-16', fetcher: fetcher as unknown as typeof fetch });
+    expect(cpsc?.error).toMatch(/holds no recall notice/);
+    expect(hc).toMatchObject({ source: 'product:HC', inserted: MIN_FULL_HC_CONSUMER });
+    expect(hc?.error).toBeUndefined();
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(await env.DB.prepare("SELECT * FROM product_recall WHERE id = 'cpsc-25203'").first()).toEqual(before);
+    const evidenceKey = `product-recalls/source/cpsc/sha256-${await sha256Hex(body)}.json`;
+    expect(env.bucket.objects.get(evidenceKey)).toBe(body);
+    const runs = await env.DB.prepare("SELECT category, status, artifact_keys FROM sync_run WHERE category LIKE 'product%CPSC' ORDER BY id DESC LIMIT ?")
+      .bind(full ? 2 : 1).all<{ category: string; status: string; artifact_keys: string }>();
+    expect(runs.results).toHaveLength(full ? 2 : 1);
+    for (const run of runs.results) {
+      expect(run.status).toBe('FAILED');
+      expect(JSON.parse(run.artifact_keys)).toContain(evidenceKey);
+    }
+    const stats = (await (await worker.fetch(api('/v1/product-recalls/stats'), env)).json()) as { last_successful_sync: Record<string, string | null> };
+    expect(stats.last_successful_sync['CPSC']).toBe(NOW);
+    expect(stats.last_successful_sync['HC']).toBeTruthy();
+  });
+
+  it('accepts a genuinely empty CPSC recent window', async () => {
+    const env = makeEnv();
+    const result = await ingestRecords(env, 'CPSC', [], '2026-09-16', NOW);
+    expect(result).toEqual({ source: 'product:CPSC', fetched: 0, inserted: 0, changed: 0 });
+    expect(await env.DB.prepare("SELECT status FROM sync_run WHERE category = 'product:CPSC'").first()).toEqual({ status: 'SUCCEEDED' });
+  });
+
   it('archives each whole response before parsing it, out-of-scope records included', async () => {
     const env = makeEnv();
     const many = Array.from({ length: MIN_FULL_HC_CONSUMER }, (_, index) => ({ ...HC_ONLY, NID: String(100000 + index), URL: `https://recalls-rappels.canada.ca/en/alert-recall/n-${index}` }));

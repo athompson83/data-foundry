@@ -49,8 +49,10 @@ Not served: `What you should do`, and every record of another organisation (medi
 | ACQUIRE, STORE, CACHE, NORMALIZE, DERIVE | — | ALLOW |
 | SERVE_API_ACCESS, SELL_API_ACCESS, REDISTRIBUTE_NORMALIZED | DIRECT_CUSTOMER_API | ALLOW, with attribution |
 | Public web | — | ALLOW. Health Canada notice pages are served `noindex`: the index fields alone are thin (rule 8) |
-| RapidAPI, MCP, bulk export | — | Rights-permitted with attribution but **not enabled** |
+| RapidAPI, MCP, bulk export | — | Rights-permitted with attribution; RapidAPI activated 2026-10-09 under ADR-0016; MCP and bulk export remain **not enabled** |
 
 ## Kill switch
+
+Operational state reconciled 2026-10-16: the existing RapidAPI channel was activated and accepted on October 9, and its ten-endpoint distribution was verified on October 15. See [lifecycle reconciliation](../evidence/consumer-lifecycle-reconciliation-20261016.md). Attribution, the consumer-product-only scope, contact/advice exclusions and non-endorsement conditions are unchanged; other channels and extracted identifiers retain independent gates.
 
 `PRODUCT_RECALLS_KILL_SWITCH = "1"`, shared with CPSC. See the CPSC record.
