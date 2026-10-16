@@ -1,6 +1,6 @@
 # ADR-0019 — One-time inventory screening reports
 
-Date: 2026-10-16. Status: implemented; production sales require release acceptance.
+Date: 2026-10-16. Status: accepted and deployed; production sales opened after staged release acceptance. See [release evidence](../evidence/screening-reports-20261016.md) for exact source, checks and payment-proof boundaries.
 
 The owner requested implementation of the supplied additional-revenue proposal. Start with a finished, bounded result over the existing consumer-product dataset: a free safety preview, a $29 standard batch report or a $49 report carrying the customer's business name. These are experimental offer prices, not demand or revenue evidence. Both include CSV, a printable HTML document (print to PDF), a dated evidence snapshot and a remedy review worksheet. They are one-time purchases, separate from existing API subscriptions and marketplace allowances.
 
