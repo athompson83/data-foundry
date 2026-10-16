@@ -8,7 +8,7 @@
  * the dataset current from openFDA.
  */
 
-import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, type AuthenticatedCustomer } from './account.js';
+import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, usageReset, type AuthenticatedCustomer } from './account.js';
 import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
 import { accountPage, ACCOUNT_JS } from './account-page.js';
 import type { Env } from './env.js';
@@ -105,15 +105,25 @@ async function meteredApi(env: Env, request: Request, url: URL, marketplace: Mar
   if (marketplace) return serveData(env, url, { 'cache-control': 'private, no-store' }, 'rapidapi', lookup);
   const auth = await authenticate(env, request);
   if (auth instanceof Response) return auth;
-  const count = await consumeRequest(env.DB, auth);
+  // Keep the ledger period and response reset in the same snapshot, even across midnight.
+  const now = new Date();
+  const count = await consumeRequest(env.DB, auth, now);
   const limit = PLANS[auth.plan].requests;
+  const reset = usageReset(now);
+  const quotaHeaders = {
+    'x-ratelimit-limit': String(limit),
+    'x-ratelimit-remaining': String(count === null ? 0 : Math.max(0, limit - count)),
+    'x-ratelimit-reset': String(reset),
+    'access-control-expose-headers': 'x-ratelimit-limit, x-ratelimit-remaining, x-ratelimit-reset, retry-after',
+    'cache-control': 'private, no-store',
+  };
   if (count === null) {
-    return apiError(429, 'allowance_exhausted', `Your ${PLANS[auth.plan].name} allowance of ${limit} requests this month is used. Upgrade via POST /v1/account/billing-portal.`, {
-      'x-ratelimit-limit': String(limit),
-      'x-ratelimit-remaining': '0',
+    return apiError(429, 'allowance_exhausted', `Your ${PLANS[auth.plan].name} allowance of ${limit} requests this month is used. It resets at ${new Date(reset * 1000).toISOString()}. Check usage with GET /v1/account; manage your plan via POST /v1/account/billing-portal.`, {
+      ...quotaHeaders,
+      'retry-after': String(Math.max(1, Math.ceil(reset - now.getTime() / 1000))),
     });
   }
-  return serveData(env, url, { 'x-ratelimit-limit': String(limit), 'x-ratelimit-remaining': String(Math.max(0, limit - count)), 'cache-control': 'private, no-store' }, 'direct', lookup);
+  return serveData(env, url, quotaHeaders, 'direct', lookup);
 }
 
 /** The data endpoints, after the request's channel has authorised (and, if direct, metered) it. */

@@ -128,9 +128,20 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   const fixture = (state: 'open' | 'closed') => call(options.publicOrigin, `/admin/acceptance-fixture?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}&state=${state}`, { method: 'POST', admin: true });
 
   const runChecks = async (k: string): Promise<void> => {
+    const quotaSignals: Array<{ path: string; reset: string | null; ok: boolean }> = [];
     const metered200 = async (path: string): Promise<{ status: number; body: Json | null; headers: Headers }> => {
       metered += 1;
-      return call(api, path, { key: k });
+      const sent = new Date();
+      const response = await call(api, path, { key: k });
+      if (response.status === 200) {
+        const received = new Date();
+        // Accept either period if the request crosses a UTC month boundary; derive it independently of the Worker helper.
+        const resets = [sent, received].map((date) => String(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1) / 1000));
+        const reset = response.headers.get('x-ratelimit-reset');
+        const exposed = response.headers.get('access-control-expose-headers')?.toLowerCase().split(',').map((header) => header.trim()) ?? [];
+        quotaSignals.push({ path, reset, ok: reset !== null && resets.includes(reset) && exposed.includes('x-ratelimit-reset') && exposed.includes('retry-after') && response.headers.get('retry-after') === null && response.headers.get('cache-control') === 'private, no-store' });
+      }
+      return response;
     };
 
     const before = await call(api, '/v1/account', { key: k });
@@ -229,6 +240,7 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     const after = await call(api, '/v1/account', { key: k });
     const usedAfter = Number(after.body?.['month_requests']);
     check('metering: each data request counted once, account reads not counted', after.status === 200 && usedAfter - usedBefore === metered, `delta=${usedAfter - usedBefore} metered=${metered} allowance=${String(after.body?.['month_allowance'])}`);
+    check('direct quota reset: successful data responses expose the UTC reset without requesting an early retry', quotaSignals.length >= 10 && quotaSignals.every((signal) => signal.ok), `responses=${quotaSignals.length} resets=${[...new Set(quotaSignals.map((signal) => signal.reset))].join(',')} failed_paths=${quotaSignals.filter((signal) => !signal.ok).map((signal) => signal.path).join(',')}`);
   };
 
   // Start from a clean fixture: close it (revoking anything a previous run left), then open it.

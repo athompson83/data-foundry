@@ -70,6 +70,22 @@ describe('production acceptance script', () => {
     expect((await runAcceptance(options(env))).ok).toBe(true);
   });
 
+  it('fails and revokes when a successful direct response omits the quota reset signal', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (!new URL(request.url).pathname.startsWith('/v1/recalls') || response.status !== 200) return response;
+      const headers = new Headers(response.headers);
+      headers.delete('x-ratelimit-reset');
+      return new Response(response.body, { status: response.status, headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name.startsWith('direct quota reset'))?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
   it('revokes the key even when a check throws midway', async () => {
     const env = makeEnv();
     await seed(env);
@@ -105,7 +121,7 @@ describe('production acceptance script', () => {
       if (new URL(request.url).pathname !== '/v1/lookup' || response.status !== 200) return response;
       const body = await response.json() as { results: Array<Record<string, unknown>> };
       body.results[0]!['total_matches'] = 987654321;
-      return Response.json(body, { headers: { 'cache-control': 'private, no-store' } });
+      return Response.json(body, { headers: response.headers });
     };
     const evidence = await runAcceptance(options(env, { fetch: tampered }));
     expect(evidence.ok).toBe(false);
@@ -121,7 +137,7 @@ describe('production acceptance script', () => {
       if (new URL(request.url).pathname !== '/v1/lookup' || response.status !== 200) return response;
       const body = await response.json() as { results: Array<{ data: Array<{ recall: { provenance: { last_seen_at: string } } }> }> };
       for (const result of body.results) for (const match of result.data) match.recall.provenance.last_seen_at = '2026-10-16T06:17:01.000Z';
-      return Response.json(body, { headers: { 'cache-control': 'private, no-store' } });
+      return Response.json(body, { headers: response.headers });
     };
     const evidence = await runAcceptance(options(env, { fetch: refreshed }));
     expect(evidence.checks.filter((c) => !c.ok)).toEqual([]);

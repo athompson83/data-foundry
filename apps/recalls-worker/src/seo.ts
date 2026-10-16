@@ -445,7 +445,8 @@ Record counts and latest FDA report date per category, distinct identifier count
 const ERRORS_REFERENCE = `
 ## Errors and limits (every dataset)
 
-401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable. Rate-limit headers: x-ratelimit-limit, x-ratelimit-remaining.
+401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable.
+Successful direct data responses and exhausted 429 responses expose x-ratelimit-limit, x-ratelimit-remaining and x-ratelimit-reset (Unix seconds at the next UTC month boundary). Exhausted 429 also provides Retry-After in whole seconds; wait before retrying unless the plan changes. GET /v1/account is unmetered. These headers are readable through CORS. RapidAPI allowances/reset rules are independent; origin direct quota headers are not emitted on marketplace calls.
 `;
 
 /**

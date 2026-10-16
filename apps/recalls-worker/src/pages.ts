@@ -185,6 +185,15 @@ export function docsPage(ctx: PageContext, served: { readonly fda: boolean; read
 <p class="lede">Base URL <code>${api}</code>. JSON over HTTPS. OpenAPI: <a href="${api}/openapi.json">${api}/openapi.json</a>.${served.fda || served.products ? '' : ' No dataset is available right now.'}</p>
 <h2 id="authentication">Authentication</h2>
 <p>Send your key as <code>Authorization: Bearer rcl_live_…</code> (or <code>X-API-Key</code>). Every authenticated data request counts toward your monthly allowance; when it is spent, requests return <code>429</code> until the next UTC month or an upgrade. Account reads, dataset discovery and coverage stats are not counted.</p>
+<h3 id="allowance">Allowance and retries</h3>
+<p>Successful direct data responses and <code>429 allowance_exhausted</code> responses include the headers below. Browser clients can read them through CORS. Allowances reset at 00:00 UTC on the first day of each month; there are no overage charges.</p>
+<table><thead><tr><th scope="col">Header</th><th scope="col">Meaning</th></tr></thead><tbody>
+<tr><td><code>X-RateLimit-Limit</code></td><td>Your direct monthly request allowance.</td></tr>
+<tr><td><code>X-RateLimit-Remaining</code></td><td>Requests left in this UTC calendar month.</td></tr>
+<tr><td><code>X-RateLimit-Reset</code></td><td>Reset time as Unix seconds, not milliseconds.</td></tr>
+<tr><td><code>Retry-After</code></td><td>On an exhausted 429 response only: whole seconds to wait until reset.</td></tr>
+</tbody></table>
+<p>On 429, wait for <code>Retry-After</code> before retrying data requests unless your plan changes. <code>GET /v1/account</code> checks usage without spending allowance. RapidAPI has separate plans, keys, allowances and reset rules; these direct headers do not describe your marketplace subscription.</p>
 <h2 id="dataset-discovery">Dataset discovery</h2>
 <h3>GET /v1/datasets</h3><p>No key required. Lists the currently published datasets with their IDs, source terms, fields, limitations, endpoint paths and documentation links. Read each <code>stats_url</code> for live counts and freshness. A withdrawn dataset disappears from the catalog immediately on the next request.</p>
 ${served.fda || served.products ? `<h2 id="cross-dataset-lookup">Cross-dataset identifier lookup</h2>
