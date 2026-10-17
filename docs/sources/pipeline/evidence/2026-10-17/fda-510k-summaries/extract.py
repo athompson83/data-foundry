@@ -1,6 +1,6 @@
 """Deterministic extraction over a seeded sample of FDA 510(k) summary PDFs (EVIDENCED round, 2026-10-17).
 
-Samples 60 'Summary' 510(k) records decided 2012..2026 (5 per decision year, seeded), downloads each summary PDF from
+Samples 75 'Summary' 510(k) records decided 2012..2026 (5 per decision year 2012..2026, seeded), downloads each summary PDF from
 accessdata.fda.gov, runs pdftotext, and extracts with fixed regexes: the K-number itself (sanity), indications for use,
 predicate K-numbers, product code and 21 CFR regulation number. Ground truth for product code is the openFDA record;
 for regulation number, openFDA device/classification; predicate K-numbers are checked by resolving them in openFDA.

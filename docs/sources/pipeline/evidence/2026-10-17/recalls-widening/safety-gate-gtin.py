@@ -21,7 +21,8 @@ def get(u, cache):
 lst = get('https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en', 'sg-list.xml')
 reps = [(r, d, html.unescape(u)) for r, d, u in re.findall(r'<reference>(Report-\d+-\d+)</reference>\s*<publicationDate>([^<]+)</publicationDate>.*?<URL>([^<]+)</URL>', lst, re.S)]
 reps.sort(key=lambda x: tuple(int(n) for n in re.findall(r'\d+', x[0])), reverse=True)
-reps = reps[:52]
+N = int(os.environ.get('SG_REPORTS', '52'))  # 52 = the last year; SG_REPORTS=330 re-runs on about 6 years
+reps = reps[:N]
 alerts = []
 for r, d, u in reps:
     t = get(u, f'sg-{r}.xml')
@@ -76,8 +77,16 @@ out = {
 cp_title = {r['id']: r for r in ex['cpsc']}
 for m in out['matches']:
     m['cpsc_notices'] = [{'id': i, 'title': cp_title[i]['title'], 'url': cp_title[i]['url'], 'models': cp_title[i]['models'][:5]} for i in m['cpsc_matches']]
+# sanity: matching without the check-digit gate, and shared GS1 company prefixes (informational only, never a join)
+raw_cpsc = set()
+for r in cpsc:
+    for u in r.get('ProductUPCs') or []:
+        raw_cpsc |= {d.zfill(14) for d in re.findall(r'\d{8,14}', str(u.get('UPC') if isinstance(u, dict) else u))}
+raw_sg = {d.zfill(14) for a in alerts for d in re.findall(r'\d{8,14}', a['barcode'])}
+out['sanity'] = {'cpsc_raw_upc_digit_strings': len(raw_cpsc), 'sg_raw_digit_strings': len(raw_sg), 'raw_overlap_without_check_digit_gate': len(raw_cpsc & raw_sg),
+                 'shared_7digit_company_prefixes_informational': len({g[1:8] for g in cp} & {g[1:8] for g in raw_sg})}
 vp = os.path.join(HERE, 'handcheck.json')
 if os.path.exists(vp):
     out['hand_check'] = json.load(open(vp))
-json.dump(out, open(os.path.join(HERE, 'safety-gate-gtin.json'), 'w'), indent=1, ensure_ascii=False)
+json.dump(out, open(os.path.join(HERE, 'safety-gate-gtin.json' if N == 52 else f'safety-gate-gtin-{N}reports.json'), 'w'), indent=1, ensure_ascii=False)
 print(json.dumps({k: v for k, v in out.items() if k not in ('matches', 'reports')}, indent=1))

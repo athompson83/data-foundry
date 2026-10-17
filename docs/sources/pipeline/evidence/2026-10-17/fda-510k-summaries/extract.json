@@ -1,0 +1,2023 @@
+{
+ "retrieved_at": "2026-10-17T14:01:17Z",
+ "summary": {
+  "sampled": 75,
+  "pdf_fetched": 75,
+  "pdf_not_found_or_failed": 0,
+  "scanned_image_only_no_text_layer": 0,
+  "text_extractable": 75,
+  "k_number_in_text": {
+   "hits": 70,
+   "of": 75,
+   "rate": 0.933
+  },
+  "indications_extracted": {
+   "hits": 70,
+   "of": 75,
+   "rate": 0.933
+  },
+  "has_predicate_k_number": {
+   "hits": 33,
+   "of": 75,
+   "rate": 0.44
+  },
+  "predicate_k_numbers_total": 44,
+  "predicate_k_numbers_resolved_in_openfda": 44,
+  "regulation_number_in_text_equals_classification": {
+   "hits": 72,
+   "of": 74,
+   "rate": 0.973
+  },
+  "product_code_present_in_text": {
+   "hits": 75,
+   "of": 75,
+   "rate": 1.0
+  }
+ },
+ "records": [
+  {
+   "k_number": "K111971",
+   "decision_date": "2012-01-23",
+   "product_code_openfda": "HWC",
+   "pdf_status": 200,
+   "text_chars": 8668,
+   "k_number_in_text": false,
+   "indications": "510(k) Number This application KII (if known): Device Name: Synde-LockTm Syndesmosis Repair Kit Indications for The Tarsus Synde-Lock Syndesmosis Repair Kit is intended to provide fixation during Use: the healing process following a syndesmotic trauma.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K043248"
+   ],
+   "regulation_numbers": [
+    "888.3040"
+   ],
+   "product_codes_in_text": [
+    "HTN",
+    "HWC"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3040",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K121107",
+   "decision_date": "2012-07-03",
+   "product_code_openfda": "MQP",
+   "pdf_status": 200,
+   "text_chars": 9790,
+   "k_number_in_text": false,
+   "indications": "stated in the enclosure) to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordance with the provisions of the Federal Food, Drug, and Cosmetic Act (Act) that do not require approval of a premarket approval application (PMA). You may, therefore, market the device, subject to the general controls provisions of the Act. The general controls provisions of the Act include requirements for annual registration, listing of devices, good manufacturing practice,",
+   "predicates": [],
+   "k_numbers_other": [
+    "K090841"
+   ],
+   "regulation_numbers": [
+    "888.3060"
+   ],
+   "product_codes_in_text": [
+    "MQP"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3060",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K123012",
+   "decision_date": "2012-10-24",
+   "product_code_openfda": "LPH",
+   "pdf_status": 200,
+   "text_chars": 11776,
+   "k_number_in_text": true,
+   "indications": "L2Cip i) 510(k) Number (if known): K(123012 Device Name: Smith &Nephew SMF Hip Stem Indications for Use: Hip components are indicated for individuals undergoing primary and revision surgery where other treatments or devices have failed in rehabilitating hips damaged as a result of trauma or noninflammatory degenerative joint disease (NIDJO) or any of its composite diagnoses of osteoarthritis, avascular necrosis, traumatic arthritis, slipped capital epiphysis, fused hip, fracture of the pelvis, and diastrophic variant. Hip components are also indicated for inflammatory degenerative joint diseas",
+   "predicates": [],
+   "k_numbers_other": [
+    "K103256"
+   ],
+   "regulation_numbers": [
+    "888.3358"
+   ],
+   "product_codes_in_text": [
+    "LPH"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3358",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K122722",
+   "decision_date": "2012-11-29",
+   "product_code_openfda": "DFC",
+   "pdf_status": 200,
+   "text_chars": 31533,
+   "k_number_in_text": false,
+   "indications": "5 16(k) Number (if known): k122722 Device Name: cobas c Tina-quant Lipoprotein (a) Gen.2 Test System Preciset Lp(a) Gen.2 calibrator set Preciontrol Lp(a) Gen.2 control set Indications for Use: The cobas c Tina-quant Lipoprotein (a) Gen.2 assay is an in vitro test intended for the quantitative determination of lipoprotein(a) [Lp(a)] in human serum and plasma on the Roche/Hitachi cobas c systems. The measurement of Lp(a) is useful in evaluation of lipid metabolism disorders and assessing atherosclerotic cardiovascular disease in specific populations, when used in conjunction with clinical evalu",
+   "predicates": [],
+   "k_numbers_other": [],
+   "regulation_numbers": [
+    "866.5600"
+   ],
+   "product_codes_in_text": [
+    "DFC"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "866.5600",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K112585",
+   "decision_date": "2012-05-24",
+   "product_code_openfda": "DZE",
+   "pdf_status": 200,
+   "text_chars": 10250,
+   "k_number_in_text": false,
+   "indications": "stated in the enclosure) to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordance with the provisions of the Federal Food, Drug, and Cosmetic Act (Act) that do not require approval of a premarket approval application (PMA). You may, therefore, market the device, subject to the general controls provisions of the Act. The general controls provisions of the Act include requirements for annual registration, listing of devices, good manufacturing practice,",
+   "predicates": [],
+   "k_numbers_other": [
+    "K081751"
+   ],
+   "regulation_numbers": [
+    "872.3630",
+    "872.3640"
+   ],
+   "product_codes_in_text": [
+    "DZE"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "872.3640",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K131085",
+   "decision_date": "2013-08-22",
+   "product_code_openfda": "PFA",
+   "pdf_status": 200,
+   "text_chars": 14653,
+   "k_number_in_text": true,
+   "indications": "The Venus 1000 System is intended to be used by healthcare professionals for assessment of central venous blood pressure (CVP) of adult individuals. Technology Characteristics: The Venus 1000 System and the predicate device - Edwards Lifesciences Swan-Ganz Monitoring Catheter with Oligon Material have the same intended use with respect to measuring right heart pressures. However, they have different technology characteristics. The Venus 1000 System is based on non-invasive near infrared spectroscopy (NIRS) technology. The Edwards Lifesciences Swan-Ganz Monitoring Catheter is based on invasive ",
+   "predicates": [
+    "K014054"
+   ],
+   "k_numbers_other": [
+    "K014054"
+   ],
+   "regulation_numbers": [],
+   "product_codes_in_text": [
+    "DQA",
+    "DQO",
+    "DXN",
+    "PFA"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K014054": true
+   },
+   "regulation_truth": "870.1140",
+   "regulation_match": false
+  },
+  {
+   "k_number": "K132047",
+   "decision_date": "2013-11-05",
+   "product_code_openfda": "MGZ",
+   "pdf_status": 200,
+   "text_chars": 8494,
+   "k_number_in_text": true,
+   "indications": "510(k) Number (if known) \u00a7OC/ 0I4 SC) Device Name LeMills Valvulotomne Indications The LeMills Valvulotomne is intended to cut venous valves. for Use PLEASE DO NOT WRITE BELOW THIS LINE - CONTINUE ON ANOTHER PAGE IF NEEDED Concurrence of CDRH, Office of Device Evaluation (ODE)",
+   "predicates": [],
+   "k_numbers_other": [],
+   "regulation_numbers": [
+    "870.4885"
+   ],
+   "product_codes_in_text": [
+    "MGZ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "870.4885",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K121247",
+   "decision_date": "2013-03-22",
+   "product_code_openfda": "DIC",
+   "pdf_status": 200,
+   "text_chars": 9056,
+   "k_number_in_text": false,
+   "indications": "510(k) Number (if known): k 121247 Device Name: Alco-Screen\u00ae Saliva Alcohol Test Indications for Use: ALCO-SCREEN\u00ae is a semi-quantitative screening test used to estimate the Blood Alcohol Concentration (BAC) using human saliva. The test strip estimates BAC at the 0.00%, 0.02%, 0.04%, 0.08% and 0.3% levels. Results are used in the diagnosis of alcohol use or intoxication. For in vitro diagnostic use.",
+   "predicates": [
+    "K093879"
+   ],
+   "k_numbers_other": [
+    "K093879"
+   ],
+   "regulation_numbers": [
+    "862.3040"
+   ],
+   "product_codes_in_text": [
+    "DIC"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K093879": true
+   },
+   "regulation_truth": "862.3040",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K122550",
+   "decision_date": "2013-02-01",
+   "product_code_openfda": "GWN",
+   "pdf_status": 200,
+   "text_chars": 12286,
+   "k_number_in_text": true,
+   "indications": "(intended use): The ICS Impulse System is used in the assessment of the vestibular-ocular reflex (VOR) by measuring, recording, displaying, and analyzing eye and head movements. (Prescription use). 5. Safety and Effectiveness, comparison to predicate device. This device has the same indications for use as the predicate device but employs different technology to accomplish the same tasks. 6. Description of Testing: The device passed UL Electrical Safety testing and EMC testing. Software validation and risk analysis was performed. Clinical testing compared test results to Scleral Search Coils te",
+   "predicates": [],
+   "k_numbers_other": [
+    "K964325"
+   ],
+   "regulation_numbers": [
+    "882.1460"
+   ],
+   "product_codes_in_text": [
+    "GWN"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "882.1460",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K131097",
+   "decision_date": "2013-08-22",
+   "product_code_openfda": "DZE",
+   "pdf_status": 200,
+   "text_chars": 24027,
+   "k_number_in_text": true,
+   "indications": "and methods of manufacture were previously cleared and have the same principles of operation as the cited predicate devices. The following Tables summarize the predicate device comparison analyses with the devices within the Legacy3 6mmL Implants. The subject device and the",
+   "predicates": [
+    "K073033",
+    "K090234"
+   ],
+   "k_numbers_other": [
+    "K030007",
+    "K060063",
+    "K073033",
+    "K073368",
+    "K081396",
+    "K090234",
+    "K092035"
+   ],
+   "regulation_numbers": [
+    "872.3640"
+   ],
+   "product_codes_in_text": [
+    "DZE"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K073033": true,
+    "K090234": true
+   },
+   "regulation_truth": "872.3640",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K142999",
+   "decision_date": "2014-11-19",
+   "product_code_openfda": "GEI",
+   "pdf_status": 200,
+   "text_chars": 15221,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement on last page. 510(k) Number (if known) K142999 Device Name ArthroCare ENT Plasma Wands Indications for Use (Describe) The ArthroCare ENT Plasma Wands are indicated for ablation, resection, and coagulation of soft tissue and hemostasis of blood vessels in otorhinolaryngology (ENT) surgery including: \u2022 Adenoidectomy \u2022 Cysts \u2022 Head, Neck, Oral, and Sinus Surgery \u2022 Mastoidectomy \u2022 Myringotomy with Effective Hemorrhage Control \u2022 Nasal Airway Obstruction by Reduction of Hypertrophic Nasal Turbinates \u2022 Nasopharyngeal/Laryngeal Indications including Tracheal Procedures, Laryngeal Pol",
+   "predicates": [
+    "K070374"
+   ],
+   "k_numbers_other": [
+    "K033257",
+    "K070374"
+   ],
+   "regulation_numbers": [
+    "878.4400"
+   ],
+   "product_codes_in_text": [
+    "GEI"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K070374": true
+   },
+   "regulation_truth": "878.4400",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K141713",
+   "decision_date": "2014-10-28",
+   "product_code_openfda": "MUU",
+   "pdf_status": 200,
+   "text_chars": 16461,
+   "k_number_in_text": true,
+   "indications": "The SmartGraft\u2122 200 System is intended to be used in medical procedures involving the harvesting, centrifugation and transferring of autologous adipose tissue. The _______________________________________________________________________ SmartGraft\u2122 200 System InGeneron, Inc. 0017 K141713 pg. 2 of 3 SmartGraft\u2122 200 System is used for concentrating adipose tissue for aesthetic body contouring, and for tissue that has been harvested with a legally marketed lipoplasty system. The SmartGraft\u2122 200 System is intended for use in the following surgical specialties when the concentration of harvested adi",
+   "predicates": [],
+   "k_numbers_other": [
+    "K100114",
+    "K121005"
+   ],
+   "regulation_numbers": [
+    "878.5040"
+   ],
+   "product_codes_in_text": [
+    "MUU"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "878.5040",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K133364",
+   "decision_date": "2014-07-22",
+   "product_code_openfda": "GEX",
+   "pdf_status": 200,
+   "text_chars": 4866,
+   "k_number_in_text": true,
+   "indications": null,
+   "predicates": [],
+   "k_numbers_other": [],
+   "regulation_numbers": [
+    "878.4810"
+   ],
+   "product_codes_in_text": [
+    "GEX"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "878.4810",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K133478",
+   "decision_date": "2014-06-02",
+   "product_code_openfda": "LZA",
+   "pdf_status": 200,
+   "text_chars": 19003,
+   "k_number_in_text": true,
+   "indications": "is equivalent to the predicate device. The substantial equivalence of the device is supported by the non- clinical testing. 9. Labeling: There are no special labeling claims and we do not claim our gloves as hypoallergenic on our labels. 10. Conclusions: Shijiazhuang Hongzan Plastic Technology Co., Ltd.'s Powder Free Polyethylene Examination Gloves conform fully to ASTM D-5250-06(201 1) standard as welt as applicable 21 CER references, and meets pinhole FDA requirements, biocompatibility requirements and labeling claims as shown by data discussed above. There are no safety/efficacy issues or n",
+   "predicates": [],
+   "k_numbers_other": [],
+   "regulation_numbers": [],
+   "product_codes_in_text": [
+    "LZA"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "880.6250",
+   "regulation_match": false
+  },
+  {
+   "k_number": "K132179",
+   "decision_date": "2014-04-28",
+   "product_code_openfda": "NGX",
+   "pdf_status": 200,
+   "text_chars": 33836,
+   "k_number_in_text": true,
+   "indications": "just like the predicate as it is intended for muscle conditioning to stimulate healthy muscles. The Ar-asys Genius is not intended to be used in conjunction with therapy or treatment of medical diseases or medical conditions of any kind. None of the Arasys Genius programs is designed for injured or ailing muscles and its use on such muscles is contra indicated. The Arasys Genius is only offered under prescription given by a physician licensed in the state in which he or she practices. NOTE 1: All channel-s outputs are isolated from each other. They have their own transformers and amplifiers wh",
+   "predicates": [
+    "K970426"
+   ],
+   "k_numbers_other": [
+    "K123158",
+    "K970426"
+   ],
+   "regulation_numbers": [
+    "890.5850"
+   ],
+   "product_codes_in_text": [
+    "NGX",
+    "NOX"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K970426": true
+   },
+   "regulation_truth": "890.5850",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K151673",
+   "decision_date": "2015-11-27",
+   "product_code_openfda": "JAK",
+   "pdf_status": 200,
+   "text_chars": 17691,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K151673 Device Name Aquilion ONE Vision with FIRST 1.0 (CCRS-001A) Indications for Use (Describe) This device is indicated to acquire and display cross sectional volumes of the whole body, to include the head, with the capability to image whole organs in a single rotation. Whole organs include but are not limited to brain, heart, pancreas, etc. The Aquilion ONE has the capability to provide volume sets of the entire organ. These volume sets can be used to perform specialized studies, using indicated software/hardware, of the whole organ by a tr",
+   "predicates": [],
+   "k_numbers_other": [
+    "K142465"
+   ],
+   "regulation_numbers": [
+    "892.1750"
+   ],
+   "product_codes_in_text": [
+    "JAK"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.1750",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K150524",
+   "decision_date": "2015-12-16",
+   "product_code_openfda": "NLQ",
+   "pdf_status": 200,
+   "text_chars": 13074,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K150524 Device Name Medline ReNewal Reprocessed Harmonic FOCUS+ Shears without Adaptive Tissue Technology Indications for Use (Describe) Medline ReNewal Reprocessed Harmonic FOCUS+ Shears without Adaptive Tissue Technology is indicated for soft- tissue incisions when bleeding control and minimal thermal injury are desired. The instrument can be used as an adjunct to, or substitute for, electrosurgery, lasers, and steel scalpels in general, otorhinolaryngolic (ear, nose and throat [ENT]), plastic, pediatric, gynecologic, urologic, exposure to or",
+   "predicates": [
+    "K133314"
+   ],
+   "k_numbers_other": [
+    "K100597",
+    "K124033",
+    "K133314"
+   ],
+   "regulation_numbers": [],
+   "product_codes_in_text": [
+    "NLQ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K133314": true
+   },
+   "regulation_truth": "",
+   "regulation_match": false
+  },
+  {
+   "k_number": "K152767",
+   "decision_date": "2015-12-14",
+   "product_code_openfda": "KPR",
+   "pdf_status": 200,
+   "text_chars": 30146,
+   "k_number_in_text": true,
+   "indications": ". The Multix Fusion was described in premarket notification K121513 which received FDA Clearance on August 10, 2012 (See Table 2 below).",
+   "predicates": [],
+   "k_numbers_other": [
+    "K121513"
+   ],
+   "regulation_numbers": [
+    "892.1680"
+   ],
+   "product_codes_in_text": [
+    "KPR"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.1680",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K152996",
+   "decision_date": "2015-12-17",
+   "product_code_openfda": "KYF",
+   "pdf_status": 200,
+   "text_chars": 12889,
+   "k_number_in_text": true,
+   "indications": "stated in the enclosure) to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordance with the provisions of the Federal Food, Drug, and Cosmetic Act (Act) that do not require approval of a premarket approval application (PMA). You may, therefore, market the device, subject to the general controls provisions of the Act. The general controls provisions of the Act include requirements for annual registration, listing of devices, good manufacturing practice,",
+   "predicates": [],
+   "k_numbers_other": [
+    "K062252"
+   ],
+   "regulation_numbers": [
+    "886.3920"
+   ],
+   "product_codes_in_text": [
+    "KYF"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "886.3920",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K151863",
+   "decision_date": "2015-08-07",
+   "product_code_openfda": "PEK",
+   "pdf_status": 200,
+   "text_chars": 12245,
+   "k_number_in_text": true,
+   "indications": "510(k) Number (if known) K151863 Device Name Reli SP Spinous Plating System Indications for Use (Describe) The Reli SP Spinous Plating System of Precision Spine, Inc. is a posterior, non-pedicle supplemental fixation device, intended for use in the non-cervical spine (T1-S1) of skeletally mature patients. It is intended for single level plate fixation/attachment to spinous process for the purpose of achieving supplemental fusion in the following conditions: degenerative disc disease (defined as back pain of discogenic origin with degeneration of the disc confirmed by history and radiographic s",
+   "predicates": [],
+   "k_numbers_other": [
+    "K130438",
+    "K142378"
+   ],
+   "regulation_numbers": [
+    "888.3050"
+   ],
+   "product_codes_in_text": [
+    "PEK"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3050",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K161239",
+   "decision_date": "2016-09-01",
+   "product_code_openfda": "KIF",
+   "pdf_status": 200,
+   "text_chars": 14462,
+   "k_number_in_text": true,
+   "indications": ", materials, technological characteristics, and device design. MTA2.2 MATERIAL has been slightly modified from MTA2.1 MATERIAL to allow for more radiopacity and slightly different handling characteristics. The predicate has not been subject to a recall. 510(k) # Device Manufacturer K140955 MTA2.1 Avalon Biomed Inc IV. DEVICE DESCRIPTION: The MTA2.2 MATERIAL is designed and developed for dental clinicians to use in contact with vital pulp tissue and periradicular tissue, including sealing and obturation of root canals. This material can be used for dental procedures contacting pulpal or perirad",
+   "predicates": [
+    "K140955"
+   ],
+   "k_numbers_other": [
+    "K140955"
+   ],
+   "regulation_numbers": [
+    "872.3820"
+   ],
+   "product_codes_in_text": [
+    "KIF"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K140955": true
+   },
+   "regulation_truth": "872.3820",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K153533",
+   "decision_date": "2016-07-05",
+   "product_code_openfda": "DYB",
+   "pdf_status": 200,
+   "text_chars": 17694,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K153533 Device Name Tearaway Introducer Sheath MicroSlide Tearaway Introducer Indications for Use (Describe) Tearaway introducer sheath: These introducers are used for the percutaneous introduction of diagnostic or therapeutic devices, such as catheters and pacing leads, into the vasculature. MicroSlide\u2122 Tearaway introducer: These introducers are used for the procedures to introduce catheters and other intravascular devices into the coronary and peripheral vasculature of adult and pediatric patients of all ages",
+   "predicates": [
+    "K000313"
+   ],
+   "k_numbers_other": [
+    "K000313",
+    "K123430"
+   ],
+   "regulation_numbers": [
+    "870.1340"
+   ],
+   "product_codes_in_text": [
+    "DYB"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K000313": true
+   },
+   "regulation_truth": "870.1340",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K160784",
+   "decision_date": "2016-09-14",
+   "product_code_openfda": "NHA",
+   "pdf_status": 200,
+   "text_chars": 29286,
+   "k_number_in_text": true,
+   "indications": "CAM Titanium Blanks are intended for the fabrication of abutments and healing caps on CAMLOG\u00ae SCREW- LINE and CAMLOG\u00ae ROOT-LINE implants in the maxilla and mandible for the purpose of supporting single or multiple tooth prostheses of a partially or fully edentulous patient. Digitally designed abutments fabricated with CAD/CAM techniques for use with CAMLOG\u00ae CAM Titanium Blanks are intended to be sent to a CAMLOG validated milling center for manufacture. CAM Titanium Blanks are intended for the fabrication of abutments and healing caps on CONELOG\u00ae SCREW- LINE implants in the maxilla and mandibl",
+   "predicates": [
+    "K150203"
+   ],
+   "k_numbers_other": [
+    "K083496",
+    "K092341",
+    "K113779",
+    "K133991",
+    "K150203"
+   ],
+   "regulation_numbers": [
+    "872.3630"
+   ],
+   "product_codes_in_text": [
+    "NHA"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K150203": true
+   },
+   "regulation_truth": "872.3630",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K160570",
+   "decision_date": "2016-05-25",
+   "product_code_openfda": "JHS",
+   "pdf_status": 200,
+   "text_chars": 31421,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) k160570 Device Name Creatine Kinase Indications for Use (Describe) Creatine Kinase is an in vitro test for the quantitative determination of creatine kinase (CK) in human serum and plasma on Roche/Hitachi cobas c systems. The determination of CK and CK isoenzyme activities is utilized in the diagnosis and monitoring of myocardial infarction and myopathies such as the progressive Duchenne muscular dystrophy.",
+   "predicates": [
+    "K951595"
+   ],
+   "k_numbers_other": [
+    "K951595"
+   ],
+   "regulation_numbers": [
+    "862.1215"
+   ],
+   "product_codes_in_text": [
+    "JHS"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K951595": true
+   },
+   "regulation_truth": "862.1215",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K153377",
+   "decision_date": "2016-04-11",
+   "product_code_openfda": "KTT",
+   "pdf_status": 200,
+   "text_chars": 14116,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K153377 Device Name Hoffmann LRF System Indications for Use (Describe) The Hoffmann LRF System is indicated in pediatric patients and adults for the treatment and fixation of: \u2022 Open and Closed Fractures \u2022 Post-traumatic joint contracture which has resulted in loss of range of motion \u2022 Fractures and disease which generally may result in joint contractures or loss of range of motion and fractures requiring distraction \u2022 Pseudoarthrosis or non-union of long bones \u2022 Limb lengthening by epiphyseal, diaphyseal, or metaphyseal distraction \u2022 Correctio",
+   "predicates": [
+    "K031181",
+    "K140961"
+   ],
+   "k_numbers_other": [
+    "K031181",
+    "K140961"
+   ],
+   "regulation_numbers": [
+    "888.3030"
+   ],
+   "product_codes_in_text": [
+    "KTT"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K031181": true,
+    "K140961": true
+   },
+   "regulation_truth": "888.3030",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K171109",
+   "decision_date": "2017-12-21",
+   "product_code_openfda": "NGT",
+   "pdf_status": 200,
+   "text_chars": 14377,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) Device Name Praxiject\u2122 0.9% NaCl Indications for Use (Describe) The Praxiject\u2122 0.9% NaCl prefilled syringe with 0.9% Sodium Chloride Injection, USP, is intended only for flushing vascular access devices. May be placed on a sterile field.",
+   "predicates": [
+    "K082837"
+   ],
+   "k_numbers_other": [
+    "K082837"
+   ],
+   "regulation_numbers": [
+    "880.5200"
+   ],
+   "product_codes_in_text": [
+    "NGT"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K082837": true
+   },
+   "regulation_truth": "880.5200",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K170503",
+   "decision_date": "2017-07-11",
+   "product_code_openfda": "MAX",
+   "pdf_status": 200,
+   "text_chars": 18622,
+   "k_number_in_text": true,
+   "indications": "stated in the enclosure) to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordance with the provisions of the Federal Food, Drug, and Cosmetic Act (Act) that do not require approval of a premarket approval application (PMA). You may, therefore, market the device, subject to the general controls provisions of the Act. The general controls provisions of the Act include requirements for annual registration, listing of devices, good manufacturing practice,",
+   "predicates": [
+    "K080588"
+   ],
+   "k_numbers_other": [
+    "K080588",
+    "K092193",
+    "K093669",
+    "K112095",
+    "K122588",
+    "K143258"
+   ],
+   "regulation_numbers": [
+    "888.3080"
+   ],
+   "product_codes_in_text": [
+    "MAX"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K080588": true
+   },
+   "regulation_truth": "888.3080",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K162342",
+   "decision_date": "2017-03-24",
+   "product_code_openfda": "HQC",
+   "pdf_status": 200,
+   "text_chars": 18764,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K162342 Device Name Stellaris Elite Vision Enhancement System Indications for Use (Describe) The Bausch + Lomb Stellaris Elite Vision Enhancement System is intended for the emulsification and removal of cataracts, anterior and posterior segment vitrectomy. The system is designed for use in both anterior and posterior segment surgeries. It provides capabilities for phacoemulsification, coaxial and bimanual irrigation/aspiration, bipolar coagulation, vitrectomy, viscous fluid injection/removal and air/fluid exchange operations. The Stellaris Elit",
+   "predicates": [],
+   "k_numbers_other": [
+    "K133242",
+    "K133486"
+   ],
+   "regulation_numbers": [
+    "886.4150",
+    "886.4390",
+    "886.4670"
+   ],
+   "product_codes_in_text": [
+    "HQC"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "886.4670",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K171431",
+   "decision_date": "2017-08-10",
+   "product_code_openfda": "PST",
+   "pdf_status": 200,
+   "text_chars": 12318,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K171431 Device Name HAART 200 Aortic Annuloplasty Device Indications for Use (Describe) The HAART 200 Aortic Annuloplasty Device is intended to be used to correct annular dilatation and/or maintain annular geometry of the aortic valve in patients with bicuspid valve morphology with moderate to severe aortic insufficiency who are undergoing aortic valve repair due to symptoms or as part of a repair for an aortic root aneurysm.",
+   "predicates": [
+    "K163608"
+   ],
+   "k_numbers_other": [
+    "K163608"
+   ],
+   "regulation_numbers": [
+    "870.3800"
+   ],
+   "product_codes_in_text": [
+    "PST"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K163608": true
+   },
+   "regulation_truth": "870.3800",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K172178",
+   "decision_date": "2017-11-16",
+   "product_code_openfda": "HRS",
+   "pdf_status": 200,
+   "text_chars": 10663,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K172178 Device Name Minimally Invasive Bunion Plating System Indications for Use (Describe) The Minimally Invasive Bunion Plating System is intended for fixation of osteotomies and corrective procedures of the hallux and associated disorders such as hallux valgus.",
+   "predicates": [
+    "K121452"
+   ],
+   "k_numbers_other": [
+    "K121437",
+    "K121452"
+   ],
+   "regulation_numbers": [
+    "888.3030"
+   ],
+   "product_codes_in_text": [
+    "HRS"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K121452": true
+   },
+   "regulation_truth": "888.3030",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K182062",
+   "decision_date": "2018-10-30",
+   "product_code_openfda": "JOY",
+   "pdf_status": 200,
+   "text_chars": 46953,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) Device Name Sysmex\u00ae UD-10 Fully Automated Urine Particle Digital Imaging Device Indications for Use (Describe) The Sysmex\u00ae UD-10 Fully Automated Urine Particle Digital Imaging Device for locating, digitally storing and displaying microscopic images captured from urine specimens. The Sysmex\u00ae UD-10 locates and presents particles and cellular elements based on size ranges. The images are displayed for review and classification by a qualified clinical laboratory technologist on the Urinalysis Data Manager (UDM). This device is intended for in vitro",
+   "predicates": [],
+   "k_numbers_other": [
+    "K070910",
+    "K982301"
+   ],
+   "regulation_numbers": [
+    "864.5260"
+   ],
+   "product_codes_in_text": [
+    "JOY"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "864.5260",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K180421",
+   "decision_date": "2018-03-14",
+   "product_code_openfda": "OMB",
+   "pdf_status": 200,
+   "text_chars": 20603,
+   "k_number_in_text": true,
+   "indications": null,
+   "predicates": [],
+   "k_numbers_other": [
+    "K090019"
+   ],
+   "regulation_numbers": [
+    "882.1400"
+   ],
+   "product_codes_in_text": [
+    "OMB"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "882.1400",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K180088",
+   "decision_date": "2018-04-04",
+   "product_code_openfda": "DQY",
+   "pdf_status": 200,
+   "text_chars": 9685,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) .\u0014\u001b\u0013\u0013\u001b\u001b Device Name TrapLiner catheter Indications for Use (Describe) The TrapLiner catheter is intended for use in conjunction with guide catheters to access discrete regions of the coronary and/or peripheral vasculature, to facilitate placement of interventional devices, and to facilitate the exchange of an interventional device while maintaining the position of a guidewire within the vasculature.",
+   "predicates": [
+    "K161901"
+   ],
+   "k_numbers_other": [
+    "K161901"
+   ],
+   "regulation_numbers": [
+    "870.1250"
+   ],
+   "product_codes_in_text": [
+    "DQY"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K161901": true
+   },
+   "regulation_truth": "870.1250",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K172592",
+   "decision_date": "2018-05-17",
+   "product_code_openfda": "PWH",
+   "pdf_status": 200,
+   "text_chars": 25255,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K172592 Device Name CADD\u00ae Yellow High Volume Administration Set with NRFit\u2122 connector Indications for Use (Describe) CADD\u00ae Yellow High Volume Administration Sets with NRFit\u2122 connectors are designed for use only with NRFit\u2122 components for delivery of regional anesthetics or narcotics, excluding subarachnoid/spinal block, and are designed for use with CADD\u00ae pumps (see CADD\u00ae pump Operator\u2019s Manual for compatibility). The intended population is pediatrics and adults.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K031361"
+   ],
+   "regulation_numbers": [
+    "880.5440"
+   ],
+   "product_codes_in_text": [
+    "FPA",
+    "PWH"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "880.5440",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K180381",
+   "decision_date": "2018-11-07",
+   "product_code_openfda": "LYZ",
+   "pdf_status": 200,
+   "text_chars": 17263,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K180381 Device Name Powder Free Vinyl Patient Examination Gloves Indications for Use (Describe) A patient examination glove is disposable non-sterile device intended for medical purpose that is worn on the examiner\u2019s hand or finger to prevent contamination between patient and examiner.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K142571"
+   ],
+   "regulation_numbers": [
+    "880.6250"
+   ],
+   "product_codes_in_text": [
+    "LYZ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "880.6250",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K192435",
+   "decision_date": "2019-09-26",
+   "product_code_openfda": "LLZ",
+   "pdf_status": 200,
+   "text_chars": 30265,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K192435 Device Name NuVasive\u00ae NuvaLine\u00ae Indications for Use (Describe) NuVasive NuvaLine is a medical device software application intended to assist healthcare professionals in capturing, viewing, measuring, and storage and distribution of spinal alignment assessment images at various time points in patient care. Online synchronization of the database allows healthcare professionals and service providers to conveniently perform and review spinal alignment assessments of images by featuring measurement tools on various platforms. Clinical judgme",
+   "predicates": [],
+   "k_numbers_other": [
+    "K141669",
+    "K152942",
+    "K162647",
+    "K171130"
+   ],
+   "regulation_numbers": [
+    "892.2050"
+   ],
+   "product_codes_in_text": [
+    "LLZ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.2050",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K181716",
+   "decision_date": "2019-03-25",
+   "product_code_openfda": "LHQ",
+   "pdf_status": 200,
+   "text_chars": 21220,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K181716 Device Name InTouchThermal Camera Indications for Use (Describe) The InTouch Thermal Camera is intended to view, measure and record heat patterns and variations. It is intended for use as adjunctive diagnostic imaging for thermally significant indications stemming from heat emitted from the human body. The significance of these thermal patterns and variations is determined by professional investigation. This device is intended for use by qualified technical personnel trained in its use. Clinical judgment and experience are required to r",
+   "predicates": [
+    "K171928"
+   ],
+   "k_numbers_other": [
+    "K063047",
+    "K171928"
+   ],
+   "regulation_numbers": [
+    "884.2980"
+   ],
+   "product_codes_in_text": [
+    "LHQ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K171928": true
+   },
+   "regulation_truth": "884.2980",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K192632",
+   "decision_date": "2019-11-07",
+   "product_code_openfda": "MQB",
+   "pdf_status": 200,
+   "text_chars": 23534,
+   "k_number_in_text": true,
+   "indications": "The Indication for Use statement is identical to the predicate device with the exception of the device name. The intended use of the modified device, as described in the labeling, has not changed as a result of the modification(s). The DIGITAL RADIOGRAPHY CXDI-702C Wireless and CXDI-402C Wireless provides digital image capture for conventional film/screen radiographic examinations. This device is intended to capture, for display, radiographic images of human anatomy, and to replace radiographic film/screen systems in all general purpose diagnostic procedures. This device is not intended for ma",
+   "predicates": [],
+   "k_numbers_other": [
+    "K131106",
+    "K170332",
+    "K171270"
+   ],
+   "regulation_numbers": [
+    "892.1680"
+   ],
+   "product_codes_in_text": [
+    "MQB"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.1680",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K182855",
+   "decision_date": "2019-01-02",
+   "product_code_openfda": "LLZ",
+   "pdf_status": 200,
+   "text_chars": 16297,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K182855 Device Name ProKnow DS Indications for Use (Describe) ProKnow DS is a patient data archive, information management, and analytics software system with a focus on the data and images specific to radiation oncology patients. Users may upload digital patient data created by other devices to ProKnow DS to securely archive, display, and analyze the data. Users can view and navigate patient images, drawn anatomy, calculated dose, and plan details derived from the source files. Users can create or edit anatomy structures to be used either pros",
+   "predicates": [],
+   "k_numbers_other": [
+    "K071964",
+    "K101707",
+    "K173636"
+   ],
+   "regulation_numbers": [
+    "892.2050"
+   ],
+   "product_codes_in_text": [
+    "LLZ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.2050",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K190995",
+   "decision_date": "2019-05-10",
+   "product_code_openfda": "IYN",
+   "pdf_status": 200,
+   "text_chars": 35356,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K190995 Device Name ExactVu\u2122 High Resolution Micro-Ultrasound System Indications for Use (Describe) The ExactVu micro-ultrasound system is intended for use by qualified medical professionals for diagnostic ultrasound imaging or fluid flow analysis of the human body. The indications for use (clinical applications) are: \u2022 Small Organ \u2022 Transrectal \u2022 Abdominal The system may be used with patients of all ages, but is not designed for pediatric or fetal use. The system is contraindicated for direct cardiac application and for ophthalmic use or any a",
+   "predicates": [],
+   "k_numbers_other": [
+    "K132335",
+    "K180636"
+   ],
+   "regulation_numbers": [
+    "892.1550"
+   ],
+   "product_codes_in_text": [
+    "IYN"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.1550",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K200594",
+   "decision_date": "2020-04-27",
+   "product_code_openfda": "CCK",
+   "pdf_status": 200,
+   "text_chars": 15202,
+   "k_number_in_text": true,
+   "indications": "(Describe) The Capnostream\u212235 monitor is a portable capnograph/pulse oximeter, intended to provide professionally trained health care providers with continuous non-invasive monitoring of carbon dioxide concentration of the expired and inspired breath, respiration rate, arterial oxygen saturation (SpO2) and pulse rate of adult, pediatric, and neonatal patients. The pulse oximeter is intended for use during both no motion and motion conditions and for patients who are well or poorly perfused. The Capnostream\u212235 monitor also provides the clinician with integrated pulmonary index (IPI), apnea per ",
+   "predicates": [],
+   "k_numbers_other": [
+    "K141518",
+    "K150272"
+   ],
+   "regulation_numbers": [
+    "868.1400",
+    "868.2375",
+    "870.2700"
+   ],
+   "product_codes_in_text": [
+    "CCK"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "868.1400",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K192756",
+   "decision_date": "2020-02-24",
+   "product_code_openfda": "KDI",
+   "pdf_status": 200,
+   "text_chars": 31415,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K192756 Device Name Aquadex FlexFlow\u00ae System 2.0 Indications for Use (Describe) The Aquadex FlexFlow\u00ae System is indicated for: Continuous ultrafiltration therapy for temporary (up to 8 hours) or extended (longer than 8 hours in patients who require hospitalization) use in adult and pediatric patients weighing 20 kilograms or more whose fluid overload is unresponsive to medical management, including diuretics. All treatments must be administered by a healthcare provider, within an outpatient or inpatient clinical setting, under physician prescri",
+   "predicates": [
+    "K071854",
+    "K171671"
+   ],
+   "k_numbers_other": [
+    "K041791",
+    "K071854",
+    "K171671"
+   ],
+   "regulation_numbers": [
+    "876.5860"
+   ],
+   "product_codes_in_text": [
+    "KDI"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K071854": true,
+    "K171671": true
+   },
+   "regulation_truth": "876.5860",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K202374",
+   "decision_date": "2020-10-19",
+   "product_code_openfda": "PGY",
+   "pdf_status": 200,
+   "text_chars": 37082,
+   "k_number_in_text": true,
+   "indications": null,
+   "predicates": [],
+   "k_numbers_other": [],
+   "regulation_numbers": [
+    "892.2050"
+   ],
+   "product_codes_in_text": [
+    "PGY"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.2050",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K181691",
+   "decision_date": "2020-05-26",
+   "product_code_openfda": "EFB",
+   "pdf_status": 200,
+   "text_chars": 28594,
+   "k_number_in_text": true,
+   "indications": null,
+   "predicates": [
+    "K141886",
+    "K170229",
+    "K170236"
+   ],
+   "k_numbers_other": [
+    "K052700",
+    "K141886",
+    "K163483",
+    "K170229",
+    "K170236"
+   ],
+   "regulation_numbers": [
+    "872.4200"
+   ],
+   "product_codes_in_text": [
+    "EFB"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K141886": true,
+    "K170229": true,
+    "K170236": true
+   },
+   "regulation_truth": "872.4200",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K200790",
+   "decision_date": "2020-10-28",
+   "product_code_openfda": "NKB",
+   "pdf_status": 200,
+   "text_chars": 13202,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K200790 Device Name LnK Spinal Fixation System OpenLoc-L Spinal Fixation System Indications for Use (Describe) Spinal Fixation System is non-cervical spinal fixation devices intended for use as posterior pedicle screw fixation systems (Tl-S2/ilium), or as an anterolateral fixation system (T8-L5). All components in the system are limited to skeletally mature patients. These devices are intended as an adjunct to fusion for all of the following indications: degenerative disc disease (defined as discogenic back pain with degeneration of the disc co",
+   "predicates": [
+    "K120270",
+    "K143363",
+    "K171813",
+    "K183168"
+   ],
+   "k_numbers_other": [
+    "K120270",
+    "K143363",
+    "K171813",
+    "K183168"
+   ],
+   "regulation_numbers": [
+    "888.3070"
+   ],
+   "product_codes_in_text": [
+    "NKB"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K120270": true,
+    "K143363": true,
+    "K171813": true,
+    "K183168": true
+   },
+   "regulation_truth": "888.3070",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K211947",
+   "decision_date": "2021-11-03",
+   "product_code_openfda": "EOQ",
+   "pdf_status": 200,
+   "text_chars": 23088,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K211947 Device Name GlideScope\u00ae BFlex\u2122 2.8 Single-Use Bronchoscope Indications for Use (Describe) GlideScope\u00ae BFlex\u2122 Single-Use Bronchoscopes are intended to work with a video monitor, in conjunction with non- powered endoscopic accessories and other ancillary equipment for endoscopy within the airways and tracheobronchial tree.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K183256",
+    "K191948",
+    "K193488"
+   ],
+   "regulation_numbers": [
+    "874.4680"
+   ],
+   "product_codes_in_text": [
+    "EOQ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "874.4680",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K211244",
+   "decision_date": "2021-11-10",
+   "product_code_openfda": "PBF",
+   "pdf_status": 200,
+   "text_chars": 15263,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K211244 Device Name VSP\u00ae Orthopedics System Indications for Use (Describe) The VSP\u00ae Orthopedics System is intended to be used as a surgical instrument to assist in preoperative planning and/or in guiding the marking of bone and/or in guiding surgical instruments in non\u1028acute, non-joint replacing osteotomies for adult patients in the distal femur, tibia, and non-sacrum pelvis.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K190044"
+   ],
+   "regulation_numbers": [
+    "888.3030"
+   ],
+   "product_codes_in_text": [
+    "PBF"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3030",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K212552",
+   "decision_date": "2021-10-12",
+   "product_code_openfda": "KTT",
+   "pdf_status": 200,
+   "text_chars": 10513,
+   "k_number_in_text": true,
+   "indications": "The Correx Software is intended to be used as a component of multilateral external fixation system for the Vilex External Fixation System with the indications listed below: \u2022 Stabilization of Fractures & Osteotomy \u2022 Rear and Mid-foot Arthrodesis \u2022 Adult and Pediatric Leg Lengthening \u2022 Correction of Bone Deformity in Upper & Lower Extremities VI. Comparison of Technological Characteristics The subject and predicate device share the same intended use and technological characteristics. A comparison of products technological characteristics is provided in the table below. Correx Software P&C Softw",
+   "predicates": [],
+   "k_numbers_other": [
+    "K151881",
+    "K202054"
+   ],
+   "regulation_numbers": [
+    "888.3030"
+   ],
+   "product_codes_in_text": [
+    "KTT"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3030",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K203440",
+   "decision_date": "2021-05-20",
+   "product_code_openfda": "NRY",
+   "pdf_status": 200,
+   "text_chars": 28279,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K203440 Device Name Penumbra System (Reperfusion Catheter RED 62) Indications for Use (Describe) Penumbra Reperfusion Catheters and Separators As part of the Penumbra System, the Reperfusion Catheters and Separators are indicated for use in the revascularization of patients with acute ischemic stroke secondary to intracranial large vessel occlusive disease (within the internal carotid, middle cerebral \u2013 M1 and M2 segments, basilar, and vertebral arteries) within 8 hours of symptom onset. Patients who are ineligible for intravenous tissue plasmi",
+   "predicates": [],
+   "k_numbers_other": [
+    "K161640",
+    "K162901"
+   ],
+   "regulation_numbers": [
+    "870.1250"
+   ],
+   "product_codes_in_text": [
+    "NRY"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "870.1250",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K203175",
+   "decision_date": "2021-07-22",
+   "product_code_openfda": "LZO",
+   "pdf_status": 200,
+   "text_chars": 13895,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K203175 Device Name POLARSTEM Cemented Femoral Stem Indications for Use (Describe) The POLARSTEM Cemented Femoral Stem is indicated for advanced degeneration of the hip joint as a result of degenerative, post-traumatic or rheumatoid arthritis; fr acture or avascular necrosis of the femoral head; failure of previous hip surgery, such as joint reconstruction, internal fixation, arthrodesis, hemiarthoplasty, surface replacement arthoplasty, or total hip replacement. The POLARSTEM Cemented Femoral Stem is intended for single use only and is to be i",
+   "predicates": [],
+   "k_numbers_other": [
+    "K130728"
+   ],
+   "regulation_numbers": [
+    "888.3353"
+   ],
+   "product_codes_in_text": [
+    "LZO"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3353",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K203595",
+   "decision_date": "2022-01-04",
+   "product_code_openfda": "HWC",
+   "pdf_status": 200,
+   "text_chars": 9597,
+   "k_number_in_text": true,
+   "indications": "The MedShape DynaFuse Fixation System is indicated for use in bone reconstruction, osteotomy, arthrodesis, joint fusion, fracture repair, and fracture fixation of bones appropriate for the size of the device. I. Comparison of Characteristics / Performance Testing / Substantial Equivalence: The MedShape DynaFuse Fixation system and its predicate devices have similar indications for use, design, materials, and technological principles of operation. The following non-clinical tests were performed to demonstrate substantial equivalence to the predicate devices: \u2022 Static Torsion Test per ASTM F543 ",
+   "predicates": [],
+   "k_numbers_other": [
+    "K133842",
+    "K153338",
+    "K153575",
+    "K182677"
+   ],
+   "regulation_numbers": [
+    "888.3030",
+    "888.3040"
+   ],
+   "product_codes_in_text": [
+    "HTN",
+    "HWC"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "888.3040",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K220306",
+   "decision_date": "2022-05-03",
+   "product_code_openfda": "DQK",
+   "pdf_status": 200,
+   "text_chars": 33708,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K220306 Device Name ECGenius\u2122 System Indications for Use (Describe) The ECGenius\u2122 System is an electrophysiology measurement system used to acquire, filter, digitize, amplify, display, and record clinical data obtained during electrophysiological studies and related procedures. The system is compatible with a 3rd-party stimulator, intended to be used for diagnostic cardiac stimulation during electrophysiological testing of the heart.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K183266"
+   ],
+   "regulation_numbers": [
+    "870.1425"
+   ],
+   "product_codes_in_text": [
+    "DQK"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "870.1425",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K221854",
+   "decision_date": "2022-08-06",
+   "product_code_openfda": "NLH",
+   "pdf_status": 200,
+   "text_chars": 10382,
+   "k_number_in_text": true,
+   "indications": "The reprocessed cable provides an electrical connection between the IntellaMap Orion Mapping Catheter and the Signal Station of the Rhythmia Mapping System. The reprocessed Umbilical Cable is intended to be used with an Orion Mapping Catheter during electrophysiology procedures, electroanatomical mapping, intracardiac stimulation (pacing) and/or recording of electrical potentials. Innovative Health Page 1 of 2 Reprocessed Umbilical Cable Traditional 510(k) K221854 The item number in scope of this submission is as follows: Length Item Number Device Description Number of Pins (Ft) M004RAUMBILICA",
+   "predicates": [],
+   "k_numbers_other": [
+    "K193263",
+    "K211662"
+   ],
+   "regulation_numbers": [
+    "870.1220"
+   ],
+   "product_codes_in_text": [
+    "NLH"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "870.1220",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K222849",
+   "decision_date": "2022-09-30",
+   "product_code_openfda": "NVE",
+   "pdf_status": 200,
+   "text_chars": 106455,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K222849 Device Name RAS 12 Rack / RAS 12 Long Rack, used in RAS Cycle of AMSCO 7052HP / 7053HP Single Chamber Washer-Disinfector Indications for Use (Describe) The RAS Racks are used in the RAS Cycle of the AMSCO 7052HP Single-Chamber Washer/Disinfector and the AMSCO 7053HP Single-Chamber Washer/Disinfector for the effective cleaning, rinsing, intermediate level disinfection and drying of reusable da Vinci\u00ae X/Xi and S/Si EndoWrist\u00ae instruments.",
+   "predicates": [
+    "K190917",
+    "K222543"
+   ],
+   "k_numbers_other": [
+    "K190917",
+    "K222543"
+   ],
+   "regulation_numbers": [
+    "876.1500",
+    "880.6860",
+    "880.6880"
+   ],
+   "product_codes_in_text": [
+    "FLE",
+    "MLR",
+    "NVE"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K190917": true,
+    "K222543": true
+   },
+   "regulation_truth": "876.1500",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K203768",
+   "decision_date": "2022-01-27",
+   "product_code_openfda": "QFG",
+   "pdf_status": 200,
+   "text_chars": 32202,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (ifknown) K203768 Device Name Omnipod 5 ACE Pump (Pod) Indications for Use (Describe) The Omnipod 5 ACE Pump (Pod) is intended for the subcutaneous delivery of insulin, at set and variable rates, for the management of diabetes mellitus in persons requiring insulin. The Omnipod 5 ACE Pump is able to reliably and securely communicate with compatible, digitally connected devices, including automated insulin dosing software, to receive, execute, and confirm commands from these devices. The Omnipod 5 ACE Pump is intended for single patient, home use and requir",
+   "predicates": [],
+   "k_numbers_other": [
+    "K191679"
+   ],
+   "regulation_numbers": [
+    "880.5730"
+   ],
+   "product_codes_in_text": [
+    "QFG"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "880.5730",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K230003",
+   "decision_date": "2023-03-31",
+   "product_code_openfda": "EIH",
+   "pdf_status": 200,
+   "text_chars": 20479,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (ifknown) K230003 Device Name Topzir Dental Zirconia Blank & Dental Zirconia Pre-Shaded Blank Indications for Use (Describe) Topzir Dental Zirconia Blank & Dental Zirconia Pre-Shaded Blank are used for dental restorations using different CAD/ CAM or manual milling machines. All blanks are processed through dental laboratories or by dental professionals.",
+   "predicates": [
+    "K141724"
+   ],
+   "k_numbers_other": [
+    "K141724"
+   ],
+   "regulation_numbers": [
+    "872.6660"
+   ],
+   "product_codes_in_text": [
+    "EIH"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K141724": true
+   },
+   "regulation_truth": "872.6660",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K231542",
+   "decision_date": "2023-09-07",
+   "product_code_openfda": "DXN",
+   "pdf_status": 200,
+   "text_chars": 32240,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K231542 Device Name Digital Blood Pressure Monitor WBP Series Indications for Use (Describe) The device is a digital monitor intended for use in measuring blood pressure and pulse rate in adult patient population with wrist circumference ranging from 13.5cm to 21.5cm in home and hospital facilities by using a non-invasive oscillometric technique. The device detects the appearance of irregular heartbeats during measurement and gives a warning signal with readings.",
+   "predicates": [
+    "K131742"
+   ],
+   "k_numbers_other": [
+    "K131742",
+    "K210671",
+    "K231288"
+   ],
+   "regulation_numbers": [
+    "870.1130"
+   ],
+   "product_codes_in_text": [
+    "DXN"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K131742": true
+   },
+   "regulation_truth": "870.1130",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K231474",
+   "decision_date": "2023-07-21",
+   "product_code_openfda": "OLI",
+   "pdf_status": 200,
+   "text_chars": 23513,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K231474 Device Name Violet ZERONA\u00ae Z6 OTC Indications for Use (Describe) The Violet ZERONA\u00ae Z6 OTC is indicated for use as a non-invasive dermatological aesthetic treatment for the reduction of body circumference.",
+   "predicates": [],
+   "k_numbers_other": [
+    "K143007",
+    "K162578"
+   ],
+   "regulation_numbers": [
+    "878.5400"
+   ],
+   "product_codes_in_text": [
+    "OLI"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "878.5400",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K230783",
+   "decision_date": "2023-04-21",
+   "product_code_openfda": "OLO",
+   "pdf_status": 200,
+   "text_chars": 16651,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K230783 Device Name Anatase Spine Surgery Navigation System Indications for Use (Describe) The Anatase Spine Surgery Navigation System is indicated for precise positioning of surgical instruments or spinal implants during general spinal surgery when reference to a rigid anatomical structure, such as the vertebra, can be identified relative to a patient\u2019s fluoroscopic or CT imagery. It is intended as a planning and intraoperative guidance system to enable open or percutaneous image guided surgery by means of registering intraoperative 2D fluoros",
+   "predicates": [
+    "K220348"
+   ],
+   "k_numbers_other": [
+    "K180523",
+    "K220348"
+   ],
+   "regulation_numbers": [
+    "882.4560"
+   ],
+   "product_codes_in_text": [
+    "OLO"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K220348": true
+   },
+   "regulation_truth": "882.4560",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K230769",
+   "decision_date": "2023-05-19",
+   "product_code_openfda": "DQD",
+   "pdf_status": 200,
+   "text_chars": 19670,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K230769 Device Name PrevisEA Device Indications for Use (Describe) PrevisEA is a compact, non-invasive device placed on the abdomen to capture the digestive sounds of patients. PrevisEA displays information which assists physicians in assessing the digestive health of patients. This device is for prescription use only and should be used under the direction of a licensed healthcare practitioner. The PrevisEA device has not been tested for and it is not intended for pediatric use.",
+   "predicates": [
+    "K211068"
+   ],
+   "k_numbers_other": [
+    "K211068"
+   ],
+   "regulation_numbers": [
+    "870.1875"
+   ],
+   "product_codes_in_text": [
+    "DQD"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K211068": true
+   },
+   "regulation_truth": "870.1875",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K233649",
+   "decision_date": "2024-03-08",
+   "product_code_openfda": "GWJ",
+   "pdf_status": 200,
+   "text_chars": 37483,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K233649 Device Name ALGO Pro Newborn Hearing Screener (ALGO Pro) Indications for Use (Describe) The ALGO Pro Newborn Hearing Screener is a mobile, noninvasive instrument used to screen infants for hearing loss. The screener uses Automated Auditory Brainstem Response (AABR\u00ae) technology for automated analysis of Auditory Brainstem Response (ABR) signals recorded from the patient. The screener is intended for babies between the ages of 34 weeks (gestation age) and 6 months. Babies should be well enough to be ready for discharge from the hospital, ",
+   "predicates": [
+    "K073665"
+   ],
+   "k_numbers_other": [
+    "K013137",
+    "K030823",
+    "K073665",
+    "K852687",
+    "K936039"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "882.1900"
+   ],
+   "product_codes_in_text": [
+    "GWJ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K073665": true
+   },
+   "regulation_truth": "882.1900",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K232161",
+   "decision_date": "2024-06-20",
+   "product_code_openfda": "DPS",
+   "pdf_status": 200,
+   "text_chars": 28681,
+   "k_number_in_text": true,
+   "indications": "(Describe) The DeepRhythm Platform is intended for use by qualified healthcare professionals for the assessment of arrhythmias using ECG data in adult patients. The product supports downloading and analyzing data recorded in compatible formats from I-channel and 2-channel ambulatory ECG recording devices used for the arrhythmia diagnostics such as Holter, event recorder or other similar devices when retrospective assessment of the rhythm is necessary. The DeepRhythm Platform is intended for the storage, analysis, visualization, review and reporting of arrhythmias. The DeepRhythm Platform utili",
+   "predicates": [],
+   "k_numbers_other": [
+    "K212112"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "870.1425",
+    "870.2340"
+   ],
+   "product_codes_in_text": [
+    "DPS"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "870.2340",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K240796",
+   "decision_date": "2024-08-06",
+   "product_code_openfda": "QTZ",
+   "pdf_status": 200,
+   "text_chars": 27548,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K240796 Device Name myAblation Guide (VB80A) Indications for Use (Describe) MyAblation Guide is a software application for image processing, 2D/3D visualization, and comparison of medical images imported from multiple imaging modalities. The software is controlled by the end user via a user interface on a workstation with DICOM connectivity or as an integrated version on a Siemens CT scanner workstation. The application is used to assist in the preparation and performance of ablative procedures, including contouring of ablation targets, virtual",
+   "predicates": [],
+   "k_numbers_other": [
+    "K202297"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "892.2050"
+   ],
+   "product_codes_in_text": [
+    "QTZ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.2050",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K233750",
+   "decision_date": "2024-04-02",
+   "product_code_openfda": "JAK",
+   "pdf_status": 200,
+   "text_chars": 18924,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K233750 Device Name ECG-less Cardiac Indications for Use (Describe) ECG-less Cardiac streamlines patient preparation by enabling an alternative acquisition of cardiac CT images for general cardiac assessment without the need of a patient-attached ECG monitor. ECG-less Cardiac is for adults only.",
+   "predicates": [
+    "K213715"
+   ],
+   "k_numbers_other": [
+    "K183161",
+    "K213715"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "892.1750"
+   ],
+   "product_codes_in_text": [
+    "JAK"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K213715": true
+   },
+   "regulation_truth": "892.1750",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K240760",
+   "decision_date": "2024-04-10",
+   "product_code_openfda": "JOJ",
+   "pdf_status": 200,
+   "text_chars": 20644,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K240760 Device Name CELERITY HP Indicator Tape Indications for Use (Describe) The Indicator Tape is intended to secure items wrapped in synthetic wrap materials until used and to distinguish between processed and unprocessed units through a color change from the start color (pink/magenta) to orange, yellow or lighter. The Indicator Tape is also intended to be used as an external process indicator when applied to synthetic wrap materials and/or Tyvek pouches. The tape may be used in the following sterilization cycles: \u2022 Lumen, Non Lumen, Fast No",
+   "predicates": [
+    "K231488"
+   ],
+   "k_numbers_other": [
+    "K231488"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "880.2800"
+   ],
+   "product_codes_in_text": [
+    "JOJ"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K231488": true
+   },
+   "regulation_truth": "880.2800",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K252948",
+   "decision_date": "2025-10-07",
+   "product_code_openfda": "IYE",
+   "pdf_status": 200,
+   "text_chars": 23727,
+   "k_number_in_text": true,
+   "indications": "do not change the Intended Use of the device, as the general purpose of the device and its function remain the same. There are no significant changes to the technological characteristics of the subject device. Therefore it is substantially equivalent to the predicate device, and there are no new questions of safety and effectiveness. The results of verification and validation as well as conformance to relevant safety standards demonstrate that TrueBeam, TrueBeam Product: TrueBeam\u2122 /TrueBeam STx\u2122/Edge\u2122/VitalBeam Page | 4 STx, Edge and VitalBeam meets the safety and performance criteria and is s",
+   "predicates": [
+    "K232870"
+   ],
+   "k_numbers_other": [
+    "K232870"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "830.300",
+    "892.5050"
+   ],
+   "product_codes_in_text": [
+    "IYE",
+    "and"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K232870": true
+   },
+   "regulation_truth": "892.5050",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K243236",
+   "decision_date": "2025-04-04",
+   "product_code_openfda": "QDA",
+   "pdf_status": 200,
+   "text_chars": 33017,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K243236 Device Name WHOOP ECG (electrocardiogram) Feature Indications for Use (Describe) The WHOOP ECG Feature is a software-only mobile medical application intended for use with the WHOOP Strap to create, record, store, transfer, and display a single-channel electrocardiogram (ECG) qualitatively similar to a Lead I ECG. The WHOOP ECG Feature determines the presence of atrial fibrillation (AFib), normal sinus rhythm, low heart rate (\u2264 50 beats per minute [bpm]), and high heart rate (\u2265 100 bpm) on a classifiable waveform. The WHOOP ECG Feature i",
+   "predicates": [
+    "K201525"
+   ],
+   "k_numbers_other": [
+    "K200884",
+    "K201525"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "830.300",
+    "870.2345"
+   ],
+   "product_codes_in_text": [
+    "QDA"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K201525": true
+   },
+   "regulation_truth": "870.2345",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K242806",
+   "decision_date": "2025-04-16",
+   "product_code_openfda": "OLO",
+   "pdf_status": 200,
+   "text_chars": 12192,
+   "k_number_in_text": true,
+   "indications": "The Medyssey Navigation System is indicated for use during the preparation and placement of Medyssey screws during spinal surgery to assist the surgeon in precisely locating anatomical structures in either open or minimally invasive procedures. The Medyssey Navigation System is reusable and is specifically designed for use with the Medtronic Navigation StealthStation System which is indicated for any medical condition in which the use of stereotactic surgery may be appropriate and where reference to a rigid anatomical structure such as a vertebra can be identified relative to a CT or MR based ",
+   "predicates": [],
+   "k_numbers_other": [
+    "K124004",
+    "K181978",
+    "K232218"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "830.300",
+    "882.4560"
+   ],
+   "product_codes_in_text": [
+    "OLO"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "882.4560",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K250010",
+   "decision_date": "2025-06-10",
+   "product_code_openfda": "OWB",
+   "pdf_status": 200,
+   "text_chars": 46337,
+   "k_number_in_text": true,
+   "indications": "[21 CFR 807.92(a)(5)] EXTRON Series are a mobile fluoroscopic X-ray system with high output capacity, high thermal capacity and high resolution image processing system, which provides X-ray images of the patient's anatomy during surgery or treatment. This device plays an important role in emergency injury treatment, orthopedic surgery, neurosurgery surgery, bone surgery, etc. This device has a function to save important a specific images as records, so you can easily search for the images and transmit it to the PACS system in the hospital to help the medical staff in diagnosis. Examples of a c",
+   "predicates": [],
+   "k_numbers_other": [
+    "K122234",
+    "K142708",
+    "K230871"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "830.300",
+    "892.1650"
+   ],
+   "product_codes_in_text": [
+    "OWB"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "892.1650",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K251767",
+   "decision_date": "2025-10-01",
+   "product_code_openfda": "LYK",
+   "pdf_status": 200,
+   "text_chars": 21634,
+   "k_number_in_text": true,
+   "indications": "Please type in the marketing application/submission number, if it is known. This 1<251767 ? textbox will be left blank for original applications/submissions. Please provide the device trade name(s). ? Vena MicroAngioscope TM System Please provide your Indications for Use below. ? The Vena MicroAngioscope TM System is indicated for the observation of the interior of blood vessels of the peripheral vasculature. Please select the types of uses (select one or both, as [g] Prescription Use (Part 21 CFR 801 Subpart D) applicable). D Over-The-Counter Use (21 CFR 801 Subpart C) ? Vena MicroAngioscope ",
+   "predicates": [],
+   "k_numbers_other": [
+    "K911278"
+   ],
+   "regulation_numbers": [
+    "820.100",
+    "820.181",
+    "830.300",
+    "876.1500"
+   ],
+   "product_codes_in_text": [
+    "LYK"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "876.1500",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K261890",
+   "decision_date": "2026-08-14",
+   "product_code_openfda": "KNT",
+   "pdf_status": 200,
+   "text_chars": 7520,
+   "k_number_in_text": true,
+   "indications": null,
+   "predicates": [],
+   "k_numbers_other": [],
+   "regulation_numbers": [
+    "830.300",
+    "876.5980"
+   ],
+   "product_codes_in_text": [
+    "KNT"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "876.5980",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K252386",
+   "decision_date": "2026-04-03",
+   "product_code_openfda": "IRP",
+   "pdf_status": 200,
+   "text_chars": 46349,
+   "k_number_in_text": true,
+   "indications": "(Describe) Hot and Cold Compression System (A02-C-032) Device Name K252386 510(k) Number (ifknown) Indications for Use See PRA Statement below. Food and Drug Administration Expiration Date: 07/31/2026 DEPARTMENT OF HEALTH AND HUMAN SERVICES Form Approved: OMB No. 0910-0120",
+   "predicates": [],
+   "k_numbers_other": [
+    "K171685",
+    "K193550"
+   ],
+   "regulation_numbers": [
+    "830.300",
+    "890.5650"
+   ],
+   "product_codes_in_text": [
+    "IRP"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {},
+   "regulation_truth": "890.5650",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K254128",
+   "decision_date": "2026-04-13",
+   "product_code_openfda": "PHX",
+   "pdf_status": 200,
+   "text_chars": 13983,
+   "k_number_in_text": true,
+   "indications": "to include treatment of fractures of the proximal humerus. This fracture indication applies only when the InSet Reverse Total Shoulder System is used in combination with the InSet 135 Humeral Stem. InSet 135 Humeral Stems are collarless and manufactured from Titanium Alloy (Ti-6Al-4V Extra Low Interstitial, (ELI) per ASTM F136) with a proximal porous coating of Commercially Pure Titanium (CPTi) per ASTM F67, with fins to provide rotational stability; identical to the InSet 95 Humeral Stem (primary predicate device).",
+   "predicates": [
+    "K212737",
+    "K252221"
+   ],
+   "k_numbers_other": [
+    "K212737",
+    "K252221"
+   ],
+   "regulation_numbers": [
+    "830.300",
+    "888.3660"
+   ],
+   "product_codes_in_text": [
+    "PHX"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K212737": true,
+    "K252221": true
+   },
+   "regulation_truth": "888.3660",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K262257",
+   "decision_date": "2026-09-30",
+   "product_code_openfda": "OLO",
+   "pdf_status": 200,
+   "text_chars": 41947,
+   "k_number_in_text": true,
+   "indications": "is well established on the market. 5. Conclusion The comparison of the Subject Device with the predicate device shows that the modified Spine Planning and Spine & Trauma Navigation have similar functionality, intended use and",
+   "predicates": [
+    "K221618",
+    "K223553"
+   ],
+   "k_numbers_other": [
+    "K221618",
+    "K223553"
+   ],
+   "regulation_numbers": [
+    "830.300",
+    "882.4560"
+   ],
+   "product_codes_in_text": [
+    "OLO"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K221618": true,
+    "K223553": true
+   },
+   "regulation_truth": "882.4560",
+   "regulation_match": true
+  },
+  {
+   "k_number": "K252168",
+   "decision_date": "2026-03-10",
+   "product_code_openfda": "DZE",
+   "pdf_status": 200,
+   "text_chars": 66257,
+   "k_number_in_text": true,
+   "indications": "See PRA Statement below. 510(k) Number (if known) K252168 Device Name Straumann\u00ae BLC Implants \u2013 Indication Widening Indications for Use (Describe) Straumann\u00ae dental implants for use in the pterygoid region are indicated in cases of severe jaw resorption for the functional and esthetic oral rehabilitation of the upper jaw in edentulous or partially edentulous patients. This indication is limited to Straumann\u00ae BLC bone-level implants with a length of 18 mm and a diameter of 3.75 mm (RB platform). Implants anchored in the pterygoid region shall be placed using a free-hand surgical technique and r",
+   "predicates": [
+    "K212785"
+   ],
+   "k_numbers_other": [
+    "K190662",
+    "K212785",
+    "K230108"
+   ],
+   "regulation_numbers": [
+    "820.181",
+    "830.300",
+    "872.3640"
+   ],
+   "product_codes_in_text": [
+    "DZE"
+   ],
+   "product_code_match": true,
+   "predicates_resolved": {
+    "K212785": true
+   },
+   "regulation_truth": "872.3640",
+   "regulation_match": true
+  }
+ ]
+}

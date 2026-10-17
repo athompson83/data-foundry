@@ -79,7 +79,7 @@ for d in sample:
         for a in (j or {}).get('results', []):
             ings = sorted({i['name'] for p in a['products'] for i in p['active_ingredients']})
             if any(ing_match(sub, i) and len(tok(i)) <= len(ts) + 1 for i in ings):
-                orig = [s['submission_status_date'] for s in a['submissions'] if s['submission_type'] == 'ORIG' and s['submission_status'] == 'AP']
+                orig = [s['submission_status_date'] for s in a.get('submissions', []) if s.get('submission_type') == 'ORIG' and s.get('submission_status') == 'AP' and s.get('submission_status_date')]
                 entry['fda'].append({'application_number': a['application_number'], 'sponsor': a['sponsor_name'], 'ingredients': ings,
                                      'marketing_status': sorted({p.get('marketing_status') for p in a['products']}),
                                      'orig_approval_date': min(orig) if orig else None,
@@ -101,7 +101,7 @@ for e in results:
 doc_probe = []
 j, _ = jget(FDA + '?search=submissions.application_docs.type:Review&limit=5')
 for a in (j or {}).get('results', [])[:3]:
-    for s in a['submissions']:
+    for s in a.get('submissions', []):
         for dd in s.get('application_docs', []):
             if dd.get('type') == 'Review':
                 _, c = get(dd['url']); doc_probe.append({'application_number': a['application_number'], 'url': dd['url'], 'http': c}); break
