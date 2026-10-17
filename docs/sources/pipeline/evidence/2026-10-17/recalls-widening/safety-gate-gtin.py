@@ -2,7 +2,7 @@
 (CPSC recall notices 2015-> and Health Canada open data).
 Run from the repo root: python3 -I docs/sources/pipeline/evidence/2026-10-17/recalls-widening/safety-gate-gtin.py
 Raw payloads are cached in RAW (default: /tmp/recalls-widening-raw), not committed. Open data only, declared UA, <=2 req/s/host.
-GTIN rule: the repo's own TypeScript (gtin-extract.ts via `npx tsx`): CPSC = structureCpscRecall (ProductUPCs[].UPC + Description),
+GTIN rule: the repo's own TypeScript (tooling/scripts/scout-gtin-extract.ts via `npx tsx`): CPSC = structureCpscRecall (ProductUPCs[].UPC + Description),
 Health Canada = structureHcRecall + parseCodes over Title/Product/Issue/advice, Safety Gate = digitCodes+gtinReadings+parseCodes on <barcode>.
 All GTINs are normalised to GTIN-14 (UPC-12 and EAN-13 left-padded with zeros), each gated by the GS1 check digit."""
 import re, json, os, subprocess, time, datetime, html
@@ -45,7 +45,7 @@ hc_fields = sorted({k for r in hc for k in r})
 inp = os.path.join(RAW, 'extract-in.json'); outp = os.path.join(RAW, 'extract-out.json')
 json.dump({'cpsc': cpsc, 'hc': hc, 'texts': [{'id': f'{i}', 'text': a['barcode']} for i, a in enumerate(alerts)]}, open(inp, 'w'))
 root = os.path.abspath(os.path.join(HERE, *['..'] * 6))
-subprocess.run(['npx', 'tsx', os.path.join(HERE, 'gtin-extract.ts'), inp, outp], check=True, cwd=root)
+subprocess.run(['npx', 'tsx', os.path.join(root, 'tooling', 'scripts', 'scout-gtin-extract.ts'), inp, outp], check=True, cwd=root)
 ex = json.load(open(outp))
 def index(rows, key):
     m = {}

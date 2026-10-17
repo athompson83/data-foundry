@@ -1,11 +1,12 @@
 // Applies the repo's own deterministic GTIN extraction to raw agency payloads.
-// Usage (from repo root): npx tsx <this file> <in.json> <out.json>
+// Scout evidence runner (moved from evidence/2026-10-17/recalls-widening so the typecheck gate covers it).
+// Usage (from repo root): npx tsx tooling/scripts/scout-gtin-extract.ts <in.json> <out.json>
 // CPSC: structureCpscRecall (ProductUPCs[].UPC via digitCodes+gtinReadings, plus parseCodes on Description).
 // Health Canada: structureHcRecall (identifiers.gtins is always [] by design) AND parseCodes over every text field, to measure whether any barcode is present.
 // Safety Gate / OPSS: the same rule, digitCodes+gtinReadings and parseCodes, over the barcode / free text.
 import { readFileSync, writeFileSync } from 'node:fs';
-import { digitCodes, gtinReadings, structureCpscRecall, structureHcRecall } from '/home/user/data-foundry/packages/product-recall-structuring/src/index.ts';
-import { parseCodes } from '/home/user/data-foundry/packages/recall-structuring/src/index.ts';
+import { digitCodes, gtinReadings, structureCpscRecall, structureHcRecall } from '../../packages/product-recall-structuring/src/index.js';
+import { parseCodes } from '../../packages/recall-structuring/src/index.js';
 
 const input = JSON.parse(readFileSync(process.argv[2] as string, 'utf8')) as { cpsc?: any[]; hc?: any[]; texts?: Array<{ id: string; text: string }> };
 const out: any = {};
