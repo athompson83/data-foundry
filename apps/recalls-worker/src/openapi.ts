@@ -2,6 +2,63 @@ import { HAZARD_CLASSES, REMEDY_CLASSES, TRADE_FACETS } from '@data-foundry/prod
 import { ALLERGENS, PATHOGENS, REASON_CLASSES } from '@data-foundry/recall-structuring';
 
 import type { PageContext } from './pages.js';
+import { LOOKUP_COVERAGE_NOTE } from './portfolio-api.js';
+
+const nullableTime = { type: ['string', 'null'], format: 'date-time' };
+const counts = { type: 'object', additionalProperties: { type: 'integer', minimum: 0 } };
+const sourceMap = (keys: readonly string[]) => ({
+  type: 'object', required: keys, additionalProperties: false,
+  properties: Object.fromEntries(keys.map((key) => [key, { $ref: '#/components/schemas/SourceSync' }])),
+});
+const SOURCE_SYNC_SCHEMA = {
+  type: 'object', required: ['last_successful_sync', 'latest_attempt'], additionalProperties: false,
+  description: 'Sync ledger state, cached for up to ten minutes. A successful window is not proof of complete history or current agency publication. No run means both fields are null.',
+  properties: {
+    last_successful_sync: nullableTime,
+    latest_attempt: { anyOf: [{ type: 'null' }, {
+      type: 'object', required: ['status', 'started_at', 'finished_at', 'window_from', 'window_to'], additionalProperties: false,
+      description: 'Most recently created source run (highest ledger id). A running attempt has no finish time. Product subwindows do not count as agency passes. Failure details and artifact keys are private.',
+      properties: {
+        status: { type: 'string', enum: ['RUNNING', 'SUCCEEDED', 'FAILED'] },
+        started_at: { type: 'string', format: 'date-time' }, finished_at: nullableTime,
+        window_from: { type: 'string', description: 'Source window label: a date, full, or another acquisition window label.' },
+        window_to: { type: 'string', description: 'End of the attempted acquisition window, not the newest record date.' },
+      },
+    }] },
+  },
+};
+const statsResponse = (products: boolean) => ({
+  description: 'Coverage and per-source sync attempts; cached for up to ten minutes. Direct stats are unmetered; marketplace stats follow RapidAPI allowances.',
+  content: { 'application/json': { schema: {
+    type: 'object', required: products
+      ? ['agencies', 'identifiers', 'trade_facets', 'declared_cross_agency_links', 'last_successful_sync', 'source_sync', 'attribution']
+      : ['categories', 'identifiers', 'last_successful_sync', 'source_sync', 'attribution'],
+    properties: {
+      ...(products ? {
+        agencies: { type: 'array', items: { type: 'object', required: ['agency', 'notices', 'latest'], properties: {
+          agency: { type: 'string', enum: ['CPSC', 'HC'] }, notices: { type: 'integer', minimum: 0 }, latest: { type: ['string', 'null'] },
+        } } },
+        trade_facets: counts, declared_cross_agency_links: { type: 'integer', minimum: 0 },
+        last_successful_sync: { type: 'object', additionalProperties: { type: 'string', format: 'date-time' } },
+        source_sync: sourceMap(['CPSC', 'HC']),
+        attribution: { type: 'object', required: ['sources', 'disclaimer'], properties: {
+          sources: { type: 'array', items: { type: 'object', required: ['agency', 'source', 'license'], properties: {
+            agency: { type: 'string' }, source: { type: 'string' }, license: { type: 'string' },
+          } } }, disclaimer: { type: 'string' },
+        } },
+      } : {
+        categories: { type: 'array', items: { type: 'object', required: ['category', 'recalls', 'latest_report'], properties: {
+          category: { type: 'string', enum: ['food', 'drug', 'device'] }, recalls: { type: 'integer', minimum: 0 }, latest_report: { type: ['string', 'null'] },
+        } } },
+        last_successful_sync: nullableTime, source_sync: sourceMap(['food', 'drug', 'device']),
+        attribution: { type: 'object', required: ['source', 'license', 'disclaimer'], properties: {
+          source: { type: 'string' }, license: { type: 'string' }, disclaimer: { type: 'string' },
+        } },
+      }),
+      identifiers: counts,
+    },
+  } } },
+});
 
 const stringParam = (name: string, description: string, extra: Record<string, unknown> = {}) => ({
   name,
@@ -10,6 +67,69 @@ const stringParam = (name: string, description: string, extra: Record<string, un
   description,
   schema: { type: 'string', ...extra },
 });
+
+const lookupSchema = (record: string) => ({
+  type: 'object',
+  required: ['data', 'total_matches', 'truncated', 'interpreted_as', 'attribution'],
+  properties: {
+    data: { type: 'array', items: { type: 'object', required: ['matched_on', 'recall'], properties: {
+      matched_on: { type: 'array', items: { type: 'object', required: ['kind', 'value'], properties: { kind: { type: 'string' }, value: { type: 'string' } } } },
+      recall: { $ref: `#/components/schemas/${record}` },
+    } } },
+    total_matches: { type: 'integer', minimum: 0 },
+    truncated: { type: 'boolean' },
+    interpreted_as: { type: 'array', items: { type: 'object', properties: { kind: { type: 'string' }, value: { type: 'string' } } } },
+    attribution: { type: 'object' },
+    complete_results: { type: 'array', items: { type: 'string' }, description: 'FDA filters for paging through all matches.' },
+  },
+});
+
+function portfolioPaths(errors: Record<string, unknown>, served: { readonly fda: boolean; readonly products: boolean }): Record<string, unknown> {
+  const available = [...(served.fda ? ['recalls'] : []), ...(served.products ? ['product-recalls'] : [])];
+  const text = { type: 'string' };
+  const strings = { type: 'array', items: text };
+  return {
+    '/v1/datasets': { get: {
+      operationId: 'listDatasets', summary: 'Discover currently published datasets, source terms, fields and endpoints (not metered)', security: [],
+      responses: { '200': { description: 'The live catalog; an empty array means no dataset is currently published. Freshness and counts are at each stats_url.', content: { 'application/json': { schema: {
+        type: 'object', required: ['data', 'openapi_url'], properties: {
+          openapi_url: { type: 'string', format: 'uri' },
+          data: { type: 'array', items: { type: 'object', required: ['id', 'name', 'summary', 'documentation_url', 'stats_url', 'sources', 'fields', 'limitations'], properties: {
+            id: available.length ? { type: 'string', enum: available } : text,
+            registry: text, name: text, summary: text, domain: text, record_type: text, region: text,
+            documentation_url: { type: 'string', format: 'uri' }, stats_url: { type: 'string', format: 'uri' },
+            endpoints: { type: 'array', items: { type: 'object', properties: { method: { type: 'string', enum: ['GET'] }, path: text, summary: text } } },
+            fields: { type: 'array', items: { type: 'object', properties: { name: text, meaning: text } } },
+            sources: { type: 'array', items: { type: 'object', properties: { name: text, short: text, url: text, terms: text } } },
+            attribution: text, limitations: strings, refresh_schedule: text,
+          } } },
+        },
+      } } } } },
+    } },
+    ...(available.length ? { '/v1/lookup': { get: {
+      operationId: 'lookupAcrossDatasets', summary: 'Look up one identifier across selected recall datasets (one metered request)',
+      description: `The existing exact lookup results, kept separate by dataset, with their own attribution, match counts and bounds. ${LOOKUP_COVERAGE_NOTE} The default requests both datasets even if one is withdrawn; select an available subset explicitly to narrow coverage.`,
+      parameters: [
+        { ...stringParam('code', 'Code as printed. Each selected dataset applies its existing identifier validation and normalization.', { minLength: 1, maxLength: 64 }), required: true },
+        { name: 'datasets', in: 'query', required: false, style: 'form', explode: false, description: 'Comma-separated unique dataset IDs; defaults to recalls,product-recalls. Any unavailable requested dataset returns 503 before direct metering.', schema: { type: 'array', minItems: 1, maxItems: available.length, uniqueItems: true, items: { type: 'string', enum: available } } },
+        stringParam('include', 'raw requires exactly one explicit datasets ID; otherwise 400 before direct metering. Includes digest-verified evidence with existing redactions and bounds (FDA: 10, consumer products: 25; otherwise 100 each).', { enum: ['raw'] }),
+      ],
+      responses: {
+        '200': { description: 'Per-dataset matches; truncated is true if any dataset is truncated. A CPSC and HC notice can describe the same recall and are never silently merged.', content: { 'application/json': { schema: {
+          type: 'object', required: ['code', 'results', 'truncated', 'coverage_note'], properties: {
+            code: text, truncated: { type: 'boolean' }, coverage_note: text,
+            results: { type: 'array', minItems: 1, maxItems: available.length, items: { oneOf: [
+              ...(served.fda ? [{ allOf: [lookupSchema('Recall'), { type: 'object', required: ['dataset'], properties: { dataset: { const: 'recalls' } } }] }] : []),
+              ...(served.products ? [{ allOf: [lookupSchema('ProductRecall'), { type: 'object', required: ['dataset'], properties: { dataset: { const: 'product-recalls' } } }] }] : []),
+            ] } },
+          },
+        } } } },
+        ...errors,
+        '503': { $ref: '#/components/responses/Error' },
+      },
+    } } } : {}),
+  };
+}
 
 /** Paths of the CPSC/Health Canada product-recall dataset, listed only while it is served. */
 function productPaths(errors: Record<string, unknown>): Record<string, unknown> {
@@ -61,7 +181,7 @@ function productPaths(errors: Record<string, unknown>): Record<string, unknown> 
         responses: { '200': { description: 'The notice', content: { 'application/json': { schema: { type: 'object', properties: { data: noticeRef } } } } }, '404': { $ref: '#/components/responses/Error' }, ...errors },
       },
     },
-    '/v1/product-recalls/stats': { get: { operationId: 'getProductRecallStats', summary: 'Public coverage counts', security: [], responses: { '200': { description: 'Coverage' } } } },
+    '/v1/product-recalls/stats': { get: { operationId: 'getProductRecallStats', summary: 'Coverage and source sync attempts', security: [], responses: { '200': statsResponse(true) } } },
   };
 }
 
@@ -146,6 +266,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
     servers: [{ url: ctx.apiOrigin }],
     security: [{ bearer: [] }],
     paths: {
+      ...portfolioPaths(errors, served),
       '/v1/recalls/lookup': {
         get: {
           operationId: 'lookupCode',
@@ -207,7 +328,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
       '/v1/account': { get: { operationId: 'getAccount', summary: 'Plan, usage and allowance (not metered)', responses: { '200': { description: 'Account' }, ...errors } } },
       '/v1/account/rotate-key': { post: { operationId: 'rotateKey', summary: 'Revoke this key and issue a new one', responses: { '200': { description: 'New key' }, ...errors } } },
       '/v1/account/billing-portal': { post: { operationId: 'billingPortal', summary: 'Stripe billing portal URL', responses: { '200': { description: 'Portal URL' }, ...errors } } },
-      '/v1/recalls/stats': { get: { operationId: 'getStats', summary: 'Public coverage counts', security: [], responses: { '200': { description: 'Coverage' } } } },
+      '/v1/recalls/stats': { get: { operationId: 'getStats', summary: 'Coverage and source sync attempts', security: [], responses: { '200': statsResponse(false) } } },
       ...(products ? productPaths(errors) : {}),
     },
     components: {
@@ -219,6 +340,7 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
         },
       },
       schemas: {
+        SourceSync: SOURCE_SYNC_SCHEMA,
         ...(products ? { ProductRecall: PRODUCT_RECALL_SCHEMA } : {}),
         Recall: {
           type: 'object',
@@ -276,6 +398,23 @@ export function openApiDocument(ctx: PageContext, served: { readonly fda: boolea
     for (const path of ['/v1/account', '/v1/account/rotate-key', '/v1/account/billing-portal']) delete (document.paths as Record<string, unknown>)[path];
     (document as { security: unknown[] }).security = [];
     delete (document.components as { securitySchemes?: unknown }).securitySchemes;
+  } else {
+    const headers = {
+      'X-RateLimit-Limit': { description: 'Direct monthly request allowance.', schema: { type: 'integer', minimum: 0 } },
+      'X-RateLimit-Remaining': { description: 'Direct requests remaining in this UTC calendar month.', schema: { type: 'integer', minimum: 0 } },
+      'X-RateLimit-Reset': { description: 'Unix seconds at the next UTC month boundary. Browser clients can read these quota headers through CORS.', schema: { type: 'integer', format: 'int64' } },
+    };
+    for (const [path, item] of Object.entries(document.paths)) {
+      const get = (item as { get?: { security?: unknown[]; responses: Record<string, Record<string, unknown>> } }).get;
+      // Free operations declare security: []; account operations do not consume quota.
+      if (!get || get.security?.length === 0 || path.startsWith('/v1/account')) continue;
+      get.responses['200']!['headers'] = headers;
+      get.responses['429'] = {
+        ...document.components.responses.Error,
+        description: 'Direct monthly allowance exhausted. Wait until reset unless the plan changes; GET /v1/account is unmetered. No overage is billed.',
+        headers: { ...headers, 'Retry-After': { description: 'Whole seconds to wait until the UTC monthly reset.', schema: { type: 'integer', minimum: 1 } } },
+      };
+    }
   }
   return document;
 }

@@ -106,6 +106,11 @@ export async function ingestRecords(env: ProductSyncEnv, agency: ProductAgency, 
   let inserted = 0;
   let changed = 0;
   try {
+    // CPSC sometimes returns HTTP 200 with a recall-shaped error object. A genuinely empty
+    // recent window is valid, but a nonempty response without a notice must never advance freshness.
+    if (agency === 'CPSC' && records.length > 0 && !records.some((record) => isPublishable(agency, record))) {
+      throw new Error(`CPSC response of ${records.length} record(s) holds no recall notice (error body?)`);
+    }
     // Prepared one bounded chunk at a time, so the serialised raw and structured forms of the whole
     // response are never held at once. First occurrence per id wins, so a duplicate cannot flip-flop.
     const seen = new Set<string>();

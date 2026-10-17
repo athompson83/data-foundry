@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "4c0abdfe590ac536b7764209fd6c6218ea9a7c0538a58be8b4b67c8132acc348",
+  "registry_sha256": "8555db39332b35ce246e948df73c1ee8aa52bd521991becee75609ce2e0bc220",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -1799,9 +1799,9 @@
       ]
     },
     "health-canada-consumer-product-recalls": {
-      "name": "Health Canada consumer-product recalls and alerts (open-data index, all categories)",
+      "name": "Health Canada consumer-product recalls and alerts (consumer-product slice of the open-data index)",
       "rights": "AMBER",
-      "stage": "BUILDING",
+      "stage": "LIVE",
       "format": "structured",
       "publisher": "Health Canada",
       "acquisition": "permitted-no-adapter",

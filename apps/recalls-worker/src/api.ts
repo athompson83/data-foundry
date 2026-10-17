@@ -8,6 +8,7 @@ import { expandUpcE, gs1CheckDigitValid, normaliseNdc, normaliseProductNdc, prod
 
 import type { D1Database, R2Bucket } from './env.js';
 import { parseRawRef, sha256Hex, type KeyKind } from './store.js';
+import { sourceSync } from './source-sync.js';
 
 export const ATTRIBUTION = {
   source: 'U.S. Food and Drug Administration enforcement reports via openFDA (https://open.fda.gov)',
@@ -379,16 +380,18 @@ export async function lookupCode(db: D1Database, bucket: R2Bucket, code: string,
 }
 
 export async function stats(db: D1Database): Promise<Record<string, unknown>> {
-  const [byCategory, lastSync, keyCounts] = await Promise.all([
+  const [byCategory, lastSync, keyCounts, sync] = await Promise.all([
     db.prepare('SELECT category, COUNT(*) AS recalls, MAX(reported_on) AS latest_report FROM recall GROUP BY category ORDER BY category').all<{ category: string; recalls: number; latest_report: string }>(),
     // FDA syncs only: the product-recall dataset records its own runs as 'product:*'.
     db.prepare("SELECT MAX(finished_at) AS finished_at FROM sync_run WHERE status = 'SUCCEEDED' AND category NOT LIKE 'product%'").first<{ finished_at: string | null }>(),
     db.prepare("SELECT kind, COUNT(DISTINCT value) AS distinct_values FROM recall_key WHERE kind IN ('gtin', 'ndc', 'lot') GROUP BY kind").all<{ kind: string; distinct_values: number }>(),
+    sourceSync(db, Object.fromEntries(RECALL_CATEGORIES.map((category) => [category, category]))),
   ]);
   return {
     categories: byCategory.results,
     identifiers: Object.fromEntries(keyCounts.results.map((row) => [row.kind, row.distinct_values])),
     last_successful_sync: lastSync?.finished_at ?? null,
+    source_sync: sync,
     attribution: ATTRIBUTION,
   };
 }

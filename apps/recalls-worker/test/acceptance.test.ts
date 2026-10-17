@@ -66,8 +66,42 @@ describe('production acceptance script', () => {
     const serialized = JSON.stringify(evidence);
     expect(serialized).not.toMatch(/rcl_live_[A-Za-z0-9]{32}/);
     expect(serialized).not.toContain(ADMIN);
-    // A second run is possible: acceptance is repeatable.
-    expect((await runAcceptance(options(env))).ok).toBe(true);
+    // More than five runs in a day remain possible; only the dedicated admin fixture is reset.
+    for (let run = 0; run < 5; run++) expect((await runAcceptance(options(env))).ok).toBe(true);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report').first()).toEqual({ n: 0 });
+  });
+
+  it('fails and revokes when a successful direct response omits the quota reset signal', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (!new URL(request.url).pathname.startsWith('/v1/recalls') || response.status !== 200) return response;
+      const headers = new Headers(response.headers);
+      headers.delete('x-ratelimit-reset');
+      return new Response(response.body, { status: response.status, headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name.startsWith('direct quota reset'))?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
+  it('rejects changed saved screening contents and still removes the synthetic inventory', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (request.method !== 'GET' || !/^\/screening\/reports\/[0-9a-f-]{36}$/.test(new URL(request.url).pathname) || response.status !== 200) return response;
+      const body = await response.json() as { result: Record<string, unknown> };
+      body.result['checked_at'] = 'changed';
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find(check => check.name.startsWith('screening: saved snapshot'))?.ok).toBe(false);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM screening_report WHERE result_json IS NOT NULL').first()).toEqual({ n: 0 });
+    expect(evidence.revocation.rejected_after).toBe(true);
   });
 
   it('revokes the key even when a check throws midway', async () => {
@@ -94,6 +128,55 @@ describe('production acceptance script', () => {
     const evidence = await runAcceptance(options(env, { fetch: tampered }));
     expect(evidence.ok).toBe(false);
     expect(evidence.checks.find((check) => check.name.startsWith('record cpsc-'))?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
+  it.each(['missing', 'private'])('fails and revokes when public source-sync metadata is %s', async (mode) => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname !== '/v1/product-recalls/stats') return response;
+      const body = await response.json() as { source_sync: Record<string, { latest_attempt: Record<string, unknown> }> };
+      if (mode === 'missing') delete body.source_sync['CPSC']!.latest_attempt['status'];
+      else body.source_sync['CPSC']!.latest_attempt['error'] = 'private';
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((check) => check.name === 'source sync: product-recalls public contract')?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
+  it('fails and revokes when cross-dataset lookup loses payload parity', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const tampered = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname !== '/v1/lookup' || response.status !== 200) return response;
+      const body = await response.json() as { results: Array<Record<string, unknown>> };
+      body.results[0]!['total_matches'] = 987654321;
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: tampered }));
+    expect(evidence.ok).toBe(false);
+    expect(evidence.checks.find((c) => c.name.startsWith('cross-dataset lookup: recalls'))?.ok).toBe(false);
+    expect(evidence.revocation.rejected_after).toBe(true);
+  });
+
+  it('accepts lookup parity when a scheduled refresh changes only last_seen_at between requests', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const refreshed = async (request: Request): Promise<Response> => {
+      const response = await worker.fetch(request, env);
+      if (new URL(request.url).pathname !== '/v1/lookup' || response.status !== 200) return response;
+      const body = await response.json() as { results: Array<{ data: Array<{ recall: { provenance: { last_seen_at: string } } }> }> };
+      for (const result of body.results) for (const match of result.data) match.recall.provenance.last_seen_at = '2026-10-16T06:17:01.000Z';
+      return Response.json(body, { headers: response.headers });
+    };
+    const evidence = await runAcceptance(options(env, { fetch: refreshed }));
+    expect(evidence.checks.filter((c) => !c.ok)).toEqual([]);
+    expect(evidence.ok).toBe(true);
     expect(evidence.revocation.rejected_after).toBe(true);
   });
 

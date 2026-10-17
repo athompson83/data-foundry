@@ -7,6 +7,7 @@
 
 import { RECALL_NUMBER_SOURCE } from '@data-foundry/recall-structuring';
 
+import type { DatasetKey } from './catalog.js';
 import type { D1Database, R2Bucket } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
 
@@ -142,9 +143,15 @@ export function productDataset(ctx: PageContext): Record<string, unknown> {
   };
 }
 
+/** schema.org Dataset per catalog key; a Record so a new dataset key does not compile without its own description. */
+export const DATASET_JSON_LD: Readonly<Record<DatasetKey, (ctx: PageContext) => Record<string, unknown>>> = {
+  recalls: recallsDataset,
+  'product-recalls': productDataset,
+};
+
 /** The catalog lists exactly the datasets the caller says are published, so a withdrawn dataset is never advertised. */
-export function catalogJsonLd(ctx: PageContext, published: { readonly recalls: boolean; readonly products: boolean }): Record<string, unknown> {
-  const dataset = [...(published.recalls ? [recallsDataset(ctx)] : []), ...(published.products ? [productDataset(ctx)] : [])];
+export function catalogJsonLd(ctx: PageContext, published: readonly DatasetKey[]): Record<string, unknown> {
+  const dataset = published.map((key) => DATASET_JSON_LD[key](ctx));
   return { '@context': 'https://schema.org', '@type': 'DataCatalog', name: 'Data Foundry', url: `${ctx.publicOrigin}/`, publisher: organization(ctx), dataset };
 }
 
@@ -332,7 +339,7 @@ Consumer product recalls (US and Canada):
 - Look up a model number or UPC across CPSC and Health Canada recalls: \`GET ${ctx.apiOrigin}/v1/product-recalls/lookup?code=<model or UPC>\` with the same key.
 - Search with filters (agency CPSC|HC, hazard, remedy, facet appliance|hvac|plumbing-water-heating|electrical|building-products, category, firm, manufacturer_country, from/to dates, linked, text): \`GET ${ctx.apiOrigin}/v1/product-recalls?...\`.
 - One notice: \`GET ${ctx.apiOrigin}/v1/product-recalls/<id>\` (ids look like cpsc-25203 or hc-77184); public page: \`${ctx.publicOrigin}/product-recalls/<id>\`.
-- Live coverage, no key needed: \`GET ${ctx.apiOrigin}/v1/product-recalls/stats\`.
+- Live coverage and source sync attempts, no key needed: \`GET ${ctx.apiOrigin}/v1/product-recalls/stats\`; \`source_sync\` keeps the latest attempt separate from successful clocks (ten-minute cache).
 - A US notice is linked to a Canadian one only where CPSC cites the Health Canada notice; names and titles never link notices.
 - Data: U.S. Consumer Product Safety Commission (US Government work); Health Canada Recalls and Safety Alerts, which contain information licensed under the Open Government Licence – Canada. Not affiliated with or endorsed by CPSC or Health Canada.
 `;
@@ -350,7 +357,7 @@ Key facts for agents:
 - Look up one scanned or typed code (UPC, EAN, GTIN, UDI-DI, NDC or lot): \`GET ${ctx.apiOrigin}/v1/recalls/lookup?code=<code>\` with \`Authorization: Bearer <key>\`.
 - Search with filters (state, category, classification, status, reason_class, allergen, dates, text): \`GET ${ctx.apiOrigin}/v1/recalls?...\`.
 - One recall: \`GET ${ctx.apiOrigin}/v1/recalls/<recall_number>\`; public page: \`${ctx.publicOrigin}/recalls/<recall_number>\`.
-- Live coverage and freshness, no key needed: \`GET ${ctx.apiOrigin}/v1/recalls/stats\`.
+- Live coverage and source sync attempts, no key needed: \`GET ${ctx.apiOrigin}/v1/recalls/stats\`; \`source_sync\` keeps the latest attempt separate from successful clocks (ten-minute cache).
 - Keys: a free Evaluate plan and paid monthly plans at ${ctx.publicOrigin}/#pricing. The source is refreshed from openFDA every six hours.
 - Every record carries its FDA source URL, parser version and the SHA-256 of the verbatim FDA record. Cite the recall number and ${ctx.publicOrigin}/recalls/<recall_number>.
 - Data: U.S. FDA via openFDA (CC0). Not affiliated with or endorsed by FDA. Not medical or legal advice.
@@ -363,6 +370,8 @@ export function llmsTxt(ctx: PageContext, served: ServedDatasets): string {
 ${served.fda ? FDA_LLMS_FACTS(ctx) : ''}${served.products ? PRODUCT_LLMS_FACTS(ctx) : ''}${served.fda || served.products ? '' : '\nNo dataset is available right now.\n'}
 ## Docs
 
+- [Live dataset catalog](${ctx.apiOrigin}/v1/datasets): public JSON with source terms, fields, limitations and endpoint paths.
+${served.fda || served.products ? `- Cross-dataset lookup: \`GET ${ctx.apiOrigin}/v1/lookup?code=<code>\` with your bearer key. One direct request unit; results stay separate by dataset. Defaults to both datasets; an unavailable requested dataset returns 503 without a direct charge. Use \`datasets=<id>\` for an explicit subset from the catalog. An empty result does not establish product safety.\n` : ''}
 - [Recall API documentation](${ctx.publicOrigin}/docs): parameters, identifiers, response shape, errors.
 - [OpenAPI 3.1 description](${ctx.apiOrigin}/openapi.json): machine-readable contract for tool use.
 - [Full LLM reference](${ctx.publicOrigin}/llms-full.txt): this file plus the complete parameter reference.
@@ -402,6 +411,7 @@ One notice. Fields: id, agency, jurisdiction, source_id, title, url, published_o
 ### GET /v1/product-recalls/stats (no key)
 
 Notice counts and latest date per agency, distinct GTIN and model counts, trade-facet counts, declared cross-agency links and the last successful sync per source.
+\`source_sync\` has CPSC and HC entries, each with \`last_successful_sync\` and nullable \`latest_attempt\` {status RUNNING|SUCCEEDED|FAILED, started_at, finished_at (null while running), window_from, window_to}. Latest means highest ledger id. No run means both fields are null. CPSC subwindows do not count as completed agency passes. Cached for up to ten minutes; success does not prove complete history or current agency publication. Direct stats are unmetered; RapidAPI stats follow marketplace allowances.
 `;
 
 export function llmsFullTxt(ctx: PageContext, served: ServedDatasets): string {
@@ -431,12 +441,14 @@ One recall. Fields: recall_number, category, event_id, classification, status, v
 ### GET /v1/recalls/stats (no key)
 
 Record counts and latest FDA report date per category, distinct identifier counts, and the last successful sync time.
+\`source_sync\` has food, drug and device entries, each with \`last_successful_sync\` and nullable \`latest_attempt\` {status RUNNING|SUCCEEDED|FAILED, started_at, finished_at (null while running), window_from, window_to}. Latest means highest ledger id. No run means both fields are null. A newer failed/running attempt does not advance the successful clock. A successful historical rolling window is not proof of complete history or newest publication. Cached for up to ten minutes. Direct stats are unmetered; RapidAPI stats follow marketplace allowances.
 `;
 
 const ERRORS_REFERENCE = `
 ## Errors and limits (every dataset)
 
-401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable. Rate-limit headers: x-ratelimit-limit, x-ratelimit-remaining.
+401 missing_key / invalid_key; 403 subscription_inactive; 429 allowance_exhausted (monthly allowance; never an overage bill); 400 invalid_request; 503 dataset_unavailable.
+Successful direct data responses and exhausted 429 responses expose x-ratelimit-limit, x-ratelimit-remaining and x-ratelimit-reset (Unix seconds at the next UTC month boundary). Exhausted 429 also provides Retry-After in whole seconds; wait before retrying unless the plan changes. GET /v1/account is unmetered. These headers are readable through CORS. RapidAPI allowances/reset rules are independent; origin direct quota headers are not emitted on marketplace calls.
 `;
 
 /**

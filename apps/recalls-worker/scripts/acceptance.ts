@@ -63,6 +63,31 @@ function unissuedKey(): string {
 
 type Json = Record<string, unknown>;
 
+/** Independent public-contract check: no internal ledger fields or raw failure details may escape. */
+function sourceSyncValid(body: Json | null, sources: readonly string[]): boolean {
+  const object = (value: unknown): value is Json => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const time = (value: unknown): boolean => typeof value === 'string' && Number.isFinite(Date.parse(value));
+  const sync = body?.['source_sync'];
+  if (!object(sync) || Object.keys(sync).sort().join(',') !== [...sources].sort().join(',')) return false;
+  return sources.every((source) => {
+    const state = sync[source];
+    if (!object(state) || Object.keys(state).sort().join(',') !== 'last_successful_sync,latest_attempt') return false;
+    const success = state['last_successful_sync'];
+    if (success !== null && !time(success)) return false;
+    const attempt = state['latest_attempt'];
+    if (attempt === null) return success === null;
+    if (!object(attempt) || Object.keys(attempt).sort().join(',') !== 'finished_at,started_at,status,window_from,window_to') return false;
+    const status = attempt['status'];
+    return ['RUNNING', 'SUCCEEDED', 'FAILED'].includes(String(status)) && time(attempt['started_at'])
+      && (status === 'RUNNING' ? attempt['finished_at'] === null : time(attempt['finished_at']))
+      && (status !== 'SUCCEEDED' || success !== null)
+      && typeof attempt['window_from'] === 'string' && typeof attempt['window_to'] === 'string';
+  });
+}
+
+/** A refresh of unchanged source bytes updates last_seen_at between HTTP requests. */
+const stableLookup = (payload: Json | null): string => JSON.stringify(payload, (key, value: unknown) => key === 'last_seen_at' ? undefined : value);
+
 export async function runAcceptance(options: AcceptanceOptions): Promise<AcceptanceEvidence> {
   const startedAt = new Date().toISOString();
   const checks: Check[] = [];
@@ -70,11 +95,12 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
     checks.push({ name, ok, detail });
     return ok;
   };
-  const call = async (origin: string, path: string, init: { method?: string; key?: string | null; admin?: boolean } = {}): Promise<{ status: number; body: Json | null; headers: Headers }> => {
+  const call = async (origin: string, path: string, init: { method?: string; key?: string | null; admin?: boolean; body?: Json } = {}): Promise<{ status: number; body: Json | null; headers: Headers }> => {
     const headers: Record<string, string> = { accept: 'application/json', 'user-agent': 'data-foundry-acceptance' };
     if (init.admin) headers['authorization'] = `Bearer ${options.adminToken}`;
     else if (init.key) headers['authorization'] = `Bearer ${init.key}`;
-    const response = await options.fetch(new Request(`${origin}${path}`, { method: init.method ?? 'GET', headers }));
+    if (init.body) headers['content-type'] = 'application/json';
+    const response = await options.fetch(new Request(`${origin}${path}`, { method: init.method ?? 'GET', headers, ...(init.body ? { body: JSON.stringify(init.body) } : {}) }));
     const text = await response.text();
     let body: Json | null = null;
     try {
@@ -104,7 +130,7 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   }
 
   // Credential rejection before any key exists.
-  for (const path of ['/v1/product-recalls?limit=1', '/v1/recalls?limit=1']) {
+  for (const path of ['/v1/product-recalls?limit=1', '/v1/recalls?limit=1', '/v1/lookup?code=DXH70CFAVX']) {
     const missing = await call(api, path);
     check(`missing key rejected ${path}`, missing.status === 401 && errorCode(missing.body) === 'missing_key', `${missing.status} ${errorCode(missing.body)}`);
     const invalid = await call(api, path, { key: unissuedKey() });
@@ -125,14 +151,44 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
   const fixture = (state: 'open' | 'closed') => call(options.publicOrigin, `/admin/acceptance-fixture?stripe_customer_id=${encodeURIComponent(options.stripeCustomerId)}&state=${state}`, { method: 'POST', admin: true });
 
   const runChecks = async (k: string): Promise<void> => {
+    const quotaSignals: Array<{ path: string; reset: string | null; ok: boolean }> = [];
     const metered200 = async (path: string): Promise<{ status: number; body: Json | null; headers: Headers }> => {
       metered += 1;
-      return call(api, path, { key: k });
+      const sent = new Date();
+      const response = await call(api, path, { key: k });
+      if (response.status === 200) {
+        const received = new Date();
+        // Accept either period if the request crosses a UTC month boundary; derive it independently of the Worker helper.
+        const resets = [sent, received].map((date) => String(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1) / 1000));
+        const reset = response.headers.get('x-ratelimit-reset');
+        const exposed = response.headers.get('access-control-expose-headers')?.toLowerCase().split(',').map((header) => header.trim()) ?? [];
+        quotaSignals.push({ path, reset, ok: reset !== null && resets.includes(reset) && exposed.includes('x-ratelimit-reset') && exposed.includes('retry-after') && response.headers.get('retry-after') === null && response.headers.get('cache-control') === 'private, no-store' });
+      }
+      return response;
     };
 
     const before = await call(api, '/v1/account', { key: k });
     const usedBefore = Number(before.body?.['month_requests']);
     if (!check('key authenticates (GET /v1/account)', before.status === 200 && Number.isFinite(usedBefore), `${before.status} plan=${String(before.body?.['plan'])} status=${String(before.body?.['status'])} month_requests=${usedBefore}`)) return;
+
+    const catalog = await call(api, '/v1/datasets');
+    const ids = Array.isArray(catalog.body?.['data']) ? (catalog.body['data'] as Json[]).map((d) => d['id']) : [];
+    check('dataset discovery: both live datasets, public and revalidated', catalog.status === 200 && ids.join(',') === 'recalls,product-recalls' && catalog.headers.get('cache-control') === 'no-cache', `${catalog.status} datasets=${ids.join(',')}`);
+
+    for (const [dataset, sources] of [['recalls', ['food', 'drug', 'device']], ['product-recalls', ['CPSC', 'HC']]] as const) {
+      const response = await call(api, `/v1/${dataset}/stats`);
+      check(`source sync: ${dataset} public contract`, response.status === 200 && sourceSyncValid(response.body, sources)
+        && response.headers.get('cache-control') === 'public, max-age=600', `${response.status} sources=${sources.join(',')}`);
+    }
+
+    const crossLookup = async (code: string, dataset: string, original: Json | null): Promise<void> => {
+      const lookup = await metered200(`/v1/lookup?code=${encodeURIComponent(code)}`);
+      const results = Array.isArray(lookup.body?.['results']) ? lookup.body['results'] as Json[] : [];
+      const result = results.find((r) => r['dataset'] === dataset);
+      const payload = result ? Object.fromEntries(Object.entries(result).filter(([key]) => key !== 'dataset')) : null;
+      const parity = stableLookup(payload) === stableLookup(original);
+      check(`cross-dataset lookup: ${dataset} payload parity and separate coverage`, lookup.status === 200 && results.map((r) => r['dataset']).join(',') === 'recalls,product-recalls' && parity && typeof lookup.body?.['coverage_note'] === 'string' && lookup.headers.get('cache-control') === 'private, no-store', `${lookup.status} parity=${parity} datasets=${results.length}`);
+    };
 
     // Product recalls: CPSC and Health Canada.
     const rows = (body: Json | null): Json[] => (Array.isArray(body?.['data']) ? (body['data'] as Json[]) : []);
@@ -181,6 +237,7 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       const lookup = await metered200(`/v1/product-recalls/lookup?code=${encodeURIComponent(code)}`);
       const found = rows(lookup.body).some((match) => (match['recall'] as Json | undefined)?.['id'] === withCode['id']);
       check('product code lookup returns the notice that lists the code', lookup.status === 200 && found, `${lookup.status} code_kind=${identifiers.gtins[0] ? 'gtin' : 'model'} id=${String(withCode['id'])}`);
+      await crossLookup(code, 'product-recalls', lookup.body);
     } else {
       check('product code lookup returns the notice that lists the code', false, 'no sampled notice carried a GTIN or model number');
     }
@@ -199,6 +256,7 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       const lookup = await metered200(`/v1/recalls/lookup?code=${encodeURIComponent(list[0] as string)}`);
       const found = rows(lookup.body).some((match) => (match['recall'] as Json | undefined)?.['recall_number'] === fdaCoded['recall_number']);
       check('FDA code lookup returns the recall that lists the code', lookup.status === 200 && found, `${lookup.status} code_kind=${kind} recall=${String(fdaCoded['recall_number'])}`);
+      await crossLookup(list[0] as string, 'recalls', lookup.body);
     } else {
       check('FDA code lookup returns the recall that lists the code', false, 'no sampled FDA recall carried an extracted code');
     }
@@ -208,9 +266,32 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       check(`FDA record ${number} include=raw`, one.status === 200 && ((one.body?.['data'] as Json | undefined)?.['recall_number'] === number) && 'raw' in ((one.body?.['data'] as Json | undefined) ?? {}), String(one.status));
     }
 
+    // A synthetic inventory exercises the durable report journey without creating a payment.
+    metered += 1;
+    const preview = await call(options.publicOrigin, '/screening/reports', { method: 'POST', key: k, body: { csv: 'item,gtin,model\nAcceptance fixture,,', tier: 'standard' } });
+    const reportId = preview.body?.['id'];
+    const result = preview.body?.['result'] as Json | undefined;
+    const items = result?.['items'] as Json[] | undefined;
+    check('screening: authenticated preview records insufficient identifiers honestly', preview.status === 201 && typeof reportId === 'string' && items?.[0]?.['outcome'] === 'insufficient_information' && preview.headers.get('cache-control') === 'private, no-store', `${preview.status} report=${String(reportId)}`);
+    if (typeof reportId === 'string') {
+      const path = `/screening/reports/${encodeURIComponent(reportId)}`;
+      try {
+        const saved = await call(options.publicOrigin, path, { key: k });
+        const list = await call(options.publicOrigin, '/screening/reports', { key: k });
+        check('screening: saved snapshot survives a new request and appears in history', saved.status === 200 && JSON.stringify(saved.body?.['result']) === JSON.stringify(result) && (list.body?.['reports'] as Json[] | undefined)?.some(row => row['id'] === reportId) === true, `${saved.status}/${list.status}`);
+        const unpaid = await call(options.publicOrigin, `${path}/csv`, { key: k });
+        check('screening: unpaid download denied', unpaid.status === 402, String(unpaid.status));
+      } finally {
+        const removed = await call(options.publicOrigin, `${path}/delete`, { method: 'POST', key: k });
+        const gone = await call(options.publicOrigin, path, { key: k });
+        check('screening: synthetic inventory deleted and no longer accessible', removed.status === 200 && removed.body?.['deleted'] === true && gone.status === 404, `${removed.status}/${gone.status}`);
+      }
+    }
+
     const after = await call(api, '/v1/account', { key: k });
     const usedAfter = Number(after.body?.['month_requests']);
     check('metering: each data request counted once, account reads not counted', after.status === 200 && usedAfter - usedBefore === metered, `delta=${usedAfter - usedBefore} metered=${metered} allowance=${String(after.body?.['month_allowance'])}`);
+    check('direct quota reset: successful data responses expose the UTC reset without requesting an early retry', quotaSignals.length >= 10 && quotaSignals.every((signal) => signal.ok), `responses=${quotaSignals.length} resets=${[...new Set(quotaSignals.map((signal) => signal.reset))].join(',')} failed_paths=${quotaSignals.filter((signal) => !signal.ok).map((signal) => signal.path).join(',')}`);
   };
 
   // Start from a clean fixture: close it (revoking anything a previous run left), then open it.
@@ -248,8 +329,11 @@ export async function runAcceptance(options: AcceptanceOptions): Promise<Accepta
       if (key) {
         const rejected = await call(api, '/v1/account', { key });
         const rejectedData = await call(api, '/v1/product-recalls?limit=1', { key });
-        revocation = { revoked: closedOk, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && errorCode(rejectedData.body) === 'invalid_key' };
-        check('fixture closed: key revoked, fixture suspended, key rejected afterwards', closedOk && revocation.rejected_after, `close=${closed.status} status=${String(closed.body?.['status'])} active_keys=${activeKeys} after=${rejected.status}/${rejectedData.status}`);
+        const rejectedLookup = await call(api, '/v1/lookup?code=DXH70CFAVX', { key });
+        const rejectedReports = await call(options.publicOrigin, '/screening/reports', { key });
+        check('screening: revoked key cannot list saved reports', rejectedReports.status === 401, String(rejectedReports.status));
+        revocation = { revoked: closedOk, active_keys: activeKeys, rejected_after: rejected.status === 401 && rejectedData.status === 401 && rejectedLookup.status === 401 && errorCode(rejectedData.body) === 'invalid_key' && errorCode(rejectedLookup.body) === 'invalid_key' };
+        check('fixture closed: key revoked, fixture suspended, key rejected afterwards', closedOk && revocation.rejected_after, `close=${closed.status} status=${String(closed.body?.['status'])} active_keys=${activeKeys} after=${rejected.status}/${rejectedData.status}/${rejectedLookup.status}`);
       } else {
         revocation = { revoked: closedOk, active_keys: activeKeys, rejected_after: false };
         check('fixture closed after a reissue that returned no key (any late key belongs to a suspended customer)', closedOk, `close=${closed.status} status=${String(closed.body?.['status'])} active_keys=${activeKeys}`);

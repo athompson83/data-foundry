@@ -4,6 +4,12 @@
  * is published (its own gates), so a withdrawn source disappears from the
  * catalog, its product page and its structured data together.
  *
+ * Adding a dataset: add its key to DatasetKey and one entry here (plus its
+ * JSON-LD in seo.ts and its gate in isPublished). The homepage catalog
+ * (data.aroqon.com/#datasets), product page, DataCatalog JSON-LD and the API
+ * root listing all render from this table, and test/catalog-registry.test.ts
+ * fails while a LIVE registry dataset has no entry here.
+ *
  * Samples are real API output captured on the stated date and abbreviated
  * only by omitting whole fields (never by editing values).
  */
@@ -32,6 +38,10 @@ export interface DatasetEntry {
   readonly name: string;
   /** Canonical product-page path. */
   readonly path: string;
+  /** Public per-record pages, linked from the product page. */
+  readonly browsePath: string;
+  /** This dataset's section of /docs, e.g. "#fda-recalls". */
+  readonly docsAnchor: string;
   /** One sentence: what the buyer gets. */
   readonly summary: string;
   /** Catalog classification, so a long list stays scannable: subject area, what one record is, and where it applies. */
@@ -51,6 +61,10 @@ export interface DatasetEntry {
   readonly fields: readonly DatasetField[];
   readonly sample: {
     readonly request: string;
+    /** The request line shown over the homepage excerpt, e.g. "/v1/recalls/H-1275-2026". */
+    readonly path: string;
+    /** Whole top-level fields of the sample shown in the homepage excerpt (values are never edited). */
+    readonly heroFields: readonly string[];
     readonly capturedOn: string;
     /** Where the sample came from: a response captured from the live API, or the production parser's output before the API was live. */
     readonly origin: 'live-api' | 'parser';
@@ -126,6 +140,8 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     registry: 'fda-recalls',
     name: 'FDA Recall Intelligence',
     path: '/recalls',
+    browsePath: '/recalls/browse',
+    docsAnchor: '#fda-recalls',
     domain: 'Food, drugs and medical devices',
     recordType: 'Recall events',
     region: 'United States',
@@ -151,7 +167,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       { method: 'GET', path: '/v1/recalls/lookup?code=…', summary: 'Every recall that names one code: GTIN/UPC/UDI (check-digit verified), NDC, lot, serial or model.', docs: '/docs#recalls-lookup' },
       { method: 'GET', path: '/v1/recalls', summary: 'Filter and page through recalls, newest report first.', docs: '/docs#recalls-search' },
       { method: 'GET', path: '/v1/recalls/{recall_number}', summary: 'One recall, optionally with the verbatim FDA record.', docs: '/docs#recalls-one' },
-      { method: 'GET', path: '/v1/recalls/stats', summary: 'Public coverage counts and last successful sync (no key).', docs: '/docs#recalls-stats' },
+      { method: 'GET', path: '/v1/recalls/stats', summary: 'Public coverage, successful clocks and latest source sync attempts (no key).', docs: '/docs#recalls-stats' },
     ],
     fields: [
       { name: 'codes', meaning: 'GTIN-14 (from UPC/EAN/UDI with a valid check digit), NDC, lots, serials, models and expiry dates found in the FDA text.' },
@@ -162,6 +178,8 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     ],
     sample: {
       request: 'curl "https://api.data.aroqon.com/v1/recalls/H-1275-2026" \\\n  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"',
+      path: '/v1/recalls/H-1275-2026',
+      heroFields: ['recall_number', 'classification', 'status', 'codes', 'reason', 'distribution'],
       capturedOn: '2026-09-27',
       origin: 'live-api',
       note: 'Snapshot of a real response, not live. Abbreviated: the attribution object and provenance.derived_fields, first_seen_at, last_seen_at and raw_evidence are omitted.',
@@ -174,6 +192,8 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     registry: 'consumer-product-recalls-north-america',
     name: 'North American Consumer Product Recalls',
     path: '/product-recalls',
+    browsePath: '/product-recalls/browse',
+    docsAnchor: '#product-recalls',
     domain: 'Consumer products',
     recordType: 'Recall notices',
     region: 'United States and Canada',
@@ -203,7 +223,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       { method: 'GET', path: '/v1/product-recalls/lookup?code=…', summary: 'Every notice that names one model number or UPC/GTIN.', docs: '/docs#product-recalls-lookup' },
       { method: 'GET', path: '/v1/product-recalls', summary: 'Filter notices by agency, hazard, remedy, trade facet, firm, dates or text.', docs: '/docs#product-recalls-search' },
       { method: 'GET', path: '/v1/product-recalls/{id}', summary: 'One notice (cpsc-… or hc-…) with its linked notices.', docs: '/docs#product-recalls-one' },
-      { method: 'GET', path: '/v1/product-recalls/stats', summary: 'Public coverage counts and last successful sync per source (no key).', docs: '/docs#product-recalls-stats' },
+      { method: 'GET', path: '/v1/product-recalls/stats', summary: 'Public coverage, successful clocks and latest agency sync attempts (no key).', docs: '/docs#product-recalls-stats' },
     ],
     fields: [
       { name: 'identifiers', meaning: 'Model numbers as printed, their normalised keys, and GTIN-14s with a valid GS1 check digit.' },
@@ -214,6 +234,8 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
     ],
     sample: {
       request: 'curl "https://api.data.aroqon.com/v1/product-recalls/cpsc-25203" \\\n  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"',
+      path: '/v1/product-recalls/cpsc-25203',
+      heroFields: ['id', 'identifiers', 'hazard', 'units', 'linked_notices'],
       capturedOn: '2026-09-27',
       origin: 'parser',
       note: 'Snapshot of the production parser’s output for CPSC notice 25203, produced before this API went live; not a captured API response. Abbreviated: several fields (description, products, hazard and remedy text, injuries, sold_at, provenance details) and the attribution object are omitted.',
@@ -226,8 +248,13 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
 
 /** Whether a dataset is published: its data is served and its pages exist. */
 export function isPublished(env: Env, key: DatasetKey): boolean {
-  if (key === 'recalls') return env.SOURCE_KILL_SWITCH !== '1';
-  return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
+  // Exhaustive, so a new dataset key does not compile until its gate is written.
+  switch (key) {
+    case 'recalls':
+      return env.SOURCE_KILL_SWITCH !== '1';
+    case 'product-recalls':
+      return env.PRODUCT_RECALLS_OPEN === '1' && env.PRODUCT_RECALLS_KILL_SWITCH !== '1';
+  }
 }
 
 export function publishedDatasets(env: Env): DatasetEntry[] {

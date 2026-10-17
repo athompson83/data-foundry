@@ -19,6 +19,8 @@ The workflow then:
 
 It shares the `deploy-production` concurrency lock, so production deploys never overlap. Bindings, Custom Domains, the Cron schedule and vars come from the reviewed `wrangler.toml`. Secrets are not touched by a deploy.
 
+The landing page caches coverage at the edge for up to one hour (`EDGE_TTL_SECONDS`), with the cache key scoped to the Worker version and current dataset, sales and marketplace gates. A new deployment immediately renders the new landing page; withdrawn coverage cannot reuse a previously published page. Its integration section links the public direct `GET /v1/datasets` catalog and shows `GET /v1/lookup` examples only for published datasets. Check the homepage links at desktop and mobile widths after deployment. RapidAPI endpoint definitions and its guide are a separate publication surface: keep them aligned with `openapi.json?channel=rapidapi`, preserve existing endpoints/plans, and verify new requests through the actual gateway. Catalog calls through RapidAPI follow the marketplace allowance, even though direct catalog discovery is unmetered.
+
 The token needs Workers Scripts:Edit and D1:Read on account `c2832821a9ab36419cde6ee08112f6d3`.
 
 **Rollback:** `pnpm exec wrangler rollback <rollback version> --name data-foundry-recalls` from `apps/recalls-worker`. The run summary prints the exact command.
@@ -90,6 +92,8 @@ Set `SOURCE_KILL_SWITCH = "1"` in `apps/recalls-worker/wrangler.toml` and deploy
 `SALES_OPEN = "0"` shows "opening shortly" and creates no Checkout sessions. Only the Product Owner authorises `"1"`; sales were opened on 2026-09-27 on the owner's launch instruction. To stop new sales, set `"0"` and deploy; existing subscriptions and keys keep working.
 
 ## Pausing the scheduled sync
+
+CPSC can return HTTP 200 containing a recall-shaped error instead of notices. A nonempty response with no publishable recall fails the source run, retains its archived response, and leaves the last successful freshness timestamp and stored notices intact. An empty recent window is valid; a full pass still requires every window and the full-list count floor. Health Canada runs independently after a CPSC failure. Do not interpret HTTP 200 or a stored/public count match as upstream reconciliation, and do not repeatedly force failing full passes.
 
 To stop ingestion from racing a migration or import, clear the Cron trigger and confirm it is empty:
 

@@ -11,6 +11,7 @@ import { BadRequest, gtinCandidates } from './api.js';
 import type { D1Database, R2Bucket } from './env.js';
 import { parseRawRef, sha256Hex } from './store.js';
 import { publishableExtractorClause } from './intake.js';
+import { sourceSync } from './source-sync.js';
 
 export const PRODUCT_ATTRIBUTION = {
   sources: [
@@ -337,18 +338,26 @@ export async function getProductRecall(db: D1Database, bucket: R2Bucket, id: str
 
 export const PRODUCT_LOOKUP_LIMIT = 100;
 
-/** Every exact interpretation of one scanned or typed code: GTIN (check-digit valid) and model key. */
-export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false): Promise<Record<string, unknown>> {
+/** Validate and interpret a code before any query or allowance is spent. */
+export function productLookupCandidates(code: string): Array<{ kind: string; value: string }> {
   const trimmed = code.trim();
   if (!trimmed || trimmed.length > 64) throw new BadRequest('code must be 1–64 characters');
   const interpretations: Array<{ kind: string; value: string }> = gtinCandidates(trimmed).map((value) => ({ kind: 'gtin', value }));
   const key = modelKey(trimmed);
   if (key.length >= 2) interpretations.push({ kind: 'model', value: key });
   if (interpretations.length === 0) throw new BadRequest('code must contain letters or digits');
-  const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ');
+  return interpretations;
+}
+
+/** Every exact interpretation of one scanned or typed code: GTIN (check-digit valid) and model key. */
+export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: string, includeRaw: boolean, extracted = false, identifierKind?: 'gtin' | 'model'): Promise<Record<string, unknown>> {
+  // Inventory fields have a known kind: filter before limiting, so ambiguous numeric model matches cannot hide a GTIN notice.
+  const interpretations = productLookupCandidates(code).filter(item => !identifierKind || item.kind === identifierKind);
+  const key = modelKey(code.trim());
+  const clause = interpretations.map(() => '(kind = ? AND value = ?)').join(' OR ') || '0';
   const binds = interpretations.flatMap((item) => [item.kind, item.value]);
   // Published extracted identifiers match only on the notice's current source bytes, reported as their own kind.
-  const withExtracted = extracted && key.length >= 2;
+  const withExtracted = extracted && identifierKind !== 'gtin' && key.length >= 2;
   // Only rows from a publishable extractor build (PUBLISHABLE_EXTRACTORS) are matched.
   const publishable = publishableExtractorClause();
   const EXTRACTED = `SELECT e.recall_id FROM product_recall_extracted_key e JOIN product_recall r ON r.id = e.recall_id AND r.raw_sha256 = e.raw_sha256
@@ -386,12 +395,13 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
 }
 
 export async function productStats(db: D1Database): Promise<Record<string, unknown>> {
-  const [agencies, lastSync, identifiers, facets, links] = await Promise.all([
+  const [agencies, lastSync, identifiers, facets, links, sync] = await Promise.all([
     db.prepare('SELECT agency, COUNT(*) AS notices, MAX(sort_date) AS latest FROM product_recall GROUP BY agency ORDER BY agency').all<{ agency: string; notices: number; latest: string }>(),
     db.prepare("SELECT category AS source, MAX(finished_at) AS finished_at FROM sync_run WHERE status = 'SUCCEEDED' AND category LIKE 'product:%' GROUP BY category").all<{ source: string; finished_at: string }>(),
     db.prepare("SELECT kind, COUNT(DISTINCT value) AS distinct_values FROM product_recall_key WHERE kind IN ('gtin', 'model') GROUP BY kind").all<{ kind: string; distinct_values: number }>(),
     db.prepare("SELECT value AS facet, COUNT(*) AS notices FROM product_recall_key WHERE kind = 'facet' GROUP BY value ORDER BY value").all<{ facet: string; notices: number }>(),
     db.prepare('SELECT COUNT(*) AS n FROM product_recall_citation c JOIN product_recall r ON r.url_key = c.url_key').first<{ n: number }>(),
+    sourceSync(db, { CPSC: 'product:CPSC', HC: 'product:HC' }),
   ]);
   return {
     agencies: agencies.results,
@@ -399,6 +409,7 @@ export async function productStats(db: D1Database): Promise<Record<string, unkno
     trade_facets: Object.fromEntries(facets.results.map((row) => [row.facet, row.notices])),
     declared_cross_agency_links: links?.n ?? 0,
     last_successful_sync: Object.fromEntries(lastSync.results.map((row) => [row.source.replace('product:', ''), row.finished_at])),
+    source_sync: sync,
     attribution: PRODUCT_ATTRIBUTION,
   };
 }
