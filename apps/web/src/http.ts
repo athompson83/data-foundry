@@ -68,6 +68,28 @@ export function textResponse(
   };
 }
 
+/**
+ * Markdown representation for agents that negotiate `Accept: text/markdown`
+ * (is-agentic.com `markdown-negotiation-vary` / `agent-friendly-404`). Same
+ * cache discipline as `textResponse`; callers add `Vary: Accept` because the
+ * representation varies on the Accept header.
+ */
+export function markdownResponse(
+  status: number,
+  markdown: string,
+  extraHeaders: Readonly<Record<string, string>> = {},
+  cacheMode: PublicCacheMode = 'cache',
+): WebResponse {
+  return {
+    status,
+    headers: {
+      ...headersFor('text/markdown; charset=utf-8', successfulResponseCache(status, cacheMode)),
+      ...extraHeaders,
+    },
+    body: markdown,
+  };
+}
+
 export function notFound(html: string): WebResponse {
   return { status: 404, headers: headersFor('text/html; charset=utf-8', NO_STORE), body: html };
 }
