@@ -84,9 +84,13 @@ for d in sample:
                                      'marketing_status': sorted({p.get('marketing_status') for p in a['products']}),
                                      'orig_approval_date': min(orig) if orig else None,
                                      'rxcui': (a.get('openfda') or {}).get('rxcui', [])[:3]})
+    # propose the single-ingredient applications first (a combination product containing the substance is a weaker proposal)
+    entry['fda'].sort(key=lambda f: (len(f['ingredients']) != 1, f['application_number']))
     entry['fda_matches'] = len(entry['fda'])
+    entry['fda_single_ingredient_matches'] = sum(1 for f in entry['fda'] if len(f['ingredients']) == 1)
     results.append(entry)
 matched = sum(1 for e in results if e['fda_matches'])
+matched_single = sum(1 for e in results if e['fda_single_ingredient_matches'])
 # corroboration: ATC of the first RxCUI via RxClass vs EMA ATC (same 7-character code or same 5-character level-4 prefix)
 atc_checked = atc_same7 = atc_same5 = 0
 for e in results:
@@ -104,7 +108,7 @@ for a in (j or {}).get('results', [])[:3]:
     for s in a.get('submissions', []):
         for dd in s.get('application_docs', []):
             if dd.get('type') == 'Review':
-                _, c = get(dd['url']); doc_probe.append({'application_number': a['application_number'], 'url': dd['url'], 'http': c}); break
+                _, c = get(dd['url'].replace('http://', 'https://')); doc_probe.append({'application_number': a['application_number'], 'url': dd['url'].replace('http://', 'https://'), 'http': c}); break
         else: continue
         break
 out = {'run_utc': datetime.datetime.utcnow().isoformat() + 'Z', 'ema_url': EMA, 'ema_http': ema_status, 'ema': ema_stats,
@@ -114,5 +118,8 @@ out = {'run_utc': datetime.datetime.utcnow().isoformat() + 'Z', 'ema_url': EMA, 
        'ema_sample_with_fda_application_by_substance_tokens': matched, 'ema_sample_without_match': [e['active_substance'] for e in results if not e['fda_matches']],
        'atc_corroboration': {'matched_with_rxcui_checked': atc_checked, 'same_7char_atc': atc_same7, 'same_level4_prefix': atc_same5},
        'http_statuses': statuses, 'results': results}
+rp = os.path.join(HERE, 'reviewed.json')
+if os.path.exists(rp):   # hand-check of proposed pairs, written by the reviewer after reading the printed pairs
+    rv = json.load(open(rp)); out['reviewed'] = {'checked': len(rv['pairs']), 'correct': sum(1 for p in rv['pairs'] if p['verdict'] == 'same-substance'), 'reviewer_note': rv['note'], 'pairs': rv['pairs']}
 json.dump(out, open(os.path.join(HERE, 'join.json'), 'w'), indent=1)
 print({k: v for k, v in out.items() if k not in ('results',)})

@@ -1,0 +1,420 @@
+{
+ "run_at": "2026-10-17T14:04:44+00:00",
+ "cosing": {
+  "annex_II": {
+   "http": 200,
+   "bytes": 650356,
+   "rows": 1758,
+   "rows_with_valid_cas": 1672,
+   "distinct_cas": 2114,
+   "last_update": "13/10/2026",
+   "file_creation_date": "17/10/2026",
+   "columns": [
+    "Reference Number",
+    "Chemical name / INN",
+    "CAS Number",
+    "EC Number",
+    "Regulation",
+    "Other Directives/Regulations",
+    "SCCS opinions",
+    "Chemical/IUPAC Name",
+    "Identified INGREDIENTS or substances e.g.",
+    "CMR",
+    "Update Date"
+   ],
+   "free_text_condition_rows": 0
+  },
+  "annex_III": {
+   "http": 200,
+   "bytes": 294258,
+   "rows": 381,
+   "rows_with_valid_cas": 362,
+   "distinct_cas": 509,
+   "last_update": "13/10/2026",
+   "file_creation_date": "17/10/2026",
+   "columns": [
+    "Reference Number",
+    "Chemical name / INN",
+    "Name of Common Ingredients Glossary",
+    "CAS Number",
+    "EC Number",
+    "Product Type, body parts",
+    "Maximum concentration in ready for use preparation",
+    "Other",
+    "Wording of conditions of use and warnings",
+    "Regulation",
+    "Other Directives/Regulations",
+    "SCCS opinions",
+    "Chemical/IUPAC Name",
+    "Identified INGREDIENTS or substances e.g.",
+    "CMR",
+    "Update Date"
+   ],
+   "free_text_condition_rows": 321
+  },
+  "annex_IV": {
+   "http": 200,
+   "bytes": 47270,
+   "rows": 154,
+   "rows_with_valid_cas": 149,
+   "distinct_cas": 188,
+   "last_update": "13/10/2026",
+   "file_creation_date": "17/10/2026",
+   "columns": [
+    "Reference Number",
+    "Chemical name",
+    "Colour index Number / Name of Common Ingredients Glossary",
+    "CAS Number",
+    "EC Number",
+    "Color",
+    "Product Type, body parts",
+    "Maximum concentration in ready for use preparation",
+    "Other",
+    "Wording of conditions of use and warnings",
+    "Regulation",
+    "Other Directives/Regulations",
+    "SCCS opinions",
+    "Chemical/IUPAC Name",
+    "Identified INGREDIENTS or substances e.g.",
+    "CMR",
+    "Update Date"
+   ],
+   "free_text_condition_rows": 57
+  },
+  "annex_V": {
+   "http": 200,
+   "bytes": 31363,
+   "rows": 58,
+   "rows_with_valid_cas": 55,
+   "distinct_cas": 138,
+   "last_update": "13/10/2026",
+   "file_creation_date": "17/10/2026",
+   "columns": [
+    "Reference Number",
+    "Chemical name / INN",
+    "Name of Common Ingredients Glossary",
+    "CAS Number",
+    "EC Number",
+    "Product Type, body parts",
+    "Maximum concentration in ready for use preparation",
+    "Other",
+    "Wording of conditions of use and warnings",
+    "Regulation",
+    "Other Directives/Regulations",
+    "SCCS opinions",
+    "Chemical/IUPAC Name",
+    "Identified INGREDIENTS or substances e.g.",
+    "CMR",
+    "Update Date"
+   ],
+   "free_text_condition_rows": 22
+  },
+  "annex_VI": {
+   "http": 200,
+   "bytes": 19061,
+   "rows": 34,
+   "rows_with_valid_cas": 33,
+   "distinct_cas": 33,
+   "last_update": "13/10/2026",
+   "file_creation_date": "17/10/2026",
+   "columns": [
+    "Reference Number",
+    "Chemical name / INN",
+    "Name of Common Ingredients Glossary",
+    "CAS Number",
+    "EC Number",
+    "Product Type, body parts",
+    "Maximum concentration in ready for use preparation",
+    "Other",
+    "Wording of conditions of use and warnings",
+    "Regulation",
+    "Other Directives/Regulations",
+    "SCCS opinions",
+    "Chemical/IUPAC Name",
+    "Identified INGREDIENTS or substances e.g.",
+    "CMR",
+    "Update Date"
+   ],
+   "free_text_condition_rows": 12
+  }
+ },
+ "health_canada_hotlist": {
+  "http": 200,
+  "bytes": 175097,
+  "prohibited_rows": 493,
+  "prohibited_rows_with_cas": 430,
+  "prohibited_distinct_cas": 522,
+  "restricted_rows": 90,
+  "restricted_rows_with_cas": 88,
+  "restricted_distinct_cas": 169,
+  "restricted_rows_with_conditions_text": 88,
+  "date_modified": null,
+  "columns_restricted": [
+   "Ingredient Information",
+   "Restrictions"
+  ]
+ },
+ "joins": {
+  "hotlist_prohibited_in_cosing_annexII": {
+   "matched": 400,
+   "total": 522,
+   "also_in_other_list": [
+    "127-65-1",
+    "2425-85-6",
+    "54-64-8",
+    "62-38-4",
+    "8007-48-5",
+    "94-43-9"
+   ],
+   "also_in_other_list_count": 6,
+   "matched_sample_cas": [
+    "100-44-7",
+    "1008-65-7",
+    "101-31-5",
+    "103-16-2",
+    "104-27-8",
+    "104-98-3",
+    "105-41-9",
+    "1050-48-2",
+    "106-88-7",
+    "106-89-8"
+   ]
+  },
+  "hotlist_restricted_in_cosing_annexIII": {
+   "matched": 35,
+   "total": 169,
+   "also_in_other_list": [
+    "10043-35-3",
+    "10377-81-8",
+    "106-97-8",
+    "111-46-6",
+    "11113-50-1",
+    "119-61-9",
+    "119-84-6",
+    "123-31-9",
+    "1303-96-4",
+    "1330-43-4",
+    "1332-07-6",
+    "134-31-6",
+    "137-26-8",
+    "13840-56-7",
+    "148-24-3",
+    "26651-96-7",
+    "2814-77-9",
+    "357-57-3",
+    "463-57-0",
+    "50-00-0"
+   ],
+   "also_in_other_list_count": 33,
+   "matched_sample_cas": [
+    "10163-15-2",
+    "106-50-3",
+    "108-46-3",
+    "111-46-6",
+    "111-76-2",
+    "119-36-8",
+    "123-31-9",
+    "127-47-9",
+    "134-31-6",
+    "14807-96-6"
+   ]
+  },
+  "hotlist_all_in_cosing_all_annexes": {
+   "matched": 486,
+   "total": 691,
+   "also_in_other_list": [],
+   "also_in_other_list_count": 0,
+   "matched_sample_cas": [
+    "100-44-7",
+    "10043-35-3",
+    "1008-65-7",
+    "101-31-5",
+    "10163-15-2",
+    "103-16-2",
+    "10377-81-8",
+    "104-27-8",
+    "104-98-3",
+    "105-41-9"
+   ]
+  },
+  "cosing_annexII_in_hotlist_prohibited": {
+   "matched": 400,
+   "total": 2114,
+   "also_in_other_list": [
+    "10043-35-3",
+    "10377-81-8",
+    "106-97-8",
+    "111-46-6",
+    "11113-50-1",
+    "119-61-9",
+    "119-84-6",
+    "123-31-9",
+    "1303-96-4",
+    "1330-43-4",
+    "1332-07-6",
+    "134-31-6",
+    "137-26-8",
+    "13840-56-7",
+    "148-24-3",
+    "26651-96-7",
+    "2814-77-9",
+    "357-57-3",
+    "463-57-0",
+    "50-00-0"
+   ],
+   "also_in_other_list_count": 33,
+   "matched_sample_cas": [
+    "100-44-7",
+    "1008-65-7",
+    "101-31-5",
+    "103-16-2",
+    "104-27-8",
+    "104-98-3",
+    "105-41-9",
+    "1050-48-2",
+    "106-88-7",
+    "106-89-8"
+   ]
+  },
+  "cosing_annexIII_in_hotlist_restricted": {
+   "matched": 35,
+   "total": 509,
+   "also_in_other_list": [
+    "127-65-1",
+    "8007-48-5"
+   ],
+   "also_in_other_list_count": 2,
+   "matched_sample_cas": [
+    "10163-15-2",
+    "106-50-3",
+    "108-46-3",
+    "111-46-6",
+    "111-76-2",
+    "119-36-8",
+    "123-31-9",
+    "127-47-9",
+    "134-31-6",
+    "14807-96-6"
+   ]
+  }
+ },
+ "hand_check_restricted_pairs": [
+  {
+   "cas": "10163-15-2",
+   "hotlist_chemical": "Fluoride containing substances",
+   "hotlist_max_concentration": "",
+   "cosing_name": "Sodium monofluorophosphate",
+   "cosing_max_concentration": "0.15% calculated as F.\r\nWhen mixed with other fluorine compounds permitted under this Annex, total F concentration must not exceed 0.15%"
+  },
+  {
+   "cas": "111-76-2",
+   "hotlist_chemical": "Butoxyethanol",
+   "hotlist_max_concentration": "10%",
+   "cosing_name": "Ethylene glycol monobutyl ether (EGBE)",
+   "cosing_max_concentration": "a) 4.0%\r\nb) 2.0%"
+  },
+  {
+   "cas": "134-31-6",
+   "hotlist_chemical": "8-Hydroxyquinoline and its sulfate",
+   "hotlist_max_concentration": "a) 0.3%",
+   "cosing_name": "bis(8-hydroxyquinolinium) sulphate",
+   "cosing_max_concentration": "(a) (0,3 % as base)\r\n\r\n(b) (0,03 % as base)"
+  },
+  {
+   "cas": "615-50-9",
+   "hotlist_chemical": "Coal tar dye",
+   "hotlist_max_concentration": "",
+   "cosing_name": "Toluene-2,5-diamine \r\nToluene-2,5-diamine sulphate",
+   "cosing_max_concentration": ""
+  },
+  {
+   "cas": "68-26-8",
+   "hotlist_chemical": "Retinol and its esters",
+   "hotlist_max_concentration": "0.2% total retinol equivalents",
+   "cosing_name": "(2E,4E,6E,8E)-3,7-dimethyl-9-(2,6,6-trimethylcyclohexen-1-yl)nona-2,4,6,8-tetraen-1-ol; \n[(2E,4E,6E,",
+   "cosing_max_concentration": "(a) 0,05 % Retinol Equivalent (RE)\n\n(b) 0,3 % RE\n\n"
+  },
+  {
+   "cas": "7440-22-4",
+   "hotlist_chemical": "Silver and its salts",
+   "hotlist_max_concentration": "a) 0.04%",
+   "cosing_name": "Silver (powder) [100 nm < particle diameter < 1 mm]",
+   "cosing_max_concentration": "For (a) and (b): 0,05 %"
+  },
+  {
+   "cas": "7783-47-3",
+   "hotlist_chemical": "Fluoride containing substances",
+   "hotlist_max_concentration": "",
+   "cosing_name": "Stannous Fluoride",
+   "cosing_max_concentration": "0,15 % calculated as F. \r\nWhen mixed with other fluorine compounds permitted under this Annex, total F concentration must not exceed 0,15 %"
+  },
+  {
+   "cas": "8016-84-0",
+   "hotlist_chemical": "Tagetes oil and absolute",
+   "hotlist_max_concentration": "a) 0.01%",
+   "cosing_name": "Tagetes minuta flower extract; Tagetes minuta flower oil",
+   "cosing_max_concentration": "(a) 0,01 %\r\n(b) 0,1 %"
+  }
+ ],
+ "uk_legislation": {
+  "annex_II": {
+   "http": 200,
+   "bytes": 880108,
+   "distinct_cas": 2073,
+   "in_cosing_same_annex": 2054,
+   "in_cosing_any_annex": 2054
+  },
+  "annex_III": {
+   "http": 200,
+   "bytes": 1344903,
+   "distinct_cas": 366,
+   "in_cosing_same_annex": 360,
+   "in_cosing_any_annex": 364
+  },
+  "annex_IV": {
+   "http": 200,
+   "bytes": 86449,
+   "distinct_cas": 16,
+   "in_cosing_same_annex": 16,
+   "in_cosing_any_annex": 16
+  },
+  "annex_V": {
+   "http": 200,
+   "bytes": 138561,
+   "distinct_cas": 131,
+   "in_cosing_same_annex": 131,
+   "in_cosing_any_annex": 131
+  },
+  "annex_VI": {
+   "http": 200,
+   "bytes": 94298,
+   "distinct_cas": 33,
+   "in_cosing_same_annex": 33,
+   "in_cosing_any_annex": 33
+  },
+  "uk_annexII_vs_cosing_annexII": {
+   "matched": 2054,
+   "total": 2073
+  },
+  "uk_restricted_lists_vs_cosing_III_to_VI": {
+   "matched": 525,
+   "total": 530
+  },
+  "contents_http": 200
+ },
+ "fda_prohibited_restricted_page": {
+  "http": 200,
+  "bytes": 42062,
+  "valid_cas_found": 0,
+  "names_probe": {
+   "bithionol": true,
+   "chloroform": true,
+   "mercury": true,
+   "vinyl chloride": true,
+   "methylene chloride": true,
+   "hexachlorophene": true,
+   "zirconium": true,
+   "prohibited cattle materials": true
+  }
+ }
+}
