@@ -57,10 +57,13 @@ beforeAll(async () => {
     }
     });
   }
+  // Slots are relative to the wall clock: the planner treats a run less than a refresh interval after the previous
+  // acquisition as NOT_DUE, so fixed calendar dates stop working once the clock approaches them.
+  const slot=(days:number)=>new Date(Math.floor((Date.now()+days*86_400_000)/86_400_000)*86_400_000).toISOString();
   oldRun=await acquire(0,'2026-09-08T00:00:00.000Z');
-  newerRun=await acquire(0,'2026-10-18T00:00:00.000Z');
-  otherTargetRun=await acquire(0,'2026-10-19T00:00:00.000Z','another-target');
-  otherSourceRun=await acquire(2,'2026-10-20T00:00:00.000Z','catalog-api');
+  newerRun=await acquire(0,slot(3));
+  otherTargetRun=await acquire(0,slot(4),'another-target');
+  otherSourceRun=await acquire(2,slot(5),'catalog-api');
   replacement=await delivery(newerRun,'PUBLISHED');
 });
 afterAll(async () => factory?.close());

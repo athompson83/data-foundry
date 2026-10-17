@@ -1,0 +1,338 @@
+{
+ "what": "20 of the 146 OPSS notices whose GTIN equals a Safety Gate GTIN (every 7th), compared by hand on UK title vs Safety Gate brand/name/product",
+ "reviewed": {
+  "correct": 19,
+  "checked": 20
+ },
+ "pairs": [
+  {
+   "uk": "Product Safety Report: Squishy Dumpling D-9373 (2609-0028)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-squishy-dumpling-d-9373-2609-0028",
+   "sg": [
+    {
+     "case": "SR/02882/26",
+     "brand": "",
+     "name": "Squishy Dumpling",
+     "product": "Sensory toy",
+     "barcode": "0562723240557"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: B&Q Table Fan (2607-0303)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-b-and-q-table-fan-2607-0303",
+   "sg": [
+    {
+     "case": "SR/02317/26",
+     "brand": "",
+     "name": "",
+     "product": "Fan",
+     "barcode": "5063022605689"
+    }
+   ],
+   "verdict": "uncertain",
+   "note": "UK \"B&Q Table Fan\" vs Safety Gate record with no brand or name, only product \"Fan\"; GTIN equal but nothing else confirms the product"
+  },
+  {
+   "uk": "Product Safety Report: Dongguan Mumiy Technology Industry Co Ltd Colobyby Baby Self Feeding Bottle (2606-0119)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-dongguan-mumiy-technology-industry-co-ltd-colobyby-baby-self-feeding-bottle-2606-0119",
+   "sg": [
+    {
+     "case": "SR/02012/26",
+     "brand": "Dongguan Mumiy Technology Industry Co Ltd",
+     "name": "Colobyby Baby Self Feeding Bottle",
+     "product": "Baby self-feeding bottles",
+     "barcode": "6970367837066"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: Disney Frozen Bath Bomb Set sold by TK Maxx (2604-0007)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-disney-frozen-bath-bomb-set-sold-by-tk-maxx-2604-0007",
+   "sg": [
+    {
+     "case": "SR/01316/26",
+     "brand": "Disney",
+     "name": "Frozen Bath Bomb Set",
+     "product": "Bath bomb set",
+     "barcode": "3666085950462"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: SOKANY “Electric Grill Maker”  (2603-0226)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-sokany-grill-maker-2603-0226",
+   "sg": [
+    {
+     "case": "SR/01184/26",
+     "brand": "Sokany",
+     "name": "Grill Maker",
+     "product": "Electric grill",
+     "barcode": "6974824282239"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: Air Heater, CRY-786 (2601-0356)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-air-heater-cry-786-2601-0356",
+   "sg": [
+    {
+     "case": "SR/00972/26",
+     "brand": "",
+     "name": "Air Heater",
+     "product": "Fan heater",
+     "barcode": "6979461631365"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: Letsvan Fuzzy Trendy Fun Party Doll (2510-0160)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-letsvan-fuzzy-trendy-fun-party-doll-2510-0160",
+   "sg": [
+    {
+     "case": "SR/00430/26",
+     "brand": "Letsvan",
+     "name": "Fuzzy Trendy Fun Party Doll",
+     "product": "Soft toy",
+     "barcode": "6974773055557"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: E-Bike Conversion Kit (2511-0171)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-e-bike-conversion-kit-2511-0171",
+   "sg": [
+    {
+     "case": "SR/04289/25",
+     "brand": "Arko",
+     "name": "Arko Comfort After Shave Cologne",
+     "product": "Aftershave",
+     "barcode": "250630678913"
+    },
+    {
+     "case": "SR/04429/25",
+     "brand": "",
+     "name": "E-Bike Conversion Kit",
+     "product": "E-bike conversion kit",
+     "barcode": "250630678913"
+    }
+   ],
+   "verdict": "correct",
+   "note": "UK E-bike kit equals SR/04429/25 (E-Bike Conversion Kit, correct); the same barcode also sits on unrelated Safety Gate alert SR/04289/25 (Arko aftershave): a barcode error in one source, so a GTIN link must stay product-level and be reviewed on conflict"
+  },
+  {
+   "uk": "Product Safety Report: Les Laboratoires Biopharma Rapid Clair Super Eclaircissant Lightening Cream  (2505-0100)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-les-laboratoires-biopharma-rapid-clair-super-eclaircissant-lightening-cream-2505-0100",
+   "sg": [
+    {
+     "case": "SR/03772/25",
+     "brand": "Les Laboratoires Biopharma",
+     "name": "Rapid Clair Super Eclaircissant Lightening Cream",
+     "product": "Skin lightening cream",
+     "barcode": "3700607900013"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: Poundland 8-Pack of Valentine's Day Heart Balloons (2506-0139)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-poundland-8-pack-of-valentines-day-heart-balloons-2506-0139",
+   "sg": [
+    {
+     "case": "SR/02339/25",
+     "brand": "Poundland/Dealz",
+     "name": "Valentine’s Day balloons",
+     "product": "Balloons",
+     "barcode": "5045735005543"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: MiniDream Tummy Time Pillow sold via Amazon (2504-0139d)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-minidream-tummy-time-pillow-sold-via-amazon-2504-0139d",
+   "sg": [
+    {
+     "case": "SR/02333/25",
+     "brand": "MiniDream",
+     "name": "Tummy Time Pillow",
+     "product": "Toy pillow",
+     "barcode": "5060727543278"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: Dinosaur-Themed Children's Scooter (2502-0079)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-dinosaur-themed-childrens-scooter-2502-0079",
+   "sg": [
+    {
+     "case": "SR/01768/25",
+     "brand": "",
+     "name": "Dinosaur-Themed Children’s Scooter",
+     "product": "Children's scooter",
+     "barcode": "0764460046250"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: Home Teeth Whitening Diamond White Toothpaste (2502-0123)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-home-teeth-whitening-diamond-white-toothpaste-2502-0123",
+   "sg": [
+    {
+     "case": "SR/01136/25",
+     "brand": "Home Teeth Whitening",
+     "name": "DIAMOND WHITE",
+     "product": "Toothpaste",
+     "barcode": "659675851839"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: Nuagé Ceramide Gentle Cleanser (2501-0157)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-nuage-ceramide-gentle-cleanser-2501-0157",
+   "sg": [
+    {
+     "case": "A12/03398/24",
+     "brand": "Nuagé",
+     "name": "Ceramide Gentle Cleanser + ceramides + hyaluronic acid",
+     "product": "Cleanser",
+     "barcode": "5053249265476"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: Matalan Doughnuts Christmas Tree Decorations 3PK (2412-0135)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-matalan-doughnuts-christmas-tree-decorations-3pk-2412-0135",
+   "sg": [
+    {
+     "case": "SR/00686/25",
+     "brand": "Matalan",
+     "name": "Dougnuts Christmas Tree Decoration 3PK",
+     "product": "Christmas decoration",
+     "barcode": "6207659000007"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: Hush by Venture Bedside Crib (2412-0016)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-hush-by-venture-bedside-crib-2412-0016",
+   "sg": [
+    {
+     "case": "SR/00707/25",
+     "brand": "Venture",
+     "name": "Hush",
+     "product": "Children's cot",
+     "barcode": "5060656240576"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: Petzl Laser Speed 10CM Ice Screws (2410-0026)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-petzl-laser-speed-10cm-ice-screws-2410-0026",
+   "sg": [
+    {
+     "case": "A12/02449/24",
+     "brand": "Petzl",
+     "name": "Laser speed 10 cm",
+     "product": "Ice anchor",
+     "barcode": "3342540832695"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: 2-Pack Baby Girl Licensed Minnie Mouse Bodysuit sold by Poundland (2404-0126)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-2-pack-baby-girl-licensed-minnie-mouse-bodysuit-sold-by-poundland-2404-0126",
+   "sg": [
+    {
+     "case": "A12/01308/24",
+     "brand": "Pep &amp; Co",
+     "name": "Minnie Mouse Bodysuit",
+     "product": "Babies' clothing",
+     "barcode": "5045735552733, 5045735552740, 5045735552"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Recall: Creepy town hanging ghost sold by Poundland (2310-0186)",
+   "link": "/product-safety-alerts-reports-recalls/product-recall-creepy-town-hanging-ghost-sold-by-poundland-2310-0186",
+   "sg": [
+    {
+     "case": "INFO/00153/23",
+     "brand": "",
+     "name": "Hanging Ghost",
+     "product": "Halloween decoration",
+     "barcode": "5045733253472"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  },
+  {
+   "uk": "Product Safety Report: RODIS Creme Skin Light (2212-0099)",
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-rodis-creme-skin-light-2212-0099",
+   "sg": [
+    {
+     "case": "A12/01459/22",
+     "brand": "Rodis",
+     "name": "Creme Skin Light",
+     "product": "Skin lightening cream",
+     "barcode": "6181100463125"
+    }
+   ],
+   "verdict": "correct",
+   "note": null
+  }
+ ],
+ "opss_vs_cpsc": {
+  "reviewed": {
+   "correct": 2,
+   "checked": 2
+  },
+  "pairs": [
+   {
+    "uk": "Boxine tonies Blocks (2203-0518)",
+    "cpsc": "22736 Boxine U.S. Recalls tonies Blocks Due to Magnet Ingestion Hazard",
+    "shared_gtin14": 3,
+    "of_uk": 3,
+    "verdict": "correct: all three UPC-12s equal, same product"
+   },
+   {
+    "uk": "Rainbow Road Board Books (2309-0140 and 2310-0060)",
+    "cpsc": "23292 Make Believe Ideas Recalls Seven Rainbow Road Board Books Due to Choking Hazard",
+    "shared_gtin14": 8,
+    "of_uk": 24,
+    "verdict": "correct: 8 shared ISBN-13 barcodes, same publisher and series (UK lists 24 ISBNs, CPSC 13)"
+   }
+  ]
+ }
+}

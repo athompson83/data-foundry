@@ -78,6 +78,14 @@ describe('product-recall ingestion', () => {
     expect(row).toEqual({ first_seen_at: NOW, changed_at: '2026-09-29T00:00:00.000Z' });
   });
 
+  it('fails a CPSC response whose records are an error body rather than recalls', async () => {
+    const env = makeEnv();
+    await expect(ingestRecords(env, 'CPSC', [{ Message: 'An error has occurred.' }], 'window', NOW)).rejects.toThrow(/holds no recall notice/);
+    const run = await env.DB.prepare("SELECT status FROM sync_run ORDER BY id DESC LIMIT 1").first<{ status: string }>();
+    expect(run?.status).toBe('FAILED');
+    await expect(ingestRecords(env, 'CPSC', [], 'window', NOW)).resolves.toMatchObject({ fetched: 0 });
+  });
+
   it('refuses a truncated full list instead of treating it as the whole source', async () => {
     const env = makeEnv();
     const fetcher = vi.fn(async (url: string) => new Response(JSON.stringify(String(url).includes('canada.ca') ? [HC] : [CPSC]), { status: 200 }));

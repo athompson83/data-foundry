@@ -1,0 +1,183 @@
+{
+ "calfire_total": 539,
+ "calfire_wildfire": 522,
+ "wfigs_ca_ytd": 8984,
+ "wfigs_error": null,
+ "name_and_date_within_2d": 442,
+ "county_equal": 413,
+ "county_and_acres_within_25pct": 324,
+ "sample": [
+  {
+   "calfire": "Lamb Fire",
+   "started": "2026-01-24",
+   "match": [
+    "{381AF76A-E32C-4F3A-BB48-ACFAB9585966}"
+   ]
+  },
+  {
+   "calfire": "East Fork Fire",
+   "started": "2026-01-27",
+   "match": [
+    "{EF83FF75-8AFD-4954-B501-210AABD1B753}"
+   ]
+  },
+  {
+   "calfire": "Ag Fire",
+   "started": "2026-02-06",
+   "match": [
+    "{A7E2CD66-4B8A-46B7-AF59-237682D1A9FC}"
+   ]
+  },
+  {
+   "calfire": "Valley Fire",
+   "started": "2026-03-13",
+   "match": [
+    "{4733FEF1-A96B-4433-90EC-B6EDFFC2B2DA}"
+   ]
+  },
+  {
+   "calfire": "Canyon Fire",
+   "started": "2026-03-21",
+   "match": [
+    "{0B9935C5-5840-444A-8625-837D37574093}"
+   ]
+  },
+  {
+   "calfire": "Hunter Fire",
+   "started": "2026-03-22",
+   "match": [
+    "{48B55547-2AA7-4E2A-9571-BE216E48FBB3}"
+   ]
+  },
+  {
+   "calfire": "Derrick Fire",
+   "started": "2026-03-24",
+   "match": [
+    "{8AE3B04E-ADC2-40B8-BD53-1EF27A0397C1}"
+   ]
+  },
+  {
+   "calfire": "Almond Fire",
+   "started": "2026-03-24",
+   "match": [
+    "{E3330EDF-5710-4374-BD51-5E8DE2389703}"
+   ]
+  },
+  {
+   "calfire": "Deer Fire",
+   "started": "2026-03-24",
+   "match": [
+    "{160D4D7A-CFE0-4146-8730-380F86E1A96C}"
+   ]
+  },
+  {
+   "calfire": "Oso Fire",
+   "started": "2026-03-25",
+   "match": [
+    "{E205162F-3438-4852-B907-E64673AAB8FB}"
+   ]
+  },
+  {
+   "calfire": "Paramount Fire",
+   "started": "2026-03-25",
+   "match": [
+    "{CAF38716-4B9D-45FA-A830-8F7AE15720D9}"
+   ]
+  },
+  {
+   "calfire": "Sheep Springs Fire",
+   "started": "2026-03-27",
+   "match": [
+    "{0D09746F-50AF-4297-8A94-753AD590BFD5}"
+   ]
+  },
+  {
+   "calfire": "Sunny Fire",
+   "started": "2026-03-28",
+   "match": [
+    "{018D74A3-0E0B-4655-85DE-F8EE63BC8F0C}"
+   ]
+  },
+  {
+   "calfire": "Well Fire",
+   "started": "2026-04-02",
+   "match": [
+    "{F70C01C7-B182-4B7A-BE9E-DF14D658E988}"
+   ]
+  },
+  {
+   "calfire": "Springs Fire",
+   "started": "2026-04-03",
+   "match": [
+    "{19B4B6F0-8552-4158-A7C5-6A251EA97AD9}"
+   ]
+  },
+  {
+   "calfire": "Crown Fire",
+   "started": "2026-04-03",
+   "match": [
+    "{5E22814A-22AE-496D-B0A3-96B17F6CAD0D}"
+   ]
+  },
+  {
+   "calfire": "Serena Fire",
+   "started": "2026-04-05",
+   "match": [
+    "{62209EB0-3934-4BED-A7AA-31133B7E0B60}"
+   ]
+  },
+  {
+   "calfire": "Blue Fire",
+   "started": "2026-04-06",
+   "match": [
+    "{568906ED-7BB5-49CD-8623-6ED87897D05E}"
+   ]
+  },
+  {
+   "calfire": "Swiss Fire",
+   "started": "2026-04-07",
+   "match": [
+    "{C2908934-418B-45E9-86CE-602A69A0BF73}"
+   ]
+  },
+  {
+   "calfire": "Bourbon Fire",
+   "started": "2026-04-08",
+   "match": []
+  },
+  {
+   "calfire": "Jess Fire",
+   "started": "2026-04-08",
+   "match": [
+    "{09C1A661-F287-48BC-9946-82CF39197490}"
+   ]
+  },
+  {
+   "calfire": "Rider Fire",
+   "started": "2026-04-10",
+   "match": [
+    "{7C9D0B9F-4087-4555-8C7F-03BC46315239}"
+   ]
+  },
+  {
+   "calfire": "Hill Fire",
+   "started": "2026-04-11",
+   "match": [
+    "{B04C7A39-762E-4C2C-A38F-D379B588C8D3}"
+   ]
+  },
+  {
+   "calfire": "19th Fire",
+   "started": "2026-04-14",
+   "match": []
+  },
+  {
+   "calfire": "Yearling Fire",
+   "started": "2026-04-15",
+   "match": [
+    "{AC3823E1-6D6C-4396-AE06-01AEB1F0BEFF}",
+    "{4FF4F669-E0D8-415B-B167-2F9F410D798A}"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,2526 @@
+{
+ "nhtsa_rows": 245855,
+ "nhtsa_campaigns": 15303,
+ "tc_requested": 360,
+ "tc_found": 314,
+ "matches": [
+  {
+   "tc": "2022001",
+   "mfr_no": "203-1454",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [
+    "22V003000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022002",
+   "mfr_no": "51-1449",
+   "make": "FOREST RIVER",
+   "nhtsa_campaigns": [
+    "22V004000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022003",
+   "mfr_no": "CM-X12-01072022",
+   "make": "ROSENBAUER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022004",
+   "mfr_no": "SC043",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022005",
+   "mfr_no": "165",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "21V942000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022006",
+   "mfr_no": "Z01",
+   "make": "JEEP",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022007",
+   "mfr_no": "FL-917",
+   "make": "TIFFIN",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022008",
+   "mfr_no": "FL-912",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022009",
+   "mfr_no": "22S01",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V013000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022010",
+   "mfr_no": "22PBA",
+   "make": "PETERBILT",
+   "nhtsa_campaigns": [
+    "22V016000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022011",
+   "mfr_no": "",
+   "make": "SUZUKI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022012",
+   "mfr_no": "99.01.64",
+   "make": "HEARTLAND",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022013",
+   "mfr_no": "",
+   "make": "GREAT DANE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022014",
+   "mfr_no": "22-419",
+   "make": "KEYSTONE",
+   "nhtsa_campaigns": [
+    "22V015000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022015",
+   "mfr_no": "33 01 22RC",
+   "make": "BMW",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022016",
+   "mfr_no": "",
+   "make": "SKI-DOO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022017",
+   "mfr_no": "R21B9",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [
+    "22V024000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022018",
+   "mfr_no": "SR-22-001",
+   "make": "MITSUBISHI",
+   "nhtsa_campaigns": [
+    "22V027000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022019",
+   "mfr_no": "51-1461",
+   "make": "STARCRAFT BUS",
+   "nhtsa_campaigns": [
+    "22V029000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022020",
+   "mfr_no": "ME-3200K1753-01252022",
+   "make": "ROSENBAUER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022021",
+   "mfr_no": "SRC RD3",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022022",
+   "mfr_no": "42L5",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "22V034000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022023",
+   "mfr_no": "RC157",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022024",
+   "mfr_no": "S-22-01",
+   "make": "POLARIS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022025",
+   "mfr_no": "Z08",
+   "make": "RAM",
+   "nhtsa_campaigns": [
+    "22V035000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022026",
+   "mfr_no": "S-22-02",
+   "make": "POLARIS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022027",
+   "mfr_no": "N212351030 / N212351031 / N212351032",
+   "make": "CADILLAC",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022029",
+   "mfr_no": "5491305",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022030",
+   "mfr_no": "910026",
+   "make": "GRAND DESIGN",
+   "nhtsa_campaigns": [
+    "22V038000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022031",
+   "mfr_no": "910027",
+   "make": "GRAND DESIGN",
+   "nhtsa_campaigns": [
+    "22V039000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022032",
+   "mfr_no": "",
+   "make": "LAKOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022033",
+   "mfr_no": "ANA1",
+   "make": "PORSCHE",
+   "nhtsa_campaigns": [
+    "22V040000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022034",
+   "mfr_no": "MK91",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022035",
+   "mfr_no": "",
+   "make": "NEWMAR",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022036",
+   "mfr_no": "21T-018",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [
+    "22V046000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022037",
+   "mfr_no": "SB-22-00-002",
+   "make": "TESLA",
+   "nhtsa_campaigns": [
+    "22V045000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022038",
+   "mfr_no": "0631",
+   "make": "HARLEY-DAVIDSON",
+   "nhtsa_campaigns": [
+    "22V030000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022039",
+   "mfr_no": "M22-011",
+   "make": "YAMAHA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022040",
+   "mfr_no": "",
+   "make": "TRAILS WEST",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022041",
+   "mfr_no": "",
+   "make": "FIRESTONE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022044",
+   "mfr_no": "RC158",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022045",
+   "mfr_no": "FL-888",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022046",
+   "mfr_no": "R0208 (21D023)",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022049",
+   "mfr_no": "FL-884",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022050",
+   "mfr_no": "MK92",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022052",
+   "mfr_no": "CSN 842",
+   "make": "ALTEC",
+   "nhtsa_campaigns": [
+    "21V998000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022053",
+   "mfr_no": "C2532",
+   "make": "SUTPHEN",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022054",
+   "mfr_no": "91DF",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "22V064000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022055",
+   "mfr_no": "",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022056",
+   "mfr_no": "22-420",
+   "make": "KEYSTONE",
+   "nhtsa_campaigns": [
+    "22V048000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022057",
+   "mfr_no": "FL-912",
+   "make": "FLEETWOOD RV",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022058",
+   "mfr_no": "TIF-120",
+   "make": "TIFFIN",
+   "nhtsa_campaigns": [
+    "22V068000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022059",
+   "mfr_no": "TIF-121",
+   "make": "TIFFIN",
+   "nhtsa_campaigns": [
+    "22V055000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022060",
+   "mfr_no": "M22-013",
+   "make": "YAMAHA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022061",
+   "mfr_no": "5891715",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022063",
+   "mfr_no": "Z11",
+   "make": "CHRYSLER",
+   "nhtsa_campaigns": [
+    "22V077000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022064",
+   "mfr_no": "N664",
+   "make": "RANGE ROVER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022065",
+   "mfr_no": "5493104",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022066",
+   "mfr_no": "74B318",
+   "make": "PIERCE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022067",
+   "mfr_no": "72M6",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "22V084000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022068",
+   "mfr_no": "06E7",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "22V085000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022069",
+   "mfr_no": "22C02",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V088000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022070",
+   "mfr_no": "22S06",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V082000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022071",
+   "mfr_no": "22503",
+   "make": "INTERNATIONAL",
+   "nhtsa_campaigns": [
+    "22V092000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022073",
+   "mfr_no": "22S08",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V089000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022074",
+   "mfr_no": "22S09",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V087000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022075",
+   "mfr_no": "22S07",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V083000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022076",
+   "mfr_no": "RC0000256",
+   "make": "THOR MOTOR COACH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022077",
+   "mfr_no": "RC159",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022078",
+   "mfr_no": "",
+   "make": "NEWMAR",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022079",
+   "mfr_no": "",
+   "make": "E-ONE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022080",
+   "mfr_no": "22_T003",
+   "make": "CONTINENTAL",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022081",
+   "mfr_no": "FL-917",
+   "make": "ITASCA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022082",
+   "mfr_no": "FL-917",
+   "make": "FLEETWOOD RV",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022083",
+   "mfr_no": "ANA4",
+   "make": "PORSCHE",
+   "nhtsa_campaigns": [
+    "22V100000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022084",
+   "mfr_no": "44S3",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "22V102000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022085",
+   "mfr_no": "5492313",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022086",
+   "mfr_no": "SRC RD4",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022087",
+   "mfr_no": "",
+   "make": "KME",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2022089",
+   "mfr_no": "22S10",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "22V109000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023001",
+   "mfr_no": "CA10253",
+   "make": "LEISURE TRAVEL VANS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023002",
+   "mfr_no": "171",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "22V863000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023004",
+   "mfr_no": "",
+   "make": "LODE KING",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023005",
+   "mfr_no": "",
+   "make": "ABS TRAILERS /  ABS REMORQUES",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023006",
+   "mfr_no": "SRAN605",
+   "make": "TRIUMPH",
+   "nhtsa_campaigns": [
+    "23V006000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023007",
+   "mfr_no": "23PBA / 22KWA",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023008",
+   "mfr_no": "03A",
+   "make": "CHRYSLER",
+   "nhtsa_campaigns": [
+    "23V010000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023009",
+   "mfr_no": "23 01 23RC",
+   "make": "BMW",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023010",
+   "mfr_no": "R10217",
+   "make": "VOLVO",
+   "nhtsa_campaigns": [
+    "23V012000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023011",
+   "mfr_no": "BR23-01",
+   "make": "CFMOTO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023012",
+   "mfr_no": "A-23-02",
+   "make": "POLARIS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023013",
+   "mfr_no": "N222372310",
+   "make": "CHEVROLET",
+   "nhtsa_campaigns": [
+    "23V013000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023014",
+   "mfr_no": "24-1592",
+   "make": "AMERA-LITE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023015",
+   "mfr_no": "WRA-23",
+   "make": "SUBARU",
+   "nhtsa_campaigns": [
+    "23V016000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023016",
+   "mfr_no": "R0230 (21D181)",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023017",
+   "mfr_no": "V2301",
+   "make": "ISUZU",
+   "nhtsa_campaigns": [
+    "23V017000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023018",
+   "mfr_no": "23S02",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "23V022000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023019",
+   "mfr_no": "22v757",
+   "make": "ELGIN SWEEPER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023021",
+   "mfr_no": "SC0440",
+   "make": "MACK",
+   "nhtsa_campaigns": [
+    "23V024000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023023",
+   "mfr_no": "R2023-01-001",
+   "make": "LION",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023024",
+   "mfr_no": "APA1",
+   "make": "PORSCHE",
+   "nhtsa_campaigns": [
+    "23V033000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023025",
+   "mfr_no": "225-1601",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [
+    "23V061000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023026",
+   "mfr_no": "13A",
+   "make": "RAM",
+   "nhtsa_campaigns": [
+    "23V060000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023028",
+   "mfr_no": "FL-963",
+   "make": "WESTERN STAR",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023029",
+   "mfr_no": "RE23/02 (RC67)",
+   "make": "BENTLEY",
+   "nhtsa_campaigns": [
+    "23V034000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023030",
+   "mfr_no": "R2023-01-002",
+   "make": "LION",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023031",
+   "mfr_no": "R2023-01-003",
+   "make": "LION",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023032",
+   "mfr_no": "RC176",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023033",
+   "mfr_no": "52 80 23RC",
+   "make": "BMW",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023034",
+   "mfr_no": "97ZZ",
+   "make": "VOLKSWAGEN",
+   "nhtsa_campaigns": [
+    "23V040000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023035",
+   "mfr_no": "SRC RE7",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023036",
+   "mfr_no": "SN715",
+   "make": "TEREX",
+   "nhtsa_campaigns": [
+    "22V893000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023037",
+   "mfr_no": "N767",
+   "make": "LAND ROVER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023039",
+   "mfr_no": "N763",
+   "make": "LAND ROVER",
+   "nhtsa_campaigns": [
+    "23V044000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023040",
+   "mfr_no": "N222368030",
+   "make": "CHEVROLET",
+   "nhtsa_campaigns": [
+    "23V047000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023041",
+   "mfr_no": "HP35 / HP36",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023042",
+   "mfr_no": "34 01 23RC",
+   "make": "BMW",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023044",
+   "mfr_no": "",
+   "make": "CAN-AM",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023045",
+   "mfr_no": "R22C5",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [
+    "23V048000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023046",
+   "mfr_no": "FL-964",
+   "make": "FREIGHTLINER",
+   "nhtsa_campaigns": [
+    "23V063000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023047",
+   "mfr_no": "14A",
+   "make": "RAM",
+   "nhtsa_campaigns": [
+    "23V059000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023048",
+   "mfr_no": "23501",
+   "make": "IC BUS",
+   "nhtsa_campaigns": [
+    "23V065000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023049",
+   "mfr_no": "23502",
+   "make": "IC BUS",
+   "nhtsa_campaigns": [
+    "23V066000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023050",
+   "mfr_no": "RC000289",
+   "make": "THOR MOTOR COACH",
+   "nhtsa_campaigns": [
+    "23V068000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023051",
+   "mfr_no": "FL-966",
+   "make": "FREIGHTLINER",
+   "nhtsa_campaigns": [
+    "23V073000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023052",
+   "mfr_no": "PC944 / PC945 / PC946",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [
+    "23V067000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023053",
+   "mfr_no": "PC947 / PC948 / PC949",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [
+    "23E012000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023054",
+   "mfr_no": "23C01",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "23V072000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023055",
+   "mfr_no": "23S04",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "23V071000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023056",
+   "mfr_no": "23S05",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "23V069000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023057",
+   "mfr_no": "23S06",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "23V070000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023058",
+   "mfr_no": "",
+   "make": "LAKOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023059",
+   "mfr_no": "2023-001",
+   "make": "SAFARI CONDO",
+   "nhtsa_campaigns": [
+    "23V107000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023060",
+   "mfr_no": "FL-965",
+   "make": "FREIGHTLINER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023061",
+   "mfr_no": "32 80 23RC & 32 81 23RC",
+   "make": "BMW",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023062",
+   "mfr_no": "WRD-23",
+   "make": "SUBARU",
+   "nhtsa_campaigns": [
+    "23V080000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023063",
+   "mfr_no": "SB-23-00-001",
+   "make": "TESLA",
+   "nhtsa_campaigns": [
+    "23V085000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023064",
+   "mfr_no": "",
+   "make": "TRUCK OUTFITTERS CANADA INC.",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023065",
+   "mfr_no": "MB 22V-796",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [
+    "23V081000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023066",
+   "mfr_no": "23E014",
+   "make": "BRAUNABILITY",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023067",
+   "mfr_no": "23-439",
+   "make": "KEYSTONE",
+   "nhtsa_campaigns": [
+    "23V082000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023068",
+   "mfr_no": "50G5",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "23V086000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023069",
+   "mfr_no": "69ET",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "23V084000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023070",
+   "mfr_no": "23KWB & 23PBB",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023071",
+   "mfr_no": "9903584",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [
+    "23V091000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023074",
+   "mfr_no": "R0231 (31D015)",
+   "make": "GENESIS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023075",
+   "mfr_no": "84 80 23RC",
+   "make": "BMW",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023076",
+   "mfr_no": "5491809",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023077",
+   "mfr_no": "5491810",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [
+    "23V101000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023078",
+   "mfr_no": "R22C9",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023080",
+   "mfr_no": "8297010",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [
+    "23V100000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023083",
+   "mfr_no": "FL-967",
+   "make": "FREIGHTLINER",
+   "nhtsa_campaigns": [
+    "23V105000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023084",
+   "mfr_no": "SRC RE8",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023086",
+   "mfr_no": "2023-01",
+   "make": "ROADTREK",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023087",
+   "mfr_no": "RC000294",
+   "make": "THOR MOTOR COACH",
+   "nhtsa_campaigns": [
+    "23V285000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023088",
+   "mfr_no": "2174",
+   "make": "SUZUKI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023089",
+   "mfr_no": "19A",
+   "make": "JEEP",
+   "nhtsa_campaigns": [
+    "23V116000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2023090",
+   "mfr_no": "20A",
+   "make": "DODGE",
+   "nhtsa_campaigns": [
+    "23V115000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024001",
+   "mfr_no": "",
+   "make": "CAKE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024002",
+   "mfr_no": "",
+   "make": "FOREST RIVER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024003",
+   "mfr_no": "",
+   "make": "E-ONE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024004",
+   "mfr_no": "CA-000-051",
+   "make": "VICINITY",
+   "nhtsa_campaigns": [
+    "24V059000",
+    "24V092000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024005",
+   "mfr_no": "R10256",
+   "make": "VOLVO",
+   "nhtsa_campaigns": [
+    "24V010000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024006",
+   "mfr_no": "FL992",
+   "make": "WESTERN STAR",
+   "nhtsa_campaigns": [
+    "24V013000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024007",
+   "mfr_no": "74B332",
+   "make": "PIERCE",
+   "nhtsa_campaigns": [
+    "24V012000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024008",
+   "mfr_no": "179",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "23V694000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024009",
+   "mfr_no": "",
+   "make": "E-ONE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024010",
+   "mfr_no": "BS202401",
+   "make": "ARCTIC CAT",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024011",
+   "mfr_no": "",
+   "make": "LODE KING",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024013",
+   "mfr_no": "",
+   "make": "AIRSTREAM",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024014",
+   "mfr_no": "SR-24-01-0",
+   "make": "LUCID",
+   "nhtsa_campaigns": [
+    "24V011000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024015",
+   "mfr_no": "24PBA / 24KWA",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024016",
+   "mfr_no": "608 RSB",
+   "make": "NEWMAR",
+   "nhtsa_campaigns": [
+    "24V019000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024017",
+   "mfr_no": "N778",
+   "make": "LAND ROVER",
+   "nhtsa_campaigns": [
+    "24V023000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024018",
+   "mfr_no": "6524A",
+   "make": "MAZDA",
+   "nhtsa_campaigns": [
+    "24V022000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024019",
+   "mfr_no": "181",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "24V024000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024020",
+   "mfr_no": "51-1727",
+   "make": "FOREST RIVER",
+   "nhtsa_campaigns": [
+    "24V029000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024022",
+   "mfr_no": "24501",
+   "make": "INTERNATIONAL",
+   "nhtsa_campaigns": [
+    "24V026000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024023",
+   "mfr_no": "RC196",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024024",
+   "mfr_no": "S-23-06",
+   "make": "POLARIS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024025",
+   "mfr_no": "",
+   "make": "MAXI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024026",
+   "mfr_no": "24S02",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "24V031000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024028",
+   "mfr_no": "TIF-135",
+   "make": "TIFFIN",
+   "nhtsa_campaigns": [
+    "24V036000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024029",
+   "mfr_no": "CR8294",
+   "make": "NOVA BUS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024034",
+   "mfr_no": "CR5546",
+   "make": "NOVA BUS",
+   "nhtsa_campaigns": [
+    "24V033000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024035",
+   "mfr_no": "225-1723",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [
+    "24V040000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024036",
+   "mfr_no": "24PBC / 24KWC",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024037",
+   "mfr_no": "S24-007",
+   "make": "YAMAHA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024038",
+   "mfr_no": "24PBB / 24KWB",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024039",
+   "mfr_no": "FL-987",
+   "make": "MORGAN OLSON",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024040",
+   "mfr_no": "2175",
+   "make": "SUZUKI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024041",
+   "mfr_no": "120-1729",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [
+    "24V045000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024042",
+   "mfr_no": "",
+   "make": "FORT GARRY FIRE TRUCKS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024044",
+   "mfr_no": "215-1730",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [
+    "24V047000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024045",
+   "mfr_no": "",
+   "make": "SKI-DOO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024046",
+   "mfr_no": "",
+   "make": "CFMOTO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024047",
+   "mfr_no": "SN724",
+   "make": "TEREX",
+   "nhtsa_campaigns": [
+    "24V042000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024048",
+   "mfr_no": "CSN-3142",
+   "make": "ALTEC",
+   "nhtsa_campaigns": [
+    "24V015000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024049",
+   "mfr_no": "CAM0000034",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "24V046000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024050",
+   "mfr_no": "CAM00000035",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024051",
+   "mfr_no": "PD102",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [
+    "24V053000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024052",
+   "mfr_no": "L62X-R.01.24",
+   "make": "LAMBORGHINI",
+   "nhtsa_campaigns": [
+    "23V826000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024053",
+   "mfr_no": "9903601",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [
+    "24V055000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024054",
+   "mfr_no": "RC197",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024055",
+   "mfr_no": "R24-02",
+   "make": "NEW FLYER",
+   "nhtsa_campaigns": [
+    "24V056000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024057",
+   "mfr_no": "CA-000-052",
+   "make": "VICINITY",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024058",
+   "mfr_no": "9903602",
+   "make": "ENTEGRA COACH",
+   "nhtsa_campaigns": [
+    "24V061000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024059",
+   "mfr_no": "",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024060",
+   "mfr_no": "N232431050",
+   "make": "CADILLAC",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024061",
+   "mfr_no": "N232426400",
+   "make": "CHEVROLET",
+   "nhtsa_campaigns": [
+    "24V060000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024062",
+   "mfr_no": "R0251",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024064",
+   "mfr_no": "8291907",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024066",
+   "mfr_no": "CR5555",
+   "make": "NOVA BUS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024067",
+   "mfr_no": "R24CX-C",
+   "make": "BLUE BIRD",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024068",
+   "mfr_no": "R23D7",
+   "make": "NISSAN",
+   "nhtsa_campaigns": [
+    "24V071000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024069",
+   "mfr_no": "SR-24-02-0",
+   "make": "LUCID",
+   "nhtsa_campaigns": [
+    "24V076000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024070",
+   "mfr_no": "R24CM-C",
+   "make": "BLUE BIRD",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024071",
+   "mfr_no": "",
+   "make": "HINO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024072",
+   "mfr_no": "RC198",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024073",
+   "mfr_no": "H471",
+   "make": "JAGUAR",
+   "nhtsa_campaigns": [
+    "24V085000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024074",
+   "mfr_no": "24503",
+   "make": "INTERNATIONAL",
+   "nhtsa_campaigns": [
+    "24V088000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024075",
+   "mfr_no": "24504",
+   "make": "IC BUS",
+   "nhtsa_campaigns": [
+    "24V089000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024079",
+   "mfr_no": "205-1735",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [
+    "24V094000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024080",
+   "mfr_no": "R0246",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024081",
+   "mfr_no": "5491318",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024083",
+   "mfr_no": "24S05",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "24V102000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024084",
+   "mfr_no": "24S06",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "24V099000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024085",
+   "mfr_no": "24S07",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "24V097000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024086",
+   "mfr_no": "68-1736",
+   "make": "FOREST RIVER",
+   "nhtsa_campaigns": [
+    "24V103000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024087",
+   "mfr_no": "34 80 24RC & A 02 2024 06",
+   "make": "ROLLS-ROYCE",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024088",
+   "mfr_no": "609 RSB",
+   "make": "NEWMAR",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024089",
+   "mfr_no": "R0252",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2024090",
+   "mfr_no": "R0253",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025001",
+   "mfr_no": "CSN-3206",
+   "make": "ALTEC",
+   "nhtsa_campaigns": [
+    "24V952000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025002",
+   "mfr_no": "SB-25-00-001",
+   "make": "TESLA",
+   "nhtsa_campaigns": [
+    "25V002000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025003",
+   "mfr_no": "SC088",
+   "make": "KIA",
+   "nhtsa_campaigns": [
+    "11V153000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025004",
+   "mfr_no": "",
+   "make": "PRINX TIRES",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025005",
+   "mfr_no": "R25DH",
+   "make": "BLUE BIRD",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025006",
+   "mfr_no": "VPAC-348",
+   "make": "VINFAST",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025007",
+   "mfr_no": "C10134",
+   "make": "MITSUBISHI FUSO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025008",
+   "mfr_no": "53-1883",
+   "make": "COACHMEN",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025009",
+   "mfr_no": "194",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "25V007000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025010",
+   "mfr_no": "MSC-2024-019",
+   "make": "KUBOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025011",
+   "mfr_no": "RC213",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025012",
+   "mfr_no": "01C",
+   "make": "JEEP",
+   "nhtsa_campaigns": [
+    "25V011000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025013",
+   "mfr_no": "05C/09C/10C",
+   "make": "RAM",
+   "nhtsa_campaigns": [
+    "25V010000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025014",
+   "mfr_no": "N242481530",
+   "make": "CHEVROLET",
+   "nhtsa_campaigns": [
+    "25V012000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025015",
+   "mfr_no": "N972",
+   "make": "LAND ROVER",
+   "nhtsa_campaigns": [
+    "25V016000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025016",
+   "mfr_no": "H535",
+   "make": "JAGUAR",
+   "nhtsa_campaigns": [
+    "25V017000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025018",
+   "mfr_no": "25PBA / 25KWA",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [
+    "25V014000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025020",
+   "mfr_no": "25S01",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V025000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025021",
+   "mfr_no": "RC214",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025022",
+   "mfr_no": "25S02",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V019000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025023",
+   "mfr_no": "25S03",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V020000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025025",
+   "mfr_no": "CAM0000041",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "25V029000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025026",
+   "mfr_no": "RA-30-2015",
+   "make": "ASTON MARTIN",
+   "nhtsa_campaigns": [
+    "25V001000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025027",
+   "mfr_no": "N975",
+   "make": "LAND ROVER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025028",
+   "mfr_no": "AM77",
+   "make": "ACURA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025029",
+   "mfr_no": "AM78 / HQ24",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025030",
+   "mfr_no": "CR285",
+   "make": "DUCATI",
+   "nhtsa_campaigns": [
+    "25V013000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025031",
+   "mfr_no": "SC0474",
+   "make": "MACK",
+   "nhtsa_campaigns": [
+    "25V030000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025032",
+   "mfr_no": "WRB-25",
+   "make": "SUBARU",
+   "nhtsa_campaigns": [
+    "25V033000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025034",
+   "mfr_no": "SB-25-00-004",
+   "make": "TESLA",
+   "nhtsa_campaigns": [
+    "25V092000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025035",
+   "mfr_no": "F1016 (Cummins #C7111)",
+   "make": "FREIGHTLINER CUSTOM CHASSIS (FCCC)",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025036",
+   "mfr_no": "25KWB / 25PBB",
+   "make": "KENWORTH",
+   "nhtsa_campaigns": [
+    "25V041000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025037",
+   "mfr_no": "SRC RJ5",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025038",
+   "mfr_no": "REC-2501",
+   "make": "BRINKLEY",
+   "nhtsa_campaigns": [
+    "25V042000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025039",
+   "mfr_no": "9901617",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [
+    "25V043000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025040",
+   "mfr_no": "F1017",
+   "make": "FREIGHTLINER",
+   "nhtsa_campaigns": [
+    "25V046000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025041",
+   "mfr_no": "5496507",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025043",
+   "mfr_no": "25S05",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V048000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025044",
+   "mfr_no": "M25-007",
+   "make": "YAMAHA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025045",
+   "mfr_no": "C7111",
+   "make": "NEW FLYER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025047",
+   "mfr_no": "CR5687 & CR8329",
+   "make": "NOVA BUS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025048",
+   "mfr_no": "Z-25-01",
+   "make": "POLARIS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025049",
+   "mfr_no": "HQ25",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025050",
+   "mfr_no": "SRC RJ6 / SRC RJ7",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025051",
+   "mfr_no": "SRC RJ8",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025052",
+   "mfr_no": "N242490120",
+   "make": "GMC",
+   "nhtsa_campaigns": [
+    "25V060000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025053",
+   "mfr_no": "AB2R0",
+   "make": "HINO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025054",
+   "mfr_no": "R0277",
+   "make": "HYUNDAI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025055",
+   "mfr_no": "",
+   "make": "CYBEX",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025056",
+   "mfr_no": "R10298",
+   "make": "VOLVO",
+   "nhtsa_campaigns": [
+    "25V071000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025057",
+   "mfr_no": "9903619",
+   "make": "JAYCO",
+   "nhtsa_campaigns": [
+    "25V072000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025058",
+   "mfr_no": "195",
+   "make": "WINNEBAGO",
+   "nhtsa_campaigns": [
+    "25V075000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025059",
+   "mfr_no": "M25-008",
+   "make": "YAMAHA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025060",
+   "mfr_no": "BR25-01",
+   "make": "CFMOTO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025061",
+   "mfr_no": "",
+   "make": "HUSQVARNA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025062",
+   "mfr_no": "",
+   "make": "SKI-DOO",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025063",
+   "mfr_no": "SRAN628",
+   "make": "TRIUMPH",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025064",
+   "mfr_no": "93AA",
+   "make": "AUDI",
+   "nhtsa_campaigns": [
+    "24V898000",
+    "25V080000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025066",
+   "mfr_no": "91NY/90AV",
+   "make": "AUDI",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025067",
+   "mfr_no": "ASA0",
+   "make": "PORSCHE",
+   "nhtsa_campaigns": [
+    "25V078000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025068",
+   "mfr_no": "ASA1",
+   "make": "PORSCHE",
+   "nhtsa_campaigns": [
+    "25V079000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025069",
+   "mfr_no": "RT-TC2025-01",
+   "make": "WESTFALIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025070",
+   "mfr_no": "SRC RJ9",
+   "make": "TOYOTA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025072",
+   "mfr_no": "N242490780",
+   "make": "CHEVROLET",
+   "nhtsa_campaigns": [
+    "25V087000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025073",
+   "mfr_no": "FSAM-612",
+   "make": "RIVIAN",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025074",
+   "mfr_no": "N978",
+   "make": "RANGE ROVER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025075",
+   "mfr_no": "N979",
+   "make": "RANGE ROVER",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025076",
+   "mfr_no": "0890013",
+   "make": "MERCEDES-BENZ",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025077",
+   "mfr_no": "910048",
+   "make": "GRAND DESIGN",
+   "nhtsa_campaigns": [
+    "25V061000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025078",
+   "mfr_no": "740",
+   "make": "MASERATI",
+   "nhtsa_campaigns": [
+    "25V098000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025079",
+   "mfr_no": "10X5",
+   "make": "VOLKSWAGEN",
+   "nhtsa_campaigns": [
+    "25V100000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025080",
+   "mfr_no": "CR5691/CR8333",
+   "make": "NOVA BUS",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025081",
+   "mfr_no": "25S07",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V095000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025082",
+   "mfr_no": "25S08",
+   "make": "LINCOLN",
+   "nhtsa_campaigns": [
+    "25V091000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025083",
+   "mfr_no": "RC215",
+   "make": "KIA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025084",
+   "mfr_no": "25S09",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V093000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025085",
+   "mfr_no": "25S11",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V096000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025086",
+   "mfr_no": "25C04",
+   "make": "FORD",
+   "nhtsa_campaigns": [
+    "25V094000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025088",
+   "mfr_no": "I-25-01",
+   "make": "INDIAN MOTORCYCLE",
+   "nhtsa_campaigns": [
+    "25V108000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025089",
+   "mfr_no": "91SB",
+   "make": "VOLKSWAGEN",
+   "nhtsa_campaigns": [
+    "25V103000"
+   ],
+   "tc_cites_nhtsa": []
+  },
+  {
+   "tc": "2025090",
+   "mfr_no": "ML15",
+   "make": "HONDA",
+   "nhtsa_campaigns": [],
+   "tc_cites_nhtsa": []
+  }
+ ],
+ "declared_mfr_number_matches": 157,
+ "tc_comment_cites_nhtsa": 0,
+ "mfr_number_matches_after_year_filter": 157,
+ "year_consistent_matches": 149
+}

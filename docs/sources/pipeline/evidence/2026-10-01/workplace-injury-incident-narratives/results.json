@@ -1,0 +1,940 @@
+{
+ "reach": {
+  "osha_severe_injury_page": "403 919",
+  "osha_severe_injury_csv": "403 919",
+  "osha_disclaimers": "403 919",
+  "enforcedata_catalog": "200 11015 Thu, 25 Jun 2026 17:36:37 GMT",
+  "msha_ogi_page": "200 0",
+  "msha_accidents_zip": "200 52240903 Fri, 25 Sep 2026 11:24:03 GMT",
+  "msha_mines_zip": "200 7304825 Fri, 25 Sep 2026 11:24:06 GMT",
+  "dol_copyright": "200",
+  "neiss_page": "200  Wed, 30 Sep 2026 23:47:42 GMT",
+  "eia_copyright": "503 282",
+  "eia_coalpublic2022": "200 1261376 Fri, 29 Sep 2023 17:38:17 GMT",
+  "eia_coalpublic2023": "503 282"
+ },
+ "msha_accidents": {
+  "partial_bytes_fetched": 25000000,
+  "full_zip_bytes": 52240903,
+  "rows_parsed_partial": 131593,
+  "fields": [
+   "MINE_ID",
+   "CONTROLLER_ID",
+   "CONTROLLER_NAME",
+   "OPERATOR_ID",
+   "OPERATOR_NAME",
+   "CONTRACTOR_ID",
+   "DOCUMENT_NO",
+   "SUBUNIT_CD",
+   "SUBUNIT",
+   "ACCIDENT_DT",
+   "CAL_YR",
+   "CAL_QTR",
+   "FISCAL_YR",
+   "FISCAL_QTR",
+   "ACCIDENT_TIME",
+   "DEGREE_INJURY_CD",
+   "DEGREE_INJURY",
+   "FIPS_STATE_CD",
+   "UG_LOCATION_CD",
+   "UG_LOCATION",
+   "UG_MINING_METHOD_CD",
+   "UG_MINING_METHOD",
+   "MINING_EQUIP_CD",
+   "MINING_EQUIP",
+   "EQUIP_MFR_CD",
+   "EQUIP_MFR_NAME",
+   "EQUIP_MODEL_NO",
+   "SHIFT_BEGIN_TIME",
+   "CLASSIFICATION_CD",
+   "CLASSIFICATION",
+   "ACCIDENT_TYPE_CD",
+   "ACCIDENT_TYPE",
+   "NO_INJURIES",
+   "TOT_EXPER",
+   "MINE_EXPER",
+   "JOB_EXPER",
+   "OCCUPATION_CD",
+   "OCCUPATION",
+   "ACTIVITY_CD",
+   "ACTIVITY",
+   "INJURY_SOURCE_CD",
+   "INJURY_SOURCE",
+   "NATURE_INJURY_CD",
+   "NATURE_INJURY",
+   "INJ_BODY_PART_CD",
+   "INJ_BODY_PART",
+   "SCHEDULE_CHARGE",
+   "DAYS_RESTRICT",
+   "DAYS_LOST",
+   "TRANS_TERM",
+   "RETURN_TO_WORK_DT",
+   "IMMED_NOTIFY_CD",
+   "IMMED_NOTIFY",
+   "INVEST_BEGIN_DT",
+   "NARRATIVE",
+   "CLOSED_DOC_NO",
+   "COAL_METAL_IND"
+  ],
+  "oldest": "20000101",
+  "newest_in_partial": "20260922",
+  "rows_with_narrative": 131592,
+  "narrative_pct": 100.0,
+  "narrative_by_year_pct": {
+   "2000": 100.0,
+   "2005": 100.0,
+   "2010": 100.0,
+   "2015": 100.0,
+   "2020": 100.0,
+   "2025": 100.0
+  },
+  "rows_per_year": {
+   "2021": 2740,
+   "2022": 2828,
+   "2023": 2932,
+   "2024": 2829,
+   "2025": 2678,
+   "2026": 1957
+  },
+  "degree_injury": [
+   [
+    "DAYS AWAY FROM WORK ONLY",
+    42633
+   ],
+   [
+    "NO DYS AWY FRM WRK,NO RSTR ACT",
+    34277
+   ],
+   [
+    "DAYS RESTRICTED ACTIVITY ONLY",
+    20843
+   ],
+   [
+    "ACCIDENT ONLY",
+    14575
+   ],
+   [
+    "DYS AWY FRM WRK & RESTRCTD ACT",
+    10018
+   ],
+   [
+    "OCCUPATNAL ILLNESS NOT DEG 1-6",
+    5050
+   ],
+   [
+    "PERM TOT OR PERM PRTL DISABLTY",
+    1204
+   ],
+   [
+    "ALL OTHER CASES (INCL 1ST AID)",
+    964
+   ]
+  ],
+  "has_contractor_id_pct": 10.4,
+  "has_operator_id_pct": 99.7,
+  "coal_rows_partial": 61060
+ },
+ "msha_mines": {
+  "rows": 92028,
+  "fields": [
+   "MINE_ID",
+   "CURRENT_MINE_NAME",
+   "COAL_METAL_IND",
+   "CURRENT_MINE_TYPE",
+   "CURRENT_MINE_STATUS",
+   "CURRENT_STATUS_DT",
+   "CURRENT_CONTROLLER_ID",
+   "CURRENT_CONTROLLER_NAME",
+   "CURRENT_OPERATOR_ID",
+   "CURRENT_OPERATOR_NAME",
+   "STATE",
+   "BOM_STATE_CD",
+   "FIPS_CNTY_CD",
+   "FIPS_CNTY_NM",
+   "CONG_DIST_CD",
+   "COMPANY_TYPE",
+   "CURRENT_CONTROLLER_BEGIN_DT",
+   "DISTRICT",
+   "OFFICE_CD",
+   "OFFICE_NAME",
+   "ASSESS_CTRL_NO",
+   "PRIMARY_SIC_CD",
+   "PRIMARY_SIC",
+   "PRIMARY_SIC_CD_1",
+   "PRIMARY_SIC_CD_SFX",
+   "SECONDARY_SIC_CD",
+   "SECONDARY_SIC",
+   "SECONDARY_SIC_CD_1",
+   "SECONDARY_SIC_CD_SFX",
+   "PRIMARY_CANVASS_CD",
+   "PRIMARY_CANVASS",
+   "SECONDARY_CANVASS_CD",
+   "SECONDARY_CANVASS",
+   "CURRENT_103I",
+   "CURRENT_103I_DT",
+   "PORTABLE_OPERATION",
+   "PORTABLE_FIPS_ST_CD",
+   "DAYS_PER_WEEK",
+   "HOURS_PER_SHIFT",
+   "PROD_SHIFTS_PER_DAY",
+   "MAINT_SHIFTS_PER_DAY",
+   "NO_EMPLOYEES",
+   "PART48_TRAINING",
+   "LONGITUDE",
+   "LATITUDE",
+   "AVG_MINE_HEIGHT",
+   "MINE_GAS_CATEGORY_CD",
+   "METHANE_LIBERATION",
+   "NO_PRODUCING_PITS",
+   "NO_NONPRODUCING_PITS",
+   "NO_TAILING_PONDS",
+   "PILLAR_RECOVERY_USED",
+   "HIGHWALL_MINER_USED",
+   "MULTIPLE_PITS",
+   "MINERS_REP_IND",
+   "SAFETY_COMMITTEE_IND",
+   "MILES_FROM_OFFICE",
+   "DIRECTIONS_TO_MINE",
+   "NEAREST_TOWN"
+  ]
+ },
+ "join_acc_to_mines": {
+  "total": 2000,
+  "matched": 2000
+ },
+ "eia_coal2022": {
+  "rows": 790,
+  "year": "2022",
+  "fields": [
+   "Year",
+   "MSHA ID",
+   "Mine Name",
+   "Mine State",
+   "Mine County",
+   "Mine Status",
+   "Mine Type",
+   "Company Type",
+   "Operation Type",
+   "Operating Company",
+   "Operating Company Address",
+   "Union Code",
+   "Coal Supply Region",
+   "Production (short tons)",
+   "Average Employees",
+   "Labor Hours"
+  ]
+ },
+ "join_acc_to_eia_all_years": {
+  "total_coal_accidents_partial": 61060,
+  "matched_to_2022_EIA_mine": 24327,
+  "note": "EIA 2022 file lists only mines producing/employing in 2022; older accidents at closed mines cannot match"
+ },
+ "join_acc_to_eia_2020plus": {
+  "total": 6673,
+  "matched": 6287
+ },
+ "join_mine_ids_2020plus": {
+  "distinct_accident_coal_mines": 574,
+  "in_EIA_2022": 427
+ },
+ "check_sample": [
+  {
+   "mine_id": "1517216",
+   "msha_mine": "CARDINAL",
+   "eia_mine": "Cardinal",
+   "msha_state": "KY",
+   "eia_state": "Kentucky (West)",
+   "msha_operator_acc": "Warrior Coal LLC",
+   "eia_operator": "Warrior Coal Llc",
+   "doc_no": "220211590004",
+   "date": "05/28/2021"
+  },
+  {
+   "mine_id": "4407223",
+   "msha_mine": "DEEP MINE 41",
+   "eia_mine": "Deep Mine 41",
+   "msha_state": "VA",
+   "eia_state": "Virginia",
+   "msha_operator_acc": "Paramont Contura, LLC",
+   "eia_operator": "Paramont Contura, Llc",
+   "doc_no": "220220910032",
+   "date": "03/21/2022"
+  },
+  {
+   "mine_id": "1519858",
+   "msha_mine": "Cranks Creek",
+   "eia_mine": "Cranks Creek",
+   "msha_state": "KY",
+   "eia_state": "Kentucky (East)",
+   "msha_operator_acc": "Nally & Hamilton Enterprises Inc",
+   "eia_operator": "Nally &amp; Hamilton Enterprises I",
+   "doc_no": "220250840007",
+   "date": "03/17/2025"
+  },
+  {
+   "mine_id": "3607416",
+   "msha_mine": "ENLOW FORK MINE",
+   "eia_mine": "Enlow Fork Mine",
+   "msha_state": "PA",
+   "eia_state": "Pennsylvania (Bituminous)",
+   "msha_operator_acc": "Consol Pennsylvania Coal Company LLC",
+   "eia_operator": "Consol Pennsylvania Coal Compa",
+   "doc_no": "220240390018",
+   "date": "01/29/2024"
+  },
+  {
+   "mine_id": "4608864",
+   "msha_mine": "TUNNEL RIDGE MINE",
+   "eia_mine": "Tunnel Ridge Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Northern)",
+   "msha_operator_acc": "Tunnel Ridge, LLC",
+   "eia_operator": "Tunnel Ridge, Llc",
+   "doc_no": "220261900052",
+   "date": "07/05/2026"
+  },
+  {
+   "mine_id": "3605018",
+   "msha_mine": "Cumberland Mine",
+   "eia_mine": "Cumberland Mine",
+   "msha_state": "PA",
+   "eia_state": "Pennsylvania (Bituminous)",
+   "msha_operator_acc": "Iron Cumberland LLC",
+   "eia_operator": "Iron Cumberland Llc",
+   "doc_no": "220200980002",
+   "date": "01/18/2020"
+  },
+  {
+   "mine_id": "4601437",
+   "msha_mine": "MARSHALL COUNTY MINE",
+   "eia_mine": "Marshall County Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Northern)",
+   "msha_operator_acc": "Marshall County Coal Resources, Inc.",
+   "eia_operator": "Marshall County Coal Resources",
+   "doc_no": "220211800024",
+   "date": "06/11/2021"
+  },
+  {
+   "mine_id": "1517216",
+   "msha_mine": "CARDINAL",
+   "eia_mine": "Cardinal",
+   "msha_state": "KY",
+   "eia_state": "Kentucky (West)",
+   "msha_operator_acc": "Warrior Coal LLC",
+   "eia_operator": "Warrior Coal Llc",
+   "doc_no": "220253170316",
+   "date": "10/07/2025"
+  },
+  {
+   "mine_id": "4609563",
+   "msha_mine": "EAGLE NO 1 MINE",
+   "eia_mine": "Eagle No 1 Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Southern)",
+   "msha_operator_acc": "Greenbrier Minerals, LLC",
+   "eia_operator": "Greenbrier Minerals, Llc",
+   "doc_no": "220233420015",
+   "date": "12/06/2023"
+  },
+  {
+   "mine_id": "0100851",
+   "msha_mine": "Oak Grove Mine",
+   "eia_mine": "Oak Grove Mine",
+   "msha_state": "AL",
+   "eia_state": "Alabama",
+   "msha_operator_acc": "Crimson Oak Grove Resources LLC",
+   "eia_operator": "Crimson Oak Grove Resources Ll",
+   "doc_no": "220251180024",
+   "date": "04/17/2025"
+  },
+  {
+   "mine_id": "3607230",
+   "msha_mine": "Bailey Mine",
+   "eia_mine": "Bailey Mine",
+   "msha_state": "PA",
+   "eia_state": "Pennsylvania (Bituminous)",
+   "msha_operator_acc": "Consol Pennsylvania Coal Company LLC",
+   "eia_operator": "Consol Pennsylvania Coal Compa",
+   "doc_no": "220213070014",
+   "date": "09/21/2021"
+  },
+  {
+   "mine_id": "0101401",
+   "msha_mine": "No 7 Mine",
+   "eia_mine": "No 7 Mine",
+   "msha_state": "AL",
+   "eia_state": "Alabama",
+   "msha_operator_acc": "Warrior Met Coal Mining, LLC",
+   "eia_operator": "Warrior Met Coal Mining, Llc",
+   "doc_no": "220203440010",
+   "date": "11/29/2020"
+  },
+  {
+   "mine_id": "3605018",
+   "msha_mine": "Cumberland Mine",
+   "eia_mine": "Cumberland Mine",
+   "msha_state": "PA",
+   "eia_state": "Pennsylvania (Bituminous)",
+   "msha_operator_acc": "Iron Cumberland LLC",
+   "eia_operator": "Iron Cumberland Llc",
+   "doc_no": "220221360013",
+   "date": "04/28/2022"
+  },
+  {
+   "mine_id": "0100851",
+   "msha_mine": "Oak Grove Mine",
+   "eia_mine": "Oak Grove Mine",
+   "msha_state": "AL",
+   "eia_state": "Alabama",
+   "msha_operator_acc": "Crimson Oak Grove Resources LLC",
+   "eia_operator": "Crimson Oak Grove Resources Ll",
+   "doc_no": "220252230007",
+   "date": "07/30/2025"
+  },
+  {
+   "mine_id": "1103147",
+   "msha_mine": "Prairie Eagle-Underground",
+   "eia_mine": "Prairie Eagle-Underground",
+   "msha_state": "IL",
+   "eia_state": "Illinois",
+   "msha_operator_acc": "Knight Hawk Coal, LLC",
+   "eia_operator": "Knight Hawk Coal, Llc",
+   "doc_no": "220251670002",
+   "date": "06/10/2025"
+  },
+  {
+   "mine_id": "3605018",
+   "msha_mine": "Cumberland Mine",
+   "eia_mine": "Cumberland Mine",
+   "msha_state": "PA",
+   "eia_state": "Pennsylvania (Bituminous)",
+   "msha_operator_acc": "Iron Cumberland LLC",
+   "eia_operator": "Iron Cumberland Llc",
+   "doc_no": "220243410015",
+   "date": "12/04/2024"
+  },
+  {
+   "mine_id": "1519905",
+   "msha_mine": "Bull Branch Surface Mine",
+   "eia_mine": "Bull Branch Surface Mine",
+   "msha_state": "KY",
+   "eia_state": "Kentucky (East)",
+   "msha_operator_acc": "Clintwood JOD, LLC",
+   "eia_operator": "Clintwood Jod, Llc",
+   "doc_no": "220240190018",
+   "date": "01/11/2024"
+  },
+  {
+   "mine_id": "2200690",
+   "msha_mine": "Red Hills Mine",
+   "eia_mine": "Red Hills Mine",
+   "msha_state": "MS",
+   "eia_state": "Mississippi",
+   "msha_operator_acc": "Mississippi Lignite Mining Company",
+   "eia_operator": "Mississippi Lignite Mining Com",
+   "doc_no": "220251360005",
+   "date": "05/07/2025"
+  },
+  {
+   "mine_id": "4609029",
+   "msha_mine": "Mountaineer II Mine",
+   "eia_mine": "Mountaineer Ii Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Southern)",
+   "msha_operator_acc": "Mingo Logan Coal LLC",
+   "eia_operator": "Mingo Logan Coal Llc",
+   "doc_no": "220202030009",
+   "date": "06/17/2020"
+  },
+  {
+   "mine_id": "4609447",
+   "msha_mine": "LONGVIEW MINE",
+   "eia_mine": "Longview Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Northern)",
+   "msha_operator_acc": "Allegheny Metallurgical, LLC",
+   "eia_operator": "Century Mining Llc",
+   "doc_no": "220230680013",
+   "date": "02/28/2023"
+  },
+  {
+   "mine_id": "1519702",
+   "msha_mine": "Straight Creek  Mine",
+   "eia_mine": "Straight Creek  Mine",
+   "msha_state": "KY",
+   "eia_state": "Kentucky (East)",
+   "msha_operator_acc": "Covol Fuels No.3 LLC",
+   "eia_operator": "Covol Fuels No.3 Llc",
+   "doc_no": "220220910025",
+   "date": "03/25/2022"
+  },
+  {
+   "mine_id": "4609447",
+   "msha_mine": "LONGVIEW MINE",
+   "eia_mine": "Longview Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Northern)",
+   "msha_operator_acc": "Allegheny Metallurgical, LLC",
+   "eia_operator": "Century Mining Llc",
+   "doc_no": "220250340029",
+   "date": "01/22/2025"
+  },
+  {
+   "mine_id": "4601433",
+   "msha_mine": "Marion County Mine",
+   "eia_mine": "Marion County Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Northern)",
+   "msha_operator_acc": " Marion County Coal Resources, Inc. ",
+   "eia_operator": "Marion County Coal Resources,",
+   "doc_no": "220242600023",
+   "date": "09/11/2024"
+  },
+  {
+   "mine_id": "4608864",
+   "msha_mine": "TUNNEL RIDGE MINE",
+   "eia_mine": "Tunnel Ridge Mine",
+   "msha_state": "WV",
+   "eia_state": "West Virginia (Northern)",
+   "msha_operator_acc": "Tunnel Ridge, LLC",
+   "eia_operator": "Tunnel Ridge, Llc",
+   "doc_no": "220241030027",
+   "date": "04/04/2024"
+  },
+  {
+   "mine_id": "0100851",
+   "msha_mine": "Oak Grove Mine",
+   "eia_mine": "Oak Grove Mine",
+   "msha_state": "AL",
+   "eia_state": "Alabama",
+   "msha_operator_acc": "Murray Oak Grove Coal LLC",
+   "eia_operator": "Crimson Oak Grove Resources Ll",
+   "doc_no": "220200910003",
+   "date": "03/26/2020"
+  }
+ ],
+ "check_name_agree": 25,
+ "sample_accidents": [
+  {
+   "MINE_ID": "3610045",
+   "DOCUMENT_NO": "220230960015",
+   "ACCIDENT_DT": "03/31/2023",
+   "OPERATOR_ID": "0105487",
+   "OPERATOR_NAME": "Consol Pennsylvania Coal Company LLC",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "While operating the tailgate side of the shear, a rock fell from the roof onto the tailgate drum. A small rock came off the drum and hit the employee on right thumb while holding the remote. They received 5 stitches."
+  },
+  {
+   "MINE_ID": "3610045",
+   "DOCUMENT_NO": "220141970022",
+   "ACCIDENT_DT": "07/10/2014",
+   "OPERATOR_ID": "0105487",
+   "OPERATOR_NAME": "Consol Pennsylvania Coal Company LLC",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "FRACTURE,CHIP",
+   "NARRATIVE": "Employee was helping install top rollers for a new belt installation. Another employee dropped a top roller striking the injured employee on the right ring finger. The incident caused a fracture and laceration that reguired six sutures to repair."
+  },
+  {
+   "MINE_ID": "3609973",
+   "DOCUMENT_NO": "220200420004",
+   "ACCIDENT_DT": "01/30/2020",
+   "OPERATOR_ID": "0119268",
+   "OPERATOR_NAME": "LCT Energy, LP",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "While crossing over top of the MBC the operator stepped down and twisted EE's left knee.  EE continued to work EE's regular shift and EE's first missed shift was 02/04/2020.  "
+  },
+  {
+   "MINE_ID": "3609972",
+   "DOCUMENT_NO": "220201990003",
+   "ACCIDENT_DT": "07/06/2020",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "ACCIDENT ONLY",
+   "NATURE_INJURY": "NO VALUE FOUND",
+   "NARRATIVE": "Roof fall above a anchorage point in the belt line of b-mains wall 89. There were two geological features and some water present in this area. The length of the roof fall was approximately 20 foot 6 inches by 65 ft. 21 ft. high above the normal roof."
+  },
+  {
+   "MINE_ID": "3609972",
+   "DOCUMENT_NO": "220163370005",
+   "ACCIDENT_DT": "11/23/2016",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "Employee strained lower back while loading conveyor structure into a scoop bucket. "
+  },
+  {
+   "MINE_ID": "3609956",
+   "DOCUMENT_NO": "220113140049",
+   "ACCIDENT_DT": "10/26/2011",
+   "OPERATOR_ID": "0051858",
+   "OPERATOR_NAME": "E.E. & S. AUGER  MINING INC",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "EE was standing beside the auger sled as he and another helper was putting an auger back onto the auger sled when the auger slipped and hit him on the knee and the right foot."
+  },
+  {
+   "MINE_ID": "3609893",
+   "DOCUMENT_NO": "220232610005",
+   "ACCIDENT_DT": "09/08/2023",
+   "OPERATOR_ID": "0115845",
+   "OPERATOR_NAME": "Wilson Creek Energy LLC",
+   "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "Employee was carrying an oil can and pump can back to EE's ride when EE felt a pinch in EE's back."
+  },
+  {
+   "MINE_ID": "3609691",
+   "DOCUMENT_NO": "220131980036",
+   "ACCIDENT_DT": "07/15/2013",
+   "OPERATOR_ID": "0096965",
+   "OPERATOR_NAME": "Pottsville Materials, LLC",
+   "DEGREE_INJURY": "DAYS RESTRICTED ACTIVITY ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "Employee was lifting material and strained back."
+  },
+  {
+   "MINE_ID": "3609666",
+   "DOCUMENT_NO": "220212020022",
+   "ACCIDENT_DT": "07/19/2021",
+   "OPERATOR_ID": "P24228",
+   "OPERATOR_NAME": "RoxCoal, Inc.",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "The injured miner was removing a large piece of rock that fell on top of the continuous miner. While applying force to the rock, the miner slipped and the miner's face contacted the rock and caused a laceration. Three sutures was required to close the wound. "
+  },
+  {
+   "MINE_ID": "3609666",
+   "DOCUMENT_NO": "220120090058",
+   "ACCIDENT_DT": "12/31/2011",
+   "OPERATOR_ID": "P24228",
+   "OPERATOR_NAME": "RoxCoal, Inc.",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "The man was walking down the entry when he struck his head against a ledge in the roof causing pain in his neck."
+  },
+  {
+   "MINE_ID": "3609629",
+   "DOCUMENT_NO": "220082030065",
+   "ACCIDENT_DT": "07/10/2008",
+   "OPERATOR_ID": "0090865",
+   "OPERATOR_NAME": "Edward Cox Jr",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "Struck by 6\" chisel while spreading track links."
+  },
+  {
+   "MINE_ID": "3609549",
+   "DOCUMENT_NO": "220132880088",
+   "ACCIDENT_DT": "10/15/2013",
+   "OPERATOR_ID": "P24228",
+   "OPERATOR_NAME": "RoxCoal, Inc.",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "The man was performing maintenance on a roof bolter. A header board on the machine fell off and struck the man on the hand causing a laceration. Report filed for Medical Treatment Only (stitches)."
+  },
+  {
+   "MINE_ID": "3609498",
+   "DOCUMENT_NO": "220071710037",
+   "ACCIDENT_DT": "06/11/2007",
+   "OPERATOR_ID": "0078823",
+   "OPERATOR_NAME": "Fayette Coal & Coke Inc",
+   "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
+   "NATURE_INJURY": "UNCLASSIFIED,NOT DETERMED",
+   "NARRATIVE": "After greasing crusher, employee was descending ladder when his foot hung up on steps and he lost his balance and fell to the ground."
+  },
+  {
+   "MINE_ID": "3609437",
+   "DOCUMENT_NO": "220232830063",
+   "ACCIDENT_DT": "10/03/2023",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "While pulling drill steels out of roof, a stuck drill steel became dislodged and struck individual in upper lip resulting in stitches."
+  },
+  {
+   "MINE_ID": "3609437",
+   "DOCUMENT_NO": "220230330037",
+   "ACCIDENT_DT": "01/24/2023",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
+   "NATURE_INJURY": "FRACTURE,CHIP",
+   "NARRATIVE": "The helper snubbed the cable of twin boom as operator was pulling into the number 5 entry. The helper went toward the off-operator side without notifying the operator. As the operator turned the machine into the cut, the back of the bolter swung towards the solid rib pinning the helper against the rib causing a fracture."
+  },
+  {
+   "MINE_ID": "3609437",
+   "DOCUMENT_NO": "220223120025",
+   "ACCIDENT_DT": "09/07/2022",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "Individual was unbending a 6' bolt and felt a pop and pain in left shoulder. Individual worked till 11/07/2022 to get surgery on left shoulder."
+  },
+  {
+   "MINE_ID": "3609437",
+   "DOCUMENT_NO": "220191280020",
+   "ACCIDENT_DT": "04/09/2019",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "While picking up structure the employee felt pain in lower back, coal seam was 48\" high. EE worked for the next 15 days before going off work. The first day off was 05/01/2019."
+  },
+  {
+   "MINE_ID": "3609436",
+   "DOCUMENT_NO": "220240400020",
+   "ACCIDENT_DT": "02/02/2024",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "FRACTURE,CHIP",
+   "NARRATIVE": "Individual was about to begin bolting when EE decided to back the machine up. When EE stood up, EE used the head of the bolter to pull self up and a rock fell on top of EE's hand. This resulted in a fractured left hand."
+  },
+  {
+   "MINE_ID": "3609436",
+   "DOCUMENT_NO": "220232830030",
+   "ACCIDENT_DT": "10/05/2023",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "Trying to set a pound-up jack, when the jack slipped and fell onto the left hand, which smashed the left index fingertip. This resulted in 2 stitches. "
+  },
+  {
+   "MINE_ID": "3609436",
+   "DOCUMENT_NO": "220190090021",
+   "ACCIDENT_DT": "12/31/2018",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS RESTRICTED ACTIVITY ONLY",
+   "NATURE_INJURY": "FRACTURE,CHIP",
+   "NARRATIVE": "While unloading top rollers finger got smashed between roller & post on cart. Resulting in a fracture & cut."
+  },
+  {
+   "MINE_ID": "3609407",
+   "DOCUMENT_NO": "220122370005",
+   "ACCIDENT_DT": "08/16/2012",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "CRUSHING",
+   "NARRATIVE": "Bolting abnormal roof installing a cable bolt. Was pushing steels in roof with machine and caught finger between roof and bolter head"
+  },
+  {
+   "MINE_ID": "3609407",
+   "DOCUMENT_NO": "220101390003",
+   "ACCIDENT_DT": "05/17/2010",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "While installing roof bolts, the employee heard the roof crack, he tried to retreat but was struck by a rock that fell from between the bolts and the rib."
+  },
+  {
+   "MINE_ID": "3609371",
+   "DOCUMENT_NO": "220250160011",
+   "ACCIDENT_DT": "01/14/2025",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "Employee was bending a six foot roof bolt when EE felt a pop in their left shoulder. Not sure of the extent at this time."
+  },
+  {
+   "MINE_ID": "3609371",
+   "DOCUMENT_NO": "220220880023",
+   "ACCIDENT_DT": "03/14/2022",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "DAYS RESTRICTED ACTIVITY ONLY",
+   "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
+   "NARRATIVE": "Getting out of scoop, twisted, felt pop in lower back. This resulted in restricted duty."
+  },
+  {
+   "MINE_ID": "3609371",
+   "DOCUMENT_NO": "220151270006",
+   "ACCIDENT_DT": "04/17/2015",
+   "OPERATOR_ID": "P09635",
+   "OPERATOR_NAME": "Rosebud Mining Company",
+   "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
+   "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
+   "NARRATIVE": "Some rock had fallen on the top of the continuous mining machine while mining. After the miner was backed out of the cut the victim was pushing rock off the miner with his hand. As one of the piece tipped before falling it caught the ring finger of his right hand and lacerating it. It required several stitches."
+  }
+ ],
+ "sample_eia": [
+  {
+   "MSHA ID": "103540",
+   "Mine Name": "Dodge Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Southern Mineral Resources Llc",
+   "Production (short tons)": "0",
+   "Average Employees": "7"
+  },
+  {
+   "MSHA ID": "103489",
+   "Mine Name": "John Poe Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Kennedy Brothers Construction",
+   "Production (short tons)": "13660",
+   "Average Employees": "3"
+  },
+  {
+   "MSHA ID": "100329",
+   "Mine Name": "Oak Grove Preparation Plant",
+   "Mine State": "Alabama",
+   "Operating Company": "Crimson Oak Grove Resources Ll",
+   "Production (short tons)": "0",
+   "Average Employees": "53"
+  },
+  {
+   "MSHA ID": "100627",
+   "Mine Name": "Flat Top Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Best Coal Inc.",
+   "Production (short tons)": "77708",
+   "Average Employees": "22"
+  },
+  {
+   "MSHA ID": "100851",
+   "Mine Name": "Oak Grove Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Crimson Oak Grove Resources Ll",
+   "Production (short tons)": "1835149",
+   "Average Employees": "481"
+  },
+  {
+   "MSHA ID": "101401",
+   "Mine Name": "No 7 Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Warrior Met Coal Mining, Llc",
+   "Production (short tons)": "4755684",
+   "Average Employees": "444"
+  },
+  {
+   "MSHA ID": "103101",
+   "Mine Name": "Pratt No. 1 Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Black Warrior Minerals Inc",
+   "Production (short tons)": "0",
+   "Average Employees": "10"
+  },
+  {
+   "MSHA ID": "103182",
+   "Mine Name": "Fishtrap",
+   "Mine State": "Alabama",
+   "Operating Company": "Mays Mining, Inc.",
+   "Production (short tons)": "41888",
+   "Average Employees": "17"
+  },
+  {
+   "MSHA ID": "103285",
+   "Mine Name": "Narley Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Best Coal Inc",
+   "Production (short tons)": "132190",
+   "Average Employees": "36"
+  },
+  {
+   "MSHA ID": "103419",
+   "Mine Name": "Maxine-Pratt Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Prospect Mining &amp; Development",
+   "Production (short tons)": "79056",
+   "Average Employees": "22"
+  },
+  {
+   "MSHA ID": "103437",
+   "Mine Name": "Black Warrior Mine No 1",
+   "Mine State": "Alabama",
+   "Operating Company": "Black Warrior Minerals, Inc.",
+   "Production (short tons)": "225682",
+   "Average Employees": "75"
+  },
+  {
+   "MSHA ID": "103455",
+   "Mine Name": "Weller Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Cahaba Resources Llc",
+   "Production (short tons)": "18442",
+   "Average Employees": "6"
+  },
+  {
+   "MSHA ID": "103523",
+   "Mine Name": "Shannon Mine No. 3",
+   "Mine State": "Alabama",
+   "Operating Company": "Rjr Mining Company, Inc.",
+   "Production (short tons)": "228008",
+   "Average Employees": "50"
+  },
+  {
+   "MSHA ID": "103529",
+   "Mine Name": "Sloan Mtn. No. 3",
+   "Mine State": "Alabama",
+   "Operating Company": "Best Coal Inc.",
+   "Production (short tons)": "70331",
+   "Average Employees": "22"
+  },
+  {
+   "MSHA ID": "103380",
+   "Mine Name": "Calera",
+   "Mine State": "Alabama",
+   "Operating Company": "Conrad Yelvington Distributors",
+   "Production (short tons)": "0",
+   "Average Employees": "0"
+  },
+  {
+   "MSHA ID": "103380",
+   "Mine Name": "Calera",
+   "Mine State": "Alabama",
+   "Operating Company": "Conrad Yelvington Distributors",
+   "Production (short tons)": "0",
+   "Average Employees": "10"
+  },
+  {
+   "MSHA ID": "101247",
+   "Mine Name": "No 4 Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Warrior Met Coal Mining, Llc",
+   "Production (short tons)": "1559012",
+   "Average Employees": "207"
+  },
+  {
+   "MSHA ID": "103172",
+   "Mine Name": "Searles Mine No. 2, 3, 4, 5, 6",
+   "Mine State": "Alabama",
+   "Operating Company": "Southland Resources, Inc.",
+   "Production (short tons)": "50258",
+   "Average Employees": "29"
+  },
+  {
+   "MSHA ID": "103436",
+   "Mine Name": "Swann's Crossing",
+   "Mine State": "Alabama",
+   "Operating Company": "Southland Resources, Inc.",
+   "Production (short tons)": "288126",
+   "Average Employees": "64"
+  },
+  {
+   "MSHA ID": "103535",
+   "Mine Name": "Deerlick West Mine",
+   "Mine State": "Alabama",
+   "Operating Company": "Cahaba Resources, Llc",
+   "Production (short tons)": "28912",
+   "Average Employees": "11"
+  }
+ ],
+ "msha_has_naics_field": false,
+ "msha_narrative_len_median": 175,
+ "mines_nonblank": {
+  "CURRENT_MINE_NAME": 92028,
+  "STATE": 92028,
+  "CURRENT_OPERATOR_ID": 91064,
+  "COAL_METAL_IND": 92028
+ }
+}

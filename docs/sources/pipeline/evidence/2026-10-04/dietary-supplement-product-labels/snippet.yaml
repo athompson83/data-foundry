@@ -1,0 +1,136 @@
+candidates:
+  - key: dsp-nih-dsld-labels
+    name: NIH ODS Dietary Supplement Label Database (DSLD) label API
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: NIH Office of Dietary Supplements
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.ods.od.nih.gov/dsld/v9/
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://api.ods.od.nih.gov/dsld/v9/
+        quote: 'CC0 1.0 Universal (CC0 1.0) https://creativecommons.org/publicdomain/zero/1.0/'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive the full label set (214,780 labels, UNII-coded ingredient rows, statements) to R2 and extract NPN and UPC from statements; never republish label PDFs or thumbnails.
+  - key: dsp-health-canada-lnhpd
+    name: Health Canada Licensed Natural Health Products Database (LNHPD) API
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://health-products.canada.ca/api/natural-licences/
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Attribution: Contains information licensed under the Open Government Licence – Canada.'
+      - Exclude personal information and third-party rights; do not imply Health Canada endorsement.
+      - 'The productlicence endpoint returns the entire table (about 148 MB JSON, 15 MB gzip) with no paging, so sync by full pull with Accept-Encoding gzip, once a day at most.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Pull productlicence, medicinalingredient, productpurpose and productrisk nightly to R2; carry the OGL-Canada attribution; join to DSLD on the NPN cited in label text.
+  - key: dsp-fda-health-fraud-database
+    name: FDA Health Fraud Product Database (tainted supplements, public notifications, warning letters)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.fda.gov/consumers/health-fraud-scams/health-fraud-product-database
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: 'Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parse the 2,202-row table plus each linked public-notification page into hidden-ingredient events (undeclared drug, product, firm, date); do not republish product photos.
+  - key: dsp-open-food-facts-supplements
+    name: Open Food Facts dietary-supplements category (GTIN-keyed product records)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Open Food Facts association
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://world.openfoodfacts.org/api/v2/search
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://world.openfoodfacts.org/terms-of-use
+        quote: 'The Open Food Facts database is available under the Open Database License'
+      - url: https://world.openfoodfacts.org/terms-of-use
+        quote: 'have to mention the licence and to attribute the authorship to Open Food Facts with a link to https://openfoodfacts.org'
+    conditions:
+      - 'ODbL: attribute Open Food Facts and keep derived databases of its content under the same licence (share-alike); decide per product whether the dataset is a derived database before mixing.'
+      - 'Product images are CC BY-SA and often third-party rights; do not cache or republish images (AGENTS.md rule 9).'
+      - Use as a GTIN enrichment member only; the dietary-supplements category is mostly sports foods and bars, so keep it filter-scoped.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Treat as an optional enrichment member; confirm with a rights record whether a GTIN lookup join creates an ODbL derived database before enabling it.
+  - key: dsp-tga-artg-listed-medicines
+    name: TGA Australian Register of Therapeutic Goods listed medicines
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Therapeutic Goods Administration (Australia)
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.tga.gov.au/resources/artg
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Reopen when www.tga.gov.au can be fetched from our egress (HTTP/2 INTERNAL_ERROR and empty reply on HTTP/1.1) and its copyright terms and a bulk or API path can be read.
+
+datasets:
+  - key: dietary-supplement-product-labels
+    name: Dietary supplement and natural health product register (US and Canada labels, ingredients, claims, enforcement)
+    category: health
+    entity: dietary supplement or natural health product (brand, product name, UPC/GTIN, NPN, ingredient rows with UNII, claims, label statements, regulator enforcement events)
+    stage: SCREENED
+    description: "One record per supplement product, assembled from the NIH DSLD US label corpus (ingredient rows with UNII codes, claims, directions, warnings, UPC), Health Canada's licensed-NHP register (NPN licence, medicinal and non-medicinal ingredients, approved purpose, risk statements), the FDA Health Fraud Product Database (undeclared-drug and warning events, free text) and Open Food Facts GTIN records. A Natural Product Number cited in a DSLD label statement is the declared link to the Health Canada licence, and a check-digit-valid UPC/GTIN links to Open Food Facts; names, brands and ingredient names only propose reviewed links. FDA tainted-product events attach to a product only by reviewed name match because the FDA table carries no UPC or NPN. Every fact keeps its source record, and disagreements between regulators are kept per source."
+    sources:
+      - dsp-nih-dsld-labels
+      - dsp-health-canada-lnhpd
+      - dsp-fda-health-fraud-database
+      - dsp-open-food-facts-supplements
+    join_keys:
+      - key: Natural Product Number (NPN) cited in DSLD statement text equals the LNHPD licence number
+        between:
+          - dsp-nih-dsld-labels
+          - dsp-health-canada-lnhpd
+        measured: 120/120 DSLD labels returned by an NPN keyword search carry an 8-digit NPN present in LNHPD (93/123 distinct label-NPN pairs resolve); only 334 of 214,780 DSLD labels (0.16%) mention NPN at all
+        mode: declared
+        reviewed: { correct: 11, checked: 12 }
+      - key: UPC/GTIN (check-digit valid, normalised to GTIN-13) shared by a DSLD record and an Open Food Facts product
+        between:
+          - dsp-nih-dsld-labels
+          - dsp-open-food-facts-supplements
+        measured: 3/37 check-digit-valid DSLD UPCs from a random 48-label sample exist in Open Food Facts (1 of 3 in its supplements category)
+        mode: declared
+        reviewed: { correct: 3, checked: 3 }
+      - key: FDA Health Fraud product name exactly equals a DSLD product name (candidate only, no shared identifier)
+        between:
+          - dsp-fda-health-fraud-database
+          - dsp-nih-dsld-labels
+        measured: 1/40 sampled FDA Public Notification products has an exact-name DSLD label (Arize); firm differs, so the match is unconfirmed
+        mode: candidate
+    taxonomy:
+      - 'product class: dietary-supplement | natural-health-product | homeopathic | sports-nutrition'
+      - 'LanguaL physical state and product type codes (DSLD) mapped to LNHPD dosage form'
+      - 'ingredient category: vitamin | mineral | botanical | amino-acid | blend | other, keyed to UNII where DSLD supplies it'
+      - 'claim type: structure-function | health-claim | approved-NHP-purpose'
+      - 'enforcement event: undeclared-drug | warning-letter | recall | advisory'
+    agent_questions:
+      - Is this US supplement also licensed in Canada, under which NPN, and with what approved purpose and risk statements?
+      - Which products with this UPC or NPN have an FDA hidden-ingredient notice, warning letter or recall, and what undeclared drug was found?
+      - Which supplements on the market contain a given ingredient (by UNII) at or above a stated amount per serving?
+      - Which label claims are structure-function statements and which are Health Canada approved purposes for the same formulation?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Re-measure the NPN and UPC joins from archived inputs on a random DSLD sample (not an NPN keyword search), extract NPN and UPC from DSLD statements, and review the FDA name links before EVIDENCED.

@@ -1,0 +1,616 @@
+{
+ "incidents": 327430,
+ "incident_device_rows": 350299,
+ "company_rows": 680800,
+ "columns_incident": [
+  "INCIDENT_ID",
+  "INCIDENT_TYPE_E",
+  "INCIDENT_TYPE_F",
+  "RECEIPT_DT",
+  "SOURCE_OF_RECALL_E",
+  "SOURCE_OF_RECALL_F",
+  "HAZARD_SEVERITY_CODE_E",
+  "HAZARD_SEVERITY_CODE_F",
+  "INC_AWARE_DT",
+  "MANDATORY_RPT",
+  "INCIDENT_DT"
+ ],
+ "columns_device": [
+  "INCIDENT_ID",
+  "DEVICE_ID",
+  "TRADE_NAME",
+  "PREF_NAME_CODE",
+  "RISK_CLASSIFICATION",
+  "USAGE_CODE_TERM_E",
+  "USAGE_CODE_TERM_F"
+ ],
+ "newest_receipt_dt": "2026-07-29",
+ "oldest_receipt_dt": "1998-07-15",
+ "received_2026": 6505,
+ "types": [
+  [
+   "Mandatory problem report",
+   295300
+  ],
+  [
+   "Voluntary problem report",
+   11577
+  ],
+  [
+   "Mandatory problem report linked to a recall",
+   10851
+  ],
+  [
+   "Batch Entries (compiled foreign mandatory reports)",
+   7404
+  ],
+  [
+   "Summary mandatory reports",
+   1414
+  ],
+  [
+   "Voluntary and Mandatory problem reports",
+   791
+  ]
+ ],
+ "source_region_top": [
+  [
+   "Canada",
+   319770
+  ],
+  [
+   "United States of America",
+   4476
+  ],
+  [
+   "International",
+   1779
+  ],
+  [
+   "EU",
+   670
+  ],
+  [
+   "Germany",
+   345
+  ]
+ ],
+ "free_text_columns": [],
+ "pref_name_code_to_fda_product_code_share": "350299/350299",
+ "join_device_id_vs_mdall": "17801/22977",
+ "hc_vs_maude_candidate": {
+  "tried": 40,
+  "with_hit": 21,
+  "rows": [
+   {
+    "hc_trade": "INOBLENDER",
+    "hc_mfr": [
+     "MALLINCKRODT MANUFACTURING LLC"
+    ],
+    "pref": "73MRO",
+    "maude_total": 4,
+    "maude": [
+     [
+      "INOBLENDER",
+      "INO THERAPEUTICS LLC/IKARIA"
+     ],
+     [
+      "INOBLENDER (BACKUP DELIVERY SYSTEM)",
+      "IKARIA"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "UNKNOWN BREAST IMPLANT",
+    "hc_mfr": [
+     "ALLERGAN SALES, LLC ALSO DOING BUSINESS AS ALLERGAN"
+    ],
+    "pref": "79ZZZ",
+    "maude_total": 9,
+    "maude": [
+     [
+      "UNKNOWN BREAST IMPLANT",
+      "MENTOR TEXAS"
+     ],
+     [
+      "UNKNOWN BREAST IMPLANT",
+      "ALLERGAN (COSTA RICA)"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "AZUR VASCULAR PLUG",
+    "hc_mfr": [
+     "MICROVENTION, INC."
+    ],
+    "pref": "74QKO",
+    "maude_total": 3,
+    "maude": [
+     [
+      "AZUR VASCULAR PLUG 8",
+      "MICROVENTION, INC."
+     ],
+     [
+      "AZUR VASCULAR PLUG 18",
+      "MICROVENTION, INC."
+     ]
+    ]
+   },
+   {
+    "hc_trade": "VALVE PACK",
+    "hc_mfr": [],
+    "pref": "80WNH",
+    "maude_total": 1,
+    "maude": [
+     [
+      "VENT VALVE WITHIN CUSTOM VALVE PACK",
+      "MEDLINE INDUSTRIES, INC."
+     ]
+    ]
+   },
+   {
+    "hc_trade": "NOVUM IQ LARGE VOLUME PUMP",
+    "hc_mfr": [
+     "BAXTER HEALTHCARE CORPORATION"
+    ],
+    "pref": "80FRN",
+    "maude_total": 11,
+    "maude": [
+     [
+      "BAXTER NOVUM IQ LARGE VOLUME PUMP",
+      "BAXTER HEALTHCARE CORPORATION"
+     ],
+     [
+      "BAXTER NOVUM IQ LARGE VOLUME PUMP",
+      "BAXTER HEALTHCARE CORPORATION"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "KANGAROO ENFIT TRANSITION CONNECTOR",
+    "hc_mfr": [
+     "CARDINAL HEALTH"
+    ],
+    "pref": "80ARG",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "AUTOSOFT 90",
+    "hc_mfr": [
+     "UNOMEDICAL A/S"
+    ],
+    "pref": "80LLD",
+    "maude_total": 12066,
+    "maude": [
+     [
+      "AUTOSOFT 90",
+      ""
+     ],
+     [
+      "AUTOSOFT 90",
+      ""
+     ]
+    ]
+   },
+   {
+    "hc_trade": "SENSIGHT LEAD TEST CABLE KIT",
+    "hc_mfr": [
+     "MEDTRONIC INC."
+    ],
+    "pref": "84MFR",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "MINIMED 780G PUMP",
+    "hc_mfr": [
+     "MEDTRONIC MINIMED"
+    ],
+    "pref": "80LZG",
+    "maude_total": 4,
+    "maude": [
+     [
+      "MINIMED GUARDIAN 4 SENSOR WITH MINIMED 780G PUMP",
+      "MEDTRONIC MINIMED"
+     ],
+     [
+      "MINIMED 780G PUMP",
+      "MEDTRONIC MINIMED"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "SAFESTEP HUBER NEEDLE SET",
+    "hc_mfr": [
+     "BARD ACCESS SYSTEMS, INC."
+    ],
+    "pref": "79GAA",
+    "maude_total": 1353,
+    "maude": [
+     [
+      "SAFESTEP HUBER NEEDLE SET 20G X 1 IN WITH Y-SITE",
+      "BARD ACCESS SYSTEMS"
+     ],
+     [
+      "SAFESTEP HUBER NEEDLE SET 20G X 0.75IN WITH Y-SITE",
+      "BARD ACCESS SYSTEMS"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "STOPCOCKS",
+    "hc_mfr": [
+     "ICU MEDICAL, INC."
+    ],
+    "pref": "80FMG",
+    "maude_total": 446,
+    "maude": [
+     [
+      "TRANSPAC IV DISPOSABLE TRANSDUCER WITH STOPCOCKS",
+      "ICU MEDICAL, INC."
+     ],
+     [
+      "TRANSPAC IV MONITORING KIT NEONATAL, 12\", 3 STOPCOCKS, DISPOSABLE TRANSDUCER, 3",
+      "ICU MEDICAL DE MEXICO, S. DE R.L. DE C.V."
+     ]
+    ]
+   },
+   {
+    "hc_trade": "UNKNOWN BARD LATEX FOLEY CATHETER",
+    "hc_mfr": [
+     "C.R. BARD, INC."
+    ],
+    "pref": "78GBM",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "SHILEY TRACHEOSTOMY TUBE WITH TAPERGUARD",
+    "hc_mfr": [
+     "COVIDIEN LLC"
+    ],
+    "pref": "73BTR",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "KARL STORZ HOPKINS II DCI TELESCOPES",
+    "hc_mfr": [
+     "KARL STORZ SE & CO. KG"
+    ],
+    "pref": "78FBP",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "INFINITY ADAPTIS TALAR DOME",
+    "hc_mfr": [
+     "WRIGHT MEDICAL TECHNOLOGY, INC"
+    ],
+    "pref": "87UBL",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "EVOLUT FX DELIVERY CATHETER SYSTEM",
+    "hc_mfr": [
+     "MEDTRONIC INC."
+    ],
+    "pref": "74GBK",
+    "maude_total": 3,
+    "maude": [
+     [
+      "EVOLUT FX DELIVERY CATHETER SYSTEM",
+      "MEDTRONIC  HEART VALVES DIVISION / COREVALVE, LLC."
+     ],
+     [
+      "EVOLUT FX DELIVERY CATHETER SYSTEM",
+      "MEDTRONIC HEART VALVES DIVISION"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "M2A MAGNUM SYSTEM - ACETABULAR CUPS",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87JDM",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "LNCS INF-L OXIMETRY SENSOR",
+    "hc_mfr": [
+     "MASIMO CORPORATION"
+    ],
+    "pref": "73RSA",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "TITANIUM BONE SCREW LOW PROFILE",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87HWC",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "UNKNOWN ZIMMER CUP HIP",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87ATU",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "M2A MAGNUM SYSTEM - MODULAR HEAD",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87JDM",
+    "maude_total": 1,
+    "maude": [
+     [
+      "M2A MAGNUM SYSTEM MODULAR HEAD 42MM HEAD DIAMETER",
+      "BIOMET ORTHOPEDICS"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "UNKNOWN ZIMMER SHELL",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87LPH",
+    "maude_total": 26,
+    "maude": [
+     [
+      "UNKNOWN ZIMMER SHELL",
+      "ZIMMER BIOMET, INC."
+     ],
+     [
+      "UNKNOWN ZIMMER SHELL",
+      "ZIMMER, INC."
+     ]
+    ]
+   },
+   {
+    "hc_trade": "SPECTRUM IQ INFUSION PUMP",
+    "hc_mfr": [
+     "BAXTER HEALTHCARE CORPORATION"
+    ],
+    "pref": "80FRN",
+    "maude_total": 5924,
+    "maude": [
+     [
+      "SPECTRUM IQ INFUSION PUMP",
+      "BAXTER HEALTHCARE CORPORATION"
+     ],
+     [
+      "SPECTRUM IQ INFUSION PUMP",
+      "BAXTER HEALTHCARE CORPORATION"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "COBALT CHROME MODULAR HEAD COMPONENT",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87UCE",
+    "maude_total": 1,
+    "maude": [
+     [
+      "36MM COBALT-CHROME MODULAR HEAD COMPONENT STANDARD NECK",
+      "BIOMET ORTHOPEDICS"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "MAXROM RINGLOC ACET. LINER STANDARD",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87ATU",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "UNKNOWN STENTS",
+    "hc_mfr": [
+     "ABBOTT MEDICAL"
+    ],
+    "pref": "99ZZZ",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "BELOTERO INTENSE LIDOCAINE",
+    "hc_mfr": [
+     "ANTEIS S.A."
+    ],
+    "pref": "79ADK",
+    "maude_total": 7,
+    "maude": [
+     [
+      "Belotero Intense Lidocaine",
+      "Anteis S.A"
+     ],
+     [
+      "BELOTERO INTENSE LIDOCAINE",
+      "ANTEIS S.A"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "BELOTERO VOLUME LIDOCAINE",
+    "hc_mfr": [
+     "ANTEIS S.A."
+    ],
+    "pref": "79ADK",
+    "maude_total": 1,
+    "maude": [
+     [
+      "BELOTERO VOLUME LIDOCAINE",
+      "ANTEIS S.A"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "RETRACTA DETACHABLE EMBOLIZATION COIL",
+    "hc_mfr": [
+     "COOK, INCORPORATED"
+    ],
+    "pref": "84HCG",
+    "maude_total": 231,
+    "maude": [
+     [
+      "RETRACTA DETACHABLE EMBOLIZATION COIL",
+      "COOK INC"
+     ],
+     [
+      "RETRACTA DETACHABLE EMBOLIZATION COIL",
+      "COOK INC"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "UNKNOWN ZIMMER LINER HIP",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87LPH",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "UNKNOWN ZIMMER HEAD HIP",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87AQG",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "UNKNOWN ZIMMER BEARING",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87JWH",
+    "maude_total": 16,
+    "maude": [
+     [
+      "UNKNOWN ZIMMER BEARING",
+      "ZIMMER, INC."
+     ],
+     [
+      "UNKNOWN ZIMMER BEARING",
+      "ZIMMER, INC."
+     ]
+    ]
+   },
+   {
+    "hc_trade": "UNKNOWN SURGICAL DRILL BITS",
+    "hc_mfr": [],
+    "pref": "99ZZZ",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "ZIMMER DERMATOME",
+    "hc_mfr": [
+     "ZIMMER SURGICAL, INC. ALSO TRADING AS RELIGN CORPORATION"
+    ],
+    "pref": "79GFD",
+    "maude_total": 123,
+    "maude": [
+     [
+      "ZIMMER DERMATOME AN",
+      "ZIMMER SURGICAL, INC."
+     ],
+     [
+      "ZIMMER DERMATOME",
+      ""
+     ]
+    ]
+   },
+   {
+    "hc_trade": "TPS SYSTEM - HANDPIECE ATTACHMENTS",
+    "hc_mfr": [
+     "STRYKER INSTRUMENTS A DIVISION OF STRYKER CORPORATION"
+    ],
+    "pref": "87ZZZ",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "AMIA AUTOMATED PD SYSTEM",
+    "hc_mfr": [
+     "BAXTER HEALTHCARE CORPORATION"
+    ],
+    "pref": "78FKO",
+    "maude_total": 191,
+    "maude": [
+     [
+      "AMIA AUTOMATED PD SYSTEM",
+      "BAXTER HEALTHCARE CORPORATION"
+     ],
+     [
+      "AMIA AUTOMATED PD SYSTEM",
+      "BAXTER HEALTHCARE CORPORATION"
+     ]
+    ]
+   },
+   {
+    "hc_trade": "FLUENT SYSTEM CONSOLE",
+    "hc_mfr": [
+     "HOLOGIC, INC."
+    ],
+    "pref": "85HIG",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "M2A MAGNUM SYSTEM - TAPER INSERT 42-50",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "87JDM",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "MODULAR TAPERLOC-LATERALIZED STEM",
+    "hc_mfr": [
+     "BIOMET ORTHOPEDICS, ATA BIOMET SPORTS MEDICINE, ATA BIOMET BIOLOGICS, ATA BIOMET TRAUMA"
+    ],
+    "pref": "99ZZZ",
+    "maude_total": 0,
+    "maude": []
+   },
+   {
+    "hc_trade": "INSPIRIS RESILIA AORTIC VALVE",
+    "hc_mfr": [
+     "EDWARDS LIFESCIENCES LLC"
+    ],
+    "pref": "74DYE",
+    "maude_total": 2573,
+    "maude": [
+     [
+      "EDWARDS INSPIRIS RESILIA AORTIC VALVE",
+      "EDWARDS LIFESCIENCES"
+     ],
+     [
+      "INSPIRIS RESILIA AORTIC VALVE",
+      "EDWARDS LIFESCIENCES"
+     ]
+    ]
+   }
+  ]
+ }
+}
