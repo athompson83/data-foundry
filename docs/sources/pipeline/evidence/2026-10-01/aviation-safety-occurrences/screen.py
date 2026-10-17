@@ -120,7 +120,7 @@ OUT["ntsb"].update({
     "aircraft_with_registration": len(valid_reg), "aircraft_with_narrative": sum(r["has_narr"] for r in nt_rows),
     "foreign_event_country_counts": dict(collections.Counter(r["country"] for r in nt_rows).most_common(8)),
     "aircraft_with_operator_name": sum(bool(r["operator"]) for r in nt_rows),
-    "sample20": [r for r in valid_reg if r["has_narr"]][:20],
+    "sample20": [{**{k: v for k, v in r.items() if k != "operator"}, "operator_present": bool(r["operator"])} for r in valid_reg if r["has_narr"]][:20],  # operator names can identify individuals: counted, never committed
     "identifier_fields": ["ev_id", "ntsb_no", "regis_no", "acft_serial_no", "oper_cert_num"],
     "freetext_fields": ["narratives.narr_accp", "narr_accf", "narr_cause", "narr_inc"],
     "personal_data_fields_to_exclude": ["owner_acft", "owner_street", "owner_city", "oper_individual_name", "Flight_Crew.*"],
@@ -213,7 +213,7 @@ OUT["cadors"].update({
     "with_cdn_registration": sum(bool(r["aircraftregistration"].strip()) for r in ac),
     "with_tsb_occurrence_number": sum(bool(r["tsboccurrencenumber"].strip()) for r in oc),
     "freetext_fields": "none found: no narrative column in the 5 published CSVs (category + event-name controlled vocabularies only)",
-    "sample20": [{k: r[k] for k in ("cadorsnumber", "aircraftregistration", "foreignaircraftregistration", "aircraft_make_name_nm", "aircraft_model_name_nm", "operator", "damagedescriptione")} for r in ac[:20]],
+    "sample20": [{k: r[k] for k in ("cadorsnumber", "aircraftregistration", "foreignaircraftregistration", "aircraft_make_name_nm", "aircraft_model_name_nm", "damagedescriptione")} | {"operator_present": bool(r["operator"])} for r in ac[:20]],
 })
 cad_by_reg = collections.defaultdict(list)
 for r in ac:

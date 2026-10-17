@@ -128,11 +128,11 @@
     "reg": "N2511M",
     "make": "PIPER",
     "model": "PA-12",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 2181,
     "has_narr": true,
-    "narr_head": "On March 7, 2026, about 1323 central standard time, a Piper PA-12, N2511M, was substantially damaged when it was involved in an accident near Lockhart, Texas. T"
+    "narr_head": "On March 7, 2026, about 1323 central standard time, a Piper PA-12, N2511M, was substantially damaged when it was involved in an accident near Lockhart, Texas. T",
+    "operator_present": false
    },
    {
     "ev_id": "20260323202675",
@@ -143,11 +143,11 @@
     "reg": "N2882W",
     "make": "BEECH",
     "model": "A36",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 2185,
     "has_narr": true,
-    "narr_head": "On March 22, 2026, at 1716 Pacific daylight time, a Beech A36, N2882W, was substantially damaged when it was involved in an accident near Olympic Valley, Califo"
+    "narr_head": "On March 22, 2026, at 1716 Pacific daylight time, a Beech A36, N2882W, was substantially damaged when it was involved in an accident near Olympic Valley, Califo",
+    "operator_present": false
    },
    {
     "ev_id": "20260305202605",
@@ -158,11 +158,11 @@
     "reg": "N865VL",
     "make": "PILATUS BRITTEN-NORMAN LIMITED",
     "model": "BN-2B-27",
-    "operator": "",
     "far_part": "135",
     "narr_chars": 1447,
     "has_narr": true,
-    "narr_head": "On February 22, 2026, at 0915 Atlantic standard time, a Pilatus Brittan-Norman Limited, BN-2B-27 Islander, N865VL, was substantially damaged when it was involve"
+    "narr_head": "On February 22, 2026, at 0915 Atlantic standard time, a Pilatus Brittan-Norman Limited, BN-2B-27 Islander, N865VL, was substantially damaged when it was involve",
+    "operator_present": false
    },
    {
     "ev_id": "20260310202631",
@@ -173,11 +173,11 @@
     "reg": "N104DG",
     "make": "BRUNNER DONALD G",
     "model": "KITFOX",
-    "operator": "SKULKING KITFOXES LLC",
     "far_part": "091",
     "narr_chars": 689,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": true
    },
    {
     "ev_id": "20260324202687",
@@ -188,11 +188,11 @@
     "reg": "N1374W",
     "make": "MOONEY",
     "model": "M20",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 1574,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": false
    },
    {
     "ev_id": "20260324202682",
@@ -203,11 +203,11 @@
     "reg": "N7328J",
     "make": "PIPER",
     "model": "PA-28-140",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 1123,
     "has_narr": true,
-    "narr_head": "On March 21, 2026, about 1610 mountain daylight time, a Piper PA-28-140, N7328J, was substantially damaged when it was involved in an accident near West Valley "
+    "narr_head": "On March 21, 2026, about 1610 mountain daylight time, a Piper PA-28-140, N7328J, was substantially damaged when it was involved in an accident near West Valley ",
+    "operator_present": false
    },
    {
     "ev_id": "20260308202614",
@@ -218,11 +218,11 @@
     "reg": "N66519",
     "make": "BEECH",
     "model": "A36",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 2445,
     "has_narr": true,
-    "narr_head": "On March 7, 2026, about 1900 central standard time, a Beechcraft A36, N66519 was destroyed when it was involved in an accident near Gulf Shores, Alabama. The pi"
+    "narr_head": "On March 7, 2026, about 1900 central standard time, a Beechcraft A36, N66519 was destroyed when it was involved in an accident near Gulf Shores, Alabama. The pi",
+    "operator_present": false
    },
    {
     "ev_id": "20260324202683",
@@ -233,11 +233,11 @@
     "reg": "N7632H",
     "make": "PIPER",
     "model": "PA-12",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 1274,
     "has_narr": true,
-    "narr_head": "On March 18, 2026, about 1700 Pacific daylight time, a Piper PA-12, N7632H, was substantially damaged when it was involved in an accident near West Linn, Oregon"
+    "narr_head": "On March 18, 2026, about 1700 Pacific daylight time, a Piper PA-12, N7632H, was substantially damaged when it was involved in an accident near West Linn, Oregon",
+    "operator_present": false
    },
    {
     "ev_id": "20260324202691",
@@ -248,11 +248,11 @@
     "reg": "N5045V",
     "make": "BOEING",
     "model": "A75N1",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 730,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": false
    },
    {
     "ev_id": "20260320202671",
@@ -263,11 +263,11 @@
     "reg": "N9913W",
     "make": "PIPER",
     "model": "PA-28-140",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 4193,
     "has_narr": true,
-    "narr_head": "On March 20, 2026, about 1503 central daylight time, a Piper PA-28-140 airplane, N9913W, was destroyed when it was involved in an accident near Rock Falls, Illi"
+    "narr_head": "On March 20, 2026, about 1503 central daylight time, a Piper PA-28-140 airplane, N9913W, was destroyed when it was involved in an accident near Rock Falls, Illi",
+    "operator_present": false
    },
    {
     "ev_id": "20260324202684",
@@ -278,11 +278,11 @@
     "reg": "N9111",
     "make": "ZLIN AVIATION SRO",
     "model": "SAVAGE CUB-S",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 718,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": false
    },
    {
     "ev_id": "20260324202685",
@@ -293,11 +293,11 @@
     "reg": "N9368A",
     "make": "CESSNA",
     "model": "195",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 1289,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": false
    },
    {
     "ev_id": "20260303202591",
@@ -308,11 +308,11 @@
     "reg": "N258MF",
     "make": "MIGHTYFLY INC",
     "model": "MF-100",
-    "operator": "MIGHTYFLY INC",
     "far_part": "091",
     "narr_chars": 719,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": true
    },
    {
     "ev_id": "20260228202564",
@@ -323,11 +323,11 @@
     "reg": "N80AR",
     "make": "RUBIN ALAN",
     "model": "RV-8",
-    "operator": "PALMER THOMAS W",
     "far_part": "091",
     "narr_chars": 2239,
     "has_narr": true,
-    "narr_head": "On February 28, 2026, at about 1005 mountain standard time, an experimental amateur-built, Vans Aircraft, RV-8, N80AR, was substantially damaged when it was inv"
+    "narr_head": "On February 28, 2026, at about 1005 mountain standard time, an experimental amateur-built, Vans Aircraft, RV-8, N80AR, was substantially damaged when it was inv",
+    "operator_present": true
    },
    {
     "ev_id": "20260228202565",
@@ -338,11 +338,11 @@
     "reg": "N3170Z",
     "make": "PIPER",
     "model": "PA-22-150",
-    "operator": "",
     "far_part": "",
     "narr_chars": 2338,
     "has_narr": true,
-    "narr_head": "On February 28, 2026, about 0948 Pacific standard time, a Piper PA-22-150, N3170Z, was destroyed when it was involved in an accident near Oroville, California. "
+    "narr_head": "On February 28, 2026, about 0948 Pacific standard time, a Piper PA-22-150, N3170Z, was destroyed when it was involved in an accident near Oroville, California. ",
+    "operator_present": false
    },
    {
     "ev_id": "20260324202689",
@@ -353,11 +353,11 @@
     "reg": "N163TW",
     "make": "CESSNA AIRCRAFT CO",
     "model": "162",
-    "operator": "RAINIER FLIGHT SERVICE LLC",
     "far_part": "091",
     "narr_chars": 835,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": true
    },
    {
     "ev_id": "20260326202699",
@@ -368,11 +368,11 @@
     "reg": "N212LG",
     "make": "LANCAIR",
     "model": "Legacy",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 2140,
     "has_narr": true,
-    "narr_head": "On March 16, 2026, about 1257 Pacific daylight time, a Lancair Legacy, N212LG, sustained substantial damage when it was involved in an accident near Hillsboro, "
+    "narr_head": "On March 16, 2026, about 1257 Pacific daylight time, a Lancair Legacy, N212LG, sustained substantial damage when it was involved in an accident near Hillsboro, ",
+    "operator_present": false
    },
    {
     "ev_id": "20260325202695",
@@ -383,11 +383,11 @@
     "reg": "N17316",
     "make": "BOEING",
     "model": "737-8",
-    "operator": "United Airlines ",
     "far_part": "121",
     "narr_chars": 5539,
     "has_narr": true,
-    "narr_head": ""
+    "narr_head": "",
+    "operator_present": true
    },
    {
     "ev_id": "20260323202678",
@@ -398,11 +398,11 @@
     "reg": "N478AT",
     "make": "ROBINSON HELICOPTER",
     "model": "R44",
-    "operator": "Palm Beach Helicopters",
     "far_part": "091",
     "narr_chars": 5687,
     "has_narr": true,
-    "narr_head": "On March 23, 2026, about 1221 eastern daylight time, a Robinson R44 Raven I helicopter, N478AT, was destroyed when it was involved in an accident near Boynton B"
+    "narr_head": "On March 23, 2026, about 1221 eastern daylight time, a Robinson R44 Raven I helicopter, N478AT, was destroyed when it was involved in an accident near Boynton B",
+    "operator_present": true
    },
    {
     "ev_id": "20240307193897",
@@ -413,11 +413,11 @@
     "reg": "N4443G",
     "make": "KOLB COMPANY",
     "model": "FIRESTAR KXP",
-    "operator": "",
     "far_part": "091",
     "narr_chars": 16273,
     "has_narr": true,
-    "narr_head": "On March 7, 2024, about 1124 Pacific standard time, a Kolb Firestar KXP airplane, N4443G, was substantially damaged when it was involved in an accident near Cav"
+    "narr_head": "On March 7, 2024, about 1124 Pacific standard time, a Kolb Firestar KXP airplane, N4443G, was substantially damaged when it was involved in an accident near Cav",
+    "operator_present": false
    }
   ],
   "identifier_fields": [
@@ -799,8 +799,8 @@
     "foreignaircraftregistration": "N6409H",
     "aircraft_make_name_nm": "CESSNA",
     "aircraft_model_name_nm": "152",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2011Q0288",
@@ -808,8 +808,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "BOEING",
     "aircraft_model_name_nm": "757 28A",
-    "operator": "JAZZ AVIATION LP,  AS REPRESENTED BY ITS GENERAL PARTNER, AVIATION GENERAL PARTNER INC. (5002)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2004C2570",
@@ -817,8 +817,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "PIPER",
     "aircraft_model_name_nm": "PA30",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2005C0782",
@@ -826,8 +826,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "AIRBUS",
     "aircraft_model_name_nm": "A319 112",
-    "operator": "NORTHWEST AIRLINES, INC. (298)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2005C0775",
@@ -835,8 +835,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "SWEARINGEN",
     "aircraft_model_name_nm": "SA226TC",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2004O1932",
@@ -844,8 +844,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "SWEARINGEN",
     "aircraft_model_name_nm": "SA227AC",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2004Q1322",
@@ -853,8 +853,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "PIPER",
     "aircraft_model_name_nm": "PA32RT 300",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2005Q0485",
@@ -862,8 +862,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "BEECH",
     "aircraft_model_name_nm": "100",
-    "operator": "AEROPRO (5813)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2004A0817",
@@ -871,8 +871,8 @@
     "foreignaircraftregistration": "6YJMP",
     "aircraft_make_name_nm": "AIRBUS",
     "aircraft_model_name_nm": "A340 313",
-    "operator": "AIR JAMAICA LIMITED (2623)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2005C0333",
@@ -880,8 +880,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "CESSNA",
     "aircraft_model_name_nm": "172M",
-    "operator": "MCMURRAY AVIATION (4719)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2005P0263",
@@ -889,8 +889,8 @@
     "foreignaircraftregistration": "N584RH",
     "aircraft_make_name_nm": "AGUSTA",
     "aircraft_model_name_nm": "A109 AII",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "1999Q0608",
@@ -898,8 +898,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "BEECH",
     "aircraft_model_name_nm": "1900D",
-    "operator": "",
-    "damagedescriptione": "Unknown"
+    "damagedescriptione": "Unknown",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2004Q1068",
@@ -907,8 +907,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "CESSNA",
     "aircraft_model_name_nm": "152",
-    "operator": "PRO AVIATION (14935)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "1999C0098",
@@ -916,8 +916,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "CESSNA",
     "aircraft_model_name_nm": "A150M",
-    "operator": "",
-    "damagedescriptione": "Unknown"
+    "damagedescriptione": "Unknown",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2005C0544",
@@ -925,8 +925,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "PILATUS - SW",
     "aircraft_model_name_nm": "PC 12 45",
-    "operator": "",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2005O0463",
@@ -934,8 +934,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "DEHAVILLAND - CAN",
     "aircraft_model_name_nm": "DHC 8 311",
-    "operator": "AIR CANADA JAZZ (5002)",
-    "damagedescriptione": "No Damage"
+    "damagedescriptione": "No Damage",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2000P0439",
@@ -943,8 +943,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "DEHAVILLAND",
     "aircraft_model_name_nm": "DHC 2 MKI",
-    "operator": "",
-    "damagedescriptione": "Unknown"
+    "damagedescriptione": "Unknown",
+    "operator_present": false
    },
    {
     "cadorsnumber": "2000P0675",
@@ -952,8 +952,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "BEECH",
     "aircraft_model_name_nm": "B300",
-    "operator": "WEYERHAEUSER COMPANY LIMITED (10534)",
-    "damagedescriptione": "Unknown"
+    "damagedescriptione": "Unknown",
+    "operator_present": true
    },
    {
     "cadorsnumber": "2005A0072",
@@ -961,8 +961,8 @@
     "foreignaircraftregistration": "EIDBP",
     "aircraft_make_name_nm": "BOEING",
     "aircraft_model_name_nm": "767 333",
-    "operator": "ALITALIA LINEE AEREE ITALIANE, S.P.A. (998)",
-    "damagedescriptione": "Unknown"
+    "damagedescriptione": "Unknown",
+    "operator_present": true
    },
    {
     "cadorsnumber": "1999Q0153",
@@ -970,8 +970,8 @@
     "foreignaircraftregistration": "",
     "aircraft_make_name_nm": "DEHAVILLAND",
     "aircraft_model_name_nm": "DHC 8",
-    "operator": "AIR ALLIANCE",
-    "damagedescriptione": "Unknown"
+    "damagedescriptione": "Unknown",
+    "operator_present": true
    }
   ]
  },
