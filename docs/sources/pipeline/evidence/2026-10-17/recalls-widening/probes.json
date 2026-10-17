@@ -1,0 +1,60 @@
+{
+ "usda_fsis_recall_api": [
+  {
+   "url": "https://www.fsis.usda.gov/fsis/api/recall/v/1",
+   "http_status": "403",
+   "bytes_read_of_first_2KiB": 408,
+   "content_type": "text/html",
+   "curl_error": null
+  }
+ ],
+ "accc_product_safety_recalls": [
+  {
+   "url": "https://www.productsafety.gov.au/recalls",
+   "http_status": "403",
+   "bytes_read_of_first_2KiB": 387,
+   "content_type": "text/html",
+   "curl_error": null
+  },
+  {
+   "url": "https://www.productsafety.gov.au/rss/feed.xml/psa_recall",
+   "http_status": "403",
+   "bytes_read_of_first_2KiB": 419,
+   "content_type": "text/html",
+   "curl_error": null
+  }
+ ],
+ "transport_canada_vrdb": [
+  {
+   "url": "https://opendatatc.tc.canada.ca/vrdb_60days_daily.csv",
+   "http_status": "206",
+   "bytes_read_of_first_2KiB": 2048,
+   "content_type": "text/csv",
+   "curl_error": null
+  },
+  {
+   "url": "https://data.tc.gc.ca/v1.3/api/eng/vehicle-recall-database/recall",
+   "http_status": "200",
+   "bytes_read_of_first_2KiB": 1161,
+   "content_type": "application/json; charset=utf-8",
+   "curl_error": null
+  }
+ ],
+ "nhtsa_recalls_api": [
+  {
+   "url": "https://api.nhtsa.gov/recalls/recallsByVehicle?make=ford&model=f-150&modelYear=2020",
+   "http_status": "200",
+   "bytes_read_of_first_2KiB": 14224,
+   "content_type": "application/json;charset=UTF-8",
+   "curl_error": null
+  },
+  {
+   "url": "https://static.nhtsa.gov/odi/ffdd/rcl/RCL.txt",
+   "http_status": "200",
+   "bytes_read_of_first_2KiB": 3053,
+   "content_type": "application/octet-stream",
+   "curl_error": null
+  }
+ ],
+ "probed_on": "2026-10-17"
+}
