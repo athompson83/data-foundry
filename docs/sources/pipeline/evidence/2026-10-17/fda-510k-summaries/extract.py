@@ -1,6 +1,6 @@
 """Deterministic extraction over a seeded sample of FDA 510(k) summary PDFs (EVIDENCED round, 2026-10-17).
 
-Samples 75 'Summary' 510(k) records decided 2012..2026 (5 per decision year 2012..2026, seeded), downloads each summary PDF from
+Samples 75 'Summary' 510(k) records decided 2012..2026 (5 random positions per decision year 2012..2026 across the whole yearly result set, seeded), downloads each summary PDF from
 accessdata.fda.gov, runs pdftotext, and extracts with fixed regexes: the K-number itself (sanity), indications for use,
 predicate K-numbers, product code and 21 CFR regulation number. Ground truth for product code is the openFDA record;
 for regulation number, openFDA device/classification; predicate K-numbers are checked by resolving them in openFDA.
@@ -39,15 +39,24 @@ def openfda(path, search, limit=100, skip=0):
 
 rng = random.Random(20261017)
 sample = []
+totals = {}
 for year in range(2012, 2027):
-    rows = openfda('510k', f'statement_or_summary:Summary AND decision_date:[{year}0101 TO {year}1231] AND decision_code:SESE', 100)
-    rng.shuffle(rows)
-    sample += rows[:5]
+    q = f'statement_or_summary:Summary AND decision_date:[{year}0101 TO {year}1231] AND decision_code:SESE'
+    url = f'https://api.fda.gov/device/510k.json?search={urllib.parse.quote(q)}&limit=1'
+    time.sleep(0.5)
+    status, body = get(url)
+    total = json.loads(body)['meta']['results']['total'] if status == 200 else 0
+    totals[year] = total
+    # five random positions across the whole year (skip is capped by openFDA at 25,000)
+    for pos in sorted(rng.sample(range(min(total, 25000)), min(5, total))):
+        rows = openfda('510k', q, 1, pos)
+        sample += rows[:1]
 print('sampled', len(sample))
 
 IND = re.compile(r'(?is)indications?\s+for\s+use\s*(?:statement)?\s*[:\-]?\s*(.{40,1500}?)(?=\n\s*(?:device\s+description|technological|predicate|intended\s+use|contraindications?|substantial|summary\s+of|type\s+of\s+use|prescription\s+use|510\(k\)\s+summary|page\s+\d|section\s+\d|\Z))')
 IND2 = re.compile(r'(?is)(?:is|are)\s+indicated\s+for\s+(.{30,800}?\.)')
 PRED = re.compile(r'(?i)predicate[^\n]{0,60}?(?:device|devices)?[^K\n]{0,200}?((?:K|DEN|P)\d{6,7}(?:\s*[,;/and&]+\s*(?:K|DEN|P)\d{6,7})*)')
+BOILER = re.compile(r'(?i)stated in the enclosure|legally marketed predicate|interstate commerce prior to|substantially equivalent \(for the indications')
 KNUM = re.compile(r'\bK\d{6}\b')
 REG = re.compile(r'\b21\s*CFR\s*(?:Part\s*)?(?:§\s*)?(8\d\d\.\d{3,4})', re.I)
 PC = re.compile(r'(?i)product\s*code[s]?\s*[:\-]?\s*([A-Z]{3})\b')
@@ -73,8 +82,10 @@ for i, rec in enumerate(sample):
         continue
     flat = re.sub(r'[ \t]+', ' ', txt)
     out['k_number_in_text'] = k in flat
-    m = IND.search(flat) or IND2.search(flat)
-    out['indications'] = re.sub(r'\s+', ' ', m.group(1)).strip()[:600] if m else None
+    cands = [re.sub(r'\s+', ' ', m.group(1)).strip() for m in list(IND.finditer(flat)) + list(IND2.finditer(flat))]
+    # Decision-letter boilerplate also contains the phrase; reject captures that are that boilerplate.
+    cands = [c for c in cands if not BOILER.search(c[:400])]
+    out['indications'] = cands[0][:600] if cands else None
     others = set(KNUM.findall(flat)) - {k}
     pm = PRED.findall(flat)
     preds = sorted({x for grp in pm for x in re.findall(r'(?:K|DEN|P)\d{6,7}', grp)} - {k})
@@ -120,6 +131,7 @@ def rate(pred, population):
 
 summary = {
     'sampled': len(sample),
+    'population_per_year': totals,
     'pdf_fetched': len(pdfs),
     'pdf_not_found_or_failed': len(results) - len(pdfs),
     'scanned_image_only_no_text_layer': len([r for r in pdfs if r.get('scanned_image_only')]),

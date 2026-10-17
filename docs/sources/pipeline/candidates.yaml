@@ -9829,4 +9829,4 @@ datasets:
       - Has this school changed trust or URN since its last full inspection?
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/evidence/2026-10-17/school-inspection-reports/join.json ]
-    next_action: Archive both files and 30 report PDFs in R2, write the two ADR-0013 rights records, and measure heading-extraction hit rates on the PDFs (8/8 sampled PDFs yielded text with an Outcome heading).
+    next_action: Archive both files and 30 report PDFs in R2, write the two ADR-0013 rights records, and measure heading-extraction hit rates on the PDFs (8/8 sampled PDFs yielded text, but only 4/8 passed the Outcome-heading check in join.json, so heading extraction is unproven).
