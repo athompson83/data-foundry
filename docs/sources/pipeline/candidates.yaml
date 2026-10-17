@@ -9553,7 +9553,7 @@ datasets:
         between:
           - clinical-isrctn-registry
           - clinical-trial-eligibility
-        measured: '23/721 distinct ISRCTN trials (12 topic queries; the API has no working paging) cite an NCT number; across those and the 89 trials the register returns for the search NCT, 93/93 cited NCT numbers resolve in ClinicalTrials.gov and 3 of the 93 ClinicalTrials.gov records cite the ISRCTN back (evidence/2026-10-11/clinical-trials/join.py)'
+        measured: '23/721 distinct ISRCTN trials (12 topic queries; the API has no working paging) cite an NCT number; across those and the 89 trials the register returns for the search NCT, all 94 cited NCT numbers in those 93 ISRCTN records resolve in ClinicalTrials.gov and 3 of the 93 ClinicalTrials.gov records cite the ISRCTN back (evidence/2026-10-11/clinical-trials/join.py)'
         mode: declared
     taxonomy:
       - 'recruitment status: recruiting, not yet recruiting, active, completed, terminated, withdrawn'

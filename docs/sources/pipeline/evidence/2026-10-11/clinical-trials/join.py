@@ -28,7 +28,7 @@ def check(p):
 with cf.ThreadPoolExecutor(8) as ex: res = list(ex.map(check, cited.items()))
 out = {'isrctn_total': total, 'distinct_trials_sampled': len(sample), 'sampled_citing_nct': sum(1 for n in sample.values() if n),
        'isrctn_search_NCT_total': nct_total, 'search_NCT_returned': len(nct_hits), 'search_NCT_returned_citing_nct': sum(1 for n in nct_hits.values() if n),
-       'checked_links': len(res), 'nct_resolves_in_ctgov': sum(1 for r in res if r['exists_in_ctgov']),
+       'checked_links': len(res), 'records_with_all_nct_resolving': sum(1 for r in res if r['exists_in_ctgov']), 'nct_ids_cited': sum(len(r['nct']) for r in res), 'nct_ids_resolving': sum(len(r['exists_in_ctgov']) for r in res),
        'ctgov_cites_back': sum(1 for r in res if r['ctgov_cites_isrctn']),
        'ctgov_total': json.loads(get('https://clinicaltrials.gov/api/v2/stats/size'))['totalStudies'], 'links': res}
 json.dump(out, open('join.json', 'w'), indent=1)

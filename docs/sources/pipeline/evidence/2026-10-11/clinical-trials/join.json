@@ -6,7 +6,6 @@
  "search_NCT_returned": 89,
  "search_NCT_returned_citing_nct": 70,
  "checked_links": 93,
- "nct_resolves_in_ctgov": 93,
  "ctgov_cites_back": 3,
  "ctgov_total": 606601,
  "links": [
@@ -942,5 +941,8 @@
    ],
    "ctgov_cites_isrctn": false
   }
- ]
+ ],
+ "records_with_all_nct_resolving": 93,
+ "nct_ids_cited": 94,
+ "nct_ids_resolving": 94
 }
