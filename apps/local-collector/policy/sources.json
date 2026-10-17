@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "8555db39332b35ce246e948df73c1ee8aa52bd521991becee75609ce2e0bc220",
+  "registry_sha256": "f29c626cb109ecbc91c06105af08e551032064723d391a073bd9d14f8e64c628",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -346,6 +346,65 @@
       "sources": [
         "food-usda-fooddata-central",
         "food-open-food-facts"
+      ]
+    },
+    "care-provider-inspections": {
+      "name": "Care provider inspections (CQC ratings and reports linked to NHS ODS organisation records by ODS code)",
+      "stage": "SCREENED",
+      "sources": [
+        "health-cqc-care-directory-ratings",
+        "health-nhs-ods-organisation-directory"
+      ]
+    },
+    "cosmetic-ingredient-restrictions": {
+      "name": "Cosmetic ingredient restrictions (EU CosIng and GB retained annexes, linked by CAS number)",
+      "stage": "SCREENED",
+      "sources": [
+        "eu-cosing-cosmetic-annexes",
+        "uk-retained-cosmetics-regulation-annexes"
+      ]
+    },
+    "food-additive-authorisations": {
+      "name": "Food additive authorisations (US FDA inventory and 21 CFR text, EU Union list, EFSA hazard data)",
+      "stage": "SCREENED",
+      "sources": [
+        "food-fda-substances-added-to-food",
+        "food-ecfr-21cfr-food-additive-regulations",
+        "food-eu-union-list-additives",
+        "food-efsa-openfoodtox"
+      ]
+    },
+    "medicines-marketing-authorisations": {
+      "name": "Authorised medicines (EMA EU register and FDA Drugs@FDA, linked by active substance)",
+      "stage": "SCREENED",
+      "sources": [
+        "medicines-ema-authorised-register",
+        "medicines-fda-drugsfda"
+      ]
+    },
+    "power-plant-registry": {
+      "name": "Power plant registry (EIA-860 plants and generators, EPA eGRID emissions, NRC nuclear event reports)",
+      "stage": "SCREENED",
+      "sources": [
+        "power-eia-860-generators",
+        "power-epa-egrid-plants",
+        "nuclear-nrc-event-notification-reports"
+      ]
+    },
+    "retracted-publications": {
+      "name": "Retracted and corrected scholarly publications (Retraction Watch via Crossref and PubMed, linked by DOI and PMID)",
+      "stage": "SCREENED",
+      "sources": [
+        "retraction-watch-crossref",
+        "pubmed-retracted-publications"
+      ]
+    },
+    "school-inspection-reports": {
+      "name": "School inspection outcomes (Ofsted inspections linked to the DfE school register by URN)",
+      "stage": "SCREENED",
+      "sources": [
+        "education-ofsted-school-inspections",
+        "education-gias-school-register"
       ]
     }
   },
@@ -3832,6 +3891,253 @@
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "health-cqc-care-directory-ratings": {
+      "name": "CQC care directory (active locations with ratings, ODS codes) and inspection reports, England",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Care Quality Commission (England)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "health-nhs-ods-organisation-directory": {
+      "name": "NHS England Organisation Data Service (ODS) organisation records, public ORD API",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NHS England (ODS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eu-cosing-cosmetic-annexes": {
+      "name": "EU CosIng cosmetic ingredient annexes (Regulation (EC) 1223/2009 Annexes II to VI, CSV exports)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uk-retained-cosmetics-regulation-annexes": {
+      "name": "GB retained Cosmetic Products Regulation annexes (legislation.gov.uk XML, Annexes II to VI)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK National Archives (legislation.gov.uk)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "health-canada-cosmetic-ingredient-hotlist": {
+      "name": "Health Canada Cosmetic Ingredient Hotlist (prohibited and restricted ingredients, canada.ca HTML tables)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Health Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "food-fda-substances-added-to-food": {
+      "name": "FDA Substances Added to Food inventory (formerly EAFUS)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-eu-union-list-additives": {
+      "name": "EU Union list of food additives (Food and Feed Information Portal, Regulation (EC) No 1333/2008 Annex II)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission DG SANTE",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-ecfr-21cfr-food-additive-regulations": {
+      "name": "21 CFR food additive, GRAS and colour additive regulation text (eCFR title 21 bulk XML)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Office of the Federal Register (NARA) and GPO",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "food-efsa-openfoodtox": {
+      "name": "EFSA OpenFoodTox 3.0 chemical hazards database (Zenodo export)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Food Safety Authority",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "medicines-ema-authorised-register": {
+      "name": "EMA medicines register (EU centrally authorised medicines with EPAR, ATC code and indication text)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "European Medicines Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "medicines-fda-drugsfda": {
+      "name": "FDA Drugs@FDA approved applications (openFDA drugsfda: applications, products, marketing status, review documents)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "power-eia-860-generators": {
+      "name": "EIA Form EIA-860 annual electric generator report (plants, generators, owners)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Energy Information Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "power-epa-egrid-plants": {
+      "name": "EPA eGRID plant file (emissions and generation by plant, keyed by ORIS code)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "nuclear-nrc-event-notification-reports": {
+      "name": "NRC Event Notification Reports (daily operations-center reports with free-text event narratives)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Nuclear Regulatory Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "radio-fcc-eas-equipment-grants": {
+      "name": "US FCC Equipment Authorization System grants (FCC ID, frequency, power, grant conditions, exhibits)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US Federal Communications Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "retraction-watch-crossref": {
+      "name": "Retraction Watch database and Crossref retraction updates (DOI-keyed retractions, corrections and expressions of concern)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Crossref (Retraction Watch database)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pubmed-retracted-publications": {
+      "name": "PubMed retracted-publication records (E-utilities, publication type Retracted Publication, with abstracts)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US NIH National Library of Medicine",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "education-ofsted-school-inspections": {
+      "name": "Ofsted state-funded school inspection outcomes and report PDFs (England)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Ofsted (England)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "education-gias-school-register": {
+      "name": "DfE Get Information About Schools (GIAS) establishment register, daily CSV",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Department for Education (England)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
       ]
     }

@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { digitCodes, gtinReadings, structureCpscRecall, structureHcRecall } from '../../packages/product-recall-structuring/src/index.js';
 import { parseCodes } from '../../packages/recall-structuring/src/index.js';
 
-const input = JSON.parse(readFileSync(process.argv[2] as string, 'utf8')) as { cpsc?: any[]; hc?: any[]; texts?: Array<{ id: string; text: string }> };
+const input = JSON.parse(readFileSync(process.argv[2] as string, 'utf8')) as { cpsc?: any[]; hc?: any[]; texts?: Array<{ id: string; text: string; anchored?: boolean }> };
 const out: any = {};
 if (input.cpsc) {
   out.cpsc = [];
@@ -33,11 +33,12 @@ if (input.hc) {
   }
 }
 if (input.texts) {
-  out.texts = input.texts.map(({ id, text }) => {
+  out.texts = input.texts.map(({ id, text, anchored }) => {
     const g = new Set<string>();
-    for (const c of digitCodes(text)) for (const x of gtinReadings(c)) g.add(x);
+    // anchored = free prose: parseCodes only (digitCodes would read a separator-joined notice number such as 2609-0221 as an EAN-8).
+    if (!anchored) for (const c of digitCodes(text)) for (const x of gtinReadings(c)) g.add(x);
     for (const x of parseCodes(text).gtins) g.add(x);
-    return { id, gtins: [...g].sort(), digit_runs: digitCodes(text) };
+    return { id, gtins: [...g].sort(), digit_runs: anchored ? [] : digitCodes(text) };
   });
 }
 writeFileSync(process.argv[3] as string, JSON.stringify(out));

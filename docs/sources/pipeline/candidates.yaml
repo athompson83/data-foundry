@@ -2394,8 +2394,6 @@ candidates:
     structuring: identifier-extraction
     format: free-text
     publisher: European Commission
-    stage: SCREENED
-    rights: AMBER
     sources:
       [
         'https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en',
@@ -2411,24 +2409,6 @@ candidates:
         low_onboarding_cost: 4,
         poor_existing_access: 3
       }
-    terms:
-      - {
-          url: 'https://data.europa.eu/api/hub/search/datasets/rapex-rapid-alert-system-non-food',
-          quote: '"resource": "https://creativecommons.org/publicdomain/zero/1.0/", "description": "Creative Commons CC0
-            1.0 Universal" (licence of distribution ''4. Weekly Reports - XML format'')'
-        }
-      - {
-          url: 'https://commission.europa.eu/legal-notice_en',
-          quote: 'Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this
-            website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence.
-            This means that reuse is allowed, provided appropriate credit is given and changes are indicated.'
-        }
-      - {
-          url: 'https://commission.europa.eu/legal-notice_en',
-          quote: 'Software or documents covered by industrial property rights, such as patents, trade marks, registered
-            designs, logos and names, are excluded from the Commission''s reuse policy and are not licensed to
-            you.'
-        }
     conditions:
       [
         'Apply the stricter of the two declared licences (CC BY 4.0): credit "European Commission, Safety
@@ -2439,20 +2419,26 @@ candidates:
         'Keep the notifying country, risk level and measures as authority-notified facts, not our own safety
           finding.'
       ]
+    stage: SCREENED
+    rights: AMBER
+    terms:
+      - url: https://data.europa.eu/api/hub/search/datasets/rapex-rapid-alert-system-non-food
+        quote: '"license":{"resource":"https://creativecommons.org/publicdomain/zero/1.0/","description":"Creative Commons CC0 1.0 Universal"} on the distribution with access_url https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en (re-read 2026-10-17, HTTP 200)'
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence. This means that reuse is allowed, provided appropriate credit is given and changes are indicated. (re-read 2026-10-17)
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: Software or documents covered by industrial property rights, such as patents, trade marks, registered designs, logos and names, are excluded from the Commission's reuse policy and are not licensed to you. (re-read 2026-10-17)
     evidence:
-      [
-        docs/sources/pipeline/research-2026-09-27-composites.md,
-        docs/sources/pipeline/evidence/2026-09-27-composites/recalls,
-        docs/sources/pipeline/research-2026-09-28.md,
-        docs/sources/pipeline/evidence/2026-09-28/eu-safety-gate
-      ]
-    next_action: >-
-      Backfill all 1,117 weekly XML reports (2005-2026, about 180 KB each) into the recall notice
-      store; parse type_numberOfModel/barcode/batchNumber into model, GTIN and lot keys; write the ADR-0013
-      rights record (CC0 distribution + CC BY 4.0 site notice, images excluded). Measured 2026-10-11 (research-2026-10-11.md):
-      list of 1,119 weekly reports to Report-2026-40; the last 52 reports hold 3,977 alerts, 2,149 with a barcode, and none
-      cite a CPSC or Health Canada URL, so it has no declared link to the live members; the GTIN overlap with them is unmeasured
-      (the lookup API needs a key).
+      - docs/sources/pipeline/research-2026-09-27-composites.md
+      - docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      - docs/sources/pipeline/research-2026-09-28.md
+      - docs/sources/pipeline/evidence/2026-09-28/eu-safety-gate
+      - docs/sources/pipeline/evidence/2026-10-11/recalls-widening/safety-gate.py
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/safety-gate-gtin.json
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/safety-gate-gtin-330reports.json
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/hc-detail.json
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/rights.json
+    next_action: "Measured 2026-10-17 (safety-gate-gtin.py, GTINs by the repo's structureCpscRecall/parseCodes/gtinReadings via tooling/scripts/scout-gtin-extract.ts, all normalised to GTIN-14): the newest 52 weekly reports (Report-2025-42 to Report-2026-41, published 2026-10-16) hold 3,957 alerts, 2,130 with barcode text and 1,840 (1,863 distinct GTIN-14) with a check-digit-valid GTIN. Against 3,716 CPSC recalls since 2015 (261 with a GTIN, 950 distinct) 0/1,840 alerts match; against Health Canada 0/1,840 (the open-data index has no barcode field and its text holds 1 GTIN; 0/61 HC detail pages updated since 2025-10-01 that list a valid GTIN match). Widening to 330 reports (to 2020-05, 20,678 alerts, 10,339 distinct GTIN-14) also gives 0/10,476 against CPSC and Health Canada, and 0 matches without the check-digit gate. No alert text cites CPSC or Health Canada. So there is NO declared join to consumer-product-recalls-north-america: Safety Gate cannot be added as a member of it, which also needs BUILDING members. Its declared GTIN join is to uk-opss-product-safety-alerts (146/615 OPSS notices, 19/20 correct on hand check; see that entry). Build it with OPSS as a UK+EU sibling slice of home-product-recalls-global, not as a North America member. Capture gaps for a new member (apps/recalls-worker): ProductAgency is 'CPSC' | 'HC' and D1 product_recall.agency has CHECK (agency IN ('CPSC','HC')) (migration 0003), so a migration is required; fetchSource accepts one JSON response (accept: application/json, JSON.parse, key sha256-*.json) while Safety Gate is 1,119 separate XML reports needing a cursor-based backfill across invocations (subrequest limit) and XML-aware archiving; write the ADR-0013 rights record (CC0 distribution plus CC BY 4.0 notice, images and logos excluded)."
   - key: uk-opss-product-safety-alerts
     name: UK OPSS product safety alerts, reports and recalls (GOV.UK finder) — brand/model/barcode tables and PSD
       notification numbers
@@ -2460,8 +2446,6 @@ candidates:
     structuring: identifier-extraction
     format: free-text
     publisher: UK OPSS
-    stage: SCREENED
-    rights: AMBER
     sources:
       [
         'https://www.gov.uk/api/search.json?filter_format=product_safety_alert_report_recall',
@@ -2477,17 +2461,6 @@ candidates:
         low_onboarding_cost: 4,
         poor_existing_access: 3
       }
-    terms:
-      - {
-          url: 'https://www.gov.uk/help/terms-conditions',
-          quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open
-            Government Licence ( OGL ), which also sets out which content is exempt.'
-        }
-      - {
-          url: 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/',
-          quote: 'exploit the Information commercially and non-commercially for example, by combining it with other
-            Information, or by including it in your own product or application.'
-        }
     conditions:
       [
         Attribute with "Contains public sector information licensed under the Open Government Licence v3.0."
@@ -2496,14 +2469,23 @@ candidates:
         Publish the Brand/Model/Barcode/Batch/PSD-number facts and metadata facets; do not present them as
           an OPSS endorsement.
       ]
+    stage: SCREENED
+    rights: AMBER
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt. (re-read 2026-10-17, HTTP 200)
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application. (re-read 2026-10-17)
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: "This licence does not cover: personal data in the Information; ... departmental or public sector organisation logos, crests and the Royal Arms except where they form an integral part of a document or dataset (re-read 2026-10-17)"
     evidence:
-      &id001 [
-        docs/sources/pipeline/research-2026-09-27-composites.md,
-        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
-      ]
-    next_action: Page the search API (3,730 notices since 2022-03) and fetch /api/content for each; parse the
-      Product information table rows (Brand, Model, Barcode, Batch, SKU, ASIN) and the PSD notification
-      number; write the ADR-0013 rights record.
+      - docs/sources/pipeline/research-2026-09-27-composites.md
+      - docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/opss.py
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/opss.json
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/opss-handcheck.json
+      - docs/sources/pipeline/evidence/2026-10-17/recalls-widening/rights.json
+    next_action: 'Measured 2026-10-17 (opss.py): the GOV.UK search API (count=100, start paging) lists 3,779 notices, 2022-03-04 to 2026-10-16 (newest "Product Recall: Pimple Popping Squishes ... (2610-0049)"); /api/content returned 3,779/3,779 with details.body (HTML tables), details.metadata (product_alert_type, product_category, product_measure_type, product_recall_alert_date, product_risk_level) and attachments (image PDFs). 0 notices cite CPSC or Health Canada (1 mentions RAPEX). 615 carry a check-digit-valid GTIN (1,424 distinct GTIN-14; the Barcode row is a table cell, ISBN-13s count as GTINs), 89 a model cell. GTIN-14 matches: CPSC 2/615 (Boxine tonies Blocks 2203-0518 = CPSC 22736, 3/3 UPCs; Rainbow Road Board Books = CPSC 23292, 8 shared ISBN-13s; 2/2 correct on hand check), Health Canada 0/615, EU Safety Gate 146/615 against 10,339 GTIN-14 from 330 reports (19/20 correct on hand check, 1 uncertain; one GTIN also sits on an unrelated Safety Gate aftershave alert, so a GTIN link stays product-level and conflicts go to review). So there is a declared GTIN join to live member cpsc-recalls (2 notices, too thin to justify adding OPSS to consumer-product-recalls-north-america, which also requires BUILDING members) and a strong one to eu-safety-gate-alerts. Build OPSS + Safety Gate as a UK/EU slice of home-product-recalls-global, reusing the product-recall-structuring GTIN rule; fetch /api/content per notice (3,779 requests, so a windowed backfill), archive the search pages and each content JSON content-addressed in R2, write the ADR-0013 rights record (OGL v3.0; attachments, logos and images excluded).'
   - key: au-accc-product-recalls
     name: ACCC Product Safety Australia recalls (productsafety.gov.au) — PRA numbers with brand, model, SKU and
       GTIN fields
@@ -2549,7 +2531,11 @@ candidates:
           (third-party carve-out).',
         Exclude supplier contact phone/email.
       ]
-    evidence: *id001
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      ]
     next_action: 'Find a complete listing route: the RSS feed carries only the latest 100 recalls (15 May to 25
       Sep 2026), the listing is JavaScript-rendered and /sitemap.xml is 404. Ask whether data.gov.au or the
       ACCC publishes a bulk export before crawling detail pages at 1 req/s.'
@@ -2592,7 +2578,11 @@ candidates:
         'Product Identifiers is free text; publish parsed identifier facts with provenance, not the page
           prose.'
       ]
-    evidence: *id001
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      ]
     next_action: >-
       Enumerate the 1,619 /recalls/ URLs from the sitemap; parse Product Identifiers and the supplier;
       low priority (0 of 31 sampled NZ recalls with models matched a CPSC recall; on 2026-10-11, 0 of 200 detail pages cite CPSC or Health Canada).
@@ -2619,7 +2609,11 @@ candidates:
           quote: '"license": "Licence Ouverte v2.0 (Etalab)", "license_url":
             "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"'
         }
-    evidence: *id001
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      ]
     next_action: 'Parked only because the licence text could not be read today (etalab.gouv.fr and data.gouv.fr
       reset the connection from this egress; the metadata declares Licence Ouverte 2.0). Re-read the licence;
       if it is the standard Etalab 2.0 grant, move to SCREENED: 109 of 647 non-food home notices since 2023
@@ -2648,7 +2642,11 @@ candidates:
             https://www.oecd.org/en/about/terms-conditions.html returned 403 to both the descriptive and a
             browser user agent on 2026-09-27)'
         }
-    evidence: *id001
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      ]
     next_action: None. Its content is the national regulators' data, which we take directly from CPSC, Health
       Canada, Safety Gate, OPSS, ACCC and MBIE under their own licences.
   - key: ca-healthycanadians-recall-api
@@ -2675,7 +2673,11 @@ candidates:
             purposes of commercial redistribution without prior written permission from the copyright
             administrator.'
         }
-    evidence: *id001
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
+      ]
     next_action: None. /api/recent/en still answers 200 but its newest items are dated October 2021; the OGL
       open-data index (appliance-health-canada-recalls) supersedes it.
   - key: equipment-energystar-model-index
@@ -7825,6 +7827,24 @@ datasets:
           - appliance-energy-star-registry
         measured: 0/87 CPSC home-recall UPCs; 0/8,399 EU GTINs; 0/93 UK GTINs match an ENERGY STAR UPC
         mode: declared
+      - key: exact GTIN-14 with a valid GS1 check digit (OPSS Barcode/prose, Safety Gate barcode); links notice to product, never merges recall events
+        between:
+          - uk-opss-product-safety-alerts
+          - eu-safety-gate-alerts
+        measured: 146/615 OPSS notices (3,779 notices to 2026-10-16) with a valid GTIN match one of 10,339 distinct GTIN-14 in 330 Safety Gate weekly reports (2020-05 to 2026-10-16); evidence/2026-10-17/recalls-widening/opss.py, tooling/scripts/scout-gtin-extract.ts
+        mode: declared
+        reviewed:
+          correct: 19
+          checked: 20
+      - key: exact GTIN-14 with a valid GS1 check digit (OPSS notice text, CPSC ProductUPCs and Description)
+        between:
+          - uk-opss-product-safety-alerts
+          - cpsc-recalls
+        measured: 2/615 OPSS notices with a GTIN match a CPSC recall (3,716 recalls since 2015, 950 distinct GTIN-14); 0/615 match Health Canada (evidence/2026-10-17/recalls-widening/opss.json)
+        mode: declared
+        reviewed:
+          correct: 2
+          checked: 2
     taxonomy:
       - "jurisdiction: US | CA | EU (+ notifying member state) | GB | AU | NZ"
       - "agency: CPSC | HC | EC-SafetyGate | OPSS | ACCC | MBIE"

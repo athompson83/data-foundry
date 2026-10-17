@@ -3,9 +3,9 @@
  "hc_consumer_records_updated_since_2025_10_01": 274,
  "pages_fetched": 274,
  "pages_mentioning_upc_or_barcode": 74,
- "pages_with_valid_gtin": 94,
- "distinct_hc_gtin14": 460,
+ "pages_with_valid_gtin": 61,
+ "distinct_hc_gtin14": 362,
  "safety_gate_distinct_gtin14_all_cached_reports": 10339,
- "hc_pages_matching_safety_gate": "0/94",
+ "hc_pages_matching_safety_gate": "0/61",
  "matches": []
 }
