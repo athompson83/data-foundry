@@ -7243,6 +7243,459 @@ candidates:
       2026-10-07) and secondary identifiers. Sampled 721 distinct trials through 12 topic queries (the API ignores offset and page): 23 cite an NCT number, and all 93
       NCT numbers found resolve in ClinicalTrials.gov. Read the ISRCTN terms of use (not yet read) before RIGHTS_DETERMINED; the search CSV route answered a
       303 redirect, so use the XML API.
+  # ---- Round 2026-10-17 ----
+  - key: health-cqc-care-directory-ratings
+    name: CQC care directory (active locations with ratings, ODS codes) and inspection reports, England
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Care Quality Commission (England)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cqc.org.uk/about-us/transparency/using-cqc-data', 'https://www.cqc.org.uk/system/files/2026-10/01_October_2026_HSCA_Active_Locations.ods' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.cqc.org.uk/about-us/transparency/using-cqc-data',
+          quote: 'Our data is made available under the Open Government Licence . By using it you are accepting the conditions of this licence. If you use our data, you should also acknowledge on your site or service that you are using CQC information.'
+        }
+      - {
+          url: 'https://www.cqc.org.uk/about-us/transparency/using-cqc-data',
+          quote: 'You will need to authenticate to use our API.'
+        }
+    conditions:
+      - 'Use the open monthly files only. The CQC API (api.service.cqc.org.uk) now requires authentication (portal key), so it is gated: it answered 502 and the legacy host 403 from this egress and is not used.'
+      - 'Acknowledge CQC as the source (OGL v3.0 plus CQC request).'
+      - 'The Active Locations file names registered managers (individuals): exclude that column. Dual-registration locations appear twice (use the Primary ID rule in the README tab).'
+      - 'Files are ODS spreadsheets (444 MB of XML, monthly as at 1 Oct 2026) plus a 14 Oct 2026 CSV directory without ODS codes; narrative findings are only in report PDFs, and the PDF links on location pages point at api.cqc.org.uk/public/v1/reports (200 from this egress). 13/20 sampled location pages carried a report PDF link.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/care-provider-inspections/join.json ]
+    next_action: Read CQC's website terms page, archive the Active Locations ODS and a sample of report PDFs in R2, and measure extraction of rating-by-question text (Safe, Effective, Caring, Responsive, Well-led) from the PDFs. Do not depend on the keyed API.
+
+  - key: health-nhs-ods-organisation-directory
+    name: NHS England Organisation Data Service (ODS) organisation records, public ORD API
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: NHS England (ODS)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms: []
+    conditions:
+      - 'Free public API, no key or login (HTTP 200 JSON, FHIR-style HAPI server). The terms page digital.nhs.uk answered 403 (Cloudflare challenge) from this egress and could not be read; licence is unverified, so AMBER under ADR-0018 until quoted.'
+      - 'Keep to organisation attributes (name, status, roles, address, relationships); no individuals.'
+      - 'Bulk files are on NHS TRUD (login), so acquisition must use the public API within its rate limits.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/care-provider-inspections/join.json ]
+    next_action: Read the ODS API terms and OGL statement from a reachable route (digital.nhs.uk is blocked here), measure the API rate limit, and decide API-crawl versus the published ODS data-download files.
+
+  - key: eu-cosing-cosmetic-annexes
+    name: EU CosIng cosmetic ingredient annexes (Regulation (EC) 1223/2009 Annexes II to VI, CSV exports)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/II/export-csv', 'https://api.tech.ec.europa.eu/cosing20/1.0/api/annexes/III/export-csv', 'https://ec.europa.eu/growth/tools-databases/cosing/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence."
+      - url: https://single-market-economy.ec.europa.eu/sectors/cosmetics/cosmetic-ingredient-database_en
+        quote: "CosIng is a non-legally binding information database. It provides information on cosmetic ingredients but does not, in itself, determine their regulatory status."
+    conditions:
+      - 'CC BY 4.0 under the Commission reuse decision: credit the European Commission CosIng database, indicate changes, and show the "no legal value" notice; the licence excludes third-party and industrial-property content (INCI names are maintained by the Personal Care Products Council).'
+      - 'The export-csv endpoints are the unauthenticated backend of the public CosIng page (no key, no login); they are undocumented, so archive each annex CSV in R2 and re-check the endpoints from Worker egress before build. The search API behind the page needs a key published in the page config and is not used.'
+      - 'CosIng has no change feed: each export carries "Last update" (13/10/2026) and per-row Update Date, so refresh by diffing the five annex files.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/cosmetic-ingredient-restrictions/join.json ]
+    next_action: >-
+      Screened 2026-10-17: annex exports answered 200 without a key. Annex II (prohibited) 1,758 rows, 2,114 distinct CAS; Annex III (restricted) 381 rows, 509 CAS, 321 rows with free-text conditions of use; Annex IV (colourants) 154 rows; Annex V (preservatives) 58 rows; Annex VI (UV filters) 34 rows; all with last update 13/10/2026. No standalone CosIng open-data dataset exists on data.europa.eu (searched). Write the ADR-0013 record quoting the Commission legal notice, then archive the five CSVs.
+
+  - key: uk-retained-cosmetics-regulation-annexes
+    name: GB retained Cosmetic Products Regulation annexes (legislation.gov.uk XML, Annexes II to VI)
+    category: chemical-safety
+    structuring: normalization
+    format: free-text
+    publisher: UK National Archives (legislation.gov.uk)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.legislation.gov.uk/eur/2009/1223/annex/II/data.xml', 'https://www.legislation.gov.uk/eur/2009/1223/annex/III/data.xml' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.legislation.gov.uk/
+        quote: "All content is available under the Open Government Licence v3.0 except where otherwise stated. This site additionally contains content derived from EUR-Lex, reused under the terms of the Commission Decision 2011/833/EU on the reuse of documents from the EU institutions."
+    conditions:
+      - 'OGL v3.0 attribution (Contains public sector information licensed under the Open Government Licence v3.0) plus the EUR-Lex reuse credit for the retained EU text.'
+      - 'The retained text is a frozen copy of the EU annexes as amended for Great Britain: the contents page labels its newest revision 03/12/2020 and the annex XML carries a 2021 modified date, so it lags CosIng (13/10/2026). Present it as the GB position with its revision date, never as current EU law.'
+      - 'Its value is the GB jurisdiction and free-text legal wording; the substances overlap CosIng almost entirely because the law is the same text, so it adds little independent evidence for EU facts.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/cosmetic-ingredient-restrictions/join.json ]
+    next_action: >-
+      Screened 2026-10-17: Annex II to VI data.xml answered 200 (Annex II 880,108 bytes). Checksum-valid CAS numbers: 2,073 in Annex II and 530 in Annexes III to VI, of which 2,054 and 525 are also in CosIng. Parse the annex tables into rows (the XML is legal markup, not typed fields) and compare against CosIng by annex and entry number; add a third, genuinely independent jurisdiction (Health Canada, ASEAN, Japan) once its terms permit.
+
+  - key: health-canada-cosmetic-ingredient-hotlist
+    name: Health Canada Cosmetic Ingredient Hotlist (prohibited and restricted ingredients, canada.ca HTML tables)
+    category: chemical-safety
+    structuring: normalization
+    format: free-text
+    publisher: Health Canada
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.canada.ca/en/health-canada/services/consumer-product-safety/cosmetics/cosmetic-ingredient-hotlist-prohibited-restricted-ingredients/hotlist.html' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 3, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 4 }
+    terms:
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    conditions:
+      - 'No Open Government Licence - Canada record exists for the Hotlist: the open.canada.ca CKAN catalogue was searched (Cosmetic Ingredient Hotlist, hotlist, cosmetics, prohibited restricted ingredients) and lists no Hotlist dataset or resource, and the page itself carries no licence notice, so the Canada.ca commercial-reproduction clause applies.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/cosmetic-ingredient-restrictions/join.json ]
+    next_action: >-
+      Parked 2026-10-17 as RED under the Canada.ca terms. Reopen if Health Canada publishes the Hotlist under the Open Government Licence - Canada or grants written permission (contact the Consumer and Hazardous Products Safety Directorate). Measured while parked: the page is HTTP 200 (175,097 bytes, modified 2025-08-13) with 493 prohibited rows (430 with a CAS, 522 distinct CAS) and 90 restricted rows (88 with CAS and free-text conditions of use, maximum concentration and warnings); 400/522 prohibited CAS are in CosIng Annex II and 35/169 restricted CAS in Annex III.
+
+  - key: food-fda-substances-added-to-food
+    name: FDA Substances Added to Food inventory (formerly EAFUS)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: US FDA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.hfpappexternal.fda.gov/scripts/fdcc/index.cfm?set=FoodSubstances
+      - https://www.hfpappexternal.fda.gov/scripts/fdcc/cfc/XMLService.cfm?method=downloadxls&set=FoodSubstances
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: 'Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA.'
+    conditions:
+      - 'The quoted policy covers www.fda.gov; the inventory is served from hfpappexternal.fda.gov and links to the same FDA website disclaimer, so the rights record should record that the data host falls under it.'
+      - 'Credit to FDA is appreciated but not required; attribute anyway ("Source: US FDA Substances Added to Food, last updated 9/8/2026").'
+      - 'The CSV header states the inventory "is only a partial list of food ingredients" and that inclusion of information from non-FDA entities (FEMA numbers, JECFA flavour numbers) does not indicate FDA approval; carry that disclaimer and mark FEMA and JECFA fields as third-party reference identifiers.'
+      - '691 of 3,970 rows carry an FDA-internal 977nnn-nn-n code instead of a CAS number; never treat those as CAS numbers.'
+      - 'Open CSV download with no key (1,456,113 bytes, 3,970 rows, 2,237 with a 21 CFR citation); the file arrives as a ColdFusion download whose "Used for" field is a keyword list, not a limit; the limits live in the cited 21 CFR text.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.py, docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.json ]
+    next_action: >-
+      Screened 2026-10-17: 200 on the index page and the CSV, 3,970 records, last updated 9/8/2026, CAS or FDA code, Substance, Other Names,
+      Used for (technical effect) and up to 28 21 CFR citation columns. Archive the CSV in R2, add it to tooling/snapshots/plans.json, and
+      write the ADR-0013 rights record before EVIDENCED. No E-number or INS column exists, so the EU link is a reviewed name candidate.
+
+  - key: food-eu-union-list-additives
+    name: EU Union list of food additives (Food and Feed Information Portal, Regulation (EC) No 1333/2008 Annex II)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG SANTE
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://ec.europa.eu/food/food-feed-portal/screen/food-additives/search
+      - https://ec.europa.eu/food/food-feed-portal/backend/api/policy-items?foodDomain=fin&authorisationType=fad_auth
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: 'Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence. This means that reuse is allowed, provided appropriate credit is given and changes are indicated.'
+    conditions:
+      - 'The legal notice read is the Commission-wide one on commission.europa.eu; the portal page itself carries no separate licence statement, so the rights record must confirm the notice applies to the portal data. Credit the European Commission and indicate changes.'
+      - 'The JSON backend (ec.europa.eu/food/food-feed-portal/backend/api) is undocumented, discovered from the portal script, and could change; one 12,545,146-byte request returned 412 policy items (376 additive substances, 1,797 food-category restrictions). Keep the request rate low and archive the response in R2.'
+      - 'E-number is present on 361 of 376 substances, INS number on 1, and there is no CAS number, so it cannot join the US inventory on a declared identifier. Some items carry a withdrawal marker in the E-number field (for example "E 312/REMOVED FROM THE UNION LIST"); parse status before publishing.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.py, docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.json ]
+    next_action: >-
+      Screened 2026-10-17: backend answers 200 without a key; 91 of 376 additives carry free-text footnote text on their food-category restrictions
+      (restriction type ML or quantum satis plus a unit and a numeric limit otherwise). Fetch food categories and footnotes
+      (/food_categories, /fin_footnotes) to resolve category ids, archive the JSON, and confirm the portal licence with the Commission's reuse office
+      page before RIGHTS_DETERMINED. The Codex GSFA online database answered 403 from this egress and is not a member.
+
+  - key: food-ecfr-21cfr-food-additive-regulations
+    name: 21 CFR food additive, GRAS and colour additive regulation text (eCFR title 21 bulk XML)
+    category: food-safety
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: US Office of the Federal Register (NARA) and GPO
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.govinfo.gov/bulkdata/ECFR/title-21/ECFR-title21.xml
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: 'Copyright protection under this title is not available for any work of the United States Government, but the United States Government is not precluded from receiving and holding copyrights transferred to it by assignment, bequest, or otherwise.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.py, docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.json ]
+    next_action: >-
+      Screened 2026-10-17: ECFR-title21.xml is 21,784,011 bytes, amended through Sept. 8, 2026, with 8,414 sections (anchored as
+      DIV8 N="§ 172.800"). The conditions of use (for example "in an amount not to exceed that reasonably required to accomplish the intended
+      technical effect", food-category lists, purity limits) are prose that a deterministic parser must turn into typed limits per food category.
+      www.ecfr.gov answered 403 ("IP address has been blocked") from this egress, so acquire from the govinfo bulk file only. This is the same
+      US government text family as the federal-register-obligations candidate (which covers the obligation timelines, not the part 172 to 189
+      conditions of use). Archive the XML in R2 and add it to tooling/snapshots/plans.json.
+
+  - key: food-efsa-openfoodtox
+    name: EFSA OpenFoodTox 3.0 chemical hazards database (Zenodo export)
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: European Food Safety Authority
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://zenodo.org/records/19388272
+      - https://zenodo.org/api/records/19388272/files/OFT3.0%20export%20repository.xlsx/content
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://zenodo.org/records/19388272
+        quote: 'EFSA owns this database and its content. This database does not disclose any commercially sensitive or otherwise confidential information. Reference to the original scientific output should be provided in case of re-use for legal or regulatory purposes within or outside the European Union.'
+    conditions:
+      - 'The Zenodo record is licensed cc-by-nd-4.0 (NoDerivatives). Until the rights record decides whether a normalised, re-keyed record is "adapted material", serve only unmodified EFSA fields with attribution, cite the original EFSA output, and treat any transformation as blocked.'
+      - 'The legal notice says the data "does not provide any reassurance on whether any of the chemicals are suitable or not for food applications in Europe"; never present it as an authorisation. In a discrepancy the original scientific output prevails.'
+      - 'The 22,595,502-byte xlsx has 7,890 reference-substance rows (5,506 distinct CAS numbers); the 1,053,896,881-byte IUCLID i6z archive is not needed for screening.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.py, docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.json ]
+    next_action: >-
+      Screened 2026-10-17: version of 2026-04-30, REF_SUB sheet carries Inventory.CASNumber and ReferenceSubstanceName, with toxicological reference
+      values and summaries in the other sheets. Decide the ND question with the rights record; if derivatives are barred, park this member and keep
+      the dataset on the FDA, EU and eCFR members.
+
+  - key: medicines-ema-authorised-register
+    name: EMA medicines register (EU centrally authorised medicines with EPAR, ATC code and indication text)
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: European Medicines Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.ema.europa.eu/en/documents/report/medicines-output-medicines-report_en.xlsx' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.ema.europa.eu/en/about-us/legal-notice
+        quote: "Information and documents made available on EMA's webpages are public and may be reproduced and / or distributed, totally or in part, irrespective of the means and / or the formats used, for non-commercial and commercial purposes, provided that EMA is always acknowledged as the source of the material."
+      - url: https://www.ema.europa.eu/en/about-us/legal-notice
+        quote: "The above-mentioned permissions do not apply to content supplied by third parties."
+    conditions:
+      - Acknowledge the European Medicines Agency as the source in each copy.
+      - Exclude third-party content (photos, third-party documents); serve register fields and links to the EPAR page.
+      - Not for clinical decisions; EMA states the text may not reproduce the officially adopted text.
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/medicines-marketing-authorisations/join.json ]
+    next_action: >-
+      Screened 2026-10-17: the open "Medicines output" Excel (one sheet, 37 columns) answered HTTP 200 without a key, generated
+      17/10/2026 06:05, 2,754 rows, 2,357 human of which 1,566 authorised; all 1,566 authorised carry a therapeutic indication
+      text (median 341 characters), 1,550 an ATC code and 1,560 a marketing authorisation date; newest Last updated date 2026-10-16
+      (regenerated daily). Columns: EMA product number, INN, active substance, ATC, pharmacotherapeutic group, therapeutic indication,
+      orphan, biosimilar, conditional approval, holder, decision and authorisation dates, EPAR URL. The documented JSON route
+      (documents-output-epar-documents_json-report_en.json) answered 404, so use the Excel. Archive the file in R2 and read the
+      EPAR PDFs' own terms before extracting from them.
+
+  - key: medicines-fda-drugsfda
+    name: 'FDA Drugs@FDA approved applications (openFDA drugsfda: applications, products, marketing status, review documents)'
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.fda.gov/drug/drugsfda.json' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication."
+      - url: https://open.fda.gov/terms/
+        quote: "Some data on openFDA may not be public domain, such as copies of copyrightable works made available to the FDA by private entities."
+    conditions:
+      - Attribution is requested, not required ("Data provided by the U.S. Food and Drug Administration (https://open.fda.gov)").
+      - FDA may limit access to manage load; stay within the published per-key request limits or archive a snapshot.
+      - Treat linked review documents as third-party-risk content until read (the carve-out for works made available by private entities); serve links, not copies.
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/medicines-marketing-authorisations/join.json ]
+    next_action: >-
+      Screened 2026-10-17: HTTP 200 without a key, meta.last_updated 2026-10-16, 29,390 applications (NDA, ANDA, BLA) with
+      application_number, sponsor, products (brand, active ingredients with strength, dosage form, route, marketing status)
+      and submissions (type, status, status date, review priority); 9,988 applications carry application_docs and 4,667 a Review
+      document, and 3 of 3 probed review PDFs on www.accessdata.fda.gov answered 200. Free-text review prose is in those PDFs, not
+      in the JSON, so this source stays structured. The openfda sub-object adds rxcui and unii. No existing key covers it
+      (drug-label-facts is the label endpoint; shortages-fda-drug and fda-drug-shortages-openfda are shortages). Archive the
+      full snapshot (openFDA offers a download bundle) in R2 before EVIDENCED.
+
+  - key: power-eia-860-generators
+    name: EIA Form EIA-860 annual electric generator report (plants, generators, owners)
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: US Energy Information Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.eia.gov/electricity/data/eia860/
+      - https://www.eia.gov/electricity/data/eia860/xls/eia8602025.zip
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.eia.gov/about/copyrights_reuse.php
+        quote: 'U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website or that you receive through our email distribution service.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json ]
+    next_action: >-
+      Screened 2026-10-17: the 2025 final release (released 2026-09-10, next release June 2027) downloads without a key from
+      xls/eia8602025.zip; the plant sheet has 17,349 plants (Plant Code, name, state, county, lat/lon, NERC region, balancing authority,
+      FERC cogeneration, small-power-producer and exempt-wholesale-generator docket numbers) and the operable generator sheet 27,919 generators,
+      56 of the plants nuclear. There is no NRC docket column. Use the acknowledgment the EIA page asks for ("Source: U.S. Energy Information
+      Administration"), archive the zip in R2 and add it to tooling/snapshots/plans.json.
+
+  - key: power-epa-egrid-plants
+    name: EPA eGRID plant file (emissions and generation by plant, keyed by ORIS code)
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.epa.gov/egrid/detailed-data
+      - https://www.epa.gov/system/files/documents/2025-06/egrid2023_data_rev2.xlsx
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'The EPA disclaimer hedges commercial use ("may be protected under the U.S. and Foreign Copyright Laws"; "Individual documents on the EPA website may have different copyright conditions"), although eGRID is an EPA-authored work; the rights record must settle this under ADR-0013 and ADR-0018 before any redistribution.'
+      - 'eGRID is a lagging annual product (2023 data, file dated 2025-06): serve it as an emissions and generation reference layer with its data year, never as current operating status.'
+      - 'The EPA CAMD data API (api.epa.gov/easey/streaming-services/facilities) answered 403 without a key from this egress; the campd.epa.gov/data page returned only a 1,433-byte page. Use the eGRID Excel file.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json ]
+    next_action: >-
+      Screened 2026-10-17: the 2023 file has 12,612 plants keyed by ORISPL (the EIA plant code) with operator, balancing authority, fuel,
+      nameplate capacity, generation and emission rates. Read the eGRID page terms, write the rights record, archive the xlsx in R2, and look for
+      the newer eGRID release when EPA publishes it.
+
+  - key: nuclear-nrc-event-notification-reports
+    name: NRC Event Notification Reports (daily operations-center reports with free-text event narratives)
+    category: energy
+    structuring: event-extraction
+    format: free-text
+    publisher: US Nuclear Regulatory Commission
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.nrc.gov/reading-rm/doc-collections/event-status/event/2026/
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.nrc.gov/about-nrc/site-disclaimer
+        quote: "NRC's website constitutes a U.S. Government Work under federal copyright law and as such, it is not subject to copyright. It is freely available for non-exclusive rights in publication or reproduction for any purpose, in any form, and there are no restrictions on use."
+    conditions:
+      - 'Credit is requested by NRC ("NRC would appreciate the courtesy of credit"); credit the NRC as the source.'
+      - 'Exclude the names of the NRC officers and notifying individuals ("NRC Notified By", "HQ OPS Officer", "Person (Organization)") from published records; keep the raw page in R2.'
+      - 'Only the "Power Reactor" blocks relate to power plants; the daily reports mostly cover Agreement State and other materials events (112 of 189 events in the sample), which belong to a different entity type.'
+      - 'The power-reactor block carries Facility, Unit, State, RX Type, event time and 10 CFR section but no Docket field, so the docket number cannot be the join key to a plant record.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json ]
+    next_action: >-
+      Screened 2026-10-17: the 2026 index answers 200 and lists 200 daily pages (one HTML page per day, event narrative under "Event Text"); a sample
+      of 60 evenly spaced days gave 189 events, 42 of them power-reactor events at 26 distinct facilities. Fetch the full archive politely
+      (one page per day, back to the first year offered), parse the event blocks into typed events (10 CFR section, unit, scram code, power level,
+      cause text), and archive each daily page in R2. Resolve the NRC facility name to the EIA plant code through the reviewed crosswalk.
+      Research and test reactors and fuel facilities have no EIA plant record.
+
+  - key: radio-fcc-eas-equipment-grants
+    name: US FCC Equipment Authorization System grants (FCC ID, frequency, power, grant conditions, exhibits)
+    category: electronics-compliance
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Federal Communications Commission
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://apps.fcc.gov/oetcf/eas/reports/GenericSearch.cfm', 'https://opendata.fcc.gov/resource/3b3k-34jp.json' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/radio-equipment-authorizations/join.json ]
+    next_action: >-
+      Parked 2026-10-17: every fcc.gov and apps.fcc.gov URL answered HTTP 403 from this egress (EAS search, grantee result,
+      EAS open-data page, robots.txt, api.fcc.gov), and the ISED radio equipment search (sms-sgs.ic.gc.ca) answered 503 with
+      "That page is currently down for maintenance (Error 503)". The only open FCC data found (opendata.fcc.gov 3b3k-34jp) is
+      grantee registrations (grantee code, name, address; personal contact names), not grants, and open.canada.ca lists no
+      ISED radio equipment dataset. fccid.io is a third-party aggregator, not a publisher, and answered 403 on some URLs.
+      No grant or certification record was reachable, so no FCC-to-ISED join was measured. Reopen if a bulk EAS export or
+      a non-403 route to apps.fcc.gov is shown, or ISED publishes the REL as open data.
+
+  - key: retraction-watch-crossref
+    name: Retraction Watch database and Crossref retraction updates (DOI-keyed retractions, corrections and expressions of concern)
+    category: research-integrity
+    structuring: event-extraction
+    format: structured
+    publisher: Crossref (Retraction Watch database)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.labs.crossref.org/data/retractionwatch', 'https://gitlab.com/crossref/retraction-watch-data', 'https://api.crossref.org/works?filter=update-type:retraction' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.crossref.org/documentation/retrieve-metadata/retraction-watch/
+        quote: "In September 2023, we acquired the Retraction Watch database from the Center of Scientific Integrity and have made it publicly available."
+      - url: https://www.crossref.org/blog/news-crossref-and-retraction-watch/
+        quote: "announced today that the Retraction Watch database has been acquired by Crossref and made a public resource."
+    conditions:
+      - 'No data licence (CC0 or otherwise) was found in the repository README or the documentation pages read on 2026-10-17; the only statements are "publicly available", "a public resource" and "always open". Read the signed Crossref and Retraction Watch agreement before RIGHTS_DETERMINED and attribute Retraction Watch and Crossref.'
+      - 'Author, institution and affiliation columns are personal data of named researchers; publish the record, reason codes and dates, and decide on author names in the rights record.'
+      - 'Retraction Watch is now owned by Crossref, so the Crossref REST update-to records and the CSV are one publisher, not two independent sources.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/retracted-publications/join.json ]
+    next_action: >-
+      Screened 2026-10-17: the CSV answered 200 (67,636,036 bytes, 73,283 rows: 67,845 retractions, 3,732 expressions of concern, 1,543 corrections, 163 reinstatements; newest retraction date 2026-10-09; 67,331 rows carry an original DOI, 34,399 an original PMID; refreshed once per working day). Crossref REST lists 76,290 works with update-type retraction. Of 100 evenly spaced retractions with a DOI and PMID, 98 DOIs resolve in Crossref and all 98 carry a retraction update. Of 50 random Crossref retraction updates, 42 original DOIs are in the CSV (39/39 sourced from retraction-watch, 23/31 sourced from the publisher). Find the licence text (agreement) before RIGHTS_DETERMINED; archive the CSV in R2.
+
+  - key: pubmed-retracted-publications
+    name: PubMed retracted-publication records (E-utilities, publication type Retracted Publication, with abstracts)
+    category: research-integrity
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US NIH National Library of Medicine
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=Retracted+Publication%5BPublication+Type%5D', 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: "NLM does not claim the copyright on the abstracts in PubMed; however, journal publishers or authors may."
+    conditions:
+      - 'Abstracts and retraction-notice text may be copyrighted by journal publishers or authors (NLM disclaimer): publish PMID, DOI, publication type, dates and our own structured reason codes, not abstract prose, unless the rights record clears it.'
+      - 'Honour the E-utilities limits (3 requests per second without a key, 10 with one) and send tool and email; the shared egress IP was rate-limited (429) once during screening, so use the baseline files (ftp.ncbi.nlm.nih.gov/pubmed) for bulk.'
+      - 'NCBI''s disclaimer and copyright notice must be evident to users of the service.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/retracted-publications/join.json ]
+    next_action: >-
+      Screened 2026-10-17: esearch for Retracted Publication[Publication Type] returns 35,158 records (HTTP 200). Of 100 Retraction Watch original PMIDs, all 100 are found in PubMed with the same DOI, 94 carry the Retracted Publication type (6 do not, a disagreement the dataset can surface) and 97 have abstract text. Use the pubmed baseline and daily update files instead of E-utilities for the build; read the NLM data licence page for the baseline before RIGHTS_DETERMINED. OpenAlex (is_retracted) could not be measured: the anonymous daily budget for this egress IP was exhausted (HTTP 429 on 2026-10-17) and its licence page was not readable, so it is not a member.
+
+  - key: education-ofsted-school-inspections
+    name: Ofsted state-funded school inspection outcomes and report PDFs (England)
+    category: education
+    structuring: event-extraction
+    format: free-text
+    publisher: Ofsted (England)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/government/statistical-data-sets/monthly-management-information-ofsteds-school-inspections-outcomes', 'https://reports.ofsted.gov.uk/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://reports.ofsted.gov.uk/copyright',
+          quote: 'All content on this websites is available under the Open Government Licence, except where otherwise stated.'
+        }
+      - {
+          url: 'https://www.gov.uk/government/statistical-data-sets/monthly-management-information-ofsteds-school-inspections-outcomes',
+          quote: 'All content is available under the Open Government Licence v3.0, except where otherwise stated'
+        }
+    conditions:
+      - 'OGL v3.0 attribution and the Crown copyright notice; the report site says some content is exempt from the OGL (check its list of exemptions before republishing report text or images).'
+      - 'Schools are organisations; do not extract named staff or pupils from report prose.'
+      - 'Monthly management-information CSV (21,931 URNs as at 30 Sep 2026, updated 2026-10-16) carries grades; the inspection narrative is only in the per-report PDFs on files.ofsted.gov.uk. 1 of 20 sampled report pages had no PDF yet.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/school-inspection-reports/join.json ]
+    next_action: Read reports.ofsted.gov.uk/terms-and-conditions exemptions list in full, archive the latest-inspections CSV and a PDF sample in R2, and measure the PDF section-heading extraction hit rate (Outcome, What is it like to attend, What does the school need to do to improve).
+
+  - key: education-gias-school-register
+    name: DfE Get Information About Schools (GIAS) establishment register, daily CSV
+    category: education
+    structuring: normalization
+    format: structured
+    publisher: Department for Education (England)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://get-information-schools.service.gov.uk/Downloads', 'https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/edubasealldata20261017.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://get-information-schools.service.gov.uk/Downloads',
+          quote: 'All content is available under the Open Government Licence v3.0, except where otherwise stated'
+        }
+    conditions:
+      - 'The CSV carries head-teacher and contact names (personal data): exclude them from every published surface and keep raw in R2 only.'
+      - 'GIAS Terms of use page covers signed-in users only; the public daily file is published without login. Attribution under OGL v3.0.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/school-inspection-reports/join.json ]
+    next_action: Archive the daily edubasealldata CSV (52,594 rows on 2026-10-17, 64.7 MB, no login) in R2 through tooling/snapshots/plans.json and write the ADR-0013 rights record listing the excluded personal-data columns.
 
 datasets:
   - key: home-product-recalls-global
@@ -9123,3 +9576,237 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-10-11.md, docs/sources/pipeline/evidence/2026-10-11/packaged-food/join.json ]
     next_action: Read the FoodData Central licence page and the Open Food Facts ODbL and contents licences and decide whether share-alike binds a derived database before any redistribution; archive the FoodData Central zip in R2; measure the GTIN overlap with the FDA recall GTINs already served (food-and-health-recalls-global) as the recall join.
+
+  - key: care-provider-inspections
+    name: Care provider inspections (CQC ratings and reports linked to NHS ODS organisation records by ODS code)
+    category: health
+    entity: care_location (one CQC-registered location such as a care home, GP practice, dentist or homecare agency) with rating, inspection findings and NHS organisation record
+    stage: SCREENED
+    description: "One record per CQC-registered location in England, assembled from the CQC care directory and inspection reports (ratings, inspection narrative in report PDFs) and the NHS England ODS organisation register (status, roles, address, relationships). The ODS code carried on the CQC location record is the declared join key, so a location links to its NHS organisation automatically; names and addresses only cross-check. Registered-manager names are excluded."
+    sources:
+      - health-cqc-care-directory-ratings
+      - health-nhs-ods-organisation-directory
+    join_keys:
+      - key: ODS code (CQC Location ODS Code = ODS organisation id)
+        between:
+          - health-cqc-care-directory-ratings
+          - health-nhs-ods-organisation-directory
+        measured: '98/100 CQC locations with an ODS code (43,832 of 55,329 active locations; sampled evenly) resolve in the ODS API, 94/100 with the same postcode, 98 active (evidence/2026-10-17/care-provider-inspections/join.py)'
+        mode: declared
+    taxonomy:
+      - 'rating: outstanding, good, requires improvement, inadequate, not rated'
+      - 'service type: care home, homecare, GP practice, dentist, hospital, out of hours'
+      - 'key question: safe, effective, caring, responsive, well-led'
+      - 'region and local authority'
+    agent_questions:
+      - What is the inspection rating and what did the report find for this care home or GP practice?
+      - Which care homes in this local authority are rated inadequate or requires improvement, and what was the stated reason?
+      - Is this practice code still an active NHS organisation, and under which commissioning relationship?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/care-provider-inspections/join.json ]
+    next_action: Quote the ODS terms (digital.nhs.uk 403 from this egress), archive the CQC ODS file and report PDFs in R2, and extend coverage beyond ODS-coded locations (43,832 of 55,329) with the CQC location ID as the within-CQC key. The keyed CQC API is gated and stays out.
+
+  - key: cosmetic-ingredient-restrictions
+    name: Cosmetic ingredient restrictions (EU CosIng and GB retained annexes, linked by CAS number)
+    category: chemical-safety
+    entity: cosmetic_ingredient_restriction (one substance entry in a prohibited or restricted list) with CAS, EC number, annex, jurisdiction, maximum concentration, product types and warnings
+    stage: SCREENED
+    description: "One record per substance entry in a jurisdiction's cosmetic ingredient lists, assembled from the European Commission CosIng annex exports (Annexes II to VI, structured, with free-text conditions of use) and the Great Britain retained annexes on legislation.gov.uk (legal markup, free text). The CAS number (checksum-validated) is the declared join key; names and INCI terms only propose reviewed links. Wording of conditions is parsed deterministically into product type, maximum concentration, body area and warnings, and each fact keeps its jurisdiction, annex, entry number and revision date. The Health Canada Hotlist is measured against CosIng but held out as RED (Canada.ca prohibits commercial redistribution) until permission or an OGL record exists."
+    sources:
+      - eu-cosing-cosmetic-annexes
+      - uk-retained-cosmetics-regulation-annexes
+    join_keys:
+      - key: CAS number (checksum-valid, extracted from the annex entry)
+        between:
+          - uk-retained-cosmetics-regulation-annexes
+          - eu-cosing-cosmetic-annexes
+        measured: '2054/2073 UK Annex II CAS numbers are in CosIng Annex II and 525/530 UK Annex III-VI CAS numbers are in CosIng Annexes III-VI, over every row (evidence/2026-10-17/cosmetic-ingredient-restrictions/join.py); the overlap is high because the UK text is the retained EU law, so it measures linkage, not independent corroboration. The Hotlist (not a member, RED) matches 400/522 prohibited CAS to CosIng Annex II and 35/169 restricted CAS to Annex III'
+        mode: declared
+    taxonomy:
+      - 'status: prohibited, restricted, colourant, preservative, UV filter'
+      - 'jurisdiction: EU, GB'
+      - 'product type and body area (leave-on, rinse-off, hair, nails, oral, eye area)'
+      - 'maximum concentration and its basis (as base, as F, total equivalents)'
+    agent_questions:
+      - Is this CAS number prohibited or restricted in cosmetics in the EU, and under what concentration and product-type conditions?
+      - Does the GB position on this substance differ from the current EU entry, and as of which revision?
+      - Which restricted ingredients require a specific warning on the label?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/cosmetic-ingredient-restrictions/join.json ]
+    next_action: The two members are one legal text in two jurisdictions' hands, so add a genuinely independent third member before EVIDENCED. Health Canada is the best one but is RED until written permission or an OGL record exists; otherwise try ASEAN, Japan or the FDA page (prose with no CAS numbers, so name-based candidate links only, hand-checked).
+
+  - key: food-additive-authorisations
+    name: Food additive authorisations (US FDA inventory and 21 CFR text, EU Union list, EFSA hazard data)
+    category: food-safety
+    entity: food_additive (one substance or additive group) with its US and EU authorisation status, technical function, food-category limits and CAS, E-number and CFR identifiers
+    stage: SCREENED
+    description: "One record per food additive, assembled from the FDA Substances Added to Food inventory (CAS number, technical effect, 21 CFR citations), the text of the cited 21 CFR sections (free-text conditions of use and limits), the EU Union list of food additives (E-number, food-category maximum levels and footnotes) and EFSA OpenFoodTox (hazard data keyed by CAS). The CFR citation and the CAS number are declared joins; the EU entry links to the US entry only by a reviewed name candidate because the Union list carries E-numbers but no CAS number. Every limit keeps its source regulation and date."
+    sources:
+      - food-fda-substances-added-to-food
+      - food-ecfr-21cfr-food-additive-regulations
+      - food-eu-union-list-additives
+      - food-efsa-openfoodtox
+    join_keys:
+      - key: cited CFR section reference number (FDA Reg columns cite the 21 CFR section that regulates the substance)
+        between:
+          - food-fda-substances-added-to-food
+          - food-ecfr-21cfr-food-additive-regulations
+        measured: '723/733 distinct 21 CFR sections cited by the FDA inventory exist in the eCFR title 21 bulk file (10 unresolved, e.g. 172.625 and 180.23); a second check finds 203/1560 FDA rows with a CAS number named in the text of a cited section (list sections such as 172.515 do not print CAS numbers) (evidence/2026-10-17/food-additive-authorisations/join.py)'
+        mode: declared
+      - key: CAS number
+        between:
+          - food-fda-substances-added-to-food
+          - food-efsa-openfoodtox
+        measured: '1859/3277 FDA inventory rows with a CAS number (the 691 FDA-internal 977nnn codes excluded) are present among the 5,506 distinct CAS numbers in OpenFoodTox 3.0 (evidence/2026-10-17/food-additive-authorisations/join.py)'
+        mode: declared
+      - key: exact normalised additive name (EU Union-list name against FDA Substance)
+        between:
+          - food-eu-union-list-additives
+          - food-fda-substances-added-to-food
+        measured: '111/376 EU Union-list additive items have an exact normalised-name match in the FDA inventory; hand check 37/37 same additive (every third pair); one matched EU item is flagged removed from the Union list (evidence/2026-10-17/food-additive-authorisations/join.json, hand_check.json)'
+        mode: candidate
+        reviewed: { correct: 37, checked: 37 }
+    taxonomy:
+      - 'jurisdiction: US, EU'
+      - 'authorisation basis: food additive regulation, GRAS (affirmed or notified), prior-sanctioned, colour additive, flavouring, prohibited (21 CFR 189), EU Union list'
+      - 'technical function (FDA technical effect and EU functional class): sweetener, preservative, emulsifier, colour, antioxidant, acidity regulator and others'
+      - 'food category (EU food category tree; US 21 CFR food class named in the section)'
+      - 'limit type: numeric maximum level with unit, quantum satis, good manufacturing practice, not permitted'
+    agent_questions:
+      - Is this additive permitted in foods in the US and in the EU, and for what technical function?
+      - What is the maximum permitted level of this additive in a given food category in the EU, and what does the US regulation require instead?
+      - Which additives permitted in one jurisdiction are prohibited or have been removed in the other?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.py, docs/sources/pipeline/evidence/2026-10-17/food-additive-authorisations/join.json ]
+    next_action: >-
+      Re-measure the US to EU link on a larger reviewed sample and find a declared bridge for it (JECFA additive records carry both INS and CAS;
+      the Codex GSFA database answered 403 from this egress). Decide the OpenFoodTox NoDerivatives question and read the EU portal licence before
+      RIGHTS_DETERMINED; archive the FDA CSV, the eCFR title 21 XML and the EU policy-items JSON in R2.
+
+  - key: medicines-marketing-authorisations
+    name: Authorised medicines (EMA EU register and FDA Drugs@FDA, linked by active substance)
+    category: health
+    entity: medicine_marketing_authorisation (one authorised medicinal product in a jurisdiction) with active substance, ATC class, indication, status and authorisation date
+    stage: SCREENED
+    description: "One record per authorised medicine, assembled from the European Medicines Agency register (1,566 authorised human medicines, with therapeutic-indication prose, ATC code and authorisation date) and Drugs@FDA through openFDA (29,390 applications with products, ingredients, marketing status and submission history). Neither publisher cites the other's identifier, so the active substance links the two as a candidate: a deterministic token match proposes the FDA applications for an EU medicine and a reviewer confirms it before a link is published. Indication prose is parsed into condition, population and line-of-therapy facts by deterministic extractors, and every fact keeps its source."
+    sources:
+      - medicines-ema-authorised-register
+      - medicines-fda-drugsfda
+    join_keys:
+      - key: active substance (EMA active substance token set contained in an FDA product active ingredient, salt words ignored)
+        between:
+          - medicines-ema-authorised-register
+          - medicines-fda-drugsfda
+        measured: '88/100 evenly spaced single-substance authorised EU human medicines have at least one Drugs@FDA application with the same substance (88/100 with a single-ingredient application); the 12 misses mix naming differences the token rule cannot bridge (clopidogrel hydrogen sulfate, fampridine sold in the US as dalfampridine) with EU-only products (e.g. idecabtagene vicleucel, polihexanide); ATC corroboration through the FDA rxcui and RxClass: 75/83 share the level-4 ATC class, 5/83 the full 7-character code (evidence/2026-10-17/medicines-marketing-authorisations/join.py)'
+        mode: candidate
+        reviewed: { correct: 30, checked: 30 }
+    taxonomy:
+      - 'ATC class (anatomical, therapeutic, pharmacological level)'
+      - 'authorisation status: authorised, withdrawn, refused, suspended (EMA); marketing status Prescription, Discontinued, Tentative Approval (FDA)'
+      - 'product kind: new active substance, generic, biosimilar, orphan, conditional approval'
+      - 'indication condition category (MeSH therapeutic area where given)'
+    agent_questions:
+      - Is this active substance authorised in the EU and the US, and since when in each?
+      - Which authorised indications does the EU register state for this substance, and is it an orphan or conditional approval?
+      - Which substances authorised in the EU have no US application (or the reverse)?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/medicines-marketing-authorisations/join.json, docs/sources/pipeline/evidence/2026-10-17/medicines-marketing-authorisations/reviewed.json ]
+    next_action: The link is substance-level and a candidate (no shared identifier), so every proposed link needs review and product-level matching (same formulation) is not claimed. Next, add the NLM RxNorm map (nlm-rxnorm-ndc-atc-map) as a bridge, archive both snapshots in R2, and read the EPAR and FDA review PDFs' terms before extracting from them; do not duplicate drug-label-facts.
+
+  - key: power-plant-registry
+    name: Power plant registry (EIA-860 plants and generators, EPA eGRID emissions, NRC nuclear event reports)
+    category: energy
+    entity: power_plant (one generating plant keyed by EIA plant code, which equals the ORIS code) with its generators, owner, fuel, capacity, emissions and, for nuclear stations, reported operational events
+    stage: SCREENED
+    description: "One record per US power plant, assembled from EIA Form EIA-860 (plant and generator inventory), EPA eGRID (generation and emissions by plant, keyed by the same ORIS or EIA plant code) and, for the nuclear stations, the NRC Event Notification Reports (free-text narratives of reported events at each reactor). EIA and eGRID link on the plant code automatically; an NRC reactor facility links to its EIA-860 nuclear plant only by a reviewed name and state candidate, because the NRC power-reactor event blocks carry no docket number and EIA-860 carries no NRC docket column. The free-text member covers about 56 nuclear plants out of 17,349, so the narrative layer is narrow."
+    sources:
+      - power-eia-860-generators
+      - power-epa-egrid-plants
+      - nuclear-nrc-event-notification-reports
+    join_keys:
+      - key: cited EIA plant reference number (eGRID ORISPL equals the EIA-860 Plant Code)
+        between:
+          - power-epa-egrid-plants
+          - power-eia-860-generators
+        measured: '12439/12612 eGRID 2023 plants have an ORISPL equal to a Plant Code in the EIA-860 2025 plant sheet (the 173 unmatched plants were not examined individually; eGRID is 2023 data and EIA-860 is the 2025 release) (evidence/2026-10-17/power-plant-registry/join.py)'
+        mode: declared
+      - key: NRC facility name plus state against EIA-860 nuclear plant name and state
+        between:
+          - nuclear-nrc-event-notification-reports
+          - power-eia-860-generators
+        measured: '25/26 distinct NRC power-reactor facilities in a 60-day sample have exactly one same-state EIA-860 nuclear plant candidate (Saint Lucie missed: EIA writes St. Lucie); hand check 25/25 same station (evidence/2026-10-17/power-plant-registry/join.json, hand_check.json)'
+        mode: candidate
+        reviewed: { correct: 25, checked: 25 }
+    taxonomy:
+      - 'primary fuel and technology: nuclear, natural gas, coal, hydro, wind, solar, storage and others (EIA energy source codes)'
+      - 'sector: electric utility, independent power producer, commercial or industrial CHP'
+      - 'balancing authority and NERC region'
+      - 'NRC event class: 10 CFR 50.72 or 50.73 section, emergency class, reactor scram yes or no'
+    agent_questions:
+      - What generators does this plant operate, who owns it, what fuel and nameplate capacity, and what are its emission rates?
+      - Has this nuclear station reported events to the NRC in the last year, and what happened in each?
+      - Which plants in this balancing authority or state run on a given fuel, and how large are they?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json ]
+    next_action: >-
+      The free-text member covers nuclear plants only, so look for a free-text member that covers other fuels (FERC enforcement or complaint dockets, state
+      public-utility-commission outage orders, EIA-930 grid notices) before EVIDENCED, and re-measure the NRC link over the full 2026 archive.
+      Write the ADR-0013 rights records (EIA and NRC are US government works; settle the EPA disclaimer wording), and archive the EIA-860 zip, the eGRID xlsx and the NRC pages in R2.
+
+  - key: retracted-publications
+    name: Retracted and corrected scholarly publications (Retraction Watch via Crossref and PubMed, linked by DOI and PMID)
+    category: research-integrity
+    entity: retraction_record (one scholarly paper that was retracted, corrected or flagged) with DOI, PMID, journal, retraction date, nature and reason codes
+    stage: SCREENED
+    description: "One record per retracted, corrected or expression-of-concern paper, assembled from the Retraction Watch database that Crossref publishes (73,283 rows with reason codes, dates and the original DOI and PMID) and PubMed (35,158 records typed Retracted Publication, with abstracts and notice text). The original DOI and PMID are declared identifiers that name the same paper in both, so they link automatically; titles only propose a reviewed link. Reason lists are normalised to a fixed reason taxonomy and each fact keeps its source, so an agent can say whether a cited paper is retracted, by whom, when and why, and where the two sources disagree."
+    sources:
+      - retraction-watch-crossref
+      - pubmed-retracted-publications
+    join_keys:
+      - key: original paper DOI and PMID (Retraction Watch columns OriginalPaperDOI and OriginalPaperPubMedID)
+        between:
+          - retraction-watch-crossref
+          - pubmed-retracted-publications
+        measured: '100/100 sampled Retraction Watch PMIDs (100 evenly spaced retractions that carry a DOI and a PMID, from 29,791 eligible rows) are found in PubMed with an identical DOI; 94/100 of them carry the PubMed Retracted Publication type and 97/100 have abstract text (evidence/2026-10-17/retracted-publications/join.py). Crossref itself records the retraction for 98/98 of the 98 DOIs that resolve there'
+        mode: declared
+    taxonomy:
+      - 'update nature: retraction, correction, expression of concern, reinstatement'
+      - 'reason class: misconduct, fabrication or falsification, plagiarism, authorship, peer-review manipulation, error, ethics, other (mapped from Retraction Watch reason codes)'
+      - 'subject area (Retraction Watch subject codes)'
+      - 'who initiated: publisher, author, institution (where stated)'
+    agent_questions:
+      - Has this DOI or PMID been retracted or corrected, when, and for what reason?
+      - Which cited works in this reference list are retracted, and does PubMed flag them as well?
+      - Which retractions in a journal or subject area were for fabricated peer review since a given date?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/retracted-publications/join.json ]
+    next_action: Locate the Crossref and Retraction Watch agreement licence text and the NLM baseline licence before RIGHTS_DETERMINED, add OpenAlex is_retracted only after a key-based, licensed measurement (the anonymous budget was exhausted from this egress), and add the retraction notices' own text (the Crossref notice DOIs) as the second free-text member.
+
+  - key: school-inspection-reports
+    name: School inspection outcomes (Ofsted inspections linked to the DfE school register by URN)
+    category: education
+    entity: school (one establishment, by URN) with type, phase, trust, local authority, and its latest inspection outcome, grades and report text
+    stage: SCREENED
+    description: "One record per English school, assembled from Ofsted state-funded school inspection outcomes and report PDFs (free-text inspection findings) and the DfE Get Information About Schools register (school type, phase, status, trust, local authority). The URN is the declared join key published in both files, so an inspection links to its school automatically; school names and postcodes are only cross-checks. Report prose is split into the outcome, what it is like to attend, and what the school needs to improve by deterministic heading parsers; each fact keeps its source."
+    sources:
+      - education-ofsted-school-inspections
+      - education-gias-school-register
+    join_keys:
+      - key: URN (unique reference number)
+        between:
+          - education-ofsted-school-inspections
+          - education-gias-school-register
+        measured: '100/100 Ofsted URNs sampled evenly from the 21,931-row latest-inspections CSV are found in the GIAS daily CSV (all 21,931 are in GIAS), 100/100 with the same postcode, 100/100 open (evidence/2026-10-17/school-inspection-reports/join.py)'
+        mode: declared
+    taxonomy:
+      - 'overall outcome: outstanding, good, requires improvement, inadequate (OEIF), or report-card grades under the current framework'
+      - 'school phase and type: primary, secondary, special, academy, maintained'
+      - 'region and local authority'
+      - 'inspection type: graded, ungraded, monitoring'
+    agent_questions:
+      - What did the latest inspection say about this school, and what type of school is it?
+      - Which open secondary schools in this local authority were last judged requires improvement or inadequate, and when?
+      - Has this school changed trust or URN since its last full inspection?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/school-inspection-reports/join.json ]
+    next_action: Archive both files and 30 report PDFs in R2, write the two ADR-0013 rights records, and measure heading-extraction hit rates on the PDFs (8/8 sampled PDFs yielded text with an Outcome heading).
