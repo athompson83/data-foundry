@@ -89,8 +89,12 @@ for a in ['II', 'III', 'IV', 'V', 'VI']:
     out.setdefault('uk_legislation', {})[f'annex_{a}'] = {'http': code, 'bytes': len(x), 'distinct_cas': len(c), 'in_cosing_same_annex': len(c & cos[a]), 'in_cosing_any_annex': len(c & cos_all)}
 out['uk_legislation']['uk_annexII_vs_cosing_annexII'] = {'matched': len(uk['II'] & cos['II']), 'total': len(uk['II'])}
 ukr = set().union(uk['III'], uk['IV'], uk['V'], uk['VI']); out['uk_legislation']['uk_restricted_lists_vs_cosing_III_to_VI'] = {'matched': len(ukr & cos_rest), 'total': len(ukr)}
-c, x = get('https://www.legislation.gov.uk/eur/2009/1223/contents/data.xml'); m = re.search(r'RestrictExtent="([^"]*)"', x)
+c, x = get('https://www.legislation.gov.uk/eur/2009/1223/annex/II/data.xml')
+out['uk_legislation']['annex_II_xml_http'] = c
+out['uk_legislation']['annex_II_dc_modified'] = re.findall(r'<dc:modified>([^<]+)</dc:modified>', x)[:1] or re.findall(r'Modified="([^"]+)"', x)[:2]
+c, x = get('https://www.legislation.gov.uk/eur/2009/1223/contents')
 out['uk_legislation']['contents_http'] = c
+out['uk_legislation']['contents_revised_labels'] = re.findall(r'Revised \d\d/\d\d/\d{4}', x)[:6]
 # ---- FDA probe (prose; any CAS?)
 c, x = get('https://www.fda.gov/cosmetics/cosmetics-laws-regulations/prohibited-restricted-ingredients-cosmetics')
 t = re.sub(r'<[^>]+>', ' ', x)

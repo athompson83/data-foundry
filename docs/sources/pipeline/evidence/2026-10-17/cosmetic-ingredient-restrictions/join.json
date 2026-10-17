@@ -1,5 +1,5 @@
 {
- "run_at": "2026-10-17T14:04:44+00:00",
+ "run_at": "2026-10-17T14:05:36+00:00",
  "cosing": {
   "annex_II": {
    "http": 200,
@@ -140,7 +140,7 @@
  },
  "health_canada_hotlist": {
   "http": 200,
-  "bytes": 175097,
+  "bytes": 175096,
   "prohibited_rows": 493,
   "prohibited_rows_with_cas": 430,
   "prohibited_distinct_cas": 522,
@@ -148,7 +148,7 @@
   "restricted_rows_with_cas": 88,
   "restricted_distinct_cas": 169,
   "restricted_rows_with_conditions_text": 88,
-  "date_modified": null,
+  "date_modified": "2025-08-13",
   "columns_restricted": [
    "Ingredient Information",
    "Restrictions"
@@ -400,7 +400,19 @@
    "matched": 525,
    "total": 530
   },
-  "contents_http": 200
+  "annex_II_xml_http": 200,
+  "annex_II_dc_modified": [
+   "2026-08-19"
+  ],
+  "contents_http": 200,
+  "contents_revised_labels": [
+   "Revised 03/12/2020",
+   "Revised 01/05/2020",
+   "Revised 18/12/2019",
+   "Revised 27/11/2019",
+   "Revised 13/08/2019",
+   "Revised 17/06/2019"
+  ]
  },
  "fda_prohibited_restricted_page": {
   "http": 200,

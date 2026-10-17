@@ -10,9 +10,11 @@ EMA = 'https://www.ema.europa.eu/en/documents/report/medicines-output-medicines-
 FDA = 'https://api.fda.gov/drug/drugsfda.json'
 statuses = {}
 def get(u, binary=False):
-    time.sleep(0.5)
-    r = subprocess.run(['curl', '-sS', '-m', '120', '-A', UA, '-w', '\n%{http_code}', u], capture_output=True)
-    body, _, code = r.stdout.rpartition(b'\n')
+    for attempt in range(3):   # proxy tunnel hiccups answer code 0; retry politely
+        time.sleep(0.5 + attempt)
+        r = subprocess.run(['curl', '-sS', '-m', '120', '-A', UA, '-w', '\n%{http_code}', u], capture_output=True)
+        body, _, code = r.stdout.rpartition(b'\n')
+        if int(code or 0): break
     statuses[u.split('?')[0]] = int(code or 0)
     return (body if binary else body.decode('utf-8', 'replace')), int(code or 0)
 def jget(u):
@@ -115,7 +117,8 @@ out = {'run_utc': datetime.datetime.utcnow().isoformat() + 'Z', 'ema_url': EMA, 
        'openfda_url': FDA, 'openfda_meta': {k: fda_total.get(k) for k in ('last_updated', 'license', 'terms')}, 'openfda_applications_total': fda_apps_total,
        'openfda_applications_with_application_docs': fda_docs, 'openfda_applications_with_Review_doc': fda_review, 'fda_review_doc_probe': doc_probe,
        'sample_size': N, 'sample_rule': 'single-substance authorised human EMA medicines with ATC, sorted by EMA product number, evenly spaced',
-       'ema_sample_with_fda_application_by_substance_tokens': matched, 'ema_sample_without_match': [e['active_substance'] for e in results if not e['fda_matches']],
+       'ema_sample_with_fda_application_by_substance_tokens': matched,
+       'ema_sample_with_single_ingredient_fda_application': matched_single, 'ema_sample_without_match': [e['active_substance'] for e in results if not e['fda_matches']],
        'atc_corroboration': {'matched_with_rxcui_checked': atc_checked, 'same_7char_atc': atc_same7, 'same_level4_prefix': atc_same5},
        'http_statuses': statuses, 'results': results}
 rp = os.path.join(HERE, 'reviewed.json')
