@@ -1054,286 +1054,260 @@
    ],
    "samples": [
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/synapse-financial-technologies-inc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "1:25-ap-01052",
      "filed": "AUG 21, 2025",
      "forum": "Civil Action Court U.S. Bankruptcy Court for the Central District of California",
      "text_chars": 3276,
      "court_cites": [
       "1:25-ap-1052"
-     ]
+     ],
+     "sample_no": 1
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/wise-us-inc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2025-CFPB-0004",
      "filed": "JAN 30, 2025",
      "forum": "Administrative Proceeding",
      "text_chars": 3764,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 2
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/equifax-inc-and-equifax-information-services-llc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2025-CFPB-0002",
      "filed": "JAN 17, 2025",
      "forum": "Administrative Proceeding",
      "text_chars": 3911,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 3
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/draper-kramer-mortgage-corporation/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "1:25-cv-00605",
      "filed": "JAN 17, 2025",
      "forum": "Civil Action Court U.S. District Court for the Northern District of Illinois",
      "text_chars": 3785,
      "court_cites": [
       "1:25-cv-605"
-     ]
+     ],
+     "sample_no": 4
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/american-honda-finance-corporation-2025/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2025-CFPB-0003",
      "filed": "JAN 17, 2025",
      "forum": "Administrative Proceeding",
      "text_chars": 3442,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 5
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/block-inc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2025-CFPB-0001",
      "filed": "JAN 16, 2025",
      "forum": "Administrative Proceeding",
      "text_chars": 3791,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 6
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/td-bank-na/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2020-BCFP-0007",
      "filed": "AUG 20, 2020",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 3454,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 7
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/nationstar-mortgage-llc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2017-CFPB-0011",
      "filed": "MAR 15, 2017",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 2150,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 8
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/bounceback-inc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "5:20-cv-06179",
      "filed": "DEC 09, 2020",
      "forum": "Civil Action Court U.S. District Court for the Western District of Missouri",
      "text_chars": 3900,
      "court_cites": [
       "5:20-cv-6179"
-     ]
+     ],
+     "sample_no": 9
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/forster-garbus-llp/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2:19-cv-02928",
      "filed": "MAY 17, 2019",
      "forum": "Civil Action Court U.S. District Court for the Eastern District of New York",
      "text_chars": 3200,
      "court_cites": [
       "2:19-cv-2928"
-     ]
+     ],
+     "sample_no": 10
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/climb-credit-inc-et-al/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "1:24-cv-07868",
      "filed": "OCT 17, 2024",
      "forum": "Civil Action Court U.S. District Court for the Southern District of New York",
      "text_chars": 4687,
      "court_cites": [
       "1:24-cv-7868"
-     ]
+     ],
+     "sample_no": 11
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/lobel-financial-corporation/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2020-BCFP-0016",
      "filed": "SEP 21, 2020",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 3494,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 12
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/loancare-servicing/",
      "status": 200,
-     "title": null,
      "docket": "2015-CFPB-0018",
      "filed": "JUL 28, 2015",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 1910,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 13
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/trans-fast-remittance-llc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2020-BCFP-0010",
      "filed": "AUG 31, 2020",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 3342,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 14
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/gst-factoring-inc-et-al/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "8:20-cv-01239",
      "filed": "JUL 13, 2020",
      "forum": "Civil Action Court U.S. District Court for the Central District of California",
      "text_chars": 5372,
      "court_cites": [
       "8:20-cv-1239"
-     ]
+     ],
+     "sample_no": 15
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/all-american-check-cashing-inc-mid-state-finance-inc-db-thrifty-check-advance-and-michael-gray/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "3:16-cv-00356",
      "filed": "MAY 11, 2016",
      "forum": "Civil Action Court U.S. District Court for the Southern District of Mississippi",
      "text_chars": 2927,
      "court_cites": [
       "3:16-cv-356"
-     ]
+     ],
+     "sample_no": 16
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/prime-marketing-holdings-llc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2:16-cv-07111",
      "filed": "SEP 22, 2016",
      "forum": "Civil Action Court U.S. District Court for the Central District of California",
      "text_chars": 2605,
      "court_cites": [
       "2:16-cv-7111"
-     ]
+     ],
+     "sample_no": 17
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/student-loan-pro-judith-noh-syed-faisal-gilani-and-fnza-marketing-llc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "8:21-cv-00488",
      "filed": "MAR 16, 2021",
      "forum": "Civil Action Court U.S. District Court for the Central District of California",
      "text_chars": 4498,
      "court_cites": [
       "8:21-cv-488"
-     ]
+     ],
+     "sample_no": 18
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/federal-debt-assistance-association-llc-financial-document-assistance-administration-inc-clear-solutions-inc-robert-pantoulis-david-piccione-and-vincent-piccione/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "1:17-cv-02997",
      "filed": "OCT 12, 2017",
      "forum": "Civil Action Court U.S. District Court for the District of Maryland - Baltimore",
      "text_chars": 2681,
      "court_cites": [
       "1:17-cv-2997"
-     ]
+     ],
+     "sample_no": 19
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/weltman-weinberg-reis-co-lpa/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "1:17-cv-00817",
      "filed": "APR 17, 2017",
      "forum": "Civil Action Court U.S. District Court for the Northern District of Ohio",
      "text_chars": 2780,
      "court_cites": [
       "1:17-cv-817"
-     ]
+     ],
+     "sample_no": 20
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/y-king-s-corp-db-herbies-auto-sales/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2016-CFPB-0001",
      "filed": "JAN 21, 2016",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 2063,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 21
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/mortgage-master-inc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2013-CFPB-0006",
      "filed": "OCT 09, 2013",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 1951,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 22
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/american-express-centurion-bank/",
      "status": 200,
-     "title": null,
      "docket": "2012-CFPB-0002",
      "filed": "OCT 01, 2012",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 2273,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 23
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/bloomtech-inc-and-austen-allred/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2024-CFPB-0001",
      "filed": "APR 17, 2024",
      "forum": "Administrative Proceeding",
      "text_chars": 4839,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 24
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/tmx-finance-llc/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2016-CFPB-0022",
      "filed": "SEP 26, 2016",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 3791,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 25
     },
     {
-     "url": "https://www.consumerfinance.gov/enforcement/actions/experian-holdings-inc-experian-information-solutions-inc-and-consumerinfocom-inc-dba-experian-consumer-services/",
      "status": 200,
-     "title": "Investigatory Authority Life Cycle of an Enforcement Action Enforcement Principl",
      "docket": "2017-CFPB-0012",
      "filed": "MAR 23, 2017",
      "forum": "Administrative Proceeding Court CFPB Office of Administrative Adjudication",
      "text_chars": 2399,
-     "court_cites": []
+     "court_cites": [],
+     "sample_no": 26
     }
    ],
    "rss_status": 200,

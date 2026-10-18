@@ -261,7 +261,8 @@ for x in cf_list[:6] + random.sample(cf_list[6:], min(20, len(cf_list) - 6)):
     filed = re.search(r'Initial filing date\s+([A-Z]{3} \d+, \d{4})', t)
     forum = re.search(r'Forum\s+(.*?)\s+Docket number', t)
     body_i = t.find('Enforcement Actions')
-    cf_samples.append({'url': 'https://www.consumerfinance.gov' + x['url'], 'status': st, 'title': title and title.group(1)[:80], 'docket': dock and dock.group(1),
+    cf_samples.append({'sample_no': len(cf_samples) + 1, 'status': st, 'docket': dock and dock.group(1),  # action URLs and titles can name natural persons: never committed
+                       
                        'filed': filed and filed.group(1), 'forum': forum and forum.group(1), 'text_chars': len(t) - body_i,
                        'court_cites': sorted(courtnos(t))})
 cf['sample_n'] = len(cf_samples)
@@ -403,10 +404,10 @@ for s in sec_samples:
         court[n]['sec'].add(s['url'])
 for s in cf_samples:
     for n in s['court_cites']:
-        court[n]['cfpb'].add(s['url'])
+        court[n]['cfpb'].add(s['sample_no'])
 for s in ftc_samples:
     for n in s['court_cites']:
-        court[n]['ftc'].add(s['url'])
+        court[n]['ftc'].add(s['sample_no'])
 for s in fda_samples:
     for n in s['court_cites']:
         court[n]['fda'].add(s['url'])

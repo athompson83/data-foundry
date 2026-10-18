@@ -1,11 +1,11 @@
 {
- "calfire_total": 539,
- "calfire_wildfire": 522,
- "wfigs_ca_ytd": 8984,
+ "calfire_total": 561,
+ "calfire_wildfire": 538,
+ "wfigs_ca_ytd": 9238,
  "wfigs_error": null,
- "name_and_date_within_2d": 442,
- "county_equal": 413,
- "county_and_acres_within_25pct": 324,
+ "name_and_date_within_2d": 455,
+ "name_date_and_county_equal": 436,
+ "confirmed_by_county_and_acres_within_25pct": 347,
  "sample": [
   {
    "calfire": "Lamb Fire",

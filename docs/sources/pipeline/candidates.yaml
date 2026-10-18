@@ -9707,9 +9707,9 @@ datasets:
         between:
           - wildfire-calfire-incidents
           - wildfire-nifc-wfigs-incidents
-        measured: 442/522 CAL FIRE wildfires (2026) have a WFIGS California year-to-date point with the same normalised name and a discovery date within 2 days (8,984 WFIGS points); 413 of the 442 also agree on county and 324 on county and acres within 25 percent (evidence/2026-10-10/wildfire/join.py)
+        measured: 347/538 CAL FIRE wildfires have a WFIGS California year-to-date point confirmed by the same normalised name, a discovery date within 2 days, the same county and acres within 25 percent (re-run 2026-10-18 against 9,238 WFIGS points; 455 have a name-and-date candidate and 436 of those also agree on county, so 442/522 reported on 2026-10-10 was the unconfirmed candidate count; evidence/2026-10-10/wildfire/join.py and handcheck.json)
         mode: candidate
-        reviewed: { correct: 11, checked: 12 }
+        reviewed: { correct: 12, checked: 12 }
     taxonomy:
       - 'incident type: wildfire, prescribed fire, other'
       - 'status: active, contained, controlled, out'
