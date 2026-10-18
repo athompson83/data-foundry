@@ -7717,8 +7717,8 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/museum-objects/join.json ]
     next_action: >-
       The ID list endpoint returns 502,949 object IDs. The v1 search endpoint was retired on 2026-10-01 (HTTP 410); use v1.1/search or the Open Access CSV for
-      enumeration. In a seeded 300-object sample 149 are public domain and 39 carry an object-level Wikidata URL, so images and text of the rest are not
-      CC0 for reuse; archive the CSV and parse only public-domain rows' image URLs (rule 9).
+      enumeration. In a seeded 300-object sample 149 are public domain and 39 carry an object-level Wikidata URL. The dataset-level CC0 dedication covers the
+      textual metadata of every object, so capture all of it; restrict only image reuse to `isPublicDomain` objects (rule 9). Archive the CSV.
 
   - key: culture-aic-collection-artworks
     name: Art Institute of Chicago public API (artworks, descriptions, provenance and exhibition history text)
@@ -10130,9 +10130,9 @@ datasets:
         between:
           - hazard-fema-disaster-declarations
           - hazard-ibtracs-best-tracks
-        measured: '21/26 FEMA hurricane declarations since fiscal 2023 name an IBTrACS storm of the last three years; the 15 titles printed in the output all name the right storm (Helene, Beryl, Milton, Francine, Hilary, Idalia, Lee)'
+        measured: '21/26 FEMA hurricane declarations since fiscal 2023 name an IBTrACS storm whose season equals the declaration year (rule: storm name in the title and same year; each row lists the matched ATCF id in evidence/2026-10-18/tropical-cyclones/join.json). The 5 unmatched are storms outside the 3-year IBTrACS file (Ian, Nicole, Mawar, Sinlaku)'
         mode: candidate
-        reviewed: { correct: 15, checked: 15 }
+        reviewed: { correct: 21, checked: 21 }
     taxonomy:
       - 'basin: Atlantic, East Pacific'
       - 'peak category on the Saffir-Simpson scale'

@@ -17,10 +17,16 @@ named = {k: v for k, v in storms.items() if v[0] != "NOT_NAMED"}
 matched = sorted(k for k in tcr if k.upper() in {s.upper() for s in storms})
 fema = get("https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$filter=incidentType%20eq%20%27Hurricane%27%20and%20fyDeclared%20ge%202023&$select=disasterNumber,declarationTitle,incidentType,declarationDate,fyDeclared&$top=1000")
 fe = {}
-for d in (fema or {}).get("DisasterDeclarationsSummaries", []): fe[d["disasterNumber"]] = d["declarationTitle"]
-names = {v[0].upper() for v in named.values()}
-fe_named = {n: t for n, t in fe.items() if any(re.search(r"\b" + re.escape(x) + r"\b", t.upper()) for x in names)}
+for d in (fema or {}).get("DisasterDeclarationsSummaries", []): fe[d["disasterNumber"]] = (d["declarationTitle"], d["declarationDate"][:10])
+by_name = {}
+for atcf, (name, season) in named.items(): by_name.setdefault(name.upper(), []).append((atcf, season))
+fema_rows = []
+for n, (title, date) in sorted(fe.items()):
+    hits = [(a, ssn) for nm, lst in by_name.items() if re.search(r"\b" + re.escape(nm) + r"\b", title.upper()) for a, ssn in lst]
+    same_year = [h for h in hits if h[1] == date[:4]]
+    fema_rows.append({"disaster": n, "title": title, "declared": date, "name_match_any_year": [h[0] for h in hits], "name_and_year_match": [h[0] for h in same_year]})
+fe_named = {r["disaster"]: r for r in fema_rows if r["name_and_year_match"]}
 out = {"ibtracs_last3years_rows": len(rows), "ibtracs_atlantic_pacific_atcf_storms": len(storms), "named": len(named), "tcr_pdfs_listed_2023_2026": len(tcr),
        "tcr_atcf_ids_in_ibtracs": len(matched), "tcr_ids": sorted(tcr.values()), "matched": matched,
-       "fema_hurricane_declarations_fy2023_on": len(fe), "fema_titles_naming_an_ibtracs_storm": len(fe_named), "fema_named_sample": dict(list(fe_named.items())[:15])}
+       "fema_hurricane_declarations_fy2023_on": len(fe), "fema_titles_with_storm_name_any_year": sum(1 for r in fema_rows if r["name_match_any_year"]), "fema_titles_with_name_and_declaration_year_match": len(fe_named), "fema_rows": fema_rows}
 json.dump(out, open("join.json", "w"), indent=1); print({k: v for k, v in out.items() if k not in ("tcr_ids", "matched", "fema_named_sample")})
