@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "20a6800b3f747a7aac01ce944fead4aa1222fb670deccee3ce40bff9df8dafaa",
+  "registry_sha256": "d3a076156c31cb72103fe7dd79c9a757f3b2e32b446c9d2a63596d1162e954c3",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -405,6 +405,31 @@
       "sources": [
         "education-ofsted-school-inspections",
         "education-gias-school-register"
+      ]
+    },
+    "museum-object-records": {
+      "name": "Museum object records (Met Open Access and Art Institute of Chicago, artist-linked)",
+      "stage": "SCREENED",
+      "sources": [
+        "culture-met-open-access-objects",
+        "culture-aic-collection-artworks"
+      ]
+    },
+    "customs-classification-rulings": {
+      "name": "Customs tariff classification rulings (CBP CROSS rulings linked to the USITC Harmonized Tariff Schedule)",
+      "stage": "SCREENED",
+      "sources": [
+        "trade-cbp-cross-rulings",
+        "trade-usitc-harmonized-tariff-schedule"
+      ]
+    },
+    "tropical-cyclones": {
+      "name": "Tropical cyclones (NHC storm reports, IBTrACS tracks and FEMA hurricane declarations)",
+      "stage": "SCREENED",
+      "sources": [
+        "hazard-nhc-tropical-cyclone-reports",
+        "hazard-ibtracs-best-tracks",
+        "hazard-fema-disaster-declarations"
       ]
     }
   },
@@ -4139,6 +4164,149 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "culture-met-open-access-objects": {
+      "name": "Metropolitan Museum of Art Open Access collection API (objects, artists, dates, credit lines)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "The Metropolitan Museum of Art",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "culture-aic-collection-artworks": {
+      "name": "Art Institute of Chicago public API (artworks, descriptions, provenance and exhibition history text)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Art Institute of Chicago",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "trade-cbp-cross-rulings": {
+      "name": "US Customs and Border Protection CROSS customs rulings (tariff classification, origin, valuation)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Customs and Border Protection",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "trade-usitc-harmonized-tariff-schedule": {
+      "name": "USITC Harmonized Tariff Schedule of the United States (HTS), full export",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US International Trade Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hazard-nhc-tropical-cyclone-reports": {
+      "name": "NOAA National Hurricane Center Tropical Cyclone Reports (PDF storm summaries, ATCF id in the file name)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA National Hurricane Center",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hazard-ibtracs-best-tracks": {
+      "name": "NOAA NCEI IBTrACS best-track archive (storm id, name, 6-hourly position, wind, pressure, USA ATCF id)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NOAA National Centers for Environmental Information",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "outbreak-who-disease-outbreak-news": {
+      "name": "WHO Disease Outbreak News (free-text outbreak notices, 2004 to date)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "World Health Organization",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "security-osv-package-advisories": {
+      "name": "OSV.dev open-source package vulnerability advisories (affected versions, fixed versions, aliases)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Google OSV (OpenSSF)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "legal-caselaw-access-project": {
+      "name": "Harvard Caselaw Access Project static case law (CC0 volumes by reporter)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Harvard Law School Library Innovation Lab",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "health-fda-orphan-designations": {
+      "name": "FDA Orphan Drug Designations and Approvals database",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US FDA Office of Orphan Products Development",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hazard-volcanic-activity-reports": {
+      "name": "USGS Volcano Hazards Program notices and NZ GeoNet volcanic alert levels",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US Geological Survey",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },

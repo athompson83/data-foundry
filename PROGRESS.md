@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-10-18: daily dataset scout (round 10)
+
+- **Health.** Both recall datasets synced 2026-10-18T12:18Z (under 24 h); newest records match openFDA (`last_updated` 2026-10-07) and CPSC/Health Canada (2026-10-15 and 2026-10-16). FDA food and drug totals are still 2 rows behind openFDA, unchanged since 2026-10-10. No regression.
+- **Added at SCREENED (3, below the 5 to 10 target):** `museum-object-records` (Met Open Access + Art Institute of Chicago; no shared identifier, name join 41/73, 38/38 hand-checked), `customs-classification-rulings` (CBP CROSS + USITC HTS; declared cited HTS number, 1,671/3,147 rulings fully resolve in the current schedule), `tropical-cyclones` (NHC reports + IBTrACS + FEMA; declared ATCF id 52/52).
+- **Screened and not added (5):** WHO outbreak notices (PARKED, RED: WHO terms forbid commercial use), OSV package advisories (PARKED, duplicates the parked vulnerability-intelligence reasoning), court opinions, FDA orphan designations and volcanic activity (PARKED, no open route or disjoint jurisdictions).
+- **Recalls widening.** No new member. Health Canada's open-data file holds 34,248 notices in 8 organisations; it is archived whole in R2 before parsing, so no raw capture gap; only the 5,217 consumer-product notices are served. No NHTSA campaign number is cited in any record (0/34,248).
+- **Stage advance.** None: EVIDENCED needs an R2 archive and the archive workflow runs from `main` only, so SCREENED candidates wait for #88 to merge. All open Codex findings on #88 were checked against the files and are already fixed.
+- **Also.** Extended the declared-join identifier list in `source-pipeline.test.ts` with HTS number and ATCF cyclone id. Nothing deployed; no production change.
+
 ## Current session — 2026-10-17: daily dataset scout (round 9)
 
 - **Health.** Both recall datasets synced 2026-10-17T12:17Z to 12:18Z (under 24 h); newest records match openFDA (`last_updated` 2026-10-07) and CPSC/Health Canada (2026-10-15 and 2026-10-16). FDA row totals are 1 to 2 ahead of openFDA, constant since 2026-10-10. No regression.

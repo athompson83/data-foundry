@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-17
+updated: 2026-10-18
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -7699,6 +7699,219 @@ candidates:
     evidence: [ docs/sources/pipeline/evidence/2026-10-17/school-inspection-reports/join.json ]
     next_action: Archive the daily edubasealldata CSV (52,594 rows on 2026-10-17, 64.7 MB, no login) in R2 through tooling/snapshots/plans.json and write the ADR-0013 rights record listing the excluded personal-data columns.
 
+  - key: culture-met-open-access-objects
+    name: Metropolitan Museum of Art Open Access collection API (objects, artists, dates, credit lines)
+    category: culture
+    structuring: normalization
+    format: structured
+    publisher: The Metropolitan Museum of Art
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://collectionapi.metmuseum.org/public/collection/v1/objects', 'https://metmuseum.github.io/' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://metmuseum.github.io/',
+          quote: 'The Metropolitan Museum of Art has waived all copyright and related or neighboring rights to this dataset using the Creative Commons Zero license.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/museum-objects/join.json ]
+    next_action: >-
+      The ID list endpoint returns 502,949 object IDs. The v1 search endpoint was retired on 2026-10-01 (HTTP 410); use v1.1/search or the Open Access CSV for
+      enumeration. In a seeded 300-object sample 149 are public domain and 39 carry an object-level Wikidata URL, so images and text of the rest are not
+      CC0 for reuse; archive the CSV and parse only public-domain rows' image URLs (rule 9).
+
+  - key: culture-aic-collection-artworks
+    name: Art Institute of Chicago public API (artworks, descriptions, provenance and exhibition history text)
+    category: culture
+    structuring: event-extraction
+    format: free-text
+    publisher: Art Institute of Chicago
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.artic.edu/api/v1/artworks', 'https://api.artic.edu/docs/' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://api.artic.edu/docs/',
+          quote: 'All other data in this response is licensed under a Creative Commons Zero (CC0) 1.0 designation and the Terms and Conditions of artic.edu'
+        }
+    conditions:
+      - 'The API documentation says part of the response is under CC BY 4.0 (attribution) and the rest is CC0; keep the per-field licence and attribute the CC BY fields.'
+      - 'artic.edu/terms answered HTTP 403 from our egress, so the site terms referenced by the licence are unread; resolve before RIGHTS_DETERMINED.'
+      - 'Do not republish images unless the object is flagged public domain (rule 9).'
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/museum-objects/join.json ]
+    next_action: >-
+      133,170 artworks. In a 100-artwork sample 68 carry a description, 52 provenance text and 50 exhibition history. Extract provenance chains
+      (owner, place, date) and exhibition lists deterministically and measure the hit rate on 20 or more records. The agent
+      identifiers are weak: ulan_id is published for 1 of 17,017 agents and wikidata_id for none, so artist linkage is by name and needs review.
+
+  - key: trade-cbp-cross-rulings
+    name: US Customs and Border Protection CROSS customs rulings (tariff classification, origin, valuation)
+    category: trade
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Customs and Border Protection
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://rulings.cbp.gov/api/search', 'https://rulings.cbp.gov/api/ruling/' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    conditions:
+      - 'US federal government work, but rulings.cbp.gov published no readable terms from our egress (the home page and cbp.gov site policy answered 403 or carried no terms text); treat as FREE_PUBLIC_ACCESS under ADR-0018 and record the attribution and rate-limit conditions in the rights record.'
+      - 'Rulings are addressed to named importers and individuals; exclude addressee names and street addresses from published records.'
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/customs-rulings/join.json ]
+    next_action: >-
+      The open JSON search API (100 rulings a page, a search term is required) and per-ruling text endpoint work without a key. Find a way to
+      enumerate the whole corpus (the 18 search terms tried returned 3,539 distinct rulings dated up to 2026-09-24, one with a 0001-01-01 placeholder date), archive it in R2,
+      then extract the tariff number, the classification reasoning and the duty rate deterministically (35/40 sampled rulings have a classification paragraph and
+      31/40 a duty rate). Read the CBP site policy before RIGHTS_DETERMINED.
+
+  - key: trade-usitc-harmonized-tariff-schedule
+    name: USITC Harmonized Tariff Schedule of the United States (HTS), full export
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: US International Trade Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://hts.usitc.gov/reststop/exportList', 'https://hts.usitc.gov/reststop/search' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'US federal government publication; the USITC website policy answered 403 from our egress, so the terms are unread. Determine under ADR-0018 and record conditions in the rights record.'
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/customs-rulings/join.json ]
+    next_action: >-
+      The exportList endpoint returns the full schedule as JSON in one request (35,805 rows, 29,861 distinct codes, 12.6 MB). Archive each revision; rulings cite
+      codes from older revisions, so keep historical editions to link them (the current edition resolves only 1,671 of 3,147 rulings whose codes are all valid today).
+
+  - key: hazard-nhc-tropical-cyclone-reports
+    name: NOAA National Hurricane Center Tropical Cyclone Reports (PDF storm summaries, ATCF id in the file name)
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: NOAA National Hurricane Center
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.nhc.noaa.gov/data/tcr/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.nhc.noaa.gov/disclaimer.shtml',
+          quote: 'The information on government servers are in the public domain, unless specifically annotated otherwise, and may be used freely by the public.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/join.json, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/text.json ]
+    next_action: >-
+      52 reports for seasons 2023 to 2026 are listed per season and basin; every file name starts with the storm's ATCF id. In a seeded 12-PDF sample all 12 have a text layer
+      and a Casualty and Damage Statistics heading, 6 a Synoptic or Meteorological History heading, 6 a forecast-verification heading and 3 a death count the regex reads. Measure
+      deaths, damage and landfall extraction on 20 or more reports, then archive the PDFs since 1995 in R2.
+
+  - key: hazard-ibtracs-best-tracks
+    name: NOAA NCEI IBTrACS best-track archive (storm id, name, 6-hourly position, wind, pressure, USA ATCF id)
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: NOAA National Centers for Environmental Information
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/csv/' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://www.nhc.noaa.gov/disclaimer.shtml',
+          quote: 'The information on government servers are in the public domain, unless specifically annotated otherwise, and may be used freely by the public.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/join.json ]
+    next_action: >-
+      The last-3-years file is 11.5 MB (24,346 observation rows, 141 Atlantic and East Pacific storms with a USA ATCF id). The NCEI-specific terms page was not read; the quote is the
+      NWS statement for NOAA servers, so read the NCEI data-access policy before RIGHTS_DETERMINED. Archive the full ALL file, not only the last 3 years.
+
+  - key: outbreak-who-disease-outbreak-news
+    name: WHO Disease Outbreak News (free-text outbreak notices, 2004 to date)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: World Health Organization
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.who.int/api/news/diseaseoutbreaknews' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.who.int/about/policies/terms-of-use',
+          quote: 'Extracts of the information in the web site may be reviewed, reproduced or translated for research or private study but not for sale or for use in conjunction with commercial purposes.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/outbreak-notices/join.json ]
+    next_action: >-
+      Parked 2026-10-18 on rights: the WHO terms of use forbid commercial use and any use other than educational or non-commercial without prior written authorization. The API is open
+      and complete (3,200 notices, 2004-01-05 to 2026-10-15), and a candidate title join to ECDC epidemiological updates links 6 of 10 ECDC items, but a RED member cannot be used. ECDC publishes
+      under CC BY 4.0 alone, which is one publisher. Reopen if WHO publishes a commercial-reuse licence for Disease Outbreak News.
+
+  - key: security-osv-package-advisories
+    name: OSV.dev open-source package vulnerability advisories (affected versions, fixed versions, aliases)
+    category: security
+    structuring: normalization
+    format: free-text
+    publisher: Google OSV (OpenSSF)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://api.osv.dev/v1/vulns', 'https://osv-vulnerabilities.storage.googleapis.com/PyPI/all.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 1 }
+    conditions:
+      - 'OSV aggregates databases under different licences (GitHub Advisory Database, PyPI and Go CC-BY 4.0; RustSec CC0; others Apache 2.0 or MIT); keep the per-record source and attribute CC-BY records.'
+    terms:
+      - {
+          url: 'https://raw.githubusercontent.com/google/osv.dev/master/docs/data.md',
+          quote: '[GitHub Advisory Database](https://github.com/github/advisory-database) ([CC-BY 4.0](https://github.com/github/advisory-database/blob/main/LICENSE.md))'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/package-advisories/join.json ]
+    next_action: >-
+      Parked 2026-10-18 as a duplicate of the parked vulnerability-intelligence reasoning: OSV already serves agents (JSON API, per-ecosystem zips) and already links to NVD itself
+      (the PyPI archive holds 26,381 records, 6,579 GHSA, 6,132 with a CVE alias; 25/25 sampled aliases resolve in NVD). Reopen only for a cross-ecosystem version-range product backed by demand evidence.
+
+  - key: legal-caselaw-access-project
+    name: Harvard Caselaw Access Project static case law (CC0 volumes by reporter)
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Harvard Law School Library Innovation Lab
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://static.case.law/', 'https://www.courtlistener.com/api/rest/v4/opinions/' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 3, structuring_value: 4, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/parked-screens.json ]
+    next_action: >-
+      Parked 2026-10-18: static.case.law lists reporters and ReportersMetadata.json answers 200 (146,015 bytes), but no licence text was found at /LICENSE.txt (404) or case.law/about, and the
+      CourtListener opinions API answers 401 without a token. The CourtListener bulk bucket lists people, courts and financial-disclosure files dated to 2025-01-31 in the first 1,000 keys; no opinion
+      file was seen, and no citation join was measured. Reopen with a located licence statement and an opinion bulk file.
+
+  - key: health-fda-orphan-designations
+    name: FDA Orphan Drug Designations and Approvals database
+    category: health
+    structuring: eligibility-criteria
+    format: structured
+    publisher: US FDA Office of Orphan Products Development
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.accessdata.fda.gov/scripts/opdlisting/oopd/index.cfm' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/parked-screens.json ]
+    next_action: >-
+      Parked 2026-10-18: the search page answers 200 but exposes only a search form (the only data link is an instructions page), the OOPD_Download.cfm path answers 404, and the EMA orphan
+      designation overview links PDFs only (the reports-statistics path answered 404). No bulk or API route was found, so no FDA-to-EMA join was measured. Reopen if a download is shown.
+
+  - key: hazard-volcanic-activity-reports
+    name: USGS Volcano Hazards Program notices and NZ GeoNet volcanic alert levels
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: US Geological Survey
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://volcanoes.usgs.gov/hans-public/api/volcano/getUSVolcanoes', 'https://api.geonet.org.nz/volcano/val' ]
+    scores: { agent_demand: 2, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/parked-screens.json ]
+    next_action: >-
+      Parked 2026-10-18: the USGS HANS API lists US volcanoes (170,148 bytes, with the Smithsonian volcano number) and GeoNet publishes NZ alert levels (volcano ids are names), but the jurisdictions are
+      disjoint, so no record can match across them. The Smithsonian Global Volcanism Program weekly report feed, the natural third member, answered 403. Reopen if a global bulletin is reachable.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -9830,3 +10043,105 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/evidence/2026-10-17/school-inspection-reports/join.json ]
     next_action: Archive both files and 30 report PDFs in R2, write the two ADR-0013 rights records, and measure heading-extraction hit rates on the PDFs (8/8 sampled PDFs yielded text, but only 4/8 passed the Outcome-heading check in join.json, so heading extraction is unproven).
+
+  - key: museum-object-records
+    name: Museum object records (Met Open Access and Art Institute of Chicago, artist-linked)
+    category: culture
+    entity: museum object (one catalogued work) with artist, date, medium, accession number, credit line, provenance and exhibition history
+    stage: SCREENED
+    description: "One record per catalogued work, assembled from the Met Open Access API (502,949 object IDs, structured fields, public-domain flag) and the Art Institute of Chicago API (133,170 artworks, with description, provenance and exhibition history as prose). The Met publishes a Getty ULAN artist id and an object-level Wikidata URL for part of its records; the Art Institute publishes a ULAN id for 1 of 17,017 agents and no Wikidata id, so the two do not share a usable identifier and artist linkage is by normalised name, which only proposes a link for review. Facts carry the museum that stated them."
+    sources:
+      - culture-met-open-access-objects
+      - culture-aic-collection-artworks
+    join_keys:
+      - key: normalised artist name (candidate only; no shared identifier exists)
+        between:
+          - culture-met-open-access-objects
+          - culture-aic-collection-artworks
+        measured: '41/73 distinct ULAN-identified artists on 100 Met highlight objects have an exact normalised-name agent in the Art Institute API (40 after dropping the placeholder "Unknown Artist"); 38/38 same artist on hand check of the named individuals, excluding two common names (Charles Ray, Joshua Johnson) that could not be told apart from the name alone (evidence/2026-10-18/museum-objects/names.json)'
+        mode: candidate
+        reviewed: { correct: 38, checked: 38 }
+      - key: Getty ULAN artist id (the Met publishes it; the Art Institute almost never does)
+        between:
+          - culture-met-open-access-objects
+          - culture-aic-collection-artworks
+        measured: '1/73 Met highlight artists carry an ULAN id that an Art Institute agent also carries (Vincent van Gogh, 500115588); 0/60 on a random 300-object Met sample; the Art Institute publishes ulan_id for 1 of 17,017 agents'
+        mode: candidate
+    taxonomy:
+      - 'object type: painting, print, sculpture, decorative art, photograph, textile, other'
+      - 'culture and period (museum-stated)'
+      - 'rights status: public domain, in copyright, unknown'
+      - 'provenance event: acquisition, sale, gift, bequest, exhibition'
+    agent_questions:
+      - Which works by this artist are held by both museums, with accession numbers and public-domain status?
+      - What is the recorded provenance chain of this object, and in which exhibitions has it been shown?
+      - Which public-domain objects of a given period and medium are available with an open image licence?
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/museum-objects/join.json ]
+    next_action: Archive the Met Open Access CSV and a window of Art Institute artworks in R2, extract provenance chains from the prose and measure the hit rate on 20 or more records, and re-measure the name join on a larger sample. Demand evidence is the weak point (score 3).
+
+  - key: customs-classification-rulings
+    name: Customs tariff classification rulings (CBP CROSS rulings linked to the USITC Harmonized Tariff Schedule)
+    category: trade
+    entity: customs ruling (one CBP binding or informal ruling) with its cited tariff numbers, product description, legal reasoning and duty rate
+    stage: SCREENED
+    description: "One record per CBP ruling from the CROSS database (free-text letters giving the product, the classification reasoning and the duty rate), joined to the USITC Harmonized Tariff Schedule that defines each cited tariff number. The ruling's own tariff field names the HTS number it classifies under, so a cited number that exists in the schedule links automatically at the tariff-line level; numbers that no longer exist in the current schedule are kept as the cited value and linked to the edition in force when archived. Rulings addressed to named importers keep the addressee out of the published record."
+    sources:
+      - trade-cbp-cross-rulings
+      - trade-usitc-harmonized-tariff-schedule
+    join_keys:
+      - key: cited HTS number (the tariff number in the ruling's tariff field)
+        between:
+          - trade-cbp-cross-rulings
+          - trade-usitc-harmonized-tariff-schedule
+        measured: '1671/3147 sampled rulings (Chapter 99 temporary duty lines excluded) have every cited tariff number present in the current HTS export; 1988/3147 have at least one. The remainder cite numbers from earlier schedule editions (evidence/2026-10-18/customs-rulings/join.json)'
+        mode: declared
+    taxonomy:
+      - 'ruling category: classification, origin, valuation, marking, drawback, other'
+      - 'HTS chapter and heading of the cited number'
+      - 'USMCA and Section 301 or 232 treatment where stated'
+      - 'ruling status: current, modified, revoked'
+    agent_questions:
+      - How has CBP classified this product description, under which HTS number, and at what duty rate?
+      - Which rulings were revoked or modified, and by which later ruling?
+      - Which rulings cite heading 8415 and mention heat pumps or compressors, and how do they differ on origin?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/customs-rulings/join.json ]
+    next_action: Enumerate and archive the whole CROSS corpus and each HTS revision in R2 (the terms pages of CBP and USITC answered 403 and must be read first), extract the cited number, reasoning and duty rate deterministically, and add the UK Trade Tariff and the EU EBTI database as independent members once an open route is found (the UK commodity path tried answered 404).
+
+  - key: tropical-cyclones
+    name: Tropical cyclones (NHC storm reports, IBTrACS tracks and FEMA hurricane declarations)
+    category: natural-hazards
+    entity: tropical cyclone (one storm, by ATCF id) with track, peak intensity, landfalls, casualties, damage and federal disaster declarations
+    stage: SCREENED
+    description: "One record per Atlantic or East Pacific tropical cyclone, assembled from the National Hurricane Center's Tropical Cyclone Reports (free-text storm summaries, including casualty and damage statistics), the IBTrACS best-track archive (structured positions, winds and pressures) and FEMA disaster declarations. The NHC report file name and the IBTrACS record carry the same ATCF id, so they link automatically; a FEMA declaration title names the storm but not an id, so it only proposes a link by storm name and year."
+    sources:
+      - hazard-nhc-tropical-cyclone-reports
+      - hazard-ibtracs-best-tracks
+      - hazard-fema-disaster-declarations
+    join_keys:
+      - key: ATCF cyclone id (basin, storm number and year, for example AL092024)
+        between:
+          - hazard-nhc-tropical-cyclone-reports
+          - hazard-ibtracs-best-tracks
+        measured: '52/52 Tropical Cyclone Report file names for seasons 2023 to 2026 carry an ATCF id found in the IBTrACS last-3-years file (141 Atlantic and East Pacific storms with an ATCF id; evidence/2026-10-18/tropical-cyclones/join.json)'
+        mode: declared
+      - key: FEMA declaration title storm name (candidate only; no id)
+        between:
+          - hazard-fema-disaster-declarations
+          - hazard-ibtracs-best-tracks
+        measured: '21/26 FEMA hurricane declarations since fiscal 2023 name an IBTrACS storm of the last three years; the 15 titles printed in the output all name the right storm (Helene, Beryl, Milton, Francine, Hilary, Idalia, Lee)'
+        mode: candidate
+        reviewed: { correct: 15, checked: 15 }
+    taxonomy:
+      - 'basin: Atlantic, East Pacific'
+      - 'peak category on the Saffir-Simpson scale'
+      - 'impact: deaths, damage (USD), landfall location'
+      - 'federal response: major disaster, emergency declaration'
+    agent_questions:
+      - Which storms made landfall in this state since 2020, with deaths, damage and the federal declarations that followed?
+      - What did the National Hurricane Center's report say about the forecast performance for this storm?
+      - Which storms of a given intensity affected this county, and were declarations issued?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/join.json, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/text.json ]
+    next_action: Archive the NHC report PDFs, the full IBTrACS file and the FEMA declarations in R2, measure deaths, damage and landfall extraction on 20 or more reports, and read the OpenFEMA terms (the page answered 403) before the FEMA member can leave PARKED.

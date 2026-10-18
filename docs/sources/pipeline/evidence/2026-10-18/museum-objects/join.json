@@ -1,0 +1,325 @@
+{
+ "stats": {
+  "met_total_ids": 502949,
+  "sampled": 300,
+  "public_domain": 149,
+  "with_accession": 300,
+  "with_wikidata_object": 39,
+  "with_credit_line": 299,
+  "with_dimensions_text": 260,
+  "with_ulan_artist": 124,
+  "distinct_ulan_artists": 136,
+  "ulan_checked": 60,
+  "ulan_in_aic": 0,
+  "name_equal_among_matches": 0,
+  "aic_total_artworks": 133170,
+  "aic_sample100": {
+   "description": 68,
+   "provenance_text": 52,
+   "exhibition_history": 50,
+   "public_domain": 36
+  }
+ },
+ "rows": [
+  {
+   "ulan": "500021004",
+   "met_name": "Sir Francis Seymour Haden",
+   "aic": null
+  },
+  {
+   "ulan": "500524442",
+   "met_name": "Arthur Schnitzler",
+   "aic": null
+  },
+  {
+   "ulan": "500008775",
+   "met_name": "Math\u00e4us K\u00fcsel",
+   "aic": null
+  },
+  {
+   "ulan": "500007823",
+   "met_name": "After Ludovico Ottavio Burnacini",
+   "aic": null
+  },
+  {
+   "ulan": "500524883",
+   "met_name": "Helen West Heller",
+   "aic": null
+  },
+  {
+   "ulan": "500227524",
+   "met_name": "WPA",
+   "aic": null
+  },
+  {
+   "ulan": "500006793",
+   "met_name": "B. J. O. Nordfeldt",
+   "aic": null
+  },
+  {
+   "ulan": "500023867",
+   "met_name": "Max Klinger",
+   "aic": null
+  },
+  {
+   "ulan": "500002921",
+   "met_name": "Peter Paul Rubens",
+   "aic": null
+  },
+  {
+   "ulan": "500332989",
+   "met_name": "Schrezheim Manufactory",
+   "aic": null
+  },
+  {
+   "ulan": "500007519",
+   "met_name": "Michel Corneille the Younger",
+   "aic": null
+  },
+  {
+   "ulan": "500008404",
+   "met_name": "Maurice Utrillo",
+   "aic": null
+  },
+  {
+   "ulan": "500021688",
+   "met_name": "Jacques Callot",
+   "aic": null
+  },
+  {
+   "ulan": "500082521",
+   "met_name": "Isra\u00ebl Henriet",
+   "aic": null
+  },
+  {
+   "ulan": "500032388",
+   "met_name": "Elie Nadelman",
+   "aic": null
+  },
+  {
+   "ulan": "500000873",
+   "met_name": "Harry Callahan",
+   "aic": null
+  },
+  {
+   "ulan": "500086914",
+   "met_name": "Issey Miyake",
+   "aic": null
+  },
+  {
+   "ulan": "500030283",
+   "met_name": "After Arthur Boyd Houghton",
+   "aic": null
+  },
+  {
+   "ulan": "500051859",
+   "met_name": "After John Simon",
+   "aic": null
+  },
+  {
+   "ulan": "500022266",
+   "met_name": "After Gerard van Soest",
+   "aic": null
+  },
+  {
+   "ulan": "500272240",
+   "met_name": "William Shakespeare",
+   "aic": null
+  },
+  {
+   "ulan": "500059191",
+   "met_name": "Susan Meiselas",
+   "aic": null
+  },
+  {
+   "ulan": "500108241",
+   "met_name": "Medalist: Jean-Fran\u00e7ois-Antoine Bovy",
+   "aic": null
+  },
+  {
+   "ulan": "500031295",
+   "met_name": "After George Morland",
+   "aic": null
+  },
+  {
+   "ulan": "500006930",
+   "met_name": "Thomas Rowlandson",
+   "aic": null
+  },
+  {
+   "ulan": "500028564",
+   "met_name": "After George Murgatroyd Woodward",
+   "aic": null
+  },
+  {
+   "ulan": "500028967",
+   "met_name": "Jean Michel Moreau le Jeune",
+   "aic": null
+  },
+  {
+   "ulan": "500021654",
+   "met_name": "Adriaen van Ostade",
+   "aic": null
+  },
+  {
+   "ulan": "500080302",
+   "met_name": "Dagobert Peche",
+   "aic": null
+  },
+  {
+   "ulan": "500268774",
+   "met_name": "Wiener Werkst\u00e4tte",
+   "aic": null
+  },
+  {
+   "ulan": "500524784",
+   "met_name": "Charles M. Conlon",
+   "aic": null
+  },
+  {
+   "ulan": "500397994",
+   "met_name": "Anonymous, American, 19th century",
+   "aic": null
+  },
+  {
+   "ulan": "500034377",
+   "met_name": "Probably Thomas Affleck",
+   "aic": null
+  },
+  {
+   "ulan": "500330300",
+   "met_name": "Tsubaki Chinzan",
+   "aic": null
+  },
+  {
+   "ulan": "500032068",
+   "met_name": "Aubrey Vincent Beardsley",
+   "aic": null
+  },
+  {
+   "ulan": "500057320",
+   "met_name": "Isoda Kory\u016bsai",
+   "aic": null
+  },
+  {
+   "ulan": "500026928",
+   "met_name": "Abraham Walkowitz",
+   "aic": null
+  },
+  {
+   "ulan": "500012076",
+   "met_name": "Walker Evans",
+   "aic": null
+  },
+  {
+   "ulan": "500019693",
+   "met_name": "Giacomo Zoboli",
+   "aic": null
+  },
+  {
+   "ulan": "500032927",
+   "met_name": "Johannes Vermeer",
+   "aic": null
+  },
+  {
+   "ulan": "500057319",
+   "met_name": "Suzuki Harunobu",
+   "aic": null
+  },
+  {
+   "ulan": "500330455",
+   "met_name": "Mount Washington Glass Company",
+   "aic": null
+  },
+  {
+   "ulan": "500032760",
+   "met_name": "James Edmund Allen",
+   "aic": null
+  },
+  {
+   "ulan": "500003166",
+   "met_name": "Domenico Cunego",
+   "aic": null
+  },
+  {
+   "ulan": "500031075",
+   "met_name": "After Titian (Tiziano Vecellio)",
+   "aic": null
+  },
+  {
+   "ulan": "500115642",
+   "met_name": "Gavin Hamilton",
+   "aic": null
+  },
+  {
+   "ulan": "500087701",
+   "met_name": "Attributed to the Painter Z",
+   "aic": null
+  },
+  {
+   "ulan": "500018966",
+   "met_name": "Etched by Stefano della Bella",
+   "aic": null
+  },
+  {
+   "ulan": "500294231",
+   "met_name": "Alexander McQueen",
+   "aic": null
+  },
+  {
+   "ulan": "500013490",
+   "met_name": "Attributed to William Carrick",
+   "aic": null
+  },
+  {
+   "ulan": "500524481",
+   "met_name": "Ball, Black &amp; Co.",
+   "aic": null
+  },
+  {
+   "ulan": "500110469",
+   "met_name": "Attributed to the Pistoxenos Painter",
+   "aic": null
+  },
+  {
+   "ulan": "500023225",
+   "met_name": "Gr\u00e9goire Huret",
+   "aic": null
+  },
+  {
+   "ulan": "500121347",
+   "met_name": "Margaret Neilson Armstrong",
+   "aic": null
+  },
+  {
+   "ulan": "500031539",
+   "met_name": "Mariano Fortuny, 1838\u20131874",
+   "aic": null
+  },
+  {
+   "ulan": "500009177",
+   "met_name": "John Singleton Copley",
+   "aic": null
+  },
+  {
+   "ulan": "500034771",
+   "met_name": "Birney Imes",
+   "aic": null
+  },
+  {
+   "ulan": "500474370",
+   "met_name": "Henry C. Kluck II",
+   "aic": null
+  },
+  {
+   "ulan": "500125274",
+   "met_name": "Unknown Designer",
+   "aic": null
+  },
+  {
+   "ulan": "500020988",
+   "met_name": "Giovanni Battista Foggini",
+   "aic": null
+  }
+ ]
+}
