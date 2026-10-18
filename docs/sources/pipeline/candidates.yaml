@@ -10058,7 +10058,7 @@ datasets:
         between:
           - culture-met-open-access-objects
           - culture-aic-collection-artworks
-        measured: '41/73 distinct ULAN-identified artists on 100 Met highlight objects have an exact normalised-name agent in the Art Institute API (40 after dropping the placeholder "Unknown Artist"); 38/38 same artist on hand check of the named individuals, excluding two common names (Charles Ray, Joshua Johnson) that could not be told apart from the name alone (evidence/2026-10-18/museum-objects/names.json)'
+        measured: '41/73 distinct ULAN-identified artists on 100 Met highlight objects have an exact normalised-name agent in the Art Institute API (40 after dropping the placeholder "Unknown Artist"); 38/38 judged the same artist from the full name alone (name-based, no dates compared), excluding two common names (Charles Ray, Joshua Johnson) and the placeholder; per-row verdicts in evidence/2026-10-18/museum-objects/handcheck.json'
         mode: candidate
         reviewed: { correct: 38, checked: 38 }
       - key: Getty ULAN artist id (the Met publishes it; the Art Institute almost never does)
