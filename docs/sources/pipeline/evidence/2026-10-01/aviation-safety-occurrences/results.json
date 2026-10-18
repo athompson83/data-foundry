@@ -126,13 +126,12 @@
     "date": "2026-03-07",
     "country": "USA",
     "reg": "N2511M",
-    "make": "PIPER",
     "model": "PA-12",
     "far_part": "091",
     "narr_chars": 2181,
     "has_narr": true,
-    "narr_head": "On March 7, 2026, about 1323 central standard time, a Piper PA-12, N2511M, was substantially damaged when it was involved in an accident near Lockhart, Texas. T",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260323202675",
@@ -141,13 +140,12 @@
     "date": "2026-03-23",
     "country": "USA",
     "reg": "N2882W",
-    "make": "BEECH",
     "model": "A36",
     "far_part": "091",
     "narr_chars": 2185,
     "has_narr": true,
-    "narr_head": "On March 22, 2026, at 1716 Pacific daylight time, a Beech A36, N2882W, was substantially damaged when it was involved in an accident near Olympic Valley, Califo",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260305202605",
@@ -156,13 +154,12 @@
     "date": "2026-02-22",
     "country": "USA",
     "reg": "N865VL",
-    "make": "PILATUS BRITTEN-NORMAN LIMITED",
     "model": "BN-2B-27",
     "far_part": "135",
     "narr_chars": 1447,
     "has_narr": true,
-    "narr_head": "On February 22, 2026, at 0915 Atlantic standard time, a Pilatus Brittan-Norman Limited, BN-2B-27 Islander, N865VL, was substantially damaged when it was involve",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260310202631",
@@ -171,13 +168,12 @@
     "date": "2026-03-10",
     "country": "USA",
     "reg": "N104DG",
-    "make": "BRUNNER DONALD G",
     "model": "KITFOX",
     "far_part": "091",
     "narr_chars": 689,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": true
+    "operator_present": true,
+    "make_present": true
    },
    {
     "ev_id": "20260324202687",
@@ -186,13 +182,12 @@
     "date": "2026-03-18",
     "country": "USA",
     "reg": "N1374W",
-    "make": "MOONEY",
     "model": "M20",
     "far_part": "091",
     "narr_chars": 1574,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260324202682",
@@ -201,13 +196,12 @@
     "date": "2026-03-21",
     "country": "USA",
     "reg": "N7328J",
-    "make": "PIPER",
     "model": "PA-28-140",
     "far_part": "091",
     "narr_chars": 1123,
     "has_narr": true,
-    "narr_head": "On March 21, 2026, about 1610 mountain daylight time, a Piper PA-28-140, N7328J, was substantially damaged when it was involved in an accident near West Valley ",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260308202614",
@@ -216,13 +210,12 @@
     "date": "2026-03-08",
     "country": "USA",
     "reg": "N66519",
-    "make": "BEECH",
     "model": "A36",
     "far_part": "091",
     "narr_chars": 2445,
     "has_narr": true,
-    "narr_head": "On March 7, 2026, about 1900 central standard time, a Beechcraft A36, N66519 was destroyed when it was involved in an accident near Gulf Shores, Alabama. The pi",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260324202683",
@@ -231,13 +224,12 @@
     "date": "2026-03-19",
     "country": "USA",
     "reg": "N7632H",
-    "make": "PIPER",
     "model": "PA-12",
     "far_part": "091",
     "narr_chars": 1274,
     "has_narr": true,
-    "narr_head": "On March 18, 2026, about 1700 Pacific daylight time, a Piper PA-12, N7632H, was substantially damaged when it was involved in an accident near West Linn, Oregon",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260324202691",
@@ -246,13 +238,12 @@
     "date": "2026-03-21",
     "country": "USA",
     "reg": "N5045V",
-    "make": "BOEING",
     "model": "A75N1",
     "far_part": "091",
     "narr_chars": 730,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260320202671",
@@ -261,13 +252,12 @@
     "date": "2026-03-20",
     "country": "USA",
     "reg": "N9913W",
-    "make": "PIPER",
     "model": "PA-28-140",
     "far_part": "091",
     "narr_chars": 4193,
     "has_narr": true,
-    "narr_head": "On March 20, 2026, about 1503 central daylight time, a Piper PA-28-140 airplane, N9913W, was destroyed when it was involved in an accident near Rock Falls, Illi",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260324202684",
@@ -276,13 +266,12 @@
     "date": "2026-03-20",
     "country": "USA",
     "reg": "N9111",
-    "make": "ZLIN AVIATION SRO",
     "model": "SAVAGE CUB-S",
     "far_part": "091",
     "narr_chars": 718,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260324202685",
@@ -291,13 +280,12 @@
     "date": "2026-03-20",
     "country": "USA",
     "reg": "N9368A",
-    "make": "CESSNA",
     "model": "195",
     "far_part": "091",
     "narr_chars": 1289,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260303202591",
@@ -306,13 +294,12 @@
     "date": "2026-03-02",
     "country": "USA",
     "reg": "N258MF",
-    "make": "MIGHTYFLY INC",
     "model": "MF-100",
     "far_part": "091",
     "narr_chars": 719,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": true
+    "operator_present": true,
+    "make_present": true
    },
    {
     "ev_id": "20260228202564",
@@ -321,13 +308,12 @@
     "date": "2026-02-28",
     "country": "USA",
     "reg": "N80AR",
-    "make": "RUBIN ALAN",
     "model": "RV-8",
     "far_part": "091",
     "narr_chars": 2239,
     "has_narr": true,
-    "narr_head": "On February 28, 2026, at about 1005 mountain standard time, an experimental amateur-built, Vans Aircraft, RV-8, N80AR, was substantially damaged when it was inv",
-    "operator_present": true
+    "operator_present": true,
+    "make_present": true
    },
    {
     "ev_id": "20260228202565",
@@ -336,13 +322,12 @@
     "date": "2026-02-28",
     "country": "USA",
     "reg": "N3170Z",
-    "make": "PIPER",
     "model": "PA-22-150",
     "far_part": "",
     "narr_chars": 2338,
     "has_narr": true,
-    "narr_head": "On February 28, 2026, about 0948 Pacific standard time, a Piper PA-22-150, N3170Z, was destroyed when it was involved in an accident near Oroville, California. ",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260324202689",
@@ -351,13 +336,12 @@
     "date": "2026-03-22",
     "country": "USA",
     "reg": "N163TW",
-    "make": "CESSNA AIRCRAFT CO",
     "model": "162",
     "far_part": "091",
     "narr_chars": 835,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": true
+    "operator_present": true,
+    "make_present": true
    },
    {
     "ev_id": "20260326202699",
@@ -366,13 +350,12 @@
     "date": "2026-03-16",
     "country": "USA",
     "reg": "N212LG",
-    "make": "LANCAIR",
     "model": "Legacy",
     "far_part": "091",
     "narr_chars": 2140,
     "has_narr": true,
-    "narr_head": "On March 16, 2026, about 1257 Pacific daylight time, a Lancair Legacy, N212LG, sustained substantial damage when it was involved in an accident near Hillsboro, ",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    },
    {
     "ev_id": "20260325202695",
@@ -381,13 +364,12 @@
     "date": "2026-03-24",
     "country": "USA",
     "reg": "N17316",
-    "make": "BOEING",
     "model": "737-8",
     "far_part": "121",
     "narr_chars": 5539,
     "has_narr": true,
-    "narr_head": "",
-    "operator_present": true
+    "operator_present": true,
+    "make_present": true
    },
    {
     "ev_id": "20260323202678",
@@ -396,13 +378,12 @@
     "date": "2026-03-23",
     "country": "USA",
     "reg": "N478AT",
-    "make": "ROBINSON HELICOPTER",
     "model": "R44",
     "far_part": "091",
     "narr_chars": 5687,
     "has_narr": true,
-    "narr_head": "On March 23, 2026, about 1221 eastern daylight time, a Robinson R44 Raven I helicopter, N478AT, was destroyed when it was involved in an accident near Boynton B",
-    "operator_present": true
+    "operator_present": true,
+    "make_present": true
    },
    {
     "ev_id": "20240307193897",
@@ -411,13 +392,12 @@
     "date": "2024-03-07",
     "country": "USA",
     "reg": "N4443G",
-    "make": "KOLB COMPANY",
     "model": "FIRESTAR KXP",
     "far_part": "091",
     "narr_chars": 16273,
     "has_narr": true,
-    "narr_head": "On March 7, 2024, about 1124 Pacific standard time, a Kolb Firestar KXP airplane, N4443G, was substantially damaged when it was involved in an accident near Cav",
-    "operator_present": false
+    "operator_present": false,
+    "make_present": true
    }
   ],
   "identifier_fields": [

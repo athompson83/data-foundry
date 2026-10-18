@@ -120,7 +120,7 @@ OUT["ntsb"].update({
     "aircraft_with_registration": len(valid_reg), "aircraft_with_narrative": sum(r["has_narr"] for r in nt_rows),
     "foreign_event_country_counts": dict(collections.Counter(r["country"] for r in nt_rows).most_common(8)),
     "aircraft_with_operator_name": sum(bool(r["operator"]) for r in nt_rows),
-    "sample20": [{**{k: v for k, v in r.items() if k != "operator"}, "operator_present": bool(r["operator"])} for r in valid_reg if r["has_narr"]][:20],  # operator names can identify individuals: counted, never committed
+    "sample20": [{**{k: v for k, v in r.items() if k not in ("operator", "make", "narr_head")}, "operator_present": bool(r["operator"]), "make_present": bool(r["make"])} for r in valid_reg if r["has_narr"]][:20],  # makes of amateur-built aircraft can be a person's name; narrative excerpts carry dates and places: neither committed  # operator names can identify individuals: counted, never committed
     "identifier_fields": ["ev_id", "ntsb_no", "regis_no", "acft_serial_no", "oper_cert_num"],
     "freetext_fields": ["narratives.narr_accp", "narr_accf", "narr_cause", "narr_inc"],
     "personal_data_fields_to_exclude": ["owner_acft", "owner_street", "owner_city", "oper_individual_name", "Flight_Crew.*"],
