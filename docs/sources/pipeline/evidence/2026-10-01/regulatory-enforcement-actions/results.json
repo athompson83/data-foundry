@@ -259,7 +259,6 @@
    "samples": [
     {
      "case": "06-2022-1837",
-     "name": "Hess Corporation",
      "filed": "09/25/2026",
      "law": "CWA",
      "court_docket": "90-5-1-1-12725",
@@ -269,16 +268,13 @@
      "frs_ids": [
       "110011276859"
      ],
-     "defendants": [
-      "Hess Corporation"
-     ],
      "fed_penalty": "$2,100,000",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "10-2026-0226",
-     "name": "JUSTIN METTLER ID - JUDICIAL (CWA 404)",
      "filed": "09/14/2026",
      "law": "CWA",
      "court_docket": "4:26-cv-00594-DKG",
@@ -288,16 +284,13 @@
      "frs_ids": [
       "110071752951"
      ],
-     "defendants": [
-      "JUSTIN METTLER"
-     ],
      "fed_penalty": null,
      "milestones": 3,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "02-2026-0003",
-     "name": "Environmental Resource Holdings, LLC - Diamond Alkali Upland Processing Facility",
      "filed": "09/10/2026",
      "law": "CERCLA",
      "court_docket": "2:26-cv-11675",
@@ -307,17 +300,13 @@
      "frs_ids": [
       "110009324409"
      ],
-     "defendants": [
-      "Environmental Resource Holdings, LLC",
-      "Environmental Resource Holdings, LLc"
-     ],
      "fed_penalty": "$0",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 2
     },
     {
      "case": "02-2025-0001",
-     "name": "Estate of Harry D. Silverstein",
      "filed": "09/09/2026",
      "law": "TSCA",
      "court_docket": "1:26-cv-07752",
@@ -325,16 +314,13 @@
      "summary_chars": 1098,
      "violations_chars": 15,
      "frs_ids": [],
-     "defendants": [
-      "Estate of Harry D. Silverstein"
-     ],
      "fed_penalty": "$0",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "01-2023-2006",
-     "name": "PILGRIM FOODS DIV OF OLD DUTCH MUSTARD",
      "filed": "08/13/2026",
      "law": "CWA",
      "court_docket": "1:26-cv-00655",
@@ -344,16 +330,13 @@
      "frs_ids": [
       "110007131950"
      ],
-     "defendants": [
-      "Pilgrim Foods"
-     ],
      "fed_penalty": "$50,000",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "02-2023-0006",
-     "name": "Passaic Valley Water Commission",
      "filed": "08/12/2026",
      "law": "SDWA",
      "court_docket": "2:26-cv-10199",
@@ -363,16 +346,13 @@
      "frs_ids": [
       "110044220321"
      ],
-     "defendants": [
-      "Passaic Valley Water Commission"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "01-2026-0001",
-     "name": "MICROFAB INC. (FORMER)",
      "filed": "08/10/2026",
      "law": "CERCLA",
      "court_docket": "CERCLA-01-2026-0060",
@@ -382,16 +362,13 @@
      "frs_ids": [
       "110009289616"
      ],
-     "defendants": [
-      "Ex parte"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "06-2022-3400",
-     "name": "DOMTAR A.W. LLC-ASHDOWN MILL-ECDAT Consent Decree-FY2026",
      "filed": "07/24/2026",
      "law": "CAA",
      "court_docket": "4:26-cv-04059-JTS",
@@ -401,16 +378,13 @@
      "frs_ids": [
       "110000756352"
      ],
-     "defendants": [
-      "Domtar A.W., LLC"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "02-2025-0011",
-     "name": "Lisa M. Brown - Former Brown's Auto Salvage (Access Warrant)",
      "filed": "07/20/2026",
      "law": "CERCLA",
      "court_docket": "1:26-mc-00029-PJE",
@@ -420,16 +394,13 @@
      "frs_ids": [
       "110071730426"
      ],
-     "defendants": [
-      "Lisa M. Brown"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "07-2024-1004",
-     "name": "TC Oil Pipeline Operations, Inc./ Keystone",
      "filed": "07/10/2026",
      "law": "CWA",
      "court_docket": null,
@@ -437,17 +408,13 @@
      "summary_chars": 70,
      "violations_chars": 33,
      "frs_ids": [],
-     "defendants": [
-      "TC Oil Pipeline Operations, Inc.",
-      "TransCanada Keystone Pipeline, LP"
-     ],
      "fed_penalty": null,
      "milestones": 3,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 2
     },
     {
      "case": "10-2024-0060",
-     "name": "KX WHEELS",
      "filed": "07/10/2026",
      "law": "CAA",
      "court_docket": "2:26-cv-00231",
@@ -455,19 +422,13 @@
      "summary_chars": 685,
      "violations_chars": 17,
      "frs_ids": [],
-     "defendants": [
-      "658736 B.C. LTC",
-      "KX Wheels",
-      "Phil Sweeney",
-      "Stuart McKeowon"
-     ],
      "fed_penalty": "$700,000",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 4
     },
     {
      "case": "05-2022-5026",
-     "name": "MARTIN BARKEY RACING PRODUCTS (MBRP LTD)",
      "filed": "06/17/2026",
      "law": "CAA",
      "court_docket": null,
@@ -477,16 +438,13 @@
      "frs_ids": [
       "110071308373"
      ],
-     "defendants": [
-      "MARTIN BARKEY RACING PRODUCTS"
-     ],
      "fed_penalty": "$670,379",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "07-2026-1000",
-     "name": "Armour Road",
      "filed": "06/05/2026",
      "law": "CERCLA",
      "court_docket": "4:26-cv-00482-FJG",
@@ -496,16 +454,13 @@
      "frs_ids": [
       "110001454042"
      ],
-     "defendants": [
-      "U.S. BORAX, INC.,"
-     ],
      "fed_penalty": "$0",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "10-2026-0289",
-     "name": "Burley CD with Brian Tibbets",
      "filed": "05/18/2026",
      "law": "CERCLA",
      "court_docket": "4:25-cv-00007-AKB",
@@ -515,16 +470,13 @@
      "frs_ids": [
       "110070253797"
      ],
-     "defendants": [
-      "Brian Tibbets"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "10-2026-0290",
-     "name": "Burley CD with Brek Pilling",
      "filed": "05/18/2026",
      "law": "CERCLA",
      "court_docket": "4:25-cv-00007-AKB",
@@ -534,16 +486,13 @@
      "frs_ids": [
       "110070253797"
      ],
-     "defendants": [
-      "Brek Pilling"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "05-2021-5009",
-     "name": "KROGER CO",
      "filed": "04/29/2026",
      "law": "CAA",
      "court_docket": null,
@@ -553,16 +502,13 @@
      "frs_ids": [
       "110009605775"
      ],
-     "defendants": [
-      "KROGER CO"
-     ],
      "fed_penalty": "$2,500,000",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "03-2021-7003",
-     "name": "ANTERO RESOURCES CORPORATION (MULTIPLE FACILITIES)",
      "filed": "03/31/2026",
      "law": "CAA",
      "court_docket": "Case:1:26-cv-00010-TSK",
@@ -600,16 +546,13 @@
       "110071723771",
       "110072219473"
      ],
-     "defendants": [
-      "ANTERO RESOURCES CORPORATION"
-     ],
      "fed_penalty": "$1,900,000",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "02-2025-0008",
-     "name": "Ford Motor Company et al.",
      "filed": "03/19/2026",
      "law": "CERCLA",
      "court_docket": "2:26-cv-02846",
@@ -619,17 +562,13 @@
      "frs_ids": [
       "110009300112"
      ],
-     "defendants": [
-      "Borough of Ringwood",
-      "Ford Motor Company"
-     ],
      "fed_penalty": "$0",
      "milestones": 4,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 2
     },
     {
      "case": "10-2026-0294",
-     "name": "LDW CD with Boeing, City of Seattle, King County, et al.",
      "filed": "03/04/2026",
      "law": "CERCLA",
      "court_docket": "2:26-cv-00738-RSM",
@@ -639,58 +578,13 @@
      "frs_ids": [
       "110009259729"
      ],
-     "defendants": [
-      "5055 Properties, LLC",
-      "8th Avenue Terminals, Inc",
-      "Ash Grove Cement Company",
-      "BOEING COMPANY",
-      "Boyer Halvorsen",
-      "Boyer Logistics Inc",
-      "Boyer Towing Inc",
-      "CITY OF SEATTLE",
-      "ConGlobal Industries, LLC",
-      "Crowley Marine Services, Inc",
-      "Duwamish Shipyard, Inc",
-      "Earle M. Jorgensen Company",
-      "Frank H. Hopkins Family LLC",
-      "Frederick J. Hopkins Family LLC",
-      "Glacier Northwest, Inc",
-      "Holcim (US) Inc",
-      "Holcim Canada Holdings LLC fka Lafarge North",
-      "International Paper Company",
-      "KING COUNTY",
-      "Kirsten Halvorsen Stahl",
-      "Lafarge PNW Inc",
-      "Linde Inc (f/k/a Praxair, Inc)",
-      "Maia Halvorsen",
-      "Manson Construction Co.",
-      "Manson International, Inc",
-      "Northwest Aggregates Co",
-      "Northwest Container Services, Inc",
-      "PACCAR Inc",
-      "Pharmacia LLC",
-      "Puget Sound Energy, Inc",
-      "SeaTac Marine Properties, LLC",
-      "SeaTac Marine Services, LLC",
-      "Seattle Boiler Works, Inc",
-      "Seattle Iron & Metals Corporation",
-      "Shalmar 08, LLC",
-      "Silver Bay Logging, Inc",
-      "Simco Properties LLC",
-      "Surplus Items Inc",
-      "The Shalmar Group, LLC",
-      "Washington State Department of Transportation",
-      "Wells Fargo Bank, National Association",
-      "WestRock Longview, LLC",
-      "WestRock Services, LLC"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 43
     },
     {
      "case": "02-2024-0001",
-     "name": "Mary Hauptman et al.",
      "filed": "02/18/2026",
      "law": "CWA",
      "court_docket": "2:26-cv-00953",
@@ -701,19 +595,13 @@
       "110042367907",
       "110072245381"
      ],
-     "defendants": [
-      "Harbourview Realty, LLC",
-      "MRL Realty Corp.",
-      "Mary Hauptman",
-      "Village of Roslyn"
-     ],
      "fed_penalty": null,
      "milestones": 3,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 4
     },
     {
      "case": "05-2021-5028",
-     "name": "ANTERO RESOURCES CORPORATION (NC) (NLP)",
      "filed": "02/09/2026",
      "law": "CAA",
      "court_docket": null,
@@ -727,16 +615,13 @@
       "110070604453",
       "110070604470"
      ],
-     "defendants": [
-      "ANTERO RESOURCES CORPORATION"
-     ],
      "fed_penalty": "$1,900,000",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "06-2025-1745",
-     "name": "E.R.R LLC",
      "filed": "02/05/2026",
      "law": "CWA",
      "court_docket": null,
@@ -746,16 +631,13 @@
      "frs_ids": [
       "110044896976"
      ],
-     "defendants": [
-      "Evergreen Resources Recovery, LLC or E.R.R., LLC"
-     ],
      "fed_penalty": null,
      "milestones": 3,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "02-2026-0002",
-     "name": "Amparit Industries LLC et al. - LCDM Onondaga",
      "filed": "02/02/2026",
      "law": "CERCLA",
      "court_docket": "5:26-cv-00173-DNH-ML",
@@ -765,21 +647,13 @@
      "frs_ids": [
       "110009303645"
      ],
-     "defendants": [
-      "Amparit Industries LLC",
-      "Carrier Circle Business Complex LLC",
-      "Jagar Enterprises Inc.",
-      "North Midler Properties LLC",
-      "Northeast Management Services Inc.",
-      "Solvents and Petroleum Services Inc."
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 6
     },
     {
      "case": "03-2022-7003",
-     "name": "Hanover Foods Corporation",
      "filed": "01/21/2026",
      "law": "CWA",
      "court_docket": "Case:1:21-cv-01600-JPW",
@@ -790,17 +664,13 @@
       "110010974320",
       "110010974320"
      ],
-     "defendants": [
-      "Hanover Foods Corporation",
-      "Hanover Foods Corporation"
-     ],
      "fed_penalty": "$575,000",
      "milestones": 6,
-     "citations": 2
+     "citations": 2,
+     "defendant_count": 2
     },
     {
      "case": "06-2025-4882",
-     "name": "Smitty's Supply, Inc.",
      "filed": "11/05/2025",
      "law": "CWA",
      "court_docket": null,
@@ -810,17 +680,13 @@
      "frs_ids": [
       "110072072316"
      ],
-     "defendants": [
-      "Mr. Chad Tate",
-      "Smitty's Supply, Inc."
-     ],
      "fed_penalty": null,
      "milestones": 3,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 2
     },
     {
      "case": "02-2025-0010",
-     "name": "Hauler's Facility LLC et al. - LCDM Onondaga",
      "filed": "11/04/2025",
      "law": "CERCLA",
      "court_docket": "5:25-cv-01551-DNH-ML",
@@ -830,32 +696,13 @@
      "frs_ids": [
       "110009303645"
      ],
-     "defendants": [
-      "6259 Thompson Road LLC",
-      "B&B Family Limited Partnership",
-      "Hauler's Facility LLC",
-      "Lennox Industries, Inc.",
-      "Metalico New York, Inc.",
-      "Metalico Syracuse Realty, Inc",
-      "Nokia of America Corporation",
-      "Northern Industrial Holdings, LLC",
-      "ONX1 LLC",
-      "Syracuse Deere Road Associates, LLC",
-      "Syracuse Haulers Waste Removal Inc.",
-      "Syracuse Lepage LLC",
-      "Thompson Corners LLC",
-      "Thompson Lawn LLC",
-      "Thompson NW LLC",
-      "Verizon New York, Inc",
-      "Western Electric Company Inc."
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 17
     },
     {
      "case": "02-2025-0009",
-     "name": "Matlack Inc. et al.",
      "filed": "10/23/2025",
      "law": "CERCLA",
      "court_docket": "1:25-cv-16867",
@@ -865,19 +712,13 @@
      "frs_ids": [
       "110001934453"
      ],
-     "defendants": [
-      "Matlack Inc.",
-      "Pharmacia LLC",
-      "The Chemours Company",
-      "The Estate of Duverney B. Matlack"
-     ],
      "fed_penalty": null,
      "milestones": 3,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 4
     },
     {
      "case": "03-2026-7001",
-     "name": "Congoleum",
      "filed": "09/30/2025",
      "law": "CERCLA",
      "court_docket": "Case No. 20-18488",
@@ -887,16 +728,13 @@
      "frs_ids": [
       "110004836991"
      ],
-     "defendants": [
-      "Congoleum Corporation, n/k/a/ CC Oldcc Corporation"
-     ],
      "fed_penalty": "$0",
      "milestones": 6,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "03-2026-7002",
-     "name": "Congoleum",
      "filed": "09/30/2025",
      "law": "CERCLA",
      "court_docket": "Case No. 20-18488 (MBK)",
@@ -906,16 +744,13 @@
      "frs_ids": [
       "110001767268"
      ],
-     "defendants": [
-      "Congoleum Corporation, n/k/a/ CC Oldco Corporation"
-     ],
      "fed_penalty": "$0",
      "milestones": 6,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 1
     },
     {
      "case": "05-2025-1012",
-     "name": "Joliet Chemical Fire Site",
      "filed": "09/08/2025",
      "law": "CERCLA",
      "court_docket": "25-10792",
@@ -925,14 +760,10 @@
      "frs_ids": [
       "110070605267"
      ],
-     "defendants": [
-      "MPG Industries, Inc.",
-      "Millridge IV, LLC",
-      "Millridge Industries, LLC"
-     ],
      "fed_penalty": "$0",
      "milestones": 5,
-     "citations": 0
+     "citations": 0,
+     "defendant_count": 3
     }
    ],
    "terms_page_status": 200,
@@ -954,257 +785,257 @@
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26662",
      "no": "LR-26662",
-     "respondents": "Mukesh Asudani",
      "date": "2026-09-30",
      "text_chars": 6290,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26661",
      "no": "LR-26661",
-     "respondents": "Robert Bernardi and Sunil Chandra",
      "date": "2026-09-30",
      "text_chars": 6442,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26660",
      "no": "LR-26660",
-     "respondents": "Trevon Brown, Craig Grant, and Michael Noble",
      "date": "2026-09-30",
      "text_chars": 7080,
      "court_cites": [
       "1:21-cv-4791"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26659",
      "no": "LR-26659",
-     "respondents": "Owen E.H. Meyer and Meyer Global Management LLC",
      "date": "2026-09-30",
      "text_chars": 6420,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26658",
      "no": "LR-26658",
-     "respondents": "Christopher Kenji Dinelli a/k/a Kenji Dinelli and Jacob David Frankel a/k/a Kobi Frankel",
      "date": "2026-09-30",
      "text_chars": 6984,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26657",
      "no": "LR-26657",
-     "respondents": "Travel + Leisure Co.",
      "date": "2026-09-30",
      "text_chars": 6562,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26656",
      "no": "LR-26656",
-     "respondents": "Lamar D. Fletcher",
      "date": "2026-09-30",
      "text_chars": 5978,
      "court_cites": [
       "1:26-cv-5623"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26655",
      "no": "LR-26655",
-     "respondents": "Timothy E. Alatorre, Rhonda D. Stevenson, and Above: Space Development Corporation f/k/a Orbital Assembly Corporation",
      "date": "2026-09-29",
      "text_chars": 7170,
      "court_cites": [
       "3:26-cv-11078"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26654",
      "no": "LR-26654",
-     "respondents": "Cryptoaiml Ltd.; Cryptoaiml Capital Foundation; TSAI Pro Ltd.; TSAI Capital Foundation",
      "date": "2026-09-29",
      "text_chars": 9229,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26653",
      "no": "LR-26653",
-     "respondents": "Chris Farrant",
      "date": "2026-09-29",
      "text_chars": 6555,
      "court_cites": [
       "1:23-cv-5573"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26652",
      "no": "LR-26652",
-     "respondents": "Cheryl R. Kramer",
      "date": "2026-09-29",
      "text_chars": 6220,
      "court_cites": [
       "1:26-cv-3786"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26651",
      "no": "LR-26651",
-     "respondents": "Jacob Garfinkel; 5G Funding LLC; Five G Funding LLC",
      "date": "2026-09-28",
      "text_chars": 7010,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26650",
      "no": "LR-26650",
-     "respondents": "Fan \u201cJocelyn\u201d Yang; Jing Tian; Zijun Zhang; Shuchen Zhu; Chong Zhang; and Hanxiong Bo",
      "date": "2026-09-28",
      "text_chars": 7983,
      "court_cites": [
       "1:26-cv-3366"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26649",
      "no": "LR-26649",
-     "respondents": "Lloyd Anderson Wilson, C.P.A.",
      "date": "2026-09-28",
      "text_chars": 6561,
      "court_cites": [
       "1:26-cv-5530"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24187",
      "no": "LR-24187",
-     "respondents": "The Owings Group, LLC, et al.",
      "date": "2018-07-06",
      "text_chars": 7209,
      "court_cites": [
       "1:18-cv-2046"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23555",
      "no": "LR-23555",
-     "respondents": "Steven Wise",
      "date": "2016-06-02",
      "text_chars": 5387,
      "court_cites": [
       "1:16-cv-4104"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-25370",
      "no": "LR-25370",
-     "respondents": "Fernando Passos, Civ. Action",
      "date": "2022-04-18",
      "text_chars": 5972,
      "court_cites": [
       "1:22-cv-3156"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr15553.txt",
      "no": "LR-15553",
-     "respondents": "Shahryar Soroosh",
      "date": "1997-11-05",
      "text_chars": 0,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-24411",
      "no": "LR-24411",
-     "respondents": "Daniel Adams, Michael Flanders, Spiderworx Media LLC, and An L.A. Minute LLC",
      "date": "2019-02-26",
      "text_chars": 6891,
      "court_cites": [
       "2:19-cv-1412"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-26036",
      "no": "LR-26036",
-     "respondents": "Lufkin Advisors, LLC and Chauncey Forbush Lufkin, III",
      "date": "2024-06-25",
      "text_chars": 6461,
      "court_cites": [
       "9:23-cv-81289"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23583",
      "no": "LR-23583",
-     "respondents": "Malcolm Segal",
      "date": "2016-06-24",
      "text_chars": 6912,
      "court_cites": [
       "2:15-cr-287",
       "2:15-cv-3668"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-19051",
      "no": "LR-19051",
-     "respondents": "Goldman Sachs & Co.",
      "date": "2005-01-25",
      "text_chars": 9817,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-20419",
      "no": "LR-20419",
-     "respondents": "Mitchell S. Drucker and Ronald Drucker, Defendants, and William Minerva, Relief Defendant",
      "date": "2008-01-02",
      "text_chars": 7696,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23131",
      "no": "LR-23131",
-     "respondents": "J. Patrick O'Neill and Robert H. Bray",
      "date": "2014-11-14",
      "text_chars": 6445,
      "court_cites": [
       "1:14-cr-10317",
       "1:14-cv-13381",
       "1:14-mj-5119"
-     ]
+     ],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-21051",
      "no": "LR-21051",
-     "respondents": "Zachariah P. Zachariah, et al.",
      "date": "2009-05-20",
      "text_chars": 5292,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-23500",
      "no": "LR-23500",
-     "respondents": "James M. Louks and FiberPoP Solutions, Inc.",
      "date": "2016-03-25",
      "text_chars": 6110,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-17385",
      "no": "LR-17385",
-     "respondents": "Trans Energy, Inc., Loren E. Bagley, and William F. Woodburn",
      "date": "2002-02-27",
      "text_chars": 6654,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     },
     {
      "url": "https://www.sec.gov/enforcement-litigation/litigation-releases/lr-22250",
      "no": "LR-22250",
-     "respondents": "Cutillo et al.",
      "date": "2012-02-02",
      "text_chars": 7302,
-     "court_cites": []
+     "court_cites": [],
+     "respondent_count": true
     }
    ],
    "terms_page_status": 200,

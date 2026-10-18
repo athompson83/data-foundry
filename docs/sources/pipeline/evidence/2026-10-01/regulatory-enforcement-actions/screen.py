@@ -169,16 +169,17 @@ for c in recent[:30]:
     except Exception:
         continue
     ci = r.get('CaseInformation') or {}
-    echo_samples.append({'case': c['CaseNumber'], 'name': c['CaseName'], 'filed': c['DateFiled'], 'law': c['PrimaryLaw'],
+    echo_samples.append({'case': c['CaseNumber'], 'filed': c['DateFiled'], 'law': c['PrimaryLaw'],
                          'court_docket': ci.get('RegionalDocketNumber') or c['CourtDocketNumber'], 'doj_docket': ci.get('DOJDocketNumber'),
                          'summary_chars': len(ci.get('CaseSummary') or ''), 'violations_chars': len(ci.get('Violations') or ''),
                          'frs_ids': [f['FRSNumber'] for f in (r.get('Facilities') or []) if f.get('FRSNumber')],
-                         'defendants': [d['DefendantName'] for d in (r.get('Defendants') or [])], 'fed_penalty': ci.get('TotalFederalPenalty'),
+                         'defendant_count': len(r.get('Defendants') or []),  # party names can be natural persons: counted, never committed
+                          'fed_penalty': ci.get('TotalFederalPenalty'),
                          'milestones': len(r.get('CaseMilestones') or []), 'citations': len(r.get('Citations') or [])})
 echo['sample_n'] = len(echo_samples)
 echo['sample_with_summary'] = sum(1 for s in echo_samples if s['summary_chars'] > 100)
 echo['sample_with_frs'] = sum(1 for s in echo_samples if s['frs_ids'])
-echo['sample_with_defendants'] = sum(1 for s in echo_samples if s['defendants'])
+echo['sample_with_defendants'] = sum(1 for s in echo_samples if s['defendant_count'])
 echo['sample_with_court_docket'] = sum(1 for s in echo_samples if s['court_docket'])
 echo['samples'] = echo_samples
 st, b = fetch('https://www.epa.gov/web-policies-and-procedures/epa-disclaimers')
@@ -225,7 +226,7 @@ sec['sample_with_court_number'] = sum(1 for s in sec_samples if s['court_cites']
 sec['sample_with_civil_action_phrase'] = sum(1 for s in sec_samples if s['civil_action_phrase'])
 sec['sample_with_cik'] = sum(1 for s in sec_samples if s['cik_mentions'])
 sec['median_text_chars'] = sorted(s['text_chars'] for s in sec_samples)[len(sec_samples) // 2]
-sec['samples'] = [{k: s[k] for k in ('url', 'no', 'respondents', 'date', 'text_chars', 'court_cites')} for s in sec_samples]
+sec['samples'] = [{**{k: s[k] for k in ('url', 'no', 'date', 'text_chars', 'court_cites')}, 'respondent_count': len(s['respondents']) if isinstance(s['respondents'], (list, tuple)) else bool(s['respondents'])} for s in sec_samples]  # respondents can be natural persons: never committed
 st, b = fetch('https://www.sec.gov/about/privacy-information')
 sec['terms_page_status'] = st
 sec['terms_quote_found'] = 'Information presented on sec.gov is considered public information and may be copied or further distributed by users of the web site without the SEC’s permission.' in text_of(b)
