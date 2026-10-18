@@ -8898,12 +8898,12 @@ datasets:
       - key: Companies House company number (TED winner-identifier = OCDS GB-COH supplier id)
         between: [ procurement-eu-ted-notices, procurement-uk-contracts-finder-ocds ]
         measured: 8/624 distinct TED UK winner ids found in 2,000 Contracts Finder awards (Sep 2026); 12/12 distinct matches checked, 11 same legal name, 1 trading name
-        mode: candidate
+        mode: declared
         reviewed: { correct: 11, checked: 12 }
       - key: Companies House company number (TED winner-identifier = OCDS GB-COH supplier id)
         between: [ procurement-eu-ted-notices, procurement-uk-find-a-tender-ocds ]
         measured: 5/624 distinct TED UK winner ids found in 2,000 Find a Tender awards (Aug-Sep 2026)
-        mode: candidate
+        mode: declared
     taxonomy:
       - CPV (EU/UK) and UNSPSC (Canada) mapped to one procurement taxonomy
       - notice stage (planning, tender, award, contract)
@@ -8930,7 +8930,7 @@ datasets:
           - msha-mine-accident-injury-narratives
           - eia-coal-mine-production-msha-id
         measured: 6287/6673 coal-mine accident rows from 2020 onward in the first 48 percent of the MSHA table match a mine in EIA 2022; 25/25 sampled matches agree on mine name
-        mode: candidate
+        mode: declared
         reviewed: { correct: 25, checked: 25 }
     taxonomy:
       - workplace_safety.mining.coal
