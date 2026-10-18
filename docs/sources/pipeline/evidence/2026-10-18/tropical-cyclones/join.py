@@ -24,9 +24,11 @@ fema_rows = []
 for n, (title, date) in sorted(fe.items()):
     hits = [(a, ssn) for nm, lst in by_name.items() if re.search(r"\b" + re.escape(nm) + r"\b", title.upper()) for a, ssn in lst]
     same_year = [h for h in hits if h[1] == date[:4]]
-    fema_rows.append({"disaster": n, "title": title, "declared": date, "name_match_any_year": [h[0] for h in hits], "name_and_year_match": [h[0] for h in same_year]})
+    in_scope = date[:4] >= "2023" and "TYPHOON" not in title.upper()  # IBTrACS file covers 2023 on; typhoons are West Pacific
+    fema_rows.append({"disaster": n, "in_scope": in_scope, "title": title, "declared": date, "name_match_any_year": [h[0] for h in hits], "name_and_year_match": [h[0] for h in same_year]})
 fe_named = {r["disaster"]: r for r in fema_rows if r["name_and_year_match"]}
+in_scope_n = sum(1 for r in fema_rows if r["in_scope"])
 out = {"ibtracs_last3years_rows": len(rows), "ibtracs_atlantic_pacific_atcf_storms": len(storms), "named": len(named), "tcr_pdfs_listed_2023_2026": len(tcr),
        "tcr_atcf_ids_in_ibtracs": len(matched), "tcr_ids": sorted(tcr.values()), "matched": matched,
-       "fema_hurricane_declarations_fy2023_on": len(fe), "fema_titles_with_storm_name_any_year": sum(1 for r in fema_rows if r["name_match_any_year"]), "fema_titles_with_name_and_declaration_year_match": len(fe_named), "fema_rows": fema_rows}
+       "fema_hurricane_declarations_fy2023_on": len(fe), "fema_titles_with_storm_name_any_year": sum(1 for r in fema_rows if r["name_match_any_year"]), "fema_in_scope_declarations": in_scope_n, "fema_in_scope_matched": sum(1 for r in fema_rows if r["in_scope"] and r["name_and_year_match"]), "fema_titles_with_name_and_declaration_year_match": len(fe_named), "fema_rows": fema_rows}
 json.dump(out, open("join.json", "w"), indent=1); print({k: v for k, v in out.items() if k not in ("tcr_ids", "matched", "fema_named_sample")})

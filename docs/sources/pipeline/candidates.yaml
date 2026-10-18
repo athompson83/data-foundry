@@ -10130,7 +10130,7 @@ datasets:
         between:
           - hazard-fema-disaster-declarations
           - hazard-ibtracs-best-tracks
-        measured: '21/26 FEMA hurricane declarations since fiscal 2023 name an IBTrACS storm whose season equals the declaration year (rule: storm name in the title and same year; each row lists the matched ATCF id in evidence/2026-10-18/tropical-cyclones/join.json). The 5 unmatched are storms outside the 3-year IBTrACS file (Ian, Nicole, Mawar, Sinlaku)'
+        measured: '21/21 in-scope FEMA hurricane declarations (declared 2023 or later, Atlantic or Pacific basins covered by the 3-year IBTrACS file) name an IBTrACS storm whose season equals the declaration year (rule: storm name in the title and same year; matched ATCF id per row in evidence/2026-10-18/tropical-cyclones/join.json). 5 of the 26 queried declarations are out of scope and excluded from the denominator: Ian (twice) and Nicole from 2022, and the West Pacific typhoons Mawar and Sinlaku'
         mode: candidate
         reviewed: { correct: 21, checked: 21 }
     taxonomy:

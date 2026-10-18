@@ -114,10 +114,13 @@
  ],
  "fema_hurricane_declarations_fy2023_on": 26,
  "fema_titles_with_storm_name_any_year": 21,
+ "fema_in_scope_declarations": 21,
+ "fema_in_scope_matched": 21,
  "fema_titles_with_name_and_declaration_year_match": 21,
  "fema_rows": [
   {
    "disaster": 3586,
+   "in_scope": false,
    "title": "HURRICANE IAN",
    "declared": "2022-10-01",
    "name_match_any_year": [],
@@ -125,6 +128,7 @@
   },
   {
    "disaster": 3597,
+   "in_scope": true,
    "title": "HURRICANE IDALIA",
    "declared": "2023-08-31",
    "name_match_any_year": [
@@ -136,6 +140,7 @@
   },
   {
    "disaster": 3598,
+   "in_scope": true,
    "title": "HURRICANE LEE",
    "declared": "2023-09-14",
    "name_match_any_year": [
@@ -147,6 +152,7 @@
   },
   {
    "disaster": 3599,
+   "in_scope": true,
    "title": "HURRICANE LEE",
    "declared": "2023-09-15",
    "name_match_any_year": [
@@ -158,6 +164,7 @@
   },
   {
    "disaster": 3614,
+   "in_scope": true,
    "title": "TROPICAL STORM FRANCINE",
    "declared": "2024-09-10",
    "name_match_any_year": [
@@ -169,6 +176,7 @@
   },
   {
    "disaster": 3618,
+   "in_scope": true,
    "title": "HURRICANE HELENE",
    "declared": "2024-09-26",
    "name_match_any_year": [
@@ -180,6 +188,7 @@
   },
   {
    "disaster": 3622,
+   "in_scope": true,
    "title": "HURRICANE MILTON",
    "declared": "2024-10-07",
    "name_match_any_year": [
@@ -191,6 +200,7 @@
   },
   {
    "disaster": 3623,
+   "in_scope": true,
    "title": "HURRICANE MILTON",
    "declared": "2024-10-08",
    "name_match_any_year": [
@@ -202,6 +212,7 @@
   },
   {
    "disaster": 3656,
+   "in_scope": true,
    "title": "HURRICANE ISAIAS",
    "declared": "2026-10-09",
    "name_match_any_year": [
@@ -213,6 +224,7 @@
   },
   {
    "disaster": 4677,
+   "in_scope": false,
    "title": "HURRICANE IAN",
    "declared": "2022-11-21",
    "name_match_any_year": [],
@@ -220,6 +232,7 @@
   },
   {
    "disaster": 4680,
+   "in_scope": false,
    "title": "HURRICANE NICOLE",
    "declared": "2022-12-13",
    "name_match_any_year": [],
@@ -227,6 +240,7 @@
   },
   {
    "disaster": 4715,
+   "in_scope": false,
    "title": "TYPHOON MAWAR",
    "declared": "2023-05-25",
    "name_match_any_year": [],
@@ -234,6 +248,7 @@
   },
   {
    "disaster": 4734,
+   "in_scope": true,
    "title": "HURRICANE IDALIA",
    "declared": "2023-08-31",
    "name_match_any_year": [
@@ -245,6 +260,7 @@
   },
   {
    "disaster": 4738,
+   "in_scope": true,
    "title": "HURRICANE IDALIA",
    "declared": "2023-09-07",
    "name_match_any_year": [
@@ -256,6 +272,7 @@
   },
   {
    "disaster": 4743,
+   "in_scope": true,
    "title": "TROPICAL STORM HILARY",
    "declared": "2023-09-27",
    "name_match_any_year": [
@@ -267,6 +284,7 @@
   },
   {
    "disaster": 4750,
+   "in_scope": true,
    "title": "TROPICAL STORM HILARY",
    "declared": "2023-11-21",
    "name_match_any_year": [
@@ -278,6 +296,7 @@
   },
   {
    "disaster": 4798,
+   "in_scope": true,
    "title": "HURRICANE BERYL",
    "declared": "2024-07-09",
    "name_match_any_year": [
@@ -289,6 +308,7 @@
   },
   {
    "disaster": 4817,
+   "in_scope": true,
    "title": "HURRICANE FRANCINE",
    "declared": "2024-09-16",
    "name_match_any_year": [
@@ -300,6 +320,7 @@
   },
   {
    "disaster": 4828,
+   "in_scope": true,
    "title": "HURRICANE HELENE",
    "declared": "2024-09-28",
    "name_match_any_year": [
@@ -311,6 +332,7 @@
   },
   {
    "disaster": 4829,
+   "in_scope": true,
    "title": "HURRICANE HELENE",
    "declared": "2024-09-29",
    "name_match_any_year": [
@@ -322,6 +344,7 @@
   },
   {
    "disaster": 4830,
+   "in_scope": true,
    "title": "HURRICANE HELENE",
    "declared": "2024-09-30",
    "name_match_any_year": [
@@ -333,6 +356,7 @@
   },
   {
    "disaster": 4834,
+   "in_scope": true,
    "title": "HURRICANE MILTON",
    "declared": "2024-10-11",
    "name_match_any_year": [
@@ -344,6 +368,7 @@
   },
   {
    "disaster": 4844,
+   "in_scope": true,
    "title": "HURRICANE MILTON",
    "declared": "2024-11-05",
    "name_match_any_year": [
@@ -355,6 +380,7 @@
   },
   {
    "disaster": 4910,
+   "in_scope": false,
    "title": "SUPER TYPHOON SINLAKU",
    "declared": "2026-04-23",
    "name_match_any_year": [],
@@ -362,6 +388,7 @@
   },
   {
    "disaster": 4951,
+   "in_scope": true,
    "title": "HURRICANE LALA",
    "declared": "2026-10-07",
    "name_match_any_year": [
@@ -373,6 +400,7 @@
   },
   {
    "disaster": 4952,
+   "in_scope": true,
    "title": "HURRICANE LOWELL",
    "declared": "2026-10-07",
    "name_match_any_year": [
