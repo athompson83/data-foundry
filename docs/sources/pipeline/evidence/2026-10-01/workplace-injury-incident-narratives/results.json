@@ -245,7 +245,6 @@
    "msha_state": "KY",
    "eia_state": "Kentucky (West)",
    "doc_no": "220211590004",
-   "date": "05/28/2021",
    "operator_names_present": true
   },
   {
@@ -255,7 +254,6 @@
    "msha_state": "VA",
    "eia_state": "Virginia",
    "doc_no": "220220910032",
-   "date": "03/21/2022",
    "operator_names_present": true
   },
   {
@@ -265,7 +263,6 @@
    "msha_state": "KY",
    "eia_state": "Kentucky (East)",
    "doc_no": "220250840007",
-   "date": "03/17/2025",
    "operator_names_present": true
   },
   {
@@ -275,7 +272,6 @@
    "msha_state": "PA",
    "eia_state": "Pennsylvania (Bituminous)",
    "doc_no": "220240390018",
-   "date": "01/29/2024",
    "operator_names_present": true
   },
   {
@@ -285,7 +281,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Northern)",
    "doc_no": "220261900052",
-   "date": "07/05/2026",
    "operator_names_present": true
   },
   {
@@ -295,7 +290,6 @@
    "msha_state": "PA",
    "eia_state": "Pennsylvania (Bituminous)",
    "doc_no": "220200980002",
-   "date": "01/18/2020",
    "operator_names_present": true
   },
   {
@@ -305,7 +299,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Northern)",
    "doc_no": "220211800024",
-   "date": "06/11/2021",
    "operator_names_present": true
   },
   {
@@ -315,7 +308,6 @@
    "msha_state": "KY",
    "eia_state": "Kentucky (West)",
    "doc_no": "220253170316",
-   "date": "10/07/2025",
    "operator_names_present": true
   },
   {
@@ -325,7 +317,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Southern)",
    "doc_no": "220233420015",
-   "date": "12/06/2023",
    "operator_names_present": true
   },
   {
@@ -335,7 +326,6 @@
    "msha_state": "AL",
    "eia_state": "Alabama",
    "doc_no": "220251180024",
-   "date": "04/17/2025",
    "operator_names_present": true
   },
   {
@@ -345,7 +335,6 @@
    "msha_state": "PA",
    "eia_state": "Pennsylvania (Bituminous)",
    "doc_no": "220213070014",
-   "date": "09/21/2021",
    "operator_names_present": true
   },
   {
@@ -355,7 +344,6 @@
    "msha_state": "AL",
    "eia_state": "Alabama",
    "doc_no": "220203440010",
-   "date": "11/29/2020",
    "operator_names_present": true
   },
   {
@@ -365,7 +353,6 @@
    "msha_state": "PA",
    "eia_state": "Pennsylvania (Bituminous)",
    "doc_no": "220221360013",
-   "date": "04/28/2022",
    "operator_names_present": true
   },
   {
@@ -375,7 +362,6 @@
    "msha_state": "AL",
    "eia_state": "Alabama",
    "doc_no": "220252230007",
-   "date": "07/30/2025",
    "operator_names_present": true
   },
   {
@@ -385,7 +371,6 @@
    "msha_state": "IL",
    "eia_state": "Illinois",
    "doc_no": "220251670002",
-   "date": "06/10/2025",
    "operator_names_present": true
   },
   {
@@ -395,7 +380,6 @@
    "msha_state": "PA",
    "eia_state": "Pennsylvania (Bituminous)",
    "doc_no": "220243410015",
-   "date": "12/04/2024",
    "operator_names_present": true
   },
   {
@@ -405,7 +389,6 @@
    "msha_state": "KY",
    "eia_state": "Kentucky (East)",
    "doc_no": "220240190018",
-   "date": "01/11/2024",
    "operator_names_present": true
   },
   {
@@ -415,7 +398,6 @@
    "msha_state": "MS",
    "eia_state": "Mississippi",
    "doc_no": "220251360005",
-   "date": "05/07/2025",
    "operator_names_present": true
   },
   {
@@ -425,7 +407,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Southern)",
    "doc_no": "220202030009",
-   "date": "06/17/2020",
    "operator_names_present": true
   },
   {
@@ -435,7 +416,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Northern)",
    "doc_no": "220230680013",
-   "date": "02/28/2023",
    "operator_names_present": true
   },
   {
@@ -445,7 +425,6 @@
    "msha_state": "KY",
    "eia_state": "Kentucky (East)",
    "doc_no": "220220910025",
-   "date": "03/25/2022",
    "operator_names_present": true
   },
   {
@@ -455,7 +434,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Northern)",
    "doc_no": "220250340029",
-   "date": "01/22/2025",
    "operator_names_present": true
   },
   {
@@ -465,7 +443,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Northern)",
    "doc_no": "220242600023",
-   "date": "09/11/2024",
    "operator_names_present": true
   },
   {
@@ -475,7 +452,6 @@
    "msha_state": "WV",
    "eia_state": "West Virginia (Northern)",
    "doc_no": "220241030027",
-   "date": "04/04/2024",
    "operator_names_present": true
   },
   {
@@ -485,7 +461,6 @@
    "msha_state": "AL",
    "eia_state": "Alabama",
    "doc_no": "220200910003",
-   "date": "03/26/2020",
    "operator_names_present": true
   }
  ],
@@ -494,227 +469,177 @@
   {
    "MINE_ID": "3610045",
    "DOCUMENT_NO": "220230960015",
-   "ACCIDENT_DT": "03/31/2023",
-   "OPERATOR_ID": "0105487",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "While operating the tailgate side of the shear, a rock fell from the roof onto the tailgate drum. A small rock came off the drum and hit the employee on right thumb while holding the remote. They received 5 stitches."
+   "narrative_chars": 216
   },
   {
    "MINE_ID": "3610045",
    "DOCUMENT_NO": "220141970022",
-   "ACCIDENT_DT": "07/10/2014",
-   "OPERATOR_ID": "0105487",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "FRACTURE,CHIP",
-   "NARRATIVE": "Employee was helping install top rollers for a new belt installation. Another employee dropped a top roller striking the injured employee on the right ring finger. The incident caused a fracture and laceration that reguired six sutures to repair."
+   "narrative_chars": 246
   },
   {
    "MINE_ID": "3609973",
    "DOCUMENT_NO": "220200420004",
-   "ACCIDENT_DT": "01/30/2020",
-   "OPERATOR_ID": "0119268",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "While crossing over top of the MBC the operator stepped down and twisted EE's left knee.  EE continued to work EE's regular shift and EE's first missed shift was 02/04/2020.  "
+   "narrative_chars": 175
   },
   {
    "MINE_ID": "3609972",
    "DOCUMENT_NO": "220201990003",
-   "ACCIDENT_DT": "07/06/2020",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "ACCIDENT ONLY",
    "NATURE_INJURY": "NO VALUE FOUND",
-   "NARRATIVE": "Roof fall above a anchorage point in the belt line of b-mains wall 89. There were two geological features and some water present in this area. The length of the roof fall was approximately 20 foot 6 inches by 65 ft. 21 ft. high above the normal roof."
+   "narrative_chars": 250
   },
   {
    "MINE_ID": "3609972",
    "DOCUMENT_NO": "220163370005",
-   "ACCIDENT_DT": "11/23/2016",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "Employee strained lower back while loading conveyor structure into a scoop bucket. "
+   "narrative_chars": 83
   },
   {
    "MINE_ID": "3609956",
    "DOCUMENT_NO": "220113140049",
-   "ACCIDENT_DT": "10/26/2011",
-   "OPERATOR_ID": "0051858",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "EE was standing beside the auger sled as he and another helper was putting an auger back onto the auger sled when the auger slipped and hit him on the knee and the right foot."
+   "narrative_chars": 175
   },
   {
    "MINE_ID": "3609893",
    "DOCUMENT_NO": "220232610005",
-   "ACCIDENT_DT": "09/08/2023",
-   "OPERATOR_ID": "0115845",
    "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "Employee was carrying an oil can and pump can back to EE's ride when EE felt a pinch in EE's back."
+   "narrative_chars": 98
   },
   {
    "MINE_ID": "3609691",
    "DOCUMENT_NO": "220131980036",
-   "ACCIDENT_DT": "07/15/2013",
-   "OPERATOR_ID": "0096965",
    "DEGREE_INJURY": "DAYS RESTRICTED ACTIVITY ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "Employee was lifting material and strained back."
+   "narrative_chars": 48
   },
   {
    "MINE_ID": "3609666",
    "DOCUMENT_NO": "220212020022",
-   "ACCIDENT_DT": "07/19/2021",
-   "OPERATOR_ID": "P24228",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "The injured miner was removing a large piece of rock that fell on top of the continuous miner. While applying force to the rock, the miner slipped and the miner's face contacted the rock and caused a laceration. Three sutures was required to close the wound. "
+   "narrative_chars": 259
   },
   {
    "MINE_ID": "3609666",
    "DOCUMENT_NO": "220120090058",
-   "ACCIDENT_DT": "12/31/2011",
-   "OPERATOR_ID": "P24228",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "The man was walking down the entry when he struck his head against a ledge in the roof causing pain in his neck."
+   "narrative_chars": 112
   },
   {
    "MINE_ID": "3609629",
    "DOCUMENT_NO": "220082030065",
-   "ACCIDENT_DT": "07/10/2008",
-   "OPERATOR_ID": "0090865",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "Struck by 6\" chisel while spreading track links."
+   "narrative_chars": 48
   },
   {
    "MINE_ID": "3609549",
    "DOCUMENT_NO": "220132880088",
-   "ACCIDENT_DT": "10/15/2013",
-   "OPERATOR_ID": "P24228",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "The man was performing maintenance on a roof bolter. A header board on the machine fell off and struck the man on the hand causing a laceration. Report filed for Medical Treatment Only (stitches)."
+   "narrative_chars": 196
   },
   {
    "MINE_ID": "3609498",
    "DOCUMENT_NO": "220071710037",
-   "ACCIDENT_DT": "06/11/2007",
-   "OPERATOR_ID": "0078823",
    "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
    "NATURE_INJURY": "UNCLASSIFIED,NOT DETERMED",
-   "NARRATIVE": "After greasing crusher, employee was descending ladder when his foot hung up on steps and he lost his balance and fell to the ground."
+   "narrative_chars": 133
   },
   {
    "MINE_ID": "3609437",
    "DOCUMENT_NO": "220232830063",
-   "ACCIDENT_DT": "10/03/2023",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "While pulling drill steels out of roof, a stuck drill steel became dislodged and struck individual in upper lip resulting in stitches."
+   "narrative_chars": 134
   },
   {
    "MINE_ID": "3609437",
    "DOCUMENT_NO": "220230330037",
-   "ACCIDENT_DT": "01/24/2023",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
    "NATURE_INJURY": "FRACTURE,CHIP",
-   "NARRATIVE": "The helper snubbed the cable of twin boom as operator was pulling into the number 5 entry. The helper went toward the off-operator side without notifying the operator. As the operator turned the machine into the cut, the back of the bolter swung towards the solid rib pinning the helper against the rib causing a fracture."
+   "narrative_chars": 322
   },
   {
    "MINE_ID": "3609437",
    "DOCUMENT_NO": "220223120025",
-   "ACCIDENT_DT": "09/07/2022",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "Individual was unbending a 6' bolt and felt a pop and pain in left shoulder. Individual worked till 11/07/2022 to get surgery on left shoulder."
+   "narrative_chars": 143
   },
   {
    "MINE_ID": "3609437",
    "DOCUMENT_NO": "220191280020",
-   "ACCIDENT_DT": "04/09/2019",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "While picking up structure the employee felt pain in lower back, coal seam was 48\" high. EE worked for the next 15 days before going off work. The first day off was 05/01/2019."
+   "narrative_chars": 176
   },
   {
    "MINE_ID": "3609436",
    "DOCUMENT_NO": "220240400020",
-   "ACCIDENT_DT": "02/02/2024",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "FRACTURE,CHIP",
-   "NARRATIVE": "Individual was about to begin bolting when EE decided to back the machine up. When EE stood up, EE used the head of the bolter to pull self up and a rock fell on top of EE's hand. This resulted in a fractured left hand."
+   "narrative_chars": 219
   },
   {
    "MINE_ID": "3609436",
    "DOCUMENT_NO": "220232830030",
-   "ACCIDENT_DT": "10/05/2023",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "Trying to set a pound-up jack, when the jack slipped and fell onto the left hand, which smashed the left index fingertip. This resulted in 2 stitches. "
+   "narrative_chars": 151
   },
   {
    "MINE_ID": "3609436",
    "DOCUMENT_NO": "220190090021",
-   "ACCIDENT_DT": "12/31/2018",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS RESTRICTED ACTIVITY ONLY",
    "NATURE_INJURY": "FRACTURE,CHIP",
-   "NARRATIVE": "While unloading top rollers finger got smashed between roller & post on cart. Resulting in a fracture & cut."
+   "narrative_chars": 108
   },
   {
    "MINE_ID": "3609407",
    "DOCUMENT_NO": "220122370005",
-   "ACCIDENT_DT": "08/16/2012",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "CRUSHING",
-   "NARRATIVE": "Bolting abnormal roof installing a cable bolt. Was pushing steels in roof with machine and caught finger between roof and bolter head"
+   "narrative_chars": 133
   },
   {
    "MINE_ID": "3609407",
    "DOCUMENT_NO": "220101390003",
-   "ACCIDENT_DT": "05/17/2010",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DYS AWY FRM WRK & RESTRCTD ACT",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "While installing roof bolts, the employee heard the roof crack, he tried to retreat but was struck by a rock that fell from between the bolts and the rib."
+   "narrative_chars": 154
   },
   {
    "MINE_ID": "3609371",
    "DOCUMENT_NO": "220250160011",
-   "ACCIDENT_DT": "01/14/2025",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS AWAY FROM WORK ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "Employee was bending a six foot roof bolt when EE felt a pop in their left shoulder. Not sure of the extent at this time."
+   "narrative_chars": 121
   },
   {
    "MINE_ID": "3609371",
    "DOCUMENT_NO": "220220880023",
-   "ACCIDENT_DT": "03/14/2022",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "DAYS RESTRICTED ACTIVITY ONLY",
    "NATURE_INJURY": "SPRAIN,STRAIN RUPT DISC",
-   "NARRATIVE": "Getting out of scoop, twisted, felt pop in lower back. This resulted in restricted duty."
+   "narrative_chars": 88
   },
   {
    "MINE_ID": "3609371",
    "DOCUMENT_NO": "220151270006",
-   "ACCIDENT_DT": "04/17/2015",
-   "OPERATOR_ID": "P09635",
    "DEGREE_INJURY": "NO DYS AWY FRM WRK,NO RSTR ACT",
    "NATURE_INJURY": "CUT,LACER,PUNCT-OPN WOUND",
-   "NARRATIVE": "Some rock had fallen on the top of the continuous mining machine while mining. After the miner was backed out of the cut the victim was pushing rock off the miner with his hand. As one of the piece tipped before falling it caught the ring finger of his right hand and lacerating it. It required several stitches."
+   "narrative_chars": 312
   }
  ],
  "sample_eia": [

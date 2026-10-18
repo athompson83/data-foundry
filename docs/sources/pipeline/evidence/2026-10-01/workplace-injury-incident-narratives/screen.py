@@ -95,11 +95,11 @@ random.seed(2)
 for r in random.sample(mr, min(25, len(mr))):
     mm = mines.get(r['MINE_ID'], {}); e = byid[r['MINE_ID']]
     check.append({'mine_id': r['MINE_ID'], 'msha_mine': mm.get('CURRENT_MINE_NAME'), 'eia_mine': e['Mine Name'], 'msha_state': mm.get('STATE'), 'eia_state': e['Mine State'],
-                  'operator_names_present': bool(r['OPERATOR_NAME'] and e['Operating Company']), 'doc_no': r['DOCUMENT_NO'], 'date': r['ACCIDENT_DT']})
+                  'operator_names_present': bool(r['OPERATOR_NAME'] and e['Operating Company']), 'doc_no': r['DOCUMENT_NO']})
 R['check_sample'] = check
 R['check_name_agree'] = sum(1 for c in check if c['msha_mine'] and c['msha_mine'].lower()[:6] == c['eia_mine'].lower()[:6])
 # samples: 20+ narratives from recent MSHA, 20+ EIA rows
-R['sample_accidents'] = [{k: r[k] for k in ('MINE_ID', 'DOCUMENT_NO', 'ACCIDENT_DT', 'OPERATOR_ID', 'DEGREE_INJURY', 'NATURE_INJURY', 'NARRATIVE')} for r in nar[-1:-26:-1]]  # operator names can identify individuals: never committed
+R['sample_accidents'] = [{**{k: r[k] for k in ('MINE_ID', 'DOCUMENT_NO', 'DEGREE_INJURY', 'NATURE_INJURY')}, 'narrative_chars': len(r['NARRATIVE'])} for r in nar[-1:-26:-1]]  # operator names can identify individuals: never committed
 R['sample_eia'] = [{k: r[k] for k in ('MSHA ID', 'Mine Name', 'Mine State', 'Production (short tons)', 'Average Employees')} for r in coal[:20]]
 # NAICS present in MSHA?
 R['msha_has_naics_field'] = any('NAICS' in f for f in R['msha_accidents']['fields'])
