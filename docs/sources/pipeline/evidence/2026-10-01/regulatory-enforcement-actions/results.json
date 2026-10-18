@@ -939,7 +939,7 @@
      "respondent_count": true
     },
     {
-     "url": "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr15553.txt",
+     "url": "https://www.sec.gov/files/litigation/litreleases/lr15553.txt",
      "no": "LR-15553",
      "date": "1997-11-05",
      "text_chars": 0,
@@ -1354,8 +1354,6 @@
    "sample_with_docket_phrase": 9,
    "samples": [
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/banned-debt-collectors",
-     "title": "Find banned debt collectors",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [
@@ -1363,101 +1361,91 @@
      ],
      "has_docket_phrase": false,
      "last_updated": "December 10, 2024",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 1
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/ticketmaster",
-     "title": "Ticketmaster",
      "status": 200,
      "summary_chars": 600,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "September 30, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 2
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/191-0031-syngenta-corteva-ftc-v",
-     "title": "Syngenta and Corteva, FTC v.",
      "status": 200,
      "summary_chars": 1521,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "September 28, 2026",
-     "file_number_in_slug": true
+     "file_number_in_slug": true,
+     "sample_no": 3
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/vance-childers-matter",
-     "title": "Vance Childers, In the Matter of",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 28, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 4
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/jason-scott-dvm-matter",
-     "title": "Jason Scott, DVM, In the Matter of",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 28, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 5
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/ricardo-murillo-matter",
-     "title": "Ricardo A. Murillo, In the Matter of",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 22, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 6
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/182-3000-fleetcor-technologies-matter",
-     "title": "Fleetcor Technologies, In the Matter of",
      "status": 200,
      "summary_chars": 309,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 17, 2026",
-     "file_number_in_slug": true
+     "file_number_in_slug": true,
+     "sample_no": 7
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/amway-ftc-v",
-     "title": "Amway, FTC v.",
      "status": 200,
      "summary_chars": 427,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "September 17, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 8
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/erin-thompson-matter",
-     "title": "Erin Thompson, In the Matter of",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 17, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 9
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/berettaruger",
-     "title": "Beretta/Ruger",
      "status": 200,
      "summary_chars": 583,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 16, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 10
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/2123050-amazoncom-inc-rosca-ftc-v",
-     "title": "Amazon.com, Inc. (ROSCA), FTC v.",
      "status": 200,
      "summary_chars": 993,
      "court_cites": [
@@ -1465,137 +1453,125 @@
      ],
      "has_docket_phrase": false,
      "last_updated": "September 14, 2026",
-     "file_number_in_slug": true
+     "file_number_in_slug": true,
+     "sample_no": 11
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/humboldt-merchant-services",
-     "title": "Humboldt Merchant Services",
      "status": 200,
      "summary_chars": 569,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "September 11, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 12
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/henkel-paint",
-     "title": "Henkel, A-Paint",
      "status": 200,
      "summary_chars": 728,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "September 11, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 13
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/larry-rickman-overly-matter",
-     "title": "Larry Rickman Overly, In the Matter of",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 8, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 14
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/eusabio-juarez-ruffino-matter",
-     "title": "Eusabio Juarez-Ruffino, In the Matter of",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 4, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 15
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/nuvei",
-     "title": "Nuvei",
      "status": 200,
      "summary_chars": 279,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "September 4, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 16
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/222-3135-asbury-automotive-group-inc-et-al-matter",
-     "title": "Asbury Automotive Group, Inc., et al., In the Matter of",
      "status": 200,
      "summary_chars": 1047,
      "court_cites": [],
      "has_docket_phrase": true,
      "last_updated": "September 3, 2026",
-     "file_number_in_slug": true
+     "file_number_in_slug": true,
+     "sample_no": 17
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/commissioner-statements",
-     "title": "Commissioner Statements",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": null,
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 18
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/public-statements/joint-statement-chairman-andrew-n-ferguson-commissioner-mark-r-meador-matter-nuvei",
-     "title": "Joint Statement of Chairman Andrew N. Ferguson and Commissioner Mark R. Meador In the Matter of Nuvei",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": null,
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 19
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/public-statements/statement-chairman-andrew-n-ferguson-joined-commissioner-mark-r-meador-regarding-fairfield-medical",
-     "title": "Statement of Chairman Andrew N. Ferguson Joined by Commissioner Mark R. Meador Regarding Fairfield Medical Center\u2019s Sale to Adena Health",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": null,
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 20
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/amazon",
-     "title": "Amazon",
      "status": 200,
      "summary_chars": 0,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "August 31, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 21
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/hims-hers",
-     "title": "Hims & Hers",
      "status": 200,
      "summary_chars": 391,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "August 31, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 22
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/242-3029-cmg-media-corporation-matter",
-     "title": "CMG Media Corporation, In the Matter of",
      "status": 200,
      "summary_chars": 353,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "August 27, 2026",
-     "file_number_in_slug": true
+     "file_number_in_slug": true,
+     "sample_no": 23
     },
     {
-     "url": "https://www.ftc.gov/legal-library/browse/cases-proceedings/zillow-groupredfin-corp",
-     "title": "Zillow Group/Redfin Corp.",
      "status": 200,
      "summary_chars": 773,
      "court_cites": [],
      "has_docket_phrase": false,
      "last_updated": "August 24, 2026",
-     "file_number_in_slug": false
+     "file_number_in_slug": false,
+     "sample_no": 24
     }
    ],
    "terms_page_status": 200,
@@ -2131,7 +2107,7 @@
      [
       "american energy",
       "10-1999-0220",
-      "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr16042.txt"
+      "https://www.sec.gov/files/litigation/litreleases/lr16042.txt"
      ],
      [
       "archer daniels midland",
@@ -2231,7 +2207,7 @@
      [
       "robert pierce",
       "CR_577",
-      "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr15298.txt"
+      "https://www.sec.gov/files/litigation/litreleases/lr15298.txt"
      ],
      [
       "safety kleen",
@@ -2276,7 +2252,7 @@
      [
       "w r grace and",
       "01-1980-0003",
-      "https://www.sec.govhttps://www.sec.gov/files/litigation/litreleases/lr16008.txt"
+      "https://www.sec.gov/files/litigation/litreleases/lr16008.txt"
      ],
      [
       "william j mccarthy",

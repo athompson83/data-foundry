@@ -7,6 +7,7 @@ search API). Politeness: <=2 req/s, FTC robots.txt Crawl-delay 5 honoured, no ke
 
 Usage: python3 screen.py [cache_dir]   (writes results.json next to this file; raw responses go to cache_dir)
 """
+from urllib.parse import urljoin
 import hashlib, html, json, os, random, re, sys, time, urllib.request, urllib.error
 from collections import defaultdict
 
@@ -200,7 +201,7 @@ while True:
     if not rr:
         break
     for d, href, nm, no in rr:
-        sec_list.append({'date': d[:10], 'url': 'https://www.sec.gov' + href, 'respondents': text_of(nm), 'no': no})
+        sec_list.append({'date': d[:10], 'url': urljoin('https://www.sec.gov', href), 'respondents': text_of(nm), 'no': no})
     page += 1
     if page > 140:
         break
@@ -304,7 +305,8 @@ for x in ftc_list[:24]:
     i = t.find('Case Summary')
     k = t.find('Case Timeline')
     summ = t[i:k] if i >= 0 and k > i else ''
-    ftc_samples.append({'url': 'https://www.ftc.gov' + x['url'], 'title': x['title'], 'status': st, 'summary_chars': len(summ),
+    ftc_samples.append({'sample_no': len(ftc_samples) + 1, 'status': st,  # titles and slugs can name natural persons: never committed
+                         'summary_chars': len(summ),
                         'court_cites': sorted(courtnos(t)), 'has_docket_phrase': bool(re.search(r'Docket No|File No|Case No', t)),
                         'last_updated': (re.search(r'Last Updated\s+([A-Za-z]+ \d+, \d{4})', t) or [None, None])[1],
                         'file_number_in_slug': bool(re.search(r'/\d{3}-?\d{4}', x['url']))})
