@@ -154,8 +154,13 @@ Enabling it takes four operator steps, in this order. `apps/local-collector/depl
 
    ```sh
    curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \
-     "https://api.data.aroqon.com/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls"
+     "https://api.data.aroqon.com/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls,health-canada-consumer-product-recalls"
    ```
+
+For an existing CPSC-only installation, stop the collector before upgrading. An operator must replace or explicitly
+extend its ingestion credential to include `health-canada-consumer-product-recalls`, then verify both source scopes
+before starting the two-task collector. An intake `source_not_allowed` answer is acknowledged and those documents
+are not retried merely by replacing the token later. The source change does not modify existing credentials itself.
 
 Status on 2026-09-30: steps 1 and 2 are done (migration `0004` applied at 12:11 UTC, `625b07e` deployed), and step 3 is the change that sets `COLLECTOR_INTAKE_OPEN = "1"`.
 

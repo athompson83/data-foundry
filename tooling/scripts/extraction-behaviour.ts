@@ -55,6 +55,18 @@ export function extractionBehaviourSha256(): string {
   return hash.digest('hex');
 }
 
+export const HC_EXTRACTION_BEHAVIOUR_FILES = [
+  'apps/local-collector/df_collector/health_canada.py',
+  'packages/product-recall-structuring/src/hc-identifier-candidates.ts',
+] as const;
+
+/** HC adds its own field mapping and prompt to the common engine/rules fingerprint. */
+export function healthCanadaBehaviourSha256(): string {
+  const hash = createHash('sha256').update(`${extractionBehaviourSha256()}\n`);
+  for (const path of HC_EXTRACTION_BEHAVIOUR_FILES) hash.update(`${path}\n${readFileSync(join(ROOT, path), 'utf8').replace(/\r\n/g, '\n')}\n`);
+  return hash.digest('hex');
+}
+
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop() as string)) {
   process.stdout.write(`${extractionBehaviourSha256()}\n`);
 }

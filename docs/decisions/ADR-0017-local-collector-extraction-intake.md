@@ -9,6 +9,19 @@ rights, review or production permissions.
 **Relates to:** AGENTS.md rules 1–3, 5–7 and 10; ADR-0013 (evidence-based rights); ADR-0016 (consumer-product
 recalls on the recalls Worker); [`docs/sources/cpsc-recalls-rights-record-20260927.md`](../sources/cpsc-recalls-rights-record-20260927.md).
 
+### 2026-10-19 extension: Health Canada capture
+
+`health-canada-product-identifiers@1` reuses this collector and intake for the already-admitted Health Canada
+consumer-product open-data index ([rights record](../sources/health-canada-consumer-product-recalls-rights-record-20260927.md)).
+Only `Title` and `Product` may supply candidates; advice/contact fields and notice-page acquisition are excluded.
+Task/source/credential matching and the current R2 digest are independently enforced. Native field names and spans
+remain attached to every candidate. Each source has its own cursor, build and stop control; the resident worker,
+resource caps and read allowance remain shared.
+
+The new adapter has a distinct prompt/build/fingerprint and no publishable allowlist entry. A Health Canada held-out
+benchmark is required before publication; CPSC qualification cannot admit it. Existing credentials gain no additional
+source scope. No publication gate, price, entitlement or acquisition schedule changes with this extension.
+
 ## Context
 
 - **The gap.** The consumer-product recall dataset's CPSC parser takes a model number only after an explicit

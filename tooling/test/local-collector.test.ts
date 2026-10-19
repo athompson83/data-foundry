@@ -11,14 +11,25 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { PROHIBITED_SOURCES } from '../../packages/source-registry/src/prohibited-sources.js';
-import { EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
-import { EXTRACTION_BEHAVIOUR_FILES, extractionBehaviourSha256 } from '../scripts/extraction-behaviour.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, HC_EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, PUBLISHABLE_EXTRACTORS } from '../../apps/recalls-worker/src/intake.js';
+import { EXTRACTION_BEHAVIOUR_FILES, HC_EXTRACTION_BEHAVIOUR_FILES, extractionBehaviourSha256, healthCanadaBehaviourSha256 } from '../scripts/extraction-behaviour.js';
 import { compilePolicy } from '../scripts/local-collector-policy.js';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const APP = join(ROOT, 'apps', 'local-collector');
 
 describe('local collector', () => {
+  it('fingerprints the Health Canada adapter independently and grants no benchmark-based publication', () => {
+    const python = process.env['PYTHON'] ?? 'python3';
+    const result = spawnSync(python, ['-c', 'from df_collector.health_canada import behaviour_sha256; print(behaviour_sha256())'], { cwd: APP, encoding: 'utf8' });
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout.trim()).toBe(healthCanadaBehaviourSha256());
+    expect(HC_EXTRACTION_BEHAVIOUR_SHA256).toBe(healthCanadaBehaviourSha256());
+    expect(HC_EXTRACTION_BEHAVIOUR_FILES).toContain('apps/local-collector/df_collector/health_canada.py');
+    expect(HC_EXTRACTION_BEHAVIOUR_FILES).toContain('packages/product-recall-structuring/src/hc-identifier-candidates.ts');
+    expect(PUBLISHABLE_EXTRACTORS.some((entry) => entry.version.startsWith('health-canada-'))).toBe(false);
+  });
+
   it('ships a source policy compiled from the current registry', () => {
     expect(readFileSync(join(APP, 'policy', 'sources.json'), 'utf8'), 'run: pnpm collector:policy').toBe(compilePolicy());
   });

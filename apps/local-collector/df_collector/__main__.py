@@ -375,8 +375,10 @@ def cmd_purge(config: Config, everything: bool, remove_model: bool, force: bool)
             from .runtime import rewind_backfill
 
             with state.tx() as db:
+                affected_tasks = [row["task"] for row in db.execute("SELECT DISTINCT task FROM document WHERE state = 'queued'")]
                 db.execute("DELETE FROM document WHERE state = 'queued'")
-                rewind_backfill(db, state)
+                for task in affected_tasks:
+                    rewind_backfill(db, state, task)
             report["rewound"] = f"{waiting} queued notice(s) forgotten; the backfill restarts from the first page on the next run"
         report["swept"] = state.sweep(config.evidence_dir, unverified_days=0)
         with state.tx() as db:
@@ -455,12 +457,16 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "resume":
         state.set("paused", "")
         state.set("uploader_paused", "")
-    elif args.command == "kill":
-        state.set(f"kill:{TASK}", "1")
-    elif args.command == "unkill":
-        state.set(f"kill:{TASK}", "0")
-        with state.tx() as db:
-            db.execute("UPDATE job SET state = 'pending', due_at = ? WHERE task = ? AND state = 'refused'", (time.time(), TASK))
+    elif args.command in ("kill", "unkill"):
+        from .health_canada import TASK as HC_TASK
+        task = args.arg or TASK
+        if task not in (TASK, HC_TASK):
+            print("unknown capture task", file=sys.stderr)
+            return 1
+        state.set(f"kill:{task}", "1" if args.command == "kill" else "0")
+        if args.command == "unkill":
+            with state.tx() as db:
+                db.execute("UPDATE job SET state = 'pending', due_at = MAX(?, ?) WHERE task = ? AND state = 'refused'", (time.time(), float(state.get("allowance_until") or 0), task))
     print(args.command)
     return 0
 

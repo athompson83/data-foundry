@@ -70,6 +70,6 @@ fi
 echo "Intake open and refusing unauthenticated submissions (401)."
 # Minted only after the probe passes, so a closed or unhealthy intake never leaves an unused live credential behind.
 echo "== Mint the collector's ingestion credential (shown once; store it only in the collector: set-secret ingest-token)"
-curl -fsS -X POST -H "Authorization: Bearer $ADMIN_TOKEN" "$API/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls"
+curl -fsS -X POST -H "Authorization: Bearer $ADMIN_TOKEN" "$API/admin/ingest-credentials?label=owner-windows-collector&sources=cpsc-recalls,health-canada-consumer-product-recalls"
 echo
 echo "Record the Worker version and bookmark in PROGRESS.md."
