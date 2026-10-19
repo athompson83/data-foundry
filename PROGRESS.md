@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-10-19: daily dataset scout (round 11)
+
+- **Health.** Both recall datasets synced 2026-10-19T12:18Z (under 24 h); newest records match openFDA (`last_updated` 2026-10-07; our newest `report_date` 2026-10-07) and CPSC (2026-10-15, 76 recalls since 2026-09-01) and Health Canada (2026-10-16). FDA totals are 2, 2 and 1 rows behind openFDA (food, drug, device), unchanged since 2026-10-17. No regression.
+- **Added at SCREENED (5):** `software-license-texts` (SPDX + OSI, declared SPDX id 122/123), `internet-standards-documents` (RFC index + IETF datatracker + W3C, declared RFC number 40/40), `airport-facilities` (FAA layer + OurAirports + comments, declared ICAO/FAA id 19,272/19,535), `orbital-launches` (GCAT + CelesTrak + Launch Library 2, declared NORAD number 69,432/69,999; LL2 candidate 31/40, hand check 8/12) and `tsunami-events` (NCEI + USGS + PTWC bulletins, candidate 322/324, hand check 12/12). `space-celestrak-satcat` reopened from PARKED to SCREENED.
+- **Screened and PARKED (2):** National Inventory of Dams and the NHTSA FARS CrashAPI (both HTTP 403 from this egress). Leads without a measurement: EPA SEMS (table unavailable), WAHIS (403), VAERS (acknowledgement not tested).
+- **Recalls widening.** New free-text member `fda-company-announcements` in `food-and-health-recalls-global`: an 88 KB XLSX lists 1,089 FDA company announcements and the RSS feed carries UPCs and lots; 105/254 announcements since 2026-01-01 match an openFDA enforcement report (candidate, hand check 12/12). This closes a capture gap in the FDA feed's coverage (company text is not captured today); it is not built. ACCC and USDA FSIS are still HTTP 403.
+- **Stage advance.** Only into SCREENED. EVIDENCED needs an R2 archive and the workflow runs from `main` only; PR #88 (unmerged) carries the plans. The ClinicalTrials.gov rights record was not written because its terms page is a JavaScript shell today and `robots.txt` still disallows `/api/`.
+- **Also.** `source-pipeline.test.ts` accepts `RFC number`, `SPDX license identifier`, `ICAO location identifier` and `NORAD catalog number` as declared-join identifiers. Nothing deployed; no production change. Evidence: [research](docs/sources/pipeline/research-2026-10-19.md).
+
 ## Current session — 2026-10-18: daily dataset scout (round 10)
 
 - **Health.** Both recall datasets synced 2026-10-18T12:18Z (under 24 h); newest records match openFDA (`last_updated` 2026-10-07) and CPSC/Health Canada (2026-10-15 and 2026-10-16). FDA food and drug totals are still 2 rows behind openFDA, unchanged since 2026-10-10. No regression.

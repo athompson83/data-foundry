@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-18
+updated: 2026-10-19
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -7208,13 +7208,14 @@ candidates:
     structuring: normalization
     format: structured
     publisher: CelesTrak
-    stage: PARKED
+    stage: SCREENED
     rights: UNKNOWN
     sources: [ 'https://celestrak.org/pub/satcat.csv' ]
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
-    evidence: [ docs/sources/pipeline/research-2026-10-10.md ]
+    evidence: [ docs/sources/pipeline/research-2026-10-10.md, docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/orbital-launches/measure.json ]
     next_action: >-
       Screened 2026-10-10: CSV 6,766,323 bytes, 70,971 lines (70,970 objects) from 1957-001A; fields OBJECT_NAME, OBJECT_ID, NORAD_CAT_ID, OWNER, LAUNCH_DATE, DECAY_DATE, orbital elements. The GP element-set endpoint reset our connection. REJECTED as a data type for now: no second publisher reachable (UNOOSA index URL returned 404) and no free-text member.
+      REOPENED 2026-10-19 as a member of orbital-launches: GCAT (CC-BY) is the second publisher and Launch Library 2 the free-text member; 69,432 GCAT objects match its NORAD_CAT_ID. Rights stay UNKNOWN until the CelesTrak usage policy (referenced on its SATCAT page) is read and quoted.
   - key: lobbying-ca-registrations
     name: Office of the Commissioner of Lobbying of Canada registrations (open data CSV)
     category: regulatory
@@ -7911,6 +7912,278 @@ candidates:
     next_action: >-
       Parked 2026-10-18: the USGS HANS API lists US volcanoes (170,148 bytes, with the Smithsonian volcano number) and GeoNet publishes NZ alert levels (volcano ids are names), but the jurisdictions are
       disjoint, so no record can match across them. The Smithsonian Global Volcanism Program weekly report feed, the natural third member, answered 403. Reopen if a global bulletin is reachable.
+
+  - key: software-spdx-license-list
+    name: SPDX License List (identifier, name, OSI and FSF flags, deprecation, full license text and standard header)
+    category: software-licensing
+    structuring: normalization
+    format: free-text
+    publisher: SPDX (Linux Foundation)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/spdx/license-list-data/main/json/licenses.json', 'https://raw.githubusercontent.com/spdx/license-list-data/main/json/details/MIT.json' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'Read and quote the data licence of the SPDX license-list-data repository before RIGHTS_DETERMINED; the README gave no licence statement and the repository has no top-level LICENSE file.'
+      - 'The license texts are third-party legal texts; republish identifiers, names, flags and cross-references, and link to the canonical text unless the SPDX terms permit redistributing it.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/software-licenses/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: list version 3.29.0, 740 licenses (32 deprecated, 154 flagged OSI-approved), one JSON file of 339,359 bytes plus one details file per id. 40 of 40 sampled
+      details files carry licenseText (93 to 46,064 characters). Archive the whole json/ tree (details for all 740 plus the exceptions list) in R2, then read the data licence.
+
+  - key: software-osi-license-api
+    name: Open Source Initiative license API (OSI-approved licenses with SPDX id, steward, keywords and approval record)
+    category: software-licensing
+    structuring: normalization
+    format: structured
+    publisher: Open Source Initiative
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://opensource.org/api/license' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    conditions:
+      - 'The OSI terms of use page returned only site scaffolding to the scout; read the content licence for the API before RIGHTS_DETERMINED.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/software-licenses/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: one request returns 126 license records (84,269 bytes), 123 with an spdx_id and 122 of those present in the SPDX list (the miss is NOKIA). Use it to attach
+      approval date, steward and board minutes to the SPDX identifier; keep the approved flag as published.
+
+  - key: standards-rfc-series-index
+    name: RFC Series index (every RFC with title, status, abstract, obsoletes and updates chains; RFC text published alongside)
+    category: standards
+    structuring: normalization
+    format: free-text
+    publisher: RFC Series (RFC Editor)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.rfc-editor.org/rfc-index.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://trustee.ietf.org/documents/trust-legal-provisions/tlp-5/',
+          quote: 'In addition to the rights granted with respect to Code Components described in Section 4 below, the IETF Trust hereby grants to each person who wishes to exercise such rights, to the greatest extent that it is permitted to do so, a non-exclusive, royalty-free, worldwide right and license under all copyrights and rights of authors:'
+        }
+    conditions:
+      - 'Pre-2008 RFCs remain under the copyright policy in force when they were published (TLP section 1.c); the rights record must say how they are handled.'
+      - 'Republish the index metadata and abstracts; link to the canonical RFC text and keep the TLP notice with any reproduced text.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/internet-standards/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: rfc-index.xml is 13.7 MB with 9,848 entries, 9,141 with an abstract. 40 of 40 sampled RFC numbers resolve in the IETF datatracker. Archive the XML and the plain-text
+      RFCs in R2, and read the TLP clauses for pre-2008 documents.
+
+  - key: standards-ietf-datatracker
+    name: "IETF datatracker API (document records: RFC number, working group, area director, status, keywords, pages, abstract)"
+    category: standards
+    structuring: normalization
+    format: structured
+    publisher: IETF
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://datatracker.ietf.org/api/v1/doc/document/?type=rfc' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The datatracker API terms were not found; contributor and chair fields are personal data and are excluded from anything published.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/internet-standards/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: 9,848 documents of type rfc and 44,026 Internet-Draft records; 40 of 40 sampled RFCs match the RFC index on number and title and 36 of 40 carry an abstract.
+      Page with limit and offset in a stable order, archive each page, and keep pointers to person records out of the published fields.
+
+  - key: standards-w3c-specifications
+    name: W3C specifications API (1,720 specifications with series, status, shortlink and versions)
+    category: standards
+    structuring: normalization
+    format: structured
+    publisher: World Wide Web Consortium
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.w3.org/specifications' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://www.w3.org/copyright/document-license-2023/',
+          quote: 'Public documents on the W3C site are provided by the copyright holders under the following license.'
+        }
+    conditions:
+      - 'The W3C document license requires attribution and forbids altering the documents; publish metadata and links, not modified specification text.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/internet-standards/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: the list endpoint answers 200 with 1,720 specifications over 860 pages. No identifier joins it to the RFC records yet; check whether specification
+      references cite RFC numbers before counting it as linked.
+
+  - key: airports-faa-aeronautical-info
+    name: FAA Aeronautical Information Services airport layer (US airports, heliports and seaplane bases with FAA and ICAO identifiers)
+    category: aviation
+    structuring: normalization
+    format: structured
+    publisher: FAA Aeronautical Information Services
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://services6.arcgis.com/ssFJjBXIUyZDrSYZ/arcgis/rest/services/US_Airport/FeatureServer/0' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - {
+          url: 'https://www.arcgis.com/sharing/rest/content/items/e747ab91a11045e8b3f8a3efd093d3b5?f=json',
+          quote: 'The data provided is for public use. A limited number of Non-US Landing Facilities are included in this file.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/airports/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: 19,535 features (19,228 operational, 296 indefinite, 4 closed), 2,863 with an ICAO id, paged 1,000 at a time. The layer description still cites a 2021 effective
+      date although it says the data are published every eight weeks, so measure the newest change date against the FAA before relying on freshness. Archive all pages in R2.
+
+  - key: airports-ourairports-open-data
+    name: OurAirports open data (86,258 airports and heliports worldwide with ICAO, IATA, GPS and local codes, plus runways and frequencies)
+    category: aviation
+    structuring: normalization
+    format: structured
+    publisher: OurAirports
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://davidmegginson.github.io/ourairports-data/airports.csv', 'https://davidmegginson.github.io/ourairports-data/airport-frequencies.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    conditions:
+      - 'The public domain statement for the CSV files could not be fetched (ourairports.com/data answered HTTP 500 and the GitHub README paths returned nothing); quote it before RIGHTS_DETERMINED.'
+      - 'The data are volunteer-maintained; carry the upstream modified date and do not present them as navigation data.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/airports/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: airports.csv is 12.7 MB with 86,258 rows; 19,272 of 19,535 FAA airports match an OurAirports row by ICAO id or FAA identifier and 18,743 of the 19,089
+      matches with parseable coordinates agree within 2 km. Archive the CSV set in R2 and quote the licence.
+
+  - key: airports-ourairports-comments
+    name: OurAirports airport comments (16,434 pilot and visitor comments on airports, free text)
+    category: aviation
+    structuring: event-extraction
+    format: free-text
+    publisher: OurAirports
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://davidmegginson.github.io/ourairports-data/airport-comments.csv' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    conditions:
+      - 'Comments are user-contributed free text with the contributor nickname in the same row; never publish nicknames, treat comments as unverified, and keep the whole file out of indexable pages (rule 8).'
+      - 'The file contains obvious test submissions (for example probe strings dated 2026-10-14), so extraction must filter on content and not trust any row.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/airports/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: 16,434 comments (4.7 MB), 2,878 on airports that match an FAA record. Sample 20 comments, measure how many state a deterministic fact (a hazard, a fee, fuel
+      availability, a closure) before deciding whether this member is worth structuring.
+
+  - key: space-gcat-launch-log
+    name: GCAT General Catalog of Artificial Space Objects (launch log, satellite catalogue and notes since 1942)
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: Jonathan McDowell (GCAT)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://planet4589.org/space/gcat/tsv/launch/launch.tsv', 'https://planet4589.org/space/gcat/tsv/cat/satcat.tsv' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://planet4589.org/space/gcat/',
+          quote: 'GCAT is released under the Creative Commons CC-BY licence.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/orbital-launches/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: launch.tsv is 13.8 MB with 76,005 launches to 2026-09-28 (1,236 with a notes field) and satcat.tsv is 19.3 MB with 69,999 numbered objects. Archive both with
+      the CC-BY attribution, and quote the licence page verbatim in the rights record.
+
+  - key: space-launch-library-2
+    name: Launch Library 2 (launches, rockets, pads, agencies and mission descriptions)
+    category: space
+    structuring: event-extraction
+    format: free-text
+    publisher: The Space Devs
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ll.thespacedevs.com/2.2.0/launch/previous/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - 'The free tier answered HTTP 429 after a handful of requests ("Request was throttled. Expected available in 108 seconds"); a full backfill must be paced, and the terms for commercial redistribution were not read.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/orbital-launches/ll2-link.json ]
+    next_action: >-
+      Measured 2026-10-19: 7,640 previous launches; all 40 of the most recent carry a mission description. Read the API terms, then decide between paging the free tier and a data dump.
+
+  - key: hazard-ncei-tsunami-events
+    name: NOAA NCEI/WDS Global Historical Tsunami Database (3,138 events and 35,129 runup observations)
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: NOAA National Centers for Environmental Information
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.ngdc.noaa.gov/hazel/hazard-service/api/v1/tsunamis/events', 'https://www.ngdc.noaa.gov/hazel/hazard-service/api/v1/tsunamis/runups' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The database page asks users to cite doi:10.7289/V5PN93H7 and carries a disclaimer the scout could not reduce to a licence; read the NCEI data-access policy before RIGHTS_DETERMINED.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/tsunami-events/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: 3,138 events (480 since 2000, newest year 2026; 723 with deaths, 190 with a damage figure) and 35,129 runups in paged JSON. Archive every page, then measure how the
+      event cause, validity and death/damage fields compare with the NCEI source tables.
+
+  - key: hazard-ptwc-tsunami-bulletins
+    name: NWS Pacific Tsunami Warning Center bulletins (tsunami information statements and messages as Atom feeds)
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: NOAA National Weather Service Pacific Tsunami Warning Center
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.tsunami.gov/events/xml/PHEBAtom.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The NWS disclaimer page returned no usable text to the scout; read tsunami.gov and weather.gov terms before RIGHTS_DETERMINED.'
+      - 'Bulletins are time-critical safety messages; carry the issue time and never present an archived bulletin as current.'
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/tsunami-events/measure.json ]
+    next_action: >-
+      Measured 2026-10-19: the PHEB Atom feed answers 200 (2,001 bytes) with a "Tsunami Information Statement Number 1" updated 2026-10-16T03:46:40Z. Enumerate the other PTWC and NTWC
+      feeds and archive each bulletin as it appears; no historical archive route was measured.
+
+  - key: fda-company-announcements
+    name: FDA recalls, market withdrawals and safety alerts (company announcements and press releases)
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US FDA
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/datatables-data', 'https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/recalls/rss.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.fda.gov/about-fda/about-website/website-policies',
+          quote: 'Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/fda-announcements/link.json, docs/sources/pipeline/evidence/2026-10-19/fda-announcements/handcheck.json ]
+    next_action: >-
+      Measured 2026-10-19: the datatables-data URL returns an 88,228-byte XLSX of 1,089 company announcements (Date, Brand, Product, Product-Type, Reason, Company, Terminated flag),
+      and the RSS feed carries the 20 newest with the announcement text (UPC and lot numbers appear in it). The robots.txt asks generic crawlers for a 30 second delay, so fetch the XLSX and RSS
+      only and never crawl the notice pages without that delay. Build it as a free-text member of the FDA dataset: archive the XLSX and every RSS item in R2, parse the announcement text with the
+      existing recall-structuring rules, then measure UPC/lot hits against openFDA code_info.
+
+  - key: infrastructure-usace-national-inventory-of-dams
+    name: US Army Corps of Engineers National Inventory of Dams (dam location, hazard class, condition and inspection)
+    category: infrastructure
+    structuring: normalization
+    format: structured
+    publisher: US Army Corps of Engineers
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://nid.sec.usace.army.mil/api/nation/csv' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md ]
+    next_action: 'PARKED 2026-10-19: the CSV export answered HTTP 403 with {"statusCode":403,"code":"ERR_BAD_REQUEST","error":"Forbidden"} to the scout User-Agent; terms unread. Retry from a Cloudflare Worker egress or find the public download link, and add free-text inspection reports as the second member.'
+
+  - key: transport-nhtsa-fars-crash-api
+    name: NHTSA Fatality Analysis Reporting System crash API (fatal crashes with person, vehicle and circumstance records)
+    category: transport
+    structuring: normalization
+    format: structured
+    publisher: US NHTSA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://crashviewer.nhtsa.dot.gov/CrashAPI/crashes/GetCaseList' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md ]
+    next_action: 'PARKED 2026-10-19: the CrashAPI answered HTTP 403 Access Denied (an Akamai reference page) to the scout User-Agent. The annual FARS CSV files on static.nhtsa.gov were not tested and are the next route; the records describe individuals in fatal crashes, so personal data must be reviewed before any member is built.'
 
 datasets:
   - key: home-product-recalls-global
@@ -8836,10 +9109,18 @@ datasets:
     description: 'One record per national agency notice, widening the LIVE fda-recalls feed (US FDA food, drug and device enforcement reports) with Health Canada and CFIA, the UK Food Standards Agency and FSANZ. Free text is parsed deterministically into allergens, pathogens, hazards, classes, check-digit-valid GTINs, lots and dates, under one hazard and class taxonomy. A check-digit-valid GTIN links a notice to the affected product and never merges two recall events. Name and product matches only propose a reviewed link.'
     sources:
       - fda-recalls
+      - fda-company-announcements
       - uk-fsa-food-alerts
       - ca-recalls-food-health-open-data
       - au-nz-fsanz-food-recalls
     join_keys:
+      - key: recalling firm name + product tokens, enforcement date within -30 to +150 days of the announcement (FDA company announcement vs openFDA enforcement report)
+        between:
+          - fda-company-announcements
+          - fda-recalls
+        measured: '105/254 company announcements dated 2026-01-01 or later match an openFDA enforcement report by firm, product token and date window; the other 149 were not separated into a missing enforcement report and a missing shared product token. All 12 randomly chosen matches agree on firm, product and date (evidence/2026-10-19/fda-announcements/handcheck.json); this is a read of the agreeing fields, not an independent check'
+        mode: candidate
+        reviewed: { correct: 12, checked: 12 }
       - key: GTIN/UPC (check-digit-valid, Health Canada notice detail page vs FDA code_info)
         between:
           - ca-recalls-food-health-open-data
@@ -10145,3 +10426,157 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/join.json, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/text.json ]
     next_action: Archive the NHC report PDFs, the full IBTrACS file and the FEMA declarations in R2, measure deaths, damage and landfall extraction on 20 or more reports, and read the OpenFEMA terms (the page answered 403) before the FEMA member can leave PARKED.
+
+  - key: software-license-texts
+    name: Software licenses (SPDX identifiers, full texts and OSI approval records)
+    category: software-licensing
+    entity: software license (one SPDX license identifier) with full text, standard header, deprecation state, OSI approval and steward
+    stage: SCREENED
+    description: "One record per software or data license, assembled from the SPDX License List (identifier, name, deprecation, full license text and standard header, as free text) and the Open Source Initiative license API (approval date, steward and board minutes). The SPDX identifier is carried by both, so they link automatically; a license named only in prose (a package manifest, a README) is matched to an identifier by exact normalised name or by review, never by similarity."
+    sources:
+      - software-spdx-license-list
+      - software-osi-license-api
+    join_keys:
+      - key: SPDX license identifier (OSI API spdx_id = SPDX licenseId)
+        between:
+          - software-osi-license-api
+          - software-spdx-license-list
+        measured: '122/123 OSI license records that carry an spdx_id resolve to a license in the SPDX list of 2026-10-19 (version 3.29.0, 740 licenses); the miss is NOKIA. 118 of the 122 are also flagged isOsiApproved by SPDX (evidence/2026-10-19/software-licenses/measure.json)'
+        mode: declared
+    taxonomy:
+      - 'permissiveness: permissive, weak copyleft, strong copyleft, network copyleft, public domain dedication'
+      - 'status: current, deprecated'
+      - 'approval: OSI-approved, FSF libre, neither'
+      - 'obligations: attribution, notice, source disclosure, patent grant'
+    agent_questions:
+      - Is the license named in this package manifest an OSI-approved license, and which SPDX identifier is it?
+      - Which licenses on this list require source disclosure when the software is offered over a network?
+      - Was this SPDX identifier deprecated, and what replaces it?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/software-licenses/measure.json ]
+    next_action: Read the SPDX data licence and the OSI terms, archive the full SPDX json tree and the OSI response in R2, then add the third member (package-manifest license strings from a package registry) to test normalisation of free-text license names.
+
+  - key: internet-standards-documents
+    name: Internet and web standards (RFC series, IETF datatracker and W3C specifications)
+    category: standards
+    entity: standards document (one RFC or W3C specification) with number, title, status, abstract, working group and obsoletes/updates chain
+    stage: SCREENED
+    description: "One record per Internet or web standard. The RFC Series index supplies the number, title, status and abstract (free text) and the obsoletes and updates chains; the IETF datatracker supplies working group, area, page count and keywords for the same RFC number, so they link automatically. The W3C specification list is a third publisher with its own identifiers; it is not linked until a specification reference cites an RFC number."
+    sources:
+      - standards-rfc-series-index
+      - standards-ietf-datatracker
+      - standards-w3c-specifications
+    join_keys:
+      - key: RFC number (RFC index doc-id = datatracker rfc_number)
+        between:
+          - standards-rfc-series-index
+          - standards-ietf-datatracker
+        measured: '40/40 sampled RFC numbers (random seed 20261019, from 9,848) resolve in the datatracker with the same title; 36/40 carry an abstract there (evidence/2026-10-19/internet-standards/measure.json)'
+        mode: declared
+    taxonomy:
+      - 'status: Internet Standard, Proposed Standard, Informational, Experimental, Best Current Practice, Historic'
+      - 'area: applications, internet, operations, routing, security, transport'
+      - 'lifecycle: current, obsoleted, updated'
+    agent_questions:
+      - Which RFC currently defines this protocol behaviour, and which RFCs does it obsolete or update?
+      - Is this RFC still current, and which working group maintains it?
+      - What did the standard say about this field before it was updated?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/internet-standards/measure.json ]
+    next_action: Parse the obsoletes/updates chains into a status field, check whether W3C specification metadata cites RFC numbers (a declared link), and archive the index and RFC text in R2.
+
+  - key: airport-facilities
+    name: Airports and landing facilities (FAA layer and OurAirports, with visitor comments)
+    category: aviation
+    entity: airport (one landing facility, by ICAO or FAA identifier) with location, type, status, frequencies and operator remarks
+    stage: SCREENED
+    description: "One record per landing facility. The FAA Aeronautical Information Services layer supplies the official US facilities with FAA and ICAO identifiers and operating status; OurAirports adds worldwide coverage, IATA codes, runways and frequencies; the OurAirports comment file adds visitor free text. FAA and OurAirports link on the ICAO or FAA location identifier; comments attach to an airport through the OurAirports airport id."
+    sources:
+      - airports-faa-aeronautical-info
+      - airports-ourairports-open-data
+      - airports-ourairports-comments
+    join_keys:
+      - key: ICAO location identifier (FAA ICAO_ID = OurAirports ident) or FAA location identifier (FAA IDENT = OurAirports local_code)
+        between:
+          - airports-faa-aeronautical-info
+          - airports-ourairports-open-data
+        measured: '19272/19535 FAA airport features match an OurAirports row by ICAO id or FAA identifier; of the 19,089 matches with parseable coordinates, 18,743 lie within 2 km of each other (evidence/2026-10-19/airports/measure.json)'
+        mode: declared
+    taxonomy:
+      - 'type: large, medium, small, heliport, seaplane base, closed'
+      - 'status: operational, indefinite, closed'
+      - 'service: scheduled airline, general aviation, military'
+    agent_questions:
+      - What are the ICAO and IATA codes, coordinates and frequencies for this airport?
+      - Which US airports are closed or in indefinite status?
+      - What do visitors report about fuel, fees or hazards at this field?
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/airports/measure.json ]
+    next_action: Quote the OurAirports licence, measure the FAA layer's real publication date, sample 20 comments for deterministic facts, and archive the three sources in R2.
+
+  - key: orbital-launches
+    name: Orbital launches and catalogued space objects (GCAT, CelesTrak and Launch Library 2)
+    category: space
+    entity: orbital launch (one launch event) with vehicle, site, outcome, payload objects and mission description
+    stage: SCREENED
+    description: "One record per launch, with the objects it placed in orbit. GCAT supplies the launch log and satellite catalogue back to 1942; CelesTrak publishes the same objects under their NORAD catalog numbers, so they link automatically; Launch Library 2 supplies mission descriptions in free text and links to GCAT only by launch date and vehicle, a candidate for review."
+    sources:
+      - space-gcat-launch-log
+      - space-celestrak-satcat
+      - space-launch-library-2
+    join_keys:
+      - key: NORAD catalog number (GCAT Satcat = CelesTrak NORAD_CAT_ID)
+        between:
+          - space-gcat-launch-log
+          - space-celestrak-satcat
+        measured: '69432/69999 GCAT objects with a NORAD number are present in the CelesTrak catalogue (71,073 rows; 1,641 CelesTrak rows are not in GCAT); 68,677 of the 69,414 matches with both dates agree on the launch date (evidence/2026-10-19/orbital-launches/measure.json)'
+        mode: declared
+      - key: launch date within one day and a shared vehicle-name token (LL2 net = GCAT Launch_Date)
+        between:
+          - space-launch-library-2
+          - space-gcat-launch-log
+        measured: '31/40 of the most recent Launch Library 2 launches have a GCAT launch on the same date with a shared vehicle token; the other 9 are Chinese and Indian vehicles named differently or launched after the GCAT update of 2026-09-28. On a 12-launch hand check 8 are the same launch (exact UTC time and pad); the 4 wrong pairs are different launches by the same vehicle on one day (evidence/2026-10-19/orbital-launches/ll2-handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 8, checked: 12 }
+    taxonomy:
+      - 'outcome: success, failure, partial failure'
+      - 'orbit class: LEO, SSO, GTO, GEO, lunar, deep space'
+      - 'operator type: government, commercial, military'
+    agent_questions:
+      - Which launches placed objects with this NORAD catalog number in orbit, and what was the outcome?
+      - How many launches did this vehicle make this year, and from which sites?
+      - What was the stated purpose of this mission?
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/orbital-launches/measure.json, docs/sources/pipeline/evidence/2026-10-19/orbital-launches/ll2-link.json, docs/sources/pipeline/evidence/2026-10-19/orbital-launches/ll2-handcheck.json ]
+    next_action: Read the CelesTrak and Launch Library 2 terms, archive the GCAT and CelesTrak files in R2, and pace a Launch Library 2 backfill under its throttle.
+
+  - key: tsunami-events
+    name: Tsunami events (NOAA NCEI database, USGS earthquakes and Pacific Tsunami Warning Center bulletins)
+    category: natural-hazards
+    entity: tsunami event (one source event with cause, origin, runups, deaths and damage) with the causing earthquake and warning bulletins
+    stage: SCREENED
+    description: "One record per tsunami. The NCEI/WDS database supplies the event, cause, validity, runup observations and casualties across recorded history; the USGS earthquake catalogue supplies the causing earthquake, matched by origin time, magnitude and epicentre (a candidate, reviewed); the Pacific Tsunami Warning Center Atom feeds supply bulletin text for new events. A bulletin links to an event by issue time and region only."
+    sources:
+      - hazard-ncei-tsunami-events
+      - hazard-usgs-earthquakes
+      - hazard-ptwc-tsunami-bulletins
+    join_keys:
+      - key: origin time within 5 minutes, magnitude within 0.4 and epicentre within 2 degrees (NCEI earthquake-caused events vs USGS ComCat)
+        between:
+          - hazard-ncei-tsunami-events
+          - hazard-usgs-earthquakes
+        measured: '322/324 NCEI earthquake-caused events since 2000 with a magnitude match a USGS event under that rule; on a 12-event hand check all 12 name the same region in both catalogues (evidence/2026-10-19/tsunami-events/handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 12, checked: 12 }
+    taxonomy:
+      - 'cause: earthquake, landslide, volcano, meteorological, unknown'
+      - 'validity: definite, probable, questionable, erroneous'
+      - 'impact: deaths, injuries, damage (USD), houses destroyed'
+      - 'bulletin: information statement, advisory, watch, warning'
+    agent_questions:
+      - Which tsunamis followed an earthquake of this magnitude in this region, and how high were the runups?
+      - What deaths and damage were recorded for this tsunami?
+      - What did the warning centre say in the first bulletin for this event?
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/tsunami-events/measure.json, docs/sources/pipeline/evidence/2026-10-19/tsunami-events/handcheck.json ]
+    next_action: Read the NCEI data-access policy and the NWS terms, archive the event and runup pages in R2, and find a PTWC bulletin archive route so historical events have bulletin text.

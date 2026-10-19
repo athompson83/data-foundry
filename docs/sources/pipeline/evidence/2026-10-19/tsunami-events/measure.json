@@ -1,0 +1,10 @@
+{
+ "ncei_events": 3138,
+ "ncei_events_since_2000": 480,
+ "ncei_runups_total": 35129,
+ "earthquake_caused_since_2000_with_magnitude": 324,
+ "matched_usgs_event": 322,
+ "latest_ncei_event_year": 2026,
+ "events_with_deaths": 723,
+ "events_with_damage_usd": 190
+}

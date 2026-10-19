@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "b0aea53665b6c07d7df7a737788bef6c79f4eaddbb303c7bfaff54a8f7987120",
+  "registry_sha256": "0986e98d537c9fce187809888cf823bdd91147290fbd4c7bb4e586f807eefddb",
   "tasks": [
     {
       "task": "cpsc-product-identifiers@1",
@@ -157,6 +157,7 @@
       "stage": "SCREENED",
       "sources": [
         "fda-recalls",
+        "fda-company-announcements",
         "uk-fsa-food-alerts",
         "ca-recalls-food-health-open-data",
         "au-nz-fsanz-food-recalls"
@@ -430,6 +431,50 @@
         "hazard-nhc-tropical-cyclone-reports",
         "hazard-ibtracs-best-tracks",
         "hazard-fema-disaster-declarations"
+      ]
+    },
+    "software-license-texts": {
+      "name": "Software licenses (SPDX identifiers, full texts and OSI approval records)",
+      "stage": "SCREENED",
+      "sources": [
+        "software-spdx-license-list",
+        "software-osi-license-api"
+      ]
+    },
+    "internet-standards-documents": {
+      "name": "Internet and web standards (RFC series, IETF datatracker and W3C specifications)",
+      "stage": "SCREENED",
+      "sources": [
+        "standards-rfc-series-index",
+        "standards-ietf-datatracker",
+        "standards-w3c-specifications"
+      ]
+    },
+    "airport-facilities": {
+      "name": "Airports and landing facilities (FAA layer and OurAirports, with visitor comments)",
+      "stage": "SCREENED",
+      "sources": [
+        "airports-faa-aeronautical-info",
+        "airports-ourairports-open-data",
+        "airports-ourairports-comments"
+      ]
+    },
+    "orbital-launches": {
+      "name": "Orbital launches and catalogued space objects (GCAT, CelesTrak and Launch Library 2)",
+      "stage": "SCREENED",
+      "sources": [
+        "space-gcat-launch-log",
+        "space-celestrak-satcat",
+        "space-launch-library-2"
+      ]
+    },
+    "tsunami-events": {
+      "name": "Tsunami events (NOAA NCEI database, USGS earthquakes and Pacific Tsunami Warning Center bulletins)",
+      "stage": "SCREENED",
+      "sources": [
+        "hazard-ncei-tsunami-events",
+        "hazard-usgs-earthquakes",
+        "hazard-ptwc-tsunami-bulletins"
       ]
     }
   },
@@ -3883,14 +3928,14 @@
     "space-celestrak-satcat": {
       "name": "CelesTrak satellite catalog (SATCAT CSV, derived from US Space Force data)",
       "rights": "UNKNOWN",
-      "stage": "PARKED",
+      "stage": "SCREENED",
       "format": "structured",
       "publisher": "CelesTrak",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "lobbying-ca-registrations": {
@@ -4302,6 +4347,201 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "US Geological Survey",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "software-spdx-license-list": {
+      "name": "SPDX License List (identifier, name, OSI and FSF flags, deprecation, full license text and standard header)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "SPDX (Linux Foundation)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "software-osi-license-api": {
+      "name": "Open Source Initiative license API (OSI-approved licenses with SPDX id, steward, keywords and approval record)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Open Source Initiative",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "standards-rfc-series-index": {
+      "name": "RFC Series index (every RFC with title, status, abstract, obsoletes and updates chains; RFC text published alongside)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "RFC Series (RFC Editor)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "standards-ietf-datatracker": {
+      "name": "IETF datatracker API (document records: RFC number, working group, area director, status, keywords, pages, abstract)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "IETF",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "standards-w3c-specifications": {
+      "name": "W3C specifications API (1,720 specifications with series, status, shortlink and versions)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "World Wide Web Consortium",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "airports-faa-aeronautical-info": {
+      "name": "FAA Aeronautical Information Services airport layer (US airports, heliports and seaplane bases with FAA and ICAO identifiers)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "FAA Aeronautical Information Services",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "airports-ourairports-open-data": {
+      "name": "OurAirports open data (86,258 airports and heliports worldwide with ICAO, IATA, GPS and local codes, plus runways and frequencies)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "OurAirports",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "airports-ourairports-comments": {
+      "name": "OurAirports airport comments (16,434 pilot and visitor comments on airports, free text)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "OurAirports",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "space-gcat-launch-log": {
+      "name": "GCAT General Catalog of Artificial Space Objects (launch log, satellite catalogue and notes since 1942)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Jonathan McDowell (GCAT)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "space-launch-library-2": {
+      "name": "Launch Library 2 (launches, rockets, pads, agencies and mission descriptions)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "The Space Devs",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hazard-ncei-tsunami-events": {
+      "name": "NOAA NCEI/WDS Global Historical Tsunami Database (3,138 events and 35,129 runup observations)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NOAA National Centers for Environmental Information",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hazard-ptwc-tsunami-bulletins": {
+      "name": "NWS Pacific Tsunami Warning Center bulletins (tsunami information statements and messages as Atom feeds)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA National Weather Service Pacific Tsunami Warning Center",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fda-company-announcements": {
+      "name": "FDA recalls, market withdrawals and safety alerts (company announcements and press releases)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "infrastructure-usace-national-inventory-of-dams": {
+      "name": "US Army Corps of Engineers National Inventory of Dams (dam location, hazard class, condition and inspection)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Army Corps of Engineers",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "transport-nhtsa-fars-crash-api": {
+      "name": "NHTSA Fatality Analysis Reporting System crash API (fatal crashes with person, vehicle and circumstance records)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US NHTSA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [

@@ -1,0 +1,1971 @@
+{
+ "announcements_total": 1089,
+ "since": "2026-01-01",
+ "announcements_since": 254,
+ "with_candidate_enforcement_match": 105,
+ "rows": [
+  {
+   "date": "01/05/2026",
+   "firm": "Newway Import Inc.",
+   "brand": "Newway Import",
+   "matches": []
+  },
+  {
+   "date": "01/12/2026",
+   "firm": "Karison Foods & Snacks Inc",
+   "brand": "Karison",
+   "matches": [
+    "H-0505-2026",
+    "H-0506-2026",
+    "H-0507-2026",
+    "H-0508-2026",
+    "H-0509-2026"
+   ]
+  },
+  {
+   "date": "01/09/2026",
+   "firm": "Anthony Trinh, 123Herbals LLC",
+   "brand": "Silintan",
+   "matches": []
+  },
+  {
+   "date": "01/09/2026",
+   "firm": "Modern Warrior",
+   "brand": "Modern Warrior",
+   "matches": []
+  },
+  {
+   "date": "01/12/2026",
+   "firm": "VH Foods Inc. DBA Outside The Breadbox",
+   "brand": "Outside the Breadbox",
+   "matches": []
+  },
+  {
+   "date": "02/12/2026",
+   "firm": "Slade Gorton & Co., Inc.",
+   "brand": "Wellsley Farms",
+   "matches": [
+    "H-0541-2026"
+   ]
+  },
+  {
+   "date": "02/05/2026",
+   "firm": "Prime Food Processing LLC",
+   "brand": "No Brand",
+   "matches": [
+    "H-0519-2026",
+    "H-1080-2026"
+   ]
+  },
+  {
+   "date": "02/13/2026",
+   "firm": "Ambrosia Brands, LLC.",
+   "brand": "Rosabella",
+   "matches": [
+    "H-0546-2026"
+   ]
+  },
+  {
+   "date": "02/13/2026",
+   "firm": "Green Lumber Holding, LLC.",
+   "brand": "Green Lumber",
+   "matches": []
+  },
+  {
+   "date": "02/13/2026",
+   "firm": "IF Copack, LLC. d.b.a. Initiative Foods",
+   "brand": "Tippy Toes",
+   "matches": []
+  },
+  {
+   "date": "02/17/2026",
+   "firm": "Shaman Botanicals, LLC",
+   "brand": "Advanced Alkaloids",
+   "matches": [
+    "H-1107-2026",
+    "H-1108-2026"
+   ]
+  },
+  {
+   "date": "01/07/2026",
+   "firm": "Carrot Top Kitchens",
+   "brand": "Carrot Top Kitchens",
+   "matches": [
+    "H-0485-2026",
+    "H-0486-2026",
+    "H-0487-2026",
+    "H-0488-2026",
+    "H-0489-2026"
+   ]
+  },
+  {
+   "date": "01/12/2026",
+   "firm": "Spring & Mulberry",
+   "brand": "Spring & Mulberry",
+   "matches": [
+    "H-1096-2026",
+    "H-1097-2026",
+    "H-1098-2026",
+    "H-1099-2026",
+    "H-1100-2026",
+    "H-1101-2026",
+    "H-1102-2026",
+    "H-1103-2026",
+    "H-1104-2026",
+    "H-1105-2026",
+    "H-1106-2026"
+   ]
+  },
+  {
+   "date": "01/15/2026",
+   "firm": "Abbott",
+   "brand": "FreeStyle Libre",
+   "matches": []
+  },
+  {
+   "date": "01/15/2026",
+   "firm": "The Ambriola Company",
+   "brand": "Ambriola, Locatelli, Member\u2019s Mark, Pinna, and Boar\u2019s Head",
+   "matches": []
+  },
+  {
+   "date": "01/28/2026",
+   "firm": "Gerber Products Company",
+   "brand": "Gerber",
+   "matches": []
+  },
+  {
+   "date": "01/23/2026",
+   "firm": "IKM",
+   "brand": "IKM",
+   "matches": []
+  },
+  {
+   "date": "02/27/2026",
+   "firm": "Savannah Bee Company",
+   "brand": "Savannah Bee Company",
+   "matches": [
+    "H-0615-2026"
+   ]
+  },
+  {
+   "date": "02/26/2026",
+   "firm": "Go Raw LLC.",
+   "brand": "Quest",
+   "matches": []
+  },
+  {
+   "date": "02/04/2026",
+   "firm": "Mondelez Global",
+   "brand": "CHIPS AHOY",
+   "matches": []
+  },
+  {
+   "date": "02/25/2026",
+   "firm": "Lockout Supplements",
+   "brand": "Boner Bears",
+   "matches": []
+  },
+  {
+   "date": "02/27/2026",
+   "firm": "USA LESS Co.",
+   "brand": "RHINO CHOCO VIP 10X",
+   "matches": []
+  },
+  {
+   "date": "01/20/2026",
+   "firm": "Superfoods, Inc. DBA as Live it Up",
+   "brand": "Live it Up",
+   "matches": []
+  },
+  {
+   "date": "01/28/2026",
+   "firm": "Why Not Natural",
+   "brand": "Why Not Natural",
+   "matches": []
+  },
+  {
+   "date": "01/29/2026",
+   "firm": "Neogen Corporation",
+   "brand": "Neogen",
+   "matches": []
+  },
+  {
+   "date": "02/25/2026",
+   "firm": "Saputo Cheese USA, Inc.",
+   "brand": "Great Value",
+   "matches": [
+    "H-0579-2026",
+    "H-0581-2026",
+    "H-0582-2026",
+    "H-0583-2026"
+   ]
+  },
+  {
+   "date": "01/19/2026",
+   "firm": "Tri-Union Seafoods",
+   "brand": "Genova",
+   "matches": []
+  },
+  {
+   "date": "01/16/2026",
+   "firm": "Olympus Corporation",
+   "brand": "Olympus",
+   "matches": []
+  },
+  {
+   "date": "01/28/2026",
+   "firm": "Koikoi Trading Inc.",
+   "brand": "Fu Zhou",
+   "matches": []
+  },
+  {
+   "date": "01/23/2026",
+   "firm": "Navitas Organics",
+   "brand": "Navitas Organice",
+   "matches": []
+  },
+  {
+   "date": "02/03/2026",
+   "firm": "Akkarco LLC",
+   "brand": "Ashfiat Alharamain",
+   "matches": [
+    "H-1196-2026"
+   ]
+  },
+  {
+   "date": "03/14/2026",
+   "firm": "Pure Vitamins and Natural Supplements, LLC",
+   "brand": "Boner Bear, Red Bull and Blue Bull",
+   "matches": [
+    "H-0653-2026",
+    "H-0654-2026",
+    "H-0655-2026"
+   ]
+  },
+  {
+   "date": "03/13/2026",
+   "firm": "Insulet Corporation",
+   "brand": "Omnipod",
+   "matches": [
+    "Z-1797-2026",
+    "Z-2603-2026",
+    "Z-2604-2026",
+    "Z-2605-2026"
+   ]
+  },
+  {
+   "date": "03/11/2026",
+   "firm": "Primal Supplements Group LLC",
+   "brand": "Primal Herbs",
+   "matches": []
+  },
+  {
+   "date": "03/18/2026",
+   "firm": "Mama Grande Tortilla Factory",
+   "brand": "Mama Grande",
+   "matches": []
+  },
+  {
+   "date": "03/12/2026",
+   "firm": "Lidl US",
+   "brand": "Favorina",
+   "matches": []
+  },
+  {
+   "date": "04/02/2026",
+   "firm": "Raw Farm",
+   "brand": "RAW FARM",
+   "matches": [
+    "H-0762-2026",
+    "H-0763-2026",
+    "H-0764-2026",
+    "H-0765-2026",
+    "H-0766-2026"
+   ]
+  },
+  {
+   "date": "04/08/2026",
+   "firm": "Blaine Labs, Inc.",
+   "brand": "Revitaderm, Tridergel",
+   "matches": [
+    "D-0692-2026",
+    "D-0693-2026",
+    "D-0695-2026",
+    "D-0699-2026"
+   ]
+  },
+  {
+   "date": "04/14/2026",
+   "firm": "Liquid Blenz Corp",
+   "brand": "Good Brain Tonic",
+   "matches": [
+    "H-0784-2026",
+    "H-0791-2026",
+    "H-0794-2026"
+   ]
+  },
+  {
+   "date": "03/28/2026",
+   "firm": "Schreiber Foods, Inc.",
+   "brand": "Einstein Bros Bagels",
+   "matches": [
+    "H-0675-2026"
+   ]
+  },
+  {
+   "date": "04/13/2026",
+   "firm": "Morovan",
+   "brand": "Morovan",
+   "matches": []
+  },
+  {
+   "date": "04/16/2026",
+   "firm": "Silver Moon LP dba Loard\u2019s Ice Cream",
+   "brand": "Loard\u2019s",
+   "matches": []
+  },
+  {
+   "date": "04/01/2026",
+   "firm": "Aphreseller",
+   "brand": "Kian Pee Wan",
+   "matches": []
+  },
+  {
+   "date": "04/07/2026",
+   "firm": "Nalpac",
+   "brand": "DTF Sexual Chocolate",
+   "matches": []
+  },
+  {
+   "date": "03/24/2026",
+   "firm": "Amneal Pharmaceuticals LLC",
+   "brand": "Amneal",
+   "matches": [
+    "D-0408-2026",
+    "D-0478-2026",
+    "D-0585-2026"
+   ]
+  },
+  {
+   "date": "03/26/2026",
+   "firm": "Falcon Trading Company, Inc.",
+   "brand": "Falcon Trading Company",
+   "matches": [
+    "H-0695-2026",
+    "H-0696-2026",
+    "H-0697-2026"
+   ]
+  },
+  {
+   "date": "03/26/2026",
+   "firm": "Gear Isle",
+   "brand": "Gold Lion, ilum",
+   "matches": []
+  },
+  {
+   "date": "02/24/2026",
+   "firm": "Elite Treats, LLC.",
+   "brand": "Elite Treats",
+   "matches": []
+  },
+  {
+   "date": "01/08/2026",
+   "firm": "Gusto Group Inc.",
+   "brand": "Klong Kone",
+   "matches": []
+  },
+  {
+   "date": "04/03/2026",
+   "firm": "Karns Foods",
+   "brand": "Karns Foods",
+   "matches": []
+  },
+  {
+   "date": "04/24/2026",
+   "firm": "French Broad Chocolate Factory",
+   "brand": "French Broad Chocolate",
+   "matches": [
+    "H-0712-2026"
+   ]
+  },
+  {
+   "date": "05/07/2026",
+   "firm": "My Wife\u2019s Slaw",
+   "brand": "My Wife\u2019s Slaw",
+   "matches": []
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "The Brownie Baker, Inc.",
+   "brand": "Nouria",
+   "matches": [
+    "H-0859-2026"
+   ]
+  },
+  {
+   "date": "05/13/2026",
+   "firm": "Sun Pharmaceutical Industries, Inc.",
+   "brand": "Aisling",
+   "matches": [
+    "D-0580-2026",
+    "D-0654-2026"
+   ]
+  },
+  {
+   "date": "04/28/2026",
+   "firm": "Ghirardelli Chocolate Company",
+   "brand": "Ghirardelli",
+   "matches": [
+    "H-0838-2026",
+    "H-0839-2026",
+    "H-0840-2026",
+    "H-0841-2026",
+    "H-0842-2026",
+    "H-0843-2026",
+    "H-0844-2026",
+    "H-0845-2026",
+    "H-0846-2026",
+    "H-0847-2026"
+   ]
+  },
+  {
+   "date": "05/21/2026",
+   "firm": "Kettle Cuisine",
+   "brand": "Whole Foods Market",
+   "matches": [
+    "H-0941-2026"
+   ]
+  },
+  {
+   "date": "05/22/2026",
+   "firm": "Raaw Energy",
+   "brand": "Raaw Energy",
+   "matches": []
+  },
+  {
+   "date": "05/23/2026",
+   "firm": "SKS Copack",
+   "brand": "Angel Specialty Products, Royal Gold, Boba Time, Fanale, Denda",
+   "matches": []
+  },
+  {
+   "date": "05/23/2026",
+   "firm": "JXK Enterprises, Inc",
+   "brand": "Boner Bears",
+   "matches": []
+  },
+  {
+   "date": "05/18/2026",
+   "firm": "Sugar Foods, LLC.",
+   "brand": "Kroger",
+   "matches": [
+    "H-0781-2026"
+   ]
+  },
+  {
+   "date": "05/18/2026",
+   "firm": "Nassar Investment Co., LLC.",
+   "brand": "Malazi",
+   "matches": [
+    "H-0860-2026"
+   ]
+  },
+  {
+   "date": "05/14/2026",
+   "firm": "Terra Medi LLC",
+   "brand": "Hellas Meze",
+   "matches": [
+    "H-0899-2026"
+   ]
+  },
+  {
+   "date": "05/14/2026",
+   "firm": "IQ Produce LCC",
+   "brand": "IQ Produce LCC",
+   "matches": []
+  },
+  {
+   "date": "05/05/2026",
+   "firm": "Trividia Health, Inc.",
+   "brand": "TRUE METRIX",
+   "matches": []
+  },
+  {
+   "date": "05/05/2026",
+   "firm": "Pork King Good",
+   "brand": "Pork King Good",
+   "matches": [
+    "H-0830-2026"
+   ]
+  },
+  {
+   "date": "05/12/2026",
+   "firm": "Pharmacal",
+   "brand": "MG217",
+   "matches": []
+  },
+  {
+   "date": "05/06/2026",
+   "firm": "John B. Sanfilippo & Son, Inc.",
+   "brand": "Fisher, Southern Style Nuts, Squirrel Brand, Good & Gather",
+   "matches": [
+    "H-0831-2026",
+    "H-0832-2026",
+    "H-0833-2026",
+    "H-0834-2026",
+    "H-0835-2026",
+    "H-0836-2026"
+   ]
+  },
+  {
+   "date": "05/11/2026",
+   "firm": "XD Investments LLC",
+   "brand": "Better Weather",
+   "matches": []
+  },
+  {
+   "date": "03/04/2026",
+   "firm": "Frito-Lay",
+   "brand": "Miss Vickie\u2019s",
+   "matches": []
+  },
+  {
+   "date": "02/12/2026",
+   "firm": "Juniper Granola, LLC.",
+   "brand": "Junebar",
+   "matches": [
+    "H-0542-2026",
+    "H-0543-2026"
+   ]
+  },
+  {
+   "date": "04/01/2026",
+   "firm": "Tops Friendly Markets",
+   "brand": "Christopher Ranch, Garland",
+   "matches": []
+  },
+  {
+   "date": "01/09/2026",
+   "firm": "HerbsForever LLC",
+   "brand": "HerbsForever LLC",
+   "matches": []
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "Legacy Snack Solutions",
+   "brand": "Giant Eagle",
+   "matches": []
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "CBSL Commissary LLC",
+   "brand": "Winfield\u2019s",
+   "matches": []
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "Spring & Mulberry",
+   "brand": "Spring & Mulberry",
+   "matches": []
+  },
+  {
+   "date": "01/15/2026",
+   "firm": "Spring & Mulberry",
+   "brand": "Spring & Mulberry",
+   "matches": [
+    "H-1096-2026",
+    "H-1097-2026",
+    "H-1098-2026",
+    "H-1099-2026",
+    "H-1100-2026",
+    "H-1101-2026",
+    "H-1102-2026",
+    "H-1103-2026",
+    "H-1104-2026",
+    "H-1105-2026",
+    "H-1106-2026"
+   ]
+  },
+  {
+   "date": "04/03/2026",
+   "firm": "Wawa",
+   "brand": "Wawa",
+   "matches": []
+  },
+  {
+   "date": "05/14/2026",
+   "firm": "HH Fresh Trading",
+   "brand": "HH Fresh Trading",
+   "matches": [
+    "H-0939-2026"
+   ]
+  },
+  {
+   "date": "05/15/2026",
+   "firm": "Straus Family Creamery",
+   "brand": "Straus Family Creamery",
+   "matches": [
+    "H-0893-2026",
+    "H-0894-2026",
+    "H-0895-2026",
+    "H-0896-2026",
+    "H-0897-2026"
+   ]
+  },
+  {
+   "date": "05/15/2026",
+   "firm": "Blackstone Products",
+   "brand": "Blackstone",
+   "matches": []
+  },
+  {
+   "date": "05/18/2026",
+   "firm": "Best Supplements Best Prices",
+   "brand": "Best Supplements Best Prices",
+   "matches": []
+  },
+  {
+   "date": "05/07/2026",
+   "firm": "Albright\u2019s Raw Pet Food",
+   "brand": "Albright\u2019s",
+   "matches": []
+  },
+  {
+   "date": "05/07/2026",
+   "firm": "JCB Flavors, LLC",
+   "brand": "Wildlife Seasoning",
+   "matches": [
+    "H-0881-2026",
+    "H-0882-2026",
+    "H-0886-2026",
+    "H-0888-2026",
+    "H-0889-2026",
+    "H-0890-2026"
+   ]
+  },
+  {
+   "date": "05/07/2026",
+   "firm": "Stoltzfus Family Dairy LLC",
+   "brand": "Stoltzfus Family Dairy",
+   "matches": [
+    "H-0848-2026"
+   ]
+  },
+  {
+   "date": "04/27/2026",
+   "firm": "We R Nuts, LLC.",
+   "brand": "Uncle Giuseppe\u2019s",
+   "matches": [
+    "H-0775-2026"
+   ]
+  },
+  {
+   "date": "05/02/2026",
+   "firm": "Second Nature Brands",
+   "brand": "Second Nature",
+   "matches": []
+  },
+  {
+   "date": "03/20/2026",
+   "firm": "Cardinal Health",
+   "brand": "Webcol",
+   "matches": []
+  },
+  {
+   "date": "04/28/2026",
+   "firm": "B. Braun Medical Inc.",
+   "brand": "B. Braun",
+   "matches": [
+    "D-0495-2026",
+    "D-0496-2026",
+    "D-0497-2026",
+    "D-0498-2026",
+    "D-0540-2026",
+    "D-0832-2026",
+    "D-0869-2026"
+   ]
+  },
+  {
+   "date": "02/06/2026",
+   "firm": "Trividia Health, Inc.",
+   "brand": "TRUE METRIX",
+   "matches": [
+    "Z-1545-2026",
+    "Z-1546-2026",
+    "Z-1547-2026",
+    "Z-1548-2026"
+   ]
+  },
+  {
+   "date": "04/20/2026",
+   "firm": "Windstone Medical Packaging dba Aligned Medical Solutions",
+   "brand": "Aligned Medical Angio Pack",
+   "matches": [
+    "Z-2066-2026",
+    "Z-2800-2026",
+    "Z-2814-2026",
+    "Z-2818-2026"
+   ]
+  },
+  {
+   "date": "05/27/2026",
+   "firm": "De Dios\u2019s Ice Pops II LLC",
+   "brand": "D\u2019Dioses",
+   "matches": []
+  },
+  {
+   "date": "06/22/2026",
+   "firm": "Morningstar Farms",
+   "brand": "Morningstar Farms",
+   "matches": []
+  },
+  {
+   "date": "05/26/2026",
+   "firm": "Insulet Corporation, Inc.",
+   "brand": "Omnipod",
+   "matches": [
+    "Z-2603-2026",
+    "Z-2604-2026",
+    "Z-2605-2026"
+   ]
+  },
+  {
+   "date": "05/26/2026",
+   "firm": "Mogo Moringa LLC",
+   "brand": "Mogo",
+   "matches": [
+    "H-1128-2026"
+   ]
+  },
+  {
+   "date": "06/25/2026",
+   "firm": "Revival Animal Health",
+   "brand": "Breeder\u2019s Edge, Shelter\u2019s Choice",
+   "matches": []
+  },
+  {
+   "date": "05/29/2026",
+   "firm": "Dexcom, Inc.",
+   "brand": "Dexcom G7",
+   "matches": [
+    "Z-2574-2026"
+   ]
+  },
+  {
+   "date": "06/08/2026",
+   "firm": "Go Raw, LLC.",
+   "brand": "Steve\u2019s Real Food",
+   "matches": []
+  },
+  {
+   "date": "02/17/2026",
+   "firm": "Go Raw LLC",
+   "brand": "Quest",
+   "matches": []
+  },
+  {
+   "date": "06/05/2026",
+   "firm": "Ballester Hermanos",
+   "brand": "Pearl Milling Company",
+   "matches": []
+  },
+  {
+   "date": "06/05/2026",
+   "firm": "Ballester Hermanos",
+   "brand": "Pearl Milling Company",
+   "matches": []
+  },
+  {
+   "date": "06/08/2026",
+   "firm": "BD",
+   "brand": "BD",
+   "matches": []
+  },
+  {
+   "date": "06/05/2026",
+   "firm": "Target",
+   "brand": "Up & Up",
+   "matches": []
+  },
+  {
+   "date": "06/04/2026",
+   "firm": "Haleon",
+   "brand": "Gas-X",
+   "matches": []
+  },
+  {
+   "date": "06/11/2026",
+   "firm": "Total Nutrition Inc.",
+   "brand": "TNVitamins and Doctor\u2019s Pride",
+   "matches": [
+    "H-0942-2026",
+    "H-1185-2026"
+   ]
+  },
+  {
+   "date": "06/03/2026",
+   "firm": "Total Nutrition Inc.",
+   "brand": "TNVitamins and Doctor\u2019s Pride",
+   "matches": [
+    "H-0942-2026",
+    "H-1185-2026"
+   ]
+  },
+  {
+   "date": "05/26/2026",
+   "firm": "Total Nutrition Inc.",
+   "brand": "TNVitamins and Doctor\u2019s Pride",
+   "matches": [
+    "H-0942-2026",
+    "H-1185-2026"
+   ]
+  },
+  {
+   "date": "04/17/2026",
+   "firm": "Revival Animal Health",
+   "brand": "Breeder\u2019s Edge, Shelter\u2019s Choice",
+   "matches": []
+  },
+  {
+   "date": "06/26/2026",
+   "firm": "Total Nutrition Inc.",
+   "brand": "TNVitamins",
+   "matches": [
+    "H-1185-2026"
+   ]
+  },
+  {
+   "date": "06/26/2026",
+   "firm": "La Ceiba Foods Latin Market Inc.",
+   "brand": "La Colonia, Selectos Latinos, Clover Hill",
+   "matches": []
+  },
+  {
+   "date": "06/13/2026",
+   "firm": "Nara Organics",
+   "brand": "Nara Organics",
+   "matches": [
+    "H-1137-2026"
+   ]
+  },
+  {
+   "date": "06/04/2026",
+   "firm": "Prime Food Processing LLC",
+   "brand": "No Brand",
+   "matches": [
+    "H-1080-2026"
+   ]
+  },
+  {
+   "date": "06/12/2026",
+   "firm": "Azuma Foods International, Inc. U.S.A",
+   "brand": "Azuma Foods",
+   "matches": [
+    "H-1075-2026"
+   ]
+  },
+  {
+   "date": "06/12/2026",
+   "firm": "Beekeeper\u2019s Naturals",
+   "brand": "Beekeeper\u2019s Naturals",
+   "matches": []
+  },
+  {
+   "date": "06/16/2026",
+   "firm": "Western Mixers Produce and Nuts",
+   "brand": "First Street",
+   "matches": [
+    "H-1125-2026"
+   ]
+  },
+  {
+   "date": "05/28/2026",
+   "firm": "Better Weather Activities LLC",
+   "brand": "Better Weather",
+   "matches": []
+  },
+  {
+   "date": "06/18/2026",
+   "firm": "Clover Hill Dairy, LLC.",
+   "brand": "Clover Hill Dairy",
+   "matches": [
+    "H-1199-2026",
+    "H-1200-2026",
+    "H-1201-2026",
+    "H-1202-2026",
+    "H-1203-2026",
+    "H-1204-2026",
+    "H-1205-2026",
+    "H-1206-2026",
+    "H-1207-2026",
+    "H-1208-2026",
+    "H-1209-2026",
+    "H-1210-2026",
+    "H-1211-2026",
+    "H-1212-2026",
+    "H-1213-2026",
+    "H-1214-2026",
+    "H-1215-2026",
+    "H-1216-2026"
+   ]
+  },
+  {
+   "date": "06/09/2026",
+   "firm": "Clover Hill Dairy, LLC.",
+   "brand": "Clover Hill Dairy",
+   "matches": [
+    "H-1199-2026",
+    "H-1200-2026",
+    "H-1201-2026",
+    "H-1202-2026",
+    "H-1203-2026",
+    "H-1204-2026",
+    "H-1205-2026",
+    "H-1206-2026",
+    "H-1207-2026",
+    "H-1208-2026",
+    "H-1209-2026",
+    "H-1210-2026",
+    "H-1211-2026",
+    "H-1212-2026",
+    "H-1213-2026",
+    "H-1214-2026",
+    "H-1215-2026",
+    "H-1216-2026"
+   ]
+  },
+  {
+   "date": "07/01/2026",
+   "firm": "Eunha Fisheries Co., Ltd",
+   "brand": "Eunha Fisheries Co., Ltd",
+   "matches": [
+    "H-1197-2026",
+    "H-1198-2026"
+   ]
+  },
+  {
+   "date": "07/02/2026",
+   "firm": "Gellert Global Group",
+   "brand": "Fusia",
+   "matches": [
+    "H-1186-2026"
+   ]
+  },
+  {
+   "date": "07/02/2026",
+   "firm": "Mars Petcare US, Inc.",
+   "brand": "Pedigree",
+   "matches": []
+  },
+  {
+   "date": "07/01/2026",
+   "firm": "KAO USA",
+   "brand": "Oribe",
+   "matches": []
+  },
+  {
+   "date": "07/15/2026",
+   "firm": "Khong Guan Corporation",
+   "brand": "Khong Guan Corporation",
+   "matches": []
+  },
+  {
+   "date": "07/16/2026",
+   "firm": "Khong Guan Corporation",
+   "brand": "Khong Guan Corporation",
+   "matches": []
+  },
+  {
+   "date": "06/05/2026",
+   "firm": "Nelson & Isa Lacteos LLC",
+   "brand": "No Brand",
+   "matches": [
+    "H-1189-2026"
+   ]
+  },
+  {
+   "date": "07/18/2026",
+   "firm": "Taylor Fresh Foods",
+   "brand": "CV, JB, Mark and more",
+   "matches": [
+    "H-1350-2026",
+    "H-1368-2026"
+   ]
+  },
+  {
+   "date": "07/17/2026",
+   "firm": "Fayus, Inc.",
+   "brand": "Ola-Ola",
+   "matches": [
+    "H-1175-2026",
+    "H-1329-2026"
+   ]
+  },
+  {
+   "date": "07/07/2026",
+   "firm": "Fayus, Inc.",
+   "brand": "Ola-Ola",
+   "matches": [
+    "H-1175-2026",
+    "H-1329-2026"
+   ]
+  },
+  {
+   "date": "07/22/2026",
+   "firm": "Fresh & Ready Foods LLC",
+   "brand": "Sprig & Sprout; Fresh and Ready",
+   "matches": [
+    "H-1148-2026",
+    "H-1149-2026"
+   ]
+  },
+  {
+   "date": "07/21/2026",
+   "firm": "PT Organics Limited",
+   "brand": "Pumpkin Tree Peter Rabbit Organics",
+   "matches": [
+    "H-1223-2026"
+   ]
+  },
+  {
+   "date": "07/20/2026",
+   "firm": "Unique Pharmaceutical Laboratories",
+   "brand": "Rising Pharma Holdings Inc.",
+   "matches": []
+  },
+  {
+   "date": "07/19/2026",
+   "firm": "Relay Peak Research LLC dba Zen Principle Naturals",
+   "brand": "Zen Principle",
+   "matches": []
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "Jonco Industries, Inc.",
+   "brand": "Williams Sonoma, Fireworks Popcorn",
+   "matches": [
+    "H-0953-2026"
+   ]
+  },
+  {
+   "date": "04/23/2026",
+   "firm": "Ferris Coffee & Nut Co.",
+   "brand": "Frederik\u2019s by Meijer",
+   "matches": []
+  },
+  {
+   "date": "08/05/2026",
+   "firm": "Fresenius Kabi",
+   "brand": "Fresenius Kabi",
+   "matches": [
+    "D-0725-2026",
+    "D-0726-2026",
+    "D-0727-2026",
+    "D-0728-2026",
+    "D-0729-2026",
+    "D-0788-2026",
+    "D-0827-2026"
+   ]
+  },
+  {
+   "date": "08/05/2026",
+   "firm": "Victory Medical Center Pharmacy",
+   "brand": "VMC",
+   "matches": []
+  },
+  {
+   "date": "05/02/2026",
+   "firm": "A2 Milk Company",
+   "brand": "a2",
+   "matches": [
+    "H-0891-2026"
+   ]
+  },
+  {
+   "date": "08/04/2026",
+   "firm": "Liebel-Flarsheim Company, LLC",
+   "brand": "OPTIRAY",
+   "matches": [
+    "D-0773-2026"
+   ]
+  },
+  {
+   "date": "05/21/2026",
+   "firm": "Hometown Food Company",
+   "brand": "Birch Benders",
+   "matches": [
+    "H-0903-2026"
+   ]
+  },
+  {
+   "date": "01/07/2026",
+   "firm": "Primavera Nueva Inc.",
+   "brand": "Primavera",
+   "matches": []
+  },
+  {
+   "date": "03/27/2026",
+   "firm": "Blueroot Health",
+   "brand": "Vital Nutrient",
+   "matches": [
+    "H-0663-2026"
+   ]
+  },
+  {
+   "date": "04/10/2026",
+   "firm": "Blueroot Health",
+   "brand": "Vital Nutrient",
+   "matches": [
+    "H-0663-2026"
+   ]
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "Shining Sea Fish Co.",
+   "brand": "Ma Cohen\u2019s",
+   "matches": [
+    "H-0810-2026"
+   ]
+  },
+  {
+   "date": "05/05/2026",
+   "firm": "Market of Choice",
+   "brand": "Market of Choice",
+   "matches": [
+    "H-0904-2026"
+   ]
+  },
+  {
+   "date": "08/06/2026",
+   "firm": "Medline Industries, LP",
+   "brand": "Medline, Teleflex",
+   "matches": [
+    "Z-3028-2026",
+    "Z-3029-2026",
+    "Z-3228-2026",
+    "Z-3229-2026"
+   ]
+  },
+  {
+   "date": "08/03/2026",
+   "firm": "American Regent, Inc. Animal Health",
+   "brand": "American Regent, Inc. Animal Health",
+   "matches": []
+  },
+  {
+   "date": "07/28/2026",
+   "firm": "Lidl US",
+   "brand": "Eridanous",
+   "matches": []
+  },
+  {
+   "date": "07/31/2026",
+   "firm": "Lidl US",
+   "brand": "Eridanous",
+   "matches": []
+  },
+  {
+   "date": "08/01/2026",
+   "firm": "Ukrops Homestyle Foods",
+   "brand": "Ukrops Homestyle Foods",
+   "matches": []
+  },
+  {
+   "date": "08/03/2026",
+   "firm": "(Becton, Dickinson and Company)",
+   "brand": "BD",
+   "matches": []
+  },
+  {
+   "date": "07/27/2026",
+   "firm": "American Regent, Inc.",
+   "brand": "American Regent, Inc.",
+   "matches": [
+    "D-0791-2026",
+    "D-0792-2026",
+    "D-0793-2026",
+    "D-0794-2026",
+    "D-0795-2026",
+    "D-0796-2026",
+    "D-0797-2026",
+    "D-0798-2026",
+    "D-0799-2026",
+    "D-0800-2026",
+    "D-0801-2026",
+    "D-0802-2026",
+    "D-0865-2026"
+   ]
+  },
+  {
+   "date": "07/30/2026",
+   "firm": "529 Commerce, LLC",
+   "brand": "Rooted in RARE",
+   "matches": [
+    "H-1270-2026"
+   ]
+  },
+  {
+   "date": "08/12/2026",
+   "firm": "Frankie\u2019s Organic Foods Inc.",
+   "brand": "Frankie\u2019s Organic",
+   "matches": []
+  },
+  {
+   "date": "08/03/2026",
+   "firm": "Boticelli Foods",
+   "brand": "Bettergoods",
+   "matches": []
+  },
+  {
+   "date": "07/24/2026",
+   "firm": "Baxter International Inc.",
+   "brand": "Baxter",
+   "matches": []
+  },
+  {
+   "date": "08/19/2026",
+   "firm": "Grand Central Bakery",
+   "brand": "Grand Central Bakery",
+   "matches": [
+    "H-1244-2026"
+   ]
+  },
+  {
+   "date": "08/19/2026",
+   "firm": "Prince Bakery Inc.",
+   "brand": "Prince",
+   "matches": [
+    "H-1304-2026",
+    "H-1305-2026",
+    "H-1306-2026",
+    "H-1307-2026"
+   ]
+  },
+  {
+   "date": "08/19/2026",
+   "firm": "(B. Braun)",
+   "brand": "B. Braun",
+   "matches": []
+  },
+  {
+   "date": "08/12/2026",
+   "firm": "Whole Foods Market",
+   "brand": "Whole Foods Market",
+   "matches": []
+  },
+  {
+   "date": "08/14/2026",
+   "firm": "NatureBest Precut & Produce LLC",
+   "brand": "NatureBest, HEB",
+   "matches": []
+  },
+  {
+   "date": "08/14/2026",
+   "firm": "Salata Dressings, LLC.",
+   "brand": "Salata",
+   "matches": [
+    "H-1398-2026"
+   ]
+  },
+  {
+   "date": "07/24/2026",
+   "firm": "Sunny Pharmtech, Inc.",
+   "brand": "Long Grove Pharmaceuticals",
+   "matches": [
+    "D-0743-2026",
+    "D-0744-2026"
+   ]
+  },
+  {
+   "date": "08/17/2026",
+   "firm": "Miller Foods, Inc.",
+   "brand": "Oma\u2019s Pride",
+   "matches": []
+  },
+  {
+   "date": "08/17/2026",
+   "firm": "L-Nutra",
+   "brand": "Prolon",
+   "matches": [
+    "H-1335-2026"
+   ]
+  },
+  {
+   "date": "08/11/2026",
+   "firm": "Fresenius Kabi",
+   "brand": "Fresenius Kabi",
+   "matches": [
+    "D-0725-2026",
+    "D-0726-2026",
+    "D-0727-2026",
+    "D-0728-2026",
+    "D-0729-2026",
+    "D-0788-2026",
+    "D-0827-2026"
+   ]
+  },
+  {
+   "date": "08/11/2026",
+   "firm": "Henkel Corp",
+   "brand": "Schwarzkopf Professional",
+   "matches": []
+  },
+  {
+   "date": "08/17/2026",
+   "firm": "Dairyland Produce LLC",
+   "brand": "Dairyland Produce LLC",
+   "matches": [
+    "H-1256-2026"
+   ]
+  },
+  {
+   "date": "08/18/2026",
+   "firm": "Dreyer\u2019s Grand Ice Cream, Inc.",
+   "brand": "Outshine",
+   "matches": []
+  },
+  {
+   "date": "02/20/2026",
+   "firm": "Made Fresh Salads, Inc.",
+   "brand": "Made Fresh Salad",
+   "matches": [
+    "H-0555-2026",
+    "H-0556-2026",
+    "H-0557-2026",
+    "H-0558-2026",
+    "H-0559-2026",
+    "H-0560-2026",
+    "H-0561-2026",
+    "H-0562-2026",
+    "H-0563-2026",
+    "H-0564-2026",
+    "H-0565-2026",
+    "H-0566-2026",
+    "H-0567-2026",
+    "H-0568-2026"
+   ]
+  },
+  {
+   "date": "08/14/2026",
+   "firm": "The Hampton Grocer, Inc.",
+   "brand": "The Hampton Grocer",
+   "matches": [
+    "H-1309-2026"
+   ]
+  },
+  {
+   "date": "08/07/2026",
+   "firm": "Lexunder Inc. dba Food To Live",
+   "brand": "Food To Live",
+   "matches": []
+  },
+  {
+   "date": "08/12/2026",
+   "firm": "Lidl US Trading",
+   "brand": "Vitasia Chinese Style",
+   "matches": []
+  },
+  {
+   "date": "08/13/2026",
+   "firm": "Kettle Cuisine LLC",
+   "brand": "Marketside",
+   "matches": []
+  },
+  {
+   "date": "06/01/2026",
+   "firm": "Champion Foods LLC",
+   "brand": "Motor City Pizza Co.",
+   "matches": [
+    "H-1095-2026"
+   ]
+  },
+  {
+   "date": "06/26/2026",
+   "firm": "Bear Stewart LLC",
+   "brand": "Bakr",
+   "matches": [
+    "H-1143-2026"
+   ]
+  },
+  {
+   "date": "01/12/2026",
+   "firm": "Diva Fam Inc.",
+   "brand": "True Sea Moss",
+   "matches": [
+    "H-0467-2026",
+    "H-0468-2026",
+    "H-0469-2026",
+    "H-0470-2026",
+    "H-0471-2026",
+    "H-0472-2026",
+    "H-0473-2026",
+    "H-0474-2026",
+    "H-0475-2026",
+    "H-0476-2026",
+    "H-0477-2026",
+    "H-0478-2026",
+    "H-0479-2026",
+    "H-0480-2026"
+   ]
+  },
+  {
+   "date": "05/05/2026",
+   "firm": "Ocinet, Inc.",
+   "brand": "And Kimchi",
+   "matches": [
+    "H-0780-2026"
+   ]
+  },
+  {
+   "date": "08/09/2026",
+   "firm": "Taylor Fresh Foods",
+   "brand": "Trader Joe\u2019s, Freshness Guaranteed and more",
+   "matches": [
+    "H-1344-2026",
+    "H-1346-2026",
+    "H-1347-2026",
+    "H-1348-2026",
+    "H-1349-2026",
+    "H-1350-2026",
+    "H-1351-2026",
+    "H-1352-2026",
+    "H-1353-2026",
+    "H-1354-2026",
+    "H-1355-2026",
+    "H-1356-2026",
+    "H-1357-2026",
+    "H-1358-2026",
+    "H-1359-2026",
+    "H-1360-2026",
+    "H-1361-2026",
+    "H-1362-2026",
+    "H-1363-2026",
+    "H-1364-2026",
+    "H-1365-2026",
+    "H-1366-2026",
+    "H-1368-2026"
+   ]
+  },
+  {
+   "date": "09/18/2026",
+   "firm": "Saratoga Potato Chips LLC",
+   "brand": "J. HIGGS",
+   "matches": []
+  },
+  {
+   "date": "09/23/2026",
+   "firm": "Berlin Seeds",
+   "brand": "Berlin Seeds",
+   "matches": []
+  },
+  {
+   "date": "09/24/2026",
+   "firm": "Galil Importing Corp",
+   "brand": "Lior",
+   "matches": [
+    "H-1402-2026"
+   ]
+  },
+  {
+   "date": "09/24/2026",
+   "firm": "Deano\u2019s Pasta",
+   "brand": "Deano\u2019s Pasta",
+   "matches": []
+  },
+  {
+   "date": "09/21/2026",
+   "firm": "Otsuka ICU Medical LLC",
+   "brand": "ICU Medical LLC",
+   "matches": []
+  },
+  {
+   "date": "09/21/2026",
+   "firm": "Par Health",
+   "brand": "Par Pharmaceutical",
+   "matches": [
+    "D-0876-2026"
+   ]
+  },
+  {
+   "date": "09/21/2026",
+   "firm": "Global Mix Inc.",
+   "brand": "Niwali",
+   "matches": []
+  },
+  {
+   "date": "09/22/2026",
+   "firm": "Wakefern Food Corp.",
+   "brand": "Wholesome Pantry",
+   "matches": []
+  },
+  {
+   "date": "08/24/2026",
+   "firm": "The Better Bakehouse Snack Company",
+   "brand": "Donutful",
+   "matches": []
+  },
+  {
+   "date": "08/24/2026",
+   "firm": "Exotique Foods Inc",
+   "brand": "Momchipz",
+   "matches": []
+  },
+  {
+   "date": "08/25/2026",
+   "firm": "Baxter International Inc.",
+   "brand": "Baxter",
+   "matches": []
+  },
+  {
+   "date": "08/26/2026",
+   "firm": "Revival Animal Health",
+   "brand": "Shelter\u2019s Choice, Breeder\u2019s Edge",
+   "matches": []
+  },
+  {
+   "date": "08/20/2026",
+   "firm": "Optimal Balance Pharmacy",
+   "brand": "Optimal Balance Pharmacy",
+   "matches": [
+    "D-0851-2026"
+   ]
+  },
+  {
+   "date": "08/06/2026",
+   "firm": "Sun Noodle of Honolulu",
+   "brand": "Sun Noodle",
+   "matches": []
+  },
+  {
+   "date": "06/18/2026",
+   "firm": "Fry Pie Factory",
+   "brand": "Fry Pie Factory",
+   "matches": [
+    "H-1136-2026"
+   ]
+  },
+  {
+   "date": "09/03/2026",
+   "firm": "B. Braun Medical Inc.",
+   "brand": "B. Braun",
+   "matches": [
+    "D-0832-2026",
+    "D-0869-2026"
+   ]
+  },
+  {
+   "date": "09/03/2026",
+   "firm": "American Regent, Inc.",
+   "brand": "American Regent, Inc.",
+   "matches": [
+    "D-0865-2026"
+   ]
+  },
+  {
+   "date": "08/24/2026",
+   "firm": "Vitruvias Therapeutics, Inc",
+   "brand": "Vitruvias Therapeutics",
+   "matches": [
+    "D-0866-2026"
+   ]
+  },
+  {
+   "date": "08/21/2026",
+   "firm": "Fromm Family Foods LLC",
+   "brand": "Fromm",
+   "matches": []
+  },
+  {
+   "date": "08/29/2026",
+   "firm": "Panorama Produce",
+   "brand": "Martina",
+   "matches": []
+  },
+  {
+   "date": "08/31/2026",
+   "firm": "Ana Salazar Modela Tu Cuerpo Inc.",
+   "brand": "Lipofit",
+   "matches": []
+  },
+  {
+   "date": "08/31/2026",
+   "firm": "LMSI LLC",
+   "brand": "Kofinas",
+   "matches": [
+    "H-1399-2026"
+   ]
+  },
+  {
+   "date": "08/31/2026",
+   "firm": "Crystal Temptations",
+   "brand": "Little Temptations",
+   "matches": []
+  },
+  {
+   "date": "09/04/2026",
+   "firm": "Foods Alive Inc.",
+   "brand": "Foods Alive",
+   "matches": [
+    "H-1336-2026"
+   ]
+  },
+  {
+   "date": "08/25/2026",
+   "firm": "Baxter International Inc.",
+   "brand": "Baxter",
+   "matches": []
+  },
+  {
+   "date": "08/26/2026",
+   "firm": "Jaime\u2019s Foods ATX",
+   "brand": "Jaime\u2019s Spanish Village",
+   "matches": []
+  },
+  {
+   "date": "09/15/2026",
+   "firm": "Gias Foods, Inc.",
+   "brand": "Bettergoods",
+   "matches": []
+  },
+  {
+   "date": "10/02/2026",
+   "firm": "Frutas y Hortalizas del Sur S.A.",
+   "brand": "Great Value, Trader Joe\u2019s",
+   "matches": []
+  },
+  {
+   "date": "09/03/2026",
+   "firm": "Frutas y Hortalizas del Sur S.A.",
+   "brand": "Great Value",
+   "matches": [
+    "H-1380-2026"
+   ]
+  },
+  {
+   "date": "07/06/2026",
+   "firm": "Frutas y Hortalizas del Sur S.A.",
+   "brand": "GreenWise",
+   "matches": [
+    "H-1181-2026",
+    "H-1380-2026"
+   ]
+  },
+  {
+   "date": "10/02/2026",
+   "firm": "WinCo Foods LLC",
+   "brand": "WinCo Foods",
+   "matches": []
+  },
+  {
+   "date": "10/02/2026",
+   "firm": "Stewart\u2019s Shop Corp",
+   "brand": "Stewart\u2019s Shops",
+   "matches": []
+  },
+  {
+   "date": "10/03/2026",
+   "firm": "Saint Francis Apizza LLC",
+   "brand": "Saint Francis",
+   "matches": []
+  },
+  {
+   "date": "10/09/2026",
+   "firm": "Par Health",
+   "brand": "Par Pharmaceutical",
+   "matches": []
+  },
+  {
+   "date": "10/08/2026",
+   "firm": "Gardeners Basics",
+   "brand": "Gardeners Basics",
+   "matches": []
+  },
+  {
+   "date": "10/02/2026",
+   "firm": "EAK Distribution LLC",
+   "brand": "Home Grown",
+   "matches": []
+  },
+  {
+   "date": "10/07/2026",
+   "firm": "Eden Brothers LLC",
+   "brand": "EDEN BROTHERS",
+   "matches": []
+  },
+  {
+   "date": "09/10/2026",
+   "firm": "Evergreen Fresh Sprouts, LLC.",
+   "brand": "No Brand Name",
+   "matches": [
+    "H-1390-2026"
+   ]
+  },
+  {
+   "date": "09/08/2026",
+   "firm": "BMC Medical Co., Ltd.",
+   "brand": "BMC",
+   "matches": []
+  },
+  {
+   "date": "09/06/2026",
+   "firm": "Made Fresh Salads Inc.",
+   "brand": "Made Fresh Salads, Northside",
+   "matches": []
+  },
+  {
+   "date": "09/18/2026",
+   "firm": "GF Blends",
+   "brand": "Truly AIP, EAT G.A.N.G.S.T.E.R",
+   "matches": []
+  },
+  {
+   "date": "09/08/2026",
+   "firm": "Fi Barking Labs Corp",
+   "brand": "FI",
+   "matches": []
+  },
+  {
+   "date": "08/26/2026",
+   "firm": "Baxter International Inc.",
+   "brand": "Baxter",
+   "matches": []
+  },
+  {
+   "date": "09/04/2026",
+   "firm": "SUPPLX.com",
+   "brand": "Business Pill, Branch Manager for Men",
+   "matches": []
+  },
+  {
+   "date": "08/28/2026",
+   "firm": "Northwest Naturals",
+   "brand": "Northwest Naturals",
+   "matches": []
+  },
+  {
+   "date": "09/11/2026",
+   "firm": "Whole Foods Market",
+   "brand": "Whole Foods Market",
+   "matches": []
+  },
+  {
+   "date": "09/13/2026",
+   "firm": "Centric Compounding LLC",
+   "brand": "Centric Compounding",
+   "matches": []
+  },
+  {
+   "date": "09/15/2026",
+   "firm": "A&P Creations LLC",
+   "brand": "biQ-FEL",
+   "matches": []
+  },
+  {
+   "date": "09/15/2026",
+   "firm": "Danone USA",
+   "brand": "So Delicious Dairy Free",
+   "matches": []
+  },
+  {
+   "date": "09/15/2026",
+   "firm": "A&P Creations LLC",
+   "brand": "X10",
+   "matches": []
+  },
+  {
+   "date": "09/26/2026",
+   "firm": "G. L. Mezzetta Inc.",
+   "brand": "Mezzetta",
+   "matches": []
+  },
+  {
+   "date": "10/09/2026",
+   "firm": "Oliva LLC.",
+   "brand": "Riad's Oliva to Go",
+   "matches": []
+  },
+  {
+   "date": "10/14/2026",
+   "firm": "Par Health USA, LLC",
+   "brand": "Par Health and Endo USA",
+   "matches": []
+  },
+  {
+   "date": "10/06/2026",
+   "firm": "Nova Biomedical",
+   "brand": "Nova Biomedical StatStrip",
+   "matches": []
+  },
+  {
+   "date": "10/01/2026",
+   "firm": "Greenwich Rx",
+   "brand": "Greenwich",
+   "matches": []
+  },
+  {
+   "date": "10/07/2026",
+   "firm": "Leader Formulas, LLC.",
+   "brand": "RAPTURE",
+   "matches": []
+  },
+  {
+   "date": "05/27/2026",
+   "firm": "Bazzini, LLC",
+   "brand": "SkinnyDipped",
+   "matches": [
+    "H-1228-2026"
+   ]
+  },
+  {
+   "date": "10/07/2026",
+   "firm": "Pacific Health Sciences",
+   "brand": "Babies' Magic Tea",
+   "matches": []
+  },
+  {
+   "date": "07/22/2026",
+   "firm": "Midwest Poultry Services, L.P.",
+   "brand": "Multiple brand names",
+   "matches": []
+  },
+  {
+   "date": "05/13/2026",
+   "firm": "Fly by Jing",
+   "brand": "Fly by Jing",
+   "matches": [
+    "H-0854-2026"
+   ]
+  },
+  {
+   "date": "09/08/2026",
+   "firm": "FreshPoint Central Florida, Inc.",
+   "brand": "Created Fresh!",
+   "matches": []
+  },
+  {
+   "date": "05/08/2026",
+   "firm": "George J. Howe Co.",
+   "brand": "George J. Howe Co.",
+   "matches": [
+    "H-1118-2026",
+    "H-1119-2026",
+    "H-1120-2026",
+    "H-1121-2026",
+    "H-1122-2026",
+    "H-1123-2026"
+   ]
+  },
+  {
+   "date": "07/30/2026",
+   "firm": "Publix",
+   "brand": "GreenWise",
+   "matches": []
+  },
+  {
+   "date": "06/25/2026",
+   "firm": "Lehi Valley Trading Company",
+   "brand": "High Valley Orchard",
+   "matches": [
+    "H-1150-2026"
+   ]
+  },
+  {
+   "date": "08/04/2026",
+   "firm": "Blank Slate Creamery",
+   "brand": "Blank Slate Creamery",
+   "matches": [
+    "H-1272-2026"
+   ]
+  },
+  {
+   "date": "09/29/2026",
+   "firm": "Sierra Nevada Cheese Company",
+   "brand": "Sierra Nevada Graziers",
+   "matches": []
+  },
+  {
+   "date": "10/01/2026",
+   "firm": "Gias Foods, Inc.",
+   "brand": "Bettergoods",
+   "matches": []
+  },
+  {
+   "date": "10/05/2026",
+   "firm": "Flowers Foods, Inc.",
+   "brand": "Nature's Own",
+   "matches": []
+  },
+  {
+   "date": "08/29/2026",
+   "firm": "Everything Sprouts, LLC",
+   "brand": "Everything Sprouts",
+   "matches": [
+    "H-1337-2026",
+    "H-1338-2026",
+    "H-1339-2026",
+    "H-1340-2026"
+   ]
+  },
+  {
+   "date": "08/22/2026",
+   "firm": "Everything Sprouts, LLC",
+   "brand": "Everything Sprouts, Calco",
+   "matches": [
+    "H-1337-2026",
+    "H-1338-2026",
+    "H-1339-2026",
+    "H-1340-2026"
+   ]
+  },
+  {
+   "date": "10/14/2026",
+   "firm": "Pan Pepin Inc.",
+   "brand": "Para Bien",
+   "matches": []
+  },
+  {
+   "date": "10/14/2026",
+   "firm": "Pan Pepin Inc.",
+   "brand": "Para Bien",
+   "matches": []
+  },
+  {
+   "date": "05/04/2026",
+   "firm": "Utz Quality Foods LLC",
+   "brand": "Zapp\u2019s, Dirty",
+   "matches": [
+    "H-1112-2026",
+    "H-1113-2026",
+    "H-1114-2026",
+    "H-1115-2026",
+    "H-1116-2026",
+    "H-1117-2026"
+   ]
+  },
+  {
+   "date": "10/09/2026",
+   "firm": "Krasnyi Oktyabr Inc.",
+   "brand": "Starfish Seafood",
+   "matches": []
+  },
+  {
+   "date": "10/16/2026",
+   "firm": "Krasnyi Oktyabr Inc.",
+   "brand": "Starfish Seafood",
+   "matches": []
+  },
+  {
+   "date": "10/15/2026",
+   "firm": "Family Farmstead Dairy, LLC",
+   "brand": "Family Farmstead",
+   "matches": []
+  },
+  {
+   "date": "10/17/2026",
+   "firm": "Lidl US",
+   "brand": "Gelatelli",
+   "matches": []
+  }
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "spdx_list_version": "3.29.0",
+ "spdx_licenses": 740,
+ "spdx_deprecated": 32,
+ "spdx_osi_flagged": 154,
+ "osi_records": 126,
+ "osi_with_spdx_id": 123,
+ "osi_spdx_id_found_in_spdx": 122,
+ "osi_spdx_id_missing": [
+  "NOKIA"
+ ],
+ "osi_ids_flagged_by_spdx_as_osi_approved": 118,
+ "detail_files_checked": 40,
+ "detail_files_with_license_text": 40,
+ "license_text_chars_min_max": [
+  93,
+  46064
+ ]
+}
