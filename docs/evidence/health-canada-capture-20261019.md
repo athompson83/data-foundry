@@ -36,6 +36,12 @@ and LIVE registry stage are unchanged.
 - `pnpm install --frozen-lockfile --prefer-offline`: pass, pinned lockfile unchanged.
 - `pnpm typecheck`: pass.
 - `pnpm collector:policy:check` and `pnpm ingestion:check`: pass.
+- The first complete Linux CI attempt passed every collector/HC check but exposed an existing
+  date-dependent retirement fixture: its second fixed October 18 slot was `NOT_DUE` after
+  the first acquisition recorded today's database observation time. The fixture now spaces
+  slots from database time by more than the configured refresh interval; production freshness
+  checks are unchanged. `pnpm exec vitest run tooling/test/operations-retirement.test.ts --maxWorkers=2`:
+  **13/13 pass**, independently re-run and reviewed. Failure run: `39267175579`.
 - `PYTHON=python PYTHONUTF8=1 pnpm exec vitest run apps/recalls-worker/test packages/product-recall-structuring/test tooling/test/local-collector.test.ts -t '^(?!.*passes its Python unit tests)' --maxWorkers=2 --silent`:
   **337 pass, one explicitly excluded Windows-incompatible legacy Python-suite wrapper**, 14 files.
 - `PYTHONUTF8=1 python -m unittest tests.test_health_canada` from `apps/local-collector`:
@@ -63,7 +69,7 @@ and LIVE registry stage are unchanged.
 ### Existing Windows test limitation
 
 With UTF-8 enabled, unchanged canonical base: 107 Python tests, **60 errors / one failure**.
-Candidate before the final source-control test addition: 115 tests, **the same 60 errors / one failure**.
+Final candidate: 118 tests, **the same 60 errors / one failure**.
 These are SQLite file handles still open when legacy temporary directories are deleted, including
 the existing purge assertion. Without UTF-8, the base also misreads a non-breaking-space vector.
 The new tests explicitly close their SQLite handles and pass natively. No full native Windows
