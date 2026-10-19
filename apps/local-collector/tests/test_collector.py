@@ -506,7 +506,7 @@ class LiveCatalog(unittest.TestCase):
         plan = catalog.capture_plan(POLICY, catalog.parse_root(ROOT_BODY))
         by_key = {d["api_key"]: d for d in plan["datasets"]}
         members = {m["source"]: m["acquisition"] for m in by_key["product-recalls"]["members"]}
-        self.assertEqual(members, {"cpsc-recalls": "task", "health-canada-consumer-product-recalls": "permitted-no-adapter"})
+        self.assertEqual(members, {"cpsc-recalls": "task", "health-canada-consumer-product-recalls": "task"})
         expansion = {m["source"]: m for m in by_key["product-recalls"]["expansion"]}
         self.assertIn("eu-safety-gate-alerts", expansion)
         self.assertEqual(expansion["eu-safety-gate-alerts"]["acquisition"], "blocked")

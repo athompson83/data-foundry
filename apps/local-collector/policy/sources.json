@@ -4,6 +4,27 @@
   "registry_sha256": "b5b5bc2b80624d548415c5826ad945f59e30746daca9784c25949393ed82c37e",
   "tasks": [
     {
+      "task": "health-canada-product-identifiers@1",
+      "source": "health-canada-consumer-product-recalls",
+      "rights_record": "docs/sources/health-canada-consumer-product-recalls-rights-record-20260927.md",
+      "input": {
+        "kind": "dataforge-api",
+        "path": "/v1/product-recalls",
+        "params": {
+          "agency": "HC"
+        }
+      },
+      "allowed_hosts": [
+        "api.data.aroqon.com"
+      ],
+      "intake_path": "/v1/intake/product-recalls/identifiers",
+      "min_interval_s": 2,
+      "rights": "AMBER",
+      "stage": "LIVE",
+      "enabled": true,
+      "refused_because": []
+    },
+    {
       "task": "cpsc-product-identifiers@1",
       "source": "cpsc-recalls",
       "rights_record": "docs/sources/cpsc-recalls-rights-record-20260927.md",
@@ -1567,8 +1588,10 @@
       "stage": "LIVE",
       "format": "structured",
       "publisher": "Health Canada",
-      "acquisition": "permitted-no-adapter",
-      "tasks": [],
+      "acquisition": "task",
+      "tasks": [
+        "health-canada-product-identifiers@1"
+      ],
       "blocked_because": []
     }
   },

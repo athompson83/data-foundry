@@ -455,12 +455,16 @@ def main(argv: list[str] | None = None) -> int:
     elif args.command == "resume":
         state.set("paused", "")
         state.set("uploader_paused", "")
-    elif args.command == "kill":
-        state.set(f"kill:{TASK}", "1")
-    elif args.command == "unkill":
-        state.set(f"kill:{TASK}", "0")
-        with state.tx() as db:
-            db.execute("UPDATE job SET state = 'pending', due_at = ? WHERE task = ? AND state = 'refused'", (time.time(), TASK))
+    elif args.command in ("kill", "unkill"):
+        from .health_canada import TASK as HC_TASK
+        task = args.arg or TASK
+        if task not in (TASK, HC_TASK):
+            print("unknown capture task", file=sys.stderr)
+            return 1
+        state.set(f"kill:{task}", "1" if args.command == "kill" else "0")
+        if args.command == "unkill":
+            with state.tx() as db:
+                db.execute("UPDATE job SET state = 'pending', due_at = MAX(?, ?) WHERE task = ? AND state = 'refused'", (time.time(), float(state.get("allowance_until") or 0), task))
     print(args.command)
     return 0
 

@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 
-from . import COLLECTOR_ID, catalog as catalog_mod, extract, policy as policy_mod, validate
+from . import COLLECTOR_ID, catalog as catalog_mod, extract, health_canada, policy as policy_mod, validate
 from .behaviour import behaviour_sha256
 from .config import Config
 from .netguard import FetchFailed, FetchRefused, HostPolicy, RateLimited, SafeFetcher
@@ -71,10 +71,10 @@ def dir_size_mb(path: Path) -> float:
     return total / (1024 * 1024)
 
 
-def rewind_backfill(db, state: State) -> None:
+def rewind_backfill(db, state: State, task: str = TASK) -> None:
     """Restart the backfill from the first page. Notices already done are skipped by id and hash, so this costs only
     API reads, and any notice whose working copy was removed is queued again."""
-    db.execute("DELETE FROM cursor WHERE task = ? AND name IN ('backfill_cursor', 'backfill_done')", (TASK,))
+    db.execute("DELETE FROM cursor WHERE task = ? AND name IN ('backfill_cursor', 'backfill_done')", (task,))
 
 
 def seconds_until_utc_midnight() -> float:
@@ -136,16 +136,40 @@ class Collector:
         # Local rows are keyed by the whole build (column extractor_version holds it), not by the version string.
         # The generation settings are fixed for the life of this process: the model client, the build id and every
         # payload use this one snapshot, so a dashboard edit (llm_threads) takes effect only at the next start.
+        self.task_name = TASK
+        self.extractor = extract
         self.threads = config.limits.llm_threads
-        self.generation = extract.generation(config.num_ctx, config.think, self.threads)
-        self.build = extract.build_id(config.model, config.model_digest, config.num_ctx, config.think, self.threads)
+        self.generation = self.extractor.generation(config.num_ctx, config.think, self.threads)
+        self.build = self.extractor.build_id(config.model, config.model_digest, config.num_ctx, config.think, self.threads)
         # The Ollama release is part of the build too; it is known once the server has been asked (adopt_runtime).
         self.runtime: str | None = None
+        # Preserve an existing allowance wait across upgrades from the single-task collector.
+        last_wait = self.state.one("SELECT at, detail FROM event WHERE kind = 'allowance_wait' ORDER BY id DESC LIMIT 1")
+        if last_wait:
+            try:
+                until = float(last_wait["at"]) + float(json.loads(last_wait["detail"])["seconds"])
+                if until > max(time.time(), float(self.state.get("allowance_until") or 0)):
+                    self.state.set("allowance_until", str(until))
+            except (ValueError, TypeError, KeyError):
+                pass
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
+    def behaviour_sha256(self) -> str:
+        return health_canada.behaviour_sha256() if self.task_name == health_canada.TASK else behaviour_sha256()
+
+    def activate_task(self, name: str) -> None:
+        """One resident worker, with independent source cursors/builds and shared resource/allowance limits."""
+        if name not in (TASK, health_canada.TASK):
+            raise policy_mod.PolicyRefused(f"no installed adapter for {name!r}")
+        self.task_name = name
+        self.extractor = health_canada if name == health_canada.TASK else extract
+        self.build = self.extractor.build_id(self.config.model, self.config.model_digest, self.config.num_ctx, self.config.think, self.threads, self.runtime)
+        if self.runtime is not None:
+            self.adopt_runtime(self.runtime)
+
     def task_policy(self) -> policy_mod.TaskPolicy:
-        return self.policy.task(TASK, kill_switch=self.state.get(f"kill:{TASK}") == "1")
+        return self.policy.task(self.task_name, kill_switch=self.state.get(f"kill:{self.task_name}") == "1")
 
     def _fetcher(self, task: policy_mod.TaskPolicy) -> SafeFetcher:
         if self.fetcher is None:
@@ -260,19 +284,21 @@ class Collector:
 
     def read_page(self, task: policy_mod.TaskPolicy) -> float:
         """Read one page: the resumable backfill first, then the changed_since cursor. Returns the next due delay."""
-        backfill_done = self.state.cursor(TASK, "backfill_done") == "1"
+        if task.task != self.task_name:
+            raise policy_mod.PolicyRefused("the read policy does not match the active source task")
+        backfill_done = self.state.cursor(self.task_name, "backfill_done") == "1"
         params = {**task.input.get("params", {}), "limit": str(PAGE_SIZE), "include": "raw"}
         if not backfill_done:
-            if self.state.cursor(TASK, "watermark") is None:
+            if self.state.cursor(self.task_name, "watermark") is None:
                 with self.state.tx() as db:
-                    self.state.set_cursor(db, TASK, "watermark", utc_now_iso())
-            cursor = self.state.cursor(TASK, "backfill_cursor")
+                    self.state.set_cursor(db, self.task_name, "watermark", utc_now_iso())
+            cursor = self.state.cursor(self.task_name, "backfill_cursor")
         else:
-            params["changed_since"] = self.state.cursor(TASK, "watermark") or "1970-01-01T00:00:00Z"
-            cursor = self.state.cursor(TASK, "incremental_cursor")
-            if cursor is None and self.state.cursor(TASK, "incremental_started") is None:
+            params["changed_since"] = self.state.cursor(self.task_name, "watermark") or "1970-01-01T00:00:00Z"
+            cursor = self.state.cursor(self.task_name, "incremental_cursor")
+            if cursor is None and self.state.cursor(self.task_name, "incremental_started") is None:
                 with self.state.tx() as db:
-                    self.state.set_cursor(db, TASK, "incremental_started", utc_now_iso())
+                    self.state.set_cursor(db, self.task_name, "incremental_started", utc_now_iso())
         if cursor:
             params["cursor"] = cursor
         page = self.api_get(task, task.input["path"], params)
@@ -281,15 +307,15 @@ class Collector:
         with self.state.tx() as db:
             if not backfill_done:
                 if next_cursor:
-                    self.state.set_cursor(db, TASK, "backfill_cursor", next_cursor)
+                    self.state.set_cursor(db, self.task_name, "backfill_cursor", next_cursor)
                 else:
-                    self.state.set_cursor(db, TASK, "backfill_done", "1")
+                    self.state.set_cursor(db, self.task_name, "backfill_done", "1")
             elif next_cursor:
-                self.state.set_cursor(db, TASK, "incremental_cursor", next_cursor)
+                self.state.set_cursor(db, self.task_name, "incremental_cursor", next_cursor)
             else:
-                started = self.state.cursor(TASK, "incremental_started") or utc_now_iso()
-                self.state.set_cursor(db, TASK, "watermark", started)
-                db.execute("DELETE FROM cursor WHERE task = ? AND name IN ('incremental_cursor', 'incremental_started')", (TASK,))
+                started = self.state.cursor(self.task_name, "incremental_started") or utc_now_iso()
+                self.state.set_cursor(db, self.task_name, "watermark", started)
+                db.execute("DELETE FROM cursor WHERE task = ? AND name IN ('incremental_cursor', 'incremental_started')", (self.task_name,))
         self.state.event("info", "page", {"queued": queued, "records": len(page.get("data", [])), "backfill": not backfill_done, "more": bool(next_cursor)})
         more = bool(next_cursor)
         return self.config.backfill_interval_s if (not backfill_done or more) else self.config.incremental_interval_s
@@ -301,11 +327,14 @@ class Collector:
             recall_id = notice.get("id")
             raw = notice.get("raw")
             raw_sha = (notice.get("provenance") or {}).get("raw_sha256")
-            if not (isinstance(recall_id, str) and recall_id.startswith("cpsc-") and isinstance(raw, dict) and isinstance(raw_sha, str)):
+            id_pattern = r"hc-\d{1,8}" if self.task_name == health_canada.TASK else r"cpsc-\d{5}[a-z]?"
+            if not (isinstance(recall_id, str) and re.fullmatch(id_pattern, recall_id, re.ASCII) and isinstance(raw, dict) and isinstance(raw_sha, str)):
+                continue
+            if self.task_name == health_canada.TASK and (raw.get("Organization") != "Consumer product safety" or recall_id != f"hc-{raw.get('NID')}"):
                 continue
             if self.state.one("SELECT 1 FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", recall_id, raw_sha, self.build):
                 continue
-            state = "queued" if worth_extracting(raw) else "skipped"
+            state = "queued" if (health_canada.worth_extracting(raw) if self.task_name == health_canada.TASK else worth_extracting(raw)) else "skipped"
             path: Path | str = ""
             if state == "queued":
                 # A working copy only while the notice waits for the model; R2 holds the evidence.
@@ -320,7 +349,7 @@ class Collector:
             with self.state.tx() as db:
                 db.execute(
                     "INSERT INTO document (recall_id, raw_sha256, task, extractor_version, evidence_path, evidence_ref, retrieved_at, state, detail, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING",
-                    (recall_id, raw_sha, TASK, self.build, str(path), (notice.get("provenance") or {}).get("raw_evidence"), time.time(), state, None if state == "queued" else "no product label or code in the allowed fields", time.time()),
+                    (recall_id, raw_sha, self.task_name, self.build, str(path), (notice.get("provenance") or {}).get("raw_evidence"), time.time(), state, None if state == "queued" else "no product label or code in the allowed fields", time.time()),
                 )
             queued += state == "queued"
         return queued
@@ -338,17 +367,17 @@ class Collector:
         Queued notices move to the new build (they have not been extracted yet), and the backfill restarts whenever the
         build differs from the one it last ran under, so every notice is extracted under the current build: an upgrade
         to an unbenchmarked release, and the return to the benchmarked one, each re-extract rather than skip."""
-        new = extract.build_id(self.config.model, self.config.model_digest, self.config.num_ctx, self.config.think, self.threads, runtime)
+        new = self.extractor.build_id(self.config.model, self.config.model_digest, self.config.num_ctx, self.config.think, self.threads, runtime)
         changed = new != self.build
         self.runtime, self.build = runtime, new
         with self.state.tx() as db:
             # Every queued notice belongs to the current build, whichever build (this process's or an earlier one's)
             # queued it: none of them has been extracted yet.
-            db.execute("UPDATE OR IGNORE document SET extractor_version = ?, updated_at = ? WHERE state = 'queued' AND extractor_version != ?", (new, time.time(), new))
-            leftover = db.execute("SELECT * FROM document WHERE state = 'queued' AND extractor_version != ?", (new,)).fetchall()
-            if self.state.cursor(TASK, "backfill_build") != new:
-                rewind_backfill(db, self.state)
-                self.state.set_cursor(db, TASK, "backfill_build", new)
+            db.execute("UPDATE OR IGNORE document SET extractor_version = ?, updated_at = ? WHERE state = 'queued' AND extractor_version != ? AND task = ?", (new, time.time(), new, self.task_name))
+            leftover = db.execute("SELECT * FROM document WHERE state = 'queued' AND extractor_version != ? AND task = ?", (new, self.task_name)).fetchall()
+            if self.state.cursor(self.task_name, "backfill_build") != new:
+                rewind_backfill(db, self.state, self.task_name)
+                self.state.set_cursor(db, self.task_name, "backfill_build", new)
         # A notice already recorded under the current build needs nothing more from its other queued row.
         for row in leftover:
             with self.state.tx() as db:
@@ -363,7 +392,7 @@ class Collector:
         if self.state.outbox_pending() >= self.config.limits.max_outbox:
             self.status["phase"] = "waiting: outbox at its cap"
             return False
-        row = self.state.one("SELECT * FROM document WHERE state = 'queued' AND task = ? ORDER BY attempts, retrieved_at LIMIT 1", TASK)
+        row = self.state.one("SELECT * FROM document WHERE state = 'queued' AND task = ? ORDER BY attempts, retrieved_at LIMIT 1", self.task_name)
         if row is None:
             return False
         try:
@@ -373,7 +402,7 @@ class Collector:
             # it is read again from Data Foundry rather than lost.
             with self.state.tx() as db:
                 db.execute("DELETE FROM document WHERE recall_id = ? AND raw_sha256 = ? AND extractor_version = ?", (row["recall_id"], row["raw_sha256"], row["extractor_version"]))
-                rewind_backfill(db, self.state)
+                rewind_backfill(db, self.state, self.task_name)
             self.state.event("warn", "working_copy_missing", {"recall_id": row["recall_id"]})
             return True
         self.status.update(phase="extracting", current=row["recall_id"])
@@ -389,7 +418,7 @@ class Collector:
             return True
         started = time.monotonic()
         try:
-            result = extract.extract(client, record)
+            result = self.extractor.extract(client, record)
         except LocalModelError as error:
             if not error.request_failed:
                 raise
@@ -438,13 +467,13 @@ class Collector:
             if accepted:
                 identity = before
                 payload = {
-                    "task": TASK,
-                    "extractor": {"version": extract.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": extract.prompt_sha256(), "generation": {**self.generation, "windowed": True} if result.windowed else self.generation, "behaviour_sha256": behaviour_sha256(), "runtime": identity.runtime},
+                    "task": self.task_name,
+                    "extractor": {"version": self.extractor.EXTRACTOR_VERSION, "model": self.config.model, "model_digest": identity.digest if identity else self.config.model_digest, "prompt_sha256": self.extractor.prompt_sha256(), "generation": {**self.generation, "windowed": True} if result.windowed else self.generation, "behaviour_sha256": self.behaviour_sha256(), "runtime": identity.runtime},
                     "notices": [{"recall_id": row["recall_id"], "raw_sha256": row["raw_sha256"], "candidates": [{"value": p.value, "field": p.field, "label": p.label} for p in accepted]}],
                     "collector": COLLECTOR_ID,
                 }
                 payload["build"] = row["extractor_version"]  # local only; not sent
-                key_material = json.dumps([TASK, row["extractor_version"], row["recall_id"], row["raw_sha256"], sorted((p.field, p.value) for p in accepted)])
+                key_material = json.dumps([self.task_name, row["extractor_version"], row["recall_id"], row["raw_sha256"], sorted((p.field, p.value) for p in accepted)])
                 self.state.outbox_add(db, hashlib.sha256(key_material.encode()).hexdigest(), payload)
         # The candidates are in the outbox; the notice text is no longer needed on this computer.
         self._drop_working_copy(row)
@@ -487,12 +516,12 @@ class Collector:
         """Whether a served extracted identifier came from this collector's build (version, model, pinned digest, prompt, generation, behaviour)."""
         digest = str(item.get("model_digest") or "").removeprefix("sha256:")
         return (
-            item.get("extractor_version") == extract.EXTRACTOR_VERSION
+            item.get("extractor_version") == self.extractor.EXTRACTOR_VERSION
             and item.get("model") == self.config.model
             and digest.startswith(self.config.model_digest.removeprefix("sha256:"))
-            and item.get("prompt_sha256") == extract.prompt_sha256()
+            and item.get("prompt_sha256") == self.extractor.prompt_sha256()
             and item.get("generation") == json.dumps(self.generation, separators=(",", ":"))
-            and item.get("behaviour_sha256") == behaviour_sha256()
+            and item.get("behaviour_sha256") == self.behaviour_sha256()
             and (self.model_identity is None or item.get("runtime") == self.model_identity.runtime)
         )
 
@@ -558,7 +587,7 @@ class Collector:
         except policy_mod.PolicyRefused as refusal:
             self.status.update(phase="refused by policy", last_error=str(refusal))
             with self.state.tx() as db:
-                db.execute("UPDATE job SET state = 'refused', last_error = ?, updated_at = ? WHERE task = ? AND state IN ('pending', 'leased')", (str(refusal), time.time(), TASK))
+                db.execute("UPDATE job SET state = 'refused', last_error = ?, updated_at = ? WHERE task = ? AND state IN ('pending', 'leased')", (str(refusal), time.time(), self.task_name))
             return
         # Recurring jobs dead-lettered by an earlier version are revived; they now only back off.
         with self.state.tx() as db:
@@ -583,7 +612,7 @@ class Collector:
             with self.state.tx() as db:
                 db.execute("UPDATE job SET due_at = MIN(due_at, ?) WHERE kind = 'catalog' AND state = 'pending'", (time.time() + CATALOG_RETRY_S,))
             return
-        self.state.ensure_job("read", TASK, f"{TASK}:read", {})
+        self.state.ensure_job("read", self.task_name, f"{self.task_name}:read", {}, due_at=max(time.time(), float(self.state.get("allowance_until") or 0)))
         # Notices are queued under the build, which includes the Ollama release: learn it before reading any.
         if self.runtime is None:
             try:
@@ -594,7 +623,7 @@ class Collector:
         if cap:
             self.status.update(phase=f"reading paused: {cap}; draining the backlog")
         elif queue < self.config.limits.max_queue and self.runtime is not None:
-            job = self.state.claim(self.owner, ("read",))
+            job = self.state.claim(self.owner, ("read",), task=self.task_name)
             if job is not None:
                 self.status.update(phase="reading source", current=task.input["path"])
                 try:
@@ -623,8 +652,8 @@ class Collector:
             return
         self.state.set("model_failures", "0")
         # Publication read-back: a recurring job, due every five minutes, one notice per run.
-        self.state.ensure_job("verify", TASK, f"{TASK}:verify", {})
-        job = self.state.claim(self.owner, ("verify",))
+        self.state.ensure_job("verify", self.task_name, f"{self.task_name}:verify", {}, due_at=max(time.time(), float(self.state.get("allowance_until") or 0)))
+        job = self.state.claim(self.owner, ("verify",), task=self.task_name)
         if job is not None:
             try:
                 self.verify_queryable(task)
@@ -639,6 +668,10 @@ class Collector:
         """A used-up allowance is a pause, not a failure: release the job without charging an attempt."""
         delay = max(float(error.retry_after or 0), 60.0) if error.retry_after is not None else 3600.0
         self.state.release(job["id"], self.owner, delay)
+        until = max(time.time() + delay, float(self.state.get("allowance_until") or 0))
+        self.state.set("allowance_until", str(until))
+        with self.state.tx() as db:
+            db.execute("UPDATE job SET due_at = MAX(due_at, ?) WHERE kind IN ('read', 'verify') AND state = 'pending'", (until,))
         self.status.update(phase=f"waiting for the request allowance ({error})", current=None)
         self.state.event("info", "allowance_wait", {"job": job["kind"], "seconds": round(delay)})
 
@@ -649,7 +682,10 @@ class Collector:
             db.execute("UPDATE job SET due_at = ? WHERE kind = 'catalog' AND state = 'pending'", (time.time(),))
         while not self.stop.is_set():
             before = self.status.get("phase")
-            self.tick()
+            for task_name in (TASK, health_canada.TASK):
+                if task_name in self.policy.tasks and not self.stop.is_set():
+                    self.activate_task(task_name)
+                    self.tick()
             idle = self.status.get("phase") in ("idle", before) and not self.state.one("SELECT 1 FROM document WHERE state = 'queued' LIMIT 1")
             self.stop.wait(5 if idle else 0.2)
         self.state.event("info", "stopped", {"pid": os.getpid()})

@@ -64,9 +64,9 @@ def _prompt(parts: list[tuple[str, str]]) -> str:
     return "Recall notice fields:\n\n" + "\n\n".join(fields) + "\n\nReturn the product identifiers as JSON."
 
 
-def build_prompt(record: dict, fields: list[str]) -> str:
+def build_prompt(record: dict, fields: list[str], *, rules=validate) -> str:
     """The first request: every field, each cut to its first window. Longer fields follow in `later_windows`."""
-    return _prompt([(name, (validate.candidate_field_text(record, name) or "")[:MAX_FIELD_CHARS]) for name in fields])
+    return _prompt([(name, (rules.candidate_field_text(record, name) or "")[:MAX_FIELD_CHARS]) for name in fields])
 
 
 # The longest value the schema lets the model propose.
@@ -78,12 +78,12 @@ WINDOW_OVERLAP = validate.MAX_ANCHOR_BEFORE + MAX_VALUE_CHARS + validate.MAX_ANC
 MAX_LATER_WINDOWS = 20
 
 
-def later_windows(record: dict, fields: list[str]) -> list[tuple[str, str]]:
+def later_windows(record: dict, fields: list[str], *, rules=validate) -> list[tuple[str, str]]:
     """(field, text) for every part of a field past MAX_FIELD_CHARS, each sent as its own one-field request."""
     step = MAX_FIELD_CHARS - WINDOW_OVERLAP
     windows = []
     for name in fields:
-        text = validate.candidate_field_text(record, name) or ""
+        text = rules.candidate_field_text(record, name) or ""
         start = step
         while start + WINDOW_OVERLAP < len(text):
             windows.append((name, text[start : start + MAX_FIELD_CHARS]))
@@ -191,14 +191,14 @@ def parse_output(content: str, fields: list[str]) -> list[dict]:
     return items
 
 
-def extract(client: OllamaClient, record: dict) -> Extraction:
-    fields = validate.candidate_fields(record)
+def extract(client: OllamaClient, record: dict, *, rules=validate, system_prompt: str = SYSTEM_PROMPT) -> Extraction:
+    fields = rules.candidate_fields(record)
     if not fields:
         return Extraction(status="extracted")
-    windows = later_windows(record, fields)
+    windows = later_windows(record, fields, rules=rules)
     if len(windows) > MAX_LATER_WINDOWS:
         return Extraction(status="quarantined", error=f"a field needs {len(windows)} windows past the first (limit {MAX_LATER_WINDOWS})")
-    chat = client.chat_json(SYSTEM_PROMPT, build_prompt(record, fields), build_schema(fields))
+    chat = client.chat_json(system_prompt, build_prompt(record, fields, rules=rules), build_schema(fields))
     try:
         items = parse_output(chat.content, fields)
     except (ValueError, json.JSONDecodeError) as error:
@@ -208,7 +208,7 @@ def extract(client: OllamaClient, record: dict) -> Extraction:
         # answers are merged (first occurrence of each value) into one answer, held to the same cap as a single one.
         chats = [chat]
         for name, text in windows:
-            part = client.chat_json(SYSTEM_PROMPT, _prompt([(name, text)]), build_schema([name]))
+            part = client.chat_json(system_prompt, _prompt([(name, text)]), build_schema([name]))
             chats.append(part)
             try:
                 items += parse_output(part.content, [name])
@@ -230,7 +230,7 @@ def extract(client: OllamaClient, record: dict) -> Extraction:
         if value in seen:
             continue
         seen.add(value)
-        decision = validate.decide_in_record(record, value, item["field"])
+        decision = rules.decide_in_record(record, value, item["field"])
         proposals.append(Proposal(value=value, label=item["label"], field=decision.field or item["field"], decision=decision))
     return Extraction(status="extracted", proposals=proposals, raw_output=chat.content[:4000], chat=chat, windowed=bool(windows))
 

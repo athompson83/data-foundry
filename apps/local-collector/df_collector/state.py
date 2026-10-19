@@ -193,15 +193,15 @@ class State:
                 (kind, task, dedupe_key, json.dumps(params), now if due_at is None else due_at, max_attempts, now, now),
             )
 
-    def claim(self, owner: str, kinds: tuple[str, ...]) -> sqlite3.Row | None:
+    def claim(self, owner: str, kinds: tuple[str, ...], task: str | None = None) -> sqlite3.Row | None:
         """Lease the most overdue due job of these kinds; an expired lease is reclaimed."""
         now = self.clock()
         marks = ",".join("?" * len(kinds))
         with self.tx() as db:
             row = db.execute(
-                f"""SELECT * FROM job WHERE kind IN ({marks}) AND ((state = 'pending' AND due_at <= ?) OR (state = 'leased' AND lease_expires_at < ?))
+                f"""SELECT * FROM job WHERE kind IN ({marks}) AND ((state = 'pending' AND due_at <= ?) OR (state = 'leased' AND lease_expires_at < ?)) AND (? IS NULL OR task = ?)
                     ORDER BY due_at LIMIT 1""",
-                (*kinds, now, now),
+                (*kinds, now, now, task, task),
             ).fetchone()
             if row is None:
                 return None

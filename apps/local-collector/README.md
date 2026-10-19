@@ -37,6 +37,24 @@ accepted/replayed/duplicate/rejected → publicly queryable. An acknowledged upl
 | --- | --- |
 | CPSC and Health Canada acquisition, import, six-hourly sync | the recalls Worker's Cron (unchanged) |
 | Model extraction of CPSC notice text | this collector |
+| Model extraction of Health Canada `Title` / `Product` | this collector (`health-canada-product-identifiers@1`) |
+
+## Health Canada capture adapter
+
+The resident worker also reads `agency=HC` through the same authenticated Data Foundry API. It extracts only from
+the open-data index's `Title` and `Product` fields. It never fetches Health Canada notice pages or processes the
+excluded contact/advice field (`What you should do`). The server re-reads the stored R2 record, verifies its digest,
+checks the source/task and credential scope, and records native field names and exact evidence spans.
+
+CPSC and Health Canada have independent cursors, extractor builds, checkpoints, outbox identities and kill switches.
+They share one model worker and the existing CPU/disk/queue/request caps. An allowance wait applies to both sources,
+including across an upgrade from the single-task collector. The dashboard has a separate stop control for each source;
+the CLI accepts `kill health-canada-product-identifiers@1` and `unkill health-canada-product-identifiers@1`.
+
+Health Canada's extractor is **evidence-only**. Its prompt and behaviour fingerprint are distinct from CPSC's, and no
+Health Canada build is in `PUBLISHABLE_EXTRACTORS`. Acceptance is not publication, even if the general publication
+gate is opened. A source-specific, held-out benchmark and reviewed allowlist entry are required before serving its
+identifiers. The CPSC benchmark and synthetic contract fixtures do not qualify Health Canada output.
 
 The collector reads Data Foundry's stored evidence, not the CPSC feed, so it never races or repeats the cloud
 import. It backfills once through the API cursor in bounded pages (25 notices each, one page per due job). After
@@ -143,7 +161,7 @@ member with it, such as EU Safety Gate, UK OPSS or ACCC for the recall datasets.
 
 | Status | Meaning |
 | --- | --- |
-| `task` | The collector captures it now (today: `cpsc-recalls` → `cpsc-product-identifiers@1`) |
+| `task` | An installed collector adapter exists: CPSC and Health Canada product identifiers. Running and publication remain separate checks |
 | `permitted-no-adapter` | Rights and stage permit acquisition, but an adapter and intake must be built by a reviewed change |
 | `blocked` | With the reason: no rights record, before PROTOTYPED, RED, or a prohibited host |
 
@@ -208,7 +226,9 @@ Secrets needed:
 - `read-api-key`: a Data Foundry customer key (`rcl_live_…`) on a plan with enough monthly requests (Developer or
   above for the full backfill);
 - `ingest-token`: an ingestion credential (`dfi_…`) minted by an operator with
-  `POST /admin/ingest-credentials?label=<name>&sources=cpsc-recalls` (ADMIN_TOKEN). It is shown once and revoked
+  `POST /admin/ingest-credentials?label=<name>&sources=cpsc-recalls,health-canada-consumer-product-recalls` (ADMIN_TOKEN).
+  Include only the sources this collector should submit. Existing CPSC-only credentials remain CPSC-only; the new
+  adapter does not expand their authority. The token is shown once and revoked
   with `/admin/ingest-credentials/revoke?id=`.
 
 To remove it, run `.\uninstall.ps1` in the same folder. It keeps the data directory; `-Purge` also deletes it

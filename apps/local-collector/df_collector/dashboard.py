@@ -22,6 +22,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
 from . import COLLECTOR_ID
+from .health_canada import TASK as HC_TASK
 from .config import Config
 from .runtime import TASK, Collector, dir_size_mb
 from .state import State
@@ -59,6 +60,7 @@ def rss_mb() -> float | None:
 
 
 def snapshot(config: Config, state: State, collector: Collector | None) -> dict:
+    active_task = collector.task_name if collector else TASK
     counts = state.counts()
     latency = state.one("SELECT AVG(latency_ms) AS avg, COUNT(*) AS n FROM document WHERE latency_ms IS NOT NULL AND updated_at > ?", time.time() - 86400)
     last_extract = state.one("SELECT MAX(updated_at) AS at FROM document WHERE state IN ('extracted', 'quarantined')")
@@ -75,12 +77,13 @@ def snapshot(config: Config, state: State, collector: Collector | None) -> dict:
     events = [dict(row) for row in state.q("SELECT at, level, kind, detail FROM event ORDER BY id DESC LIMIT 25")]
     return {
         "collector": COLLECTOR_ID,
-        "task": TASK,
+        "task": active_task,
+        "tasks": [{"task": name, "kill_switch": state.get(f"kill:{name}") == "1", "cursor": {key: state.cursor(name, key) for key in ("backfill_done", "backfill_cursor", "watermark", "incremental_cursor")}} for name in (TASK, HC_TASK)],
         "status": collector.status if collector else None,
         "paused": state.paused(),
         "uploader_paused": state.get("uploader_paused"),
-        "kill_switch": state.get(f"kill:{TASK}") == "1",
-        "cursor": {name: state.cursor(TASK, name) for name in ("backfill_done", "backfill_cursor", "watermark", "incremental_cursor")},
+        "kill_switch": state.get(f"kill:{active_task}") == "1",
+        "cursor": {name: state.cursor(active_task, name) for name in ("backfill_done", "backfill_cursor", "watermark", "incremental_cursor")},
         "counts": counts,
         "last": {"read": last_read["at"] if last_read else None, "extraction": last_extract["at"] if last_extract else None, "upload": last_upload["at"] if last_upload else None},
         "limits": config.limits.__dict__,
@@ -144,6 +147,7 @@ def render(snap: dict, csrf: str) -> str:
     )
     status = snap["status"] or {}
     state_line = "PAUSED: " + snap["paused"] if snap["paused"] else status.get("phase", "?")
+    source_controls = " ".join(f"<div><code>{e(item['task'])}</code> " + form('unkill' if item['kill_switch'] else 'kill', 'Re-enable source' if item['kill_switch'] else 'Stop source', f'<input type="hidden" name="task" value="{e(item["task"])}">') + "</div>" for item in snap.get("tasks", [{"task": snap["task"], "kill_switch": snap["kill_switch"]}]))
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="10">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Data Foundry Local Collector</title>
 <style>body{{font:14px system-ui,sans-serif;margin:16px;max-width:1100px;color:#1c2024;background:#fbfbfa}}table{{border-collapse:collapse;width:100%;margin:8px 0}}
@@ -152,8 +156,9 @@ td,th{{border-bottom:1px solid #ddd;padding:4px 6px;text-align:left;vertical-ali
 code{{white-space:pre-wrap;word-break:break-all}}</style></head><body>
 <h1>Data Foundry Local Collector</h1>
 <p><b>{e(state_line)}</b> · task <code>{e(snap['task'])}</code> · {e(snap['collector'])} · current: {e(str(status.get('current') or '-'))}</p>
-<p>{form('pause', 'Pause')} {form('resume', 'Resume')} {form('kill', 'Stop this source (kill switch)') if not snap['kill_switch'] else form('unkill', 'Re-enable this source')}
+<p>{form('pause', 'Pause')} {form('resume', 'Resume')}
 {('<b>Uploader paused: ' + e(snap['uploader_paused']) + '</b> ' + form('resume-uploader', 'Resume uploads')) if snap['uploader_paused'] else ''}</p>
+{source_controls}
 <p class="k">Model: {e(json.dumps(status.get('model')) if status.get('model') else 'not verified yet')} · last error: {e(str(status.get('last_error') or '-'))}</p>
 <div class="grid">
 <div class="card"><b>Last activity</b><br>read {_fmt_time(snap['last']['read'])}<br>extraction {_fmt_time(snap['last']['extraction'])}<br>upload {_fmt_time(snap['last']['upload'])}</div>
@@ -241,6 +246,9 @@ class Dashboard:
 
     def act(self, action: str, form: dict) -> str | None:
         state = self.state
+        task = form.get("task", TASK)
+        if action in ("kill", "unkill") and task not in (TASK, HC_TASK):
+            return "unknown task"
         if action == "pause":
             state.set("paused", "paused from the dashboard")
         elif action == "resume":
@@ -248,11 +256,11 @@ class Dashboard:
         elif action == "resume-uploader":
             state.set("uploader_paused", "")
         elif action == "kill":
-            state.set(f"kill:{TASK}", "1")
+            state.set(f"kill:{task}", "1")
         elif action == "unkill":
-            state.set(f"kill:{TASK}", "0")
+            state.set(f"kill:{task}", "0")
             with state.tx() as db:
-                db.execute("UPDATE job SET state = 'pending', due_at = ? WHERE task = ? AND state = 'refused'", (time.time(), TASK))
+                db.execute("UPDATE job SET state = 'pending', due_at = MAX(?, ?) WHERE task = ? AND state = 'refused'", (time.time(), float(state.get("allowance_until") or 0), task))
         elif action == "run-now":
             try:
                 state.run_now(int(form.get("job", "")))
