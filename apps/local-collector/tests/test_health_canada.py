@@ -18,6 +18,31 @@ RAW = {"NID": "12345", "Organization": "Consumer product safety", "Title": "Lamp
 
 
 class HealthCanada(unittest.TestCase):
+    def test_restored_allowance_blocks_overdue_and_expired_leased_requests_before_network_or_metering(self):
+        for job_state in ("pending", "leased"):
+            with self.subTest(job_state=job_state), tempfile.TemporaryDirectory() as tmp:
+                state = State(Path(tmp) / "state.sqlite3")
+                try:
+                    state.ensure_job("verify", TASK, "legacy-verify", {}, due_at=0)
+                    if job_state == "leased":
+                        with state.tx() as db:
+                            db.execute("UPDATE job SET state = 'leased', lease_owner = 'old-process', lease_expires_at = 0")
+                    state.event("info", "allowance_wait", {"seconds": 86400})
+                    collector = Collector(Config(data_dir=tmp), state)
+                    if job_state == "pending":
+                        self.assertGreaterEqual(state.one("SELECT due_at FROM job")["due_at"], float(state.get("allowance_until")))
+                    # Explicit run-now can make a pending job due; it must still obey the shared embargo.
+                    state.run_now(state.one("SELECT id FROM job")["id"])
+                    self.assertIsNotNone(state.claim(collector.owner, ("verify",), task=TASK))
+                    with patch.object(collector, "_fetcher", side_effect=AssertionError("network must not be reached")), patch.object(collector, "_read_key", side_effect=AssertionError("no credential read")):
+                        for task_name in (TASK, hc.TASK):
+                            collector.activate_task(task_name)
+                            with self.assertRaises(RateLimited):
+                                collector.api_get(collector.task_policy(), "/v1/product-recalls/hc-12345", {})
+                    self.assertEqual(collector._requests_today(), 0)
+                finally:
+                    state.db.close()
+
     def test_model_sees_health_canada_product_fields_without_advice(self):
         client = FakeClient('{"identifiers": []}')
         original = client.chat_json

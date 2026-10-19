@@ -152,6 +152,10 @@ class Collector:
                     self.state.set("allowance_until", str(until))
             except (ValueError, TypeError, KeyError):
                 pass
+        until = float(self.state.get("allowance_until") or 0)
+        if until > time.time():
+            with self.state.tx() as db:
+                db.execute("UPDATE job SET due_at = MAX(due_at, ?) WHERE kind IN ('read', 'verify') AND state = 'pending'", (until,))
 
     # -- helpers -------------------------------------------------------------------------------------------------
 
@@ -222,6 +226,10 @@ class Collector:
         return None
 
     def api_get(self, task: policy_mod.TaskPolicy, path: str, params: dict) -> dict:
+        remaining = float(self.state.get("allowance_until") or 0) - time.time()
+        if remaining > 0:
+            # Also protects an expired lease or an explicit run-now, before metering, key access or network I/O.
+            raise RateLimited("shared API allowance is waiting for its reset", retry_after=remaining)
         if self._requests_today() >= self.config.limits.max_api_requests_per_day:
             raise RateLimited("daily API request cap reached", retry_after=seconds_until_utc_midnight())
         url = self.config.api_origin.rstrip("/") + path + "?" + urlencode(params)
