@@ -39,8 +39,8 @@ and LIVE registry stage are unchanged.
 - `PYTHON=python PYTHONUTF8=1 pnpm exec vitest run apps/recalls-worker/test packages/product-recall-structuring/test tooling/test/local-collector.test.ts -t '^(?!.*passes its Python unit tests)' --maxWorkers=2 --silent`:
   **337 pass, one explicitly excluded Windows-incompatible legacy Python-suite wrapper**, 14 files.
 - `PYTHONUTF8=1 python -m unittest tests.test_health_canada` from `apps/local-collector`:
-  **9/9 pass**, including reader → extraction → durable outbox, native spans, independent cursors/leases,
-  source controls, shared allowance and legacy wait recovery.
+  **10/10 pass**, including reader → extraction → durable outbox, native spans, independent cursors/leases,
+  source controls, shared allowance, legacy wait recovery and source-aware working-copy purge recovery.
 - `python benchmark/run_benchmark.py --sample benchmark/data/sample.json --gold benchmark/data/gold.json --out benchmark/data --score-only`:
   CPSC stored predictions re-score unchanged: held-out 38 true positives / zero false positives,
   0/18 negative-notice false positives. The exact CPSC request fingerprint remains

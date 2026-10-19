@@ -47,6 +47,25 @@ class HealthCanada(unittest.TestCase):
                 collector.activate_task("unknown")
             state.db.close()
 
+    def test_forced_working_copy_purge_rewinds_every_affected_source(self):
+        from df_collector.__main__ import cmd_purge
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Config(data_dir=tmp)
+            state = State(config.db_path)
+            collector = Collector(config, state)
+            collector.queue_documents([{"id": "cpsc-12345", "raw": {"Description": "Item number CD-456."}, "provenance": {"raw_sha256": "a" * 64}}])
+            collector.activate_task(hc.TASK)
+            collector.queue_documents([{"id": "hc-12345", "raw": RAW, "provenance": {"raw_sha256": "b" * 64}}])
+            with state.tx() as db:
+                for task in (TASK, hc.TASK):
+                    state.set_cursor(db, task, "backfill_done", "1")
+            state.db.close()
+            self.assertEqual(cmd_purge(config, everything=False, remove_model=False, force=True), 0)
+            state = State(config.db_path)
+            cursors = [state.cursor(task, "backfill_done") for task in (TASK, hc.TASK)]
+            state.db.close()
+            self.assertEqual(cursors, [None, None])
+
     def test_only_product_fields_are_proposed_and_evidence_spans_are_native(self):
         client = FakeClient(json.dumps({"identifiers": [{"value": "AB-123", "label": "item", "field": "Product"}]}))
         result = hc.extract(client, RAW)

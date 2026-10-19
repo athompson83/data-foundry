@@ -375,8 +375,10 @@ def cmd_purge(config: Config, everything: bool, remove_model: bool, force: bool)
             from .runtime import rewind_backfill
 
             with state.tx() as db:
+                affected_tasks = [row["task"] for row in db.execute("SELECT DISTINCT task FROM document WHERE state = 'queued'")]
                 db.execute("DELETE FROM document WHERE state = 'queued'")
-                rewind_backfill(db, state)
+                for task in affected_tasks:
+                    rewind_backfill(db, state, task)
             report["rewound"] = f"{waiting} queued notice(s) forgotten; the backfill restarts from the first page on the next run"
         report["swept"] = state.sweep(config.evidence_dir, unverified_days=0)
         with state.tx() as db:
