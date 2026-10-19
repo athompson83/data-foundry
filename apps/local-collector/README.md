@@ -228,7 +228,10 @@ Secrets needed:
 - `ingest-token`: an ingestion credential (`dfi_…`) minted by an operator with
   `POST /admin/ingest-credentials?label=<name>&sources=cpsc-recalls,health-canada-consumer-product-recalls` (ADMIN_TOKEN).
   Include only the sources this collector should submit. Existing CPSC-only credentials remain CPSC-only; the new
-  adapter does not expand their authority. The token is shown once and revoked
+  adapter does not expand their authority. **Before upgrading to the two-task collector, stop it and have an operator
+  replace or explicitly extend the ingestion credential to admit both sources.** Verify the scopes before restarting:
+  `source_not_allowed` is acknowledged, so changing the token later does not replay already rejected documents.
+  The token is shown once and revoked
   with `/admin/ingest-credentials/revoke?id=`.
 
 To remove it, run `.\uninstall.ps1` in the same folder. It keeps the data directory; `-Purge` also deletes it

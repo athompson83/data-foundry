@@ -26,7 +26,11 @@ and LIVE registry stage are unchanged.
   stale bytes, excluded fields, source holds and wrong credentials have regression coverage.
 - HC has **no publishable extractor entry**. Even an open general publication gate cannot
   publish this build. A separate HC held-out benchmark and reviewed entry are still required.
-  No credential scope is expanded by the code change.
+  Existing credentials are not changed by the code. Fresh provisioning now names both source
+  scopes. Upgrade the installed credential's scope before starting the two-task collector:
+  `source_not_allowed` is an acknowledged refusal, so a later token replacement alone does
+  not replay those documents. Automated review identified and closed the old CPSC-only
+  provisioning path; the installed credential's guarded update is a separate release step.
 - The catalog-derived plan becomes `task: 2`, `permitted-no-adapter: 1`, `blocked: 24`.
   FDA is the remaining permitted source without a local extraction adapter. Hosted CPSC/HC
   agency acquisition continues to belong to the Worker's scheduled sync.
