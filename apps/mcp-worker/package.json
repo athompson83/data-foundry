@@ -22,7 +22,7 @@
     "@data-foundry/private-canary": "workspace:*",
     "@data-foundry/query-model": "workspace:*",
     "@data-foundry/usage-events": "workspace:*",
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/server": "2.3.0",
     "pg": "^8.23.0",
     "zod": "^4.4.3"
   },
