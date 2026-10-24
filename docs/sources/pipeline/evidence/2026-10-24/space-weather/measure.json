@@ -1,0 +1,27 @@
+{
+ "swpc_alerts_30d": 95,
+ "swpc_product_prefix_counts": {
+  "EF3": 14,
+  "K04": 33,
+  "K05": 15,
+  "A20": 6,
+  "BHI": 2,
+  "A30": 4,
+  "K07": 3,
+  "K06": 5,
+  "XM5": 4,
+  "TII": 5,
+  "MSI": 1,
+  "SGI": 1,
+  "TIV": 2
+ },
+ "k_index_alerts": 23,
+ "gfz_kp_values": 277,
+ "gfz_range": [
+  "2026-09-20T00:00:00Z",
+  "2026-10-24T12:00:00Z"
+ ],
+ "k_alerts_with_gfz_kp_within_1_of_alert": 23,
+ "alerts_with_serial_number": 95,
+ "alerts_with_begin_or_valid_or_threshold_time": 85
+}

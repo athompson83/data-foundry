@@ -1,0 +1,20 @@
+{
+ "fda_core_rows": 156,
+ "fda_core_years": [
+  2020,
+  2021,
+  2022,
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "fda_rows_citing_usda_reference": 3,
+ "fda_rows_since_2026": 26,
+ "fda_rows_since_2026_with_named_product": 17,
+ "cdc_feed_items": 1844,
+ "cdc_feed_oldest": "2006-04-20",
+ "cdc_feed_newest": "2026-09-22",
+ "cdc_outbreak_titled_items": 141,
+ "named_product_rows_with_cdc_candidate": 8
+}

@@ -1,0 +1,110 @@
+[
+ {
+  "serial": "2694",
+  "alert_k": 4,
+  "threshold_utc": "2026-10-23T19:53:00",
+  "gfz_bin_start": "2026-10-23T18:00:00",
+  "gfz_kp_bin": 4.333,
+  "gfz_kp_next": 1.667,
+  "ok": true
+ },
+ {
+  "serial": "2058",
+  "alert_k": 5,
+  "threshold_utc": "2026-10-21T23:59:00",
+  "gfz_bin_start": "2026-10-21T21:00:00",
+  "gfz_kp_bin": 4.667,
+  "gfz_kp_next": 2.667,
+  "ok": true
+ },
+ {
+  "serial": "2693",
+  "alert_k": 4,
+  "threshold_utc": "2026-10-21T20:59:00",
+  "gfz_bin_start": "2026-10-21T18:00:00",
+  "gfz_kp_bin": 4.0,
+  "gfz_kp_next": 4.667,
+  "ok": true
+ },
+ {
+  "serial": "2692",
+  "alert_k": 4,
+  "threshold_utc": "2026-10-21T04:29:00",
+  "gfz_bin_start": "2026-10-21T03:00:00",
+  "gfz_kp_bin": 4.0,
+  "gfz_kp_next": 1.667,
+  "ok": true
+ },
+ {
+  "serial": "2691",
+  "alert_k": 4,
+  "threshold_utc": "2026-10-16T19:40:00",
+  "gfz_bin_start": "2026-10-16T18:00:00",
+  "gfz_kp_bin": 4.0,
+  "gfz_kp_next": 2.0,
+  "ok": true
+ },
+ {
+  "serial": "2057",
+  "alert_k": 5,
+  "threshold_utc": "2026-10-10T21:45:00",
+  "gfz_bin_start": "2026-10-10T21:00:00",
+  "gfz_kp_bin": 5.667,
+  "gfz_kp_next": 4.0,
+  "ok": true
+ },
+ {
+  "serial": "220",
+  "alert_k": 7,
+  "threshold_utc": "2026-10-10T19:26:00",
+  "gfz_bin_start": "2026-10-10T18:00:00",
+  "gfz_kp_bin": 7.0,
+  "gfz_kp_next": 5.667,
+  "ok": true
+ },
+ {
+  "serial": "728",
+  "alert_k": 6,
+  "threshold_utc": "2026-10-10T18:37:00",
+  "gfz_bin_start": "2026-10-10T18:00:00",
+  "gfz_kp_bin": 7.0,
+  "gfz_kp_next": 5.667,
+  "ok": true
+ },
+ {
+  "serial": "2056",
+  "alert_k": 5,
+  "threshold_utc": "2026-10-10T18:18:00",
+  "gfz_bin_start": "2026-10-10T18:00:00",
+  "gfz_kp_bin": 7.0,
+  "gfz_kp_next": 5.667,
+  "ok": true
+ },
+ {
+  "serial": "219",
+  "alert_k": 7,
+  "threshold_utc": "2026-10-10T17:58:00",
+  "gfz_bin_start": "2026-10-10T15:00:00",
+  "gfz_kp_bin": 7.333,
+  "gfz_kp_next": 7.0,
+  "ok": true
+ },
+ {
+  "serial": "727",
+  "alert_k": 6,
+  "threshold_utc": "2026-10-10T17:17:00",
+  "gfz_bin_start": "2026-10-10T15:00:00",
+  "gfz_kp_bin": 7.333,
+  "gfz_kp_next": 7.0,
+  "ok": true
+ },
+ {
+  "serial": "2055",
+  "alert_k": 5,
+  "threshold_utc": "2026-10-10T15:35:00",
+  "gfz_bin_start": "2026-10-10T15:00:00",
+  "gfz_kp_bin": 7.333,
+  "gfz_kp_next": 7.0,
+  "ok": true
+ }
+]

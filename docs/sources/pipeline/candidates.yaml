@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-19
+updated: 2026-10-24
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -8185,6 +8185,242 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-19.md ]
     next_action: 'PARKED 2026-10-19: the CrashAPI answered HTTP 403 Access Denied (an Akamai reference page) to the scout User-Agent. The annual FARS CSV files on static.nhtsa.gov were not tested and are the next route; the records describe individuals in fatal crashes, so personal data must be reviewed before any member is built.'
 
+  - key: travel-us-state-dept-advisories
+    name: US State Department travel advisories (227 country and area advisories, levels 1 to 4 with risk indicators)
+    category: travel-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US Department of State
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://cadataapi.state.gov/api/TravelAdvisories' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The State Department copyright page answered HTTP 403 from this egress, so the terms are unread; US government work (17 U.S.C. 105) applies to the advisory text, but read and quote the page before RIGHTS_DETERMINED.'
+      - 'Keys countries by FIPS/GEC code, not ISO 3166: 63 of 224 State codes equal the ISO code of a different country (Israel IS = Iceland), so never join on the code.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/measure.json ]
+    next_action: 'Measured 2026-10-24: one request returns 227 advisories (88 Level 1, 87 Level 2, 27 Level 3, 25 Level 4), mean 1,909 characters of HTML summary; 2 items carry a Published date after the run date. Quote the terms, then extract level, risk indicators (Crime, Terrorism, Health, Kidnapping, Unrest) and the dated change notes deterministically, and map GEC codes to ISO through a reviewed crosswalk.'
+
+  - key: travel-uk-fcdo-advice
+    name: UK FCDO foreign travel advice (226 countries, GOV.UK content API with dated change history)
+    category: travel-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Foreign, Commonwealth and Development Office
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/content/foreign-travel-advice' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+    conditions:
+      - 'Attribute with "Contains public sector information licensed under the Open Government Licence v3.0" and link the licence.'
+      - 'Exclude personal data (contact details of private persons) and do not imply FCDO endorsement.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/measure.json ]
+    next_action: 'Measured 2026-10-24: the index lists 226 countries; /api/content/foreign-travel-advice/france returns 5 parts, alert_status, a change_description and reviewed_at/updated_at (2026-10-22). Fetch one content document per country (226 requests), keep the raw JSON in R2, and parse alert_status and the warnings and insurance part text.'
+
+  - key: travel-ca-global-affairs-advisories
+    name: Global Affairs Canada travel advice and advisories (230 destinations, ISO country codes, English and French)
+    category: travel-safety
+    structuring: normalization
+    format: structured
+    publisher: Global Affairs Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.international.gc.ca/travel-voyage/index-alpha-eng.json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Attribute "Contains information licensed under the Open Government Licence - Canada" and link the licence.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/measure.json ]
+    next_action: 'Measured 2026-10-24: one 197 KB JSON file holds 230 destinations keyed by ISO 3166 alpha-2, with advisory-state 0 to 3 (104 / 90 / 14 / 22), advisory text, regional-advisory flag and the latest change note. This is the only one of the three that carries ISO codes, which makes it the crosswalk anchor; archive the file daily.'
+
+  - key: space-weather-swpc-alerts
+    name: NOAA SWPC space weather alerts, watches and warnings (free-text messages with serial numbers)
+    category: space
+    structuring: event-extraction
+    format: free-text
+    publisher: NOAA Space Weather Prediction Center
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://services.swpc.noaa.gov/products/alerts.json', 'https://services.swpc.noaa.gov/json/edited_events.json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.weather.gov/disclaimer
+        quote: 'The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not'
+    conditions:
+      - 'Do not claim the data is ours, imply NOAA/NWS endorsement, or modify content and present it as official government material.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/space-weather/measure.json ]
+    next_action: 'Measured 2026-10-24: alerts.json holds 95 messages for the last 30 days (K-index, electron flux, radio blackout and proton-event codes), all with a serial number, 85 with a begin, valid-to or threshold time; edited_events.json holds 762 events over the same 30 days. Neither returns older history, so archive both daily to build the record; find an archive route for 2000 onwards.'
+
+  - key: space-weather-gfz-kp-index
+    name: GFZ Helmholtz Centre Potsdam geomagnetic Kp index (3-hourly, definitive and nowcast)
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: GFZ Helmholtz Centre for Geosciences
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://kp.gfz.de/app/json/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The licence statement was not found on the data page the scout read; the Kp service documentation is expected to state CC BY 4.0. Read and quote it before RIGHTS_DETERMINED.'
+      - 'The old host kp.gfz-potsdam.de redirects (HTTP 301) to kp.gfz.de; use the new host.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/space-weather/measure.json ]
+    next_action: 'Measured 2026-10-24: the JSON API returned 277 Kp values for 2026-09-20 to 2026-10-24. All 23 SWPC K-index alerts in the last 30 days fall in a GFZ interval (or the next) with Kp within one unit of the alert level (a loose tolerance, since SWPC alerts on a real-time estimate). Quote the licence, then archive the full Kp series.'
+
+  - key: foodborne-fda-core-investigations
+    name: FDA CORE foodborne outbreak investigation table (156 investigations since 2020, with USDA cross-references)
+    category: food-safety
+    structuring: event-extraction
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.fda.gov/food/outbreaks-foodborne-illness/investigations-foodborne-illness-outbreaks' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: 'They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA.'
+    conditions:
+      - 'Third-party copyrighted images and logos on FDA pages are excluded.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/measure.json ]
+    next_action: 'Measured 2026-10-24: one HTML page carries seven yearly tables, 156 investigations (2020 to 2026-09-30): reference number, pathogen, product, case count, status, and ticks for recall, traceback, inspection and sampling. 3 rows cite a USDA reference (e.g. "1421 ( USDA 2026-04 )"), which is a cited case number for FSIS (HTTP 403 from this egress). 17 of 26 rows since 2026 name a product. Archive the page; parse the tables deterministically.'
+
+  - key: foodborne-cdc-outbreak-notices
+    name: CDC newsroom feed (outbreak notices and updates, 1,844 items since 2006)
+    category: food-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US Centers for Disease Control and Prevention
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://tools.cdc.gov/api/v2/resources/media/132608.rss' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: 'Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission.'
+    conditions:
+      - 'Some CDC pages mix public domain and copyright-protected material; exclude images.'
+      - 'The newsroom feed is not a complete list of notices: it carries 141 outbreak-titled items, the most recent from 2026-09-22; the foodborne notice pages themselves are not enumerated by this feed.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/measure.json ]
+    next_action: 'Measured 2026-10-24: 1,844 items, 2006-04-20 to 2026-09-22, each with title, description, date and a link; 141 titles name an outbreak. 8 of the 17 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within -10 to +60 days. Find the CDC notice index (the foodborne-outbreaks pages are script-rendered and the active-investigations URL answered 404) to capture the full notice text.'
+
+  - key: central-bank-fed-fomc-statements
+    name: Federal Reserve FOMC monetary policy statements (press releases, 2024 to date)
+    category: finance
+    structuring: obligation-timeline
+    format: free-text
+    publisher: Board of Governors of the Federal Reserve System
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm', 'https://www.federalreserve.gov/feeds/press_monetary.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.federalreserve.gov/disclaimer.htm
+        quote: "Unless otherwise indicated, information on Board's website is in the public domain and may be copied and distributed without permission."
+    conditions:
+      - 'Seals, logos and non-Board material are excluded.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/central-bank-decisions/measure.json ]
+    next_action: 'Measured 2026-10-24: the calendar links 23 monetary-policy press releases for 2024 to 2026 (22 FOMC statements plus a speech); 22 of 22 statements yield the decided target range with one deterministic rule. The RSS carries 15 recent items. Extend the history back through the calendar archive pages and add minutes and implementation notes.'
+
+  - key: central-bank-nyfed-reference-rates
+    name: Federal Reserve Bank of New York reference rates (EFFR with published target range, percentiles and volume)
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: Federal Reserve Bank of New York
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://markets.newyorkfed.org/api/rates/unsecured/effr/search.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The New York Fed terms-of-use page was fetched but carried no reuse statement the scout could read; free public data is presumed usable under ADR-0018, so attribute and keep the request rate low.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/central-bank-decisions/measure.json ]
+    next_action: 'Measured 2026-10-24: search.json returned 705 EFFR days from 2024-01-01, each with targetRateFrom and targetRateTo (latest 3.75 to 4.00 on 2026-10-22). Quote or document the terms; widen to SOFR and the other reference rates.'
+
+  - key: central-bank-ecb-key-rates
+    name: European Central Bank key interest rates (SDMX data API, deposit facility rate)
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: European Central Bank
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data-api.ecb.europa.eu/service/data/FM/B.U2.EUR.4F.KR.DFR.LEV' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'Reuse terms not yet read; read the ECB copyright notice before RIGHTS_DETERMINED. The Bank of England monetary-policy-summary pages answered 200 but the IADB CSV endpoint returned an error page, so BoE is not yet a member.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/central-bank-decisions/measure.json ]
+    next_action: 'Measured 2026-10-24: the SDMX JSON API returned deposit-facility-rate observations on decision dates (latest changes 2025-06-11, 2026-06-17 and 2026-09-16); the ECB press and monetary-decision HTML paths tried answered 404, so the free-text statement source still has to be located.'
+
+  - key: book-works-project-gutenberg-catalog
+    name: Project Gutenberg catalog (79,634 ebooks with authors, subjects and Library of Congress class; full texts)
+    category: culture
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Project Gutenberg
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gutenberg.org/cache/epub/feeds/pg_catalog.csv' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.gutenberg.org/policy/permission.html
+        quote: 'The vast majority of Project Gutenberg eBooks are in the public domain in the US.'
+    conditions:
+      - 'Public domain status is US-only for many works; the Project Gutenberg trademark licence governs commercial redistribution of full texts, so serve metadata and ids first and read the trademark licence before any full-text product.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/book-works/measure.json ]
+    next_action: 'Measured 2026-10-24: pg_catalog.csv is 21 MB, 79,634 rows (78,383 texts); 79,591 carry subjects and 79,612 a Library of Congress class. Full texts are free text per ebook. Archive the catalog and decide the text-redistribution scope from the trademark licence.'
+
+  - key: book-works-open-library
+    name: Open Library works and editions (search API; identifiers include Project Gutenberg, LCCN, OCLC, ISBN)
+    category: culture
+    structuring: normalization
+    format: structured
+    publisher: Internet Archive Open Library
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://openlibrary.org/search.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'The data-dumps page the scout read carried no licence statement; read and quote the Open Library data licence before RIGHTS_DETERMINED.'
+      - 'About one in five declared Gutenberg links points at a different work (OL "Siddartha" lists ebook 1, the Declaration of Independence), so every declared id is checked against the counterpart title before it is served.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/book-works/measure.json ]
+    next_action: 'Measured 2026-10-24: 2,134 works declare a Project Gutenberg id (2,612 ids), 1,232 carry an LCCN and 1,432 an ISBN. Use the monthly dump rather than paging search for the full set.'
+
+  - key: fsai-food-alerts
+    name: Food Safety Authority of Ireland food alerts and recalls (352 alerts, HTML list and detail pages)
+    category: food-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Food Safety Authority of Ireland
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.fsai.ie/news-and-alerts/food-alerts' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - 'The FSAI disclaimer gives no reuse licence; free public data is presumed usable under ADR-0018. Attribute, exclude product images and respect robots.txt (HTTP 200).'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/fsai-recalls/measure.json, docs/sources/pipeline/evidence/2026-10-24/fsai-recalls/handcheck.json ]
+    next_action: 'Measured 2026-10-24: 36 list pages hold 352 alert links; all 40 detail pages fetched carry a date (2026-06-12 to 2026-10-23) and batch or best-before text, no barcode field. 26 candidate pairs with the 1,372 UK FSA alerts share a distinctive token within 30 days; 11 are the same event on hand check (6 distinct events: SuperValu/Centra salmon, Alyan Dubai chocolate, Macroom mozzarella, Capri-Sun Orange, M&S truffle gouda, French brie). Archive the list and detail pages, parse batch codes and dates deterministically.'
+
+  - key: trade-remedy-usitc-investigations
+    name: USITC antidumping and countervailing duty investigations and Commerce ITA orders
+    category: trade
+    structuring: obligation-timeline
+    format: free-text
+    publisher: US International Trade Commission
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.usitc.gov/trade_remedy/731_ad_701_cvd/investigations.htm' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    conditions:
+      - 'Access blocked from this egress.'
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md ]
+    next_action: 'Parked 2026-10-24: the USITC investigations page and its API path answered HTTP 403 (Akamai access denied) and the CBSA SIMA menu paths answered 404; the ITA statistics file is a 612 KB PDF. Reopen when a route that returns the case lists (731-TA and 701-TA numbers, A-570 and C-570 case numbers cited in Federal Register notices) is found; the Federal Register API is already open.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -9113,7 +9349,15 @@ datasets:
       - uk-fsa-food-alerts
       - ca-recalls-food-health-open-data
       - au-nz-fsanz-food-recalls
+      - fsai-food-alerts
     join_keys:
+      - key: recalling firm name + product tokens, dates within 30 days (Ireland FSAI alert vs UK FSA alert)
+        between:
+          - fsai-food-alerts
+          - uk-fsa-food-alerts
+        measured: '11/26 candidate pairs (distinctive title token, dates within 30 days) are the same recall event on hand check, covering 6 distinct events; the other 15 share only a generic word such as cheese or frozen (evidence/2026-10-24/fsai-recalls/handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 11, checked: 26 }
       - key: recalling firm name + product tokens, enforcement date within -30 to +150 days of the announcement (FDA company announcement vs openFDA enforcement report)
         between:
           - fda-company-announcements
@@ -10580,3 +10824,161 @@ datasets:
     scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-19.md, docs/sources/pipeline/evidence/2026-10-19/tsunami-events/measure.json, docs/sources/pipeline/evidence/2026-10-19/tsunami-events/handcheck.json ]
     next_action: Read the NCEI data-access policy and the NWS terms, archive the event and runup pages in R2, and find a PTWC bulletin archive route so historical events have bulletin text.
+
+  - key: travel-advisories-global
+    name: Government travel advisories (US State Department, UK FCDO, Global Affairs Canada)
+    category: travel-safety
+    entity: travel advisory (one government assessment for one country or area, with level, risk indicators and dated change history)
+    stage: SCREENED
+    description: 'One record per country per issuing government, kept side by side so an agent can compare the US, UK and Canadian assessments. Levels are mapped to one four-step scale while the verbatim level and text are kept; risk indicators (crime, terrorism, health, kidnapping, unrest) and change notes are extracted deterministically. Countries are linked by a reviewed crosswalk to ISO 3166, never by the State Department code, which collides with ISO.'
+    sources:
+      - travel-us-state-dept-advisories
+      - travel-uk-fcdo-advice
+      - travel-ca-global-affairs-advisories
+    join_keys:
+      - key: 'normalised country name with a reviewed alias list (State Department vs Global Affairs Canada, ISO anchor)'
+        between:
+          - travel-us-state-dept-advisories
+          - travel-ca-global-affairs-advisories
+        measured: '202/218 State Department countries match a Canada destination by normalised name; 197 match all three governments. The State code is not usable: 63 of 224 State codes equal the ISO code of a different country (evidence/2026-10-24/travel-advisories/measure.json). 12 of 12 random matches name the same country in all three feeds'
+        mode: candidate
+        reviewed: { correct: 12, checked: 12 }
+      - key: 'normalised country name (UK FCDO vs Global Affairs Canada)'
+        between:
+          - travel-uk-fcdo-advice
+          - travel-ca-global-affairs-advisories
+        measured: '205/226 FCDO countries match a Canada destination by normalised name; the unmatched are territories and naming variants (Myanmar/Burma, Eswatini, Congo)'
+        mode: candidate
+        reviewed: { correct: 12, checked: 12 }
+    taxonomy:
+      - 'level: US 1-4 / UK alert_status / Canada 0-3, kept verbatim and mapped to one scale'
+      - 'indicator: crime, terrorism, civil unrest, health, kidnapping, natural disaster, wrongful detention'
+      - 'region: whole country or named regions'
+      - 'change: dated update note with reason'
+    agent_questions:
+      - 'Which governments advise against all travel to this country, and since when?'
+      - 'How do the US, UK and Canadian assessments differ for this country?'
+      - 'What changed in the advisory for this destination in the last 30 days?'
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/measure.json, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/handcheck.json ]
+    next_action: 'Read the State Department copyright page (HTTP 403 today), quote the three licences, archive all three feeds in R2 (State and Canada are single requests; FCDO is 226 content documents), build a reviewed GEC-to-ISO crosswalk and re-measure the cross-government link on the archived inputs before EVIDENCED. Note: 20 of the 22 State Level 4 countries that match are Canada "avoid all travel", so level agreement is a usable sanity check.'
+
+  - key: space-weather-events
+    name: Space weather alerts and geomagnetic activity (NOAA SWPC and GFZ Potsdam)
+    category: space
+    entity: space weather event (one geomagnetic, radiation or radio-blackout episode with its alerts, thresholds, impacts and observed index values)
+    stage: SCREENED
+    description: 'One record per space weather episode. SWPC supplies the free-text alerts, watches and warnings with serial numbers, threshold and valid times and the stated impacts; GFZ supplies the definitive 3-hourly Kp index. Alerts link to Kp by time only, as a reviewed candidate, and each alert keeps its serial number and message verbatim.'
+    sources:
+      - space-weather-swpc-alerts
+      - space-weather-gfz-kp-index
+    join_keys:
+      - key: 'K-index alert threshold time within a GFZ 3-hour Kp interval (SWPC alert vs GFZ Kp)'
+        between:
+          - space-weather-swpc-alerts
+          - space-weather-gfz-kp-index
+        measured: '23/23 SWPC K-index alerts in the last 30 days fall in a GFZ Kp interval (or the next) with Kp within one unit of the alert level; the tolerance is loose because SWPC alerts on a real-time estimate (evidence/2026-10-24/space-weather/handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 12, checked: 12 }
+    taxonomy:
+      - 'product: K-index alert, electron flux, proton event, radio blackout (R1-R5), solar radiation storm (S1-S5), geomagnetic storm (G1-G5)'
+      - 'phase: alert, watch, warning, summary, continued alert'
+      - 'impact: power grid, satellite, HF radio, aurora latitude'
+    agent_questions:
+      - 'Was there a G3 or stronger geomagnetic storm this month, and what did SWPC say would be affected?'
+      - 'What Kp index did GFZ record during this alert?'
+      - 'Which alerts continued from an earlier serial number?'
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/space-weather/measure.json, docs/sources/pipeline/evidence/2026-10-24/space-weather/handcheck.json ]
+    next_action: 'Quote the GFZ licence, find a history route for SWPC alerts (the live feed holds 30 days), archive the daily feeds and the full Kp series in R2, and measure the alert-to-Kp agreement over a full year on archived inputs.'
+
+  - key: foodborne-outbreak-investigations
+    name: Foodborne outbreak investigations (FDA CORE table and CDC outbreak notices)
+    category: food-safety
+    entity: outbreak investigation (one multistate foodborne illness investigation with pathogen, implicated product, case counts, status and response actions)
+    stage: SCREENED
+    description: 'One record per investigation. The FDA CORE table supplies the reference number, pathogen, product, case count, status and response ticks (recall, traceback, inspection, sampling); CDC notices supply the narrative, case and state counts and advice. A USDA reference cited in the FDA table links to an FSIS case. FDA and CDC link by pathogen genus, product and date only, as a reviewed candidate.'
+    sources:
+      - foodborne-fda-core-investigations
+      - foodborne-cdc-outbreak-notices
+    join_keys:
+      - key: 'pathogen genus + named product token, CDC item dated -10 to +60 days from the FDA posting (FDA CORE vs CDC newsroom)'
+        between:
+          - foodborne-fda-core-investigations
+          - foodborne-cdc-outbreak-notices
+        measured: '8/17 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within the window; all 8 agree on pathogen and product on hand check (alfalfa sprouts, jalapeno, iceberg lettuce, frozen blueberries, requeson cheese, moringa x3). The 9 without a match are mostly absent from the newsroom feed, which is not a full notice list (evidence/2026-10-24/foodborne-outbreaks/handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 8, checked: 8 }
+    taxonomy:
+      - 'pathogen: Salmonella serotype, Listeria, E. coli STEC type, Cyclospora, Clostridium botulinum'
+      - 'vehicle: product category, or not yet identified'
+      - 'status: active, closed'
+      - 'response: recall, traceback, inspection, sampling initiated'
+    agent_questions:
+      - 'Which active multistate outbreaks involve this product or pathogen?'
+      - 'Was a recall initiated for this investigation, and which agency led?'
+      - 'How many cases did the notice report at each update?'
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/measure.json, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/handcheck.json ]
+    next_action: 'Find the CDC foodborne notice index (the active-investigations URL answered 404; the page is script-rendered) and USDA FSIS access (HTTP 403 today) so the cited USDA references can link as declared case numbers; archive the FDA page and the CDC feed in R2.'
+
+  - key: central-bank-policy-decisions
+    name: Central bank policy decisions (Federal Reserve statements, New York Fed reference rates, ECB key rates)
+    category: finance
+    entity: policy decision (one monetary policy announcement with its decided rate range, stated rationale and effective rate)
+    stage: SCREENED
+    description: 'One record per policy meeting decision. Federal Reserve FOMC statements supply the decided target range and the rationale text; the New York Fed publishes the effective rate and the target range in force; the ECB API supplies the deposit facility rate. Statement and reference-rate records link by decision date and the equality of the target range, an automatic value check that is still reviewed before publication.'
+    sources:
+      - central-bank-fed-fomc-statements
+      - central-bank-nyfed-reference-rates
+      - central-bank-ecb-key-rates
+    join_keys:
+      - key: 'decision date + equal target range (FOMC statement vs New York Fed EFFR target range on the next business day)'
+        between:
+          - central-bank-fed-fomc-statements
+          - central-bank-nyfed-reference-rates
+        measured: '22/22 FOMC statements from 2024-01-31 to 2026-09-16 state a target range that equals the New York Fed target range on the next business day; the one other URL in the calendar is a speech. This is an automatic value agreement, not an independent hand check (evidence/2026-10-24/central-bank-decisions/rows.json)'
+        mode: candidate
+        reviewed: { correct: 22, checked: 22 }
+    taxonomy:
+      - 'action: raise, lower, maintain; size in percentage points'
+      - 'range: lower and upper bound of the target range'
+      - 'vote: unanimous or dissent, from the statement text'
+      - 'rationale: inflation, employment, balance sheet language'
+    agent_questions:
+      - 'What did the Fed decide at each meeting since 2024, and how did the effective rate respond?'
+      - 'When did the stated rationale change from one meeting to the next?'
+      - 'How do the Fed and ECB policy rates compare on this date?'
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/central-bank-decisions/measure.json, docs/sources/pipeline/evidence/2026-10-24/central-bank-decisions/rows.json ]
+    next_action: 'Extend the statement history before 2024, locate the ECB and Bank of England free-text decision statements (the paths tried returned 404), and read the ECB and New York Fed reuse terms.'
+
+  - key: book-works-public-domain
+    name: Books and literary works (Project Gutenberg catalog and Open Library)
+    category: culture
+    entity: book work (one title with authors, subjects, classification and the public-domain text edition)
+    stage: SCREENED
+    description: 'One record per work. Project Gutenberg supplies the catalog row and the full text; Open Library supplies the work, editions and the ISBN, LCCN and OCLC identifiers. A Project Gutenberg ebook number declared on an Open Library work links the two, but a declared id is checked against the counterpart title before use because some declared ids point at a different book.'
+    sources:
+      - book-works-project-gutenberg-catalog
+      - book-works-open-library
+    join_keys:
+      - key: 'Project Gutenberg ebook number declared on an Open Library work'
+        between:
+          - book-works-open-library
+          - book-works-project-gutenberg-catalog
+        measured: '1,925/2,431 declared ids that exist in the Gutenberg catalog also share the first 12 title characters (2,612 ids on 2,134 works; 2,431 present in the 79,634-row catalog); 11/12 random declared links are the same work (one is a translation), 1 is wrong (evidence/2026-10-24/book-works/handcheck.json)'
+        mode: declared
+        reviewed: { correct: 11, checked: 12 }
+    taxonomy:
+      - 'form: novel, poetry, drama, essay, reference'
+      - 'subject: Library of Congress subject headings'
+      - 'classification: Library of Congress class'
+      - 'language and original-language edition'
+    agent_questions:
+      - 'Where can I read the public-domain text of this work, and who holds its identifiers?'
+      - 'Which Gutenberg ebooks are translations of this work?'
+      - 'Which works by this author are public domain in the US?'
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/book-works/measure.json, docs/sources/pipeline/evidence/2026-10-24/book-works/handcheck.json ]
+    next_action: 'Quote the Open Library data licence, read the Project Gutenberg trademark licence for the text scope, archive the monthly Open Library dump and the Gutenberg catalog, and re-measure the declared-id agreement on the full dump.'

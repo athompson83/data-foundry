@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-24: daily dataset scout (round 12)
+
+- **Health.** Both recall datasets synced 2026-10-24 (FDA 12:17-12:18Z, CPSC 12:18Z, HC 06:18Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-14), the CPSC Recall API (2026-10-22) and Health Canada (2026-10-22); FDA totals remain 2, 2 and 1 rows behind openFDA. No regression.
+- **Branch.** Merged `main` into the rolling scout branch (PR #88): kept both sides of PROGRESS.md, took main's wall-clock fix in `operations-retirement.test.ts`, regenerated `apps/local-collector/policy/sources.json`.
+- **Added at SCREENED (5):** `travel-advisories-global` (State/FCDO/Canada; State codes collide with ISO for 63 countries, so link by reviewed name, 202/218), `space-weather-events` (SWPC + GFZ Kp, 23/23 alerts agree), `foodborne-outbreak-investigations` (FDA CORE + CDC feed, 8/17 named-product rows linked, 8/8 correct), `central-bank-policy-decisions` (Fed statements 22/22 equal the New York Fed target range; ECB member), `book-works-public-domain` (Gutenberg + Open Library declared id, 1,925/2,431 agree, 11/12 hand check). Screened and PARKED: USITC trade remedies (HTTP 403). WHO outbreak notices stay PARKED (RED terms).
+- **Widening.** `fsai-food-alerts` (Ireland, free text, 352 alerts) joined to `food-and-health-recalls-global`; 11/26 candidate pairs to UK FSA are the same event (6 distinct), so it stays a reviewed candidate.
+- **Stage advance / limits.** Only into SCREENED: EVIDENCED needs an R2 archive and the archive workflow runs from `main`, which still lists only the already-archived ENERGY STAR plan. After this PR merges, dispatch the workflow for the federal-register and openFDA-device plans. Nothing deployed; the new sources cannot sell. Several screens were blocked (FSIS, ACCC, USITC 403; DONKI 503; RASFF 405). Evidence: [research](docs/sources/pipeline/research-2026-10-24.md).
+
 ## Current session — 2026-10-19: daily dataset scout (round 11)
 
 - **Health.** Both recall datasets synced 2026-10-19T12:18Z (under 24 h); newest records match openFDA (`last_updated` 2026-10-07; our newest `report_date` 2026-10-07) and CPSC (2026-10-15, 76 recalls since 2026-09-01) and Health Canada (2026-10-16). FDA totals are 2, 2 and 1 rows behind openFDA (food, drug, device), unchanged since 2026-10-17. No regression.
