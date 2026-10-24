@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "0986e98d537c9fce187809888cf823bdd91147290fbd4c7bb4e586f807eefddb",
+  "registry_sha256": "a426d52ae62d872fd52bebdd1d43f24bdbca337e096789008c1d7763af0c67ea",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -181,7 +181,8 @@
         "fda-company-announcements",
         "uk-fsa-food-alerts",
         "ca-recalls-food-health-open-data",
-        "au-nz-fsanz-food-recalls"
+        "au-nz-fsanz-food-recalls",
+        "fsai-food-alerts"
       ]
     },
     "public-procurement-notices": {
@@ -496,6 +497,48 @@
         "hazard-ncei-tsunami-events",
         "hazard-usgs-earthquakes",
         "hazard-ptwc-tsunami-bulletins"
+      ]
+    },
+    "travel-advisories-global": {
+      "name": "Government travel advisories (US State Department, UK FCDO, Global Affairs Canada)",
+      "stage": "SCREENED",
+      "sources": [
+        "travel-us-state-dept-advisories",
+        "travel-uk-fcdo-advice",
+        "travel-ca-global-affairs-advisories"
+      ]
+    },
+    "space-weather-events": {
+      "name": "Space weather alerts and geomagnetic activity (NOAA SWPC and GFZ Potsdam)",
+      "stage": "SCREENED",
+      "sources": [
+        "space-weather-swpc-alerts",
+        "space-weather-gfz-kp-index"
+      ]
+    },
+    "foodborne-outbreak-investigations": {
+      "name": "Foodborne outbreak investigations (FDA CORE table and CDC outbreak notices)",
+      "stage": "SCREENED",
+      "sources": [
+        "foodborne-fda-core-investigations",
+        "foodborne-cdc-outbreak-notices"
+      ]
+    },
+    "central-bank-policy-decisions": {
+      "name": "Central bank policy decisions (Federal Reserve statements, New York Fed reference rates, ECB key rates)",
+      "stage": "SCREENED",
+      "sources": [
+        "central-bank-fed-fomc-statements",
+        "central-bank-nyfed-reference-rates",
+        "central-bank-ecb-key-rates"
+      ]
+    },
+    "book-works-public-domain": {
+      "name": "Books and literary works (Project Gutenberg catalog and Open Library)",
+      "stage": "SCREENED",
+      "sources": [
+        "book-works-project-gutenberg-catalog",
+        "book-works-open-library"
       ]
     }
   },
@@ -4569,6 +4612,188 @@
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "travel-us-state-dept-advisories": {
+      "name": "US State Department travel advisories (227 country and area advisories, levels 1 to 4 with risk indicators)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Department of State",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "travel-uk-fcdo-advice": {
+      "name": "UK FCDO foreign travel advice (226 countries, GOV.UK content API with dated change history)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Foreign, Commonwealth and Development Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "travel-ca-global-affairs-advisories": {
+      "name": "Global Affairs Canada travel advice and advisories (230 destinations, ISO country codes, English and French)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Global Affairs Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "space-weather-swpc-alerts": {
+      "name": "NOAA SWPC space weather alerts, watches and warnings (free-text messages with serial numbers)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA Space Weather Prediction Center",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "space-weather-gfz-kp-index": {
+      "name": "GFZ Helmholtz Centre Potsdam geomagnetic Kp index (3-hourly, definitive and nowcast)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "GFZ Helmholtz Centre for Geosciences",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "foodborne-fda-core-investigations": {
+      "name": "FDA CORE foodborne outbreak investigation table (156 investigations since 2020, with USDA cross-references)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "foodborne-cdc-outbreak-notices": {
+      "name": "CDC newsroom feed (outbreak notices and updates, 1,844 items since 2006)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Centers for Disease Control and Prevention",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "central-bank-fed-fomc-statements": {
+      "name": "Federal Reserve FOMC monetary policy statements (press releases, 2024 to date)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Board of Governors of the Federal Reserve System",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "central-bank-nyfed-reference-rates": {
+      "name": "Federal Reserve Bank of New York reference rates (EFFR with published target range, percentiles and volume)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Federal Reserve Bank of New York",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "central-bank-ecb-key-rates": {
+      "name": "European Central Bank key interest rates (SDMX data API, deposit facility rate)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Central Bank",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "book-works-project-gutenberg-catalog": {
+      "name": "Project Gutenberg catalog (79,634 ebooks with authors, subjects and Library of Congress class; full texts)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Project Gutenberg",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "book-works-open-library": {
+      "name": "Open Library works and editions (search API; identifiers include Project Gutenberg, LCCN, OCLC, ISBN)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Internet Archive Open Library",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fsai-food-alerts": {
+      "name": "Food Safety Authority of Ireland food alerts and recalls (352 alerts, HTML list and detail pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Food Safety Authority of Ireland",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "trade-remedy-usitc-investigations": {
+      "name": "USITC antidumping and countervailing duty investigations and Commerce ITA orders",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US International Trade Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
         "stage PARKED is before PROTOTYPED"
       ]
     }
