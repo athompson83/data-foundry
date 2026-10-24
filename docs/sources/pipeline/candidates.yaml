@@ -8270,7 +8270,7 @@ candidates:
       - 'The licence statement was not found on the data page the scout read; the Kp service documentation is expected to state CC BY 4.0. Read and quote it before RIGHTS_DETERMINED.'
       - 'The old host kp.gfz-potsdam.de redirects (HTTP 301) to kp.gfz.de; use the new host.'
     evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/space-weather/measure.json ]
-    next_action: 'Measured 2026-10-24: the JSON API returned 277 Kp values for 2026-09-20 to 2026-10-24. All 23 SWPC K-index alerts in the last 30 days fall in a GFZ interval (or the next) with Kp within one unit of the alert level (a loose tolerance, since SWPC alerts on a real-time estimate). Quote the licence, then archive the full Kp series.'
+    next_action: 'Measured 2026-10-24: the JSON API returned 277 Kp values for 2026-09-20 to 2026-10-24. 22 of the 23 SWPC K-index alerts in the last 30 days fall in a GFZ interval (or the next) with Kp within one unit of the alert level either way (a loose tolerance, since SWPC alerts on a real-time estimate; serial 2055 is level 5 against Kp 7.3 and 7.0). Quote the licence, then archive the full Kp series.'
 
   - key: foodborne-fda-core-investigations
     name: FDA CORE foodborne outbreak investigation table (156 investigations since 2020, with USDA cross-references)
@@ -8288,7 +8288,7 @@ candidates:
     conditions:
       - 'Third-party copyrighted images and logos on FDA pages are excluded.'
     evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/measure.json ]
-    next_action: 'Measured 2026-10-24: one HTML page carries seven yearly tables, 156 investigations (2020 to 2026-09-30): reference number, pathogen, product, case count, status, and ticks for recall, traceback, inspection and sampling. 3 rows cite a USDA reference (e.g. "1421 ( USDA 2026-04 )"), which is a cited case number for FSIS (HTTP 403 from this egress). 17 of 26 rows since 2026 name a product. Archive the page; parse the tables deterministically.'
+    next_action: 'Measured 2026-10-24: one HTML page carries seven yearly tables, 156 investigations (2020 to 2026-09-30): reference number, pathogen, product, case count, status, and ticks for recall, traceback, inspection and sampling. 3 rows cite a USDA reference (e.g. "1421 ( USDA 2026-04 )"), which is a cited case number for FSIS (HTTP 403 from this egress). 16 of 26 rows since 2026 name a product. Archive the page; parse the tables deterministically.'
 
   - key: foodborne-cdc-outbreak-notices
     name: CDC newsroom feed (outbreak notices and updates, 1,844 items since 2006)
@@ -8307,7 +8307,7 @@ candidates:
       - 'Some CDC pages mix public domain and copyright-protected material; exclude images.'
       - 'The newsroom feed is not a complete list of notices: it carries 141 outbreak-titled items, the most recent from 2026-09-22; the foodborne notice pages themselves are not enumerated by this feed.'
     evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/measure.json ]
-    next_action: 'Measured 2026-10-24: 1,844 items, 2006-04-20 to 2026-09-22, each with title, description, date and a link; 141 titles name an outbreak. 8 of the 17 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within -10 to +60 days. Find the CDC notice index (the foodborne-outbreaks pages are script-rendered and the active-investigations URL answered 404) to capture the full notice text.'
+    next_action: 'Measured 2026-10-24: 1,844 items, 2006-04-20 to 2026-09-22, each with title, description, date and a link; 141 titles name an outbreak. 8 of the 16 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within -10 to +60 days. Find the CDC notice index (the foodborne-outbreaks pages are script-rendered and the active-investigations URL answered 404) to capture the full notice text.'
 
   - key: central-bank-fed-fomc-statements
     name: Federal Reserve FOMC monetary policy statements (press releases, 2024 to date)
@@ -10877,9 +10877,9 @@ datasets:
         between:
           - space-weather-swpc-alerts
           - space-weather-gfz-kp-index
-        measured: '23/23 SWPC K-index alerts in the last 30 days fall in a GFZ Kp interval (or the next) with Kp within one unit of the alert level; the tolerance is loose because SWPC alerts on a real-time estimate (evidence/2026-10-24/space-weather/handcheck.json)'
+        measured: '22/23 SWPC K-index alerts in the last 30 days fall in a GFZ Kp interval (or the next) with Kp within one unit of the alert level in either direction; the tolerance is loose because SWPC alerts on a real-time estimate (evidence/2026-10-24/space-weather/handcheck.json)'
         mode: candidate
-        reviewed: { correct: 12, checked: 12 }
+        reviewed: { correct: 11, checked: 12 }
     taxonomy:
       - 'product: K-index alert, electron flux, proton event, radio blackout (R1-R5), solar radiation storm (S1-S5), geomagnetic storm (G1-G5)'
       - 'phase: alert, watch, warning, summary, continued alert'
@@ -10906,7 +10906,7 @@ datasets:
         between:
           - foodborne-fda-core-investigations
           - foodborne-cdc-outbreak-notices
-        measured: '8/17 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within the window; all 8 agree on pathogen and product on hand check (alfalfa sprouts, jalapeno, iceberg lettuce, frozen blueberries, requeson cheese, moringa x3). The 9 without a match are mostly absent from the newsroom feed, which is not a full notice list (evidence/2026-10-24/foodborne-outbreaks/handcheck.json)'
+        measured: '8/16 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within the window; all 8 agree on pathogen and product on hand check (alfalfa sprouts, jalapeno, iceberg lettuce, frozen blueberries, requeson cheese, moringa x3). The 9 without a match are mostly absent from the newsroom feed, which is not a full notice list (evidence/2026-10-24/foodborne-outbreaks/handcheck.json)'
         mode: candidate
         reviewed: { correct: 8, checked: 8 }
     taxonomy:

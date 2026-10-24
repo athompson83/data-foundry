@@ -20,7 +20,7 @@ for a in A:
     idx=max((i for i,x in enumerate(gt) if x<=T),default=None)
     if idx is None: continue
     n=int(m.group(1)); k0=kp[idx]; k1=kp[idx+1] if idx+1<len(kp) else None
-    rows.append({'serial':ser.group(1),'alert_k':n,'threshold_utc':T.isoformat(),'gfz_bin_start':gt[idx].isoformat(),'gfz_kp_bin':k0,'gfz_kp_next':k1,'ok':max(x for x in (k0,k1) if x is not None)>=n-1})
+    rows.append({'serial':ser.group(1),'alert_k':n,'threshold_utc':T.isoformat(),'gfz_bin_start':gt[idx].isoformat(),'gfz_kp_bin':k0,'gfz_kp_next':k1,'ok':any(abs(x-n)<=1 for x in (k0,k1) if x is not None)})
 ok=sum(r['ok'] for r in rows)
 out={'swpc_alerts_30d':len(A),'swpc_product_prefix_counts':codes,'k_index_alerts':len(rows),'gfz_kp_values':len(kp),'gfz_range':[G['datetime'][0],G['datetime'][-1]],
  'k_alerts_with_gfz_kp_within_1_of_alert':ok,'alerts_with_serial_number':sum(1 for a in A if 'Serial Number:' in a['message']),'alerts_with_begin_or_valid_or_threshold_time':sum(1 for a in A if re.search(r'(Begin Time|Valid From|Threshold Reached|Observed Time|Deviation):',a['message']))}

@@ -20,7 +20,7 @@ GENUS={'salmonella':'salmonella','listeria':'listeria','e. coli':'coli','cyclosp
 def genus(p):
     for k,v in GENUS.items():
         if k in p.lower(): return v
-STOP={'not yet identified','see advisory',''}
+STOP={'not yet identified','not identified','see advisory',''}
 recent=[r for r in rows if r['posted']>=dt.datetime(2026,1,1)]
 named=[r for r in recent if r['product'].lower() not in STOP]
 out_rows=[]

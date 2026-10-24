@@ -21,7 +21,7 @@
   "2026-09-20T00:00:00Z",
   "2026-10-24T12:00:00Z"
  ],
- "k_alerts_with_gfz_kp_within_1_of_alert": 23,
+ "k_alerts_with_gfz_kp_within_1_of_alert": 22,
  "alerts_with_serial_number": 95,
  "alerts_with_begin_or_valid_or_threshold_time": 85
 }
