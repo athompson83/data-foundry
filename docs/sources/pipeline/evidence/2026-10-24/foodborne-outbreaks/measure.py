@@ -25,7 +25,7 @@ recent=[r for r in rows if r['posted']>=dt.datetime(2026,1,1)]
 named=[r for r in recent if r['product'].lower() not in STOP]
 out_rows=[]
 for r in named:
-    g=genus(r['pathogen']); toks=[w for w in re.findall(r'[a-zñ]{5,}',r['product'].lower().replace('peppers','pepper'))]
+    g=genus(r['pathogen']); toks=[w for w in re.findall(r'[a-zñ]{4,}',r['product'].lower().replace('peppers','pepper')) if w not in {'with','from','suspect','multi','ingredient','raw'}]
     hit=[(d,t) for d,t in outb if g and re.search(g,t,re.I) and any(w.rstrip('s') in t.lower() for w in toks) and -10<=(d-r['posted']).days<=60]
     out_rows.append({'ref':r['ref'],'posted':r['posted'].date().isoformat(),'pathogen':r['pathogen'],'product':r['product'],'cdc':[(d.date().isoformat(),t[:90]) for d,t in hit]})
 out={'fda_core_rows':len(rows),'fda_core_years':sorted({r['posted'].year for r in rows}),'fda_rows_citing_usda_reference':sum(1 for r in rows if 'USDA' in r['ref']),'fda_rows_since_2026':len(recent),
