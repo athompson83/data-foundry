@@ -1,0 +1,44 @@
+"""Extract the aircraft table from an NTSB monthly aviation-data update
+(up01AUG.mdb, fetched 2026-09-28 from
+https://data.ntsb.gov/avdata/FileDirectory/DownloadFile?fileID=C%3A%5Cavdata%5Cup01AUG.zip
+with the declared scout User-Agent) and report field hit rates.
+
+Requires mdbtools (mdb-export) on PATH. Run from this scripts/ directory:
+  mdb-export ../raw/up01AUG.mdb aircraft > ../raw/aircraft.csv
+  mdb-export ../raw/up01AUG.mdb events > ../raw/events.csv
+  mdb-export ../raw/up01AUG.mdb narratives > ../raw/narratives.csv
+  python3 parse_ntsb_month.py
+"""
+
+import csv
+from datetime import datetime
+
+
+def main() -> None:
+    with open("../raw/aircraft.csv") as handle:
+        rows = list(csv.DictReader(handle))
+    print(f"{len(rows)} aircraft rows in the up01AUG.mdb (July 2026 events) update")
+    fields = ["ev_id", "regis_no", "acft_make", "acft_model", "acft_serial_no"]
+    for name in fields:
+        hits = sum(1 for row in rows if row.get(name))
+        print(f"{name}: {hits}/{len(rows)}")
+
+    with open("../raw/events.csv") as handle:
+        events = list(csv.DictReader(handle))
+    parsed_dates = [datetime.strptime(e["ev_date"], "%m/%d/%y %H:%M:%S") for e in events if e.get("ev_date")]
+    print(
+        f"{len(events)} event rows; ev_date range: {min(parsed_dates).date().isoformat()} .. "
+        f"{max(parsed_dates).date().isoformat()} (parsed as MM/DD/YY; string min/max on the raw "
+        f"field would misreport this as 01/03/11 .. 12/14/25, ordering by month not chronology)"
+    )
+
+    with open("../raw/narratives.csv") as handle:
+        narratives = list(csv.DictReader(handle))
+    # A Codex review on PR #72 found this previously reported coverage against
+    # len(rows) (163 aircraft rows), not the event count: multiple aircraft can
+    # share one event, so the two counts are not the same population.
+    print(f"{len(narratives)} narrative rows (free-text finding/cause fields) for the same {len(events)} events")
+
+
+if __name__ == "__main__":
+    main()

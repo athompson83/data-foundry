@@ -1,0 +1,381 @@
+{
+ "stats": {
+  "highlight_ids": 100,
+  "sampled_objects": 100,
+  "distinct_ulan_artists": 73,
+  "in_aic": 1,
+  "surname_equal": 1
+ },
+ "rows": [
+  {
+   "ulan": "500115190",
+   "met_name": "Anthony van Dyck",
+   "aic": null
+  },
+  {
+   "ulan": "500023972",
+   "met_name": "John Singer Sargent",
+   "aic": null
+  },
+  {
+   "ulan": "500018196",
+   "met_name": "Leonora Carrington",
+   "aic": null
+  },
+  {
+   "ulan": "500028008",
+   "met_name": "Attributed to Jacques Guillaume Lucien Amans",
+   "aic": null
+  },
+  {
+   "ulan": "500027334",
+   "met_name": "Marisol",
+   "aic": null
+  },
+  {
+   "ulan": "500002921",
+   "met_name": "Peter Paul Rubens",
+   "aic": null
+  },
+  {
+   "ulan": "500004362",
+   "met_name": "Bronzino (Agnolo di Cosimo di Mariano)",
+   "aic": null
+  },
+  {
+   "ulan": "500020988",
+   "met_name": "Giovanni Battista Foggini",
+   "aic": null
+  },
+  {
+   "ulan": "500118936",
+   "met_name": "Goya (Francisco de Goya y Lucientes)",
+   "aic": null
+  },
+  {
+   "ulan": "500002633",
+   "met_name": "Egon Schiele",
+   "aic": null
+  },
+  {
+   "ulan": "500246979",
+   "met_name": "Ovid",
+   "aic": null
+  },
+  {
+   "ulan": "500020409",
+   "met_name": "Carlo Gregori",
+   "aic": null
+  },
+  {
+   "ulan": "500026325",
+   "met_name": "Horace Pippin",
+   "aic": null
+  },
+  {
+   "ulan": "500016619",
+   "met_name": "Auguste Rodin",
+   "aic": null
+  },
+  {
+   "ulan": "500125274",
+   "met_name": "Unknown Artist",
+   "aic": null
+  },
+  {
+   "ulan": "500023210",
+   "met_name": "Yasuo Kuniyoshi",
+   "aic": null
+  },
+  {
+   "ulan": "500116241",
+   "met_name": "Ralph Earl",
+   "aic": null
+  },
+  {
+   "ulan": "500334204",
+   "met_name": "Painting by Govardhan",
+   "aic": null
+  },
+  {
+   "ulan": "500124332",
+   "met_name": "Augustus Saint-Gaudens",
+   "aic": null
+  },
+  {
+   "ulan": "500026746",
+   "met_name": "Guillaume Voiriot",
+   "aic": null
+  },
+  {
+   "ulan": "500004539",
+   "met_name": "Sir Joshua Reynolds",
+   "aic": null
+  },
+  {
+   "ulan": "500024301",
+   "met_name": "Alfred Stieglitz",
+   "aic": null
+  },
+  {
+   "ulan": "500115355",
+   "met_name": "Philippe de Champaigne",
+   "aic": null
+  },
+  {
+   "ulan": "500012910",
+   "met_name": "Marsden Hartley",
+   "aic": null
+  },
+  {
+   "ulan": "500032549",
+   "met_name": "Petrus Christus",
+   "aic": null
+  },
+  {
+   "ulan": "500011051",
+   "met_name": "Rembrandt (Rembrandt van Rijn)",
+   "aic": null
+  },
+  {
+   "ulan": "500006031",
+   "met_name": "Andy Warhol",
+   "aic": null
+  },
+  {
+   "ulan": "500020119",
+   "met_name": "Jacometto (Jacometto Veneziano)",
+   "aic": null
+  },
+  {
+   "ulan": "500125882",
+   "met_name": "Han Gan",
+   "aic": null
+  },
+  {
+   "ulan": "500313179",
+   "met_name": "Ars\u00e8ne Alexandre",
+   "aic": null
+  },
+  {
+   "ulan": "500117998",
+   "met_name": "Honor\u00e9 Daumier",
+   "aic": null
+  },
+  {
+   "ulan": "500045683",
+   "met_name": "Georg Baselitz",
+   "aic": null
+  },
+  {
+   "ulan": "500019824",
+   "met_name": "L\u00e9onard Limosin",
+   "aic": null
+  },
+  {
+   "ulan": "500115179",
+   "met_name": "Simon Bening",
+   "aic": null
+  },
+  {
+   "ulan": "500115329",
+   "met_name": "Jean Honor\u00e9 Fragonard",
+   "aic": null
+  },
+  {
+   "ulan": "500012076",
+   "met_name": "Walker Evans",
+   "aic": null
+  },
+  {
+   "ulan": "500019158",
+   "met_name": "Fra Filippo Lippi",
+   "aic": null
+  },
+  {
+   "ulan": "500016751",
+   "met_name": "K\u00e4the Kollwitz",
+   "aic": null
+  },
+  {
+   "ulan": "500121295",
+   "met_name": "Joshua Johnson",
+   "aic": null
+  },
+  {
+   "ulan": "500018031",
+   "met_name": "Pierre Mignard ",
+   "aic": null
+  },
+  {
+   "ulan": "500028967",
+   "met_name": "Jean Michel Moreau le Jeune",
+   "aic": null
+  },
+  {
+   "ulan": "500005855",
+   "met_name": "Crispijn de Passe the Younger",
+   "aic": null
+  },
+  {
+   "ulan": "500032927",
+   "met_name": "Johannes Vermeer",
+   "aic": null
+  },
+  {
+   "ulan": "500115390",
+   "met_name": "Camille Corot",
+   "aic": null
+  },
+  {
+   "ulan": "500009177",
+   "met_name": "John Singleton Copley",
+   "aic": null
+  },
+  {
+   "ulan": "500115588",
+   "met_name": "Vincent van Gogh",
+   "aic": {
+    "_score": 2,
+    "id": 40610,
+    "title": "Vincent van Gogh",
+    "ulan_id": 500115588
+   }
+  },
+  {
+   "ulan": "500019377",
+   "met_name": "Niccol\u00f2 della Casa",
+   "aic": null
+  },
+  {
+   "ulan": "500008366",
+   "met_name": "After Baccio Bandinelli",
+   "aic": null
+  },
+  {
+   "ulan": "500118700",
+   "met_name": "Charles Ray",
+   "aic": null
+  },
+  {
+   "ulan": "500371698",
+   "met_name": "Attributed to the Maestro delle Storie del Pane",
+   "aic": null
+  },
+  {
+   "ulan": "500114717",
+   "met_name": "David Hammons",
+   "aic": null
+  },
+  {
+   "ulan": "500005259",
+   "met_name": "Hans Holbein the Younger",
+   "aic": null
+  },
+  {
+   "ulan": "500115055",
+   "met_name": "Angelica Kauffmann",
+   "aic": null
+  },
+  {
+   "ulan": "500008873",
+   "met_name": "Georges Seurat",
+   "aic": null
+  },
+  {
+   "ulan": "500012380",
+   "met_name": "Edmond-Fran\u00e7ois Aman-Jean",
+   "aic": null
+  },
+  {
+   "ulan": "500010070",
+   "met_name": "Elisabeth Louise Vig\u00e9e Le Brun",
+   "aic": null
+  },
+  {
+   "ulan": "500005516",
+   "met_name": "Ad\u00e9la\u00efde Labille-Guiard",
+   "aic": null
+  },
+  {
+   "ulan": "500003133",
+   "met_name": "Paul Strand",
+   "aic": null
+  },
+  {
+   "ulan": "500016881",
+   "met_name": "Vel\u00e1zquez (Diego Rodr\u00edguez de Silva y Vel\u00e1zquez)",
+   "aic": null
+  },
+  {
+   "ulan": "500028037",
+   "met_name": "Jean Auguste Dominique Ingres",
+   "aic": null
+  },
+  {
+   "ulan": "500004441",
+   "met_name": "Charles Demuth",
+   "aic": null
+  },
+  {
+   "ulan": "500084070",
+   "met_name": "Francesca Woodman",
+   "aic": null
+  },
+  {
+   "ulan": "500001266",
+   "met_name": "Andrew Wyeth",
+   "aic": null
+  },
+  {
+   "ulan": "500021138",
+   "met_name": "Charles Nicolas Cochin II",
+   "aic": null
+  },
+  {
+   "ulan": "500028143",
+   "met_name": "Martin Schongauer",
+   "aic": null
+  },
+  {
+   "ulan": "500022221",
+   "met_name": "Sarah Goodridge",
+   "aic": null
+  },
+  {
+   "ulan": "500015509",
+   "met_name": "Augustin Pajou",
+   "aic": null
+  },
+  {
+   "ulan": "500110115",
+   "met_name": "Thomas Ruff",
+   "aic": null
+  },
+  {
+   "ulan": "500015402",
+   "met_name": "David Smith",
+   "aic": null
+  },
+  {
+   "ulan": "500115209",
+   "met_name": "Southworth and Hawes",
+   "aic": null
+  },
+  {
+   "ulan": "500014135",
+   "met_name": "Albert Sands Southworth",
+   "aic": null
+  },
+  {
+   "ulan": "500032586",
+   "met_name": "Josiah Johnson Hawes",
+   "aic": null
+  },
+  {
+   "ulan": "500118806",
+   "met_name": "Jean Fouquet",
+   "aic": null
+  }
+ ]
+}

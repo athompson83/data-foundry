@@ -1,0 +1,2320 @@
+{
+ "run_at": "2026-10-17T13:57:43+00:00",
+ "rw_csv": {
+  "http": 200,
+  "bytes": 67636036,
+  "rows": 73283,
+  "nature": {
+   "Correction": 1543,
+   "Expression of concern": 3732,
+   "Reinstatement": 163,
+   "Retraction": 67845
+  },
+  "with_original_doi": 67331,
+  "with_original_pmid": 34399,
+  "newest_retraction_date": "2026-10-09",
+  "with_reason_text": 73283,
+  "with_notes_text": 20971
+ },
+ "sample_A": {
+  "eligible_rows": 29791,
+  "step": 297,
+  "n": 100,
+  "record_ids": [
+   "73758",
+   "72988",
+   "72347",
+   "71905",
+   "71383",
+   "70936",
+   "70292",
+   "69804",
+   "69376",
+   "68939",
+   "68083",
+   "67161",
+   "66714",
+   "66193",
+   "65420",
+   "64420",
+   "62910",
+   "62172",
+   "61707",
+   "61251",
+   "60872",
+   "60506",
+   "60053",
+   "59629",
+   "59185",
+   "58471",
+   "57896",
+   "57434",
+   "56763",
+   "56314",
+   "55786",
+   "55350",
+   "54799",
+   "54078",
+   "53552",
+   "52794",
+   "52098",
+   "51252",
+   "50859",
+   "50048",
+   "49558",
+   "48674",
+   "48332",
+   "47998",
+   "47620",
+   "47277",
+   "46812",
+   "46472",
+   "45975",
+   "45452",
+   "44539",
+   "43794",
+   "43014",
+   "42142",
+   "41444",
+   "40642",
+   "39628",
+   "38699",
+   "38116",
+   "37353",
+   "36396",
+   "35314",
+   "34747",
+   "33519",
+   "32588",
+   "31853",
+   "31067",
+   "29914",
+   "28314",
+   "26688",
+   "25002",
+   "24557",
+   "24064",
+   "23484",
+   "22429",
+   "21517",
+   "20946",
+   "20308",
+   "19677",
+   "18836",
+   "17870",
+   "16893",
+   "12323",
+   "8146",
+   "6821",
+   "5771",
+   "5031",
+   "4659",
+   "4294",
+   "3929",
+   "3577",
+   "3229",
+   "2873",
+   "2502",
+   "2151",
+   "1801",
+   "1455",
+   "1109",
+   "760",
+   "436"
+  ]
+ },
+ "A1_rw_to_crossref": {
+  "total": 100,
+  "doi_found_in_crossref": 98,
+  "crossref_records_retraction_update": 98,
+  "items": [
+   {
+    "record_id": "73758",
+    "doi": "10.1080/21655979.2022.2066749",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "72988",
+    "doi": "10.1371/journal.pone.0244265",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "72347",
+    "doi": "10.1016/j.heliyon.2023.e16788",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "71905",
+    "doi": "10.3390/ma14247565",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "71383",
+    "doi": "10.1016/j.heliyon.2023.e14740",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "70936",
+    "doi": "10.1016/j.heliyon.2023.e19675",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "70292",
+    "doi": "10.1080/14767058.2019.1678132",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "69804",
+    "doi": "10.1038/s41598-025-85291-w",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "69376",
+    "doi": "10.3892/ol.2017.6728",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "68939",
+    "doi": "10.3892/ol.2017.6527",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "68083",
+    "doi": "10.4143/crt.2024.859",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "67161",
+    "doi": "10.1371/journal.pone.0089630",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "66714",
+    "doi": "10.1155/2021/9591177",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "66193",
+    "doi": "10.1371/journal.pone.0063150",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "65420",
+    "doi": "10.1111/iwj.14541",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "64420",
+    "doi": "10.1111/iwj.13833",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "62910",
+    "doi": "10.3892/ol.2019.10968",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "62172",
+    "doi": "10.1155/2022/6530019",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "61707",
+    "doi": "10.1155/2021/6667046",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "61251",
+    "doi": "10.1155/2022/1064441",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "60872",
+    "doi": "10.1155/2022/8902195",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "60506",
+    "doi": "10.7759/cureus.73776",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "60053",
+    "doi": "10.1155/2022/3645402",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "59629",
+    "doi": "10.1155/2022/4886586",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "59185",
+    "doi": "10.1155/2021/6702965",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "58471",
+    "doi": "10.1016/j.biopha.2019.109407",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "57896",
+    "doi": "10.1155/2022/2003184",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "57434",
+    "doi": "10.1016/j.biortech.2022.127565",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "56763",
+    "doi": "10.1155/2022/9158936",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "56314",
+    "doi": "10.1042/bsr20181530",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "55786",
+    "doi": "10.1002/pmic.202300351",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "55350",
+    "doi": "10.1155/2022/3193193",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "54799",
+    "doi": "10.1155/2022/1162218",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "54078",
+    "doi": "10.1177/0960327120930253",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "53552",
+    "doi": "10.26355/eurrev_201902_17096",
+    "http": 404,
+    "crossref_found": false,
+    "crossref_updated_by_retraction": false
+   },
+   {
+    "record_id": "52794",
+    "doi": "10.1016/j.ejphar.2020.173144",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "52098",
+    "doi": "10.1155/2022/5949086",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "51252",
+    "doi": "10.1155/2022/8554184",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "50859",
+    "doi": "10.1155/2022/9989076",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "50048",
+    "doi": "10.2147/ijn.s56756",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "49558",
+    "doi": "10.1155/2022/2208636",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "48674",
+    "doi": "10.1155/2022/4368369",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "48332",
+    "doi": "10.1155/2022/6555005",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "47998",
+    "doi": "10.1155/2020/1367576",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "47620",
+    "doi": "10.1371/journal.pone.0036914",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "47277",
+    "doi": "10.1155/2022/5666067",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "46812",
+    "doi": "10.2147/cmar.s291778",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "46472",
+    "doi": "10.1155/2021/1343808",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "45975",
+    "doi": "10.2147/ott.s105245",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "45452",
+    "doi": "10.1155/2021/9739219",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "44539",
+    "doi": "10.1038/s41467-017-01224-w",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "43794",
+    "doi": "10.2147/dddt.s208458",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "43014",
+    "doi": "10.1039/c8ra06896h",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "42142",
+    "doi": "10.1080/14767058.2017.1379988",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "41444",
+    "doi": "10.1155/2022/3527156",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "40642",
+    "doi": "10.3892/or.2015.4051",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "39628",
+    "doi": "10.1039/c7ra12520h",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "38699",
+    "doi": "10.1177/09603271211052989",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "38116",
+    "doi": "10.1016/j.yexmp.2019.04.005",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "37353",
+    "doi": "10.1021/acsmedchemlett.9b00050",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "36396",
+    "doi": "10.3892/ijo.2014.2400",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "35314",
+    "doi": "10.1016/j.jclinane.2017.11.031",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "34747",
+    "doi": "10.26355/eurrev_201908_18721",
+    "http": 404,
+    "crossref_found": false,
+    "crossref_updated_by_retraction": false
+   },
+   {
+    "record_id": "33519",
+    "doi": "10.1002/14651858.cd000027",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "32588",
+    "doi": "10.2147/cmar.s211856",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "31853",
+    "doi": "10.1042/bsr20160532",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "31067",
+    "doi": "10.1002/14651858.cd004484.pub2",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "29914",
+    "doi": "10.7759/cureus.6741",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "28314",
+    "doi": "10.1093/pcp/pcab029",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "26688",
+    "doi": "10.1038/sj.bjc.6602254",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "25002",
+    "doi": "10.1097/00024382-199901000-00002",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "24557",
+    "doi": "10.1074/jbc.m308488200",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "24064",
+    "doi": "10.1097/dbp.0000000000000807",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "23484",
+    "doi": "10.1007/s00262-019-02356-2",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "22429",
+    "doi": "10.1039/c7fo00187h",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "21517",
+    "doi": "10.1042/bsr20180479",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "20946",
+    "doi": "10.1021/am300292v",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "20308",
+    "doi": "10.1177/2047487317723212",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "19677",
+    "doi": "10.1158/0008-5472.can-08-4133",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "18836",
+    "doi": "10.1021/acsami.6b06789",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "17870",
+    "doi": "10.1016/j.sjbs.2017.01.014",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "16893",
+    "doi": "10.1136/bmj.2.5914.335-a",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "12323",
+    "doi": "10.3109/19401736.2014.987245",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "8146",
+    "doi": "10.1002/j.1550-8528.1998.tb00344.x",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "6821",
+    "doi": "10.1177/1533034615609014",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "5771",
+    "doi": "10.1053/j.ajkd.2009.10.049",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "5031",
+    "doi": "10.1007/bf02471386",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "4659",
+    "doi": "10.1002/jbm.b.31590",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "4294",
+    "doi": "10.4103/0976-9668.101924",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "3929",
+    "doi": "10.1002/jps.20868",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "3577",
+    "doi": "10.1200/jco.1995.13.8.2072",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "3229",
+    "doi": "10.1074/jbc.m112.434225",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "2873",
+    "doi": "10.1046/j.1365-313x.2003.01676.x",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "2502",
+    "doi": "10.1242/jeb.012914",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "2151",
+    "doi": "10.1007/s10072-014-1992-1",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "1801",
+    "doi": "10.1186/2047-9158-3-16",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "1455",
+    "doi": "10.1007/bf03011585",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "1109",
+    "doi": "10.1098/rsbl.2013.0540",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "760",
+    "doi": "10.1007/s13277-014-2123-6",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   },
+   {
+    "record_id": "436",
+    "doi": "10.1182/blood-2008-01-133710",
+    "http": 200,
+    "crossref_found": true,
+    "crossref_updated_by_retraction": true,
+    "crossref_has_updated_by": true
+   }
+  ]
+ },
+ "A2_rw_to_pubmed": {
+  "http": 200,
+  "total": 100,
+  "pmid_found": 100,
+  "doi_agrees": 100,
+  "pubmed_publication_type_retracted": 94,
+  "with_abstract_text": 97,
+  "items": [
+   {
+    "record_id": "73758",
+    "pmid": "36700474",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "72988",
+    "pmid": "33378332",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "72347",
+    "pmid": "37303552",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "71905",
+    "pmid": "34947176",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "71383",
+    "pmid": "37025838",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "70936",
+    "pmid": "37809920",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "70292",
+    "pmid": "32138572",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "69804",
+    "pmid": "39820509",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "69376",
+    "pmid": "28943960",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "68939",
+    "pmid": "28928825",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "68083",
+    "pmid": "39788641",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "67161",
+    "pmid": "24586923",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "66714",
+    "pmid": "34671680",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "66193",
+    "pmid": "23646189",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "65420",
+    "pmid": "38272820",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "64420",
+    "pmid": "35582926",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "62910",
+    "pmid": "31788099",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "62172",
+    "pmid": "35479607",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "61707",
+    "pmid": "33680415",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "61251",
+    "pmid": "36262378",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "60872",
+    "pmid": "36225976",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "60506",
+    "pmid": "39691142",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "60053",
+    "pmid": "36226239",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "59629",
+    "pmid": "35047035",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "59185",
+    "pmid": "34531919",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "58471",
+    "pmid": "31545290",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "57896",
+    "pmid": "35958813",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "57434",
+    "pmid": "35788392",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "56763",
+    "pmid": "35833209",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "56314",
+    "pmid": "30341245",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "55786",
+    "pmid": "38700052",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "55350",
+    "pmid": "35845900",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "54799",
+    "pmid": "35965626",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "54078",
+    "pmid": "32552070",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "53552",
+    "pmid": "30840260",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "52794",
+    "pmid": "32387352",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "52098",
+    "pmid": "36212987",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "51252",
+    "pmid": "36091589",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "50859",
+    "pmid": "35498194",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "50048",
+    "pmid": "24596465",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "49558",
+    "pmid": "36043149",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "48674",
+    "pmid": "36176971",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "48332",
+    "pmid": "36285277",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "47998",
+    "pmid": "32963582",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "47620",
+    "pmid": "22615844",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "47277",
+    "pmid": "36065379",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "46812",
+    "pmid": "33603486",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "46472",
+    "pmid": "34381519",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "45975",
+    "pmid": "27418838",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "45452",
+    "pmid": "34426765",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "44539",
+    "pmid": "29079776",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "43794",
+    "pmid": "31496649",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "43014",
+    "pmid": "35557805",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "42142",
+    "pmid": "28901214",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "41444",
+    "pmid": "35242205",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "40642",
+    "pmid": "26062664",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "39628",
+    "pmid": "35539582",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "38699",
+    "pmid": "34784831",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "38116",
+    "pmid": "30974101",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "37353",
+    "pmid": "31098001",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "36396",
+    "pmid": "24789349",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "35314",
+    "pmid": "29195100",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": false
+   },
+   {
+    "record_id": "34747",
+    "pmid": "31486481",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "33519",
+    "pmid": "10796091",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": false,
+    "has_abstract": true
+   },
+   {
+    "record_id": "32588",
+    "pmid": "31447585",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "31853",
+    "pmid": "28143959",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "31067",
+    "pmid": "17443547",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": false,
+    "has_abstract": true
+   },
+   {
+    "record_id": "29914",
+    "pmid": "32133263",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "28314",
+    "pmid": "33594417",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "26688",
+    "pmid": "15599381",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "25002",
+    "pmid": "9921711",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "24557",
+    "pmid": "14970239",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "24064",
+    "pmid": "32559053",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": false
+   },
+   {
+    "record_id": "23484",
+    "pmid": "31214732",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": false,
+    "has_abstract": true
+   },
+   {
+    "record_id": "22429",
+    "pmid": "28294260",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "21517",
+    "pmid": "30126850",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "20946",
+    "pmid": "22489770",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "20308",
+    "pmid": "28789567",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "19677",
+    "pmid": "19223528",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "18836",
+    "pmid": "27359036",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "17870",
+    "pmid": "28386169",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": false,
+    "has_abstract": true
+   },
+   {
+    "record_id": "16893",
+    "pmid": "4827125",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": false,
+    "has_abstract": false
+   },
+   {
+    "record_id": "12323",
+    "pmid": "25541303",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "8146",
+    "pmid": "9618130",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": false,
+    "has_abstract": true
+   },
+   {
+    "record_id": "6821",
+    "pmid": "26443801",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "5771",
+    "pmid": "20042259",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "5031",
+    "pmid": "23839621",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "4659",
+    "pmid": "20091920",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "4294",
+    "pmid": "23225987",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "3929",
+    "pmid": "17518361",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "3577",
+    "pmid": "7636550",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "3229",
+    "pmid": "23449978",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "2873",
+    "pmid": "12609035",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "2502",
+    "pmid": "18310117",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "2151",
+    "pmid": "25367405",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "1801",
+    "pmid": "25114790",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "1455",
+    "pmid": "7954995",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "1109",
+    "pmid": "23945211",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "760",
+    "pmid": "24952889",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   },
+   {
+    "record_id": "436",
+    "pmid": "18456874",
+    "pubmed_found": true,
+    "doi_matches_rw": true,
+    "pubmed_flags_retracted": true,
+    "has_abstract": true
+   }
+  ]
+ },
+ "B_crossref_to_rw": {
+  "http": 200,
+  "total": 50,
+  "retracted_doi_in_rw_csv": 42,
+  "by_source": {
+   "publisher": {
+    "n": 31,
+    "in_rw": 23
+   },
+   "retraction-watch": {
+    "n": 39,
+    "in_rw": 39
+   }
+  },
+  "items": [
+   {
+    "notice_doi": "10.1109/icecs.2003.1302059",
+    "retracted_doi": [
+     "10.1109/icecs.2003.1302059"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1155/2022/9794059",
+    "retracted_doi": [
+     "10.1155/2021/9463577",
+     "10.1155/2021/9463577"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.ijbiomac.2023.123811",
+    "retracted_doi": [
+     "10.1016/j.ijbiomac.2023.123811"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.2147/ott.s405151",
+    "retracted_doi": [
+     "10.2147/ott.s164052"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s12517-021-09128-2",
+    "retracted_doi": [
+     "10.1007/s12517-021-07953-z",
+     "10.1007/s12517-021-07953-z"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s11356-026-38270-1",
+    "retracted_doi": [
+     "10.1007/s11356-024-34941-z"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1016/j.matpr.2020.09.789",
+    "retracted_doi": [
+     "10.1016/j.matpr.2020.09.789"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1080/02713683.2016.1199844",
+    "retracted_doi": [
+     "10.3109/02713683.2013.807931"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1109/iccse.2009.5228258",
+    "retracted_doi": [
+     "10.1109/iccse.2009.5228258"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.steroids.2014.03.003",
+    "retracted_doi": [
+     "10.1016/j.steroids.2014.03.003"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s11144-010-0265-0",
+    "retracted_doi": [
+     "10.1007/s11144-010-0210-2"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1088/1742-6596/1533/4/042097",
+    "retracted_doi": [
+     "10.1088/1742-6596/1533/4/042013",
+     "10.1088/1742-6596/1533/4/042013"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s44196-024-00475-y",
+    "retracted_doi": [
+     "10.1007/s44196-023-00332-4",
+     "10.1007/s44196-023-00332-4"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1109/aimsec.2011.6009699",
+    "retracted_doi": [
+     "10.1109/aimsec.2011.6009699"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s12065-020-00462-0",
+    "retracted_doi": [
+     "10.1007/s12065-020-00462-0",
+     "10.1007/s12065-020-00462-0"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1109/icbbe.2011.5780994",
+    "retracted_doi": [
+     "10.1109/icbbe.2011.5780994"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1177/0954405411435300",
+    "retracted_doi": [
+     "10.1177/0954405411412866",
+     "10.1177/0954405411412866"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1155/2023/9803259",
+    "retracted_doi": [
+     "10.1155/2022/3731959",
+     "10.1155/2022/3731959"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1111/cpr.13748",
+    "retracted_doi": [
+     "10.1111/cpr.13660"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1155/2023/9815867",
+    "retracted_doi": [
+     "10.1155/2022/4676968",
+     "10.1155/2022/4676968"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.solmat.2018.05.055",
+    "retracted_doi": [
+     "10.1016/j.solmat.2018.05.055",
+     "10.1016/j.solmat.2018.05.055"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1002/jcp.30428",
+    "retracted_doi": [
+     "10.1002/jcp.28716",
+     "10.1002/jcp.28716"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.2147/ott.s429277",
+    "retracted_doi": [
+     "10.2147/ott.s158355"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.jnutbio.2017.02.001",
+    "retracted_doi": [
+     "10.1016/j.jnutbio.2017.02.001"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.4103/0972-0707.178710",
+    "retracted_doi": [
+     "10.4103/0972-0707.114370"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.ceramint.2022.08.266",
+    "retracted_doi": [
+     "10.1016/j.ceramint.2022.08.266"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1155/johe/9879268",
+    "retracted_doi": [
+     "10.1155/2022/9364467",
+     "10.1155/2022/9364467"
+    ],
+    "source": [
+     "publisher",
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1109/aimsec.2011.6009789",
+    "retracted_doi": [
+     "10.1109/aimsec.2011.6009789"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1155/2023/9789083",
+    "retracted_doi": [
+     "10.1155/2022/6081375",
+     "10.1155/2022/6081375"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1002/er.8758",
+    "retracted_doi": [
+     "10.1002/er.6747",
+     "10.1002/er.6747"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.4136/ambi-agua.1874",
+    "retracted_doi": [
+     "10.4136/ambi-agua.967"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1155/2023/9805650",
+    "retracted_doi": [
+     "10.1155/2022/7082914",
+     "10.1155/2022/7082914"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.heliyon.2026.e44605",
+    "retracted_doi": [
+     "10.1016/j.heliyon.2023.e20527"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.12659/msm.937325",
+    "retracted_doi": [
+     "10.12659/msm.920537"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1155/2023/9820636",
+    "retracted_doi": [
+     "10.1155/2022/4574218"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/s1053-0770(05)80054-0",
+    "retracted_doi": [
+     "10.1016/s1053-0770(05)80054-0",
+     "10.1016/s1053-0770(05)80054-0"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s11042-026-21637-4",
+    "retracted_doi": [
+     "10.1007/s11042-022-13530-7",
+     "10.1007/s11042-022-13530-7"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1016/j.jcis.2024.07.110",
+    "retracted_doi": [
+     "10.1016/j.jcis.2024.07.110",
+     "10.1016/j.jcis.2024.07.110"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1371/journal.pntd.0014290",
+    "retracted_doi": [
+     "10.1371/journal.pntd.0006397",
+     "10.1371/journal.pntd.0006397"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1002/zamm.202402006",
+    "retracted_doi": [
+     "10.1002/zamm.202000266"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1097/fjc.0000000000000884",
+    "retracted_doi": [
+     "10.1097/fjc.0000000000000679"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1055/s-0044-1779455",
+    "retracted_doi": [
+     "10.1055/s-0042-1756720"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1155/2024/9852720",
+    "retracted_doi": [
+     "10.1155/2022/9906507"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1002/ijc.30829",
+    "retracted_doi": [
+     "10.1002/ijc.23590"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1109/icmee.2010.5558542",
+    "retracted_doi": [
+     "10.1109/icmee.2010.5558542"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s00500-024-09983-7",
+    "retracted_doi": [
+     "10.1007/s00500-023-08162-4",
+     "10.1007/s00500-023-08162-4"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1186/s11658-025-00728-4",
+    "retracted_doi": [
+     "10.1186/s11658-020-00229-6"
+    ],
+    "source": [
+     "publisher"
+    ],
+    "in_rw": false
+   },
+   {
+    "notice_doi": "10.1016/j.tox.2007.08.093",
+    "retracted_doi": [
+     "10.1016/j.tox.2006.10.013"
+    ],
+    "source": [
+     "retraction-watch"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s10126-014-9609-5",
+    "retracted_doi": [
+     "10.1007/s10126-014-9609-5",
+     "10.1007/s10126-014-9609-5"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   },
+   {
+    "notice_doi": "10.1007/s11082-024-07431-2",
+    "retracted_doi": [
+     "10.1007/s11082-023-06092-x",
+     "10.1007/s11082-023-06092-x"
+    ],
+    "source": [
+     "retraction-watch",
+     "publisher"
+    ],
+    "in_rw": true
+   }
+  ]
+ },
+ "crossref_retraction_updates_total": {
+  "http": 200,
+  "total": 76290
+ },
+ "crossref_source_retraction_watch_total": {
+  "http": 400,
+  "total": null
+ },
+ "pubmed_retracted_publication_total": {
+  "http": 200,
+  "count": 35158
+ },
+ "pubmed_retracted_added_2026_10_01_to_17": {
+  "http": 200,
+  "count": 0
+ },
+ "openalex_probe": {
+  "http": 429,
+  "body_head": "{\"error\":\"Rate limit exceeded\",\"message\":\"Insufficient budget. This request has no API key, so it counts against the free daily budget shared by everyone on your network's IP address, and that budget is used up ($0 remaining; resets at midnight UTC). Use your own key instead: add ?api_key=YOUR_KEY t"
+ }
+}

@@ -1,0 +1,629 @@
+{
+ "epbc_rows": 2222,
+ "epbc_newest_extract": "2026-Aug-28",
+ "epbc_status_counts": {
+  "Critically Endangered": 458,
+  "Vulnerable": 784,
+  "Endangered": 870,
+  "Extinct": 102,
+  "Conservation Dependent": 7,
+  "Extinct in the wild": 1
+ },
+ "ecos_epbc_exact": 51,
+ "canada_epbc_exact": 0,
+ "ecos_epbc_pairs": [
+  {
+   "sci": "aipysurus fuscus",
+   "ecos": [
+    "Dusky sea snake",
+    "Endangered"
+   ],
+   "epbc": [
+    "Dusky Sea Snake",
+    "Endangered",
+    "1119"
+   ]
+  },
+  {
+   "sci": "atrichornis clamosus",
+   "ecos": [
+    "Noisy scrub-bird",
+    "Endangered"
+   ],
+   "epbc": [
+    "Noisy Scrub-bird, Tjimiluk",
+    "Endangered",
+    "654"
+   ]
+  },
+  {
+   "sci": "balaenoptera borealis",
+   "ecos": [
+    "Sei whale",
+    "Endangered"
+   ],
+   "epbc": [
+    "Sei Whale",
+    "Vulnerable",
+    "34"
+   ]
+  },
+  {
+   "sci": "balaenoptera musculus",
+   "ecos": [
+    "Blue whale",
+    "Endangered"
+   ],
+   "epbc": [
+    "Blue Whale",
+    "Endangered",
+    "36"
+   ]
+  },
+  {
+   "sci": "balaenoptera physalus",
+   "ecos": [
+    "Finback whale",
+    "Endangered"
+   ],
+   "epbc": [
+    "Fin Whale",
+    "Vulnerable",
+    "37"
+   ]
+  },
+  {
+   "sci": "bettongia tropica",
+   "ecos": [
+    "Queensland rat-kangaroo",
+    "Endangered"
+   ],
+   "epbc": [
+    "Northern Bettong",
+    "Endangered",
+    "214"
+   ]
+  },
+  {
+   "sci": "burramys parvus",
+   "ecos": [
+    "Mountain pygmy possum",
+    "Endangered"
+   ],
+   "epbc": [
+    "Mountain Pygmy-possum",
+    "Endangered",
+    "267"
+   ]
+  },
+  {
+   "sci": "caloprymnus campestris",
+   "ecos": [
+    "Desert (=plain) rat-kangaroo",
+    "Endangered"
+   ],
+   "epbc": [
+    "Desert Rat-kangaroo",
+    "Extinct",
+    "215"
+   ]
+  },
+  {
+   "sci": "caretta caretta",
+   "ecos": [
+    "Loggerhead sea turtle",
+    "Endangered"
+   ],
+   "epbc": [
+    "Loggerhead Turtle",
+    "Endangered",
+    "1763"
+   ]
+  },
+  {
+   "sci": "chaeropus ecaudatus",
+   "ecos": [
+    "Pig-footed bandicoot",
+    "Endangered"
+   ],
+   "epbc": [
+    "Pig-footed Bandicoot, Kanjilpa, Wilalya",
+    "Extinct",
+    "297"
+   ]
+  },
+  {
+   "sci": "chelonia mydas",
+   "ecos": [
+    "Green sea turtle",
+    "Endangered"
+   ],
+   "epbc": [
+    "Green Turtle",
+    "Vulnerable",
+    "1765"
+   ]
+  },
+  {
+   "sci": "cyanoramphus cookii",
+   "ecos": [
+    "Norfolk Island parakeet",
+    "Endangered"
+   ],
+   "epbc": [
+    "Norfolk Island Green Parrot, Tasman Parakeet, Norfolk Island Parakeet",
+    "Endangered",
+    "67046"
+   ]
+  },
+  {
+   "sci": "dasyornis longirostris",
+   "ecos": [
+    "Western bristlebird",
+    "Endangered"
+   ],
+   "epbc": [
+    "Western Bristlebird",
+    "Endangered",
+    "515"
+   ]
+  },
+  {
+   "sci": "dasyurus viverrinus",
+   "ecos": [
+    "Eastern native-cat",
+    "Endangered"
+   ],
+   "epbc": [
+    "Eastern Quoll, Luaner",
+    "Endangered",
+    "333"
+   ]
+  },
+  {
+   "sci": "dermochelys coriacea",
+   "ecos": [
+    "Leatherback sea turtle",
+    "Endangered"
+   ],
+   "epbc": [
+    "Leatherback Turtle, Leathery Turtle, Luth",
+    "Endangered",
+    "1768"
+   ]
+  },
+  {
+   "sci": "eretmochelys imbricata",
+   "ecos": [
+    "Hawksbill sea turtle",
+    "Endangered"
+   ],
+   "epbc": [
+    "Hawksbill Turtle",
+    "Vulnerable",
+    "1766"
+   ]
+  },
+  {
+   "sci": "eubalaena australis",
+   "ecos": [
+    "Southern Right Whale",
+    "Endangered"
+   ],
+   "epbc": [
+    "Southern Right Whale",
+    "Endangered",
+    "40"
+   ]
+  },
+  {
+   "sci": "fregata andrewsi",
+   "ecos": [
+    "Andrew's frigatebird",
+    "Endangered"
+   ],
+   "epbc": [
+    "Christmas Island Frigatebird, Andrew's Frigatebird",
+    "Endangered",
+    "1011"
+   ]
+  },
+  {
+   "sci": "gymnobelideus leadbeateri",
+   "ecos": [
+    "Leadbeater's Possum",
+    "Endangered"
+   ],
+   "epbc": [
+    "Leadbeater's Possum",
+    "Critically Endangered",
+    "273"
+   ]
+  },
+  {
+   "sci": "lepidochelys olivacea",
+   "ecos": [
+    "Olive ridley sea turtle",
+    "Endangered"
+   ],
+   "epbc": [
+    "Olive Ridley Turtle, Pacific Ridley Turtle",
+    "Endangered",
+    "1767"
+   ]
+  },
+  {
+   "sci": "leporillus conditor",
+   "ecos": [
+    "Stick-nest rat",
+    "Endangered"
+   ],
+   "epbc": [
+    "Wopilkara, Greater Stick-nest Rat",
+    "Vulnerable",
+    "137"
+   ]
+  },
+  {
+   "sci": "lichenostomus melanops cassidix",
+   "ecos": [
+    "Helmeted honeyeater",
+    "Endangered"
+   ],
+   "epbc": [
+    "Helmeted Honeyeater, Yellow-tufted Honeyeater (Helmeted)",
+    "Critically Endangered",
+    "26011"
+   ]
+  },
+  {
+   "sci": "macrotis lagotis",
+   "ecos": [
+    "Rabbit bandicoot",
+    "Endangered"
+   ],
+   "epbc": [
+    "Greater Bilby",
+    "Vulnerable",
+    "282"
+   ]
+  },
+  {
+   "sci": "macrotis leucura",
+   "ecos": [
+    "Lesser rabbit bandicoot",
+    "Endangered"
+   ],
+   "epbc": [
+    "Yallara, Lesser Bilby, Djoonpi",
+    "Extinct",
+    "283"
+   ]
+  },
+  {
+   "sci": "myrmecobius fasciatus",
+   "ecos": [
+    "Numbat",
+    "Endangered"
+   ],
+   "epbc": [
+    "Numbat",
+    "Endangered",
+    "294"
+   ]
+  },
+  {
+   "sci": "neophema chrysogaster",
+   "ecos": [
+    "Orange-bellied parakeet",
+    "Endangered"
+   ],
+   "epbc": [
+    "Orange-bellied Parrot",
+    "Critically Endangered",
+    "747"
+   ]
+  },
+  {
+   "sci": "notomys aquilo",
+   "ecos": [
+    "Australian native mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Northern Hopping-mouse, Woorrentinta",
+    "Endangered",
+    "123"
+   ]
+  },
+  {
+   "sci": "onychogalea fraenata",
+   "ecos": [
+    "Brindled nail-tailed wallaby",
+    "Endangered"
+   ],
+   "epbc": [
+    "Bridled Nail-tail Wallaby, Bridled Nailtail Wallaby",
+    "Endangered",
+    "239"
+   ]
+  },
+  {
+   "sci": "onychogalea lunata",
+   "ecos": [
+    "Crescent nail-tailed wallaby",
+    "Endangered"
+   ],
+   "epbc": [
+    "Crescent Nailtail Wallaby, Tjawalpa, Wurrung",
+    "Extinct",
+    "240"
+   ]
+  },
+  {
+   "sci": "papasula abbotti",
+   "ecos": [
+    "Abbott's booby",
+    "Endangered"
+   ],
+   "epbc": [
+    "Abbott's Booby",
+    "Endangered",
+    "59297"
+   ]
+  },
+  {
+   "sci": "pedionomus torquatus",
+   "ecos": [
+    "Plains wanderer (=collared-hemipode)",
+    "Endangered"
+   ],
+   "epbc": [
+    "Plains-wanderer",
+    "Critically Endangered",
+    "906"
+   ]
+  },
+  {
+   "sci": "perameles bougainville",
+   "ecos": [
+    "Barred bandicoot",
+    "Endangered"
+   ],
+   "epbc": [
+    "Shark Bay Bandicoot",
+    "Endangered",
+    "278"
+   ]
+  },
+  {
+   "sci": "perameles eremiana",
+   "ecos": [
+    "Desert bandicoot",
+    "Endangered"
+   ],
+   "epbc": [
+    "Desert Bandicoot, Walilya",
+    "Extinct",
+    "279"
+   ]
+  },
+  {
+   "sci": "pristis clavata",
+   "ecos": [
+    "Dwarf sawfish",
+    "Endangered"
+   ],
+   "epbc": [
+    "Dwarf Sawfish, Queensland Sawfish",
+    "Vulnerable",
+    "68447"
+   ]
+  },
+  {
+   "sci": "pristis pristis",
+   "ecos": [
+    "Largetooth Sawfish",
+    "Endangered"
+   ],
+   "epbc": [
+    "Largetooth Sawfish, Freshwater Sawfish, River Sawfish, Leichhardt's Sawfish, Northern Sawfish",
+    "Endangered",
+    "60756"
+   ]
+  },
+  {
+   "sci": "pristis zijsron",
+   "ecos": [
+    "Green sawfish",
+    "Endangered"
+   ],
+   "epbc": [
+    "Green Sawfish, Dindagubba, Narrowsnout Sawfish",
+    "Vulnerable",
+    "68442"
+   ]
+  },
+  {
+   "sci": "psephotus chrysopterygius",
+   "ecos": [
+    "Golden-shouldered parakeet",
+    "Endangered"
+   ],
+   "epbc": [
+    "Golden-shouldered Parrot, Alwal, Thaku, Arrmorral, Minpin",
+    "Endangered",
+    "720"
+   ]
+  },
+  {
+   "sci": "psephotus pulcherrimus",
+   "ecos": [
+    "Paradise parakeet",
+    "Endangered"
+   ],
+   "epbc": [
+    "Paradise Parrot",
+    "Extinct",
+    "723"
+   ]
+  },
+  {
+   "sci": "pseudemydura umbrina",
+   "ecos": [
+    "Short-necked or western swamp turtle",
+    "Endangered"
+   ],
+   "epbc": [
+    "Western Swamp Tortoise",
+    "Critically Endangered",
+    "1760"
+   ]
+  },
+  {
+   "sci": "pseudomys fieldi",
+   "ecos": [
+    "Field's mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Shark Bay Mouse, Djoongari, Alice Springs Mouse",
+    "Vulnerable",
+    "113"
+   ]
+  },
+  {
+   "sci": "pseudomys fumeus",
+   "ecos": [
+    "Smoky mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Smoky Mouse, Konoom",
+    "Endangered",
+    "88"
+   ]
+  },
+  {
+   "sci": "pseudomys gouldii",
+   "ecos": [
+    "Gould's mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Gould's Mouse, Koontin",
+    "Extinct",
+    "89"
+   ]
+  },
+  {
+   "sci": "pseudomys novaehollandiae",
+   "ecos": [
+    "New Holland mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Pookila, New Holland Mouse",
+    "Vulnerable",
+    "96"
+   ]
+  },
+  {
+   "sci": "pseudomys shortridgei",
+   "ecos": [
+    "Shortridge's mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Heath Mouse, Dayang, Heath Rat",
+    "Endangered",
+    "77"
+   ]
+  },
+  {
+   "sci": "setonix brachyurus",
+   "ecos": [
+    "Quokka",
+    "Endangered"
+   ],
+   "epbc": [
+    "Quokka",
+    "Vulnerable",
+    "229"
+   ]
+  },
+  {
+   "sci": "sminthopsis psammophila",
+   "ecos": [
+    "Large desert marsupial-mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Sandhill Dunnart",
+    "Endangered",
+    "291"
+   ]
+  },
+  {
+   "sci": "sphyrna lewini",
+   "ecos": [
+    "Scalloped Hammerhead Shark",
+    "Threatened"
+   ],
+   "epbc": [
+    "Scalloped Hammerhead",
+    "Conservation Dependent",
+    "85267"
+   ]
+  },
+  {
+   "sci": "thylacinus cynocephalus",
+   "ecos": [
+    "Tasmanian tiger",
+    "Endangered"
+   ],
+   "epbc": [
+    "Thylacine, Tasmanian Tiger",
+    "Extinct",
+    "342"
+   ]
+  },
+  {
+   "sci": "xeromys myoides",
+   "ecos": [
+    "False water rat",
+    "Endangered"
+   ],
+   "epbc": [
+    "Water Mouse, False Water Rat, Yirrkoo",
+    "Vulnerable",
+    "66"
+   ]
+  },
+  {
+   "sci": "zosterops albogularis",
+   "ecos": [
+    "Norfolk Island white-eye",
+    "Endangered"
+   ],
+   "epbc": [
+    "White-chested White-eye, Norfolk Island Silvereye",
+    "Extinct",
+    "25899"
+   ]
+  },
+  {
+   "sci": "zyzomys pedunculatus",
+   "ecos": [
+    "Australian native mouse",
+    "Endangered"
+   ],
+   "epbc": [
+    "Central Rock-rat, Antina",
+    "Critically Endangered",
+    "68"
+   ]
+  }
+ ],
+ "canada_epbc_pairs": []
+}

@@ -1,0 +1,98 @@
+candidates:
+  - key: msha-mine-accident-injury-narratives
+    name: MSHA mine accident, injury and illness reports with free-text narrative (2000 to present)
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US DOL MSHA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://arlweb.msha.gov/OpenGovernmentData/DataSets/Accidents.zip', 'https://arlweb.msha.gov/OpenGovernmentData/DataSets/Mines.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    terms:
+      - url: https://www.dol.gov/general/aboutdol/copyright
+        quote: 'Materials created by the federal government are generally part of the public domain and may be used, reproduced and distributed without permission.'
+      - url: https://arlweb.msha.gov/OpenGovernmentData/OGIMSHA.asp
+        quote: 'These files are updated every Friday afternoon unless otherwise noted here.'
+    conditions:
+      - Credit US DOL MSHA and imply no DOL affiliation or endorsement; never use DOL seals or logos.
+      - Publish the NARRATIVE only after a personal-data scan (names, ages, contact details) and drop any record that fails it.
+      - Treat each weekly zip as a complete replacement, so rebuild from the snapshot and keep the raw zip in R2.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive the full Accidents.zip and Mines.zip to R2, then measure personal-data hits in the narratives and extract equipment, task and body-part facts deterministically.
+  - key: eia-coal-mine-production-msha-id
+    name: EIA annual coal mine production, employment and operator by MSHA mine ID
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: US EIA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.eia.gov/coal/data/public/xls/coalpublic2022.xls' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.eia.gov/about/copyrights_reuse.php
+        quote: 'U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website'
+    conditions:
+      - Acknowledge the US Energy Information Administration with the publication date.
+      - The file is SpreadsheetML XML with a .xls name, parse it as XML and expect transient 503 responses from the host.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Locate the current-year coalpublic file (2023 and 2024 returned 503 in the head request) and confirm the annual refresh date before relying on it.
+  - key: osha-severe-injury-reports
+    name: OSHA Severe Injury Reports with Final Narrative (employer, NAICS, narrative)
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US DOL OSHA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.osha.gov/severe-injury' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Reopen only if osha.gov stops returning HTTP 403 to our egress (page and severeinjury.csv both blocked) or DOL publishes the file on a reachable host.
+  - key: cpsc-neiss-injury-narratives
+    name: CPSC NEISS emergency-department injury narratives (consumer products)
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US CPSC
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.cpsc.gov/Research--Statistics/NEISS-Injury-Data' ]
+    scores: { agent_demand: 2, rights_clarity: 2, acquisition_ease: 3, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Park as out of scope; NEISS covers hospital visits for consumer products with no employer or establishment identifier. Consider it for a consumer-product injury dataset instead.
+datasets:
+  - key: workplace-injury-incident-narratives
+    name: Workplace injury and fatality incident register with narratives (mining first, linked to mine and operator)
+    category: workplace-safety
+    entity: workplace_injury_incident (one reported accident, injury or illness with mine or establishment, operator, classification and narrative)
+    stage: SCREENED
+    description: 'One record per MSHA accident, injury or illness report from 2000 to present with its free-text narrative, linked by the declared MSHA mine ID to the Mines register (location, status, SIC) and to EIA annual coal production and employment for that mine. Deterministic extraction turns narratives into equipment, task, body part and mechanism facts. OSHA severe-injury and inspection data (employer, NAICS) is the planned second industry slice once reachable; NAICS or SIC codes are filters, never joins.'
+    sources:
+      - msha-mine-accident-injury-narratives
+      - eia-coal-mine-production-msha-id
+    join_keys:
+      - key: MSHA mine ID (exact; EIA publishes the MSHA ID per mine, zero-padded to 7 digits)
+        between:
+          - msha-mine-accident-injury-narratives
+          - eia-coal-mine-production-msha-id
+        measured: 6287/6673 coal-mine accident rows from 2020 onward in the first 48 percent of the MSHA table match a mine in EIA 2022; 25/25 sampled matches agree on mine name
+        mode: declared
+      - key: SIC/NAICS code and state (filter only)
+        between:
+          - msha-mine-accident-injury-narratives
+          - osha-severe-injury-reports
+        measured: UNVERIFIED (osha.gov returns HTTP 403 to our egress)
+        mode: candidate
+    taxonomy:
+      - workplace_safety.mining.coal
+      - workplace_safety.mining.metal_nonmetal
+      - workplace_safety.injury.severity
+      - workplace_safety.injury.mechanism
+    agent_questions:
+      - What kinds of injuries and mechanisms recur at underground coal mines of a given operator, and how does that compare with its production and hours?
+      - Which mines had days-away-from-work injuries involving a given equipment type in the last two years, with the narrative evidence?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive full MSHA Accidents and Mines zips to R2, run the personal-data scan on narratives, add the EIA current-year file, and retry OSHA severe-injury access.

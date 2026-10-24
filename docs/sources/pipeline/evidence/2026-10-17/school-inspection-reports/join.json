@@ -1,0 +1,1038 @@
+{
+ "measured_at_utc": "2026-10-17T13:57:53.400246Z",
+ "ofsted_csv": {
+  "url": "https://assets.publishing.service.gov.uk/media/6ad095a72de3184ccf8b818d/Management_information_-_state-funded_schools_-_latest_inspections_as_at_30_Sep_2026.csv",
+  "http": 200,
+  "bytes": 16111867
+ },
+ "gias_csv": {
+  "url": "https://ea-edubase-api-prod.azurewebsites.net/edubase/downloads/public/edubasealldata20261017.csv",
+  "http": 200,
+  "bytes": 64701473
+ },
+ "whole_file": {
+  "ofsted_rows": 21931,
+  "ofsted_distinct_urn": 21931,
+  "ofsted_urns_in_gias": 21931,
+  "gias_rows": 52594
+ },
+ "sample_size": 100,
+ "sample_urns": [
+  "131986",
+  "140435",
+  "141211",
+  "118897",
+  "141929",
+  "137233",
+  "137312",
+  "136329",
+  "139129",
+  "140923",
+  "143974",
+  "142363",
+  "145054",
+  "150790",
+  "139943",
+  "151577",
+  "140111",
+  "140327",
+  "140922",
+  "141818",
+  "137870",
+  "136659",
+  "143825",
+  "143396",
+  "145278",
+  "143949",
+  "143124",
+  "142781",
+  "147159",
+  "147819",
+  "144844",
+  "147942",
+  "146726",
+  "151642",
+  "144828",
+  "145788",
+  "146246",
+  "151941",
+  "150473",
+  "148948",
+  "148924",
+  "152135",
+  "138639",
+  "144634",
+  "147510",
+  "147809",
+  "149522",
+  "142853",
+  "144223",
+  "146862",
+  "149352",
+  "151114",
+  "104862",
+  "110355",
+  "101993",
+  "113160",
+  "120095",
+  "110627",
+  "119275",
+  "133622",
+  "107487",
+  "114818",
+  "111861",
+  "123438",
+  "114208",
+  "115943",
+  "121453",
+  "117741",
+  "114989",
+  "110778",
+  "109583",
+  "122426",
+  "122440",
+  "126289",
+  "113553",
+  "126360",
+  "102336",
+  "118025",
+  "117883",
+  "105493",
+  "110423",
+  "104366",
+  "131916",
+  "106285",
+  "109423",
+  "104472",
+  "119512",
+  "112269",
+  "121547",
+  "138895",
+  "120119",
+  "114529",
+  "138813",
+  "139277",
+  "101861",
+  "120686",
+  "100318",
+  "123635",
+  "110593",
+  "139255"
+ ],
+ "matched_in_gias": 100,
+ "postcode_same": 100,
+ "gias_open": 100,
+ "ofsted_rows_with_inspection_fields": 98,
+ "report_pages": [
+  {
+   "urn": "131986",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/25/131986",
+   "pdf_links": 5,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50218182"
+  },
+  {
+   "urn": "140435",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/140435",
+   "pdf_links": 2,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50287675"
+  },
+  {
+   "urn": "141211",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/141211",
+   "pdf_links": 5,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50234407"
+  },
+  {
+   "urn": "118897",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/23/118897",
+   "pdf_links": 8,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50218435"
+  },
+  {
+   "urn": "141929",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/141929",
+   "pdf_links": 3,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50252380"
+  },
+  {
+   "urn": "137233",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/23/137233",
+   "pdf_links": 3,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50261187"
+  },
+  {
+   "urn": "137312",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/23/137312",
+   "pdf_links": 5,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50217323"
+  },
+  {
+   "urn": "136329",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/28/136329",
+   "pdf_links": 5,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50223797"
+  },
+  {
+   "urn": "139129",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/139129",
+   "pdf_links": 5,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50268758"
+  },
+  {
+   "urn": "140923",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/140923",
+   "pdf_links": 3,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50220798"
+  },
+  {
+   "urn": "143974",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/143974",
+   "pdf_links": 2,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50249232"
+  },
+  {
+   "urn": "142363",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/142363",
+   "pdf_links": 3,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50176829"
+  },
+  {
+   "urn": "145054",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/145054",
+   "pdf_links": 3,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50257007"
+  },
+  {
+   "urn": "150790",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/23/150790",
+   "pdf_links": 0,
+   "first_pdf": null
+  },
+  {
+   "urn": "139943",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/139943",
+   "pdf_links": 4,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50264808"
+  },
+  {
+   "urn": "151577",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/151577",
+   "pdf_links": 1,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50290656"
+  },
+  {
+   "urn": "140111",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/140111",
+   "pdf_links": 3,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50234709"
+  },
+  {
+   "urn": "140327",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/140327",
+   "pdf_links": 5,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50271346"
+  },
+  {
+   "urn": "140922",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/23/140922",
+   "pdf_links": 8,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50264760"
+  },
+  {
+   "urn": "141818",
+   "status": 200,
+   "final_url": "https://reports.ofsted.gov.uk/provider/21/141818",
+   "pdf_links": 2,
+   "first_pdf": "https://files.ofsted.gov.uk/v1/file/50256511"
+  }
+ ],
+ "report_pages_ok": 19,
+ "pdfs": [
+  {
+   "urn": "131986",
+   "url": "https://files.ofsted.gov.uk/v1/file/50218182",
+   "status": 200,
+   "bytes": 404789,
+   "text_chars": 9838,
+   "has_outcome_heading": true
+  },
+  {
+   "urn": "140435",
+   "url": "https://files.ofsted.gov.uk/v1/file/50287675",
+   "status": 200,
+   "bytes": 435326,
+   "text_chars": 12889,
+   "has_outcome_heading": true
+  },
+  {
+   "urn": "141211",
+   "url": "https://files.ofsted.gov.uk/v1/file/50234407",
+   "status": 200,
+   "bytes": 480950,
+   "text_chars": 12085,
+   "has_outcome_heading": false
+  },
+  {
+   "urn": "118897",
+   "url": "https://files.ofsted.gov.uk/v1/file/50218435",
+   "status": 200,
+   "bytes": 419097,
+   "text_chars": 12281,
+   "has_outcome_heading": false
+  },
+  {
+   "urn": "141929",
+   "url": "https://files.ofsted.gov.uk/v1/file/50252380",
+   "status": 200,
+   "bytes": 446878,
+   "text_chars": 12319,
+   "has_outcome_heading": true
+  },
+  {
+   "urn": "137233",
+   "url": "https://files.ofsted.gov.uk/v1/file/50261187",
+   "status": 200,
+   "bytes": 455947,
+   "text_chars": 12428,
+   "has_outcome_heading": false
+  },
+  {
+   "urn": "137312",
+   "url": "https://files.ofsted.gov.uk/v1/file/50217323",
+   "status": 200,
+   "bytes": 462408,
+   "text_chars": 12730,
+   "has_outcome_heading": true
+  },
+  {
+   "urn": "136329",
+   "url": "https://files.ofsted.gov.uk/v1/file/50223797",
+   "status": 200,
+   "bytes": 509552,
+   "text_chars": 12829,
+   "has_outcome_heading": false
+  }
+ ],
+ "pdfs_with_text": 8,
+ "sample_detail": [
+  {
+   "urn": "131986",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "140435",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "141211",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "118897",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "141929",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "137233",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "137312",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "136329",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "139129",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "140923",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "143974",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "142363",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "145054",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "150790",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": false
+  },
+  {
+   "urn": "139943",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "151577",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "140111",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "140327",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "140922",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "141818",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "137870",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "136659",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "143825",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "143396",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "145278",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "143949",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "143124",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "142781",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "147159",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "147819",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "144844",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "147942",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "146726",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "151642",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "144828",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "145788",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "146246",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "151941",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "150473",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "148948",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": false
+  },
+  {
+   "urn": "148924",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "152135",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "138639",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "144634",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "147510",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "147809",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "149522",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "142853",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "144223",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "146862",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "149352",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "151114",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "104862",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "110355",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "101993",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "113160",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "120095",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "110627",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "119275",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "133622",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "107487",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "114818",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "111861",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "123438",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "114208",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "115943",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "121453",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "117741",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "114989",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "110778",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "109583",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "122426",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "122440",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "126289",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "113553",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "126360",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "102336",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "118025",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "117883",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "105493",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "110423",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "104366",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "131916",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "106285",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "109423",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "104472",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "119512",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "112269",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "121547",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "138895",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "120119",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "114529",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "138813",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "139277",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "101861",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "120686",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "100318",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "123635",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "110593",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  },
+  {
+   "urn": "139255",
+   "in_gias": true,
+   "postcode_same": true,
+   "gias_status": "Open",
+   "ofsted_has_inspection_fields": true
+  }
+ ]
+}

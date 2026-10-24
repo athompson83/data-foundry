@@ -1,0 +1,32 @@
+{
+ "date": "2026-10-03",
+ "reachability": {
+  "api.nhtsa.gov recalls/campaignNumber, recallsByVehicle, products/vehicle/*": 200,
+  "static.nhtsa.gov FLAT_RCL_POST_2010.zip": "200, 14,904,195 bytes, Last-Modified 2026-10-03 07:02",
+  "static.nhtsa.gov FLAT_RCL_PRE_2010.zip": "200, 7,441,156 bytes",
+  "static.nhtsa.gov RCL.txt (data dictionary)": 200,
+  "www.nhtsa.gov (terms, robots, datasets page)": "403 Akamai Access Denied",
+  "static.nhtsa.gov/robots.txt": "404 NoSuchKey",
+  "opendatatc.tc.canada.ca vrdb_full_monthly.csv": "200, 206,861,872 bytes, Last-Modified 2026-10-03 09:00",
+  "opendatatc.tc.canada.ca vrdb_60days_daily.csv": "200, 1,401,440 bytes, 823 rows, 2025-06-11..2026-09-22",
+  "data.tc.gc.ca v1.3 API (recall?format=json)": "200 (schema only without query params)",
+  "www.fsis.usda.gov/fsis/api/recall/v/1": "403 Akamai Access Denied (still parked)",
+  "EU Safety Gate weekly XML list": 200, "UK OPSS GOV.UK search API": 200, "ACCC RSS": 200, "NZ MBIE sitemap": 200
+ },
+ "nhtsa": {"flat_rows": 327429, "campaigns": 30347, "by_type": {"V": 26376, "E": 2866, "T": 788, "C": 253, "I": 53, "X": 11},
+  "rcdate_min": "1966-01-19", "rcdate_max": "2026-10-01", "fields": 29, "files": "PRE_2010 (83.8MB txt) + POST_2010 (311MB txt), tab-delimited latin-1, no header",
+  "post2010_rows_by_type": {"V": 218980, "T": 20282, "E": 5995, "C": 462}, "post2010_campaigns_by_type": {"V": 13655, "E": 1362, "T": 200, "C": 71},
+  "post2010_fill": {"MFGCAMPNO": 181109, "of": 245719, "DESC_DEFECT": 245719, "NOTES": 213988, "FMVSS": 67970, "MFR_COMP_PTNO": 171181}},
+ "transport_canada_vrdb": {"rows": 146894, "recalls": 17978, "date_min": "1975-01-14", "date_max": "2026-09-22", "fields": 15,
+  "mfr_recall_no_filled_recalls": 13195, "categories_recalls": {"Car": 4271, "Truck": 2506, "SUV": 2157, "Child Car Seat": 220, "Booster Seat": 38, "Tire": 268, "Equipment": 226, "A.T.V.": 271, "Snowmobile": 232}},
+ "hc_index": {"records": 34156, "organization_TC": 9904, "TC_with_number_in_title": 9895, "TC_resolving_to_VRDB": 9468, "VRDB_recalls_not_in_HC_index": 8514, "tc_updated_min": "2011-01-12", "tc_updated_max": "2026-09-29"},
+ "joins": {
+  "cpsc_to_tc_vrdb_declared": {"key": "CPSC Inconjunctions[].URL wwwapps.tc.gc.ca ...detail.aspx?rn=<recall number>", "cpsc_recalls_citing": 81, "resolving_in_VRDB_full": 76, "categories": {"A.T.V.": 24, "Restricted-Use Vehicle": 24, "Snowmobile": 21, "Competition Vehicle": 3, "Equipment": 2, "Motorcycle": 2}, "unresolved_examples": ["2023565", "2023458", "2023081", "2021734"], "plus_HC_index_TC_notice_citations": 4},
+  "tc_to_nhtsa_mfr_campaign_declared": {"key": "TC MANUFACTURER_RECALL_NO_TXT == NHTSA MFGCAMPNO (normalised) AND same make/manufacturer", "tc_recalls_with_mfr_no": 13195, "exact_id_matches": 5384, "with_make_agreement": 4665, "by_category": {"Truck": 959, "Car": 879, "SUV": 775, "RV Trailer": 516, "Equipment": 90, "Tire": 1, "Child Car Seat": 0}, "hand_check_random_20": "20/20 same OEM, same defect"},
+  "cpsc_to_nhtsa_candidate": {"key": "CPSC title names NHTSA + manufacturer + model + date<=120d", "cpsc_mentioning_nhtsa": 13, "true_joint_child_seat_recalls": 10, "hand_check": "10/10", "declared_number_in_cpsc_text": {"02E-027": "02C027000 (digits match, type letter wrong in CPSC text)", "99E-022": "99C022000 (same)"}, "post_2010_overlap": 2},
+  "cpsc_to_nhtsa_name_only_rejected": {"auto_pairs": 78, "distinct_cpsc": 44, "post_2010": 2, "hand_check_first_20": "about 2/20 clearly correct; method rejected"},
+  "tc_to_nhtsa_child_seat_tire_equipment_candidate": {"tc_cte_since_2010": 443, "candidates_make_model_token_date90": 130, "hand_check_random_20": "16/20 correct, 4 not confirmable from fields"}
+ },
+ "other_members_rechecked": "EU Safety Gate, UK OPSS, ACCC, NZ MBIE all HTTP 200 today and already SCREENED in candidates.yaml (members of home-product-recalls-global); not re-measured for linkage here. FSIS still 403.",
+ "note": "TC CSV (207MB) exceeded the 50MB bulk guidance; fetched once in full for the measurement."
+}

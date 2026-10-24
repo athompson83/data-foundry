@@ -1,0 +1,865 @@
+{
+ "epa_ppis": {
+  "products_total": 102780,
+  "products_active": 19722,
+  "newest_approval": "20260922",
+  "formula_rows": 154006,
+  "products_with_formula": 89314,
+  "active_ingredient_pc_codes": 1220,
+  "pc_codes_with_cas": 983,
+  "distinct_cas": 1069,
+  "chemcas_rows": 4520,
+  "rup_active": 945,
+  "sample": [
+   {
+    "reg": "19713-650",
+    "name": "DREXEL DE-AMINE 4",
+    "appr": "20130418",
+    "pcs": [
+     "030019"
+    ],
+    "cas": [
+     "2008-39-1"
+    ]
+   },
+   {
+    "reg": "53883-232",
+    "name": "IMI 2 LB GREENHOUSE & NURSERY INSECTICIDE",
+    "appr": "20070911",
+    "pcs": [
+     "129099"
+    ],
+    "cas": [
+     "105827-78-9",
+     "138261-41-3"
+    ]
+   },
+   {
+    "reg": "1839-65",
+    "name": "BTC 65",
+    "appr": "19730208",
+    "pcs": [
+     "128928"
+    ],
+    "cas": [
+     "63449-41-2"
+    ]
+   },
+   {
+    "reg": "70506-450",
+    "name": "EVEREST 70% WATER DISPERSIBLE GRANULAR HERBICIDE",
+    "appr": "20000929",
+    "pcs": [
+     "114009"
+    ],
+    "cas": [
+     "181274-17-9"
+    ]
+   },
+   {
+    "reg": "85306-1",
+    "name": "SELECT TCS",
+    "appr": "20030701",
+    "pcs": [
+     "129121"
+    ],
+    "cas": [
+     "120068-37-3"
+    ]
+   },
+   {
+    "reg": "5481-610",
+    "name": "SCEPTER 70 DG HERBICIDE",
+    "appr": "19880104",
+    "pcs": [
+     "128848"
+    ],
+    "cas": [
+     "81335-37-7"
+    ]
+   },
+   {
+    "reg": "1157-53",
+    "name": "ADM ALLIANCE NUTRITION 2% IGR MINERAL",
+    "appr": "20070817",
+    "pcs": [
+     "105402"
+    ],
+    "cas": [
+     "65733-16-6"
+    ]
+   },
+   {
+    "reg": "706-113",
+    "name": "Plaze Picaridin Lotion Repellant",
+    "appr": "20180831",
+    "pcs": [
+     "070705"
+    ],
+    "cas": [
+     "119515-38-7"
+    ]
+   },
+   {
+    "reg": "100-1745",
+    "name": "Primo HiLo\u00ae",
+    "appr": "20250827",
+    "pcs": [
+     "112602"
+    ],
+    "cas": [
+     "95266-40-3"
+    ]
+   },
+   {
+    "reg": "70552-1",
+    "name": "PARAQUAT TECHNICAL CONCENTRATE",
+    "appr": "20050519",
+    "pcs": [
+     "061601"
+    ],
+    "cas": [
+     "122-34-9",
+     "1910-42-5",
+     "39312-80-6"
+    ]
+   },
+   {
+    "reg": "92647-27",
+    "name": "Tigris Bifenthrin LFC",
+    "appr": "20191024",
+    "pcs": [
+     "128825"
+    ],
+    "cas": [
+     "82657-04-3",
+     "83322-02-5"
+    ]
+   },
+   {
+    "reg": "47000-140",
+    "name": "CLEAN CROP PYRETHRINS RTU",
+    "appr": "19900625",
+    "pcs": [
+     "067501",
+     "069001"
+    ],
+    "cas": [
+     "51-03-6",
+     "8003-34-7"
+    ]
+   },
+   {
+    "reg": "498-156",
+    "name": "SPRAYPAK WASP KILLER FORMULA 3",
+    "appr": "19930730",
+    "pcs": [
+     "069003",
+     "069005"
+    ],
+    "cas": [
+     "26002-80-2",
+     "26046-85-5",
+     "51186-88-0",
+     "7696-12-0"
+    ]
+   },
+   {
+    "reg": "11603-63",
+    "name": "METAMITRON TECHNICAL",
+    "appr": "20250311",
+    "pcs": [
+     "226501"
+    ],
+    "cas": [
+     "41394-05-2"
+    ]
+   },
+   {
+    "reg": "90515-2",
+    "name": "Synergy Shield Verbenone",
+    "appr": "20160428",
+    "pcs": [
+     "128986"
+    ],
+    "cas": [
+     "1196-01-6"
+    ]
+   },
+   {
+    "reg": "91473-4",
+    "name": "AMPLER",
+    "appr": "20230105",
+    "pcs": [
+     "121701",
+     "128827"
+    ],
+    "cas": [
+     "108168-76-9",
+     "11141-17-6",
+     "8000-78-0",
+     "992-20-1"
+    ]
+   },
+   {
+    "reg": "66222-58",
+    "name": "CAPTAN 80WDG",
+    "appr": "20030116",
+    "pcs": [
+     "081301"
+    ],
+    "cas": [
+     "133-06-2"
+    ]
+   },
+   {
+    "reg": "42750-173",
+    "name": "TRICLOPYR 13.6% BEE",
+    "appr": "20080513",
+    "pcs": [
+     "116004"
+    ],
+    "cas": [
+     "64700-56-7"
+    ]
+   },
+   {
+    "reg": "6836-414",
+    "name": "BCC Technical 2 - Lonza",
+    "appr": "20191104",
+    "pcs": [
+     "022901"
+    ],
+    "cas": [
+     "1184-64-1",
+     "12069-69-1"
+    ]
+   },
+   {
+    "reg": "1839-258",
+    "name": "Petrocide QD-10W",
+    "appr": "20210505",
+    "pcs": [
+     "069149"
+    ],
+    "cas": [
+     "7173-51-5"
+    ]
+   }
+  ]
+ },
+ "pmra_ppid": {
+  "products": 21795,
+  "current": 7791,
+  "newest_first_registered": "2026-10-01",
+  "with_sites_of_use": 5636,
+  "with_pests": 5553,
+  "ingredients": 1315,
+  "ingredients_with_cas": 943,
+  "sample": [
+   {
+    "Registration number": "25068",
+    "Product name - English": "DANTOBROM TBS",
+    "Active ingredients - English": "AVAILABLE BROMINE (PRESENT AS 1-BROMO-3-CHLORO-5,5-DIMETHYLHYDANTOIN AND RELATED HYDANTOINS);AVAILABLE CHLORINE (PRESENT AS 1-BROMO-3-CHLORO-5,5-DIMETHYLHYDANTOIN, 1,3-DICHLORO-5,5-DIMETHYLHYDANTOIN, 1,3-DICHLORO-5-ETHYL-5-METHYLHYDANTOIN AND RELATED HYDANTOINS)",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "TOILET BOWL"
+   },
+   {
+    "Registration number": "30289",
+    "Product name - English": "EZ BROME +",
+    "Active ingredients - English": "AVAILABLE CHLORINE (PRESENT AS SODIUM DICHLORO-S-TRIAZINETRIONE);SODIUM BROMIDE",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "HOT TUB;SPA"
+   },
+   {
+    "Registration number": "25563",
+    "Product name - English": "BAYLUSCIDE GRANULAR SEA LAMPREY LARVICIDE",
+    "Active ingredients - English": "NICLOSAMIDE",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "GREAT LAKES BASIN;LAKE CHAMPLAIN SYSTEM"
+   },
+   {
+    "Registration number": "18612",
+    "Product name - English": "RIVAL EMULSIFIABLE CONCENTRATE LIQUID HERBICIDE",
+    "Active ingredients - English": "TRIFLURALIN",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "ALFALFA;AMERICAN ELM;ASPARAGUS;BARLEY;BLACK BEANS;BROCCOLI;BRUSSELS SPROUTS;CABBAGE;CANOLA (RAPESEED);CARAGANA;CARROT;CAULIFLOWER;CRAMBE;DRY COMMON BEANS;DUTCH WHITE STUBBLE TURNIP;FABABEANS;FLAX;FORAGE KALE;FORAGE RAPE;GREEN ASH;LENTILS;LIMA BEANS;MUSTARD;ORNAMENTALS: ESTABLISHED WOODY NURSERY STOCK;ORNAMENTALS: TRANSPLANTS OF WOODY NURSERY STOCK AND PERENNIALS;PEAS;PEPPERS;RUTABAGA;RYE;SAFFLOWER;SAINFOIN;SCOTCH PINE;SIBERIAN ELM;SNAPBEANS;SOYBEANS;STRAWBERRIES;SUNFLOWER;SWEET CLOVER;TAME MUSTARD;TOMATO;TOMATOES;TRIAZINE TOLERANT CANOLA (RAPESEED);WHEAT"
+   },
+   {
+    "Registration number": "32662",
+    "Product name - English": "HURRICANE HERBICIDE",
+    "Active ingredients - English": "ACIFLUORFEN (PRESENT AS SODIUM SALT);BENTAZON (PRESENT AS SODIUM SALT)",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "SOYBEANS"
+   },
+   {
+    "Registration number": "33895",
+    "Product name - English": "LIER DIQUAT TECHNICAL",
+    "Active ingredients - English": "DIQUAT (PRESENT AS DIBROMIDE)",
+    "Registration Status": "Full Registration",
+    "Sites of Use": ""
+   },
+   {
+    "Registration number": "27530",
+    "Product name - English": "BUMPER (PROPICONAZOLE) TECHNICAL",
+    "Active ingredients - English": "PROPICONAZOLE",
+    "Registration Status": "Full Registration",
+    "Sites of Use": ""
+   },
+   {
+    "Registration number": "27693",
+    "Product name - English": "AZUR SPA BROMO TAB",
+    "Active ingredients - English": "AVAILABLE BROMINE (PRESENT AS 1-BROMO-3-CHLORO-5,5-DIMETHYLHYDANTOIN AND RELATED HYDANTOINS);AVAILABLE CHLORINE (PRESENT AS 1-BROMO-3-CHLORO-5,5-DIMETHYLHYDANTOIN AND RELATED HYDANTOINS)",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "SPAS"
+   },
+   {
+    "Registration number": "28593",
+    "Product name - English": "AQUA TROL ABOVE-GROUND POOL AUTOMATION",
+    "Active ingredients - English": "DEVICE, NO GUARANTEE REQUIRED",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "SWIMMING POOL WATERS"
+   },
+   {
+    "Registration number": "33298",
+    "Product name - English": "ACETA 70 WP",
+    "Active ingredients - English": "ACETAMIPRID",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "APPLE;APRICOT;ASPARAGUS;CANEBERRIES (CROP SUBGROUP 13-07A): BLACKBERRIES AND RASPBERRIES;CRABAPPLE;CROP GROUP 11: POME FRUITS;CROP GROUP 4: LEAFY VEGETABLES (EXCEPT BRASSICA VEGETABLES) / CROP SUBGROUP 4A: LEAFY GREENS; LEAFY VEGETABLES (EXCEPT BRASSICA VEGETABLES) / CROP SUBGROUP 4B: LEAF PETIOLES; LEAFY VEGETABLES (EXCEPT BRASSICA VEGETABLES);CROP GROUP 5: BRASSICA (COLE) LEAFY VEGETABLES / CROP SUBGROUP 5A: HEAD AND STEM BRASSICA;CROP GROUP 5B: LEAFY BRASSICA GREENS;CROP SUBGROUP 13-07B: BUSHBERRY; BERRY AND SMALL FRUIT;CROP SUBGROUP 6B: SUCCULENT SHELLED PEA AND BEAN;FRESH PRUNE;GRAPES;GROUND CHERRY;HIGH BUSH BLUEBERRIES;HIGHBUSH BLUEBERRY;LOW BUSH BLUEBERRIES;LOWBUSH BLUEBERRY;NECTARINE;ORIENTAL PEAR;PEA (PISUM SPP.) (INCLUDES DWARF PEA, EDIBLE-POD PEA, SNOW PEA, SUGAR SNAP PEA);PEACH;PEAR;PEPPERS;PLUM;PLUMCOT;POTATO;QUINCE;RUTABAGA;SEED ALFALFA;STRAWBERRIES;SWEET CHERRY;SWEET CORN;TART CHERRY;TOBACCO;TOMATO"
+   },
+   {
+    "Registration number": "30506",
+    "Product name - English": "IMAZAMOX/IMAZAPYR BULK HERBICIDE",
+    "Active ingredients - English": "IMAZAMOX;IMAZAPYR",
+    "Registration Status": "Full Registration",
+    "Sites of Use": ""
+   },
+   {
+    "Registration number": "34271",
+    "Product name - English": "MUSKOL\u00ae PATIO & DECK MOSQUITO COILS",
+    "Active ingredients - English": "D-CIS,TRANS-ALLETHRIN",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "BACKYARDS;DECKS;OUTDOORS;PATIOS"
+   },
+   {
+    "Registration number": "30531",
+    "Product name - English": "WEEDERASE",
+    "Active ingredients - English": "ACETIC ACID",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "DRIVEWAY CRACKS;GARDENS;LAWNS;SIDEWALK CRACKS"
+   },
+   {
+    "Registration number": "36115",
+    "Product name - English": "ENRICH DIQUAT 240",
+    "Active ingredients - English": "DIQUAT (PRESENT AS DIBROMIDE)",
+    "Registration Status": "Full Registration",
+    "Sites of Use": ""
+   },
+   {
+    "Registration number": "25478",
+    "Product name - English": "STABREX ST70",
+    "Active ingredients - English": "SODIUM BROMIDE;SODIUM HYPOCHLORITE",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "AIR WASHERS (EQUIPPED WITH MIST ELIMINATING COMPONENTS);HEAT TRANSFER SYSTEMS;HEAT TRANSFER SYSTEMS (EVAPORATIVE CONDENSERS);HEAT TRANSFER SYSTEMS (HYDROSTATIC STERILIZERS);HEAT TRANSFER SYSTEMS (RETORTS);INDUSTRIAL BEVERAGE PASTEURIZERS;INDUSTRIAL FOOD PASTEURIZERS;INDUSTRIAL PASTEURIZERS;INDUSTRIAL PROCESS PASTEURIZERS;PAPER MILL INFLUENT WATER SYSTEMS;PULP & PAPER MILL PROCESS WATER SYSTEMS (MANUFACTURED PAPER OR PAPERBOARD  FOR FOOD CONTACT PURPOSES);PULP MILL INFLUENT WATER SYSTEMS;RECIRCULATING COOLING WATER SYSTEM (COMMERCIAL);RECIRCULATING COOLING WATER SYSTEM (INDUSTRIAL)"
+   },
+   {
+    "Registration number": "35522",
+    "Product name - English": "SHARDA PICOXYSTROBIN TECHNICAL",
+    "Active ingredients - English": "PICOXYSTROBIN",
+    "Registration Status": "Full Registration",
+    "Sites of Use": ""
+   },
+   {
+    "Registration number": "33815",
+    "Product name - English": "AMYPROTEC 42",
+    "Active ingredients - English": "BACILLUS AMYLOLIQUEFACIENS STRAIN FZB42",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "GARLIC;POTATO"
+   },
+   {
+    "Registration number": "30978",
+    "Product name - English": "CROPOIL 83/17 ADJUVANT",
+    "Active ingredients - English": "MINERAL OIL - PARAFFIN BASE;SURFACTANT BLEND",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "DURUM WHEAT;SPRING WHEAT"
+   },
+   {
+    "Registration number": "36021",
+    "Product name - English": "MEY CANADA S-METOLACHLOR HERBICIDE",
+    "Active ingredients - English": "S-METOLACHLOR AND R-ENANTIOMER",
+    "Registration Status": "Full Registration",
+    "Sites of Use": ""
+   },
+   {
+    "Registration number": "32049",
+    "Product name - English": "MOSQUITO BARRIER HOSE END SPRAYER",
+    "Active ingredients - English": "GARLIC JUICE",
+    "Registration Status": "Full Registration",
+    "Sites of Use": "GRASSY AREAS AROUND THE HOME;PLANTS;UNDER DECKS;UNDER PORCHES;YARDS"
+   }
+  ]
+ },
+ "apvma_pubcris": {
+  "products": 18793,
+  "newest_regdate": "9/09/2026",
+  "constituents": 2797,
+  "constituent_groups": [
+   "ACETATE",
+   "ACID",
+   "ACID-ALKANOIC",
+   "ACID-FATTY",
+   "ACID-GENERAL",
+   "ACTIVE",
+   "ACTIVE, SURFACTANT",
+   "ALCOHOL",
+   "ALDEHYDE",
+   "ALKALOID",
+   "AMINE",
+   "AMINE/AMIDE",
+   "AMINO ACID",
+   "AMINO ACID-GLYCINE",
+   "AMINO ACID-LYSINE",
+   "AMINO ACID-LYSINE-L",
+   "AMINO ACID-METHIONINE",
+   "AMINO-ACID",
+   "AMINOCOUMARIN",
+   "AMMONIUM",
+   "AMMONIUM-QUATERNARY",
+   "ANAESTHETIC",
+   "ANILIDE-ANILINE-PYRIMIDINE",
+   "ANILIDE/ANILINE",
+   "ANILIDE/ANILINE-DINITRO",
+   "ANILIDE/ANILINE-PYRIMIDINE",
+   "ANTHELMINTIC",
+   "ANTI-INFLAMMATORY-NON-STEROID",
+   "ANTI-INFLAMMATORY-NONSTEROIDAL",
+   "ANTIBIOTIC",
+   "ANTIHISTAMINE",
+   "ANTIPROTOZOAL",
+   "ANTIPROTOZOAL-COCCIDIOSTAT",
+   "ANTIVENOM-SNAKE",
+   "AUXIN",
+   "AY (ALDEHYDE)",
+   "AZEPINE-BENZODIAZEPINE",
+   "Acylureas ",
+   "Alcohols ",
+   "Aldehydes"
+  ],
+  "constit_columns": [
+   "ccode",
+   "cname",
+   "clevel1"
+  ],
+  "product_columns": [
+   "pcode",
+   "prodtype",
+   "psched",
+   "regdate",
+   "fdesc",
+   "typedesc",
+   "hlevel1",
+   "fpname",
+   "sname",
+   "regcode",
+   "expdate",
+   "scode1"
+  ],
+  "sample": [
+   {
+    "pcode": "66883",
+    "fpname": "Propaz 500 SC Herbicide",
+    "sname": "Shandong Rainbow International Co Ltd",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "81055",
+    "fpname": "NexGard Spectra Chewables for Dogs 30.1 - 60 kg",
+    "sname": "Boehringer Ingelheim Animal Health Australia Pty. Ltd.",
+    "typedesc": "VM - Veterinary Medicine",
+    "regcode": "R"
+   },
+   {
+    "pcode": "55221",
+    "fpname": "SUPERWAY DELTA-M RESIDUAL INSECTICIDE",
+    "sname": "POOMA FERTILIZERS PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "86249",
+    "fpname": "4Farmers Linuron 450 Herbicide",
+    "sname": "4 FARMERS AUSTRALIA PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "91512",
+    "fpname": "Chlorantraniliprole",
+    "sname": "AGROSHINE AUSTRALIA PTY LTD",
+    "typedesc": "TG - Active Constituent",
+    "regcode": "A"
+   },
+   {
+    "pcode": "60666",
+    "fpname": "GUARDIAN SEED TREATMENT INSECTICIDE",
+    "sname": "ARYSTA LIFESCIENCE AUSTRALIA PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "54012",
+    "fpname": "DICLOFOP-METHYL",
+    "sname": "IMTRADE AUSTRALIA PTY LTD",
+    "typedesc": "TG - Active Constituent",
+    "regcode": "A"
+   },
+   {
+    "pcode": "51357",
+    "fpname": "TEATSEAL",
+    "sname": "ZOETIS AUSTRALIA PTY LTD",
+    "typedesc": "VM - Veterinary Medicine",
+    "regcode": "R"
+   },
+   {
+    "pcode": "42282",
+    "fpname": "David Grays Blockade Winter Grass Killer",
+    "sname": "DAVID GRAY & CO. PTY LIMITED",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "86528",
+    "fpname": "BIFENTHRIN",
+    "sname": "AIMCO KR AUSTRALIA PTY LTD",
+    "typedesc": "TG - Active Constituent",
+    "regcode": "A"
+   },
+   {
+    "pcode": "95672",
+    "fpname": "CLOXALLIN EYE OINTMENT",
+    "sname": "VETPHARM LABORATORIES IP PTY LTD",
+    "typedesc": "VM - Veterinary Medicine",
+    "regcode": "R"
+   },
+   {
+    "pcode": "70130",
+    "fpname": "METALAXYL",
+    "sname": "Shandong Rainbow International Co Ltd",
+    "typedesc": "TG - Active Constituent",
+    "regcode": "A"
+   },
+   {
+    "pcode": "50350",
+    "fpname": "FUNGAFLOR 500 EC JANSSEN FUNGICIDE EMULSIFIABLE CONCENTRATE",
+    "sname": "JANSSEN PHARMACEUTICA N.V.",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "65748",
+    "fpname": "THE LOCALS SANDFLY AND MOZZIE STUFF INSECT REPELLENT",
+    "sname": "AUS LOCALS PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "93971",
+    "fpname": "IMTRADE SMARTEN 300 EC GRAIN PROTECTANT",
+    "sname": "IMTRADE AUSTRALIA PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "94911",
+    "fpname": "Conquest Wingman Herbicide",
+    "sname": "CONQUEST CROP PROTECTION PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "84456",
+    "fpname": "INFECTIOUS BRONCHITIS VIRUS STRAIN ARMIDALE A3",
+    "sname": "ZOETIS AUSTRALIA PTY LTD",
+    "typedesc": "TG - Active Constituent",
+    "regcode": "A"
+   },
+   {
+    "pcode": "69362",
+    "fpname": "BIXAFEN",
+    "sname": "BAYER CROP SCIENCE PTY LTD",
+    "typedesc": "TG - Active Constituent",
+    "regcode": "A"
+   },
+   {
+    "pcode": "62284",
+    "fpname": "CAMPBELL 250 GT TURF FUNGICIDE",
+    "sname": "COLIN CAMPBELL (CHEMICALS) PTY LTD",
+    "typedesc": "A - Agricultural",
+    "regcode": "R"
+   },
+   {
+    "pcode": "55481",
+    "fpname": "EXELPET SPOT-ON FLEA CONTROL FOR CATS AND KITTENS",
+    "sname": "EXELPET PRODUCTS A DIV OF MARS AUSTRALIA PTY LTD",
+    "typedesc": "VM - Veterinary Medicine",
+    "regcode": "R"
+   }
+  ]
+ },
+ "link_cas_epa_pmra": {
+  "epa_distinct_cas": 1069,
+  "pmra_distinct_cas": 943,
+  "matched": 641,
+  "matched_over_epa": "641/1069",
+  "matched_over_pmra": "641/943",
+  "sample_matches": [
+   "10007-85-9",
+   "1003318-67-9",
+   "10043-35-3",
+   "10045-86-0",
+   "100646-51-3",
+   "100784-20-1",
+   "101-21-3",
+   "101200-48-0",
+   "101917-66-2",
+   "10222-01-2",
+   "102851-06-9",
+   "1031756-98-5",
+   "103361-09-7",
+   "10380-28-6",
+   "104040-78-0",
+   "104040-79-1",
+   "104098-48-8",
+   "104206-82-8",
+   "104653-34-1",
+   "104786-87-0"
+  ],
+  "name_pairs_sample": [
+   [
+    "65-85-0",
+    "Benzoic acid",
+    "BENZOIC ACID"
+   ],
+   [
+    "119446-68-3",
+    "Difenoconazole",
+    "DIFENOCONAZOLE"
+   ],
+   [
+    "1220411-29-9",
+    "Tiafenacil",
+    "TIAFENACIL"
+   ],
+   [
+    "122836-35-5",
+    "Sulfentrazone",
+    "SULFENTRAZONE"
+   ],
+   [
+    "134098-61-6",
+    "Fenpyroximate",
+    "FENPYROXIMATE"
+   ],
+   [
+    "137-42-8",
+    "Metam-sodium",
+    "METAM-SODIUM OR SODIUM METHYLDITHIOCARBAMATE"
+   ],
+   [
+    "131929-60-7",
+    "Spinosad",
+    "SPINOSAD"
+   ],
+   [
+    "32289-58-0",
+    "Poly(iminoimidocarbonyliminoimidocarbonyliminohexamethylene) hydrochloride",
+    "PHMB"
+   ],
+   [
+    "104653-34-1",
+    "Difethialone",
+    "DIFETHIALONE"
+   ],
+   [
+    "68391-01-5",
+    "Alkyl* dimethyl benzyl ammonium chloride *(67%C12, 25%C14, 7%C16, 1%C18)",
+    "N-ALKYL (50% C12, 30% C14, 17% C16, 3% C18) DIMETHYL BENZYL AMMONIUM CHLORIDE"
+   ],
+   [
+    "36734-19-7",
+    "Iprodione",
+    "IPRODIONE"
+   ],
+   [
+    "5870-93-9",
+    "Heptyl butyrate",
+    "HEPTYL BUTYRATE"
+   ],
+   [
+    "12057-74-8",
+    "Magnesium phosphide",
+    "MAGNESIUM PHOSPHIDE"
+   ],
+   [
+    "732-11-6",
+    "Phosmet",
+    "PHOSMET"
+   ],
+   [
+    "78-70-6",
+    "Linalool",
+    "3,7-DIMETHYL-1,6-OCTADIEN-3-OL"
+   ],
+   [
+    "16725-53-4",
+    "Z-9-Tetradecen-1-yl acetate",
+    "(Z)-9-TETRADECEN-1-YL ACETATE"
+   ],
+   [
+    "68917-18-0",
+    "Cornmint oil",
+    "CORNMINT OIL"
+   ],
+   [
+    "57960-19-7",
+    "Acequinocyl",
+    "ACEQUINOCYL\n"
+   ],
+   [
+    "7758-99-8",
+    "Copper sulfate pentahydrate",
+    "COPPER (PRESENT AS COPPER SULFATE PENTAHYDRATE)"
+   ],
+   [
+    "64742-88-7",
+    "Aliphatic petroleum solvent",
+    "MINERAL SPIRITS"
+   ],
+   [
+    "74222-97-2",
+    "Sulfometuron",
+    "SULFOMETURON METHYL"
+   ],
+   [
+    "162650-77-3",
+    "Ethaboxam",
+    "ETHABOXAM"
+   ],
+   [
+    "374726-62-2",
+    "Mandipropamide Technical",
+    "MANDIPROPAMID"
+   ],
+   [
+    "136-45-8",
+    "MGK 326",
+    "2,3,4,5-BIS(2-BUTYLENE)TETRAHYDRO-2-FURFURAL"
+   ],
+   [
+    "84087-48-9",
+    "QUINCLORAC, DIMETHYLAMINE SALT",
+    "QUINCLORAC (PRESENT AS DIMETHYLAMINE SALT)"
+   ]
+  ]
+ },
+ "link_cas_epa_niosh": {
+  "niosh_cas": 648,
+  "matched": 86,
+  "matched_over_epa": "86/1069"
+ },
+ "link_cas_pmra_niosh": {
+  "matched": 108,
+  "matched_over_pmra": "108/943"
+ },
+ "link_name_pmra_apvma": {
+  "pmra_ingredients": 1315,
+  "matched_exact_normalised": 418,
+  "sample": [
+   [
+    "DIDECYLDIMETHYLAMMONIUM CHLORIDE",
+    "DIDECYL DIMETHYL AMMONIUM CHLORIDE"
+   ],
+   [
+    "FLAMPROP-M-METHYL",
+    "FLAMPROP-M-METHYL"
+   ],
+   [
+    "BRONOPOL",
+    "BRONOPOL"
+   ],
+   [
+    "TEBUFENOZIDE",
+    "TEBUFENOZIDE"
+   ],
+   [
+    "IMAZAPYR",
+    "IMAZAPYR"
+   ],
+   [
+    "METHYL SALICYLATE",
+    "METHYL SALICYLATE"
+   ],
+   [
+    "CLOMAZONE",
+    "CLOMAZONE"
+   ],
+   [
+    "BOSCALID",
+    "BOSCALID"
+   ],
+   [
+    "BACILLUS AMYLOLIQUEFACIENS STRAIN MBI600",
+    "BACILLUS AMYLOLIQUEFACIENS STRAIN MBI600"
+   ],
+   [
+    "ACEQUINOCYL\n",
+    "ACEQUINOCYL"
+   ],
+   [
+    "IMIDACLOPRID",
+    "IMIDACLOPRID"
+   ],
+   [
+    "PERMETHRIN",
+    "PERMETHRIN"
+   ],
+   [
+    "FENHEXAMID",
+    "FENHEXAMID"
+   ],
+   [
+    "UREA",
+    "UREA"
+   ],
+   [
+    "TOPRAMEZONE",
+    "TOPRAMEZONE"
+   ],
+   [
+    "AUREOBASIDIUM PULLULANS STRAIN DSM 14941",
+    "AUREOBASIDIUM PULLULANS STRAIN DSM 14941"
+   ],
+   [
+    "DI-N-PROPYL ISOCINCHOMERONATE",
+    "DI-N-PROPYL ISOCINCHOMERONATE"
+   ],
+   [
+    "OIL OF LEMON EUCALYPTUS, HYDRATED, CYCLIZED",
+    "OIL OF LEMON EUCALYPTUS (HYDRATED, CYCLIZED)"
+   ],
+   [
+    "PARADICHLOROBENZENE",
+    "PARADICHLOROBENZENE"
+   ],
+   [
+    "GAMMA-CYHALOTHRIN",
+    "GAMMA-CYHALOTHRIN"
+   ]
+  ]
+ },
+ "registration_number_overlap_note": {
+  "epa_reg_suffixes_in_pmra_numbers": 978,
+  "note": "numeric collision only; different registers, not a link"
+ }
+}
