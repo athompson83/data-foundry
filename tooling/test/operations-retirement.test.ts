@@ -36,7 +36,7 @@ async function acquire(index: number, slot: string, targetId?: string) {
   const result = await runScheduledAcquisition({ driver: factory.driver, runtime: { ...base, targets: [target] }, scheduledFor: slot,
     ingestionRuntimeDigest: nextDigest(), artifactStore: new R2ArtifactStore({ bucket: 'retirement-test', client: new InMemoryObjectClient() }), env: {},
     fetch: stubFetch(() => ({ status: 200, headers: { 'content-type': index === 2 ? 'text/csv' : 'application/json' }, body: body + (index === 0 ? `\n${' '.repeat(digest)}` : '') })).fetch });
-  expect(result.executions[0]?.disposition).toBe('SUCCEEDED');
+  expect(result.executions[0]?.disposition, JSON.stringify({ slot, executions: result.executions })).toBe('SUCCEEDED');
   const [row] = await factory.driver.query<{ id: string }>('SELECT id FROM scheduled_acquisition_runs WHERE status=\'SUCCEEDED\' ORDER BY completed_at DESC,id DESC LIMIT 1');
   return row!.id;
 }
@@ -57,13 +57,16 @@ beforeAll(async () => {
     }
     });
   }
-  // Slots are relative to the wall clock: the planner treats a run less than a refresh interval after the previous
-  // acquisition as NOT_DUE, so fixed calendar dates stop working once the clock approaches them.
-  const slot=(days:number)=>new Date(Math.floor((Date.now()+days*86_400_000)/86_400_000)*86_400_000).toISOString();
-  oldRun=await acquire(0,'2026-09-08T00:00:00.000Z');
-  newerRun=await acquire(0,slot(3));
-  otherTargetRun=await acquire(0,slot(4),'another-target');
-  otherSourceRun=await acquire(2,slot(5),'catalog-api');
+  // Successful acquisitions record database observation time, not their scheduled
+  // slot. Keep the second slot a full refresh interval beyond that observation;
+  // fixed calendar dates eventually become NOT_DUE as the wall clock advances.
+  const [now] = await factory.driver.query<{ at: string }>('SELECT statement_timestamp() AS at');
+  const intervalHours = ACQUISITION_RUNTIMES['hvac']!.targets[0]!.source.refresh_interval_hours ?? 24 * 31;
+  const slot = (offset: number) => new Date(Date.parse(String(now!.at)) + offset * (intervalHours + 24) * 3_600_000).toISOString();
+  oldRun=await acquire(0,slot(-1));
+  newerRun=await acquire(0,slot(1));
+  otherTargetRun=await acquire(0,slot(2),'another-target');
+  otherSourceRun=await acquire(2,slot(3),'catalog-api');
   replacement=await delivery(newerRun,'PUBLISHED');
 });
 afterAll(async () => factory?.close());

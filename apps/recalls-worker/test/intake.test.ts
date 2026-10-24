@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { issueKey } from '../src/account.js';
 import type { Env } from '../src/env.js';
 import worker from '../src/index.js';
-import { EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, MAX_INTAKE_BYTES, MAX_INTAKE_NOTICES, MAX_INTAKE_QUERIES } from '../src/intake.js';
+import { EXTRACTION_BEHAVIOUR_SHA256, HC_EXTRACTION_BEHAVIOUR_SHA256, MAX_CANDIDATES_PER_NOTICE, MAX_INTAKE_BYTES, MAX_INTAKE_NOTICES, MAX_INTAKE_QUERIES } from '../src/intake.js';
 import { ingestRecords } from '../src/product-sync.js';
 import { sha256Hex } from '../src/store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
@@ -65,8 +65,8 @@ async function rawSha(env: Env, id = 'cpsc-15034'): Promise<string> {
 }
 
 let counter = 0;
-async function submit(env: Env, token: string, notices: unknown[], idempotencyKey?: string, extractor: Record<string, unknown> = EXTRACTOR): Promise<Response> {
-  const body = JSON.stringify({ task: 'cpsc-product-identifiers@1', extractor, notices });
+async function submit(env: Env, token: string, notices: unknown[], idempotencyKey?: string, extractor: Record<string, unknown> = EXTRACTOR, task = 'cpsc-product-identifiers@1'): Promise<Response> {
+  const body = JSON.stringify({ task, extractor, notices });
   return call(env, '/v1/intake/product-recalls/identifiers', {
     method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', 'idempotency-key': idempotencyKey ?? (await sha256Hex(`${counter++}`)) },
@@ -649,5 +649,51 @@ describe('publication of extracted identifiers', () => {
     await ingestRecords(fresh.env, 'CPSC', [{ ...CPSC, Description: `${CPSC.Description} Updated.` }], 'full', '2026-09-29T00:00:00.000Z');
     notice = (await (await get(fresh.env, fresh.apiKey, '/v1/product-recalls/cpsc-15034')).json()) as { data: { extracted_identifiers: unknown[] } };
     expect(notice.data.extracted_identifiers).toEqual([]);
+  });
+});
+
+
+describe('Health Canada capture intake (synthetic contract fixture)', () => {
+  const task = 'health-canada-product-identifiers@1';
+  const hc = { NID: '12345', Organization: 'Consumer product safety', Title: 'Lamp recalled', Product: 'Item number AB-123. Lot 998877.', 'What you should do': 'Model PRIVATE123. Contact Jane.' };
+  const extractor = { ...EXTRACTOR, version: task + '/prompt-1', prompt_sha256: 'd'.repeat(64) };
+  async function setup() {
+    const env = makeEnv({ EXTRACTED_IDENTIFIERS_OPEN: '1' });
+    await ingestRecords(env, 'HC', [hc], 'full', NOW);
+    const { token } = await mint(env, 'health-canada-consumer-product-recalls');
+    const notices = [{ recall_id: 'hc-12345', raw_sha256: await rawSha(env, 'hc-12345'), candidates: [{ value: 'AB-123', field: 'Product', label: 'item' }] }];
+    return { env, token, notices };
+  }
+  it('checks native spans against R2, stores and replays evidence, and never borrows CPSC publication proof', async () => {
+    const { env, token, notices } = await setup();
+    const response = await submit(env, token, notices, await sha256Hex('hc-proof'), extractor, task);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ task, accepted: 1, published: false, publishable_build: false, results: [{ candidates: [{ status: 'accepted', source_field: 'Product', span: [12, 18] }] }] });
+    const row = await env.DB.prepare('SELECT source_field, span_start, span_end, rules_sha256 FROM product_recall_extracted_key').first();
+    expect(row).toMatchObject({ source_field: 'Product', span_start: 12, span_end: 18, rules_sha256: HC_EXTRACTION_BEHAVIOUR_SHA256 });
+    expect((await submit(env, token, notices, await sha256Hex('hc-proof'), extractor, task)).status).toBe(200);
+    const apiKey = await customerKey(env);
+    const read = await call(env, '/v1/product-recalls/hc-12345', { headers: { authorization: `Bearer ${apiKey}` } });
+    expect((await read.json() as { data: { extracted_identifiers: unknown[] } }).data.extracted_identifiers).toEqual([]);
+  });
+  it('refuses advice/contact evidence, lot codes, fabricated values and CPSC-shaped fields', async () => {
+    const { env, token, notices } = await setup();
+    notices[0]!.candidates = [{ value: 'PRIVATE123', field: 'What you should do', label: 'model' }, { value: '998877', field: 'Product', label: 'model' }, { value: 'FAKE123', field: 'Product', label: 'item' }, { value: 'AB-123', field: 'Description', label: 'item' }];
+    const response = await submit(env, token, notices, undefined, extractor, task);
+    expect(await response.json()).toMatchObject({ accepted: 0, rejected: 4 });
+  });
+  it('keeps credential source, task, extractor and current source bytes independent gates', async () => {
+    const { env, token, notices } = await setup();
+    const cpsc = await mint(env);
+    expect(await (await submit(env, cpsc.token, notices, undefined, extractor, task)).json()).toMatchObject({ accepted: 0, results: [{ status: 'source_not_allowed' }] });
+    expect(await (await submit(env, token, notices)).json()).toMatchObject({ accepted: 0, results: [{ status: 'source_not_allowed' }] });
+    expect((await submit(env, token, notices, undefined, EXTRACTOR, task)).status).toBe(400);
+    const stale = [{ ...notices[0]!, raw_sha256: 'f'.repeat(64) }];
+    expect(await (await submit(env, token, stale, undefined, extractor, task)).json()).toMatchObject({ accepted: 0, results: [{ status: 'stale_source' }] });
+  });
+  it('preserves the source withdrawal hold without reserving an upload', async () => {
+    const { env, token, notices } = await setup();
+    expect((await submit({ ...env, INTAKE_WITHDRAWN_SOURCES: 'health-canada-consumer-product-recalls' }, token, notices, undefined, extractor, task)).status).toBe(503);
+    expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM extraction_submission').first()).toEqual({ n: 0 });
   });
 });

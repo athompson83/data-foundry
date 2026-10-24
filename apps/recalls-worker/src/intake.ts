@@ -20,7 +20,7 @@
  * is "1" (the quality gate), labelled as extracted, and every one can be withdrawn by extractor version.
  */
 
-import { decideIdentifierInRecord, IDENTIFIER_TASK, type StructuredProductRecall } from '@data-foundry/product-recall-structuring';
+import { decideIdentifierInRecord, decideHcIdentifierInRecord, IDENTIFIER_TASK, HC_IDENTIFIER_TASK, type StructuredProductRecall } from '@data-foundry/product-recall-structuring';
 
 import type { D1Database, Env, R2Bucket } from './env.js';
 import { BadRequest } from './api.js';
@@ -29,8 +29,9 @@ import { sha256Hex } from './store.js';
 
 export const INGEST_TOKEN_PREFIX = 'dfi_';
 /** Sources the intake knows, with the notice-id prefix their records carry. Rights: the source's rights record. */
-export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string; readonly rightsRecord: string }>> = {
-  'cpsc-recalls': { idPrefix: 'cpsc-', rightsRecord: 'docs/sources/cpsc-recalls-rights-record-20260927.md' },
+export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string; readonly rightsRecord: string; readonly task: string }>> = {
+  'cpsc-recalls': { idPrefix: 'cpsc-', rightsRecord: 'docs/sources/cpsc-recalls-rights-record-20260927.md', task: IDENTIFIER_TASK },
+  'health-canada-consumer-product-recalls': { idPrefix: 'hc-', rightsRecord: 'docs/sources/health-canada-consumer-product-recalls-rights-record-20260927.md', task: HC_IDENTIFIER_TASK },
 };
 /**
  * Extractor builds whose accepted candidates may be served (ADR-0017): each passed the pre-registered bar in
@@ -44,7 +45,9 @@ export const INTAKE_SOURCES: Readonly<Record<string, { readonly idPrefix: string
  * (tooling/scripts/extraction-behaviour.ts). Recorded on every accepted row as rules_sha256; CI fails when those files change until
  * the benchmark is re-run and this constant and the entry below are updated.
  */
-export const EXTRACTION_BEHAVIOUR_SHA256 = '6b6ead48260d5e746be33e68887bed5a20cbb6b1322eb982e48b3cf9d84070e7';
+export const EXTRACTION_BEHAVIOUR_SHA256 = 'bca61e030f3af913940c0c7d1edb14de33463ec9b9708d0791f1927fb450bf8c';
+/** HC is evidence-only until a separate held-out benchmark admits an exact build. */
+export const HC_EXTRACTION_BEHAVIOUR_SHA256 = '474ea2ab1fe4b038a552aa6ddba41410159d08eb457f3461b878a2288218ef3a';
 
 export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; readonly model: string; readonly modelDigest: string; readonly promptSha256: string; readonly generation: string; readonly behaviourSha256: string; readonly runtime: string; readonly benchmark: string }> = [
   {
@@ -56,7 +59,7 @@ export const PUBLISHABLE_EXTRACTORS: ReadonlyArray<{ readonly version: string; r
     // The generation settings the benchmark ran with (run_benchmark.py defaults), as the collector reports them.
     generation: '{"num_ctx":8192,"think":false}',
     // The acceptance rules re-scored from the stored predictions (run_benchmark.py --score-only): identical report.
-    behaviourSha256: '6b6ead48260d5e746be33e68887bed5a20cbb6b1322eb982e48b3cf9d84070e7',
+    behaviourSha256: 'bca61e030f3af913940c0c7d1edb14de33463ec9b9708d0791f1927fb450bf8c',
     // The inference runtime the benchmark ran on (RESULTS.md, "ollama"): another release is another build.
     runtime: 'ollama/0.34.4',
     benchmark: 'apps/local-collector/benchmark/RESULTS.md (held-out precision 38/38, 0/18 negative false positives)',
@@ -207,15 +210,16 @@ function canonicalGeneration(value: unknown): string | null {
 
 const str = (value: unknown, pattern: RegExp): value is string => typeof value === 'string' && pattern.test(value);
 
-function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[] } {
+function parseBody(body: unknown): { task: string; extractor: Extractor; notices: NoticeInput[] } {
   if (!body || typeof body !== 'object') throw new BadRequest('body must be a JSON object');
   const { task, extractor, notices } = body as Record<string, unknown>;
-  if (task !== IDENTIFIER_TASK) throw new BadRequest(`task must be ${IDENTIFIER_TASK}`);
+  if (task !== IDENTIFIER_TASK && task !== HC_IDENTIFIER_TASK) throw new BadRequest(`task must be ${IDENTIFIER_TASK} or ${HC_IDENTIFIER_TASK}`);
   const e = extractor as Record<string, unknown> | undefined;
   if (!e || !str(e['version'], /^[\w.@/:+-]{3,100}$/) || !str(e['model'], /^[\w.:/-]{2,100}$/) || !str(e['model_digest'], /^(?:sha256:)?[0-9a-f]{12,64}$/) || !str(e['prompt_sha256'], /^[0-9a-f]{64}$/) || !str(e['behaviour_sha256'], /^[0-9a-f]{64}$/) || !str(e['runtime'], /^ollama\/\d+\.\d+\.\d+[\w.+-]{0,40}$/)) {
     throw new BadRequest('extractor must have version, model, model_digest, prompt_sha256, behaviour_sha256 and runtime (ollama/<version>)');
   }
   const generation = canonicalGeneration(e['generation']);
+  if (task === HC_IDENTIFIER_TASK && !(e['version'] as string).startsWith(`${HC_IDENTIFIER_TASK}/`)) throw new BadRequest('Health Canada requires its own extractor version');
   if (generation === null) throw new BadRequest('extractor.generation must give num_ctx (an integer) and think (a boolean or low|medium|high)');
   if (/cloud/i.test(e['model'] as string)) throw new BadRequest('cloud models are not accepted');
   if (!Array.isArray(notices) || notices.length === 0 || notices.length > MAX_INTAKE_NOTICES) throw new BadRequest(`notices must be an array of 1–${MAX_INTAKE_NOTICES}`);
@@ -233,7 +237,7 @@ function parseBody(body: unknown): { extractor: Extractor; notices: NoticeInput[
     });
     return { recall_id: n['recall_id'] as string, raw_sha256: n['raw_sha256'] as string, candidates };
   });
-  return { extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation, behaviour_sha256: e['behaviour_sha256'] as string, runtime: e['runtime'] as string }, notices: parsed };
+  return { task, extractor: { version: e['version'] as string, model: e['model'] as string, model_digest: e['model_digest'] as string, prompt_sha256: e['prompt_sha256'] as string, generation, behaviour_sha256: e['behaviour_sha256'] as string, runtime: e['runtime'] as string }, notices: parsed };
 }
 
 type CandidateStatus = 'accepted' | 'replayed' | 'duplicate_of_agency_fact' | 'rejected';
@@ -261,25 +265,26 @@ function sourceOf(recallId: string): string | null {
   return Object.entries(INTAKE_SOURCES).find(([, source]) => recallId.startsWith(source.idPrefix))?.[0] ?? null;
 }
 
-async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput, credential: IngestCredential, extractor: Extractor, withdrawn: Set<string>, now: string, owner: Reservation): Promise<NoticeResult> {
+async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput, credential: IngestCredential, extractor: Extractor, withdrawn: Set<string>, now: string, owner: Reservation, task: string): Promise<NoticeResult> {
   const reject = (status: NoticeResult['status'], reason: string): NoticeResult => ({
     recall_id: notice.recall_id,
     status,
     candidates: notice.candidates.map((candidate) => ({ value: candidate.value, field: candidate.field, status: 'rejected', reason })),
   });
   const source = sourceOf(notice.recall_id);
-  if (!source || !credential.sources.includes(source) || withdrawn.has(source) || !PRODUCT_ID.test(notice.recall_id)) return reject('source_not_allowed', 'source_not_allowed');
+  if (!source || INTAKE_SOURCES[source]?.task !== task || !credential.sources.includes(source) || withdrawn.has(source) || !PRODUCT_ID.test(notice.recall_id)) return reject('source_not_allowed', 'source_not_allowed');
   const row = await db.prepare('SELECT id, raw_ref, raw_sha256, structured FROM product_recall WHERE id = ?').bind(notice.recall_id).first<{ id: string; raw_ref: string; raw_sha256: string; structured: string }>();
   if (!row) return reject('unknown_notice', 'unknown_notice');
   // The candidate must have been extracted from exactly the bytes the dataset holds now.
   if (row.raw_sha256 !== notice.raw_sha256) return reject('stale_source', 'stale_source');
   const raw = await loadRawRecord(bucket, row);
+  if (task === HC_IDENTIFIER_TASK && (!raw || typeof raw !== 'object' || (raw as Record<string, unknown>)['Organization'] !== 'Consumer product safety' || notice.recall_id !== `hc-${(raw as Record<string, unknown>)['NID']}`)) return reject('source_not_allowed', 'source_not_allowed');
   const agencyKeys = new Set((JSON.parse(row.structured) as StructuredProductRecall).identifiers.model_keys);
   const results: CandidateResult[] = [];
   const seen = new Set<string>();
   for (const candidate of notice.candidates) {
     // The field claim is a hint; the server finds where the value is printed in the stored record.
-    const decision = decideIdentifierInRecord(raw, candidate.value, candidate.field);
+    const decision = task === HC_IDENTIFIER_TASK ? decideHcIdentifierInRecord(raw, candidate.value, candidate.field) : decideIdentifierInRecord(raw, candidate.value, candidate.field);
     if (!decision.ok) {
       results.push({ value: candidate.value, field: candidate.field, status: 'rejected', reason: decision.reason });
       continue;
@@ -308,7 +313,7 @@ async function checkNotice(db: D1Database, bucket: R2Bucket, notice: NoticeInput
           LEFT JOIN extractor_withdrawal w ON w.extractor_version = ? AND w.recall_id = ''
           LEFT JOIN extractor_withdrawal n ON n.extractor_version = ? AND n.recall_id = ?
         WHERE EXISTS (SELECT 1 FROM extraction_submission WHERE id = ? AND lease = ? AND response IS NULL) ON CONFLICT DO NOTHING RETURNING recall_id`)
-      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.runtime, extractor.behaviour_sha256, EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, now, extractor.version, extractor.version, row.id, owner.id, owner.lease)
+      .bind(row.id, row.raw_sha256, extractor.version, decision.key, candidate.value, decision.label, decision.field, decision.start, decision.end, extractor.model, extractor.model_digest, extractor.prompt_sha256, extractor.generation, extractor.runtime, extractor.behaviour_sha256, task === HC_IDENTIFIER_TASK ? HC_EXTRACTION_BEHAVIOUR_SHA256 : EXTRACTION_BEHAVIOUR_SHA256, credential.id, owner.id, now, now, extractor.version, extractor.version, row.id, owner.id, owner.lease)
       .first<{ recall_id: string }>();
     if (!inserted) await assertOwner(db, owner, false);
     results.push({ ...base, status: inserted ? 'accepted' : 'replayed' });
@@ -466,7 +471,7 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   } catch {
     throw new BadRequest('body is not valid JSON');
   }
-  const { extractor, notices } = parseBody(body);
+  const { task, extractor, notices } = parseBody(body);
   const withdrawn = withdrawnSources(env);
   // A withdrawn source is a temporary operator hold, not a verdict on the candidates: refuse the whole request as
   // retryable (like the dataset kill switch), before anything is written, so the collector keeps the upload queued
@@ -477,7 +482,7 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
   const results: NoticeResult[] = [];
   for (const notice of notices) {
     await assertOwner(env.DB, owner, true);
-    results.push(await checkNotice(env.DB, env.RAW_ARTIFACTS, notice, credential, extractor, withdrawn, now, owner));
+    results.push(await checkNotice(env.DB, env.RAW_ARTIFACTS, notice, credential, extractor, withdrawn, now, owner, task));
   }
   const all = results.flatMap((result) => result.candidates);
   const count = (status: CandidateStatus) => all.filter((candidate) => candidate.status === status).length;
@@ -488,7 +493,7 @@ async function processSubmission(env: Env, credential: IngestCredential, text: s
     ? []
     : (await env.DB.prepare(`SELECT recall_id FROM extractor_withdrawal WHERE extractor_version = ? AND recall_id IN (${checked.map(() => '?').join(', ')}) ORDER BY recall_id`).bind(extractor.version, ...checked).all<{ recall_id: string }>()).results.map((row) => row.recall_id);
   const response = {
-    task: IDENTIFIER_TASK,
+    task,
     extractor_version: extractor.version,
     accepted: count('accepted'),
     replayed: count('replayed'),

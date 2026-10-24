@@ -33,6 +33,15 @@ const OUT = 'apps/local-collector/policy/sources.json';
 /** Collector tasks. Adding one is a reviewed code change; its permission still comes from the registry. */
 const COLLECTOR_TASKS = [
   {
+    task: 'health-canada-product-identifiers@1',
+    source: 'health-canada-consumer-product-recalls',
+    rights_record: 'docs/sources/health-canada-consumer-product-recalls-rights-record-20260927.md',
+    input: { kind: 'dataforge-api', path: '/v1/product-recalls', params: { agency: 'HC' } },
+    allowed_hosts: ['api.data.aroqon.com'],
+    intake_path: '/v1/intake/product-recalls/identifiers',
+    min_interval_s: 2,
+  },
+  {
     task: 'cpsc-product-identifiers@1',
     source: 'cpsc-recalls',
     rights_record: 'docs/sources/cpsc-recalls-rights-record-20260927.md',
