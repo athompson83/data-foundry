@@ -8307,7 +8307,7 @@ candidates:
       - 'Some CDC pages mix public domain and copyright-protected material; exclude images.'
       - 'The newsroom feed is not a complete list of notices: it carries 141 outbreak-titled items, the most recent from 2026-09-22; the foodborne notice pages themselves are not enumerated by this feed.'
     evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/foodborne-outbreaks/measure.json ]
-    next_action: 'Measured 2026-10-24: 1,844 items, 2006-04-20 to 2026-09-22, each with title, description, date and a link; 141 titles name an outbreak. 8 of the 16 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within -10 to +60 days. Find the CDC notice index (the foodborne-outbreaks pages are script-rendered and the active-investigations URL answered 404) to capture the full notice text.'
+    next_action: 'Measured 2026-10-24: 1,844 items, 2006-04-20 to 2026-09-22, each with title, description, date and a link; 141 titles name an outbreak. 9 of the 16 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within -10 to +60 days. Find the CDC notice index (the foodborne-outbreaks pages are script-rendered and the active-investigations URL answered 404) to capture the full notice text.'
 
   - key: central-bank-fed-fomc-statements
     name: Federal Reserve FOMC monetary policy statements (press releases, 2024 to date)
@@ -10906,9 +10906,9 @@ datasets:
         between:
           - foodborne-fda-core-investigations
           - foodborne-cdc-outbreak-notices
-        measured: '8/16 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within the window; all 8 agree on pathogen and product on hand check (alfalfa sprouts, jalapeno, iceberg lettuce, frozen blueberries, requeson cheese, moringa x3). The 9 without a match are mostly absent from the newsroom feed, which is not a full notice list (evidence/2026-10-24/foodborne-outbreaks/handcheck.json)'
+        measured: '9/16 named-product FDA rows since 2026 have a CDC item naming the same pathogen genus and product within the window; all 9 agree on pathogen and product on hand check (alfalfa sprouts, jalapeno, iceberg lettuce, frozen blueberries, infant formula botulism, requeson cheese, moringa x3). The 9 without a match are mostly absent from the newsroom feed, which is not a full notice list (evidence/2026-10-24/foodborne-outbreaks/handcheck.json)'
         mode: candidate
-        reviewed: { correct: 8, checked: 8 }
+        reviewed: { correct: 9, checked: 9 }
     taxonomy:
       - 'pathogen: Salmonella serotype, Listeria, E. coli STEC type, Cyclospora, Clostridium botulinum'
       - 'vehicle: product category, or not yet identified'

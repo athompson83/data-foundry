@@ -16,7 +16,7 @@ for i in re.findall(r'<item>(.*?)</item>',x,re.S):
     t=re.sub(r'<[^>]+>','',html.unescape(re.search(r'<title>(.*?)</title>',i,re.S).group(1))); d=re.search(r'<pubDate>(.*?)</pubDate>',i)
     if d: items.append((dt.datetime.strptime(d.group(1)[5:16],'%d %b %Y'),t))
 outb=[(d,t) for d,t in items if re.search(r'outbreak|salmonella|listeria|coli|cyclospora|botulism',t,re.I)]
-GENUS={'salmonella':'salmonella','listeria':'listeria','e. coli':'coli','cyclospora':'cyclospora','botulism':'botulism|botulinum'}
+GENUS={'salmonella':'salmonella','listeria':'listeria','e. coli':'coli','cyclospora':'cyclospora','botulism':'botulism|botulinum','botulinum':'botulism|botulinum'}
 def genus(p):
     for k,v in GENUS.items():
         if k in p.lower(): return v
