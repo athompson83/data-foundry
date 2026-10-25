@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-24
+updated: 2026-10-25
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -8421,6 +8421,179 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-24.md ]
     next_action: 'Parked 2026-10-24: the USITC investigations page and its API path answered HTTP 403 (Akamai access denied) and the CBSA SIMA menu paths answered 404; the ITA statistics file is a 612 KB PDF. Reopen when a route that returns the case lists (731-TA and 701-TA numbers, A-570 and C-570 case numbers cited in Federal Register notices) is found; the Federal Register API is already open.'
 
+  - key: occupation-onet-database
+    name: O*NET-SOC occupation database (tasks, skills, knowledge, work activities and descriptions for 1,016 occupations)
+    category: labor-market
+    structuring: normalization
+    format: structured
+    publisher: US Department of Labor, O*NET Resource Center
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.onetcenter.org/dl_files/database/db_29_3_text/Occupation%20Data.txt', 'https://www.onetcenter.org/license_db.html' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.onetcenter.org/license_db.html
+        quote: 'Except as noted below, the content of the O*NET 31.0 Database is licensed under a Creative Commons Attribution 4.0 International License'
+    conditions:
+      - 'CC BY 4.0: attribute O*NET, state that the data were modified, and do not imply Department of Labor endorsement; the licence page lists exceptions ("Except as noted below") that must be read before RIGHTS_DETERMINED.'
+      - 'The measured download is db_29_3; the licence page names release 31.0, so pin and record the release before archiving.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/occupations/measure.json ]
+    next_action: 'Measured 2026-10-25: Occupation Data.txt lists 1,016 O*NET-SOC codes with a description each. Read the licence exceptions, add the current release zip to tooling/snapshots/plans.json once the rights record exists, and archive it in R2.'
+
+  - key: occupation-bls-ooh-profiles
+    name: BLS Occupational Outlook Handbook occupation profiles (duties, pay, outlook and training text, 344 index pages)
+    category: labor-market
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Bureau of Labor Statistics
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.bls.gov/ooh/a-z-index.htm' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.bls.gov/opub/copyright-information.htm
+        quote: 'everything that we publish, both in hard copy and electronically, is in the public domain, except for previously copyrighted photographs and illustrations'
+    conditions:
+      - 'Exclude photographs and illustrations; cite the Bureau of Labor Statistics.'
+      - 'www.bls.gov answers Access Denied (including robots.txt) to the default curl User-Agent and serves pages to the declared scout User-Agent; keep the declared agent and one request a second, and read robots.txt with it before archiving.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/occupations/measure.json ]
+    next_action: 'Measured 2026-10-25: the A-Z index links 344 profile pages; 58 of 60 sampled pages cite O*NET-SOC codes (109 codes, all present in the O*NET database). Read robots.txt with the declared agent, write the rights record, and archive the 344 pages in R2.'
+
+  - key: scholarly-arxiv-preprints
+    name: arXiv preprint metadata (title, abstract, categories, authors and journal DOI where the author gave one)
+    category: scholarly
+    structuring: identifier-extraction
+    format: free-text
+    publisher: arXiv (Cornell University)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://export.arxiv.org/api/query', 'https://info.arxiv.org/help/license/index.html' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://info.arxiv.org/help/license/index.html
+        quote: 'A Creative Commons CC0 1.0 Universal Public Domain Dedication will apply to all metadata.'
+    conditions:
+      - 'Metadata only: article PDFs and source belong to their authors or publishers under per-paper licences and are not redistributed.'
+      - 'Follow the arXiv API terms of use (one request every three seconds, one connection); use the bulk metadata route for history rather than the query API.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/scholarly/measure.json ]
+    next_action: 'Measured 2026-10-25: the Atom API returned 300 recent entries (mean abstract 1,445 characters); 23 carry a journal DOI. Read the API terms of use, then plan a bulk metadata snapshot for R2.'
+
+  - key: scholarly-crossref-works
+    name: Crossref works metadata (DOI, title, publisher, type, licence, funding, references and abstracts where deposited)
+    category: scholarly
+    structuring: normalization
+    format: structured
+    publisher: Crossref
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.crossref.org/works' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'The metadata terms page was not quoted this round (the documentation page read has no licence sentence); quote Crossref''s statement on reuse of bibliographic metadata before RIGHTS_DETERMINED.'
+      - 'Send a mailto in every request (polite pool); 188,005,708 works are listed, so use the periodic public data file, not the query API, for the full history.'
+      - 'Abstracts are deposited by publishers: 13 of 23 sampled works carry one, and an abstract is publisher text, so it is a field to clear separately.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/scholarly/measure.json ]
+    next_action: 'Measured 2026-10-25: all 23 DOIs declared by arXiv resolve in Crossref and 22 agree on title. Quote the reuse statement and the abstract policy, then plan the public data file for R2.'
+
+  - key: drug-labeling-dailymed
+    name: DailyMed structured product labeling (SPL) index and documents, one set id per drug label
+    category: pharmaceuticals
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US National Library of Medicine (DailyMed)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    conditions:
+      - 'The NLM web-services page read has no reuse statement; quote the DailyMed and NLM terms, and treat label text from manufacturers as FDA-regulated content that may carry third-party material, before RIGHTS_DETERMINED.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/drug-labels/measure.json ]
+    next_action: 'Measured 2026-10-25: the index lists 158,907 labels. 127 of 200 sampled set ids are in openFDA; openFDA lags DailyMed (only 1 of 127 has the same SPL version). Read the NLM terms, then plan the SPL bulk download for R2.'
+
+  - key: drug-labeling-openfda
+    name: openFDA drug label endpoint (label sections with RxCUI, NDC and set id cross-references)
+    category: pharmaceuticals
+    structuring: normalization
+    format: structured
+    publisher: US Food and Drug Administration (openFDA)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.fda.gov/drug/label.json', 'https://open.fda.gov/terms/' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    conditions:
+      - 'Works marked "This data is not in the public domain. Third party copy rights may apply." are excluded.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/drug-labels/measure.json ]
+    next_action: 'Measured 2026-10-25: 125 of the 127 matched set ids carry indications text. Use the openFDA download files (not the query API) for the full snapshot and archive them in R2.'
+
+  - key: gene-clingen-validity
+    name: ClinGen gene-disease validity curations (3,714 curations across 3,065 genes, with MONDO disease and classification)
+    category: genomics
+    structuring: normalization
+    format: structured
+    publisher: ClinGen (Clinical Genome Resource)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://search.clinicalgenome.org/kb/gene-validity/download', 'https://clinicalgenome.org/docs/terms-of-use/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://clinicalgenome.org/docs/terms-of-use/
+        quote: 'All curated content published by ClinGen is available free of restriction'
+    conditions:
+      - 'The terms page also carries use cautions for clinical decisions; keep the classification, curation date and report URL with every record and state that the data are not clinical advice.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/gene-disease/measure.json ]
+    next_action: 'Measured 2026-10-25: the CSV download holds 3,714 curations over 3,065 HGNC genes. Archive the CSV daily in R2 and write the rights record.'
+
+  - key: gene-uniprot-swissprot
+    name: UniProtKB/Swiss-Prot reviewed human proteins (function, disease and variant comments with HGNC cross-references)
+    category: genomics
+    structuring: identifier-extraction
+    format: free-text
+    publisher: UniProt Consortium (EMBL-EBI, SIB, PIR)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://rest.uniprot.org/uniprotkb/search' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    conditions:
+      - 'The UniProt licence page is a script shell from this egress, so no licence sentence was quoted; quote the licence (expected CC BY 4.0) before RIGHTS_DETERMINED and attribute UniProt.'
+      - 'Comment text cites PubMed articles; keep the citations with the comment.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/gene-disease/measure.json ]
+    next_action: 'Measured 2026-10-25: for 60 sampled ClinGen genes, each HGNC id found one reviewed human UniProt entry whose HGNC cross-reference and gene symbol agree, all with function and disease comments. Quote the licence, then use the UniProt release files for the R2 snapshot.'
+
+  - key: software-pypi-metadata
+    name: PyPI project metadata (summary, description, licence, classifiers, requirements and release history)
+    category: software
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Python Software Foundation (PyPI)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pypi.org/pypi/{project}/json', 'https://pypi.org/rss/updates.xml' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'No PyPI data licence was quoted; each project sets its own licence, so publish the licence field and facts (names, versions, requirements, dates) and not README text unless that project''s licence permits redistribution.'
+      - 'Do not crawl project by project; use the public BigQuery or simple-index routes, whose terms still need quoting.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/packages/measure.json ]
+    next_action: 'Measured 2026-10-25: all 60 sampled recently updated projects answer the JSON API (60 carry a description over 200 characters, 58 a licence field). Find PyPI terms for metadata reuse, then plan the bulk route.'
+
+  - key: software-depsdev-packages
+    name: deps.dev (Open Source Insights) package versions, advisories and dependency graph
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: Google Open Source Insights
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.deps.dev/v3/systems/pypi/packages' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'The deps.dev data terms were not quoted this round; read the API documentation licence statement before RIGHTS_DETERMINED.'
+      - 'deps.dev lags PyPI: the newest PyPI version was present for 8 of 51 freshly released packages, so freshness is stated per record.'
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/packages/measure.json ]
+    next_action: 'Measured 2026-10-25: 51 of 60 sampled PyPI projects exist in deps.dev (the other 9 are brand new). Quote the data terms and plan the BigQuery public dataset or API snapshot.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -10982,3 +11155,143 @@ datasets:
     scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/book-works/measure.json, docs/sources/pipeline/evidence/2026-10-24/book-works/handcheck.json ]
     next_action: 'Quote the Open Library data licence, read the Project Gutenberg trademark licence for the text scope, archive the monthly Open Library dump and the Gutenberg catalog, and re-measure the declared-id agreement on the full dump.'
+
+  - key: occupation-profiles
+    name: Occupation profiles (O*NET-SOC descriptors and BLS Occupational Outlook Handbook outlook, pay and training)
+    category: labor-market
+    entity: occupation (one SOC occupation with tasks, skills, duties, pay, outlook and entry requirements)
+    stage: SCREENED
+    description: 'One record per O*NET-SOC occupation. O*NET supplies the structured descriptors (tasks, skills, knowledge, work activities); the BLS Handbook supplies the plain-language duties, pay, training and job outlook, and cites the O*NET-SOC codes it covers. The cited code links a profile to its O*NET occupations automatically; a profile covers one or several O*NET codes.'
+    sources:
+      - occupation-onet-database
+      - occupation-bls-ooh-profiles
+    join_keys:
+      - key: 'cited O*NET-SOC code (BLS Handbook page vs O*NET database)'
+        between:
+          - occupation-bls-ooh-profiles
+          - occupation-onet-database
+        measured: '109/109 O*NET-SOC codes cited on 58 of 60 sampled Handbook pages exist in the O*NET occupation list; the 2 pages without a code are not occupation profiles'
+        mode: declared
+    taxonomy:
+      - 'major group: SOC 2-digit group (healthcare, construction, computer and mathematical)'
+      - 'entry requirement: typical education, work experience, on-the-job training'
+      - 'outlook: projected growth rate band'
+    agent_questions:
+      - 'Which skills and tasks does this occupation involve, and what does it pay and require to enter?'
+      - 'Which occupations share the most work activities with this one?'
+      - 'Which occupations are projected to grow fastest and what is their typical entry education?'
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/occupations/measure.json ]
+    next_action: 'Archive both sources in R2 (the archive workflow runs from main after the scout PR merges), read the O*NET licence exceptions and BLS robots.txt, write rights records, then EVIDENCED.'
+
+  - key: scholarly-works
+    name: Scholarly works (arXiv preprints and Crossref publication records, linked by DOI)
+    category: scholarly
+    entity: scholarly work (one preprint or published article with abstract, authors, categories, venue, licence and funding)
+    stage: SCREENED
+    description: 'One record per work. arXiv supplies the abstract, categories and revision dates of the preprint; Crossref supplies the publisher, venue, licence, funding and reference list of the published version. A DOI that the arXiv entry declares links the preprint to its Crossref record automatically.'
+    sources:
+      - scholarly-arxiv-preprints
+      - scholarly-crossref-works
+    join_keys:
+      - key: 'arXiv DOI field resolving to a Crossref work (arXiv entry vs Crossref record)'
+        between:
+          - scholarly-arxiv-preprints
+          - scholarly-crossref-works
+        measured: '23/23 DOIs declared on 300 recent arXiv entries (23 of 300 carry one) resolve in Crossref; 22/23 agree on title (one differs in typography)'
+        mode: declared
+    taxonomy:
+      - 'field: arXiv category (astro-ph.CO, cs.LG, q-bio.NC and the rest)'
+      - 'status: preprint only, published with DOI'
+      - 'type: journal article, proceedings, book chapter'
+    agent_questions:
+      - 'Which preprints in this field have been published, in which venue and under what licence?'
+      - 'What does the abstract claim and which papers does the published version cite?'
+      - 'Which works did a given funder support?'
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/scholarly/measure.json ]
+    next_action: 'Only 7.7 percent of recent arXiv entries declare a DOI, so measure the share on a full-year archive before sizing the dataset. Quote the Crossref reuse statement, archive both sources in R2, and add a bulk route for history.'
+
+  - key: drug-product-labeling
+    name: Drug product labeling (NLM DailyMed labels and openFDA label sections, linked by SPL set id)
+    category: pharmaceuticals
+    entity: drug label (one SPL set id with its indications, warnings, dosage, contraindications and adverse reactions)
+    stage: SCREENED
+    description: 'One record per SPL set id. DailyMed supplies the current label document and its version; openFDA supplies the same label as parsed sections with RxCUI and NDC cross-references. A shared SPL set id links the two automatically, at the version each publisher holds; openFDA lags DailyMed, so the version is kept per source.'
+    sources:
+      - drug-labeling-dailymed
+      - drug-labeling-openfda
+    join_keys:
+      - key: 'SPL set id (DailyMed index vs openFDA SPL documents)'
+        between:
+          - drug-labeling-dailymed
+          - drug-labeling-openfda
+        measured: '127/200 newest DailyMed set ids are present in openFDA; only 1 of the 127 has the same SPL version, because openFDA is refreshed less often'
+        mode: declared
+    taxonomy:
+      - 'label section: indications, boxed warning, dosage, contraindications, adverse reactions'
+      - 'product type: human prescription, over the counter, biologic'
+      - 'identifier: NDC, RxCUI, set id'
+    agent_questions:
+      - 'What is the boxed warning for this drug and when did the label last change?'
+      - 'Which labels list this contraindication or interaction?'
+      - 'Which NDC codes does this set id cover?'
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/drug-labels/measure.json ]
+    next_action: 'Quote the NLM terms, archive the DailyMed bulk download and the openFDA label files in R2, and re-measure the set-id overlap on the full files.'
+
+  - key: gene-disease-evidence
+    name: Gene-disease evidence (ClinGen validity curations and UniProt function and disease annotations, linked by HGNC id)
+    category: genomics
+    entity: gene (one HGNC gene with its curated disease associations, classification strength and protein function text)
+    stage: SCREENED
+    description: 'One record per human gene. ClinGen supplies each gene-disease curation (MONDO disease, mode of inheritance, classification, date); UniProt supplies the reviewed protein entry with function and disease comments. The HGNC id on the ClinGen row equals the HGNC cross-reference on the UniProt entry, so the two link automatically.'
+    sources:
+      - gene-clingen-validity
+      - gene-uniprot-swissprot
+    join_keys:
+      - key: 'HGNC id (ClinGen curation vs UniProt cross-reference)'
+        between:
+          - gene-clingen-validity
+          - gene-uniprot-swissprot
+        measured: '60/60 sampled ClinGen genes (every 15th of 3,065) have one reviewed human UniProt entry whose HGNC cross-reference and gene symbol both agree; 60/60 carry function and disease comments'
+        mode: declared
+    taxonomy:
+      - 'classification: definitive, strong, moderate, limited, disputed, refuted'
+      - 'mode of inheritance: autosomal dominant, autosomal recessive, X-linked'
+      - 'disease: MONDO term'
+    agent_questions:
+      - 'Is the association between this gene and disease definitive, and when was it curated?'
+      - 'What does the protein do and which diseases does UniProt attach to it?'
+      - 'Which genes have a limited or disputed association with a given disease?'
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/gene-disease/measure.json ]
+    next_action: 'Quote the UniProt licence, archive the ClinGen CSV and UniProt release in R2, and measure the HGNC match over all 3,065 genes. State on every record that the data are not clinical advice.'
+
+  - key: software-package-metadata
+    name: Software package metadata (PyPI releases and deps.dev versions, linked by package URL)
+    category: software
+    entity: software package (one ecosystem package with its description, licence, versions, requirements and advisories)
+    stage: SCREENED
+    description: 'One record per package. PyPI supplies the description, licence field and release history; deps.dev supplies the version graph, dependencies and advisories. The package URL (pkg:pypi/name) is the exact key both use, so they link automatically; npm and other ecosystems are added as further members.'
+    sources:
+      - software-pypi-metadata
+      - software-depsdev-packages
+    join_keys:
+      - key: 'package URL pkg:pypi (PyPI project vs deps.dev package)'
+        between:
+          - software-pypi-metadata
+          - software-depsdev-packages
+        measured: '51/60 recently updated PyPI projects exist in deps.dev; the other 9 are new releases not yet ingested, and the newest PyPI version is present in deps.dev for only 8 of the 51'
+        mode: declared
+    taxonomy:
+      - 'ecosystem: PyPI, npm, Maven, Cargo, Go'
+      - 'licence: SPDX expression'
+      - 'maintenance: last release date and yanked status'
+    agent_questions:
+      - 'Which licence and dependencies does this package version declare?'
+      - 'Which packages depend on this one and carry an open advisory?'
+      - 'When was the last release and is the package still maintained?'
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/packages/measure.json ]
+    next_action: 'Resolve PyPI and deps.dev data terms (rights clarity is the weakest score), then plan the bulk routes and a second ecosystem.'

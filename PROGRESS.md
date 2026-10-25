@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-25: daily dataset scout (round 13)
+
+- **Health.** Both recall datasets synced 2026-10-25 (FDA 12:17-12:18Z, CPSC 12:18Z, HC 12:18Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-14), the CPSC Recall API (2026-10-22) and Health Canada (2026-10-22). No regression.
+- **Branch.** PR #88 was already current with `main` and CI green on its last commit. Closed a review finding: the FDA company-announcement link now accepts either enforcement date in the window and `handcheck.json` keeps the matched enforcement fields; re-run on the live feed gives 126/258 (was 105/254), all 12 hand-checked pairs still match. Regenerated `apps/local-collector/policy/sources.json`.
+- **Added at SCREENED (5):** `occupation-profiles` (O*NET + BLS Handbook, declared O*NET-SOC code 109/109), `scholarly-works` (arXiv + Crossref, declared DOI 23/23; only 23/300 recent arXiv entries declare one), `drug-product-labeling` (DailyMed + openFDA, SPL set id 127/200, versions differ), `gene-disease-evidence` (ClinGen + UniProt, HGNC id 60/60), `software-package-metadata` (PyPI + deps.dev, package URL 51/60). Screened and not added: `development-aid-projects` (no independent member), `nuclear-reactor-events` (both members NRC); ESCO 403 and OpenAlex 429 blocked two widening members.
+- **Widening.** No member added to either LIVE dataset: ACCC, USDA FSIS (403), NHTSA equipment (403), USCG (404) and PROFECO (404/403) were unreachable and UK OPSS is already registered. Recorded as a gap against the target.
+- **Stage advance / limits.** Only into SCREENED: `main` still lists only the already-archived ENERGY STAR plan, so there was nothing to dispatch and EVIDENCED waits on PR #88 merging; after that, dispatch the archive workflow for the federal-register and openFDA-device plans. Nothing deployed. Evidence: [research](docs/sources/pipeline/research-2026-10-25.md).
+
 ## Current session — 2026-10-24: daily dataset scout (round 12)
 
 - **Health.** Both recall datasets synced 2026-10-24 (FDA 12:17-12:18Z, CPSC 12:18Z, HC 06:18Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-14), the CPSC Recall API (2026-10-22) and Health Canada (2026-10-22); FDA totals remain 2, 2 and 1 rows behind openFDA. No regression.

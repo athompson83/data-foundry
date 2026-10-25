@@ -1,0 +1,550 @@
+{
+ "sampled": 60,
+ "on_pypi": 60,
+ "in_deps_dev": 51,
+ "latest_version_in_deps_dev": 8,
+ "with_description": 60,
+ "with_license_field": 58,
+ "rows": [
+  {
+   "name": "mark-sdk",
+   "pypi": true,
+   "description_chars": 28848,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 4,
+   "latest_agrees": false
+  },
+  {
+   "name": "medicafe",
+   "pypi": true,
+   "description_chars": 349,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 48,
+   "latest_agrees": false
+  },
+  {
+   "name": "chartremotely",
+   "pypi": true,
+   "description_chars": 13334,
+   "license": "Apache License\n                         ",
+   "deps_dev": true,
+   "deps_versions": 26,
+   "latest_agrees": false
+  },
+  {
+   "name": "unitx",
+   "pypi": true,
+   "description_chars": 8706,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 42,
+   "latest_agrees": true
+  },
+  {
+   "name": "seagoat",
+   "pypi": true,
+   "description_chars": 9598,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 180,
+   "latest_agrees": true
+  },
+  {
+   "name": "swm",
+   "pypi": true,
+   "description_chars": 216,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 19,
+   "latest_agrees": false
+  },
+  {
+   "name": "metrecept-mcp",
+   "pypi": true,
+   "description_chars": 4554,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": true
+  },
+  {
+   "name": "spectraccess",
+   "pypi": true,
+   "description_chars": 23781,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 11,
+   "latest_agrees": false
+  },
+  {
+   "name": "kestrel-pi",
+   "pypi": true,
+   "description_chars": 1299,
+   "license": "GPL-3.0-or-later",
+   "deps_dev": true,
+   "deps_versions": 7,
+   "latest_agrees": true
+  },
+  {
+   "name": "odoo-doctor",
+   "pypi": true,
+   "description_chars": 15754,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 22,
+   "latest_agrees": false
+  },
+  {
+   "name": "code-guardian-mcp",
+   "pypi": true,
+   "description_chars": 81292,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 6,
+   "latest_agrees": false
+  },
+  {
+   "name": "pjlink-advance",
+   "pypi": true,
+   "description_chars": 1748,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "portcheck-tool",
+   "pypi": true,
+   "description_chars": 1053,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": true
+  },
+  {
+   "name": "tenko-plugin-persona-chat",
+   "pypi": true,
+   "description_chars": 7805,
+   "license": "GPL-3.0-only",
+   "deps_dev": true,
+   "deps_versions": 29,
+   "latest_agrees": true
+  },
+  {
+   "name": "mindroom",
+   "pypi": true,
+   "description_chars": 35490,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 2214,
+   "latest_agrees": false
+  },
+  {
+   "name": "generalmanager",
+   "pypi": true,
+   "description_chars": 7262,
+   "license": "MIT License  Copyright (c) 2025 Tim Klei",
+   "deps_dev": true,
+   "deps_versions": 249,
+   "latest_agrees": false
+  },
+  {
+   "name": "rishe",
+   "pypi": true,
+   "description_chars": 17731,
+   "license": "MIT OR Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 5,
+   "latest_agrees": false
+  },
+  {
+   "name": "aiohh",
+   "pypi": true,
+   "description_chars": 3911,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "orq-ai-sdk",
+   "pypi": true,
+   "description_chars": 100580,
+   "license": "",
+   "deps_dev": true,
+   "deps_versions": 1716,
+   "latest_agrees": true
+  },
+  {
+   "name": "nonebot-plugin-kuwo",
+   "pypi": true,
+   "description_chars": 8061,
+   "license": "AGPL-3.0-only",
+   "deps_dev": true,
+   "deps_versions": 11,
+   "latest_agrees": false
+  },
+  {
+   "name": "pyodr",
+   "pypi": true,
+   "description_chars": 1475,
+   "license": "Mozilla Public License Version 2.0\n     ",
+   "deps_dev": true,
+   "deps_versions": 35,
+   "latest_agrees": true
+  },
+  {
+   "name": "copyofa",
+   "pypi": true,
+   "description_chars": 4458,
+   "license": "Apache-2.0",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "misp-modules",
+   "pypi": true,
+   "description_chars": 38060,
+   "license": "AGPL-3.0-only",
+   "deps_dev": true,
+   "deps_versions": 20,
+   "latest_agrees": false
+  },
+  {
+   "name": "nexura-runtime",
+   "pypi": true,
+   "description_chars": 16542,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "nexura-guardrails",
+   "pypi": true,
+   "description_chars": 2947,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "nexura-vertex",
+   "pypi": true,
+   "description_chars": 2369,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "nexura-agents",
+   "pypi": true,
+   "description_chars": 6078,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "helios-broadcast",
+   "pypi": true,
+   "description_chars": 10046,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": false
+  },
+  {
+   "name": "clew-trace",
+   "pypi": true,
+   "description_chars": 24355,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 30,
+   "latest_agrees": false
+  },
+  {
+   "name": "kaeris-mcp",
+   "pypi": true,
+   "description_chars": 4841,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 14,
+   "latest_agrees": false
+  },
+  {
+   "name": "tempmail3",
+   "pypi": true,
+   "description_chars": 1550,
+   "license": "MIT",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "kaeris",
+   "pypi": true,
+   "description_chars": 18680,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 27,
+   "latest_agrees": false
+  },
+  {
+   "name": "pytest-casebook",
+   "pypi": true,
+   "description_chars": 57611,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 8,
+   "latest_agrees": false
+  },
+  {
+   "name": "aioamazondevices",
+   "pypi": true,
+   "description_chars": 8399,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 216,
+   "latest_agrees": false
+  },
+  {
+   "name": "pixtreme-infer-span",
+   "pypi": true,
+   "description_chars": 6695,
+   "license": "MIT AND Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": false
+  },
+  {
+   "name": "quickhouse",
+   "pypi": true,
+   "description_chars": 27931,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 43,
+   "latest_agrees": false
+  },
+  {
+   "name": "mcptoon",
+   "pypi": true,
+   "description_chars": 48913,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 66,
+   "latest_agrees": false
+  },
+  {
+   "name": "dostuff",
+   "pypi": true,
+   "description_chars": 31675,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 7,
+   "latest_agrees": false
+  },
+  {
+   "name": "mcp-trove-crunchtools",
+   "pypi": true,
+   "description_chars": 8784,
+   "license": "AGPL-3.0-or-later",
+   "deps_dev": true,
+   "deps_versions": 18,
+   "latest_agrees": false
+  },
+  {
+   "name": "ica-mcp",
+   "pypi": true,
+   "description_chars": 8808,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": false
+  },
+  {
+   "name": "dave-py",
+   "pypi": true,
+   "description_chars": 2178,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 7,
+   "latest_agrees": false
+  },
+  {
+   "name": "autoware-carla-scenario",
+   "pypi": true,
+   "description_chars": 5024,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 265,
+   "latest_agrees": false
+  },
+  {
+   "name": "quantar",
+   "pypi": true,
+   "description_chars": 5030,
+   "license": "Apache License\n                         ",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": false
+  },
+  {
+   "name": "exomem",
+   "pypi": true,
+   "description_chars": 28909,
+   "license": "AGPL-3.0-or-later",
+   "deps_dev": true,
+   "deps_versions": 233,
+   "latest_agrees": false
+  },
+  {
+   "name": "jinja-typed-template",
+   "pypi": true,
+   "description_chars": 3846,
+   "license": "MIT License  Copyright (c) 2026 mkrd  Pe",
+   "deps_dev": true,
+   "deps_versions": 8,
+   "latest_agrees": false
+  },
+  {
+   "name": "python-redsys",
+   "pypi": true,
+   "description_chars": 9485,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 12,
+   "latest_agrees": false
+  },
+  {
+   "name": "stkit",
+   "pypi": true,
+   "description_chars": 5220,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 3,
+   "latest_agrees": false
+  },
+  {
+   "name": "qgis-manage",
+   "pypi": true,
+   "description_chars": 10105,
+   "license": "GPL-2.0-or-later",
+   "deps_dev": true,
+   "deps_versions": 12,
+   "latest_agrees": false
+  },
+  {
+   "name": "sdc-mapper",
+   "pypi": true,
+   "description_chars": 4149,
+   "license": "Apache-2.0",
+   "deps_dev": false,
+   "deps_versions": 0,
+   "latest_agrees": false
+  },
+  {
+   "name": "mirrordash",
+   "pypi": true,
+   "description_chars": 5519,
+   "license": "# MirrorDash License\n        \n        Re",
+   "deps_dev": true,
+   "deps_versions": 31,
+   "latest_agrees": false
+  },
+  {
+   "name": "onlyworlds",
+   "pypi": true,
+   "description_chars": 38778,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 79,
+   "latest_agrees": false
+  },
+  {
+   "name": "trampoline-delta",
+   "pypi": true,
+   "description_chars": 20459,
+   "license": "",
+   "deps_dev": true,
+   "deps_versions": 193,
+   "latest_agrees": false
+  },
+  {
+   "name": "veloceframework",
+   "pypi": true,
+   "description_chars": 8000,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 26,
+   "latest_agrees": false
+  },
+  {
+   "name": "boomerang-protos",
+   "pypi": true,
+   "description_chars": 230,
+   "license": "Proprietary",
+   "deps_dev": true,
+   "deps_versions": 366,
+   "latest_agrees": false
+  },
+  {
+   "name": "dbt-hodor",
+   "pypi": true,
+   "description_chars": 11919,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 2,
+   "latest_agrees": false
+  },
+  {
+   "name": "slicersim",
+   "pypi": true,
+   "description_chars": 9922,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 6,
+   "latest_agrees": false
+  },
+  {
+   "name": "daphnis",
+   "pypi": true,
+   "description_chars": 2807,
+   "license": "MIT",
+   "deps_dev": true,
+   "deps_versions": 1,
+   "latest_agrees": false
+  },
+  {
+   "name": "phyelds-vmas",
+   "pypi": true,
+   "description_chars": 673,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 40,
+   "latest_agrees": false
+  },
+  {
+   "name": "phyelds-argos",
+   "pypi": true,
+   "description_chars": 3760,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 1,
+   "latest_agrees": false
+  },
+  {
+   "name": "phyelds-webots",
+   "pypi": true,
+   "description_chars": 1274,
+   "license": "Apache-2.0",
+   "deps_dev": true,
+   "deps_versions": 17,
+   "latest_agrees": false
+  }
+ ]
+}

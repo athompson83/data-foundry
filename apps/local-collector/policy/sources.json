@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "a426d52ae62d872fd52bebdd1d43f24bdbca337e096789008c1d7763af0c67ea",
+  "registry_sha256": "27047b2c86b3cf0b026acde81112effcf701e4d47b5ea89d16ec9603c0577761",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -539,6 +539,46 @@
       "sources": [
         "book-works-project-gutenberg-catalog",
         "book-works-open-library"
+      ]
+    },
+    "occupation-profiles": {
+      "name": "Occupation profiles (O*NET-SOC descriptors and BLS Occupational Outlook Handbook outlook, pay and training)",
+      "stage": "SCREENED",
+      "sources": [
+        "occupation-onet-database",
+        "occupation-bls-ooh-profiles"
+      ]
+    },
+    "scholarly-works": {
+      "name": "Scholarly works (arXiv preprints and Crossref publication records, linked by DOI)",
+      "stage": "SCREENED",
+      "sources": [
+        "scholarly-arxiv-preprints",
+        "scholarly-crossref-works"
+      ]
+    },
+    "drug-product-labeling": {
+      "name": "Drug product labeling (NLM DailyMed labels and openFDA label sections, linked by SPL set id)",
+      "stage": "SCREENED",
+      "sources": [
+        "drug-labeling-dailymed",
+        "drug-labeling-openfda"
+      ]
+    },
+    "gene-disease-evidence": {
+      "name": "Gene-disease evidence (ClinGen validity curations and UniProt function and disease annotations, linked by HGNC id)",
+      "stage": "SCREENED",
+      "sources": [
+        "gene-clingen-validity",
+        "gene-uniprot-swissprot"
+      ]
+    },
+    "software-package-metadata": {
+      "name": "Software package metadata (PyPI releases and deps.dev versions, linked by package URL)",
+      "stage": "SCREENED",
+      "sources": [
+        "software-pypi-metadata",
+        "software-depsdev-packages"
       ]
     }
   },
@@ -4795,6 +4835,136 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "occupation-onet-database": {
+      "name": "O*NET-SOC occupation database (tasks, skills, knowledge, work activities and descriptions for 1,016 occupations)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Department of Labor, O*NET Resource Center",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "occupation-bls-ooh-profiles": {
+      "name": "BLS Occupational Outlook Handbook occupation profiles (duties, pay, outlook and training text, 344 index pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Bureau of Labor Statistics",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "scholarly-arxiv-preprints": {
+      "name": "arXiv preprint metadata (title, abstract, categories, authors and journal DOI where the author gave one)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "arXiv (Cornell University)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "scholarly-crossref-works": {
+      "name": "Crossref works metadata (DOI, title, publisher, type, licence, funding, references and abstracts where deposited)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Crossref",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "drug-labeling-dailymed": {
+      "name": "DailyMed structured product labeling (SPL) index and documents, one set id per drug label",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Library of Medicine (DailyMed)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "drug-labeling-openfda": {
+      "name": "openFDA drug label endpoint (label sections with RxCUI, NDC and set id cross-references)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration (openFDA)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gene-clingen-validity": {
+      "name": "ClinGen gene-disease validity curations (3,714 curations across 3,065 genes, with MONDO disease and classification)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "ClinGen (Clinical Genome Resource)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gene-uniprot-swissprot": {
+      "name": "UniProtKB/Swiss-Prot reviewed human proteins (function, disease and variant comments with HGNC cross-references)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UniProt Consortium (EMBL-EBI, SIB, PIR)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "software-pypi-metadata": {
+      "name": "PyPI project metadata (summary, description, licence, classifiers, requirements and release history)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Python Software Foundation (PyPI)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "software-depsdev-packages": {
+      "name": "deps.dev (Open Source Insights) package versions, advisories and dependency graph",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Google Open Source Insights",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },
