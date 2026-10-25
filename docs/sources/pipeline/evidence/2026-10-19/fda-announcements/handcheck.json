@@ -7,7 +7,16 @@
    "H-1136-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1136-2026": {
+    "recalling_firm": "Fry Pie Factory LLC",
+    "product_description": "Pepperoni Rolls, Net Wt. 5 oz (141g), individually packaged in a clear plastic bag, UPC 601959803041",
+    "recall_initiation_date": "20260610",
+    "report_date": "20260708"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "08/14/2026",
@@ -17,7 +26,16 @@
    "H-1309-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1309-2026": {
+    "recalling_firm": "THE HAMPTON GROCER",
+    "product_description": "THE HAMPTON GROCER brand; Lacnola; SMALL BATCH LACTATION GRANOLA, 8oz, stand up pouches; NUTRIENT DENSE INGREDIENTS + MORINGA; SUPPORTS + PROMOTES HEALTHY LACTATION; INGREDIENTS Organic Gluten Free Oats Organic Maple Syrup Organic Pumpkin Seeds Organic Coconut Oil Almond Butter Almonds Organic Coconut Sugar Chocolate Chips (Cane Sugar, Unsweetened Chocolate, Cocoa Butter) Organic Ground Flaxseed Moringa Leaf Powder Pure Vanilla Extract (Water, Alcohol, Vanilla Bean Extractives) Cream of Tartar Baking Soda Salt; CONTAINS: TREE NUTS (ALMOND, COCONUTS); DISTRIBUTED BY: The Hampton Grocer Inc. Montauk, NY; MADE IN A FACILITY THAT PROCESSES TREE NUTS, PEANUTS, SESAME, AND SOY; UPC 8 50035 32455 4",
+    "recall_initiation_date": "20260814",
+    "report_date": "20260909"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "04/10/2026",
@@ -27,7 +45,16 @@
    "H-0663-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-0663-2026": {
+    "recalling_firm": "Blueroot Health, Inc.",
+    "product_description": "Vital Nutrients Aller-C (vitamin C, citrus bioflavonoids, isoquercitrin, and bromelain)100 count bottles and 200 count bottles",
+    "recall_initiation_date": "20260327",
+    "report_date": "20260415"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "02/27/2026",
@@ -37,7 +64,16 @@
    "H-0615-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-0615-2026": {
+    "recalling_firm": "Savannah Bee Company Inc.",
+    "product_description": "SAVANNAH BEE COMPANY HONEY BBQ SAUCE MUSTARD NET 16 FL OZ (453g), PACKED IN BOTTLES. INGREDIENTS: MUSTARD (DISTILLED VINEGAR, WATER, MUSTARD SEED, SALT, SPICES (INCLUDING PAPRIKA AND TUMERIC), NATURAL FLAVOR, GARLIC), HONEY, WATER, DISTILLED VINEGAR, SUGAR, TOMATO CONCENTRATE, HABANERO PEPPERS, GARLIC, SPICES, SALT, ONION, POTASSIUM SORBATE, SODIUM BENZOATE, NATURAL FLAVOR UPC 8 50033 93758 9 BOTTLED BY: BOBBEES FOR SAVANNAH BEE COMPANY 211 JONNY MERCER BLVD, SAVANNAH, GA 31410",
+    "recall_initiation_date": "20260227",
+    "report_date": "20260401"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "09/03/2026",
@@ -47,7 +83,16 @@
    "D-0865-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "D-0865-2026": {
+    "recalling_firm": "American Regent, Inc.",
+    "product_description": "Epinephrine Injection, USP, 30 mg/30 mL (1mg/mL), 30 mL-Multiple-Dose Vial, Rx Only, For Intravenous Infusion, intramuscular and Subcutaneous Use, AMERICAN REGENT INC., SHIRLEY, NY 11967. NDC 0517-3030-01",
+    "recall_initiation_date": "20260811",
+    "report_date": "20260916"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "05/26/2026",
@@ -57,7 +102,16 @@
    "H-1128-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1128-2026": {
+    "recalling_firm": "MOGO Moringa LLC",
+    "product_description": "MOGO PURE MORINGA OLEIFERA CAPSULES, HERBAL SUPPLEMENT, 180 QUICK RELEASE VEGGIE CAPSULE, 100% PURE, 350 MG PER CAPSULE, SUPPLEMENT FACTS MORINGA POWDER 1050 mg, Ingredients: 100% Pure Moringa Leaf Powder (Moringa Oleifera), MANUFACTURED IN USA AND Marketed by: MOGO MIRINGA LLC, PO BOX 32066 Saint Louis, MO 63132",
+    "recall_initiation_date": "20260524",
+    "report_date": "20260708"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "03/13/2026",
@@ -70,7 +124,34 @@
    "Z-2605-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "Z-1797-2026": {
+    "recalling_firm": "Insulet Corporation",
+    "product_description": "Omnipod 5 Pods. Model/Catalog number: PT-001662 ASM 5PK Pod STRL OPS G6G7",
+    "recall_initiation_date": "20260312",
+    "report_date": "20260422"
+   },
+   "Z-2603-2026": {
+    "recalling_firm": "Insulet Corporation",
+    "product_description": "Omnipod 5 Pods. Includes the below Model/REF Numbers:     1. POD-OMNI-I1-6720.    2. POD-OMNI-I1-6220.     3. OMNI-I1-6729 (10-Pack), OMNI-I1-6720 (Single Pod).     4. OMNI-I1-6220.     5. OMNI-I1-6720.     6. BLE-H1-529 (10-Pack), BLE-H1-520 (Single Pod).",
+    "recall_initiation_date": "20260520",
+    "report_date": "20260708"
+   },
+   "Z-2604-2026": {
+    "recalling_firm": "Insulet Corporation",
+    "product_description": "Omnipod DASH Pod. Includes the below Model/REF Numbers:     1. POD-BLE-I1-525 (5-Pack), POD-BLE-I1-520 (Single Pod).     2. POD-BLE-I1-529 (10-Pack), POD-BLE-I1-520 (Single Pod).     3. BLE-I1-529 (10-Pack), BLE-I1-520 (Single Pod).     4. BLE-C1-529 (10-Pack), BLE-C1-520 (Single Pod).",
+    "recall_initiation_date": "20260520",
+    "report_date": "20260708"
+   },
+   "Z-2605-2026": {
+    "recalling_firm": "Insulet Corporation",
+    "product_description": "Omnipod (Eros) Pod. Includes the below Model/REF Numbers:     1. POD-ZXP425 (10 Pack), POD- ZXP420 (Single Pod).     2. ZXR425 (10-Pack), ZXR420 (Single Pod).     3. ZXP425 (10 Pack), ZXP420 (Single Pod).",
+    "recall_initiation_date": "20260520",
+    "report_date": "20260708"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "08/09/2026",
@@ -102,7 +183,148 @@
    "H-1368-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1344-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Diced Jalapenos. Ingredients: Jalapeno Pepper. Net Wt: 3.75 oz. Keep Refrigerated.  Distributed by: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223082712",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1346-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Spicy Roast Beef Sandwich (closed-face). Ingredients: Fully Cooked Seasoned Roast Beef Top Round *** Brioche Bun *** Hatch Chile Spread (***Jalapeno Pepper), Red Onion, Fire Roasted Red Pepper Strips*** Net Wt: 8.53 oz. Keep Refrigerated.  Distributed by The Kroger Co. Cincinnati, Ohio 45202.  UPC: 011110678171",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1347-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Spicy Jalapeno Jarlsberg Dip. Ingredients: Mayonnaise *** Jarlsberg Cheese *** Red Onion, Jalapeno Pepper. Net Wt: 10 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223114826",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1348-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Spicy Pimento Cheese Dip. Ingredients: Sharp Cheddar Cheese *** Cream Cheese *** Piquillo Peppers *** Jalapeno Pepper, Mayonnaise *** Cayenne Pepper Sauce *** Dijon Mustard *** Granulated Garlic, Cayenne Pepper, Pimiento Peppers *** Net Wt: 10 oz. Keep Refrigerated.  Distributed by: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223116448",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1349-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Taco Dip. Ingredients: Refried Vegetarian Beans *** Guacamole (***Pico De Gallo [***Jalapeno Pepper]***), Pico De Gallo (***Jalapeno Pepper), Mild Cheddar Cheese *** Sour Cream *** Black Ripe Olives *** Green Onion, Taco Seasoning Mix *** Net Wt: 20 oz. Keep Refrigerated.  Distributed by: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223073581",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1350-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Fiesta Salad with Shrimp. Ingredients: Salad (Romaine Lettuce, Cooked Shrimp *** Pico De Gallo [***Jalapeno Peppers], Fire Roasted Corn, Cooked Black Beans, Lime, Tortilla Strips ***), Creamy Poblano Dressing (***) Net Wt: 11.11 oz. Keep Refrigerated.  Dist. & Sold Exclusively By: Trader Joe's Monrovia, CA 91016.  UPC: 00818377",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1351-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Spicy Guacamole. Ingredients: Guacamole, Pico De Gallo. Spec Sheet: Guacamole (Avocado, Pico De Gallo, Serrano Peper, Lime Juice, Salt, Pepper); Pico De Gallo (Cilantro, Jalapeno Pepper, Tomato, Yellow Onion) Net Wt: 13 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223073574",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1352-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Authentic Guacamole. Ingredients: Guacamole, Pico De Gallo. Spec Sheet: Guacamole (Avocado, Pico De Gallo, Lime Juice, Cumin, Salt, Pepper); Pico De Gallo (Cilantro, Jalapeno Pepper, Tomato, Yellow Onion) Net Wt: 13 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223073567",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1353-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Mango Pico De Gallo. Ingredients: Mango, Red Onion, Tomato, Cilantro, Jalapeno Pepper, Lime Juice. Net Wt: 11 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223073543",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1354-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Pineapple Mango Salsa Mild. Ingredients: Mango, Pineapple, Pasteurized Lime Juice, Pasteurized Lemon Juice, Jalapeno Pepper, Serrano Pepper, Lime Flavored Zest (***), Lemon Peel (***), Spearmint, Salt. Net Wt: 10 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223075653",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1355-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Pico De Gallo. Ingredients: Tomato, Onion, Jalapeno Pepper, Cilantro, Garlic, Salt, Black Pepper. Net Wt: 7 oz. Keep Refrigerated.  Distributed By: ADUSA Distribution, LLC, Salisbury, NC 28147.  UPC: 688267575778",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1356-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Pico De Gallo. Ingredients: Tomato, Onion, Jalapeno, Cilantro. Net Wt: 16 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223073536",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1357-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Mild Pico De Gallo. Ingredients: Tomatoes, Red Onions, Lime Juice Concentrate, Jalapeno Peppers, Garlic, Cilantro, Salt. Net Wt: 10 oz. Keep Refrigerated.  Distributed By: Walmart Inc., Bentonville, AR 72716.  UPC: 681131276344",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1358-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Hot Pico De Gallo. Ingredients: Tomatoes, Red Onions, Jalapeno Peppers, Lime Juice Concentrate, Serrano Peppers, Cilantro, Garlic, Salt. Net Wt: 10 oz. Keep Refrigerated.  Distributed By: Walmart Inc., Bentonville, AR 72716.  UPC: 681131276351",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1359-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Pico De Gallo Mild. Ingredients: Tomato, Yellow Onion, Jalapeno Pepper, Cilantro, Pasteurized Lime Juice, Salt. Net Wt: 10 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223075097",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1360-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Pico De Gallo Spicy. Ingredients: Tomato, Yellow Onion, Serrano Pepper, Jalapeno Pepper, Cilantro, Pasteurized Lime Juice, Salt. Net Wt: 10 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223075608",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1361-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Salsa Roja Medium. Ingredients: Fire Roasted Diced Tomatoes in Juice (***), Yellow Onion, Jalapeno Peppers, Arbol Chile Water Mix (***), Cilantro, Garlic, Salt, Ground Cumin. Net Wt: 12 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223075646",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1362-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Salsa Verde Mild. Ingredients: Whole Tomatillos (***), Roasted Poblano Chile, Jalapeno Pepper, Cilantro, Serrano Pepper, Garlic, Salt. Net Wt: 12 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223075639",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1363-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Salsa Fresca Medium. Ingredients: Tomato, Yellow Onion, Jalapeno Pepper, Pasteurized Lemon Juice, Garlic, Salt, Cilantro, Ground Cumin. Net Wt: 12 oz. Keep Refrigerated.  Distributed By: Taylor Farms Inc., Salinas, CA 93902.  UPC: 030223075080",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1364-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Tomato Salsa Fresca. Ingredients: Tomatoes, Yellow Onion, Red Onion, Cilantro, Jalapeno Pepper, Garlic, Salt, Ground Cumin, Lemon Juice. Net Wt: 4 lbs. Keep Refrigerated.",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1365-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Pico De Gallo Hot. Ingredients: Tomato, Red Onion, Jalapeno Pepper, Lemon Juice, Cilantro, Salt. Net Wt: 2.5 lbs.",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1366-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "Fresh Pico Tray. Ingredients: Tomato, Yellow Onion, Jalapeno Pepper, Cilantro. Net Wt: 5 lbs.",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   },
+   "H-1368-2026": {
+    "recalling_firm": "Taylor Fresh Foods Inc",
+    "product_description": "BH Bold Chef Salad Kit. Ingredients: Iceberg Lettuce, Pico De Gallo (***Jalapeno Pepper), Jalapeno Ranch Dressing (***Jalapeno Peppers***), Egg, Cucumber, Black Olives *** Carrot, Red Cabbage.",
+    "recall_initiation_date": "20260807",
+    "report_date": "20260923"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "06/25/2026",
@@ -112,7 +334,16 @@
    "H-1150-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1150-2026": {
+    "recalling_firm": "Lehi Valley Trading Company, Inc",
+    "product_description": "High Valley Orchard Chocolate Covered Raisins, net wt. 15oz. per package, each case contains 12/15oz. bags.  Product is packaged in clear plastic container.  UPC on retail container: 0 952348 80170 0.  Lehi Valley Trading Company Mesa, AZ 85215  The label of affected product declares: INGREDIENTS: MILK CHOCOLATE (SUGAR, ***WHOLE MILK POWDER, SOY LECITHIN ***RAISINS***CONTAINS MILK AND SOY*** Distributed by Lehi Valley Trading Company of Mesa, AZ.",
+    "recall_initiation_date": "20260624",
+    "report_date": "20260715"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "06/16/2026",
@@ -122,7 +353,16 @@
    "H-1125-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1125-2026": {
+    "recalling_firm": "Western Mixers Produce & Nuts, Inc.",
+    "product_description": "FIRST STREET Dark Chocolate Raisins Net Wt. 9 oz. (255g) UPC 797565011830  INGREDIENTS: DARK CHOCOLATE (SUGAR, CHOCOLATE LIQUOR, COCOA BUTTER, MILK FAT, SOY LECITHIN - AN EMULSIFIER, NATURAL VANILLA FLAVOR), RAISINS, TAPIOCA DEXTRIN, CONFECTIONERS GLAZE. CONTAINS: MILK, SOY  PACKED IN A FAICLITY THAT HANDLES PEANUTS, TREE NUTS, WHEAT, SOY, EGG, SESAME, AND MILK PRODUCTS.",
+    "recall_initiation_date": "20260615",
+    "report_date": "20260708"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "06/05/2026",
@@ -132,7 +372,16 @@
    "H-1189-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1189-2026": {
+    "recalling_firm": "Nelson & Isa Lacteos LLC",
+    "product_description": "Requeson (soft ricotta) 1 lb. packed into a clear clamshell package with no labeling information. \"Requeson\" is handwritten in black marker on the top lid of the clamshell package. No lot code or UPC.",
+    "recall_initiation_date": "20260605",
+    "report_date": "20260805"
+   }
+  },
+  "still_matches": true
  },
  {
   "date": "05/04/2026",
@@ -147,6 +396,45 @@
    "H-1117-2026"
   ],
   "same_event": true,
-  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree"
+  "basis": "recalling firm, product token and an enforcement initiation/report date within -30 to +150 days all agree",
+  "enforcement": {
+   "H-1112-2026": {
+    "recalling_firm": "Utz Quality Foods, LLC",
+    "product_description": "1.5oz Zapp's Bayou Blackened Ranch Kettle Chips, Plastic Bag.",
+    "recall_initiation_date": "20260428",
+    "report_date": "20260701"
+   },
+   "H-1113-2026": {
+    "recalling_firm": "Utz Quality Foods, LLC",
+    "product_description": "2.5oz , 8oz ,  Zapp's Brand Bayou Blackened Ranch Potato Chips, Plastic Bag.",
+    "recall_initiation_date": "20260428",
+    "report_date": "20260701"
+   },
+   "H-1114-2026": {
+    "recalling_firm": "Utz Quality Foods, LLC",
+    "product_description": "1.5oz, 2oz Dirty Brand Salt and Vinegar Potato Chips , Plastic Bag.",
+    "recall_initiation_date": "20260428",
+    "report_date": "20260701"
+   },
+   "H-1115-2026": {
+    "recalling_firm": "Utz Quality Foods, LLC",
+    "product_description": "2.0 oz Dirty Maui Onion Chip, Plastic Bag.",
+    "recall_initiation_date": "20260428",
+    "report_date": "20260701"
+   },
+   "H-1116-2026": {
+    "recalling_firm": "Utz Quality Foods, LLC",
+    "product_description": "1.5oz, 8.0oz , Zapp's Big Cheezy Potato Chips, Plastic Bag.",
+    "recall_initiation_date": "20260428",
+    "report_date": "20260701"
+   },
+   "H-1117-2026": {
+    "recalling_firm": "Utz Quality Foods, LLC",
+    "product_description": "2.0 oz Dirty Sour Cream and Onion Potato Chips, Plastic Bag.",
+    "recall_initiation_date": "20260428",
+    "report_date": "20260701"
+   }
+  },
+  "still_matches": true
  }
 ]

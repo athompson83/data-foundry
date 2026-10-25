@@ -1,6 +1,6 @@
 """Link FDA company recall announcements (datatables XLSX) to openFDA enforcement reports.
 Usage: python3 -I link.py <announcements.xlsx> <out.json>. Candidate rule: same normalised firm name, enforcement
-recall_initiation_date or report_date within -30..+150 days of the announcement date, and a shared 5+ letter product token."""
+recall_initiation_date or report_date (either one) within -30..+150 days of the announcement date, and a shared 5+ letter product token."""
 import sys,zipfile,re,json,time,urllib.request,urllib.parse,datetime as dt,xml.etree.ElementTree as ET
 UA='data-foundry-scout/1.0 (data@mail.proviciency.com)'
 ns={'m':'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
@@ -40,14 +40,16 @@ for x in recent:
             j=get('https://api.fda.gov/%s/enforcement.json?search=%s&limit=100'%(ep,urllib.parse.quote(q)))
             firms[key]+=j.get('results',[])
         time.sleep(0.3)
-    a=d(x['Date']); pt=toks(x['Brand-Names']+' '+x['Product-Description']); hits=[]
+    a=d(x['Date']); ev={}; pt=toks(x['Brand-Names']+' '+x['Product-Description']); hits=[]
     for e in firms[key]:
         if norm(e.get('recalling_firm',''))[:3]!=norm(x['Company-Name'])[:3]: continue
-        ed=e.get('recall_initiation_date') or e.get('report_date')
-        try: ed=dt.datetime.strptime(ed,'%Y%m%d').date()
-        except Exception: continue
-        if -30<=(ed-a).days<=150 and pt & toks(e.get('product_description','')): hits.append(e['recall_number'])
-    res.append({'date':x['Date'],'firm':x['Company-Name'],'brand':x['Brand-Names'],'matches':sorted(set(hits))})
+        eds=[]
+        for k in ('recall_initiation_date','report_date'):
+            try: eds.append(dt.datetime.strptime(e.get(k) or '','%Y%m%d').date())
+            except Exception: pass
+        if any(-30<=(ed-a).days<=150 for ed in eds) and pt & toks(e.get('product_description','')):
+            hits.append(e['recall_number']); ev[e['recall_number']]={k:e.get(k) for k in ('recalling_firm','product_description','recall_initiation_date','report_date')}
+    res.append({'date':x['Date'],'firm':x['Company-Name'],'brand':x['Brand-Names'],'matches':sorted(set(hits)),'enforcement':{h:ev[h] for h in sorted(set(hits))}})
 n=len(res); m=sum(1 for r in res if r['matches'])
 json.dump({'announcements_total':len(data),'since':str(since),'announcements_since':n,'with_candidate_enforcement_match':m,'rows':res},open(sys.argv[2],'w'),indent=1)
 print(len(data),n,m)

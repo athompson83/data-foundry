@@ -9362,7 +9362,7 @@ datasets:
         between:
           - fda-company-announcements
           - fda-recalls
-        measured: '105/254 company announcements dated 2026-01-01 or later match an openFDA enforcement report by firm, product token and date window; the other 149 were not separated into a missing enforcement report and a missing shared product token. All 12 randomly chosen matches agree on firm, product and date (evidence/2026-10-19/fda-announcements/handcheck.json); this is a read of the agreeing fields, not an independent check'
+        measured: '126/258 company announcements dated 2026-01-01 or later match an openFDA enforcement report by firm, product token and date window; the other 149 were not separated into a missing enforcement report and a missing shared product token. All 12 randomly chosen matches agree on firm, product and date (evidence/2026-10-19/fda-announcements/handcheck.json); this is a read of the agreeing fields, not an independent check'
         mode: candidate
         reviewed: { correct: 12, checked: 12 }
       - key: GTIN/UPC (check-digit-valid, Health Canada notice detail page vs FDA code_info)
