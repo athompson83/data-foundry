@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-26: daily dataset scout (round 14)
+
+- **Health.** Both recall datasets synced 2026-10-26 (FDA 12:17-12:18Z, CPSC 12:18:02Z, HC 12:18:06Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-14), the CPSC Recall API (2026-10-22) and Health Canada (2026-10-22). No regression.
+- **Branch.** PR #88 was already current with `main`; CI green on its previous head.
+- **Added at SCREENED (2, below the 5 to 10 target):** `software-vulnerabilities` (CISA KEV + NVD + OSV, declared CVE id 15/15 KEV-to-NVD, 7/30 to OSV) and `earthquake-events` (USGS + EMSC, candidate time/place link 201/205, hand check 12/12). Screened and not added: `variant-clinical-significance` (join unmeasured, lookup returned 0/20, likely a wrong parameter), `weather-alerts` (no second member measured), `lobbying-disclosures` (Senate API redirect, House preview HTTP 500).
+- **Widening / stage advance.** No member added to either LIVE dataset and no stage past SCREENED (archive workflow runs from `main`; `main` lists only the archived ENERGY STAR plan). Gaps against the daily target.
+- **Evidence.** `docs/sources/pipeline/research-2026-10-26.md`, `evidence/2026-10-26/`. Nothing deployed.
+
 ## Current session — 2026-10-25: daily dataset scout (round 13)
 
 - **Health.** Both recall datasets synced 2026-10-25 (FDA 12:17-12:18Z, CPSC 12:18Z, HC 12:18Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-14), the CPSC Recall API (2026-10-22) and Health Canada (2026-10-22). No regression.

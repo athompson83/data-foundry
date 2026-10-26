@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-25
+updated: 2026-10-26
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -8594,6 +8594,82 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/packages/measure.json ]
     next_action: 'Measured 2026-10-25: 51 of 60 sampled PyPI projects exist in deps.dev (the other 9 are brand new). Quote the data terms and plan the BigQuery public dataset or API snapshot.'
 
+  - key: vuln-cisa-kev
+    name: CISA Known Exploited Vulnerabilities catalog (CVE id, vendor, product, required action, ransomware use)
+    category: software
+    structuring: identifier-extraction
+    format: structured
+    publisher: US CISA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    conditions:
+      - 'US government work; the catalog terms page was not quoted this round, so the determination under ADR-0013 is still to be recorded.'
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Measured 2026-10-26: catalog 2026.10.23 lists 1,756 entries, every one with a short description; all 15 newest CVE ids sampled exist in NVD. Quote the CISA terms and plan the snapshot.'
+
+  - key: vuln-nvd-cves
+    name: NVD CVE records (descriptions, CVSS, CWE, CPE configurations)
+    category: software
+    structuring: normalization
+    format: free-text
+    publisher: US NIST NVD
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://services.nvd.nist.gov/rest/json/cves/2.0' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'The unauthenticated API answers 414,172 records but is rate limited (about 5 requests per 30 seconds); a full-history snapshot needs the paged API at that rate or NIST data feeds, whose terms were not quoted this round.'
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Measured 2026-10-26: 15/15 sampled records carry an English description over 40 characters. Quote the NVD data terms, then plan a paged snapshot.'
+
+  - key: vuln-osv-advisories
+    name: OSV.dev vulnerability records (package ranges and fixed versions, keyed by CVE alias)
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: Google OSV
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.osv.dev/v1/vulns/{id}' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - 'Per-record licences differ by upstream database; quote the OSV data licence before RIGHTS_DETERMINED.'
+      - 'Covers only CVEs that name a package: 7 of the 30 newest CISA KEV ids resolved, so OSV enriches and does not replace NVD.'
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Measured 2026-10-26: 7/30 newest KEV ids resolved by CVE id. Plan the bulk all.zip route rather than per-id calls.'
+
+  - key: quake-usgs-comcat
+    name: USGS earthquake catalog (ComCat FDSN event service)
+    category: hazards
+    structuring: normalization
+    format: structured
+    publisher: US Geological Survey
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://earthquake.usgs.gov/fdsnws/event/1/query' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    conditions:
+      - 'US government work. Free text is limited to the place string and review status; the catalog is structured, so structuring value is low.'
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Measured 2026-10-26: 8,164 events since 2026-10-01 and 205 events of magnitude 5 or more in the last 30 days, each with place text. Plan a paged history snapshot (maxAllowed 20,000 per query).'
+
+  - key: quake-emsc-seismicportal
+    name: EMSC SeismicPortal earthquake catalog (FDSN event service)
+    category: hazards
+    structuring: normalization
+    format: structured
+    publisher: Euro-Mediterranean Seismological Centre
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.seismicportal.eu/fdsnws/event/1/query' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    conditions:
+      - 'EMSC data terms were not quoted this round; AMBER until they are.'
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Measured 2026-10-26: 10,355 events since 2026-10-01 and 225 of magnitude 5 or more in 30 days; 201 of the 205 USGS events match by time and place. Quote the terms.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -11295,3 +11371,67 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-10-25.md, docs/sources/pipeline/evidence/2026-10-25/packages/measure.json ]
     next_action: 'Resolve PyPI and deps.dev data terms (rights clarity is the weakest score), then plan the bulk routes and a second ecosystem.'
+
+  - key: software-vulnerabilities
+    name: Software vulnerabilities (CISA known-exploited flags, NVD descriptions and OSV package ranges, linked by CVE id)
+    category: software
+    entity: vulnerability (one CVE with its description, severity, exploitation status, affected packages and fixed versions)
+    stage: SCREENED
+    description: 'One record per CVE. NVD supplies the description, CVSS and CWE; CISA KEV supplies whether it is known to be exploited, the required action and ransomware use; OSV supplies the affected package ranges and fixed versions. The CVE id is declared in all three, so they link automatically.'
+    sources:
+      - vuln-cisa-kev
+      - vuln-nvd-cves
+      - vuln-osv-advisories
+    join_keys:
+      - key: 'CVE id (CISA KEV vs NVD)'
+        between:
+          - vuln-cisa-kev
+          - vuln-nvd-cves
+        measured: '15/15 of the newest sampled KEV CVE ids exist in NVD, each with an English description'
+        mode: declared
+      - key: 'CVE id (CISA KEV vs OSV)'
+        between:
+          - vuln-cisa-kev
+          - vuln-osv-advisories
+        measured: '7/30 newest KEV CVE ids exist in OSV; the rest name no package ecosystem'
+        mode: declared
+    taxonomy:
+      - 'severity: CVSS base severity'
+      - 'weakness: CWE id'
+      - 'exploitation: known exploited, ransomware use'
+      - 'ecosystem: package ecosystem'
+    agent_questions:
+      - 'Is this CVE known to be exploited, and what action does CISA require?'
+      - 'Which package versions are affected and which version fixes it?'
+      - 'Which vulnerabilities were added to the known-exploited list this week?'
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Quote the CISA, NVD and OSV terms for RIGHTS_DETERMINED, then add a paged NVD snapshot plan.'
+
+  - key: earthquake-events
+    name: Earthquake events (USGS ComCat and EMSC SeismicPortal catalogs, matched by time and place)
+    category: hazards
+    entity: earthquake event (origin time, location, magnitude by source, region text, review status)
+    stage: SCREENED
+    description: 'One record per earthquake. USGS and EMSC each publish an origin, magnitude and region label. They share no declared event id, so a match on origin time and distance only proposes a reviewed link; magnitudes are kept per source.'
+    sources:
+      - quake-usgs-comcat
+      - quake-emsc-seismicportal
+    join_keys:
+      - key: 'origin time within 60 seconds and epicentre within 100 km (USGS vs EMSC)'
+        between:
+          - quake-usgs-comcat
+          - quake-emsc-seismicportal
+        measured: '201/205 USGS events of magnitude 5 or more in the last 30 days have an EMSC match; mean absolute magnitude difference 0.022. Proposal only, not a declared identifier.'
+        mode: candidate
+        reviewed: { correct: 12, checked: 12 }
+    taxonomy:
+      - 'magnitude band'
+      - 'region: country or flinn-engdahl region'
+      - 'review status: automatic or reviewed'
+    agent_questions:
+      - 'Which earthquakes of magnitude 5 or more struck in a region this month?'
+      - 'Do the two catalogs agree on this event magnitude and location?'
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
+    next_action: 'Weak on structuring value (structured sources, little free text); keep behind higher-scoring datasets and quote the EMSC terms.'
