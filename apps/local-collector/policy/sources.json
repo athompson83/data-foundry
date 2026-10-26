@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "27047b2c86b3cf0b026acde81112effcf701e4d47b5ea89d16ec9603c0577761",
+  "registry_sha256": "54d83a4471c348c01fa755933d43b26d6c1eb8f8ee09acaa0c901069774a2971",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -579,6 +579,23 @@
       "sources": [
         "software-pypi-metadata",
         "software-depsdev-packages"
+      ]
+    },
+    "software-vulnerabilities": {
+      "name": "Software vulnerabilities (CISA known-exploited flags, NVD descriptions and OSV package ranges, linked by CVE id)",
+      "stage": "SCREENED",
+      "sources": [
+        "vuln-cisa-kev",
+        "vuln-nvd-cves",
+        "vuln-osv-advisories"
+      ]
+    },
+    "earthquake-events": {
+      "name": "Earthquake events (USGS ComCat and EMSC SeismicPortal catalogs, matched by time and place)",
+      "stage": "SCREENED",
+      "sources": [
+        "quake-usgs-comcat",
+        "quake-emsc-seismicportal"
       ]
     }
   },
@@ -4960,6 +4977,71 @@
       "stage": "SCREENED",
       "format": "structured",
       "publisher": "Google Open Source Insights",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vuln-cisa-kev": {
+      "name": "CISA Known Exploited Vulnerabilities catalog (CVE id, vendor, product, required action, ransomware use)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US CISA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vuln-nvd-cves": {
+      "name": "NVD CVE records (descriptions, CVSS, CWE, CPE configurations)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US NIST NVD",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vuln-osv-advisories": {
+      "name": "OSV.dev vulnerability records (package ranges and fixed versions, keyed by CVE alias)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Google OSV",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "quake-usgs-comcat": {
+      "name": "USGS earthquake catalog (ComCat FDSN event service)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Geological Survey",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "quake-emsc-seismicportal": {
+      "name": "EMSC SeismicPortal earthquake catalog (FDSN event service)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Euro-Mediterranean Seismological Centre",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
