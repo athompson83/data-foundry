@@ -1,0 +1,39 @@
+{
+ "fetched": "2026-10-31T13:54:58.079747Z",
+ "total": 34326,
+ "organizations": {
+  "Drugs and health products": 1944,
+  "CFIA": 5339,
+  "Consumer product safety": 5227,
+  "Medical devices": 8704,
+  "TC": 9975,
+  "Controlled substances and cannabis": 100,
+  "Communications and Public Affairs Branch": 1814,
+  "Marketed health products": 1161,
+  "HC": 62
+ },
+ "fields": [
+  "NID",
+  "Title",
+  "URL",
+  "Organization",
+  "Product",
+  "Issue",
+  "What you should do",
+  "Category",
+  "Recall class",
+  "Last updated",
+  "Archived"
+ ],
+ "selected": 10648,
+ "last_updated_max": "2026-10-30",
+ "cite_fda": 0,
+ "cite_fda_recall_number": 0,
+ "free_text_fields": {
+  "Issue": 9785,
+  "What you should do": 580,
+  "Product": 2806,
+  "Recall class": 10615,
+  "Last updated": 10648
+ }
+}

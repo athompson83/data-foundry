@@ -1641,6 +1641,231 @@
           "url": "https://open.fda.gov/terms/"
         }
       ]
+    },
+    "tropical-cyclones": {
+      "rights_record": "docs/sources/tropical-cyclones-rights-record-20261031.md",
+      "files": [
+        {
+          "name": "ibtracs.since1980.list.v04r01.csv",
+          "url": "https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/csv/ibtracs.since1980.list.v04r01.csv"
+        },
+        {
+          "name": "ibtracs.metadata.xml",
+          "url": "https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ncdc:C01552"
+        },
+        {
+          "name": "nhc-disclaimer.html",
+          "url": "https://www.nhc.noaa.gov/disclaimer.shtml"
+        },
+        {
+          "name": "AL012023_Unnamed.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL012023_Unnamed.pdf"
+        },
+        {
+          "name": "AL012024_Alberto.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL012024_Alberto.pdf"
+        },
+        {
+          "name": "AL012025_Andrea.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL012025_Andrea.pdf"
+        },
+        {
+          "name": "AL022023_Arlene.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL022023_Arlene.pdf"
+        },
+        {
+          "name": "AL022024_Beryl.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL022024_Beryl.pdf"
+        },
+        {
+          "name": "AL022025_Barry.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL022025_Barry.pdf"
+        },
+        {
+          "name": "AL032023_Bret.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL032023_Bret.pdf"
+        },
+        {
+          "name": "AL032024_Chris.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL032024_Chris.pdf"
+        },
+        {
+          "name": "AL032025_Chantal.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL032025_Chantal.pdf"
+        },
+        {
+          "name": "AL042023_Cindy.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL042023_Cindy.pdf"
+        },
+        {
+          "name": "AL042024_Debby.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL042024_Debby.pdf"
+        },
+        {
+          "name": "AL042025_Dexter.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL042025_Dexter.pdf"
+        },
+        {
+          "name": "AL052023_Don.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL052023_Don.pdf"
+        },
+        {
+          "name": "AL052024_Ernesto.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL052024_Ernesto.pdf"
+        },
+        {
+          "name": "AL052025_Erin.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL052025_Erin.pdf"
+        },
+        {
+          "name": "AL062023_Gert.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL062023_Gert.pdf"
+        },
+        {
+          "name": "AL062024_Francine.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL062024_Francine.pdf"
+        },
+        {
+          "name": "AL062025_Fernand.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL062025_Fernand.pdf"
+        },
+        {
+          "name": "AL072023_Emily.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL072023_Emily.pdf"
+        },
+        {
+          "name": "AL072024_Gordon.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL072024_Gordon.pdf"
+        },
+        {
+          "name": "AL072025_Gabrielle.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL072025_Gabrielle.pdf"
+        },
+        {
+          "name": "AL082023_Franklin.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL082023_Franklin.pdf"
+        },
+        {
+          "name": "AL082024_Eight.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL082024_Eight.pdf"
+        },
+        {
+          "name": "AL082025_Humberto.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL082025_Humberto.pdf"
+        },
+        {
+          "name": "AL092023_Harold.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL092023_Harold.pdf"
+        },
+        {
+          "name": "AL092024_Helene.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL092024_Helene.pdf"
+        },
+        {
+          "name": "AL092025_Imelda.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL092025_Imelda.pdf"
+        },
+        {
+          "name": "AL102023_Idalia.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL102023_Idalia.pdf"
+        },
+        {
+          "name": "AL102024_Isaac.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL102024_Isaac.pdf"
+        },
+        {
+          "name": "AL102025_Jerry.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL102025_Jerry.pdf"
+        },
+        {
+          "name": "AL112023_Jose.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL112023_Jose.pdf"
+        },
+        {
+          "name": "AL112024_Joyce.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL112024_Joyce.pdf"
+        },
+        {
+          "name": "AL112025_Karen.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL112025_Karen.pdf"
+        },
+        {
+          "name": "AL122023_Katia.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL122023_Katia.pdf"
+        },
+        {
+          "name": "AL122024_Kirk.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL122024_Kirk.pdf"
+        },
+        {
+          "name": "AL122025_Lorenzo.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL122025_Lorenzo.pdf"
+        },
+        {
+          "name": "AL132023_Lee.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL132023_Lee.pdf"
+        },
+        {
+          "name": "AL132024_Leslie.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL132024_Leslie.pdf"
+        },
+        {
+          "name": "AL132025_Melissa.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL132025_Melissa.pdf"
+        },
+        {
+          "name": "AL142023_Margot.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL142023_Margot.pdf"
+        },
+        {
+          "name": "AL142024_Milton.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL142024_Milton.pdf"
+        },
+        {
+          "name": "AL152023_Nigel.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL152023_Nigel.pdf"
+        },
+        {
+          "name": "AL152024_Nadine.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL152024_Nadine.pdf"
+        },
+        {
+          "name": "AL162023_Ophelia.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL162023_Ophelia.pdf"
+        },
+        {
+          "name": "AL162024_Oscar.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL162024_Oscar.pdf"
+        },
+        {
+          "name": "AL172023_Philippe.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL172023_Philippe.pdf"
+        },
+        {
+          "name": "AL172024_Patty.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL172024_Patty.pdf"
+        },
+        {
+          "name": "AL182023_Rina.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL182023_Rina.pdf"
+        },
+        {
+          "name": "AL182024_Rafael.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL182024_Rafael.pdf"
+        },
+        {
+          "name": "AL192023_Sean.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL192023_Sean.pdf"
+        },
+        {
+          "name": "AL192024_Sara.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL192024_Sara.pdf"
+        },
+        {
+          "name": "AL202023_Tammy.pdf",
+          "url": "https://www.nhc.noaa.gov/data/tcr/AL202023_Tammy.pdf"
+        }
+      ]
     }
   }
 }

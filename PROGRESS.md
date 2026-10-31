@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-10-31: daily dataset scout (round 15)
+
+- **Health.** Both recall datasets synced 2026-10-31 (FDA 12:17-12:18Z, CPSC 12:18:12Z, HC 12:18:21Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-21), the CPSC Recall API (2026-10-29) and Health Canada (2026-10-29). No regression. PR #88 CI green on head `ec89f46`.
+- **Added: 0 data types (target 5 to 10).** Screened and PARKED with reasons: UK MAIB marine reports (no second measured member), FAA airworthiness directives (Federal Register full text returns a "Request Access" page from this egress; EASA site on maintenance), FAERS drug adverse events (no narrative, three-month lag), NRHP/NHLE historic places (no free text), UK/US legislation (congress.gov 429, no shared id), France RappelConso (connection reset). The nuclear-events probe repeated an existing member; the registry was not checked first.
+- **Widening.** No new member. Health Canada food, device and drug notices are already member `ca-recalls-food-health-open-data`; re-measured 10,648 notices, 0 cite FDA. FSIS still 403. No capture gap: the 34,319-notice HC index is archived whole in R2.
+- **Stage.** No stage moved (archive runs from `main` only). Prepared `tropical-cyclones` for EVIDENCED: rights record GREEN, `plans.json` entry (52 NHC PDFs + IBTrACS since-1980), and 24-report extraction showing the naive death pattern reads 4 of 8 verifiable counts (footnote digits), the PROTOTYPED work item. `software-vulnerabilities` terms: CISA 403, NVD shell, OSV per-ecosystem licences (AMBER).
+- **Evidence.** `docs/sources/pipeline/research-2026-10-31.md`, `evidence/2026-10-31/`. Nothing deployed. After PR #88 merges, dispatch Archive source snapshot with `source=tropical-cyclones`.
+
 ## Current session — 2026-10-26: daily dataset scout (round 14)
 
 - **Health.** Both recall datasets synced 2026-10-26 (FDA 12:17-12:18Z, CPSC 12:18:02Z, HC 12:18:06Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-14), the CPSC Recall API (2026-10-22) and Health Canada (2026-10-22). No regression.

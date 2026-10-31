@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "54d83a4471c348c01fa755933d43b26d6c1eb8f8ee09acaa0c901069774a2971",
+  "registry_sha256": "95794f8989ba83d926f19baa6d54449fc79a98370bde34afc9b8c91e5972f4fd",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -5047,6 +5047,84 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "marine-uk-maib-reports": {
+      "name": "UK Marine Accident Investigation Branch reports (gov.uk content API)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UK Marine Accident Investigation Branch",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "aviation-faa-airworthiness-directives-fr": {
+      "name": "FAA airworthiness directives (final rules in the Federal Register, JSON API)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US Federal Aviation Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "drug-adverse-events-faers-openfda": {
+      "name": "FDA Adverse Event Reporting System via openFDA (drug/event) and Canada Vigilance",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "historic-places-nrhp-nhle": {
+      "name": "National Register of Historic Places locations (NPS) and National Heritage List for England points",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US National Park Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "legislation-uk-us-texts": {
+      "name": "UK legislation (legislation.gov.uk) and US Congress bills (congress.gov API)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UK National Archives",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fr-rappelconso-product-recalls": {
+      "name": "France RappelConso consumer-product recalls (data.economie.gouv.fr)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "French Ministry of Economy (DGCCRF)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },

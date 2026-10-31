@@ -7801,8 +7801,13 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/join.json, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/text.json ]
     next_action: >-
       52 reports for seasons 2023 to 2026 are listed per season and basin; every file name starts with the storm's ATCF id. In a seeded 12-PDF sample all 12 have a text layer
-      and a Casualty and Damage Statistics heading, 6 a Synoptic or Meteorological History heading, 6 a forecast-verification heading and 3 a death count the regex reads. Measure
-      deaths, damage and landfall extraction on 20 or more reports, then archive the PDFs since 1995 in R2.
+      and a Casualty and Damage Statistics heading, 6 a Synoptic or Meteorological History heading, 6 a forecast-verification heading and 3 a death count the regex reads.
+      2026-10-31, 24 further seeded reports (evidence/2026-10-31/tropical-cyclones/extract.json): 24/24 have the casualty section, 12/24 state that no damage or casualties were
+      reported, 3/24 matched the contents page instead of the section (Beryl, Debby, Milton). The naive death pattern fired on 9 and read 4 of the 8 verifiable counts correctly
+      (handcheck.json): it returns the footnote digit beside the number (Sara, Rafael, Lee, Erin). The parser must skip the contents page and be footnote-aware, and a count it
+      cannot read unambiguously is withheld. Rights record written (docs/sources/tropical-cyclones-rights-record-20261031.md, GREEN) and the 52 PDFs plus the IBTrACS
+      since-1980 file are in tooling/snapshots/plans.json: once this branch is on main, dispatch the Archive source snapshot workflow with source=tropical-cyclones, then EVIDENCED
+      (samples.json, inputs.json and replay.sh from the archive). Archive the PDFs since 1995 as a later plan.
 
   - key: hazard-ibtracs-best-tracks
     name: NOAA NCEI IBTrACS best-track archive (storm id, name, 6-hourly position, wind, pressure, USA ATCF id)
@@ -7821,8 +7826,9 @@ candidates:
         }
     evidence: [ docs/sources/pipeline/research-2026-10-18.md, docs/sources/pipeline/evidence/2026-10-18/tropical-cyclones/join.json ]
     next_action: >-
-      The last-3-years file is 11.5 MB (24,346 observation rows, 141 Atlantic and East Pacific storms with a USA ATCF id). The NCEI-specific terms page was not read; the quote is the
-      NWS statement for NOAA servers, so read the NCEI data-access policy before RIGHTS_DETERMINED. Archive the full ALL file, not only the last 3 years.
+      The last-3-years file is 11.5 MB (24,346 observation rows, 141 Atlantic and East Pacific storms with a USA ATCF id). The NCEI metadata record was read 2026-10-31 (Use Constraints: a
+      citation request and a warranty disclaimer, no restriction on commercial use; see the rights record). The full ALL file is 333,165,979 bytes, above the 315 MiB limit of
+      wrangler r2 object put, so the plan archives the 145,263,024-byte since-1980 file; archive pre-1980 storms through a multipart path before claiming full history.
 
   - key: outbreak-who-disease-outbreak-news
     name: WHO Disease Outbreak News (free-text outbreak notices, 2004 to date)
@@ -8669,6 +8675,80 @@ candidates:
       - 'EMSC data terms were not quoted this round; AMBER until they are.'
     evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
     next_action: 'Measured 2026-10-26: 10,355 events since 2026-10-01 and 225 of magnitude 5 or more in 30 days; 201 of the 205 USGS events match by time and place. Quote the terms.'
+
+  # ---- Round 2026-10-31: screened and not added (a second member or the free text was missing).
+  - key: marine-uk-maib-reports
+    name: UK Marine Accident Investigation Branch reports (gov.uk content API)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Marine Accident Investigation Branch
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=maib_report', 'https://www.gov.uk/maib-reports.atom' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md, docs/sources/pipeline/evidence/2026-10-31/screen.json ]
+    next_action: 'PARKED 2026-10-31 as a data type: 1,106 reports, newest 2026-10-15, structured metadata (occurrence date, vessel type) and a 3,122-character body on the sample, all open. The only other marine investigator probed was blocked or unmeasured (Transport Safety Board of Canada answers 403, NTSB CAROL a 477-byte shell, the Dutch Safety Board reachable but not measured), so there is no second member and no measured link. Terms unread. Reopen with a second investigator and a declared IMO number join.'
+  - key: aviation-faa-airworthiness-directives-fr
+    name: FAA airworthiness directives (final rules in the Federal Register, JSON API)
+    category: transport-safety
+    structuring: obligation-timeline
+    format: free-text
+    publisher: US Federal Aviation Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=federal-aviation-administration&conditions[type][]=RULE' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 2, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md, docs/sources/pipeline/evidence/2026-10-31/screen.json ]
+    next_action: 'PARKED 2026-10-31: the JSON API answers (10,000 or more AD-term rules, abstracts on 5/5 newest) but every full-text URL (raw_text_url and full_text_xml_url) returns a 10,596-byte "Request Access" page from this egress, so no AD text could be read, and the EASA AD site answers a maintenance page. A first cross-reference measurement was discarded because it ran over those block pages. Retry the text from Cloudflare Worker egress and measure EASA and Transport Canada citations then.'
+  - key: drug-adverse-events-faers-openfda
+    name: FDA Adverse Event Reporting System via openFDA (drug/event) and Canada Vigilance
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US Food and Drug Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.fda.gov/drug/event.json', 'https://www.canada.ca/en/health-canada/services/drugs-health-products/medeffect-canada/adverse-reaction-database/canada-vigilance-online-database-data-extract.html' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md, docs/sources/pipeline/evidence/2026-10-31/screen.json ]
+    next_action: 'PARKED 2026-10-31: 673,772 FAERS reports received in 2026 but openFDA meta.last_updated is 2026-07-30 (a three-month lag), the public record has coded fields and no narrative, and Canada Vigilance is a zip extract (one link found, no licence text on the page) with no shared report id. No free-text member and no declared link.'
+  - key: historic-places-nrhp-nhle
+    name: National Register of Historic Places locations (NPS) and National Heritage List for England points
+    category: cultural-heritage
+    structuring: normalization
+    format: structured
+    publisher: US National Park Service
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://mapservices.nps.gov/arcgis/rest/services/cultural_resources/nrhp_locations/MapServer/0', 'https://services-eu1.arcgis.com/ZOdPfBS3aqqDYPUQ/arcgis/rest/services/National_Heritage_List_for_England_NHLE_v02_VIEW/FeatureServer/0' ]
+    scores: { agent_demand: 2, rights_clarity: 2, acquisition_ease: 5, structuring_value: 1, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md, docs/sources/pipeline/evidence/2026-10-31/screen.json ]
+    next_action: 'PARKED 2026-10-31: 74,636 NRHP locations and 379,683 NHLE points are open, but the layers carry names, grades, addresses and a link only (NRHP fields: NRIS_Refnum, RESNAME, ResType, Address, City, County, State; NHLE fields: ListEntry, Name, Grade, ListDate, hyperlink). No free text, no shared identifier. The descriptions live on list-entry pages whose terms were not read.'
+  - key: legislation-uk-us-texts
+    name: UK legislation (legislation.gov.uk) and US Congress bills (congress.gov API)
+    category: legal
+    structuring: obligation-timeline
+    format: free-text
+    publisher: UK National Archives
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.legislation.gov.uk/new/data.feed', 'https://api.congress.gov/v3/bill' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md, docs/sources/pipeline/evidence/2026-10-31/screen.json ]
+    next_action: 'PARKED 2026-10-31: the legislation.gov.uk Atom feed answers (20 entries on the first page of the new-legislation feed, full XML text behind each) but the congress.gov API answered 429 on the shared DEMO_KEY, and the two systems share no identifier (different jurisdictions). Federal Register final rules are already tracked as federal-register-obligations. Reopen with a same-jurisdiction pair, for example govinfo BILLSTATUS and BILLS, joined on the bill number.'
+  - key: fr-rappelconso-product-recalls
+    name: France RappelConso consumer-product recalls (data.economie.gouv.fr)
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: French Ministry of Economy (DGCCRF)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records', 'https://rappel.conso.gouv.fr/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md ]
+    next_action: 'PARKED 2026-10-31 as a member of home-product-recalls-global: three requests to data.economie.gouv.fr ended in a connection reset from this egress (the rappel.conso.gouv.fr portal itself answered 200, 88,661 bytes), so no count, field or terms was measured. Retry from Cloudflare Worker egress.'
 
 datasets:
   - key: home-product-recalls-global
@@ -11406,7 +11486,7 @@ datasets:
       - 'Which vulnerabilities were added to the known-exploited list this week?'
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
-    next_action: 'Quote the CISA, NVD and OSV terms for RIGHTS_DETERMINED, then add a paged NVD snapshot plan.'
+    next_action: 'Terms read 2026-10-31 (evidence/2026-10-31/screen.json notes in research-2026-10-31.md): CISA pages answer 403 and the NVD FAQ is a 2.2 KB script shell from this egress, so neither can be quoted here; quote them from Cloudflare Worker egress. OSV lists a licence per ecosystem database (CC0, CC-BY 4.0, MIT, Apache 2.0, and CC-BY-NC-ND 4.0 for Chainguard), so OSV is AMBER and only ecosystems with a commercial-use licence may be redistributed. Then add a paged NVD snapshot plan.'
 
   - key: earthquake-events
     name: Earthquake events (USGS ComCat and EMSC SeismicPortal catalogs, matched by time and place)
