@@ -1,0 +1,118 @@
+{
+ "run_date": "2026-10-17",
+ "reports": [
+  "Report-2026-41",
+  "Report-2026-40",
+  "Report-2026-39",
+  "Report-2026-38",
+  "Report-2026-37",
+  "Report-2026-36",
+  "Report-2026-35",
+  "Report-2026-34",
+  "Report-2026-33",
+  "Report-2026-32",
+  "Report-2026-31",
+  "Report-2026-30",
+  "Report-2026-29",
+  "Report-2026-28",
+  "Report-2026-27",
+  "Report-2026-26",
+  "Report-2026-25",
+  "Report-2026-24",
+  "Report-2026-23",
+  "Report-2026-22",
+  "Report-2026-21",
+  "Report-2026-20",
+  "Report-2026-19",
+  "Report-2026-18",
+  "Report-2026-17",
+  "Report-2026-16",
+  "Report-2026-15",
+  "Report-2026-14",
+  "Report-2026-13",
+  "Report-2026-12",
+  "Report-2026-11",
+  "Report-2026-10",
+  "Report-2026-9",
+  "Report-2026-8",
+  "Report-2026-7",
+  "Report-2026-6",
+  "Report-2026-5",
+  "Report-2026-4",
+  "Report-2026-3",
+  "Report-2026-2",
+  "Report-2026-1",
+  "Report-2025-52",
+  "Report-2025-51",
+  "Report-2025-50",
+  "Report-2025-49",
+  "Report-2025-48",
+  "Report-2025-47",
+  "Report-2025-46",
+  "Report-2025-45",
+  "Report-2025-44",
+  "Report-2025-43",
+  "Report-2025-42"
+ ],
+ "newest_report": [
+  "Report-2026-41",
+  "16/10/2026"
+ ],
+ "oldest_report": [
+  "Report-2025-42",
+  "17/10/2025"
+ ],
+ "safety_gate": {
+  "alerts": 3957,
+  "alerts_with_barcode_text": 2130,
+  "alerts_with_check_digit_valid_gtin": 1840,
+  "distinct_gtin14": 1863,
+  "barcode_text_but_no_valid_gtin": 290
+ },
+ "cpsc": {
+  "recalls_fetched_2015_on": 3716,
+  "structured": 3716,
+  "structure_errors": 0,
+  "recalls_with_gtin": 261,
+  "distinct_gtin14": 950
+ },
+ "health_canada": {
+  "records": 34248,
+  "consumer_product_records": 5217,
+  "fields": [
+   "Archived",
+   "Category",
+   "Issue",
+   "Last updated",
+   "NID",
+   "Organization",
+   "Product",
+   "Recall class",
+   "Title",
+   "URL",
+   "What you should do"
+  ],
+  "barcode_field_present": false,
+  "records_with_structured_gtin": 0,
+  "records_with_gtin_in_text": 1,
+  "distinct_gtin14_in_text": 1
+ },
+ "match": {
+  "alerts_matching_cpsc": "0/1840",
+  "alerts_matching_hc": "0/1840",
+  "alerts_matching_cpsc_per_all_alerts": "0/3957",
+  "distinct_gtins_matching_cpsc": "0/1863",
+  "distinct_gtins_matching_hc": "0/1863"
+ },
+ "matches": [],
+ "sanity": {
+  "cpsc_raw_upc_digit_strings": 793,
+  "sg_raw_digit_strings": 2549,
+  "raw_overlap_without_check_digit_gate": 0,
+  "shared_7digit_company_prefixes_informational": 2
+ },
+ "hand_check": {
+  "matches_checked": 0,
+  "note": "no alert matched a CPSC or Health Canada GTIN, so there was nothing to hand-check"
+ }
+}

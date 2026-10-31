@@ -1,0 +1,12 @@
+{
+ "pg_catalog_rows": 79634,
+ "pg_text_rows": 78383,
+ "pg_with_subjects": 79591,
+ "pg_with_loc_class": 79612,
+ "ol_works_declaring_gutenberg_id": 2134,
+ "ol_gutenberg_ids": 2612,
+ "ids_present_in_pg_catalog": 2431,
+ "ids_whose_title_prefix_agrees": 1925,
+ "ol_with_lccn": 1232,
+ "ol_with_isbn": 1432
+}

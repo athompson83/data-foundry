@@ -1,0 +1,121 @@
+candidates:
+  - key: procurement-canadabuys-notices
+    name: CanadaBuys open tender and award notices (federal Canada, CSV)
+    category: procurement
+    structuring: normalization
+    format: free-text
+    publisher: Public Services and Procurement Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/en/dataset/6abd20d4-7a1c-4b38-baa2-9525d0bb2fd2', 'https://canadabuys.canada.ca/opendata/pub/tenderNoticeComplete-avisAppelOffresComplet.csv', 'https://canadabuys.canada.ca/opendata/pub/awardNoticeComplete-avisAttributionComplet.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - { url: 'https://open.canada.ca/en/open-government-licence-canada', quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.' }
+      - { url: 'https://open.canada.ca/en/open-government-licence-canada', quote: 'This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license;' }
+    conditions: [ 'Attribution: Contains information licensed under the Open Government Licence - Canada.', 'Drop contact names, emails and phones (Personal Information is excluded).', 'No third-party rights or official marks.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Measure UNSPSC-to-description extraction on 20 bilingual notices and look for a buyer or supplier registry identifier.
+  - key: procurement-uk-contracts-finder-ocds
+    name: UK Contracts Finder OCDS notices (tender and award)
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Cabinet Office (Crown Commercial Service)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - { url: 'https://www.contractsfinder.service.gov.uk/Home/TermsAndConditions', quote: 'You can reproduce content published on Contracts Finder and Find a Tender under the OGL as long as you follow the licence' }
+    conditions: [ 'OGL v3 attribution.', 'Drop party contactPoint names, emails and phones.', 'Respect "except where otherwise stated" third-party content.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Date-slice backfill (cursor caps at 2,000 releases per window) and extract value, lot and framework terms from descriptions.
+  - key: procurement-uk-find-a-tender-ocds
+    name: UK Find a Tender OCDS notices (above-threshold tender, award, contract)
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Cabinet Office (Crown Commercial Service)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - { url: 'https://www.contractsfinder.service.gov.uk/Home/TermsAndConditions', quote: 'You can reproduce content published on Contracts Finder and Find a Tender under the OGL as long as you follow the licence' }
+    conditions: [ 'OGL v3 attribution.', 'Drop party contactPoint names, emails and phones.', 'Respect "except where otherwise stated" third-party content.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Measure OCID overlap against Contracts Finder over a common date window and join suppliers on GB-COH.
+  - key: procurement-eu-ted-notices
+    name: EU TED procurement notices (Search API v3, eForms)
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Publications Office of the European Union
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.ted.europa.eu/v3/notices/search', 'https://docs.ted.europa.eu/api/latest/search.html' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - { url: 'https://docs.ted.europa.eu/api/latest/search.html', quote: 'does not require authentication, making it openly accessible to any system or user' }
+      - { url: 'https://commission.europa.eu/legal-notice_en', quote: 'content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence' }
+    conditions: [ 'Confirm the TED/Publications Office reuse statement (legal notice was not readable) before RIGHTS_DETERMINED.', 'CC BY 4.0 style attribution.', 'Exclude natural-person contact data in notices.' ]
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Quote the TED legal-notice reuse terms from a readable copy, then pair winner names and ids from notice XML.
+  - key: procurement-usaspending-awards
+    name: USAspending federal contract awards API
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: US Department of the Treasury (Bureau of the Fiscal Service)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.usaspending.gov/api/v2/search/spending_by_award/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - { url: 'https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/README.md', quote: 'all federal spending data which is open source and provided to the public as part of the DATA Act' }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked - no readable data-terms page (site is a JS shell); reopen when a public-domain statement is quotable. UEI is a join target.
+  - key: procurement-sam-opportunities
+    name: SAM.gov Opportunities (federal solicitations)
+    category: procurement
+    structuring: normalization
+    format: free-text
+    publisher: US General Services Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://api.sam.gov/prod/opportunities/v2/search' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked - needs a SAM.gov account and API key (same blocker as contractors-sam-entities); unauthenticated call returned 404.
+
+datasets:
+  - key: public-procurement-notices
+    name: Public tender and contract-award notices (CA, UK, EU), CPV/UNSPSC classified, supplier-registry linked
+    category: procurement
+    entity: procurement_notice (one tender or contract award notice) with buyer, supplier, classification, value and description
+    stage: SCREENED
+    description: "One record per public tender or award notice from CanadaBuys, UK Contracts Finder and Find a Tender (OCDS) and EU TED, normalized to one value, currency and classification schema. Free-text descriptions are parsed deterministically into lots, framework references, contract periods and values. A Companies House company number cited in TED winner-identifier and in OCDS GB-COH supplier ids links awardees automatically across publishers at the supplier level only; names and titles never auto-link."
+    sources:
+      - procurement-canadabuys-notices
+      - procurement-uk-contracts-finder-ocds
+      - procurement-uk-find-a-tender-ocds
+      - procurement-eu-ted-notices
+    join_keys:
+      - key: Companies House company number (TED winner-identifier = OCDS GB-COH supplier id)
+        between: [ procurement-eu-ted-notices, procurement-uk-contracts-finder-ocds ]
+        measured: 8/624 distinct TED UK winner ids found in 2,000 Contracts Finder awards (Sep 2026); 12/12 distinct matches checked, 11 same legal name, 1 trading name
+        mode: declared
+      - key: Companies House company number (TED winner-identifier = OCDS GB-COH supplier id)
+        between: [ procurement-eu-ted-notices, procurement-uk-find-a-tender-ocds ]
+        measured: 5/624 distinct TED UK winner ids found in 2,000 Find a Tender awards (Aug-Sep 2026)
+        mode: declared
+    taxonomy:
+      - CPV (EU/UK) and UNSPSC (Canada) mapped to one procurement taxonomy
+      - notice stage (planning, tender, award, contract)
+      - procedure type and framework flag
+    agent_questions:
+      - Which suppliers won public contracts above a value in a CPV division across the UK and EU in the last 90 days?
+      - Which open tenders close in the next 14 days matching a service description, with buyer, value and lots?
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Obtain a quotable TED reuse statement, extend the declared-key regex for Companies House, then measure extraction hit rates on 20 notices per member.

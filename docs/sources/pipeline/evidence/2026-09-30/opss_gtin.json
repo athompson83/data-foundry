@@ -1,0 +1,10 @@
+{
+ "opss_notices_total": 3734,
+ "opss_newest": "2026-09-30T12:09:35Z",
+ "opss_fetched": 600,
+ "opss_with_valid_gtin": 155,
+ "cpsc_recalls_2022_2026": 1800,
+ "cpsc_recalls_with_valid_gtin": 108,
+ "cpsc_distinct_gtins": 371,
+ "shared_gtin_notices": []
+}

@@ -1,0 +1,12 @@
+{
+ "gcat_satcat_rows_with_norad_number": 69999,
+ "celestrak_rows": 71073,
+ "norad_numbers_in_both": 69432,
+ "celestrak_not_in_gcat": 1641,
+ "launch_date_agrees": 68677,
+ "launch_date_checked": 69414,
+ "gcat_launches": 76005,
+ "gcat_launches_with_notes": 1236,
+ "gcat_satcat_rows_whose_launch_tag_is_in_launch_log": 69999,
+ "latest_gcat_launch": "2026 Sep 28 1248:59"
+}

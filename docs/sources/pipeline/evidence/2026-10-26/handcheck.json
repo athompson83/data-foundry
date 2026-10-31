@@ -1,0 +1,170 @@
+[
+ {
+  "usgs_id": "us6000u4jw",
+  "usgs_place": "203 km NW of Port-Olry, Vanuatu",
+  "usgs_mag": 5.8,
+  "emsc_id": [
+   "20261024_0000091"
+  ],
+  "emsc_region": [
+   "VANUATU"
+  ],
+  "emsc_mag": [
+   5.8
+  ]
+ },
+ {
+  "usgs_id": "us6000txqu",
+  "usgs_place": "68 km NE of Tadine, New Caledonia",
+  "usgs_mag": 5.3,
+  "emsc_id": [
+   "20260926_0000010"
+  ],
+  "emsc_region": [
+   "LOYALTY ISLANDS"
+  ],
+  "emsc_mag": [
+   5.3
+  ]
+ },
+ {
+  "usgs_id": "us6000u3lf",
+  "usgs_place": "81 km S of Sand Point, Alaska",
+  "usgs_mag": 5,
+  "emsc_id": [
+   "20261020_0000142"
+  ],
+  "emsc_region": [
+   "ALASKA PENINSULA"
+  ],
+  "emsc_mag": [
+   5.0
+  ]
+ },
+ {
+  "usgs_id": "us6000tyik",
+  "usgs_place": "Balleny Islands region",
+  "usgs_mag": 5.2,
+  "emsc_id": [
+   "20260930_0000064"
+  ],
+  "emsc_region": [
+   "BALLENY ISLANDS REGION"
+  ],
+  "emsc_mag": [
+   5.2
+  ]
+ },
+ {
+  "usgs_id": "us6000u4j2",
+  "usgs_place": "197 km WNW of Port-Olry, Vanuatu",
+  "usgs_mag": 6.9,
+  "emsc_id": [
+   "20261024_0000058"
+  ],
+  "emsc_region": [
+   "VANUATU"
+  ],
+  "emsc_mag": [
+   6.9
+  ]
+ },
+ {
+  "usgs_id": "us6000u18t",
+  "usgs_place": "3 km SW of Bajo Corral, Panama",
+  "usgs_mag": 5.5,
+  "emsc_id": [
+   "20261009_0000266"
+  ],
+  "emsc_region": [
+   "PANAMA"
+  ],
+  "emsc_mag": [
+   5.5
+  ]
+ },
+ {
+  "usgs_id": "us6000u1kt",
+  "usgs_place": "28 km SSW of Caman\u00e1, Peru",
+  "usgs_mag": 5.3,
+  "emsc_id": [
+   "20261011_0000211"
+  ],
+  "emsc_region": [
+   "NEAR COAST OF SOUTHERN PERU"
+  ],
+  "emsc_mag": [
+   5.2
+  ]
+ },
+ {
+  "usgs_id": "us6000u0rr",
+  "usgs_place": "Chagos Archipelago region",
+  "usgs_mag": 5.2,
+  "emsc_id": [
+   "20261007_0000217"
+  ],
+  "emsc_region": [
+   "CHAGOS ARCHIPELAGO REGION"
+  ],
+  "emsc_mag": [
+   5.2
+  ]
+ },
+ {
+  "usgs_id": "us6000u4ku",
+  "usgs_place": "219 km NW of Port-Olry, Vanuatu",
+  "usgs_mag": 5,
+  "emsc_id": [
+   "20261024_0000133"
+  ],
+  "emsc_region": [
+   "VANUATU"
+  ],
+  "emsc_mag": [
+   5.0
+  ]
+ },
+ {
+  "usgs_id": "us6000u4ty",
+  "usgs_place": "218 km ENE of Nagqu, China",
+  "usgs_mag": 5.9,
+  "emsc_id": [
+   "20261025_0000153"
+  ],
+  "emsc_region": [
+   "XIZANG-QINGHAI BORDER REGION"
+  ],
+  "emsc_mag": [
+   5.9
+  ]
+ },
+ {
+  "usgs_id": "us6000u1kv",
+  "usgs_place": "86 km SSE of Panguna, Papua New Guinea",
+  "usgs_mag": 6.2,
+  "emsc_id": [
+   "20261011_0000218"
+  ],
+  "emsc_region": [
+   "SOLOMON ISLANDS"
+  ],
+  "emsc_mag": [
+   6.1
+  ]
+ },
+ {
+  "usgs_id": "us6000tzj8",
+  "usgs_place": "south of Panama",
+  "usgs_mag": 5,
+  "emsc_id": [
+   "20261004_0000216"
+  ],
+  "emsc_region": [
+   "SOUTH OF PANAMA"
+  ],
+  "emsc_mag": [
+   5.0
+  ]
+ }
+]

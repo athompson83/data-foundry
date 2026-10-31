@@ -1,0 +1,70 @@
+{
+ "state_items": 227,
+ "state_distinct_codes": 224,
+ "state_codes_equal_to_a_canada_iso_code": 147,
+ "state_codes_equal_to_iso_but_a_different_country": 63,
+ "code_collision_examples": [
+  [
+   "French Polynesia",
+   "PY",
+   "Paraguay"
+  ],
+  [
+   "Israel",
+   "IS",
+   "Iceland"
+  ],
+  [
+   "Bahrain",
+   "BA",
+   "Bosnia and Herzegovina"
+  ],
+  [
+   "Oman",
+   "MU",
+   "Mauritius"
+  ],
+  [
+   "China",
+   "CH",
+   "Switzerland"
+  ],
+  [
+   "Morocco",
+   "MO",
+   "Macao"
+  ],
+  [
+   "Macau",
+   "MC",
+   "Monaco"
+  ],
+  [
+   "Bosnia and Herzegovina",
+   "BI",
+   "Burundi"
+  ]
+ ],
+ "canada_items": 230,
+ "fcdo_items": 226,
+ "name_join_state_canada": 202,
+ "name_join_state_fcdo": 203,
+ "name_join_canada_fcdo": 205,
+ "all_three": 197,
+ "state_level_counts": {
+  "1": 88,
+  "3": 27,
+  "4": 25,
+  "2": 87
+ },
+ "canada_advisory_state_counts": {
+  "3": 22,
+  "0": 104,
+  "1": 90,
+  "2": 14
+ },
+ "state_level4_also_canada_avoid_all_travel_3": 20,
+ "state_level4_total_matched": 22,
+ "state_items_dated_after_run_date": 2,
+ "state_summary_chars_mean": 1909
+}

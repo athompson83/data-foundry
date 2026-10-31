@@ -1,0 +1,238 @@
+# Paste under `candidates:` and `datasets:` in docs/sources/pipeline/candidates.yaml (orchestrator merges).
+# Evidence record: docs/sources/pipeline/research-2026-10-01.md (orchestrator copies notes.md content there).
+candidates:
+  - key: aviation-ntsb-accident-database
+    name: NTSB aviation accident and incident database with narratives
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: AMBER
+    sources: [ https://data.ntsb.gov/avdata ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 5,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
+          quote: 'Content appearing on NTSB Web pages, in reports, recommendation, and public dockets, unless otherwise noted, was prepared by employees of the United States Government as part of their official duties and, therefore, is not subject to copyright.'
+        }
+      - {
+          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
+          quote: 'This material may be freely copied and, at your discretion, credited to the NTSB with a "Courtesy: National Transportation Safety Board" notation.'
+        }
+    conditions:
+      - Exclude owner, crew and individual-operator personal data (owner_acft, owner_street, owner_city, oper_individual_name, Flight_Crew); keep raw in R2 only.
+      - Third-party copyrighted text and images are carved out by the NTSB policy; do not republish images.
+      - Credit NTSB (Courtesy National Transportation Safety Board) and keep records accurate and complete.
+      - The downloadable MDB retires 2027-04-05 in favour of the keyed Enterprise API; plan acquisition for the API before then.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Pull the full history through the keyed API (review its terms), parse narratives to cause, phase and damage, and re-measure the AAIB registration link over complete data.
+
+  - key: aviation-uk-aaib-reports
+    name: UK AAIB air accident and serious incident investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Air Accidents Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=aaib_report', 'https://www.gov.uk/aaib-reports' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.gov.uk/help/terms-conditions',
+          quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt.'
+        }
+    conditions:
+      - Attribute 'Contains public sector information licensed under the Open Government Licence v3.0'.
+      - Exclude personal data and third-party images or material inside the report PDFs (OGL exemptions).
+      - Do not suggest endorsement by the AAIB.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Fetch all 11,356 content-API records and PDFs into R2, extract cause, phase and injury text, and validate registrations against each state of registry grammar.
+
+  - key: aviation-ca-cadors-occurrences
+    name: Transport Canada CADORS civil aviation occurrence reports
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transport Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ https://opendatatc.tc.canada.ca/CADORS_Aircraft_Information.csv, https://opendatatc.tc.canada.ca/CADORS_Occurrence_Information.csv ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+        }
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license;'
+        }
+    conditions:
+      - Attribute 'Contains information licensed under the Open Government Licence – Canada'.
+      - Exclude the owner field and any personal information.
+      - Present CADORS as initial, unverified occurrence reports.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Stream the five CSVs (91 MB and 98 MB) in R2-backed chunks, count rows, join aircraft to occurrences by cadorsnumber, and map event names to the dataset taxonomy.
+
+  - key: aviation-nasa-asrs-reports
+    name: NASA ASRS de-identified aviation safety reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: NASA Aviation Safety Reporting System
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://asrs.arc.nasa.gov/search/database.html ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked 2026-10-01 - query-wizard access only, no licence text found, and reports are de-identified (no tail number); reopen if a bulk export with terms appears.
+
+  - key: aviation-fr-bea-reports
+    name: French BEA civil aviation investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Bureau d Enquetes et d Analyses (France)
+    stage: PARKED
+    rights: RED
+    sources: [ https://bea.aero/en/investigation-reports/notified-events/ ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 2,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://bea.aero/en/legal-notice/',
+          quote: "Les informations ne peuvent être utilisées à des fins commerciales ou promotionnelles sans l'autorisation expresse et l'obtention d'une licence de réutilisation des informations publiques."
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked 2026-10-01 - the legal notice forbids commercial reuse without a licence; reopen only with a written reuse licence.
+
+  - key: aviation-ca-tsb-air-occurrences
+    name: TSB Canada air occurrence data 1995 to present
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ https://www.tsb.gc.ca/sites/default/files/stats/ASISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 3,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked 2026-10-01 - the CSV returned HTTP 403 from this egress (listed under OGL-Canada on open.canada.ca); retry from another route and join to CADORS by tsboccurrencenumber.
+
+datasets:
+  - key: aviation-safety-occurrences
+    name: Aircraft accident and incident investigation records linked to airframe and operator
+    category: transport-safety
+    entity: aviation_occurrence (one investigated or reported accident or incident) linked to aircraft (registration, make, model, serial) and operator
+    stage: SCREENED
+    description: "One record per accident, serious incident or reported occurrence, assembled from NTSB (US, narratives),
+      UK AAIB (report summaries and PDFs) and Transport Canada CADORS (coded occurrence reports). Registration (tail number)
+      is normalised and links every source to the same airframe; registration plus an occurrence date within 3 days
+      proposes the link between two investigations of one event (for example an NTSB accredited-representative case and the
+      AAIB report of the same flight). Operator names only propose reviewed links. Narratives are structured
+      deterministically into cause, phase of flight, damage and injury fields. Every fact carries its source; owner and
+      crew personal data are excluded. The FAA registry (faa-aircraft-registry, UNKNOWN) is a later enrichment, not a member."
+    sources:
+      - aviation-ntsb-accident-database
+      - aviation-uk-aaib-reports
+      - aviation-ca-cadors-occurrences
+    join_keys:
+      - key: aircraft registration number (normalised) + occurrence date within 3 days (event-level link between investigations)
+        between:
+          - aviation-ntsb-accident-database
+          - aviation-uk-aaib-reports
+        measured: 11/2602 NTSB 2026-update registrations also have an AAIB report of the same occurrence (15 report pairs); 20 more registration-only overlaps are the same airframe in other occurrences; 11/11 same-occurrence on hand check
+        mode: candidate
+        reviewed: { correct: 11, checked: 11 }
+      - key: aircraft registration number (normalised), airframe-level link only (not the same occurrence)
+        between:
+          - aviation-ntsb-accident-database
+          - aviation-ca-cadors-occurrences
+        measured: 6/2602 NTSB registrations appear in a 6 MB CADORS Range sample; 6/6 same airframe on hand check, none the same occurrence
+        mode: candidate
+        reviewed: { correct: 6, checked: 6 }
+      - key: aircraft registration number (normalised), airframe-level link only (not the same occurrence)
+        between:
+          - aviation-uk-aaib-reports
+          - aviation-ca-cadors-occurrences
+        measured: 30/8856 AAIB registrations appear in a 6 MB CADORS Range sample; 22/25 same airframe on hand check (1 contradicted, 2 undecidable)
+        mode: candidate
+        reviewed: { correct: 22, checked: 25 }
+    taxonomy:
+      - occurrence class (accident, serious incident, incident)
+      - phase of flight
+      - occurrence category (CAST/ICAO-style event names mapped from CADORS events and NTSB sequence of events)
+      - aircraft category and operation type (FAR part, commercial, general aviation, rotorcraft)
+      - injury severity and aircraft damage
+    agent_questions:
+      - What accidents and incidents has aircraft N4698W or G-OATW been involved in, across the US, UK and Canada?
+      - Which investigations of this type of aircraft cite the same cause or phase of flight in the last five years?
+      - Which operators have repeated occurrences of a given category, with the investigating agency's narrative for each?
+      - Did a foreign authority investigate the same event that the NTSB opened as an accredited representative?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 5,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Run the EVIDENCED round - full NTSB history via the keyed API, AAIB content API plus PDFs into R2, CADORS full CSV counts, a placeholder-safe registration normalizer, and re-measured links; add 'registration number' to the declared-identifier list if the owner agrees.
