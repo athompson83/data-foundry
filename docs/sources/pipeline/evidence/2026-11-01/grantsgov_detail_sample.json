@@ -1,0 +1,260 @@
+[
+ {
+  "id": "357375",
+  "number": "PAR-25-158",
+  "desc_chars": 1018,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.273",
+   null
+  ]
+ },
+ {
+  "id": "300997",
+  "number": "NNH18ZHA002N-MUSIC",
+  "desc_chars": 5292,
+  "elig_text": true,
+  "award_ceiling": "450000",
+  "cfdas": [
+   "43.008"
+  ]
+ },
+ {
+  "id": "358828",
+  "number": "PAR-25-333",
+  "desc_chars": 802,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.121",
+   null
+  ]
+ },
+ {
+  "id": "350230",
+  "number": "PD-24-1340",
+  "desc_chars": 7633,
+  "elig_text": false,
+  "award_ceiling": "none",
+  "cfdas": [
+   "47.041",
+   null
+  ]
+ },
+ {
+  "id": "357426",
+  "number": "PAR-25-181",
+  "desc_chars": 742,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.242",
+   null
+  ]
+ },
+ {
+  "id": "356620",
+  "number": "PAR-25-020",
+  "desc_chars": 353,
+  "elig_text": true,
+  "award_ceiling": "250000",
+  "cfdas": [
+   "93.173",
+   null
+  ]
+ },
+ {
+  "id": "357946",
+  "number": "PAR-25-283",
+  "desc_chars": 452,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.242",
+   null
+  ]
+ },
+ {
+  "id": "357288",
+  "number": "PAR-26-001",
+  "desc_chars": 895,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.121",
+   "93.273",
+   "93.279",
+   "93.307",
+   "93.313",
+   "93.399",
+   null
+  ]
+ },
+ {
+  "id": "356690",
+  "number": "PAR-25-098",
+  "desc_chars": 862,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.121",
+   "93.307",
+   "93.313",
+   "93.399",
+   null
+  ]
+ },
+ {
+  "id": "357744",
+  "number": "RFA-HG-25-009",
+  "desc_chars": 431,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.172",
+   null
+  ]
+ },
+ {
+  "id": "356903",
+  "number": "PAR-25-053",
+  "desc_chars": 1143,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.853",
+   null
+  ]
+ },
+ {
+  "id": "357186",
+  "number": "PAR-25-112",
+  "desc_chars": 539,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.173",
+   "93.865",
+   null
+  ]
+ },
+ {
+  "id": "356879",
+  "number": "PAR-25-122",
+  "desc_chars": 707,
+  "elig_text": true,
+  "award_ceiling": "100000",
+  "cfdas": [
+   "93.121",
+   "93.173",
+   "93.242",
+   "93.350",
+   "93.853",
+   "93.855",
+   null
+  ]
+ },
+ {
+  "id": "358934",
+  "number": "PAR-25-416",
+  "desc_chars": 1054,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.859",
+   null
+  ]
+ },
+ {
+  "id": "358848",
+  "number": "PA-25-422",
+  "desc_chars": 858,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.113",
+   "93.121",
+   "93.172",
+   "93.173",
+   "93.213",
+   "93.233",
+   "93.273",
+   "93.279",
+   "93.286",
+   "93.307",
+   "93.310",
+   "93.361",
+   "93.398",
+   "93.837",
+   "93.838",
+   "93.839",
+   "93.840",
+   "93.846",
+   "93.847",
+   "93.853",
+   "93.855",
+   "93.865",
+   "93.866",
+   "93.867",
+   "93.879",
+   null
+  ]
+ },
+ {
+  "id": "357067",
+  "number": "PA-25-253",
+  "desc_chars": 778,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.393",
+   "93.399",
+   null
+  ]
+ },
+ {
+  "id": "357427",
+  "number": "PAR-25-182",
+  "desc_chars": 859,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.242",
+   null
+  ]
+ },
+ {
+  "id": "332137",
+  "number": "EDA-AUS-TA-AURO-2021-2006848",
+  "desc_chars": 3159,
+  "elig_text": true,
+  "award_ceiling": "300000",
+  "cfdas": [
+   "11.302",
+   "11.303"
+  ]
+ },
+ {
+  "id": "357838",
+  "number": "PAR-25-195",
+  "desc_chars": 1063,
+  "elig_text": true,
+  "award_ceiling": "none",
+  "cfdas": [
+   "93.350",
+   null
+  ]
+ },
+ {
+  "id": "332125",
+  "number": "EDA-CHI-TA-CRO-2021-2006849",
+  "desc_chars": 3159,
+  "elig_text": true,
+  "award_ceiling": "300000",
+  "cfdas": [
+   "11.302",
+   "11.303"
+  ]
+ }
+]

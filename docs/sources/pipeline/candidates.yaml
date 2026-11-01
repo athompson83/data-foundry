@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-10-26
+updated: 2026-11-01
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -8750,6 +8750,157 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-31.md ]
     next_action: 'PARKED 2026-10-31 as a member of home-product-recalls-global: three requests to data.economie.gouv.fr ended in a connection reset from this egress (the rappel.conso.gouv.fr portal itself answered 200, 88,661 bytes), so no count, field or terms was measured. Retry from Cloudflare Worker egress.'
 
+  - key: assistance-grants-gov-opportunities
+    name: Grants.gov funding opportunities (posted and forecasted notices of funding opportunity, free-text synopsis and eligibility)
+    category: public-funding
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: US Grants.gov (HHS)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.grants.gov/v1/api/search2', 'https://api.grants.gov/v1/api/fetchOpportunity' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Free public API, no login or key (ADR-0018 FREE_PUBLIC_ACCESS); the Grants.gov privacy page is a script shell from this egress, so no terms text could be quoted and the determination rests on free public access.
+      - Do not publish agency contact names, emails or phone numbers (personal data); keep the verbatim record in R2.
+      - Attribute Grants.gov and the issuing agency; do not imply endorsement.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/assistance_join.json, docs/sources/pipeline/evidence/2026-11-01/grantsgov_detail_sample.json ]
+    next_action: >-
+      Measured 2026-11-01: 857 posted + 596 forecasted opportunities (1,453 read), 1,452 carry an ALN list; of 20 seeded posted opportunities, fetchOpportunity returned a synopsis over 200 characters on 20, applicant-eligibility text on 19 and an award ceiling on 20.
+      Next: read the Grants.gov terms where they are retrievable, archive closed and archived opportunities (8,674 closed, 73,526 archived) in R2 through a plans.json entry, and write the rights record.
+
+  - key: assistance-sam-assistance-listings
+    name: "SAM.gov Assistance Listings (federal program definitions: objectives, applicant and beneficiary eligibility, application and award rules)"
+    category: public-funding
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: US General Services Administration (SAM.gov)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://sam.gov/api/prod/sgs/v1/search/?index=cfda' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Public search endpoint used by sam.gov itself, no login or key; the endpoint is not a documented API, so the determination rests on free public access (ADR-0018) and the documented SAM.gov Assistance Listings API (key required) is not used.
+      - Exclude program contact persons (names, emails, phones); keep the verbatim record in R2.
+      - Attribute SAM.gov Assistance Listings and the listing's modified date.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/assistance_join.json ]
+    next_action: >-
+      Measured 2026-11-01: 339 of the 344 ALNs cited by open Grants.gov opportunities resolve to a latest, active listing, and all 339 carry objective and eligibility text. Unresolved: 00.000, 00.ABC, 15.681, 93.600, 93.695.
+      Next: confirm a documented bulk file or API route (the search endpoint caps at 10,000 records), archive every listing in R2, and write the rights record.
+
+  - key: assistance-usaspending-awards
+    name: USAspending assistance awards by Assistance Listing Number (grants, cooperative agreements, direct payments, loans)
+    category: public-funding
+    structuring: normalization
+    format: structured
+    publisher: US Department of the Treasury (Bureau of the Fiscal Service, USAspending)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.usaspending.gov/api/v2/search/spending_by_award/', 'https://api.usaspending.gov/api/v2/references/assistance_listing/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - Free public API, no login or key (ADR-0018); the USAspending about page is a script shell from this egress, so no terms text could be quoted.
+      - Individual (natural-person) recipients are masked by the source; never publish recipient detail for individual-assistance awards.
+      - Attribute USAspending.gov and the data's as-of date.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/assistance_join.json ]
+    next_action: >-
+      Measured 2026-11-01: 35 of 40 seeded ALNs (seed 20261101) have at least one grant, cooperative-agreement or direct-payment award in FY2024 to FY2026 (earliest searchable date 2007-10-01).
+      Next: define the award subset to archive (page by ALN with a stable order), write the rights record, and measure the ALN join on the full list.
+
+  - key: lobbying-us-lda-filings
+    name: US Lobbying Disclosure Act filings (registrant, client, issue codes, activity descriptions that cite bills)
+    category: government-influence
+    structuring: event-extraction
+    format: free-text
+    publisher: US Senate Office of Public Records (LDA.gov)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://lda.gov/api/v1/filings/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 2, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - Free public API; anonymous requests are throttled (HTTP 429 after a few pages), so a full pull needs the documented free API key, which is a credential the routine does not hold.
+      - Lobbyist natural-person names and covered-position text are personal data; publish registrant and client only.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/lobbying_join.json ]
+    next_action: >-
+      Parked 2026-11-01: thin free text. Of 100 seeded Q3-2026 filings (of 25,790) only 9 cite a bill by number and the median activity description is 80 characters; the 7 distinct cited bills all resolve in GPO BILLSTATUS (7/7), so the join is exact but covers too few filings to carry a product. Reopen if a second source with richer text (for example the Canada Registry of Lobbyists, licence not yet read) is added.
+
+  - key: rulemaking-regulations-gov-documents
+    name: Regulations.gov rulemaking dockets and proposed-rule documents (Federal Register document number on each record)
+    category: regulatory
+    structuring: obligation-timeline
+    format: free-text
+    publisher: US General Services Administration (Regulations.gov)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://api.regulations.gov/v4/documents' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - The API needs a key; the shared DEMO_KEY returned OVER_RATE_LIMIT on the second request, so no meaningful measurement was possible without a credential.
+      - Public comments contain submitter personal data; publish agency documents and docket metadata only.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md ]
+    next_action: >-
+      Parked 2026-11-01: one successful request (documents list answered 200 with docket and frDocNum fields visible), then OVER_RATE_LIMIT on DEMO_KEY. The frDocNum field would join each document exactly to the Federal Register record (federal-register-obligations). Reopen when a registered API key is available to the routine, or the bulk-download route is confirmed.
+
+  - key: environment-epa-eis-database
+    name: EPA environmental impact statement database and Canada's Impact Assessment Registry
+    category: environmental
+    structuring: event-extraction
+    format: free-text
+    publisher: US EPA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://cdxapps.epa.gov/cdx-enepa-II/public/action/eis/search', 'https://iaac-aeic.gc.ca/050/evaluations/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    conditions:
+      - Both answered 200 as HTML search forms (31,475 and 30,983 bytes); no JSON or bulk endpoint was found, so acquisition would be form scraping.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/probe.out ]
+    next_action: >-
+      Parked 2026-11-01: HTML search forms only, no shared identifier between the US and Canadian processes. Reopen if either publishes a machine endpoint (EPA publishes EIS filing notices in the Federal Register, which is already a candidate source).
+
+  - key: veterinary-adverse-events-openfda
+    name: openFDA animal and veterinary adverse event reports
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US FDA Center for Veterinary Medicine
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://api.fda.gov/animalandveterinary/event.json' ]
+    scores: { agent_demand: 2, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md ]
+    next_action: >-
+      Parked 2026-11-01: 1,378,854 reports, meta.last_updated 2026-10-05, but every field is coded (VeDDRA terms, species, outcome) with no narrative, and no second publisher was measured. Reopen with a free-text counterpart such as the UK VMD pharmacovigilance reports.
+
+  - key: infrastructure-fhwa-bridge-inventory
+    name: FHWA National Bridge Inventory (structure number, condition ratings, inspection dates)
+    category: infrastructure
+    structuring: normalization
+    format: structured
+    publisher: US Federal Highway Administration
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://www.fhwa.dot.gov/bridge/nbi/ascii.cfm' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 3, structuring_value: 2, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md ]
+    next_action: >-
+      Parked 2026-11-01: the download page answers 200 (14,059 bytes of HTML) with per-state files, all coded fields and no free text; no second publisher measured. Reopen with state inspection-report text.
+
+  - key: catalog-open-data-portals
+    name: "Open-data portal catalogs (open.canada.ca CKAN, data.europa.eu, data.gov.uk, data.gov): dataset titles, descriptions and licences"
+    category: data-discovery
+    structuring: normalization
+    format: free-text
+    publisher: Government of Canada (open.canada.ca)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/api/action/package_search', 'https://data.europa.eu/api/hub/search/search' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    conditions:
+      - Licence is per dataset; only datasets whose catalog record carries an open licence may be re-served.
+    evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/probe.out ]
+    next_action: >-
+      Parked 2026-11-01: open.canada.ca answers (48,203 packages) and data.europa.eu answers (2,033,435 datasets), but catalog.data.gov/api/3 returned 404 and data.gov.uk redirected, and no deterministic identifier links records across portals (a title or URL match would only be a candidate). Reopen with a measured cross-portal join.
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -8939,7 +9090,8 @@ datasets:
     evidence:
       - docs/sources/pipeline/research-2026-09-27-composites.md
       - docs/sources/pipeline/evidence/2026-09-27-composites/recalls
-    next_action: "Build inside the cpsc-recalls build (first in the service-trade build order): generalise the
+    next_action: >-
+      "Build inside the cpsc-recalls build (first in the service-trade build order): generalise the
       LIVE fda-recalls StructuredRecall schema to recall_notice + affected_product + notice_link, load CPSC
       and the HC OGL index first (the joint-recall marker narrows 341 candidate links, which go to a review
       queue before publication; only GTIN and cited case numbers link automatically), then EU Safety Gate XML
@@ -11190,7 +11342,8 @@ datasets:
       - 'What changed in the advisory for this destination in the last 30 days?'
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-24.md, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/measure.json, docs/sources/pipeline/evidence/2026-10-24/travel-advisories/handcheck.json ]
-    next_action: 'Read the State Department copyright page (HTTP 403 today), quote the three licences, archive all three feeds in R2 (State and Canada are single requests; FCDO is 226 content documents), build a reviewed GEC-to-ISO crosswalk and re-measure the cross-government link on the archived inputs before EVIDENCED. Note: 20 of the 22 State Level 4 countries that match are Canada "avoid all travel", so level agreement is a usable sanity check.'
+    next_action: >-
+      'Read the State Department copyright page (HTTP 403 today), quote the three licences, archive all three feeds in R2 (State and Canada are single requests; FCDO is 226 content documents), build a reviewed GEC-to-ISO crosswalk and re-measure the cross-government link on the archived inputs before EVIDENCED. Note: 20 of the 22 State Level 4 countries that match are Canada "avoid all travel", so level agreement is a usable sanity check.'
 
   - key: space-weather-events
     name: Space weather alerts and geomagnetic activity (NOAA SWPC and GFZ Potsdam)
@@ -11486,7 +11639,8 @@ datasets:
       - 'Which vulnerabilities were added to the known-exploited list this week?'
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
-    next_action: 'Terms read 2026-10-31 (evidence/2026-10-31/screen.json notes in research-2026-10-31.md): CISA pages answer 403 and the NVD FAQ is a 2.2 KB script shell from this egress, so neither can be quoted here; quote them from Cloudflare Worker egress. OSV lists a licence per ecosystem database (CC0, CC-BY 4.0, MIT, Apache 2.0, and CC-BY-NC-ND 4.0 for Chainguard), so OSV is AMBER and only ecosystems with a commercial-use licence may be redistributed. Then add a paged NVD snapshot plan.'
+    next_action: >-
+      'Terms read 2026-10-31 (evidence/2026-10-31/screen.json notes in research-2026-10-31.md): CISA pages answer 403 and the NVD FAQ is a 2.2 KB script shell from this egress, so neither can be quoted here; quote them from Cloudflare Worker egress. OSV lists a licence per ecosystem database (CC0, CC-BY 4.0, MIT, Apache 2.0, and CC-BY-NC-ND 4.0 for Chainguard), so OSV is AMBER and only ecosystems with a commercial-use licence may be redistributed. Then add a paged NVD snapshot plan.'
 
   - key: earthquake-events
     name: Earthquake events (USGS ComCat and EMSC SeismicPortal catalogs, matched by time and place)
@@ -11515,3 +11669,50 @@ datasets:
     scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
     evidence: [ docs/sources/pipeline/research-2026-10-26.md, docs/sources/pipeline/evidence/2026-10-26/measure.json ]
     next_action: 'Weak on structuring value (structured sources, little free text); keep behind higher-scoring datasets and quote the EMSC terms.'
+
+  - key: federal-assistance-programs
+    name: US federal assistance programs (Assistance Listing, open funding opportunities and awards, joined on the ALN)
+    category: public-funding
+    entity: assistance program (one Assistance Listing Number) with its eligibility rules, its open and forecasted funding opportunities and its recent awards
+    stage: SCREENED
+    description: "One record per federal assistance program, keyed by Assistance Listing Number (ALN, formerly CFDA number). SAM.gov Assistance Listings supply the program definition in free text (objectives, applicant and beneficiary eligibility, application and award rules); Grants.gov supplies each open or forecasted funding opportunity with its free-text synopsis, eligibility text, award ceiling and close date; USAspending supplies the awards made under the ALN. Every Grants.gov opportunity lists the ALNs it funds and every USAspending award carries its ALN, so the three link automatically through the ALN. Agent contact persons are excluded; the verbatim records stay in R2."
+    sources:
+      - assistance-grants-gov-opportunities
+      - assistance-sam-assistance-listings
+      - assistance-usaspending-awards
+    join_keys:
+      - key: Assistance Listing Number (Grants.gov cfdaList entry equals SAM.gov programNumber, latest active listing)
+        between:
+          - assistance-grants-gov-opportunities
+          - assistance-sam-assistance-listings
+        measured: '339/344 distinct ALNs cited by the 1,453 posted and forecasted Grants.gov opportunities resolve to a latest SAM.gov listing; 1,452/1,453 opportunities carry an ALN list; unresolved: 00.000, 00.ABC, 15.681, 93.600, 93.695 (evidence/2026-11-01/assistance_join.json)'
+        mode: declared
+      - key: Assistance Listing Number (USAspending award program number equals Grants.gov cfdaList entry)
+        between:
+          - assistance-grants-gov-opportunities
+          - assistance-usaspending-awards
+        measured: '35/40 seeded ALNs (seed 20261101) cited by open opportunities have at least one assistance award in FY2024 to FY2026'
+        mode: declared
+    taxonomy:
+      - 'funding_category: Grants.gov funding activity categories (health, education, science and technology, environment, and others, verbatim)'
+      - 'instrument: grant, cooperative agreement, procurement contract, other'
+      - 'eligible_applicant: Grants.gov applicant types (states, counties, tribes, nonprofits, institutions of higher education, small businesses, individuals, unrestricted)'
+      - 'assistance_type: SAM.gov assistance types (project grants, formula grants, direct payments, loans)'
+    agent_questions:
+      - Which open federal funding opportunities can a small business, a tribe or a county apply for in this category, and by when?
+      - What are the eligibility rules and the matching requirements of this program, and which agency runs it?
+      - Which organizations received awards under this program in the last three years, and for how much?
+      - Which programs fund this activity but have no open opportunity right now?
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-01.md
+      - docs/sources/pipeline/evidence/2026-11-01/assistance_join.json
+    next_action: >-
+      Write the three rights records (free public access; terms unreadable from this egress, so AMBER), add the Grants.gov, SAM.gov and USAspending snapshots to tooling/snapshots/plans.json, and measure eligibility and deadline extraction on 20 or more opportunities.

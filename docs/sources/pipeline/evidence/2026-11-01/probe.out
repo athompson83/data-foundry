@@ -1,0 +1,42 @@
+== grantsgov-search2 :: 200 18100 application/json
+{"errorcode":0,"msg":"Webservice Succeeds","token":"[redacted]","data":{"searchParams":{"resultType":"json","searchOnly":false,
+== sedia-eu :: 200 3674 application/json
+{"apiVersion":"2.157.1","terms":"***","responseTime":49,"totalResults":4290448,"pageNumber":1,"pageSize":1,"sort":"relevance","groupByField":"sortStatus","queryLanguage":{"language":"en","probability":0.0},"bestBets":[],"results":[{"apiVersion":"2.157.1","refe
+== uk-find-a-grant :: 200 79445 text/html; charset=utf-8
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8" data-next-head=""/><meta name="viewport" content="width=device-width" data-next-head=""/><title data-next-head=""> Searching for    all grants,    122        results   - Find a grant</title><link rel="
+== samgov-cfda :: 200 10773 application/hal+json
+{"_embedded":{"results":[{"_index":"db-prod-samdotgovsearch-cfda2_idxref_01272026","financial":{"additionalInfo":"If minimum or maximum amounts of funding per competitive and/or capacity project grant, or cooperative agreement are established, these amounts wi
+== usaspending-cfda :: 204 0 application/json
+
+== usaspending-assistance-listing :: 200 2463 application/json
+[{"code":"null","description":null,"count":1},{"code":"NOT APPLICABLE","description":null,"count":1},{"code":"98","description":null,"count":12},{"code":"97","description":null,"count":152},{"code":"96","description":null,"count":12},{"code":"95","description"
+== epa-eis-search :: 200 31475 text/html;charset=ISO-8859-1
+        	<!DOCTYPE html> 	<!--[if IEMobile 7]><html class="iem7 no-js" lang="en" dir="ltr"><![endif]--> 	<!--[if lt IE 7]><html class="lt-ie9 lt-ie8 lt-ie7 no-js" lang="en" dir="ltr"><![endif]--> 	<!--[if (IE 7)&(!IEMobile)]><html class="lt-ie9 lt-ie8 no-js" l
+== iaac-registry :: 200 30983 text/html; charset=utf-8
+  <!DOCTYPE html>  <!--[if lt IE 9]><html class="no-js lt-ie9" lang="en" dir="ltr"><![endif]--> <!--[if gt IE 8]><!--> <html xmlns="http://www.w3.org/1999/xhtml" class="no-js" lang="en" dir="ltr"> <!--<![endif]--> <head>     <meta charset="utf-8" /> 
+== iaac-ckan :: 200 81693 application/json;charset=utf-8
+{"help": "https://open.canada.ca/data/api/3/action/help_show?name=package_search", "success": true, "result": {"count": 838, "facets": {}, "facet_ranges": {"portal_release_date": {"counts": ["1926-11-01T00:00:00Z", 459], "gap": "+100YEARS", "start": "1926-11-0
+== vaers :: 200 29759 text/html; charset=UTF-8
+<!DOCTYPE html> <html lang="en">  <head>     <meta charset="utf-8">     <meta http-equiv="X-UA-Compatible" content="IE=edge">     <meta name="viewport" content="width=device-width, initial-scale=1">     <meta name="description" content="">     <meta name="keyw
+== openfda-vet :: 200 3776 application/json; charset=utf-8
+{   "meta": {     "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the A
+== nbi :: 200 14059 text/html;charset=UTF-8
+<!DOCTYPE html> <html lang="en">   <head> <!--[if IE 9]> <html class="ie9"> <![endif]-->   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" /
+== ntrs :: 200 17820 application/json; charset=utf-8
+{"stats":{"took":47,"total":1055,"estimate":false,"maxScore":136.56212},"results":[{"_meta":{"score":136.56212},"copyright":{"disclosedInvention":false,"submissionId":20250010011,"containsThirdPartyMaterial":false,"containsIndication":false,"belongsToPublisher
+== nhtsa-flat :: 200 0 application/octet-stream
+HTTP/1.1 200 Connection Established  HTTP/2 200  content-type: application/octet-stream x-amz-replication-status: REPLICA last-modified: Sun, 01 Nov 2026 08:04:00 GMT etag: "421e84a70e0e75d14ed4b3f937e23f72" x-amz-version-id: uqE0GUbYV8z8_jYM8h8GfbjuSiA
+== nhtsa-api :: 200 2309 application/json;charset=UTF-8
+{"Count":2,"Message":"Results returned successfully","results":[{"Manufacturer":"Carrier Corporation","NHTSACampaignNumber":"24E012000","ReportReceivedDate":"10/02/2024","Component":"EQUIPMENT","PotentialNumberofUnitsAffected":1945,"Summary":"Carrier Corporati
+== bsee :: 302 171 text/html; charset=utf-8
+<html><head><title>Object moved</title></head><body> <h2>Object moved to <a href="/Main/404Error.aspx?aspxerrorpath=/Main/Incidents.aspx">here</a>.</h2> </body></html> 
+== regs-gov :: 200 105629 application/json
+{   "data" : [ {     "type" : "documents",     "id" : "FAA-2022-0674-0006",     "attributes" : {       "agencyId" : "FAA",       "objectId" : "0900006486019799",       "frDocNum" : "2023-21673",       "documentType" : "Rule",       "withdrawn" : false,       "
+== ckan-datagov :: 404 36 application/json
+{"detail":{},"message":"Not Found"} 
+== ckan-ca :: 200 21104 application/json;charset=utf-8
+{"help": "https://open.canada.ca/data/api/3/action/help_show?name=package_search", "success": true, "result": {"count": 48203, "facets": {}, "facet_ranges": {"portal_release_date": {"counts": ["1926-11-01T00:00:00Z", 26341], "gap": "+100YEARS", "start": "1926-
+== ckan-uk :: 301 606 
+     <!DOCTYPE html>     <html>       <head>         <title>Welcome to Find open data - data.gov.uk</title>         <style>           body { font-family: Arial, sans-serif; margin: 0; }           header { background: #1d70b8; }           h1 { color: white; fon
+== ckan-eu :: 200 4234 application/json
+{"result":{"count":2033435,"results":[{"country":{"label":"Estonia","id":"ee","resource":"http://publications.europa.eu/resource/authority/country/EST"},"translation_meta":{"details":{"el":{"machine_translated":true,"original_language":"et"},"nl":{"machine_tra

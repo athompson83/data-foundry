@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "95794f8989ba83d926f19baa6d54449fc79a98370bde34afc9b8c91e5972f4fd",
+  "registry_sha256": "709edcfc6470ed1b8bb65707643b77c16b1e3b16555d164c9dbeed9778a28952",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -596,6 +596,15 @@
       "sources": [
         "quake-usgs-comcat",
         "quake-emsc-seismicportal"
+      ]
+    },
+    "federal-assistance-programs": {
+      "name": "US federal assistance programs (Assistance Listing, open funding opportunities and awards, joined on the ALN)",
+      "stage": "SCREENED",
+      "sources": [
+        "assistance-grants-gov-opportunities",
+        "assistance-sam-assistance-listings",
+        "assistance-usaspending-awards"
       ]
     }
   },
@@ -5124,6 +5133,123 @@
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "assistance-grants-gov-opportunities": {
+      "name": "Grants.gov funding opportunities (posted and forecasted notices of funding opportunity, free-text synopsis and eligibility)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Grants.gov (HHS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "assistance-sam-assistance-listings": {
+      "name": "SAM.gov Assistance Listings (federal program definitions: objectives, applicant and beneficiary eligibility, application and award rules)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US General Services Administration (SAM.gov)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "assistance-usaspending-awards": {
+      "name": "USAspending assistance awards by Assistance Listing Number (grants, cooperative agreements, direct payments, loans)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Department of the Treasury (Bureau of the Fiscal Service, USAspending)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "lobbying-us-lda-filings": {
+      "name": "US Lobbying Disclosure Act filings (registrant, client, issue codes, activity descriptions that cite bills)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US Senate Office of Public Records (LDA.gov)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "rulemaking-regulations-gov-documents": {
+      "name": "Regulations.gov rulemaking dockets and proposed-rule documents (Federal Register document number on each record)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US General Services Administration (Regulations.gov)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "environment-epa-eis-database": {
+      "name": "EPA environmental impact statement database and Canada's Impact Assessment Registry",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "veterinary-adverse-events-openfda": {
+      "name": "openFDA animal and veterinary adverse event reports",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US FDA Center for Veterinary Medicine",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "infrastructure-fhwa-bridge-inventory": {
+      "name": "FHWA National Bridge Inventory (structure number, condition ratings, inspection dates)",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Federal Highway Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "catalog-open-data-portals": {
+      "name": "Open-data portal catalogs (open.canada.ca CKAN, data.europa.eu, data.gov.uk, data.gov): dataset titles, descriptions and licences",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Government of Canada (open.canada.ca)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
         "stage PARKED is before PROTOTYPED"
       ]
     }

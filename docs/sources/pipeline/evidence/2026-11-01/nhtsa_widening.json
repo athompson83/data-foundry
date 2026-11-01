@@ -1,0 +1,15 @@
+{
+ "nhtsa_post2010_rows": 247061,
+ "nhtsa_distinct_campaigns": 15370,
+ "campaign_type_letters": {
+  "V": 13733,
+  "C": 69,
+  "E": 1368,
+  "T": 200
+ },
+ "cpsc_notices_2015_2026": 3733,
+ "cpsc_mentioning_nhtsa": 2,
+ "cpsc_with_campaign_like_token": 0,
+ "cpsc_with_resolving_campaign": 0,
+ "examples": {}
+}

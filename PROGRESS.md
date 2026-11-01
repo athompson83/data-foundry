@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-01: daily dataset scout (round 16)
+
+- **Health.** Both recall datasets synced 2026-11-01 (FDA 12:17-12:18Z, CPSC 12:18:17Z, HC 12:18:26Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-21), the CPSC Recall API (2026-10-29) and Health Canada (2026-10-29). No regression. PR #88 already contained `main`; CI green on `1fde472`. No snapshot archive was due (main's only plan, ENERGY STAR, is archived).
+- **Added: 1 data type (target 5 to 10): `federal-assistance-programs`** (Grants.gov opportunities, SAM.gov Assistance Listings, USAspending awards) at SCREENED, declared ALN join measured 339/344 (Grants.gov to SAM.gov) and 35/40 sampled (to USAspending). Screened and PARKED with reasons: US lobbying filings (9/100 cite a bill, 80-character median text, anonymous 429), Regulations.gov (DEMO_KEY rate limited), EPA EIS and Canada IAAC (HTML forms only), openFDA veterinary events (no narrative), FHWA bridge inventory (no text), open-data portal catalogs (no cross-portal identifier).
+- **Widening.** NHTSA equipment, child-seat and tire recalls measured against `consumer-product-recalls-north-america`: 1,637 consumer-adjacent campaigns post-2010, but 0 of 3,733 CPSC notices (2015 to 2026) cite an NHTSA campaign, so no declared link and no member added. No capture gap in an approved source.
+- **Stage.** No older candidate advanced; EVIDENCED waits on the archive workflow, which runs from `main` after PR #88 merges.
+- **Evidence.** `docs/sources/pipeline/research-2026-11-01.md`, `evidence/2026-11-01/`. Nothing deployed.
+
 ## Current session — 2026-10-31: daily dataset scout (round 15)
 
 - **Health.** Both recall datasets synced 2026-10-31 (FDA 12:17-12:18Z, CPSC 12:18:12Z, HC 12:18:21Z; under 24 h, latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-21), the CPSC Recall API (2026-10-29) and Health Canada (2026-10-29). No regression. PR #88 CI green on head `ec89f46`.
