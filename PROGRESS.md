@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-02: daily dataset scout (round 17)
+
+- **Health.** Both recall datasets synced 2026-11-02 (FDA 12:18Z, CPSC 12:18:21Z, HC 12:18:32Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-21) and CPSC/HC (2026-10-29). No regression.
+- **Added: 0 data types; screened 5, all PARKED with reasons** (CMS nursing-home citations, FEMA Public Assistance projects, FMCSA motor carriers, Legistar city council matters, contaminated-site registries; see `research-2026-11-02.md`). Below the 5 to 10 target.
+- **Widening.** Transport Canada Vehicle Recalls Database for `consumer-product-recalls-north-america`: 18,044 recalls (1975 to 2026-10-22), CPSC cites resolve 76/84; rights record written and the 204 MB full file added to `plans.json` for R2 archiving. Not yet a dataset member (the BUILDING-dataset gate requires a built member).
+- **Stage.** No candidate changed stage; EVIDENCED waits on the archive workflow, which runs from `main` after PR #88 merges.
+- **Evidence.** `docs/sources/pipeline/research-2026-11-02.md`, `evidence/2026-11-02/`. Nothing deployed.
+
 ## Current session — 2026-11-01: daily dataset scout (round 16)
 
 - **Health.** Both recall datasets synced 2026-11-01 (FDA 12:17-12:18Z, CPSC 12:18:17Z, HC 12:18:26Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-21), the CPSC Recall API (2026-10-29) and Health Canada (2026-10-29). No regression. PR #88 already contained `main`; CI green on `1fde472`. No snapshot archive was due (main's only plan, ENERGY STAR, is archived).

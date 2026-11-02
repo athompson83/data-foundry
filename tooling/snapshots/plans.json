@@ -1866,6 +1866,23 @@
           "url": "https://www.nhc.noaa.gov/data/tcr/AL202023_Tammy.pdf"
         }
       ]
+    },
+    "ca-tc-vehicle-recalls-database": {
+      "rights_record": "docs/sources/ca-tc-vehicle-recalls-database-rights-record-20261102.md",
+      "files": [
+        {
+          "name": "vrdb_full_monthly.csv",
+          "url": "https://opendatatc.tc.canada.ca/vrdb_full_monthly.csv"
+        },
+        {
+          "name": "vrdb.package.json",
+          "url": "https://open.canada.ca/data/api/action/package_show?id=1ec92326-47ef-4110-b7ca-959fab03f96d"
+        },
+        {
+          "name": "open-government-licence-canada.html",
+          "url": "https://open.canada.ca/en/open-government-licence-canada"
+        }
+      ]
     }
   }
 }

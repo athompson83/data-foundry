@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-01
+updated: 2026-11-02
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -5946,7 +5946,13 @@ candidates:
       - 'Attribute with "Contains information licensed under the Open Government Licence – Canada." and link the licence.'
       - 'Keep the dataset note that the database excludes inconsequential or non-safety recalls; do not present absence as safety.'
       - 'Full file is 207 MB (146,894 rows, one per model): stream it to R2 and parse in chunks; the "60 days" file in fact spans 2025-06-11 to 2026-09-22.'
-    evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md ]
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-10-03.md,
+        docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md,
+        docs/sources/pipeline/research-2026-11-02.md,
+        docs/sources/ca-tc-vehicle-recalls-database-rights-record-20261102.md
+      ]
     next_action: >-
       Candidate 2026-10-03 widening member of consumer-product-recalls-north-america. Measured: 17,978 recalls /
       146,894 rows 1975-01-14..2026-09-22 (updated daily), 15 fields, bilingual COMMENT text. 76/81 CPSC recalls that
@@ -5954,6 +5960,11 @@ candidates:
       Transport Canada notices of which 9,468 resolve here, while 8,514 VRDB recalls are not in the index. Build as
       the first widening member; parse COMMENT_ETXT (Issue / Safety Risk / Corrective Actions) into hazard and remedy
       classes.
+      2026-11-02: rights record written (docs/sources/ca-tc-vehicle-recalls-database-rights-record-20261102.md, AMBER on
+      OGL-Canada attribution), the full CSV (204,132,096 bytes, 147,328 rows, 18,044 recalls, 1975-01-01..2026-10-22) is in
+      tooling/snapshots/plans.json so the Archive source snapshot workflow can preserve it in R2 once this PR is merged,
+      and the declared CPSC link (cited VRDB URL, rn parameter) was re-measured at 76/84 CPSC recalls resolving to a VRDB recall number. The dataset gate (every member of a BUILDING dataset at BUILDING or later) keeps it out of `sources` of consumer-product-recalls-north-america until it is built. Next: dispatch the archive workflow from main, then write the
+      parser package (COMMENT_ETXT Issue / Safety Risk / Corrective Actions) with golden tests and a prototype runner.
 
   - key: food-safety-uk-fsa-hygiene-ratings
     name: UK Food Standards Agency Food Hygiene Rating Scheme API (614k establishments, FHRSID)
@@ -8900,6 +8911,76 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-11-01.md, docs/sources/pipeline/evidence/2026-11-01/probe.out ]
     next_action: >-
       Parked 2026-11-01: open.canada.ca answers (48,203 packages) and data.europa.eu answers (2,033,435 datasets), but catalog.data.gov/api/3 returned 404 and data.gov.uk redirected, and no deterministic identifier links records across portals (a title or URL match would only be a candidate). Reopen with a measured cross-portal join.
+
+  - key: health-cms-nursing-home-citations
+    name: "CMS Nursing Home Health Deficiencies (survey citations with scope and severity)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Centers for Medicare & Medicaid Services
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://data.cms.gov/provider-data/api/1/datastore/query/r5ix-sfxw/0' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-02.md ]
+    next_action: >-
+      Parked 2026-11-02: the open DKAN API answers with no key (418,682 citations, dataset released 2026-10-28, next update 2026-12-02). A 500-row sample shows the description is a short standard phrase (median 115 characters, maximum 286) beside coded F-tags and scope/severity letters, so there is little free text to structure. No second publisher of nursing-home citations is open (the Ontario long-term-care inspection datasets list no resource files). Reopen with state survey narratives or a counterpart in another country.
+
+  - key: disaster-fema-public-assistance-projects
+    name: "OpenFEMA Public Assistance Funded Project Details (project title, damage category, obligated amounts)"
+    category: public-funding
+    structuring: normalization
+    format: structured
+    publisher: Federal Emergency Management Agency
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.fema.gov/api/open/v2/PublicAssistanceFundedProjectsDetails' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-02.md ]
+    next_action: >-
+      Parked 2026-11-02: the OpenFEMA v2 API answers with no key (851,349 projects). In a 500-row sample the project title (applicationTitle) has a median of 40 characters and 222 of 500 exceed 40, so the free text is a short label beside coded damage categories and amounts. FEMA is also the publisher of the registered hazard-fema-disaster-declarations member, so no independent second publisher was found. Reopen with USAspending disaster-coded awards joined on the disaster number.
+
+  - key: transport-fmcsa-motor-carrier-census
+    name: "FMCSA motor carrier census and roadside inspections (USDOT number)"
+    category: transport
+    structuring: normalization
+    format: structured
+    publisher: Federal Motor Carrier Safety Administration
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://data.transportation.gov/resource/az4n-8mr2.json', 'https://data.transportation.gov/resource/fx4q-ay7w.json' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 1, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-02.md ]
+    next_action: >-
+      Parked 2026-11-02: both Socrata resources answer with no key (the carrier census holds 4,525,356 rows keyed on the USDOT number; inspections carry the same number). Every field is coded, there is no free text, and both resources come from one publisher, so there is nothing to structure and no independent member. Reopen only with narrative crash or complaint text from a second publisher.
+
+  - key: municipal-legistar-matters
+    name: "City council legislative matters via the Legistar Web API (Seattle, Boston, Phoenix, Pittsburgh; title, type, status, attachments)"
+    category: regulatory
+    structuring: normalization
+    format: free-text
+    publisher: City councils of Seattle, Boston, Phoenix and Pittsburgh
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://webapi.legistar.com/v1/seattle/matters', 'https://webapi.legistar.com/v1/boston/matters', 'https://webapi.legistar.com/v1/phoenix/matters', 'https://webapi.legistar.com/v1/pittsburgh/matters' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-02.md ]
+    next_action: >-
+      Parked 2026-11-02: four city endpoints answer with no key and have matters modified within 3 days (newest 2026-10-30 to 2026-11-02), with titles of median 102 to 308 characters; New York answers 403 and Chicago and Austin return a server configuration error. Parked because no identifier links the cities (matter numbers are city-local) so the only cross-source link would be title similarity (rule 7), and no published terms for the Legistar API or the city feeds were read. Reopen with a state-bill citation extracted from titles and a terms record per city.
+
+  - key: contaminated-sites-registries
+    name: "Contaminated site registries (Canada Federal Contaminated Sites Inventory, US EPA SEMS/Superfund)"
+    category: environment
+    structuring: normalization
+    format: free-text
+    publisher: Treasury Board of Canada Secretariat; US EPA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/dataset/1d42f7b9-1549-40aa-8ac6-0e0302ff2902', 'https://data.epa.gov/efservice' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 2, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-02.md ]
+    next_action: >-
+      Parked 2026-11-02: the open.canada.ca record for the Federal Contaminated Sites Inventory lists an XML zip (OGL, licence ca-ogl-lgo), but its host map-carte.tbs-sct.gc.ca fails TLS verification from this egress (incomplete certificate chain; verification was not bypassed). The EPA Envirofacts SEMS_ACTIVE_SITES table answers 404 and the old enviro.epa.gov path 301s. Reopen when the Canadian chain is fixed or served from another host, and a working EPA SEMS endpoint is found.
 
 datasets:
   - key: home-product-recalls-global

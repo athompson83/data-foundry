@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "709edcfc6470ed1b8bb65707643b77c16b1e3b16555d164c9dbeed9778a28952",
+  "registry_sha256": "72e6b23d31ac699bd6ba747ca3c26e2f316b77e4bb3c69d0331d2d36490e4afc",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -3299,7 +3299,6 @@
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
       ]
     },
@@ -5246,6 +5245,71 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "Government of Canada (open.canada.ca)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "health-cms-nursing-home-citations": {
+      "name": "CMS Nursing Home Health Deficiencies (survey citations with scope and severity)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Centers for Medicare & Medicaid Services",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "disaster-fema-public-assistance-projects": {
+      "name": "OpenFEMA Public Assistance Funded Project Details (project title, damage category, obligated amounts)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Federal Emergency Management Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "transport-fmcsa-motor-carrier-census": {
+      "name": "FMCSA motor carrier census and roadside inspections (USDOT number)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Federal Motor Carrier Safety Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "municipal-legistar-matters": {
+      "name": "City council legislative matters via the Legistar Web API (Seattle, Boston, Phoenix, Pittsburgh; title, type, status, attachments)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "City councils of Seattle, Boston, Phoenix and Pittsburgh",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "contaminated-sites-registries": {
+      "name": "Contaminated site registries (Canada Federal Contaminated Sites Inventory, US EPA SEMS/Superfund)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Treasury Board of Canada Secretariat; US EPA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
