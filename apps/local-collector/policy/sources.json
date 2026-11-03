@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "72e6b23d31ac699bd6ba747ca3c26e2f316b77e4bb3c69d0331d2d36490e4afc",
+  "registry_sha256": "82e2cb624d326ecb904c9623239a1db7cc94ea6540fc1f33ed3bffe80fe01b6c",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -605,6 +605,14 @@
         "assistance-grants-gov-opportunities",
         "assistance-sam-assistance-listings",
         "assistance-usaspending-awards"
+      ]
+    },
+    "eu-court-judgments": {
+      "name": "European court judgments (ECtHR and CJEU, linked by cited ECLI)",
+      "stage": "SCREENED",
+      "sources": [
+        "caselaw-eu-echr-hudoc",
+        "caselaw-eu-cjeu-cellar"
       ]
     }
   },
@@ -5310,6 +5318,97 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "Treasury Board of Canada Secretariat; US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "caselaw-eu-echr-hudoc": {
+      "name": "European Court of Human Rights judgments (HUDOC): judgment text with ECLI, application number, articles and importance",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Council of Europe (European Court of Human Rights)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "caselaw-eu-cjeu-cellar": {
+      "name": "Court of Justice of the European Union judgments (EUR-Lex / CELLAR): judgment text with ECLI and CELEX number",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Publications Office of the European Union",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "avalanche-us-forecast-centers": {
+      "name": "Avalanche.org public forecasts (US avalanche centers: danger rating, bottom line, problems, discussion)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Avalanche.org (US avalanche forecast centers)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "avalanche-ca-forecasts": {
+      "name": "Avalanche Canada public forecasts (regional danger ratings, avalanche problems, highlights and summaries)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Avalanche Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "maritime-nga-msi-navigation-warnings": {
+      "name": "NGA Maritime Safety Information broadcast warnings (NAVAREA, HYDROLANT, HYDROPAC)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US National Geospatial-Intelligence Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "environment-epa-tri-facilities": {
+      "name": "EPA Toxics Release Inventory facilities (Envirofacts efservice, FRS id)",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Environmental Protection Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "weather-nws-forecast-discussions": {
+      "name": "NWS Area Forecast Discussions (forecaster-written text, 123 forecast offices)",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US National Weather Service",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [

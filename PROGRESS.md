@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-03: daily dataset scout (round 18)
+
+- **Health.** Both recall datasets synced 2026-11-03 (FDA 12:17-12:18Z, CPSC 12:18:02Z, HC 12:18:06Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC/HC (2026-10-29). No regression.
+- **Added: 1 data type** (`eu-court-judgments`: ECtHR HUDOC + CJEU EUR-Lex/CELLAR, SCREENED, declared ECLI join 23/23). **Screened: 7 candidates**: two avalanche-forecast sources (SCREENED, no dataset yet) and three PARKED (NGA navigation warnings, feed frozen at 2024; EPA TRI facilities, no free text; NWS forecast discussions, one publisher). Below the 5 to 10 target.
+- **Widening.** No member added to a LIVE/BUILDING dataset: ACCC and USDA FSIS still 403 (Akamai), NZ Product Safety detail pages return a shell. TC VRDB snapshot plan waits on the merge of PR #88.
+- **Stage.** `eu-court-judgments` DISCOVERED to SCREENED. Nothing else can advance until PR #88 merges (the archive workflow runs from `main`).
+- **Evidence.** `docs/sources/pipeline/research-2026-11-03.md`, `evidence/2026-11-03/`. Nothing deployed.
+
 ## Current session — 2026-11-02: daily dataset scout (round 17)
 
 - **Health.** Both recall datasets synced 2026-11-02 (FDA 12:18Z, CPSC 12:18:21Z, HC 12:18:32Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-21) and CPSC/HC (2026-10-29). No regression.

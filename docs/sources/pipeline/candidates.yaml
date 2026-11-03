@@ -8982,6 +8982,116 @@ candidates:
     next_action: >-
       Parked 2026-11-02: the open.canada.ca record for the Federal Contaminated Sites Inventory lists an XML zip (OGL, licence ca-ogl-lgo), but its host map-carte.tbs-sct.gc.ca fails TLS verification from this egress (incomplete certificate chain; verification was not bypassed). The EPA Envirofacts SEMS_ACTIVE_SITES table answers 404 and the old enviro.epa.gov path 301s. Reopen when the Canadian chain is fixed or served from another host, and a working EPA SEMS endpoint is found.
 
+  - key: caselaw-eu-echr-hudoc
+    name: "European Court of Human Rights judgments (HUDOC): judgment text with ECLI, application number, articles and importance"
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Council of Europe (European Court of Human Rights)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://hudoc.echr.coe.int/app/query/results' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - Free public search backend of the HUDOC site, no login or key (ADR-0018). The ECHR copyright and legal-notice pages could not be read from this egress (they returned empty or script pages), so the determination rests on free public access and the rights record must quote the terms before EVIDENCED.
+      - Acknowledge the Council of Europe / European Court of Human Rights as the source; judgments name applicants, so personal-data handling follows the Court's own anonymisation (publish only what the Court publishes).
+      - The query endpoint is not a documented API and answered 403 to a Python client while answering 200 to curl with the same declared User-Agent; acquisition must use a client that gets a stable 200 or be parked.
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/eucourts_join.json, docs/sources/pipeline/evidence/2026-11-03/probe.out ]
+    next_action: >-
+      Measured 2026-11-03: the query endpoint reports 103,640 judgments (all languages), newest 2026-10-29, each with an ECLI (ECLI:CE:ECHR:...). 23 of 23 distinct ECtHR ECLIs cited by 10 recent CJEU judgments resolve in HUDOC. Next: read and quote the reuse terms, confirm a stable acquisition client and page size, then archive the judgment index and English texts.
+
+  - key: caselaw-eu-cjeu-cellar
+    name: "Court of Justice of the European Union judgments (EUR-Lex / CELLAR): judgment text with ECLI and CELEX number"
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Publications Office of the European Union
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://publications.europa.eu/webapi/rdf/sparql', 'https://publications.europa.eu/resource/celex/' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    conditions:
+      - Open SPARQL endpoint and CELEX content negotiation, no login or key (ADR-0018). The europa.eu legal notice states EU-owned content is licensed CC BY 4.0 (Commission reuse decision); the EUR-Lex notice and the Court's own reuse position were not readable from this egress, so the rights record must confirm them before EVIDENCED.
+      - Credit the source and indicate changes; EUR-Lex states only the Official Journal is authentic, so serve text as a convenience copy with that notice.
+      - The EUR-Lex HTML site sits behind a JavaScript robot check; acquire only through the CELLAR resource and SPARQL endpoints and never bypass the check.
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/eucourts_join.json, docs/sources/pipeline/evidence/2026-11-03/screen.json ]
+    next_action: >-
+      Measured 2026-11-03: CELLAR holds 34,763 judgment works with CELEX numbers. The newest records (2026) have no text content stream yet: 102 of 150 judgments from 2025-09 to 2025-12 returned text. 10 of those 102 cite at least one ECtHR ECLI (23 distinct), and all 23 resolve in HUDOC. Next: quote the reuse terms, archive the ECLI/CELEX index, and measure extraction of cited ECLIs and CELEX numbers over a full year.
+
+  - key: avalanche-us-forecast-centers
+    name: "Avalanche.org public forecasts (US avalanche centers: danger rating, bottom line, problems, discussion)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Avalanche.org (US avalanche forecast centers)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.avalanche.org/v2/public/products/map-layer', 'https://api.avalanche.org/v2/public/product' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Free public JSON API behind avalanche.org, no login or key (ADR-0018); no terms text was read, so the rights record must quote them and check per-center copyright before EVIDENCED.
+      - "Forecasts are safety information, not guarantees: carry the issuing center, issue time and expiry on every record and show no forecast after its expiry as current."
+      - "Forecaster names are personal data: exclude author fields unless the center publishes them as the credited author."
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/screen.json, docs/sources/pipeline/evidence/2026-11-03/fresh.json ]
+    next_action: >-
+      Measured 2026-11-03: the map layer lists 93 forecast zones from 29 centers in 13 US states, 87 in season and 6 off season; 10 zones carry a danger level today (the rest are rated -1, no rating, in early season). One zone product returned bottom line, hazard and weather discussion and avalanche problems (626-character bottom line). Next: read terms, then measure the share of in-season zones with a published discussion and a stable zone id across seasons.
+
+  - key: avalanche-ca-forecasts
+    name: "Avalanche Canada public forecasts (regional danger ratings, avalanche problems, highlights and summaries)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Avalanche Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.avalanche.ca/forecasts/en/products', 'https://api.avalanche.ca/forecasts/en/areas' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Free public JSON API, no login or key (ADR-0018); no terms text was read, so the rights record must quote Avalanche Canada's terms (it publishes a public data licence page) before EVIDENCED.
+      - "Safety information: carry issue time, validity window and region on every record; never serve an expired report as current."
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/screen.json, docs/sources/pipeline/evidence/2026-11-03/fresh.json ]
+    next_action: >-
+      Measured 2026-11-03: 8 forecast areas, all with a current report; issue dates 2026-04-30 to 2026-11-01 and validity windows to 2027-01-29, highlights of 149 to 774 characters plus summaries. No identifier links to the US centers (areas use hash ids), so any US-Canada link is spatial and a review candidate. Next: read terms and measure whether a bilingual and a full forecast product exist per area.
+
+  - key: maritime-nga-msi-navigation-warnings
+    name: "NGA Maritime Safety Information broadcast warnings (NAVAREA, HYDROLANT, HYDROPAC)"
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Geospatial-Intelligence Agency
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://msi.nga.mil/api/publications/broadcast-warn' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/fresh.json ]
+    next_action: 'Parked 2026-11-03: the open JSON API answers (198,034 warnings, 369 of 386 active warnings carry parsable coordinates) but it is stale: the newest message year is 2024 (3,480 that year against about 10,000 a year before), and the newest active warning was issued 2023-05-31. Reopen if the feed resumes; the Canadian Coast Guard NOTMAR site is an HTML page with no machine feed found.'
+
+  - key: environment-epa-tri-facilities
+    name: "EPA Toxics Release Inventory facilities (Envirofacts efservice, FRS id)"
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US Environmental Protection Agency
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://data.epa.gov/efservice/tri_facility' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 1, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/screen.json ]
+    next_action: 'Parked 2026-11-03: the Envirofacts service answers with no key (64,990 TRI facilities, FRS id and coordinates) but every field is coded or an address and there is no free text; same publisher as the registered EPA ECHO members. Contact fields (technical and public contact names, emails, phones) are personal data and would be excluded.'
+
+  - key: weather-nws-forecast-discussions
+    name: "NWS Area Forecast Discussions (forecaster-written text, 123 forecast offices)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Weather Service
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://api.weather.gov/products/types/AFD' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/screen.json ]
+    next_action: 'Parked 2026-11-03: api.weather.gov lists 4,488 AFD products from 123 offices, newest 2026-11-03T13:47Z, US government work. No second publisher of forecast discussions was found, there is no identifier to link and the text is a short-lived forecast narrative; reopen if a second national weather service publishes forecaster discussions openly.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -11797,3 +11907,41 @@ datasets:
       - docs/sources/pipeline/evidence/2026-11-01/assistance_join.json
     next_action: >-
       Write the three rights records (free public access; terms unreadable from this egress, so AMBER), add the Grants.gov, SAM.gov and USAspending snapshots to tooling/snapshots/plans.json, and measure eligibility and deadline extraction on 20 or more opportunities.
+
+  - key: eu-court-judgments
+    name: European court judgments (ECtHR and CJEU, linked by cited ECLI)
+    category: legal
+    entity: court judgment (one ECLI) with its cited judgments, the articles and instruments it applies and its outcome
+    stage: SCREENED
+    description: "One record per judgment of the European Court of Human Rights (HUDOC) and the Court of Justice of the European Union (EUR-Lex/CELLAR), keyed by European Case Law Identifier (ECLI). Judgment text is free prose; the deterministic extraction targets are the cited ECLIs (CJEU judgments print ECtHR ECLIs as CE:ECHR:YYYY:MMDDJUDnnnnnnnn), CELEX numbers, application and case numbers, the Convention articles and EU instruments applied, and the date. A cited ECLI names the counterpart judgment, so it links automatically; topic or party similarity only proposes a reviewed candidate. Each fact carries its source judgment."
+    sources:
+      - caselaw-eu-echr-hudoc
+      - caselaw-eu-cjeu-cellar
+    join_keys:
+      - key: cited ECtHR ECLI (CJEU judgment text CE:ECHR identifier equals the HUDOC ecli field)
+        between:
+          - caselaw-eu-cjeu-cellar
+          - caselaw-eu-echr-hudoc
+        measured: '23/23 distinct ECtHR ECLIs cited by 10 of 102 CJEU judgments with text (150 judgments dated 2025-09-04 to 2025-12-18, CELLAR SPARQL offset 400) resolve to a HUDOC record'
+        mode: declared
+    taxonomy:
+      - 'court: ECtHR (Grand Chamber, Chamber, Committee), CJEU (Court of Justice)'
+      - 'instrument_applied: ECHR article, EU Charter article, EU regulation or directive cited'
+      - 'importance: HUDOC importance level 1 to 4 where published'
+    agent_questions:
+      - Which ECtHR judgments does this CJEU judgment rely on, and what did they decide?
+      - Which recent judgments of either court interpret this Convention or Charter article?
+      - Has the ECtHR judgment cited here been followed or distinguished by the CJEU since?
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 3
+      structuring_value: 5
+      freshness: 5
+      low_onboarding_cost: 3
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-03.md
+      - docs/sources/pipeline/evidence/2026-11-03/eucourts_join.json
+    next_action: >-
+      Read and quote both publishers' reuse terms and write the rights records; confirm a stable acquisition client for HUDOC; add a structured member (for example EUR-Lex legislation cited by the judgments) so the dataset has one structured and one free-text source before EVIDENCED; widen the CJEU sample to a full year.
