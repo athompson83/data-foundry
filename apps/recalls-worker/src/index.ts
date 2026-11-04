@@ -9,9 +9,9 @@
  */
 
 import { ACCEPTANCE_FIXTURE_ID, acceptanceLeaseExpired, consumeRequest, currentUsage, findCustomerByKey, isPlanId, issueFreeKey, issueKey, PLANS, replaceKey, presentedKey, usageReset, type AuthenticatedCustomer } from './account.js';
-import { BadRequest, getRecall, lookupCode, searchRecalls, stats } from './api.js';
+import { BadRequest, getRecall, lookupCode, recallCoverageStats, searchRecalls, stats } from './api.js';
 import { accountPage, ACCOUNT_JS } from './account-page.js';
-import { screeningPage, SCREENING_JS } from './screening-page.js';
+import { screeningLandingPage, screeningPage, SCREENING_JS } from './screening-page.js';
 import { screeningRoutes, expireScreeningReports } from './screening-routes.js';
 import { screeningSalesOpen } from './screening-payment.js';
 import type { Env } from './env.js';
@@ -22,7 +22,7 @@ import { DATASETS, isPublished, publishedDatasets, salesOpen, type DatasetEntry,
 import { datasetPage, homePage, SITE_JS, type Coverage } from './site.js';
 import { createCheckoutSession, createPortalSession, currentSubscription, handleStripeWebhook, retrieveCheckoutSession, StripeError, upsertCustomerFromSubscription } from './stripe.js';
 import { scheduledSync, syncWindow } from './sync.js';
-import { getProductRecall, lookupProductCode, PRODUCT_ID, productStats, searchProductRecalls } from './product-api.js';
+import { getProductRecall, lookupProductCode, PRODUCT_ID, productCoverageStats, productStats, searchProductRecalls } from './product-api.js';
 import { FIRST_PRODUCT_YEAR, PRODUCT_BROWSE_PAGE_SIZE, PRODUCT_INDEXNOW_FEED, PRODUCT_BROWSE_PATTERN, PRODUCT_PAGE_PATTERN, PRODUCT_SITEMAP_PAGE_SIZE, PRODUCT_SITEMAP_PATTERN, productBrowseIndex, productBrowsePage, productIndexableStats, productNoticePage, productSitemap } from './product-pages.js';
 import { scheduledProductSync } from './product-sync.js';
 import { createIngestCredential, extractedServed, handleIntake, IntakeRefused, productsServed, restoreExtractions, revokeIngestCredential, withdrawExtractions } from './intake.js';
@@ -475,6 +475,10 @@ async function route(request: Request, env: Env): Promise<Response> {
   if (datasetAt) return datasetRoute(env, ctx, datasetAt.key);
 
   switch (url.pathname) {
+    case '/inventory-recall-check':
+      if (request.method !== 'GET' && request.method !== 'HEAD') return apiError(405, 'method_not_allowed', 'GET only.');
+      if (!productsServed(env)) return withdrawn(ctx);
+      return html(screeningLandingPage(ctx, screeningSalesOpen(env)), 200, { 'cache-control': GATED });
     case '/screening':
       if (request.method !== 'GET') return apiError(405, 'method_not_allowed', 'GET only.');
       return html(screeningPage(ctx, productsServed(env), screeningSalesOpen(env)), 200, { 'cache-control': 'private, no-store', 'referrer-policy': 'no-referrer', 'content-security-policy': `${PAGE_CSP}; connect-src 'self'` });
@@ -484,10 +488,11 @@ async function route(request: Request, env: Env): Promise<Response> {
       const published = publishedDatasets(env);
       // Scope the cache to the release as well as publication/sales gates: a deploy must not serve the old landing page.
       const marketplaceOpen = marketplaceEnabled(env) && published.length > 0;
-      const variant = `${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}/${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}`;
+      const reportSales = screeningSalesOpen(env);
+      const variant = `${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}/${published.map((entry) => entry.key).join('+') || 'none'}/${salesOpen(env) ? 'open' : 'closed'}/${marketplaceOpen ? 'rapidapi' : 'direct'}/${reportSales ? 'reports-open' : 'reports-closed'}`;
       return cached(cacheKey(ctx, `/_home/${variant}`), async () => {
         const datasets = await Promise.all(published.map(async (entry) => ({ entry, coverage: await coverage(env, entry.key) })));
-        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env), marketplaceOpen }), 200, { 'cache-control': 'public, max-age=300' });
+        return html(homePage(ctx, { datasets, salesOpen: salesOpen(env), marketplaceOpen, screeningSalesOpen: reportSales }), 200, { 'cache-control': 'public, max-age=300' });
       });
     }
     case '/assets/site.js':
@@ -663,7 +668,7 @@ async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
   try {
     switch (key) {
       case 'recalls': {
-        const s = (await stats(env.DB)) as { categories: Array<{ category: string; recalls: number; latest_report: string | null }>; last_successful_sync: string | null };
+        const s = await recallCoverageStats(env.DB);
         return {
           records: s.categories.reduce((total, row) => total + row.recalls, 0),
           breakdown: s.categories.map((row) => `${row.category} ${row.recalls.toLocaleString('en-US')}`).join(' · '),
@@ -672,7 +677,7 @@ async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
         };
       }
       case 'product-recalls': {
-        const s = (await productStats(env.DB)) as { agencies: Array<{ agency: string; notices: number; latest: string | null }>; last_successful_sync: Record<string, string> };
+        const s = await productCoverageStats(env.DB);
         const syncs = Object.values(s.last_successful_sync).sort();
         return {
           records: s.agencies.reduce((total, row) => total + row.notices, 0),
@@ -693,7 +698,7 @@ async function coverage(env: Env, key: DatasetKey): Promise<Coverage | null> {
 function datasetRoute(env: Env, ctx: PageContext, key: DatasetKey): Promise<Response> | Response {
   if (!isPublished(env, key)) return withdrawn(ctx);
   const entry = DATASETS[key];
-  return cached(cacheKey(ctx, `/_dataset/${key}/${salesOpen(env) ? 'open' : 'closed'}`), async () =>
+  return cached(cacheKey(ctx, `/_dataset/${encodeURIComponent(env.CF_VERSION_METADATA?.id ?? 'local')}/${key}/${salesOpen(env) ? 'open' : 'closed'}`), async () =>
     html(datasetPage(ctx, entry, await coverage(env, key), salesOpen(env)), 200, { 'cache-control': 'public, max-age=300' }),
   );
 }

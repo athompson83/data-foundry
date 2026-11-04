@@ -149,6 +149,13 @@
 - **Next.** Build it (storage, daily sync, API/MCP), with GTIN as the only automatic recall link. Then archive and
   prototype the next free sources the same way (WaterSense, CEC solar lists, the international recall feeds).
 
+## Current session — 2026-11-04: profitability conversion and serving efficiency
+
+- **Candidate locally qualified; REV-008/REV-013 commercial acceptance remains IN_PROGRESS.** Isolated `codex/profitability-20261104` starts at canonical main `e78d908`; the older dirty supplied checkout is preserved. Canonical runtime remains Cloudflare Worker/D1/R2; no Postgres migration or duplicate project.
+- Homepage now leads with the existing inventory preview and optional $29/$49 reports; a detailed public guide is gated into the sitemap, the private workspace stays noindex, and the key-issued page returns inventory users to screening. Human coverage shares lightweight count/success-clock queries with API stats, avoiding unused aggregate work; full machine stats retain their contract. Page caches include release/report-sales state as applicable. GitHub About's obsolete homepage is corrected and read back.
+- **Validation:** 262 Worker tests / 11 files, root/Worker typechecks and diff checks pass. Initial regression failures reproduced the gaps. Worker dry-run passed before the final onboarding wording; final dry-run, candidate/main CI, guarded deploy and fresh runtime acceptance are the remaining release sequence. Browser DOM control is disabled; no fresh desktop/mobile visual proof claimed. Public changes/evidence/next metrics: [profitability work package](docs/commercial-validation/profitability-20261104.md).
+- Live merchant and provider measurements were refreshed and are retained privately, not in this public repository. Do not infer revenue from plan labels, $0 checkout completion, acceptance traffic or Worker invocations. No price, allowance, settlement, source/publication gate or schema change; no outreach or promotion spend. Required owner actions: none for this engineering slice. Issue #115 remains open for its uncompleted packages.
+
 ## Previous session — 2026-10-19: Health Canada capture adapter released
 
 - **COMPLETE, bounded adapter delivery; PR #111 / REV-012 remains IN_PROGRESS.** Source `4b3fe7e9cb4f1ecdb1988807549a49ad6217cbe3` is deployed as Worker version `827ec2ab-33a9-4eb5-8ef6-84c10b296da3` at 100% and installed through the existing Windows scheduled collector. The live local capture plan is now **2 tasks / 1 permitted-no-adapter / 24 blocked**; CPSC and HC are enabled independently. The older dirty attached checkout is preserved.
