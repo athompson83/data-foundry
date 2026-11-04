@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-04: daily dataset scout (round 19)
+
+- **Health.** Both recall datasets synced 2026-11-04 (FDA 12:17-12:18Z, CPSC 12:18:03Z, HC 12:18:07Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC/HC (2026-10-29 / 2026-11-02). No regression.
+- **Added: 1 data type** (`ics-security-advisories`: CISA, Siemens and Schneider CSAF advisories, SCREENED, declared joins 53/53 cited SSA ids and 754/901 shared CVEs). **Screened and parked: 3** (government audit reports, legislative votes, UK Gazette insolvency notices). Below the 5 to 10 target.
+- **Widening.** No member added to a BUILDING dataset: ACCC and FSIS still 403, OPSS and Safety Gate have no declared join to CPSC/HC.
+- **Stage.** `ics-security-advisories` DISCOVERED to SCREENED. Archive-dependent stages wait on the merge of PR #88. Merged `main` (#116) into the rolling branch.
+- **Evidence.** `docs/sources/pipeline/research-2026-11-04.md`, `evidence/2026-11-04/`. Nothing deployed.
+
 ## Current session — 2026-11-03: daily dataset scout (round 18)
 
 - **Health.** Both recall datasets synced 2026-11-03 (FDA 12:17-12:18Z, CPSC 12:18:02Z, HC 12:18:06Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC/HC (2026-10-29). No regression.

@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-02
+updated: 2026-11-04
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -9092,6 +9092,98 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-11-03.md, docs/sources/pipeline/evidence/2026-11-03/screen.json ]
     next_action: 'Parked 2026-11-03: api.weather.gov lists 4,488 AFD products from 123 offices, newest 2026-11-03T13:47Z, US government work. No second publisher of forecast discussions was found, there is no identifier to link and the text is a short-lived forecast narrative; reopen if a second national weather service publishes forecaster discussions openly.'
 
+  - key: ics-advisories-cisa-csaf
+    name: "CISA ICS/OT security advisories (CSAF 2.0 JSON: summaries, affected products, CVEs, mitigations)"
+    category: cybersecurity
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US CISA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/cisagov/CSAF/develop/csaf_files/OT/white/index.txt', 'https://raw.githubusercontent.com/cisagov/CSAF/develop/csaf_files/OT/white/changes.csv' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Open GitHub raw files, no login or key (ADR-0018); CISA is a US federal agency, so its advisories are a US government work, but the cisa.gov terms page and the repository LICENSE were not readable from this egress (403 and 404), so the rights record must quote them before EVIDENCED.
+      - Advisories are TLP:WHITE (disclosure not limited). Third-party content quoted inside an advisory (vendor text, researcher credit) is not CISA's to license; serve CISA's own fields and keep the verbatim document in the raw archive.
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/ics.json, docs/sources/pipeline/evidence/2026-11-04/ics_join.json ]
+    next_action: >-
+      Measured 2026-11-04: index.txt lists 3,995 advisory files (2010 to 2026; 461 in 2026), changes.csv newest 2026-11-03T06:00Z. 60 of 60 newest sampled documents carry CVEs, prose notes and remediations. In the newest 200 documents 53 cite a Siemens SSA advisory, and 53 of 53 cited SSA ids exist in the Siemens feed. Next: quote the terms, archive the full index (snapshot plan), and measure CVE and vendor-advisory extraction over the whole set.
+
+  - key: ics-advisories-siemens-csaf
+    name: "Siemens ProductCERT security advisories (CSAF 2.0 JSON, TLP:WHITE feed)"
+    category: cybersecurity
+    structuring: identifier-extraction
+    format: structured
+    publisher: Siemens ProductCERT
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://cert-portal.siemens.com/productcert/csaf/ssa-feed-tlp-white.json', 'https://cert-portal.siemens.com/productcert/csaf/provider-metadata.json' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.siemens.com/productcert/terms-of-use
+        quote: "Siemens grants third parties the right to use, redistribute, and modify the Siemens Security Advisories and Security Bulletins published by Siemens' ProductCERT services, in accordance with these Special Provisions. This includes permission for commercial use."
+    conditions:
+      - "Purpose of use is limited to informing the third party's own organization, its affiliates or its customers about the specific advisories; serve the advisories as security information to customers, never as a repackaged vendor-impersonating feed."
+      - "Every redistributed version must include a link to the original text on the Siemens website; modifications must be technically correct and in line with Siemens' recommendations. Siemens may revoke the permission for violations, so keep the link and the verbatim raw document."
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/ics.json, docs/sources/pipeline/evidence/2026-11-04/ics_join.json ]
+    next_action: >-
+      Measured 2026-11-04: the ROLIE feed lists 865 advisories, newest 2026-11-03; 60 of 60 sampled documents carry CVEs and prose notes. 754 CVE ids are shared between the CISA sample (901 CVEs) and the Siemens sample (2,002 CVEs). Next: write the ADR-0013 rights record from the quoted terms, archive the full feed, and add the Schneider Electric CSAF directory (293 documents, changes.csv newest 2026-10-13) as a third member after reading its terms.
+
+  - key: ics-advisories-schneider-csaf
+    name: "Schneider Electric CPCERT security notifications (CSAF 2.0 directory)"
+    category: cybersecurity
+    structuring: identifier-extraction
+    format: structured
+    publisher: Schneider Electric CPCERT
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.se.com/.well-known/csaf/provider-metadata.json', 'https://www.se.com/.well-known/csaf/changes.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - Open CSAF provider directory, no login or key (ADR-0018); no terms text was read, so the rights record must quote them before EVIDENCED.
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/ics.json, docs/sources/pipeline/evidence/2026-11-04/ics_join.json ]
+    next_action: >-
+      Measured 2026-11-04: provider-metadata.json is valid (publisher Schneider Electric CPCERT, vendor); index.txt and changes.csv list 293 documents, newest change 2026-10-13. Next: sample 60 documents for CVE and prose coverage, read the terms, and measure cited-CVE overlap with the CISA set.
+
+  - key: gov-audit-reports-uk-nao-gao
+    name: "Government audit reports (UK National Audit Office, US GAO)"
+    category: government
+    structuring: event-extraction
+    format: free-text
+    publisher: UK National Audit Office
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.nao.org.uk/wp-json/wp/v2/report', 'https://www.gao.gov/rss/reports.xml' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 2, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/audit_votes.out ]
+    next_action: 'Parked 2026-11-04: the NAO WordPress API answers (2,788 reports, newest 2026-11-04) but the GAO RSS lists only 25 reports (2026-10-07 to 2026-10-29) with no bulk route found, the gao.gov API path is 404, Oversight.gov answers 406, and no identifier joins the two audit bodies (0 of the NAO sample cite a GAO number). Reopen with a GAO bulk route and a declared join.'
+
+  - key: legislative-votes-house-commons
+    name: "Legislative roll-call votes (US House Clerk, UK Commons Votes API, Canada House of Commons)"
+    category: government
+    structuring: event-extraction
+    format: structured
+    publisher: Clerk of the US House of Representatives
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://clerk.house.gov/evs/2026/roll001.xml', 'https://commonsvotes-api.parliament.uk/data/divisions.json/search', 'https://www.ourcommons.ca/members/en/votes/xml' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/probe.out ]
+    next_action: 'Parked 2026-11-04: House roll-call XML, the UK Commons Votes API and the Canadian House vote XML all answer without a key, but the US Senate vote XML is HTTP 403 (Akamai) so the US bicameral declared join (bill number) cannot be measured, the three legislatures share no identifier, and the votes are typed fields with only a short question text. Reopen when the Senate feed is reachable.'
+
+  - key: uk-insolvency-notices-gazette
+    name: "The Gazette insolvency notices (bankruptcy, winding-up and administration notices)"
+    category: legal
+    structuring: event-extraction
+    format: free-text
+    publisher: The Gazette (TSO for The National Archives)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.thegazette.co.uk/insolvency/notice/data.json' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/probe.out ]
+    next_action: 'Parked 2026-11-04: the open JSON feed answers (10,386 notices published in October 2026; 100 sampled with full entries). The sampled first notice is an individual bankruptcy order carrying a name, home address and birth details, which is unresolved personal data (README RED gate), and only 11 of 100 sampled entries carry a company-number-like token. The Companies House bulk file (BasicCompanyDataAsOneFile-2026-11-01.zip, 494,554,856 bytes) is reachable and would join company notices by company number. Reopen as a company-only slice with a personal-data exclusion design.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -11945,3 +12037,33 @@ datasets:
       - docs/sources/pipeline/evidence/2026-11-03/eucourts_join.json
     next_action: >-
       Read and quote both publishers' reuse terms and write the rights records; confirm a stable acquisition client for HUDOC; add a structured member (for example EUR-Lex legislation cited by the judgments) so the dataset has one structured and one free-text source before EVIDENCED; widen the CJEU sample to a full year.
+
+  - key: ics-security-advisories
+    name: "Industrial control system security advisories (CISA, Siemens, Schneider Electric; linked by cited advisory id and CVE)"
+    category: cybersecurity
+    entity: "security advisory (one vendor or coordinator CSAF document) with its affected products, CVE ids, severity and mitigations"
+    stage: SCREENED
+    description: "One record per ICS/OT security advisory published as CSAF 2.0 JSON by CISA (coordinator) and by product vendors (Siemens ProductCERT, Schneider Electric CPCERT). A CISA advisory that cites a vendor advisory id (Siemens SSA-nnnnnn) names the counterpart record, so it links automatically; a shared CVE id links advisories about the same vulnerability but never merges them into one record. Product names and versions come from the CSAF product tree. Each fact carries its source advisory."
+    sources: [ ics-advisories-cisa-csaf, ics-advisories-siemens-csaf, ics-advisories-schneider-csaf ]
+    join_keys:
+      - key: cited Siemens advisory reference number (SSA-nnnnnn in the CISA advisory text equals the Siemens advisory tracking id)
+        between: [ ics-advisories-cisa-csaf, ics-advisories-siemens-csaf ]
+        measured: "53/53 distinct SSA ids cited by 53 of the newest 200 CISA advisories (changes.csv order, 2026-11-04) exist in the Siemens ROLIE feed (866 SSA ids)"
+        mode: declared
+      - key: CVE id (CISA vulnerabilities[].cve equals Siemens vulnerabilities[].cve; links advisories about the same vulnerability, not the same record)
+        between: [ ics-advisories-cisa-csaf, ics-advisories-siemens-csaf ]
+        measured: "754 of 901 CVE ids in the 60 newest CISA advisories also appear in the 60 newest Siemens advisories sampled (2,002 CVE ids)"
+        mode: declared
+    taxonomy:
+      - "publisher_role: coordinator (CISA) | vendor (Siemens, Schneider)"
+      - "vulnerability: CVE id, CWE, CVSS score and vector where published"
+      - "affected_product: vendor product name and version range from the CSAF product tree"
+      - "remediation_category: mitigation | vendor_fix | workaround | none_available"
+    agent_questions:
+      - "Which ICS advisories mention this CVE, and what mitigation does each vendor give?"
+      - "Is this Siemens or Schneider product version named in any advisory, and is a fix available?"
+      - "Which advisories did CISA publish this month and which vendor advisory does each rely on?"
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/ics.json, docs/sources/pipeline/evidence/2026-11-04/ics_join.json ]
+    next_action: >-
+      Quote the CISA and Schneider terms and write the rights records (Siemens terms are quoted; commercial use allowed for informing customers, with a mandatory link to the original); add the three sources to tooling/snapshots/plans.json once PR #88 is merged so the archive workflow can preserve the raw CSAF files; then write the deterministic CSAF parser package with golden tests.

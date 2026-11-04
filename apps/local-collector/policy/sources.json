@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "82e2cb624d326ecb904c9623239a1db7cc94ea6540fc1f33ed3bffe80fe01b6c",
+  "registry_sha256": "fbaaf099115ed929e15558a9829db56fc8564c372faedb87be9d270b6abf957c",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -613,6 +613,15 @@
       "sources": [
         "caselaw-eu-echr-hudoc",
         "caselaw-eu-cjeu-cellar"
+      ]
+    },
+    "ics-security-advisories": {
+      "name": "Industrial control system security advisories (CISA, Siemens, Schneider Electric; linked by cited advisory id and CVE)",
+      "stage": "SCREENED",
+      "sources": [
+        "ics-advisories-cisa-csaf",
+        "ics-advisories-siemens-csaf",
+        "ics-advisories-schneider-csaf"
       ]
     }
   },
@@ -5409,6 +5418,84 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "US National Weather Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ics-advisories-cisa-csaf": {
+      "name": "CISA ICS/OT security advisories (CSAF 2.0 JSON: summaries, affected products, CVEs, mitigations)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CISA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ics-advisories-siemens-csaf": {
+      "name": "Siemens ProductCERT security advisories (CSAF 2.0 JSON, TLP:WHITE feed)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Siemens ProductCERT",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ics-advisories-schneider-csaf": {
+      "name": "Schneider Electric CPCERT security notifications (CSAF 2.0 directory)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Schneider Electric CPCERT",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gov-audit-reports-uk-nao-gao": {
+      "name": "Government audit reports (UK National Audit Office, US GAO)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UK National Audit Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "legislative-votes-house-commons": {
+      "name": "Legislative roll-call votes (US House Clerk, UK Commons Votes API, Canada House of Commons)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Clerk of the US House of Representatives",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "uk-insolvency-notices-gazette": {
+      "name": "The Gazette insolvency notices (bankruptcy, winding-up and administration notices)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "The Gazette (TSO for The National Archives)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
