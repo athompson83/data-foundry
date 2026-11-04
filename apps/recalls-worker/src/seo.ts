@@ -301,7 +301,7 @@ export async function sitemapIndex(ctx: PageContext, db: D1Database, datasets: S
 
 /** Static pages, with each dataset's page only while that dataset is served. */
 export function pagesSitemap(ctx: PageContext, datasets: { readonly fda: boolean; readonly products: boolean }): string {
-  const paths = [...STATIC_PATHS.filter((path) => datasets.fda || path !== '/recalls'), ...(datasets.products ? ['/product-recalls'] : [])];
+  const paths = [...STATIC_PATHS.filter((path) => datasets.fda || path !== '/recalls'), ...(datasets.products ? ['/product-recalls', '/inventory-recall-check'] : [])];
   return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${ctx.publicOrigin}${path}</loc></url>`).join('')}</urlset>`;
 }
 
