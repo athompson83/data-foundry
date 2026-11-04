@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DATASETS, publishedDatasets } from '../src/catalog.js';
 import type { Env } from '../src/env.js';
@@ -7,6 +7,7 @@ import { ingestRecords } from '../src/product-sync.js';
 import { ndjsonBundle, prepareRecall, rawRef, writeRecallStatements } from '../src/store.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
 import { homePage } from '../src/site.js';
+import { welcomePage } from '../src/pages.js';
 
 const FOOD = {
   recall_number: 'F-0001-2026',
@@ -62,6 +63,67 @@ beforeEach(() => {
 });
 
 describe('homepage and catalog', () => {
+  it('renders exact public coverage without scanning identifier indexes or computing unused facets', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const prepare = vi.spyOn(env.DB, 'prepare');
+    for (const path of ['/', '/recalls', '/product-recalls']) {
+      const response = await page(env, path);
+      expect(response.status).toBe(200);
+      expect(response.body).toContain('<dt>Records</dt><dd>1');
+    }
+    const queries = prepare.mock.calls.map(([sql]) => sql);
+    expect(queries.some((sql) => /\b(?:recall_key|product_recall_key|product_recall_citation)\b/.test(sql))).toBe(false);
+    // The machine stats contract still includes identifier counts and facets.
+    const statsResponse = await worker.fetch(new Request('https://api.data.aroqon.com/v1/recalls/stats'), env);
+    expect(await statsResponse.json()).toHaveProperty('identifiers.gtin', 1);
+  });
+
+  it('puts the free inventory preview before the integration material and states the purchase terms', async () => {
+    const body = (await page(makeEnv({ SCREENING_SALES_OPEN: '1' }), '/')).body;
+    const start = body.indexOf('<section class="hero"');
+    const hero = body.slice(start, body.indexOf('portfolio-stats', start));
+    expect(hero).toContain('href="/screening">Check your inventory free');
+    expect(hero).toContain('$29');
+    expect(hero).toContain('No paid subscription required for reports');
+    expect(body.indexOf('id="inventory"')).toBeLessThan(body.indexOf('id="apis"'));
+    const withdrawn = (await page(makeEnv({ PRODUCT_RECALLS_KILL_SWITCH: '1' }), '/')).body;
+    expect(withdrawn).not.toContain('Check your inventory free');
+    expect(withdrawn).not.toContain('id="inventory"');
+  });
+
+  it('makes the public inventory guide discoverable while keeping the report workspace private', async () => {
+    const env = makeEnv();
+    const guide = await page(env, '/inventory-recall-check');
+    expect(guide.status).toBe(200);
+    expect(guide.body).toContain('href="/screening"');
+    expect(guide.body).not.toContain('name="robots" content="noindex"');
+    expect(guide.body).not.toContain('id="screen-key"');
+    expect((await page(env, '/screening')).body).toContain('name="robots" content="noindex"');
+    expect((await page(env, '/sitemaps/pages.xml')).body).toContain('/inventory-recall-check');
+    const withdrawn = { ...env, PRODUCT_RECALLS_KILL_SWITCH: '1' };
+    expect((await page(withdrawn, '/inventory-recall-check')).status).toBe(503);
+    expect((await page(withdrawn, '/sitemaps/pages.xml')).body).not.toContain('/inventory-recall-check');
+    expect((await worker.fetch(new Request('https://data.aroqon.com/inventory-recall-check', { method: 'POST' }), env)).status).toBe(405);
+  });
+
+  it('returns a new key holder to the no-code inventory workflow without a credential in the link', () => {
+    const key = 'rcl_live_' + 'x'.repeat(32);
+    const body = welcomePage({ publicOrigin: 'https://data.aroqon.com', apiOrigin: 'https://api.data.aroqon.com', supportEmail: 'support@example.com' }, key, 'Evaluate');
+    expect(body).toContain('href="/screening">Batch screening');
+    expect(body).toContain('No code is needed');
+    expect(body).not.toMatch(/href="[^"]*rcl_live_/);
+  });
+
+  it('refreshes report sales messaging without a release and keeps paused reports out of the hero offer', async () => {
+    const env = makeEnv({ SCREENING_SALES_OPEN: '1' });
+    const open = (await page(env, '/')).body;
+    expect(open).toContain('Optional reports: $29 standard / $49 branded, paid once.');
+    const paused = (await page({ ...env, SCREENING_SALES_OPEN: '0' }, '/')).body;
+    expect(paused).toContain('Report purchases are currently paused.');
+    expect(paused).not.toContain('Optional reports: $29 standard / $49 branded, paid once.');
+  });
+
   it('makes dataset discovery and cross-dataset lookup visible on the landing page', async () => {
     const env = makeEnv();
     await seed(env);
@@ -179,7 +241,7 @@ describe('homepage and catalog', () => {
     await seed(env);
     const { status, body } = await page(env, '/');
     expect(status).toBe(200);
-    expect(body).toContain('<h1>Clean data for applications and AI agents.</h1>');
+    expect(body).toContain('<h1>Check inventory for recalls. Keep the evidence.</h1>');
     expect(body).toContain('href="#datasets"');
     expect(body).toContain('href="/docs"');
     expect(body).toContain('href="/recalls"');

@@ -394,21 +394,31 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
   };
 }
 
-export async function productStats(db: D1Database): Promise<Record<string, unknown>> {
-  const [agencies, lastSync, identifiers, facets, links, sync] = await Promise.all([
+/** Page coverage and full stats share the same counts and successful-source clocks. */
+export async function productCoverageStats(db: D1Database) {
+  const [agencies, lastSync] = await Promise.all([
     db.prepare('SELECT agency, COUNT(*) AS notices, MAX(sort_date) AS latest FROM product_recall GROUP BY agency ORDER BY agency').all<{ agency: string; notices: number; latest: string }>(),
     db.prepare("SELECT category AS source, MAX(finished_at) AS finished_at FROM sync_run WHERE status = 'SUCCEEDED' AND category LIKE 'product:%' GROUP BY category").all<{ source: string; finished_at: string }>(),
+  ]);
+  return {
+    agencies: agencies.results,
+    last_successful_sync: Object.fromEntries(lastSync.results.map((row) => [row.source.replace('product:', ''), row.finished_at])),
+  };
+}
+
+export async function productStats(db: D1Database): Promise<Record<string, unknown>> {
+  const [coverage, identifiers, facets, links, sync] = await Promise.all([
+    productCoverageStats(db),
     db.prepare("SELECT kind, COUNT(DISTINCT value) AS distinct_values FROM product_recall_key WHERE kind IN ('gtin', 'model') GROUP BY kind").all<{ kind: string; distinct_values: number }>(),
     db.prepare("SELECT value AS facet, COUNT(*) AS notices FROM product_recall_key WHERE kind = 'facet' GROUP BY value ORDER BY value").all<{ facet: string; notices: number }>(),
     db.prepare('SELECT COUNT(*) AS n FROM product_recall_citation c JOIN product_recall r ON r.url_key = c.url_key').first<{ n: number }>(),
     sourceSync(db, { CPSC: 'product:CPSC', HC: 'product:HC' }),
   ]);
   return {
-    agencies: agencies.results,
+    ...coverage,
     identifiers: Object.fromEntries(identifiers.results.map((row) => [row.kind, row.distinct_values])),
     trade_facets: Object.fromEntries(facets.results.map((row) => [row.facet, row.notices])),
     declared_cross_agency_links: links?.n ?? 0,
-    last_successful_sync: Object.fromEntries(lastSync.results.map((row) => [row.source.replace('product:', ''), row.finished_at])),
     source_sync: sync,
     attribution: PRODUCT_ATTRIBUTION,
   };
