@@ -1,0 +1,98 @@
+candidates:
+  - key: hazmat-uscg-nrc-incident-reports
+    name: US Coast Guard National Response Center incident reports (narratives, materials with CAS numbers, pipeline and hazmat releases)
+    category: chemical-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US Coast Guard National Response Center
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://nrc.uscg.mil/', 'https://nrc.uscg.mil/FOIAFiles/CY26.xlsx' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://nrc.uscg.mil/
+        quote: 'The spreadsheets posted to the NRC website contain INITIAL incident data that has not been validated or investigated by a federal/state response agency.'
+    conditions:
+      - 'The page states no licence; this rests on ADR-0018 free public access (free download, no login). The USCG privacy and security policy at uscg.mil/Disclaim returned HTTP 403 and was not read; read it from a permitted route before paid delivery.'
+      - 'Label every record as an initial, unvalidated report; exclude drills (CALLTYPE DRL).'
+      - 'Redact personal data in narratives (89 of 16,552 CY2026 descriptions match a phone-number pattern) and publish no caller identity.'
+      - 'Only 8.8% of material rows carry a real CAS number and UN_NUMBER is empty in CY2026, so oil and fuel releases link by name only.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parse the yearly workbooks and decade bundles (CY90 to CY26) into incident, material and narrative tables, extract cited NRC report numbers, and write the ADR-0013 rights record after reading the USCG policy.'
+
+  - key: pipeline-ca-cer-incidents
+    name: Canada Energy Regulator pipeline incident data (2008 to present, cause, substance, volume, operator)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: Canada Energy Regulator
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cer-rec.gc.ca/open/incident/pipeline-incidents-comprehensive-data.csv', 'https://open.canada.ca/data/en/dataset/7dffedc4-23fa-440c-a36d-adf5a6cc09f1' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+    conditions:
+      - 'Attribute with "Contains information licensed under the Open Government Licence - Canada" and link the licence; do not imply CER endorsement.'
+      - 'The licence excludes Personal Information and third-party rights; serve no personal data.'
+      - 'No narrative text: cause fields are coded categories, and there is no CAS or UN column, so substance links to chemical records only by hand. Zero same-event matches against NRC in 2026 (0/9).'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Ingest the comprehensive CSV (2,034 incidents, 102 columns) with the dictionary and map substance categories to a common substance taxonomy; write the ADR-0013 rights record with the attribution text.'
+
+  - key: pipeline-us-phmsa-incident-data
+    name: PHMSA pipeline incident and hazmat incident data downloads (operator reports with narratives and costs)
+    category: chemical-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US PHMSA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.phmsa.dot.gov/data-and-statistics/pipeline/source-data' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: phmsa.dot.gov returns HTTP 403 (Akamai) from our egress for the data pages and downloads and the terms were not read; reopen from a permitted route, then join on the NRC report number its records cite.'
+
+  - key: pipeline-ca-tsb-pods-occurrences
+    name: Transportation Safety Board of Canada pipeline occurrence data (PODS, 1979 to present)
+    category: chemical-safety
+    structuring: event-extraction
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/PODSdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: tsb.gc.ca returns HTTP 403 for the CSV, dictionary and robots.txt from our egress; the catalogue lists the Open Government Licence - Canada, but counts and dates are unmeasured.'
+
+datasets:
+  - key: pipeline-hazmat-incidents
+    name: Pipeline and hazardous-materials release incidents with narrative, substance, cause and damages
+    category: chemical-safety
+    entity: hazmat_release_incident (one reported pipeline or hazardous-materials release with narrative, substance by CAS number, operator, cause and damages) linked to the substance hazard record
+    stage: SCREENED
+    description: 'One record per reported release, assembled from the US Coast Guard National Response Center (initial reports with narratives, materials and amounts), the Canada Energy Regulator (investigated pipeline incidents with cause and volume) and the NIOSH Pocket Guide for the substance. A CAS number in an NRC material row links the incident to the substance hazard record automatically (62 of 89 distinct CY2026 CAS numbers); NRC report numbers cited in narratives link updates to their originals. Operators and dates only propose reviewed links (0 of 9 NRC to CER pairs were the same event, so the two incident feeds are not cross-linked). PHMSA and TSB are parked (HTTP 403). Narratives are structured into cause, substance, amount and damage fields; personal data in narratives is redacted. Every fact carries its source.'
+    sources: [ hazmat-uscg-nrc-incident-reports, pipeline-ca-cer-incidents, chemical-niosh-pocket-guide ]
+    join_keys:
+      - key: CAS number (exact, leading zeros stripped; NRC MATERIAL_INVOLVED CAS number to NIOSH Pocket Guide CAS number)
+        between: [ hazmat-uscg-nrc-incident-reports, chemical-niosh-pocket-guide ]
+        measured: '62/89 distinct CY2026 NRC CAS numbers are in the NIOSH index of 626 CAS entries (1321/1453 material rows; 1264 incidents, 18 of them pipeline); 25/25 same substance on hand check of the most frequent'
+        mode: declared
+      - key: operator company (first word) within 7 days, NRC pipeline incident to CER incident, 2026
+        between: [ hazmat-uscg-nrc-incident-reports, pipeline-ca-cer-incidents ]
+        measured: '0/9 candidate pairs were the same event on hand check (US releases against Canadian incidents); no cross-border link found'
+        mode: candidate
+        reviewed: { correct: 0, checked: 9 }
+    taxonomy:
+      - 'incident class: pipeline, fixed facility, mobile, rail, vessel, storage tank (NRC TYPE_OF_INCIDENT)'
+      - 'release substance by CAS number and CHRIS code, with the CER substance category as fallback'
+      - 'cause category (NRC INCIDENT_CAUSE and CER why-it-happened category)'
+      - 'consequence: fire, evacuation, injuries, fatalities, damage amount'
+    agent_questions:
+      - 'Which pipeline or chemical releases involved benzene or ammonia in the last year, with the reporter narrative and the NIOSH exposure guidance for the substance?'
+      - 'Which operators had repeated crude oil pipeline releases, what caused them and what was the damage?'
+      - 'What updates were filed to NRC report 1460339 and what did the caller say changed?'
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Reopen PHMSA and TSB from a permitted route to add the operator-filed incident reports (join on the cited NRC report number); measure the CAS link over 2010 to 2025 NRC files; read the USCG privacy policy.'

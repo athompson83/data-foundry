@@ -1,0 +1,414 @@
+{
+ "ibtracs_last3years_rows": 24346,
+ "ibtracs_atlantic_pacific_atcf_storms": 141,
+ "named": 141,
+ "tcr_pdfs_listed_2023_2026": 52,
+ "tcr_atcf_ids_in_ibtracs": 52,
+ "tcr_ids": [
+  "AL012023_Unnamed.pdf",
+  "AL012024_Alberto.pdf",
+  "AL012025_Andrea.pdf",
+  "AL022023_Arlene.pdf",
+  "AL022024_Beryl.pdf",
+  "AL022025_Barry.pdf",
+  "AL032023_Bret.pdf",
+  "AL032024_Chris.pdf",
+  "AL032025_Chantal.pdf",
+  "AL042023_Cindy.pdf",
+  "AL042024_Debby.pdf",
+  "AL042025_Dexter.pdf",
+  "AL052023_Don.pdf",
+  "AL052024_Ernesto.pdf",
+  "AL052025_Erin.pdf",
+  "AL062023_Gert.pdf",
+  "AL062024_Francine.pdf",
+  "AL062025_Fernand.pdf",
+  "AL072023_Emily.pdf",
+  "AL072024_Gordon.pdf",
+  "AL072025_Gabrielle.pdf",
+  "AL082023_Franklin.pdf",
+  "AL082024_Eight.pdf",
+  "AL082025_Humberto.pdf",
+  "AL092023_Harold.pdf",
+  "AL092024_Helene.pdf",
+  "AL092025_Imelda.pdf",
+  "AL102023_Idalia.pdf",
+  "AL102024_Isaac.pdf",
+  "AL102025_Jerry.pdf",
+  "AL112023_Jose.pdf",
+  "AL112024_Joyce.pdf",
+  "AL112025_Karen.pdf",
+  "AL122023_Katia.pdf",
+  "AL122024_Kirk.pdf",
+  "AL122025_Lorenzo.pdf",
+  "AL132023_Lee.pdf",
+  "AL132024_Leslie.pdf",
+  "AL132025_Melissa.pdf",
+  "AL142023_Margot.pdf",
+  "AL142024_Milton.pdf",
+  "AL152023_Nigel.pdf",
+  "AL152024_Nadine.pdf",
+  "AL162023_Ophelia.pdf",
+  "AL162024_Oscar.pdf",
+  "AL172023_Philippe.pdf",
+  "AL172024_Patty.pdf",
+  "AL182023_Rina.pdf",
+  "AL182024_Rafael.pdf",
+  "AL192023_Sean.pdf",
+  "AL192024_Sara.pdf",
+  "AL202023_Tammy.pdf"
+ ],
+ "matched": [
+  "AL012023",
+  "AL012024",
+  "AL012025",
+  "AL022023",
+  "AL022024",
+  "AL022025",
+  "AL032023",
+  "AL032024",
+  "AL032025",
+  "AL042023",
+  "AL042024",
+  "AL042025",
+  "AL052023",
+  "AL052024",
+  "AL052025",
+  "AL062023",
+  "AL062024",
+  "AL062025",
+  "AL072023",
+  "AL072024",
+  "AL072025",
+  "AL082023",
+  "AL082024",
+  "AL082025",
+  "AL092023",
+  "AL092024",
+  "AL092025",
+  "AL102023",
+  "AL102024",
+  "AL102025",
+  "AL112023",
+  "AL112024",
+  "AL112025",
+  "AL122023",
+  "AL122024",
+  "AL122025",
+  "AL132023",
+  "AL132024",
+  "AL132025",
+  "AL142023",
+  "AL142024",
+  "AL152023",
+  "AL152024",
+  "AL162023",
+  "AL162024",
+  "AL172023",
+  "AL172024",
+  "AL182023",
+  "AL182024",
+  "AL192023",
+  "AL192024",
+  "AL202023"
+ ],
+ "fema_hurricane_declarations_fy2023_on": 26,
+ "fema_titles_with_storm_name_any_year": 21,
+ "fema_in_scope_declarations": 21,
+ "fema_in_scope_matched": 21,
+ "fema_titles_with_name_and_declaration_year_match": 21,
+ "fema_rows": [
+  {
+   "disaster": 3586,
+   "in_scope": false,
+   "title": "HURRICANE IAN",
+   "declared": "2022-10-01",
+   "name_match_any_year": [],
+   "name_and_year_match": []
+  },
+  {
+   "disaster": 3597,
+   "in_scope": true,
+   "title": "HURRICANE IDALIA",
+   "declared": "2023-08-31",
+   "name_match_any_year": [
+    "AL102023"
+   ],
+   "name_and_year_match": [
+    "AL102023"
+   ]
+  },
+  {
+   "disaster": 3598,
+   "in_scope": true,
+   "title": "HURRICANE LEE",
+   "declared": "2023-09-14",
+   "name_match_any_year": [
+    "AL132023"
+   ],
+   "name_and_year_match": [
+    "AL132023"
+   ]
+  },
+  {
+   "disaster": 3599,
+   "in_scope": true,
+   "title": "HURRICANE LEE",
+   "declared": "2023-09-15",
+   "name_match_any_year": [
+    "AL132023"
+   ],
+   "name_and_year_match": [
+    "AL132023"
+   ]
+  },
+  {
+   "disaster": 3614,
+   "in_scope": true,
+   "title": "TROPICAL STORM FRANCINE",
+   "declared": "2024-09-10",
+   "name_match_any_year": [
+    "AL062024"
+   ],
+   "name_and_year_match": [
+    "AL062024"
+   ]
+  },
+  {
+   "disaster": 3618,
+   "in_scope": true,
+   "title": "HURRICANE HELENE",
+   "declared": "2024-09-26",
+   "name_match_any_year": [
+    "AL092024"
+   ],
+   "name_and_year_match": [
+    "AL092024"
+   ]
+  },
+  {
+   "disaster": 3622,
+   "in_scope": true,
+   "title": "HURRICANE MILTON",
+   "declared": "2024-10-07",
+   "name_match_any_year": [
+    "AL142024"
+   ],
+   "name_and_year_match": [
+    "AL142024"
+   ]
+  },
+  {
+   "disaster": 3623,
+   "in_scope": true,
+   "title": "HURRICANE MILTON",
+   "declared": "2024-10-08",
+   "name_match_any_year": [
+    "AL142024"
+   ],
+   "name_and_year_match": [
+    "AL142024"
+   ]
+  },
+  {
+   "disaster": 3656,
+   "in_scope": true,
+   "title": "HURRICANE ISAIAS",
+   "declared": "2026-10-09",
+   "name_match_any_year": [
+    "AL092026"
+   ],
+   "name_and_year_match": [
+    "AL092026"
+   ]
+  },
+  {
+   "disaster": 4677,
+   "in_scope": false,
+   "title": "HURRICANE IAN",
+   "declared": "2022-11-21",
+   "name_match_any_year": [],
+   "name_and_year_match": []
+  },
+  {
+   "disaster": 4680,
+   "in_scope": false,
+   "title": "HURRICANE NICOLE",
+   "declared": "2022-12-13",
+   "name_match_any_year": [],
+   "name_and_year_match": []
+  },
+  {
+   "disaster": 4715,
+   "in_scope": false,
+   "title": "TYPHOON MAWAR",
+   "declared": "2023-05-25",
+   "name_match_any_year": [],
+   "name_and_year_match": []
+  },
+  {
+   "disaster": 4734,
+   "in_scope": true,
+   "title": "HURRICANE IDALIA",
+   "declared": "2023-08-31",
+   "name_match_any_year": [
+    "AL102023"
+   ],
+   "name_and_year_match": [
+    "AL102023"
+   ]
+  },
+  {
+   "disaster": 4738,
+   "in_scope": true,
+   "title": "HURRICANE IDALIA",
+   "declared": "2023-09-07",
+   "name_match_any_year": [
+    "AL102023"
+   ],
+   "name_and_year_match": [
+    "AL102023"
+   ]
+  },
+  {
+   "disaster": 4743,
+   "in_scope": true,
+   "title": "TROPICAL STORM HILARY",
+   "declared": "2023-09-27",
+   "name_match_any_year": [
+    "EP092023"
+   ],
+   "name_and_year_match": [
+    "EP092023"
+   ]
+  },
+  {
+   "disaster": 4750,
+   "in_scope": true,
+   "title": "TROPICAL STORM HILARY",
+   "declared": "2023-11-21",
+   "name_match_any_year": [
+    "EP092023"
+   ],
+   "name_and_year_match": [
+    "EP092023"
+   ]
+  },
+  {
+   "disaster": 4798,
+   "in_scope": true,
+   "title": "HURRICANE BERYL",
+   "declared": "2024-07-09",
+   "name_match_any_year": [
+    "AL022024"
+   ],
+   "name_and_year_match": [
+    "AL022024"
+   ]
+  },
+  {
+   "disaster": 4817,
+   "in_scope": true,
+   "title": "HURRICANE FRANCINE",
+   "declared": "2024-09-16",
+   "name_match_any_year": [
+    "AL062024"
+   ],
+   "name_and_year_match": [
+    "AL062024"
+   ]
+  },
+  {
+   "disaster": 4828,
+   "in_scope": true,
+   "title": "HURRICANE HELENE",
+   "declared": "2024-09-28",
+   "name_match_any_year": [
+    "AL092024"
+   ],
+   "name_and_year_match": [
+    "AL092024"
+   ]
+  },
+  {
+   "disaster": 4829,
+   "in_scope": true,
+   "title": "HURRICANE HELENE",
+   "declared": "2024-09-29",
+   "name_match_any_year": [
+    "AL092024"
+   ],
+   "name_and_year_match": [
+    "AL092024"
+   ]
+  },
+  {
+   "disaster": 4830,
+   "in_scope": true,
+   "title": "HURRICANE HELENE",
+   "declared": "2024-09-30",
+   "name_match_any_year": [
+    "AL092024"
+   ],
+   "name_and_year_match": [
+    "AL092024"
+   ]
+  },
+  {
+   "disaster": 4834,
+   "in_scope": true,
+   "title": "HURRICANE MILTON",
+   "declared": "2024-10-11",
+   "name_match_any_year": [
+    "AL142024"
+   ],
+   "name_and_year_match": [
+    "AL142024"
+   ]
+  },
+  {
+   "disaster": 4844,
+   "in_scope": true,
+   "title": "HURRICANE MILTON",
+   "declared": "2024-11-05",
+   "name_match_any_year": [
+    "AL142024"
+   ],
+   "name_and_year_match": [
+    "AL142024"
+   ]
+  },
+  {
+   "disaster": 4910,
+   "in_scope": false,
+   "title": "SUPER TYPHOON SINLAKU",
+   "declared": "2026-04-23",
+   "name_match_any_year": [],
+   "name_and_year_match": []
+  },
+  {
+   "disaster": 4951,
+   "in_scope": true,
+   "title": "HURRICANE LALA",
+   "declared": "2026-10-07",
+   "name_match_any_year": [
+    "CP012026"
+   ],
+   "name_and_year_match": [
+    "CP012026"
+   ]
+  },
+  {
+   "disaster": 4952,
+   "in_scope": true,
+   "title": "HURRICANE LOWELL",
+   "declared": "2026-10-07",
+   "name_match_any_year": [
+    "EP122026"
+   ],
+   "name_and_year_match": [
+    "EP122026"
+   ]
+  }
+ ]
+}

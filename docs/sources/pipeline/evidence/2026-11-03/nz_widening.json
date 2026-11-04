@@ -1,0 +1,230 @@
+{
+ "listing_pages_probed": [
+  [
+   0,
+   12
+  ],
+  [
+   200,
+   12
+  ],
+  [
+   400,
+   12
+  ],
+  [
+   600,
+   12
+  ],
+  [
+   800,
+   12
+  ],
+  [
+   1000,
+   12
+  ],
+  [
+   1200,
+   12
+  ],
+  [
+   1400,
+   12
+  ],
+  [
+   1600,
+   8
+  ]
+ ],
+ "distinct_recall_urls_seen": 104,
+ "sample": 20,
+ "has_hazard": 18,
+ "has_model": 0,
+ "has_date": 18,
+ "has_remedy": 0,
+ "with_valid_gtin": 0,
+ "median_chars": 4293,
+ "rows": [
+  {
+   "url": "https://www.recalls.govt.nz/recalls/honda-sxs700-2017-20-steering-universal-joint",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/canon-powershot-sx50-hs-compact-digital-cameras",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/john-deere-d105-lawn-tractors-2016-2017",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/richmond-wheel-and-castor-automated-sliding-gate-opener",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/apex-pro-7117-steering-damper-kit-sold-at-various-motorcycle-retailers",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/avanti-scott-bikes",
+   "chars": 0,
+   "has_hazard": false,
+   "has_model": false,
+   "has_date": false,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/obrien-watersports-performer-pro-combo-water-skis",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/bosch-dishwasher-multiple-models-manufactured-between-2000-and-2006",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/indian-scout-model-years-2017-2019",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/polaris-rzr-900-and-xp-1000-off-roaders-model-years-2013-2016",
+   "chars": 0,
+   "has_hazard": false,
+   "has_model": false,
+   "has_date": false,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/arena-swim-snorkel-pro-ii",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/my24-ranger-xd",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/dailydo-wall-chargers-supplied-with-unbranded-7-android-tablet",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/anko-portable-blender-sold-at-kmart",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/bobcat-mower-with-recalled-engines",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/lockon-towbars-for-ford-territory-vehicles",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/kmart-anko-teething-llama",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/aspect-sun-sunscreens-physical-sun-protection-spf50-and-tinted-physical-spf50",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/fisher-price-biceps-gift-set",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  },
+  {
+   "url": "https://www.recalls.govt.nz/recalls/out-of-the-blue-reading-lamp-sold-at-various-retailers",
+   "chars": 4293,
+   "has_hazard": true,
+   "has_model": false,
+   "has_date": true,
+   "has_remedy": false,
+   "gtin_valid": []
+  }
+ ]
+}

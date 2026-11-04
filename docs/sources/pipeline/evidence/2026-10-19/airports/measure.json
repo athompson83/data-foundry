@@ -1,0 +1,18 @@
+{
+ "faa_features": 19535,
+ "faa_with_icao_id": 2863,
+ "ourairports_rows": 86258,
+ "match_by_icao_id": 2817,
+ "match_by_faa_ident_local_code": 19058,
+ "matched_either": 19272,
+ "matched_coords_within_2km": 18743,
+ "matched_coords_checked": 19089,
+ "ourairports_comments": 16434,
+ "comments_on_matched_us_airports": 2878,
+ "operstatus": {
+  "": 7,
+  "CLOSED": 4,
+  "INDEFINITE": 296,
+  "OPERATIONAL": 19228
+ }
+}

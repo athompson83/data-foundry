@@ -1,0 +1,215 @@
+{
+ "names": 70,
+ "one_tsn": 68,
+ "none": 1,
+ "multi": 0,
+ "errors": 1,
+ "tsn": {
+  "accipiter gentilis laingi": [
+   "175302"
+  ],
+  "aipysurus fuscus": [
+   "700440"
+  ],
+  "atrichornis clamosus": [
+   "558820"
+  ],
+  "balaenoptera borealis": [
+   "180526"
+  ],
+  "balaenoptera musculus": [
+   "180528"
+  ],
+  "balaenoptera physalus": [
+   "180527"
+  ],
+  "bettongia tropica": [
+   "709404"
+  ],
+  "bombus affinis": [
+   "714782"
+  ],
+  "brachyramphus marmoratus": [
+   "176996"
+  ],
+  "brychius hungerfordi": [
+   "111951"
+  ],
+  "burramys parvus": [
+   "609815"
+  ],
+  "calidris canutus rufa": [
+   "176644"
+  ],
+  "caloprymnus campestris": [
+   "552702"
+  ],
+  "caretta caretta": [
+   "173830"
+  ],
+  "chaeropus ecaudatus": [
+   "552654"
+  ],
+  "chelonia mydas": [
+   "173833"
+  ],
+  "cyanoramphus cookii": [
+   "554878"
+  ],
+  "dasyornis longirostris": [
+   "559687"
+  ],
+  "dasyurus viverrinus": [
+   "552611"
+  ],
+  "dermochelys coriacea": [
+   "173843"
+  ],
+  "eretmochelys imbricata": "error: 'utf-8' codec can't decode byte 0xfc in position 1071: invalid start byte",
+  "eubalaena australis": [
+   "552771"
+  ],
+  "euphydryas editha taylori": [
+   "201295"
+  ],
+  "fregata andrewsi": [
+   "174767"
+  ],
+  "grus americana": [
+   "176176"
+  ],
+  "gymnobelideus leadbeateri": [
+   "609838"
+  ],
+  "isotria medeoloides": [
+   "43614"
+  ],
+  "lepidochelys olivacea": [
+   "173840"
+  ],
+  "leporillus conditor": [
+   "585287"
+  ],
+  "lichenostomus melanops cassidix": [
+   "713721"
+  ],
+  "macrotis lagotis": [
+   "552658"
+  ],
+  "macrotis leucura": [
+   "552659"
+  ],
+  "marmota vancouverensis": [
+   "180142"
+  ],
+  "mustela nigripes": [
+   "180557"
+  ],
+  "myotis septentrionalis": [
+   "180000"
+  ],
+  "myrmecobius fasciatus": [
+   "552592"
+  ],
+  "neophema chrysogaster": [
+   "177588"
+  ],
+  "notomys aquilo": [
+   "585440"
+  ],
+  "oarisma poweshiek": [
+   "706688"
+  ],
+  "onychogalea fraenata": [
+   "552741"
+  ],
+  "onychogalea lunata": [
+   "552742"
+  ],
+  "papasula abbotti": [
+   "561804"
+  ],
+  "pedionomus torquatus": [
+   "176172"
+  ],
+  "perameles bougainville": [
+   "552660"
+  ],
+  "perameles eremiana": [
+   "552661"
+  ],
+  "platanthera leucophaea": [
+   "43431"
+  ],
+  "platanthera praeclara": [
+   "196423"
+  ],
+  "pristis clavata": [],
+  "pristis pristis": [
+   "160810"
+  ],
+  "pristis zijsron": [
+   "564305"
+  ],
+  "psephotus chrysopterygius": [
+   "177574"
+  ],
+  "psephotus pulcherrimus": [
+   "177577"
+  ],
+  "pseudemydura umbrina": [
+   "551853"
+  ],
+  "pseudomys fieldi": [
+   "585492"
+  ],
+  "pseudomys fumeus": [
+   "585493"
+  ],
+  "pseudomys gouldii": [
+   "585496"
+  ],
+  "pseudomys novaehollandiae": [
+   "585503"
+  ],
+  "pseudomys shortridgei": [
+   "585509"
+  ],
+  "rana pretiosa": [
+   "173458"
+  ],
+  "setonix brachyurus": [
+   "552754"
+  ],
+  "silene spaldingii": [
+   "20126"
+  ],
+  "sistrurus catenatus": [
+   "174304"
+  ],
+  "sminthopsis psammophila": [
+   "552651"
+  ],
+  "somatochlora hineana": [
+   "101968"
+  ],
+  "sphyrna lewini": [
+   "160508"
+  ],
+  "strix occidentalis caurina": [
+   "177926"
+  ],
+  "thylacinus cynocephalus": [
+   "552591"
+  ],
+  "xeromys myoides": [
+   "585614"
+  ],
+  "zosterops albogularis": [
+   "202341"
+  ],
+  "zyzomys pedunculatus": [
+   "585620"
+  ]
+ }
+}

@@ -1,0 +1,12 @@
+223 notifications parsed from 3 weekly reports
+caseNumber: 223/223
+category: 223/223
+product: 223/223
+brand: 178/223
+name: 191/223
+model: 186/223
+batchNumber: 50/223
+barcode: 132/223
+riskType: 223/223
+notifyingCountry: 223/223
+level: 223/223

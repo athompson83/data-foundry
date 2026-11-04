@@ -1,0 +1,354 @@
+{
+ "csv_bytes": 204132096,
+ "csv_sha256": "9d5fe13c4ca9425671739b966db16e52139ffd3d80f3c27a2f66e94d58e8fa47",
+ "csv_rows": 147328,
+ "distinct_recalls": 18044,
+ "first_date": "1975-01-01",
+ "last_date": "2026-10-22",
+ "recalls_with_comment_over_50_chars": 18028,
+ "categories": [
+  [
+   "Car",
+   4074
+  ],
+  [
+   "Truck - Med. & H.D.",
+   2571
+  ],
+  [
+   "SUV",
+   2437
+  ],
+  [
+   "Light Truck & Van",
+   1464
+  ],
+  [
+   "Motorhome",
+   1400
+  ],
+  [
+   "RV Trailer",
+   1178
+  ],
+  [
+   "Motorcycle",
+   1045
+  ],
+  [
+   "Bus",
+   878
+  ],
+  [
+   "School Bus",
+   570
+  ],
+  [
+   "Heavy Trailer",
+   557
+  ],
+  [
+   "Minivan",
+   276
+  ],
+  [
+   "Tire",
+   269
+  ]
+ ],
+ "cpsc_recalls_total": 10070,
+ "cpsc_citing_tc": 84,
+ "cpsc_tc_resolved": 76,
+ "unresolved_sample": [
+  {
+   "RecallNumber": "24735",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2023565"
+   ]
+  },
+  {
+   "RecallNumber": "24736",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2023565"
+   ]
+  },
+  {
+   "RecallNumber": "24713",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/menu.aspx?lang=eng"
+   ]
+  },
+  {
+   "RecallNumber": "23796",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2023458"
+   ]
+  },
+  {
+   "RecallNumber": "23740",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2023081"
+   ]
+  },
+  {
+   "RecallNumber": "23702",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/menu.aspx?lang=eng"
+   ]
+  },
+  {
+   "RecallNumber": "22763",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/menu.aspx"
+   ]
+  },
+  {
+   "RecallNumber": "22716",
+   "urls": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2021734"
+   ]
+  }
+ ],
+ "samples": [
+  {
+   "RecallNumber": "26763",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?lang=eng&rn=2026378"
+   ],
+   "ids": [
+    "2026378"
+   ],
+   "resolved": [
+    "2026378"
+   ]
+  },
+  {
+   "RecallNumber": "26542",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?lang=eng&rn=2026193"
+   ],
+   "ids": [
+    "2026193"
+   ],
+   "resolved": [
+    "2026193"
+   ]
+  },
+  {
+   "RecallNumber": "26556",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?lang=eng&rn=2026213"
+   ],
+   "ids": [
+    "2026213"
+   ],
+   "resolved": [
+    "2026213"
+   ]
+  },
+  {
+   "RecallNumber": "26054",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?lang=eng&rn=2025466"
+   ],
+   "ids": [
+    "2025466"
+   ],
+   "resolved": [
+    "2025466"
+   ]
+  },
+  {
+   "RecallNumber": "26021",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?lang=eng&rn=2025299"
+   ],
+   "ids": [
+    "2025299"
+   ],
+   "resolved": [
+    "2025299"
+   ]
+  },
+  {
+   "RecallNumber": "25343",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2025124"
+   ],
+   "ids": [
+    "2025124"
+   ],
+   "resolved": [
+    "2025124"
+   ]
+  },
+  {
+   "RecallNumber": "25283",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2025061"
+   ],
+   "ids": [
+    "2025061"
+   ],
+   "resolved": [
+    "2025061"
+   ]
+  },
+  {
+   "RecallNumber": "25284",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2025194"
+   ],
+   "ids": [
+    "2025194"
+   ],
+   "resolved": [
+    "2025194"
+   ]
+  },
+  {
+   "RecallNumber": "25208",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2025048"
+   ],
+   "ids": [
+    "2025048"
+   ],
+   "resolved": [
+    "2025048"
+   ]
+  },
+  {
+   "RecallNumber": "25188",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2025062"
+   ],
+   "ids": [
+    "2025062"
+   ],
+   "resolved": [
+    "2025062"
+   ]
+  },
+  {
+   "RecallNumber": "25092",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024695"
+   ],
+   "ids": [
+    "2024695"
+   ],
+   "resolved": [
+    "2024695"
+   ]
+  },
+  {
+   "RecallNumber": "25702",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024458"
+   ],
+   "ids": [
+    "2024458"
+   ],
+   "resolved": [
+    "2024458"
+   ]
+  },
+  {
+   "RecallNumber": "25703",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024454"
+   ],
+   "ids": [
+    "2024454"
+   ],
+   "resolved": [
+    "2024454"
+   ]
+  },
+  {
+   "RecallNumber": "25024",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024571"
+   ],
+   "ids": [
+    "2024571"
+   ],
+   "resolved": [
+    "2024571"
+   ]
+  },
+  {
+   "RecallNumber": "25701",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2023480"
+   ],
+   "ids": [
+    "2023480"
+   ],
+   "resolved": [
+    "2023480"
+   ]
+  },
+  {
+   "RecallNumber": "24374",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024457"
+   ],
+   "ids": [
+    "2024457"
+   ],
+   "resolved": [
+    "2024457"
+   ]
+  },
+  {
+   "RecallNumber": "24369",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024400"
+   ],
+   "ids": [
+    "2024400"
+   ],
+   "resolved": [
+    "2024400"
+   ]
+  },
+  {
+   "RecallNumber": "24228",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024136"
+   ],
+   "ids": [
+    "2024136"
+   ],
+   "resolved": [
+    "2024136"
+   ]
+  },
+  {
+   "RecallNumber": "24229",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024142"
+   ],
+   "ids": [
+    "2024142"
+   ],
+   "resolved": [
+    "2024142"
+   ]
+  },
+  {
+   "RecallNumber": "24218",
+   "tc": [
+    "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/7/VRDB-BDRV/search-recherche/detail.aspx?rn=2024182"
+   ],
+   "ids": [
+    "2024182"
+   ],
+   "resolved": [
+    "2024182"
+   ]
+  }
+ ]
+}

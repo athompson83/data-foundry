@@ -1,0 +1,107 @@
+[
+ {
+  "agency": "eu_safety_gate",
+  "url": "https://data.europa.eu/api/hub/search/datasets/rapex-rapid-alert-system-non-food",
+  "http": "200",
+  "quotes": [
+   {
+    "text": "creativecommons.org/publicdomain/zero/1.0",
+    "found": true,
+    "context": "\",\"pl\":\"6. Statystyki systemu bramki bezpieczeństwa\",\"ro\":\"6. Statistici privind sistemul de porți de siguranță\",\"da\":\"6. Statistik over sikkerhedsportsystemet\",\"nl\":\"6. Statistieken van het veiligheidspoortsysteem\"}},{\"license\":{\"resource\":\"https://creativecommons.org/publicdomain/zero/1.0/\",\"description\":\"Creative Commons CC0 1.0 Universal\",\"id\":\"CC0\",\"label\":\"Creative Commons CC0 1.0 Universal\"},\"media_type\":\"application/xml\",\"rights\":{\"resource\":\"http://publications.europa.eu/resource/authority/access-right/PUBLIC\"},\"access_url\":[\"https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en\"],\"format\":{\"format_ty"
+   },
+   {
+    "text": "Creative Commons CC0 1.0 Universal",
+    "found": true,
+    "context": "6. Statistici privind sistemul de porți de siguranță\",\"da\":\"6. Statistik over sikkerhedsportsystemet\",\"nl\":\"6. Statistieken van het veiligheidspoortsysteem\"}},{\"license\":{\"resource\":\"https://creativecommons.org/publicdomain/zero/1.0/\",\"description\":\"Creative Commons CC0 1.0 Universal\",\"id\":\"CC0\",\"label\":\"Creative Commons CC0 1.0 Universal\"},\"media_type\":\"application/xml\",\"rights\":{\"resource\":\"http://publications.europa.eu/resource/authority/access-right/PUBLIC\"},\"access_url\":[\"https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en\"],\"format\":{\"format_types\":[{\"id\":\"structured\",\"label\":{\"en\":\"Structured\"}"
+   },
+   {
+    "text": "Weekly Reports - XML format",
+    "found": true,
+    "context": "— XML формат\",\"el\":\"4. Εβδομαδιαίες Εκθέσεις — μορφότυπος XML\",\"mt\":\"4. Rapporti ta’ kull ġimgħa — format XML 4.\\nRapporti ta’ kull ġimgħa — format XML\",\"lt\":\"4. Savaitinės ataskaitos – XML formatas 4.\\nSavaitinės ataskaitos – XML formatas\",\"en\":\"4. Weekly Reports - XML format\",\"hr\":\"4. Tjedna izvješća – XML format 4.\\nTjedna izvješća – XML format\",\"lv\":\"4. Iknedēļas ziņojumi — XML formāts\",\"it\":\"4. Relazioni settimanali — Formato XML 4.\\nRelazioni settimanali — Formato XML\",\"fr\":\"4. Rapports hebdomadaires — format XML\",\"hu\":\"4. Heti jelentések – XML formátum\",\"es\":\"4. Informes semanales — Formato XML 4.\\nInformes seman"
+   }
+  ]
+ },
+ {
+  "agency": "eu_safety_gate",
+  "url": "https://commission.europa.eu/legal-notice_en",
+  "http": "200",
+  "quotes": [
+   {
+    "text": "licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence",
+    "found": true,
+    "context": "995-2026 The Commission's reuse policy is implemented by the Commission Decision of 12 December 2011 on the reuse of Commission documents . Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence . This means that reuse is allowed, provided appropriate credit is given and changes are indicated. You may be required to clear additional rights if a specific content depicts identifiable private individuals or includes third-party works. To use or reproduce content that is not owned by the EU, you may need to seek permission directly from the r"
+   },
+   {
+    "text": "reuse is allowed, provided appropriate credit is given and changes are indicated",
+    "found": true,
+    "context": "the reuse of Commission documents . Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence . This means that reuse is allowed, provided appropriate credit is given and changes are indicated. You may be required to clear additional rights if a specific content depicts identifiable private individuals or includes third-party works. To use or reproduce content that is not owned by the EU, you may need to seek permission directly from the rightholders. Software or documents covered by industrial property rights, such as patents, trade ma"
+   },
+   {
+    "text": "are excluded from the Commission",
+    "found": true,
+    "context": " To use or reproduce content that is not owned by the EU, you may need to seek permission directly from the rightholders. Software or documents covered by industrial property rights, such as patents, trade marks, registered designs, logos and names, are excluded from the Commission's reuse policy and are not licensed to you. Related links Vulnerability Disclosure Policy Help us improve our website Fill in the survey This site is managed by: Directorate-General for Communication About us Contact us Priorities Topics Work with us Funding and tenders Press corner Events Follow us Mastodon LinkedIn WSocial Facebook Youtube Other"
+   }
+  ]
+ },
+ {
+  "agency": "eu_safety_gate",
+  "url": "https://commission.europa.eu/legal-notice_en#reuse-of-commission-documents",
+  "http": "200",
+  "quotes": [
+   {
+    "text": "Reuse of Commission documents",
+    "found": false,
+    "context": null
+   }
+  ]
+ },
+ {
+  "agency": "uk_opss",
+  "url": "https://www.gov.uk/help/terms-conditions",
+  "http": "200",
+  "quotes": [
+   {
+    "text": "Open Government Licence",
+    "found": true,
+    "context": "ites. You should read all terms and conditions, privacy policies and end user licences that relate to these websites before you use them. Using GOV.UK content Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt. If any content is not subject to Crown copyright protection or published under the OGL , we’ll usually credit the author or copyright holder. You can reproduce content published on GOV.UK under the OGL as long as you follow the licence’s conditions. Contact us if you want to reproduce a piece o"
+   },
+   {
+    "text": "Crown copyright",
+    "found": true,
+    "context": "claims or disputes that may come from using these websites. You should read all terms and conditions, privacy policies and end user licences that relate to these websites before you use them. Using GOV.UK content Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt. If any content is not subject to Crown copyright protection or published under the OGL , we’ll usually credit the author or copyright holder. You can reproduce content published on GOV.UK under the OGL as long as you follow the licen"
+   }
+  ]
+ },
+ {
+  "agency": "uk_opss",
+  "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+  "http": "200",
+  "quotes": [
+   {
+    "text": "exploit the Information commercially and non-commercially",
+    "found": true,
+    "context": "s below. This licence does not affect your freedom under fair dealing or fair use or any other copyright or database right exceptions and limitations. You are free to: copy , publish, distribute and transmit the Information ; adapt the Information ; exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application. You must (where you do any of the above): acknowledge the source of the Information in your product or application by including or linking to any attribution statement specified by the Information Provider(s) and, where possible, provide a l"
+   },
+   {
+    "text": "Attribution statement",
+    "found": false,
+    "context": null
+   },
+   {
+    "text": "Contains public sector information licensed under the Open Government Licence v3.0",
+    "found": true,
+    "context": "ncluding or linking to any attribution statement specified by the Information Provider(s) and, where possible, provide a link to this licence; If the Information Provider does not provide a specific attribution statement, you must use the following: Contains public sector information licensed under the Open Government Licence v3.0. If you are using Information from several Information Providers and listing multiple attributions is not practical in your product or application, you may include a URI or hyperlink to a resource that contains the required attribution statements. These are important conditions of this licence and if you fail to comply with them the rights granted"
+   },
+   {
+    "text": "does not include",
+    "found": false,
+    "context": null
+   },
+   {
+    "text": "personal data",
+    "found": true,
+    "context": "tements. These are important conditions of this licence and if you fail to comply with them the rights granted to you under this licence, or any similar licence granted by the Licensor, will end automatically. Exemptions This licence does not cover: personal data in the Information; Information that has not been accessed by way of publication or disclosure under information access legislation (including the Freedom of Information Acts for the UK and Scotland) by or with the consent of the Information Provider; departmental or public sector organisation logos, crests and the Royal Arms except where they for"
+   }
+  ]
+ }
+]

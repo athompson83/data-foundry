@@ -1,0 +1,1713 @@
+{
+ "reachability": {
+  "https://data.transportation.gov/api/views/85tf-25kj.json": 200,
+  "https://www.gov.uk/api/search.json?filter_format=raib_report&count=1": 200,
+  "https://www.ntsb.gov/about/Pages/Website-Policies.aspx": 200,
+  "https://www.ntsb.gov/investigations/AccidentReports/Reports/RIR2301.pdf": 200,
+  "https://www.tsb.gc.ca/sites/default/files/stats/RODSdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv": 403,
+  "https://www.tsb.gc.ca/sites/default/files/data/en/RODSdb-dd.csv": 403,
+  "https://www.atsb.gov.au/rail-investigations": 0,
+  "https://www.atsb.gov.au/robots.txt": 0,
+  "https://erail.era.europa.eu/": 0,
+  "https://railroads.dot.gov/safety-data": 403
+ },
+ "fra": {
+  "license": {
+   "licenseId": "USGOV_WORKS",
+   "license": {
+    "name": "Public Domain U.S. Government",
+    "termsLink": "https://www.usa.gov/government-works"
+   },
+   "attribution": "FRA Safe Team"
+  },
+  "rowsUpdatedAt": 1791094666,
+  "columns": 157,
+  "agg": {
+   "count": "225366",
+   "min_date": "1975-01-01T00:00:00.000",
+   "max_date": "2026-07-31T00:00:00.000"
+  },
+  "with_narrative": {
+   "count": "225363"
+  },
+  "narrative_mentions_NTSB": {
+   "count": "36"
+  },
+  "fatal_accidents": {
+   "count": "3084"
+  },
+  "by_year_last6": [
+   {
+    "year": "2020",
+    "count": "2322"
+   },
+   {
+    "year": "2021",
+    "count": "2372"
+   },
+   {
+    "year": "2022",
+    "count": "2691"
+   },
+   {
+    "year": "2023",
+    "count": "2790"
+   },
+   {
+    "year": "2024",
+    "count": "2574"
+   },
+   {
+    "year": "2025",
+    "count": "2366"
+   },
+   {
+    "year": "2026",
+    "count": "1225"
+   }
+  ],
+  "source_dataset_aqxq-n5hy_count": {
+   "count": "225366"
+  },
+  "grade_crossing_7wn6-i5b9_count": {
+   "count": "251533",
+   "max_date": "2026-07-31T00:00:00.000"
+  },
+  "id_fields": [
+   "reportingrailroadcode",
+   "accidentnumber",
+   "incidentkey",
+   "reportkey",
+   "gxid",
+   "trainnumber",
+   "firstcarinitials+firstcarnumber",
+   "causingcarinitials+causingcarnumber",
+   "statecode",
+   "countycode",
+   "latitude",
+   "longitude",
+   "date"
+  ],
+  "free_text_fields": [
+   "narrative",
+   "primaryaccidentcause",
+   "accidentcause"
+  ],
+  "fatal_since_2018_pulled": 448,
+  "sample_rows": [
+   {
+    "reportingrailroadcode": "UP",
+    "reportingrailroadname": "Union Pacific Railroad Company",
+    "accidentnumber": "0925TO029",
+    "incidentkey": "UP0925TO029202509",
+    "date": "2025-09-23T00:00:00.000",
+    "time": "8:33 PM",
+    "stateabbr": "TX",
+    "statename": "TEXAS",
+    "countyname": "MCLENNAN",
+    "station": "WACO",
+    "subdivision": "FT. WORTH SUB",
+    "accidenttype": "Hwy-rail crossing",
+    "totalpersonskilled": "1",
+    "totalpersonsinjured": "0",
+    "totaldamagecost": "29190",
+    "primaryaccidentcause": "Highway user deliberately disregarded crossing warning devices",
+    "latitude": "31.595369999999999",
+    "longitude": "-97.092994000000004",
+    "narrative": "LBA56-23 WAS SHOVING WEST TO EQUALIZER ON COUNTRY LEAD WHEN PEDESTRIANS WERE WAVING ENGINEER TO STOPAND A VEHICLE HAD STRUCK THE TRAIN. UPON STOPPING TRAIN, CON",
+    "trainnumber": "LBA5"
+   },
+   {
+    "reportingrailroadcode": "ATK",
+    "reportingrailroadname": "Amtrak (National Railroad Passenger Corporation)",
+    "accidentnumber": "188513",
+    "incidentkey": "UP0925SX003202509",
+    "date": "2025-09-03T00:00:00.000",
+    "time": "9:56 AM",
+    "stateabbr": "TX",
+    "statename": "TEXAS",
+    "countyname": "WILLIAMSON",
+    "station": "HUTTO",
+    "subdivision": "AUSTIN",
+    "accidenttype": "Hwy-rail crossing",
+    "totalpersonskilled": "1",
+    "totalpersonsinjured": "1",
+    "totaldamagecost": "33046",
+    "primaryaccidentcause": "Highway user inattentiveness",
+    "latitude": "30.533290000000001",
+    "longitude": "-97.601202999999998",
+    "narrative": "Crossing incident Train 22 (03) 9/03/2025",
+    "trainnumber": "22"
+   },
+   {
+    "reportingrailroadcode": "IC",
+    "reportingrailroadname": "Illinois Central Railroad Company",
+    "accidentnumber": "951688",
+    "incidentkey": "IC951688201803",
+    "date": "2018-03-03T00:00:00.000",
+    "time": "9:39 PM",
+    "stateabbr": "MS",
+    "statename": "MISSISSIPPI",
+    "countyname": "QUITMAN",
+    "station": "SLEDGE",
+    "subdivision": "YAZOO",
+    "accidenttype": "Hwy-rail crossing",
+    "totalpersonskilled": "2",
+    "totalpersonsinjured": "1",
+    "totaldamagecost": "116988",
+    "primaryaccidentcause": "Highway user deliberately disregarded crossing warning devices",
+    "latitude": "34.453271000000001",
+    "longitude": "-90.203877000000006",
+    "narrative": "AMTRAK TRAIN, P05871-03, HIT AN ATV THAT FAILED TO STOP FOR THE ACTIVE WARNING DEVICES AT THE K-T ROAD CROSSING. BOTH OCCUPANTS SUSTAINED FATAL INJURIES - NRC #"
+   }
+  ]
+ },
+ "raib": {
+  "total": 603,
+  "pulled": 603,
+  "newest_public_timestamp": "2026-10-01T09:00:13Z",
+  "oldest_occurrence": "2005-10-18",
+  "newest_occurrence": "2026-06-19",
+  "report_types": [
+   [
+    "investigation-report",
+    446
+   ],
+   [
+    "safety-digest",
+    101
+   ],
+   [
+    "bulletin",
+    43
+   ],
+   [
+    "interim-report",
+    11
+   ],
+   [
+    "discontinuation-report",
+    2
+   ]
+  ],
+  "railway_types": [
+   [
+    "heavy-rail",
+    486
+   ],
+   [
+    "light-rail",
+    51
+   ],
+   [
+    "heritage-railways",
+    39
+   ],
+   [
+    "metros",
+    32
+   ]
+  ],
+  "published_last_365d": 23,
+  "content_docs": [
+   {
+    "link": "/raib-reports/freight-train-derailment-at-hatherley-near-cheltenham-spa",
+    "title": "Report 08/2006: Derailment at Hatherley",
+    "occurrence": "2005-10-18",
+    "summary_chars": 1286,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9075e5274a42900001df/R082006_060714_Hatherley.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9076e5274a428d00019d/08_2006_Hatherley.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/collision-at-black-horse-drove-crossing-near-littleport-cambridgeshire",
+    "title": "Report 12/2006: Collision at Black Horse Drove Crossing ",
+    "occurrence": "2005-10-19",
+    "summary_chars": 1868,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9074e5274a42900001dd/R122006_060721_Black_Horse_Drove.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9075ed915d4c100001a3/12_2006_Black_Horse_Drove.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/derailment-at-phipps-bridge-croydon-tramlink",
+    "title": "Report 04/2006: Derailment at Phipps Bridge",
+    "occurrence": "2005-10-21",
+    "summary_chars": 1916,
+    "attachments": [
+     "https://assets.publishing.service.gov.uk/media/547c9073ed915d4c0d0001bb/R042006_060329_Phipps_Bridge.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c907340f0b602410001bd/04_2006_Phipps_Bridge.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/trackworker-fatality-at-trafford-park",
+    "title": "Report 16/2006: Trackworker fatality at Trafford Park",
+    "occurrence": "2005-10-26",
+    "summary_chars": 1446,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9071e5274a428d000199/R162006_060825_Trafford_Park.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c907140f0b602440001b1/16_2006_Trafford_Park.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/derailment-near-liverpool-central-underground-station",
+    "title": "Report 14/2006: Derailment near Liverpool Central underground station",
+    "occurrence": "2005-10-26",
+    "summary_chars": 1588,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9072ed915d4c100001a1/R142006_060811_Liverpool_Central.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9072e5274a428d00019b/14_2006_Liverpool_Central.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/tram-pedestrian-collision-at-staniforth-road-sheffield",
+    "title": "Report 01/2006: Collision at Staniforth Road, Sheffield",
+    "occurrence": "2005-10-27",
+    "summary_chars": 1028,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c907040f0b602410001bb/R012006_060301_Staniforth_Road.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9070e5274a42900001db/01_2006_Staniforth_Road.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/derailment-at-watford-junction-yard",
+    "title": "Report 02/2006: Derailment at Watford Junction yard",
+    "occurrence": "2005-10-28",
+    "summary_chars": 1526,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906fe5274a428d000197/R022006_060328_Watford_Junction_Yard.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906fe5274a42900001d9/02_2006_Watford_Junction_yard.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/runaway-manually-propelled-trolley-between-larkhall-and-barncluith-tunnel",
+    "title": "Report 20/2006: Runaway trolley between Larkhall and Barncluith Tunnel",
+    "occurrence": "2005-11-02",
+    "summary_chars": 1460,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906ee5274a42900001d7/R202006_061102_Larkhall.PDF",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906e40f0b602410001b9/20_2006_Larkhall.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/derailment-at-oubeck-north-near-lancaster",
+    "title": "Report 19/2006: Derailment at Oubeck North",
+    "occurrence": "2005-11-04",
+    "summary_chars": 1486,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906ded915d4c0d0001b9/R192006_061102_Oubeck.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906d40f0b602440001af/19_2006_Oubeck.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/near-miss-of-two-track-persons-by-a-tram-on-the-manchester-metrolink-at-radcliffe",
+    "title": "Report 09/2006: Near miss with tram, Manchester Metrolink ",
+    "occurrence": "2005-11-08",
+    "summary_chars": 1490,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906ced915d4c1000019f/R092006_060717_Radcliffe.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906ce5274a428d000195/09_2006_Manchester_Metrolink.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/passenger-train-collision-with-road-vehicle-at-swainsthorpe-level-crossing",
+    "title": "Report 03/2006: Collision at Swainsthorpe level crossing",
+    "occurrence": "2005-11-13",
+    "summary_chars": 1068,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906b40f0b602410001b7/R032006_060328_Swainsthorpe.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/the-fatality-at-barratt-s-lane-no1-foothpath-crossing",
+    "title": "Report 13/2006: Fatality at Barratt's Lane No1 footpath crossing",
+    "occurrence": "2005-11-21",
+    "summary_chars": 805,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906be5274a428d000193/R132006_060721_Barratts_Lane.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/runaway-incidents-on-blackpool-transport-services-tramway",
+    "title": "Report 05/2006: Runaway incidents on Blackpool Transport Services tramway",
+    "occurrence": "2005-11-21",
+    "summary_chars": 2811,
+    "attachments": [
+     "https://assets.publishing.service.gov.uk/media/547c9069ed915d4c1000019d/R052006_060330_Blackpool.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906aed915d4c0d0001b7/05_2006_Runaway_incidents_Blackpool_Transport.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/collision-at-new-addington-on-croydon-tramlink",
+    "title": "Report 11/2006: Collision at New Addington",
+    "occurrence": "2005-11-23",
+    "summary_chars": 1941,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906840f0b602410001b5/R112006_060720_New_Addington.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9069ed915d4c1000019b/11_2006_New_Addington.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/autumn-adhesion-incidents-part-one-esher-part-two-lewes-part-three-adhesion",
+    "title": "Report 25/2006: Autumn Adhesion Incidents ",
+    "occurrence": "2005-11-25",
+    "summary_chars": 1233,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906640f0b602410001b3/R252006_070108_Part_1_Esher.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906740f0b602440001ab/R252006_070108_Part_2_Lewes.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/derailment-near-moy-inverness-shire",
+    "title": "Report 22/2006: Derailment near Moy, Inverness-shire",
+    "occurrence": "2005-11-26",
+    "summary_chars": 1173,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9065ed915d4c10000199/R222006_061129_Moy.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9066e5274a42900001d5/22_2006_Moy.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/investigation-into-station-pedestrian-crossings-including-pedestrian-gates-at-highway-level-crossings",
+    "title": "Report 23/2006: Investigation into station pedestrian crossings ",
+    "occurrence": "2005-12-03",
+    "summary_chars": 3970,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9062e5274a42900001d1/R232006_061211_Elsenham.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9062ed915d4c0d0001b3/23_2006_Elsenham.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/broken-rails-at-urchfont-and-kennington-following-the-passage-of-a-freight-train",
+    "title": "Report 27/2006: Broken rails at Urchfont and Kennington",
+    "occurrence": "2006-01-05",
+    "summary_chars": 1280,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c906140f0b602410001b1/R272006_061220_Urchfont.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9061ed915d4c10000197/27_2006_Urchfont___Kennington.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/serious-injury-to-a-cyclist-at-scate-moor-bridleway-crossing",
+    "title": "Report 06/2006: Serious injury at Scate Moor bridleway crossing",
+    "occurrence": "2006-01-08",
+    "summary_chars": 696,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c9060e5274a428d00018f/R062006_060615_Scate_Moor.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/cutting-of-rail-from-a-line-that-was-still-open-to-traffic-near-thirsk-station-east-coast-main-line",
+    "title": "Report 15/2006: Serious incident near Thirsk station",
+    "occurrence": "2006-01-11",
+    "summary_chars": 991,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905fed915d4c0d0001b1/R152006_060818_Thirsk.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905f40f0b602410001af/15_2006_Thirsk.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/station-over-run-at-haywards-heath",
+    "title": "Report 10/2006: Station over-run at Haywards Heath",
+    "occurrence": "2006-01-12",
+    "summary_chars": 1470,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905eed915d4c10000195/R102006_060720_HaywardsHeath.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905fed915d4c0d0001af/10_2006_Haywards_Heath.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/unauthorised-train-movement-and-subsequent-derailment-at-haymarket-edinburgh",
+    "title": "Report 03/2007: Unauthorised train movement and derailment at Haymarket",
+    "occurrence": "2006-01-14",
+    "summary_chars": 1625,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905de5274a42900001cf/R032007_070130_Haymarket.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/566047d140f0b60367000042/03_2007_Haymarket.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/wagon-derailment-at-york-station",
+    "title": "Report 21/2006: Derailment at York Station",
+    "occurrence": "2006-01-18",
+    "summary_chars": 1024,
+    "attachments": [
+     "https://assets.publishing.service.gov.uk/media/547c905ced915d4c0d0001ad/R212006_061114_York_Station.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905d40f0b602440001a9/21_2006_York.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/derailment-near-waterside-east-ayrshire",
+    "title": "Report 05/2007: Derailment near Waterside",
+    "occurrence": "2006-01-21",
+    "summary_chars": 1052,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905ced915d4c10000193/R052007_070130_Chalmerston.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/56604c96ed915d1fdb00000d/05_2007_Waterside.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   },
+   {
+    "link": "/raib-reports/collision-between-train-and-buffer-stops-at-sudbury",
+    "title": "Report 26/2006: Collision  at Sudbury",
+    "occurrence": "2006-01-27",
+    "summary_chars": 1174,
+    "attachments": [
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905ae5274a428d00018d/R262006_061220_Sudbury.pdf",
+     "https://assets.digital.cabinet-office.gov.uk/media/547c905be5274a42900001cd/26_2006_Sudbury.pdf"
+    ],
+    "metadata_keys": [
+     "bulk_published",
+     "date_of_occurrence",
+     "railway_type",
+     "report_type"
+    ]
+   }
+  ],
+  "docs_with_summary_over_300_chars": 25,
+  "docs_with_pdf": 25,
+  "page_licence_text": "sanaethau Cymraeg Government Digital Service All content is available under the Open Government Licence v3.0 , except where otherwise stated \u00a9 Crown copyright "
+ },
+ "ntsb": {
+  "tried": 57,
+  "found": [
+   "2601",
+   "2602",
+   "2603",
+   "2604",
+   "2605",
+   "2606",
+   "2607",
+   "2608",
+   "2609",
+   "2610",
+   "2611",
+   "2612",
+   "2613",
+   "2502",
+   "2503",
+   "2504",
+   "2505",
+   "2506",
+   "2507",
+   "2508",
+   "2509",
+   "2510",
+   "2511",
+   "2513",
+   "2514",
+   "2515",
+   "2401",
+   "2402",
+   "2403",
+   "2404",
+   "2406",
+   "2407",
+   "2408",
+   "2410",
+   "2411",
+   "2412",
+   "2301",
+   "2302",
+   "2303",
+   "2304"
+  ],
+  "found_count": 40,
+  "records": [
+   {
+    "rir": "2601",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "November 4, 2024",
+    "issued": "January 20, 2026",
+    "location": "New Rockford, North Dakota",
+    "ntsb_case_number": "RRD25FR003",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 502880
+   },
+   {
+    "rir": "2602",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "October 19, 2024",
+    "issued": "January 26, 2026",
+    "location": "Atlanta, Georgia",
+    "ntsb_case_number": "RRD25FR002",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 1180708
+   },
+   {
+    "rir": "2603",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "March 11, 2025",
+    "issued": "January 26, 2026",
+    "location": "Stockton, California",
+    "ntsb_case_number": "RRD25FR008",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 626428
+   },
+   {
+    "rir": "2604",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "June 26, 2025",
+    "issued": "April 2, 2026",
+    "location": "Guthrie, Kentucky",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 426784
+   },
+   {
+    "rir": "2605",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "May 11, 2025",
+    "issued": "April 22, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR012",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 1347273
+   },
+   {
+    "rir": "2606",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "April 9, 2025",
+    "issued": "April 21, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR010",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 805486
+   },
+   {
+    "rir": "2607",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "May 18, 2026",
+    "issued": null,
+    "location": "Bordulac, North Dakota",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 5193266
+   },
+   {
+    "rir": "2608",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "April 4, 2025",
+    "issued": "June 9, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR009",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 531908
+   },
+   {
+    "rir": "2609",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "June 25, 2025",
+    "issued": "June 22, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR015",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 621341
+   },
+   {
+    "rir": "2610",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "May 8, 2025",
+    "issued": "June 22, 2026",
+    "location": "Jersey City, New Jersey",
+    "ntsb_case_number": "RRD25FR011",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 553973
+   },
+   {
+    "rir": "2611",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "August 5, 2025",
+    "issued": "July 6, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR022",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 841319
+   },
+   {
+    "rir": "2612",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "July 6, 2025",
+    "issued": "August 20, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR018",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 994650
+   },
+   {
+    "rir": "2613",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "September 25, 2025",
+    "issued": "August 24, 2026",
+    "location": null,
+    "ntsb_case_number": "RRD25FR024",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 699208
+   },
+   {
+    "rir": "2502",
+    "title": "CSX Transportation Head-on Train Collision",
+    "occurrence_date": "April 15, 2024",
+    "issued": "February 4, 2025",
+    "location": "Folkston, Georgia",
+    "ntsb_case_number": "RRD24LR011",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 349075
+   },
+   {
+    "rir": "2503",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "October 15, 2023",
+    "issued": "February 12, 2025",
+    "location": "Pueblo, Colorado",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 443902
+   },
+   {
+    "rir": "2504",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "April 11, 2024",
+    "issued": "April 3, 2025",
+    "location": "McNeil, Arkansas",
+    "ntsb_case_number": "RRD24LR010",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 1072239
+   },
+   {
+    "rir": "2505",
+    "title": "Norfolk Southern Railway Collision and Employee Fatality",
+    "occurrence_date": "January 31, 2024",
+    "issued": null,
+    "location": "Decatur, Alabama",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 323245
+   },
+   {
+    "rir": "2506",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "March 2, 2024",
+    "issued": "April 10, 2025",
+    "location": "Easton, Pennsylvania",
+    "ntsb_case_number": "RRD24FR009",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 532290
+   },
+   {
+    "rir": "2507",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "February 13, 2024",
+    "issued": "April 14, 2025",
+    "location": "Roanoke Rapids, North Carolina",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 614733
+   },
+   {
+    "rir": "2508",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "July 6, 2024",
+    "issued": "June 25, 2025",
+    "location": "Melrose Park, Illinois",
+    "ntsb_case_number": "RRD24LR013",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 745017
+   },
+   {
+    "rir": "2509",
+    "title": "Issued: June 25, 2025",
+    "occurrence_date": "June 26, 2023",
+    "issued": "June 25, 2025",
+    "location": "Baltimore, Maryland",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 1846257
+   },
+   {
+    "rir": "2510",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "August 27, 2024",
+    "issued": null,
+    "location": "Norfolk, Virginia",
+    "ntsb_case_number": "RRD24FR015",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 611923
+   },
+   {
+    "rir": "2511",
+    "title": "August 4, 2025",
+    "occurrence_date": "August 4, 2023",
+    "issued": null,
+    "location": "Great Barrington, Massachusetts",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 2283635
+   },
+   {
+    "rir": "2513",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "July 19, 2024",
+    "issued": "October 06, 2025",
+    "location": "Norfolk, Virginia",
+    "ntsb_case_number": "RRD24FR014",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 664158
+   },
+   {
+    "rir": "2514",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "October 1, 2024",
+    "issued": "October 9, 2025",
+    "location": "Somerville, Massachusetts",
+    "ntsb_case_number": "RRD24FR017",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 599881
+   },
+   {
+    "rir": "2515",
+    "title": "Railroad Investigation Report",
+    "occurrence_date": "September 4, 2024",
+    "issued": "October 14, 2025",
+    "location": "Kenosha, Wisconsin",
+    "ntsb_case_number": "RRD24FR016",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 740159
+   },
+   {
+    "rir": "2401",
+    "title": "Caltrain Passenger Train Collision with Hi-rail Construction Vehicles",
+    "occurrence_date": "March 10, 2022",
+    "issued": "February 27, 2024",
+    "location": "San Bruno, California",
+    "ntsb_case_number": "RRD22MR007",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 599173
+   },
+   {
+    "rir": "2402",
+    "title": "Norfolk Southern Railway Employee Fatality",
+    "occurrence_date": "December 13, 2022",
+    "issued": "April 3, 2024",
+    "location": "Bessemer, Alabama",
+    "ntsb_case_number": "RRD23LR003",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 1126012
+   },
+   {
+    "rir": "2403",
+    "title": "Union Pacific Employee Fatality",
+    "occurrence_date": "August 29, 2022",
+    "issued": "April 25, 2024",
+    "location": "El Paso, Texas",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 867715
+   },
+   {
+    "rir": "2404",
+    "title": "Port Authority Transit Corporation Train Strikes Two Subcontractor Employees",
+    "occurrence_date": "October 14, 2022",
+    "issued": "May 8, 2024",
+    "location": "Camden, New Jersey",
+    "ntsb_case_number": "RRD23FR001",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 691974
+   },
+   {
+    "rir": "2406",
+    "title": "NS Railway Employee Fatality",
+    "occurrence_date": "March 7, 2023",
+    "issued": "July 22, 2024",
+    "location": "Cleveland, Ohio",
+    "ntsb_case_number": "RRD23LR007",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 622071
+   },
+   {
+    "rir": "2407",
+    "title": "Union Pacific Railroad Head-On Collision with Stationary Intermodal Railcars",
+    "occurrence_date": "September 8, 2022",
+    "issued": "August 19, 2024",
+    "location": "Imperial County, California",
+    "ntsb_case_number": "RRD22LR014",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 961227
+   },
+   {
+    "rir": "2408",
+    "title": "CSX Transportation Employee Fatality",
+    "occurrence_date": "August 6, 2023",
+    "issued": "September 17, 2024",
+    "location": "Cumberland, Maryland",
+    "ntsb_case_number": "RRD23FR016",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 913304
+   },
+   {
+    "rir": "2410",
+    "title": "CSX Transportation Employee Fatality",
+    "occurrence_date": "September 17, 2023",
+    "issued": "October 21, 2024",
+    "location": "Walbridge, Ohio",
+    "ntsb_case_number": "RRD23FR017",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 873932
+   },
+   {
+    "rir": "2411",
+    "title": "Southeastern Pennsylvania Transportation Authority Trolley Derailment",
+    "occurrence_date": "July 27, 2023",
+    "issued": "October 22, 2024",
+    "location": "Philadelphia, Pennsylvania",
+    "ntsb_case_number": "RRD23FR014",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 932746
+   },
+   {
+    "rir": "2412",
+    "title": "Union Pacific Railroad Train Collision",
+    "occurrence_date": "April 16, 2023",
+    "issued": "November 13, 2024",
+    "location": "Chico, Texas",
+    "ntsb_case_number": "RRD23LR010",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 1463648
+   },
+   {
+    "rir": "2301",
+    "title": "BNSF Railway Conductor Fatality",
+    "occurrence_date": "March 3, 2021",
+    "issued": "February 10, 2023",
+    "location": "La Mirada, California",
+    "ntsb_case_number": "RRD21FR008",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 885970
+   },
+   {
+    "rir": "2302",
+    "title": "Passenger Fatality Bay Area Rapid Transit",
+    "occurrence_date": "September 13, 2021",
+    "issued": "February 28, 2023",
+    "location": "San Francisco, California",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 647289
+   },
+   {
+    "rir": "2303",
+    "title": "Employee Fatality After Fall from Amtrak Train 163-15",
+    "occurrence_date": "January 15, 2022",
+    "issued": "February 28, 2023",
+    "location": "Westerly, Rhode Island",
+    "ntsb_case_number": null,
+    "cites_fra_report_no": false,
+    "pdf_bytes": 857982
+   },
+   {
+    "rir": "2304",
+    "title": "W.T. Byler Company Equipment Operator Fatality",
+    "occurrence_date": "September 22, 2021",
+    "issued": "April 13, 2023",
+    "location": "Castroville, Texas",
+    "ntsb_case_number": "RRD21LR016",
+    "cites_fra_report_no": false,
+    "pdf_bytes": 887489
+   }
+  ],
+  "with_case_number": 30,
+  "with_date_and_location": 33
+ },
+ "ntsb_fra_link": {
+  "rule": "FRA record with same calendar date and same state as the NTSB occurrence; candidate only",
+  "rows": [
+   {
+    "rir": "2601",
+    "title": "Railroad Investigation Report",
+    "date": "2024-11-04",
+    "state": "ND",
+    "city": "new rockford",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2602",
+    "title": "Railroad Investigation Report",
+    "date": "2024-10-19",
+    "state": "GA",
+    "city": "atlanta",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2603",
+    "title": "Railroad Investigation Report",
+    "date": "2025-03-11",
+    "state": "CA",
+    "city": "stockton",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2604",
+    "title": "Railroad Investigation Report",
+    "date": "2025-06-26",
+    "state": "KY",
+    "city": "guthrie",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2607",
+    "title": "Railroad Investigation Report",
+    "date": "2026-05-18",
+    "state": "ND",
+    "city": "bordulac",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2610",
+    "title": "Railroad Investigation Report",
+    "date": "2025-05-08",
+    "state": "NJ",
+    "city": "jersey city",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2502",
+    "title": "CSX Transportation Head-on Train Collision",
+    "date": "2024-04-15",
+    "state": "GA",
+    "city": "folkston",
+    "fra_same_date_state": 2,
+    "fra_candidates": [
+     {
+      "rr": "CSX",
+      "no": "000217438",
+      "station": "FOLKSTON",
+      "county": "CHARLTON",
+      "type": "Head on collision",
+      "killed": "0",
+      "city_in_text": true
+     },
+     {
+      "rr": "CSX",
+      "no": "000217438",
+      "station": "FOLKSTON",
+      "county": "CHARLTON",
+      "type": "Head on collision",
+      "killed": "0",
+      "city_in_text": true
+     }
+    ]
+   },
+   {
+    "rir": "2503",
+    "title": "Railroad Investigation Report",
+    "date": "2023-10-15",
+    "state": "CO",
+    "city": "pueblo",
+    "fra_same_date_state": 1,
+    "fra_candidates": [
+     {
+      "rr": "BNSF",
+      "no": "PR1023108",
+      "station": "PUEBLO",
+      "county": "PUEBLO",
+      "type": "Derailment",
+      "killed": "0",
+      "city_in_text": true
+     }
+    ]
+   },
+   {
+    "rir": "2504",
+    "title": "Railroad Investigation Report",
+    "date": "2024-04-11",
+    "state": "AR",
+    "city": "mcneil",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2505",
+    "title": "Norfolk Southern Railway Collision and Employee Fatality",
+    "date": "2024-01-31",
+    "state": "AL",
+    "city": "decatur",
+    "fra_same_date_state": 3,
+    "fra_candidates": [
+     {
+      "rr": "NS",
+      "no": "155636",
+      "station": "DECATUR",
+      "county": "MORGAN",
+      "type": "Side collision",
+      "killed": "1",
+      "city_in_text": true
+     },
+     {
+      "rr": "NS",
+      "no": "155638",
+      "station": "OAKMAN",
+      "county": "WALKER",
+      "type": "Hwy-rail crossing",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "NS",
+      "no": "155636",
+      "station": "DECATUR",
+      "county": "MORGAN",
+      "type": "Side collision",
+      "killed": "1",
+      "city_in_text": true
+     }
+    ]
+   },
+   {
+    "rir": "2506",
+    "title": "Railroad Investigation Report",
+    "date": "2024-03-02",
+    "state": "PA",
+    "city": "easton",
+    "fra_same_date_state": 3,
+    "fra_candidates": [
+     {
+      "rr": "NS",
+      "no": "155915",
+      "station": "MIDDLETOWN",
+      "county": "NORTHAMPTON",
+      "type": "Rear end collision",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "NS",
+      "no": "155915",
+      "station": "MIDDLETOWN",
+      "county": "NORTHAMPTON",
+      "type": "Rear end collision",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "NS",
+      "no": "155915",
+      "station": "MIDDLETOWN",
+      "county": "NORTHAMPTON",
+      "type": "Rear end collision",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2507",
+    "title": "Railroad Investigation Report",
+    "date": "2024-02-13",
+    "state": "NC",
+    "city": "roanoke rapids",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2508",
+    "title": "Railroad Investigation Report",
+    "date": "2024-07-06",
+    "state": "IL",
+    "city": "melrose park",
+    "fra_same_date_state": 4,
+    "fra_candidates": [
+     {
+      "rr": "ALS",
+      "no": "0724AS003",
+      "station": "EAST ST LOUIS",
+      "county": "ST CLAIR",
+      "type": "Derailment",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "UP",
+      "no": "0724PR005",
+      "station": "MELROSE PARK",
+      "county": "COOK",
+      "type": "Other impacts",
+      "killed": "1",
+      "city_in_text": true
+     },
+     {
+      "rr": "UP",
+      "no": "0724PR005",
+      "station": "MELROSE PARK",
+      "county": "COOK",
+      "type": "Other impacts",
+      "killed": "1",
+      "city_in_text": true
+     },
+     {
+      "rr": "NIRC",
+      "no": "9419002215",
+      "station": "CHICAGO",
+      "county": "COOK",
+      "type": "Hwy-rail crossing",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2509",
+    "title": "Issued: June 25, 2025",
+    "date": "2023-06-26",
+    "state": "MD",
+    "city": "baltimore",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2510",
+    "title": "Railroad Investigation Report",
+    "date": "2024-08-27",
+    "state": "VA",
+    "city": "norfolk",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2511",
+    "title": "August 4, 2025",
+    "date": "2023-08-04",
+    "state": "MA",
+    "city": "great barrington",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2513",
+    "title": "Railroad Investigation Report",
+    "date": "2024-07-19",
+    "state": "VA",
+    "city": "norfolk",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2514",
+    "title": "Railroad Investigation Report",
+    "date": "2024-10-01",
+    "state": "MA",
+    "city": "somerville",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2515",
+    "title": "Railroad Investigation Report",
+    "date": "2024-09-04",
+    "state": "WI",
+    "city": "kenosha",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2401",
+    "title": "Caltrain Passenger Train Collision with Hi-rail Construction Vehicles",
+    "date": "2022-03-10",
+    "state": "CA",
+    "city": "san bruno",
+    "fra_same_date_state": 1,
+    "fra_candidates": [
+     {
+      "rr": "PCMZ",
+      "no": "20220310B",
+      "station": "SAN BRUNO",
+      "county": "SAN MATEO",
+      "type": "Other impacts",
+      "killed": "0",
+      "city_in_text": true
+     }
+    ]
+   },
+   {
+    "rir": "2402",
+    "title": "Norfolk Southern Railway Employee Fatality",
+    "date": "2022-12-13",
+    "state": "AL",
+    "city": "bessemer",
+    "fra_same_date_state": 1,
+    "fra_candidates": [
+     {
+      "rr": "CSX",
+      "no": "000208804",
+      "station": "FORT DEPOSIT",
+      "county": "LOWNDES",
+      "type": "Hwy-rail crossing",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2403",
+    "title": "Union Pacific Employee Fatality",
+    "date": "2022-08-29",
+    "state": "TX",
+    "city": "el paso",
+    "fra_same_date_state": 3,
+    "fra_candidates": [
+     {
+      "rr": "UP",
+      "no": "0822TO041",
+      "station": "EL PASO",
+      "county": "EL PASO",
+      "type": "Derailment",
+      "killed": "1",
+      "city_in_text": true
+     },
+     {
+      "rr": "UP",
+      "no": "0822SX023",
+      "station": "HEARNE",
+      "county": "ROBERTSON",
+      "type": "Other impacts",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "UP",
+      "no": "0822SX023",
+      "station": "HEARNE",
+      "county": "ROBERTSON",
+      "type": "Other impacts",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2404",
+    "title": "Port Authority Transit Corporation Train Strikes Two Subcontractor Employees",
+    "date": "2022-10-14",
+    "state": "NJ",
+    "city": "camden",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2406",
+    "title": "NS Railway Employee Fatality",
+    "date": "2023-03-07",
+    "state": "OH",
+    "city": "cleveland",
+    "fra_same_date_state": 1,
+    "fra_candidates": [
+     {
+      "rr": "NS",
+      "no": "152485",
+      "station": "CLEVELAND",
+      "county": "CUYAHOGA",
+      "type": "Hwy-rail crossing",
+      "killed": "1",
+      "city_in_text": true
+     }
+    ]
+   },
+   {
+    "rir": "2407",
+    "title": "Union Pacific Railroad Head-On Collision with Stationary Intermodal Railcars",
+    "date": "2022-09-08",
+    "state": "CA",
+    "city": "imperial county",
+    "fra_same_date_state": 5,
+    "fra_candidates": [
+     {
+      "rr": "UP",
+      "no": "0922NC008",
+      "station": "VISALIA",
+      "county": "TULARE",
+      "type": "Derailment",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "UP",
+      "no": "0922LA016",
+      "station": "NILAND",
+      "county": "IMPERIAL",
+      "type": "Head on collision",
+      "killed": "2",
+      "city_in_text": false
+     },
+     {
+      "rr": "UP",
+      "no": "0922LA016",
+      "station": "NILAND",
+      "county": "IMPERIAL",
+      "type": "Head on collision",
+      "killed": "2",
+      "city_in_text": false
+     },
+     {
+      "rr": "UP",
+      "no": "0922LA016",
+      "station": "NILAND",
+      "county": "IMPERIAL",
+      "type": "Head on collision",
+      "killed": "2",
+      "city_in_text": false
+     },
+     {
+      "rr": "SJVR",
+      "no": "SJV183522R",
+      "station": "VISALIA",
+      "county": "TULARE",
+      "type": "Derailment",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2408",
+    "title": "CSX Transportation Employee Fatality",
+    "date": "2023-08-06",
+    "state": "MD",
+    "city": "cumberland",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2410",
+    "title": "CSX Transportation Employee Fatality",
+    "date": "2023-09-17",
+    "state": "OH",
+    "city": "walbridge",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2411",
+    "title": "Southeastern Pennsylvania Transportation Authority Trolley Derailment",
+    "date": "2023-07-27",
+    "state": "PA",
+    "city": "philadelphia",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2412",
+    "title": "Union Pacific Railroad Train Collision",
+    "date": "2023-04-16",
+    "state": "TX",
+    "city": "chico",
+    "fra_same_date_state": 3,
+    "fra_candidates": [
+     {
+      "rr": "UP",
+      "no": "0423TO022",
+      "station": "BRIDGEPORT",
+      "county": "WISE",
+      "type": "Other impacts",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "UP",
+      "no": "0423TO022",
+      "station": "BRIDGEPORT",
+      "county": "WISE",
+      "type": "Other impacts",
+      "killed": "0",
+      "city_in_text": false
+     },
+     {
+      "rr": "DGNO",
+      "no": "DGN136623",
+      "station": "HOWE",
+      "county": "GRAYSON",
+      "type": "Derailment",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2301",
+    "title": "BNSF Railway Conductor Fatality",
+    "date": "2021-03-03",
+    "state": "CA",
+    "city": "la mirada",
+    "fra_same_date_state": 1,
+    "fra_candidates": [
+     {
+      "rr": "BNSF",
+      "no": "CA0321102",
+      "station": "LUDLOW",
+      "county": "SAN BERNARDINO",
+      "type": "Derailment",
+      "killed": "0",
+      "city_in_text": false
+     }
+    ]
+   },
+   {
+    "rir": "2302",
+    "title": "Passenger Fatality Bay Area Rapid Transit",
+    "date": "2021-09-13",
+    "state": "CA",
+    "city": "san francisco",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2303",
+    "title": "Employee Fatality After Fall from Amtrak Train 163-15",
+    "date": "2022-01-15",
+    "state": "RI",
+    "city": "westerly",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   },
+   {
+    "rir": "2304",
+    "title": "W.T. Byler Company Equipment Operator Fatality",
+    "date": "2021-09-22",
+    "state": "TX",
+    "city": "castroville",
+    "fra_same_date_state": 0,
+    "fra_candidates": []
+   }
+  ],
+  "ntsb_with_date_state": 33,
+  "with_any_fra_same_date_state": 12,
+  "with_city_confirmed_candidate": 7
+ },
+ "hand_check": {
+  "rule": "same date + same state (candidate), then compare railroad, place and train id",
+  "checked": 12,
+  "correct": 9,
+  "rows": [
+   {
+    "rir": "2502",
+    "fra": "CSX 000217438",
+    "same_record": true,
+    "basis": "CSX, 2024-04-15, Folkston GA, head-on collision on the Jesup Subdivision (FRA narrative names stationary train L74314, RIR names the same rock train)"
+   },
+   {
+    "rir": "2503",
+    "fra": "BNSF PR1023108",
+    "same_record": true,
+    "basis": "BNSF, 2023-10-15, Pueblo CO; train C-ATMCRD0-31D appears in both"
+   },
+   {
+    "rir": "2505",
+    "fra": "NS 155636",
+    "same_record": true,
+    "basis": "NS, 2024-01-31, Decatur AL yard rollout striking an occupied locomotive; 1 killed in both"
+   },
+   {
+    "rir": "2508",
+    "fra": "UP 0724PR005",
+    "same_record": true,
+    "basis": "UP, 2024-07-06, Melrose Park IL; trains MCBCH-05 and MPRNL-06 appear in both"
+   },
+   {
+    "rir": "2401",
+    "fra": "PCMZ 20220310B",
+    "same_record": true,
+    "basis": "Caltrain 506, 2022-03-10, San Bruno CA, struck three hi-rail vehicles at MP 11.6 in both"
+   },
+   {
+    "rir": "2403",
+    "fra": "UP 0822TO041",
+    "same_record": true,
+    "basis": "UP, 2022-08-29, El Paso TX; train ISIEP-29 shoving move derailing two cars in both"
+   },
+   {
+    "rir": "2406",
+    "fra": "NS 152485",
+    "same_record": true,
+    "basis": "NS, 2023-03-07, Cleveland OH; train C75B106 struck by dump truck at private crossing in both"
+   },
+   {
+    "rir": "2407",
+    "fra": "UP 0922LA016",
+    "same_record": true,
+    "basis": "UP, 2022-09-08, Imperial County CA (FRA station NILAND); train ISILB-07 into Bertram siding, 2 killed in both. City rule missed it; county matched"
+   },
+   {
+    "rir": "2412",
+    "fra": "UP 0423TO022",
+    "same_record": true,
+    "basis": "UP, 2023-04-16, Chico TX (FRA station BRIDGEPORT, same Wise County); train GS15 vs RD14 collision in both. City rule missed it"
+   },
+   {
+    "rir": "2506",
+    "fra": "NS Middletown PA",
+    "same_record": false,
+    "basis": "NTSB occurrence at Easton PA; the only same-day PA FRA records are NS at MIDDLETOWN, a different place; not the same record"
+   },
+   {
+    "rir": "2402",
+    "fra": "CSX Fort Deposit AL",
+    "same_record": false,
+    "basis": "NTSB case is Norfolk Southern at Bessemer AL; FRA same-day AL record is CSX at Fort Deposit; different railroad and place"
+   },
+   {
+    "rir": "2301",
+    "fra": "BNSF Ludlow CA",
+    "same_record": false,
+    "basis": "NTSB case is La Mirada CA yard fatality; FRA same-day CA record is BNSF at LUDLOW with 0 killed; different place"
+   }
+  ]
+ }
+}

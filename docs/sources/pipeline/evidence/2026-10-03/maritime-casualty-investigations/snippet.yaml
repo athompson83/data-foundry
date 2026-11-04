@@ -1,0 +1,103 @@
+# Paste under `candidates:` in candidates.yaml. No `datasets:` entry: the dataset failed the screen (0 measured IMO matches).
+candidates:
+  - key: maritime-uk-maib-reports
+    name: UK MAIB marine accident investigation reports (gov.uk content API)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Marine Accident Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=maib_report', 'https://www.gov.uk/maib-reports' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    terms:
+      - {
+          url: 'https://www.gov.uk/help/terms-conditions',
+          quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt.'
+        }
+    conditions:
+      - Attribute 'Contains public sector information licensed under the Open Government Licence v3.0'.
+      - Exclude personal data and third-party images or material inside the report PDFs (OGL exemptions).
+      - Do not suggest endorsement by the MAIB.
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Fetch all 1,104 content-API records and their PDFs into R2, extract the IMO number from the vessel-particulars table (22 of 60 sampled PDFs have one; fishing and recreational craft have none), and extract cause and injury text.
+
+  - key: maritime-ntsb-marine-investigation-reports
+    name: US NTSB marine investigation report PDFs (MIR series)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ntsb.gov/investigations/AccidentReports/Pages/Reports.aspx', 'https://www.ntsb.gov/investigations/AccidentReports/Reports/MIR2404.pdf' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
+          quote: 'By publishing its reports and recommendations and opening public dockets, the NTSB has placed the contents prepared by its staff in the public domain.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Enumerate MIR{yy}{nn}.pdf by GET (HEAD returns 200 for non-PDFs), extract IMO, vessel, casualty type and probable cause from the 22 sampled reports' layout, and exclude identified third-party copyrighted figures.
+
+  - key: maritime-ca-tsb-marine-occurrences
+    name: Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/MARSISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv', 'https://open.canada.ca/data/api/action/package_show?id=ad8d1b73-df09-4521-9bdb-61c529328218' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - CSV and report pages answer 403 Forbidden from this egress (a 403 is not permission). The CKAN record names the Open Government Licence - Canada and monthly updates; re-test from another egress and read the data dictionary for an IMO column.
+
+  - key: maritime-au-atsb-marine-investigations
+    name: Australian Transport Safety Bureau marine occurrence investigations
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Australian Transport Safety Bureau
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.atsb.gov.au/marine-investigations' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - atsb.gov.au resets the connection on every URL tried from this egress, so nothing was measured and no terms were read; retry later or from another egress.
+
+  - key: maritime-fi-otkes-marine-reports
+    name: Finland Safety Investigation Authority (OTKES) marine investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Safety Investigation Authority Finland
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.turvallisuustutkinta.fi/wp-json/wp/v2/tutkinta', 'https://www.turvallisuustutkinta.fi/en/investigations/investigation-reports/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.turvallisuustutkinta.fi/en/information-about-webpage/',
+          quote: 'The content of these pages shall not be used or cited in other contexts without prior consent and acknowledgement of source.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - the published copyright notice requires prior consent for reuse and names no open licence; the WordPress API is reachable (36 English M-series marine reports 2013-2024) if a written permission or licence is found.
+
+  - key: maritime-de-bsu-investigation-reports
+    name: German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: German Federal Bureau of Maritime Casualty Investigation
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.bsu-bund.de/EN/Publications/Unfallberichte/Unfallberichte_node.html' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - {
+          url: 'https://www.bsu-bund.de/EN/Service/Termsandconditions/Terms_and_conditions_node.html',
+          quote: 'Image copyright for the pictures used on this website is clarified. If you feel your rights are being violated please contact the BSU.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked - the terms page gives picture credits only and no reuse licence for report text. The report list (per-year tables, English PDFs, some joint with MAIB) is reachable; make a rights determination, then test BSU-to-MAIB joint cases on IMO.

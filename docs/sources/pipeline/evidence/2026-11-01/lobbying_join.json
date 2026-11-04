@@ -1,0 +1,17 @@
+{
+ "filings_in_q3_2026": 25790,
+ "sampled": 100,
+ "filings_citing_a_bill": 9,
+ "distinct_cites": 7,
+ "cites_resolving_in_billstatus": 7,
+ "median_description_chars": 80,
+ "cites": {
+  "hr4552": true,
+  "hr4710": true,
+  "hr5267": true,
+  "hr6509": true,
+  "hr9535": true,
+  "s2420": true,
+  "s3794": true
+ }
+}

@@ -1,0 +1,32 @@
+nih-reporter | 405  0 | https://api.reporter.nih.gov/v2/projects/search
+nsf-awards | 200 application/json 12850 | https://api.nsf.gov/services/v1/awards.json?printFields=id,title,date&rpp=3
+cordis | 404 text/html; charset=UTF-8 36751 | https://cordis.europa.eu/data/cordis-h2020projects.json
+ofac-sdn | 200 text/xml 29176251 | https://www.treasury.gov/ofac/downloads/sdn.xml
+ofac-sls | 200 text/xml 29176251 | https://sanctionslistservice.ofac.treas.gov/api/PublicationPreview/exports/SDN.XML
+uk-ofsi | 200 text/xml 54098673 | https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml
+un-sc | 200 application/xml 2187321 | https://scsanctions.un.org/resources/xml/en/consolidated.xml
+eu-fsf | 200 application/xml 25791425 | https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw
+contracts-finder | 200 application/json 10117 | https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?limit=2
+canadabuys | 200 application/octet-stream 8016 | https://canadabuys.canada.ca/opendata/pub/newTenderNotice-nouvelAvisAppelOffres.csv
+ted | 405 application/json 64 | https://api.ted.europa.eu/v3/notices/search
+courtlistener | 429 application/json 102 | https://www.courtlistener.com/api/rest/v4/search/?q=recall&type=o
+uk-caselaw | 200 application/xml; charset=utf-8 57625 | https://caselaw.nationalarchives.gov.uk/atom.xml
+ntsb | 405 application/json; charset=utf-8 72 | https://data.ntsb.gov/carol-main-public/api/Query/Main
+tsb-canada | 403 text/html 179 | https://www.tsb.gc.ca/eng/data/index.html
+aaib | 200 application/json 4394 | https://www.gov.uk/api/search.json?filter_format=aaib_report&count=2
+fr-ads |                                                                  ^ | https://www.federalregister.gov/api/v1/documents.json?conditions[type][]=RULE&conditions[agencies][]=federal-aviation-administration&per_page=2
+easa-ad | 404 text/html; charset=UTF-8 16440 | https://ad.easa.europa.eu/ad-list
+fda-drugshort | 200 application/json; charset=utf-8 3448 | https://api.fda.gov/drug/shortages.json?limit=1
+hc-drugshort | 400 application/json 125 | https://www.drugshortagescanada.ca/api/v1/search
+usda-fdc | 429 application/json 178 | https://api.nal.usda.gov/fdc/v1/foods/list?api_key=DEMO_KEY&pageSize=1
+openfoodfacts | 503 text/html 25281 | https://world.openfoodfacts.org/api/v2/search?page_size=1
+fsis | 403 text/html 406 | https://www.fsis.usda.gov/fsis/api/recall/v/1
+nhtsa | 200 application/xhtml+xml;charset=UTF-8 14224 | https://api.nhtsa.gov/recalls/recallsByVehicle?make=ford&model=f-150&modelYear=2020
+uk-opss | 200 application/json 4560 | https://www.gov.uk/api/search.json?filter_format=product_safety_alert_report_recall&count=2
+safety-gate | 404 text/html;charset=ISO-8859-1 760 | https://ec.europa.eu/safety-gate-alerts/public/api/notification/carousel/1
+accc | 200 text/html; charset=UTF-8 113271 | https://www.productsafety.gov.au/recalls
+nz | 200 text/html; charset=utf-8 217734 | https://www.productsafety.govt.nz/recalls
+epa-echo | 200 application/json 360 | https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_st=DC
+osha-cit | 200 text/html 11015 | https://enforcedata.dol.gov/views/data_catalogs.php
+msha | 200 application/x-zip-compressed 52240903 | https://arlweb.msha.gov/OpenGovernmentData/DataSets/Accidents.zip
+patentsview | 000  0 | https://search.patentsview.org/api/v1/patent/?q={"patent_id":"10000000"}

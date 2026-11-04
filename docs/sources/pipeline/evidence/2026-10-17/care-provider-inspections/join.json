@@ -1,0 +1,1124 @@
+{
+ "measured_at_utc": "2026-10-17T14:00:46.467656Z",
+ "cqc_api_http": {
+  "https://api.service.cqc.org.uk/public/v1/locations?perPage=1": 502,
+  "https://api.cqc.org.uk/public/v1/locations?perPage=1": 403
+ },
+ "cqc_file": {
+  "url": "https://www.cqc.org.uk/system/files/2026-10/01_October_2026_HSCA_Active_Locations.ods",
+  "http": 200,
+  "bytes": 24157514
+ },
+ "ods_api_example": "https://directory.spineservices.nhs.uk/ORD/2-0-0/organisations/V03134",
+ "file_active_locations": 55329,
+ "file_with_ods_code": 43832,
+ "file_with_overall_rating": 34803,
+ "ods_coded_by_primary_category": [
+  [
+   "Community based adult social care services",
+   15638
+  ],
+  [
+   "Residential social care",
+   14896
+  ],
+  [
+   "Dentists",
+   6941
+  ],
+  [
+   "GP Practices",
+   6100
+  ],
+  [
+   "Acute hospital - Independent non-specialist",
+   127
+  ],
+  [
+   "Independent consulting doctors",
+   25
+  ],
+  [
+   "Mental health - community & hospital - independent",
+   22
+  ],
+  [
+   "Out of hours",
+   21
+  ]
+ ],
+ "sample_size": 100,
+ "matched_in_ods": 98,
+ "postcode_same": 94,
+ "ods_active": 98,
+ "location_pages": [
+  {
+   "cqc_location_id": "1-10000302982",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/8d751af1-d418-4d70-956d-eac92d2c9ff6?20220420120000"
+  },
+  {
+   "cqc_location_id": "1-10405494148",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/97453a7a-e1f5-4270-8c61-2a6e88447dff?20220621120000"
+  },
+  {
+   "cqc_location_id": "1-106956345",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-10902124412",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/a8318baf-1853-4f77-9b04-7b112cb0d8f4?20220915120000"
+  },
+  {
+   "cqc_location_id": "1-111200339",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-112795145",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/3e1737ba-87bd-4df0-ac83-42bedfd1b2ec?20230519120000"
+  },
+  {
+   "cqc_location_id": "1-114313947",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/2c62bad1-3b33-455c-9e33-0870b77df00c?20220323130000"
+  },
+  {
+   "cqc_location_id": "1-11588460975",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-117373818",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-1184271125",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/a1a60584-68e4-4b3a-9b7e-3584e95e3486?20230901120000"
+  },
+  {
+   "cqc_location_id": "1-1193424342",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/a90e1d6e-665c-4921-aa69-68eb5934da50?20190522120000"
+  },
+  {
+   "cqc_location_id": "1-121510644",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-122294745",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/a8fa3a90-f53e-49ae-9d5e-b06cade7d9ac?20220806120000"
+  },
+  {
+   "cqc_location_id": "1-123758604",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-124734707",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/50a5c2f3-3d41-47de-bfd6-961b276e3dcc?20240127130000"
+  },
+  {
+   "cqc_location_id": "1-125863094",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/6c9f3e7a-fa65-4dc4-887f-6278ddc8b526?20201124130000"
+  },
+  {
+   "cqc_location_id": "1-126824502",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": null
+  },
+  {
+   "cqc_location_id": "1-128359121",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/a72bd8a8-4663-44ad-8a44-06537bfd5413?20230721120000"
+  },
+  {
+   "cqc_location_id": "1-129518569",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/39560444-50f5-47cd-8d0a-e79ee5b7b561?20210204130000"
+  },
+  {
+   "cqc_location_id": "1-13129110095",
+   "status": 200,
+   "rating_text_present": true,
+   "report_pdf_link": "https://api.cqc.org.uk/public/v1/reports/72a15a62-5190-4461-bf6e-fb19c892ab7a?20240119090036"
+  }
+ ],
+ "location_pages_with_pdf_link": 13,
+ "pdfs": [
+  {
+   "cqc_location_id": "1-10000302982",
+   "url": "https://api.cqc.org.uk/public/v1/reports/8d751af1-d418-4d70-956d-eac92d2c9ff6?20220420120000",
+   "status": 200,
+   "bytes": 99746,
+   "text_chars": 37785
+  },
+  {
+   "cqc_location_id": "1-10405494148",
+   "url": "https://api.cqc.org.uk/public/v1/reports/97453a7a-e1f5-4270-8c61-2a6e88447dff?20220621120000",
+   "status": 200,
+   "bytes": 94170,
+   "text_chars": 30067
+  },
+  {
+   "cqc_location_id": "1-10902124412",
+   "url": "https://api.cqc.org.uk/public/v1/reports/a8318baf-1853-4f77-9b04-7b112cb0d8f4?20220915120000",
+   "status": 200,
+   "bytes": 96650,
+   "text_chars": 33016
+  },
+  {
+   "cqc_location_id": "1-112795145",
+   "url": "https://api.cqc.org.uk/public/v1/reports/3e1737ba-87bd-4df0-ac83-42bedfd1b2ec?20230519120000",
+   "status": 200,
+   "bytes": 104658,
+   "text_chars": 42814
+  },
+  {
+   "cqc_location_id": "1-114313947",
+   "url": "https://api.cqc.org.uk/public/v1/reports/2c62bad1-3b33-455c-9e33-0870b77df00c?20220323130000",
+   "status": 200,
+   "bytes": 82076,
+   "text_chars": 21602
+  },
+  {
+   "cqc_location_id": "1-1184271125",
+   "url": "https://api.cqc.org.uk/public/v1/reports/a1a60584-68e4-4b3a-9b7e-3584e95e3486?20230901120000",
+   "status": 200,
+   "bytes": 88598,
+   "text_chars": 22733
+  }
+ ],
+ "pdfs_with_text": 6,
+ "sample_detail": [
+  {
+   "cqc_location_id": "1-10000302982",
+   "ods_code": "VNH4N",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-10405494148",
+   "ods_code": "VNHT5",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-106956345",
+   "ods_code": "VL7TL",
+   "category": "Residential social care",
+   "rating": "Outstanding",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-10902124412",
+   "ods_code": "VNJGT",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-111200339",
+   "ods_code": "VLF45",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-112795145",
+   "ods_code": "VL5FK",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-114313947",
+   "ods_code": "VL544",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-11588460975",
+   "ods_code": "VNKC5",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-117373818",
+   "ods_code": "VN0XW",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1184271125",
+   "ods_code": "VN49J",
+   "category": "Community based adult social care services",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1193424342",
+   "ods_code": "VM4GL",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-12038112723",
+   "ods_code": "V80312",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-121510644",
+   "ods_code": "VL3XR",
+   "category": "Residential social care",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-122294745",
+   "ods_code": "VL8J0",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-123758604",
+   "ods_code": "VLEK6",
+   "category": "Residential social care",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-124734707",
+   "ods_code": "VN15F",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-125863094",
+   "ods_code": "VLKF0",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-126824502",
+   "ods_code": "VL296",
+   "category": "Residential social care",
+   "rating": "Outstanding",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-128359121",
+   "ods_code": "VL6R1",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-129518569",
+   "ods_code": "VLVXP",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-13129110095",
+   "ods_code": "E85075",
+   "category": "GP Practices",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-132771847",
+   "ods_code": "VLGKV",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1345118089",
+   "ods_code": "VM34A",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-13640269395",
+   "ods_code": "V08916",
+   "category": "Dentists",
+   "rating": "Not applicable",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1385133364",
+   "ods_code": "V03081",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-14026365958",
+   "ods_code": "VNNKV",
+   "category": "Residential social care",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-142966089",
+   "ods_code": "VN0N7",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1453806947",
+   "ods_code": "VN3W4",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-148069410",
+   "ods_code": "VLEGT",
+   "category": "Residential social care",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-15083866005",
+   "ods_code": "VNPFC",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-15307823661",
+   "ods_code": "VNPN6",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-15685867558",
+   "ods_code": "VNPYM",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1613029103",
+   "ods_code": "B81100",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-16574498435",
+   "ods_code": "VNQVL",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-172399631",
+   "ods_code": "VLCQE",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-17713788314",
+   "ods_code": "VNRL2",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-18132327365",
+   "ods_code": "VNRTN",
+   "category": "Residential social care",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-18444136616",
+   "ods_code": "VNTG6",
+   "category": "Community based adult social care services",
+   "rating": "Inadequate",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-188058792",
+   "ods_code": "V09379",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-189387301",
+   "ods_code": "V07742",
+   "category": "Dentists",
+   "rating": "Not applicable",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-19190059040",
+   "ods_code": "VNV13",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-19425182233",
+   "ods_code": "VNVDA",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-196047639",
+   "ods_code": "V14409",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-1975223043",
+   "ods_code": "VN621",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-19883626865",
+   "ods_code": "VNW3T",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-19897083635",
+   "ods_code": "VNWHC",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-200302919",
+   "ods_code": "V00748",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-2033847742",
+   "ods_code": "V42095",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-206161769",
+   "ods_code": "V08409",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-210932193",
+   "ods_code": "V03349",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-215520509",
+   "ods_code": "V83403",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-21880981508",
+   "ods_code": "V01036",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-22148951373",
+   "ods_code": "VNXNE",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": false
+  },
+  {
+   "cqc_location_id": "1-222865619",
+   "ods_code": "VL0TW",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-228988065",
+   "ods_code": "VM0WP",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-23315647842",
+   "ods_code": "VNYFN",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-2383758009",
+   "ods_code": "V04229",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-2434423309",
+   "ods_code": "C82080",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-2478042111",
+   "ods_code": "V02154",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-25312965187",
+   "ods_code": "VMC7Q",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-25831989691",
+   "ods_code": "VMC4T",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-26377895438",
+   "ods_code": "VMCJ3",
+   "category": "Residential social care",
+   "rating": "Requires improvement",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-26855618245",
+   "ods_code": "VMCKK",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-27430554765",
+   "ods_code": "VMCWK",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-280063210",
+   "ods_code": "VN5RT",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-285537576",
+   "ods_code": "VN68A",
+   "category": "Community based adult social care services",
+   "rating": "Outstanding",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-29145134851",
+   "ods_code": "VMDQ7",
+   "category": "Community based adult social care services",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-3001113927",
+   "ods_code": "VM84J",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-3126248882",
+   "ods_code": "V28837",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-329034021",
+   "ods_code": "VLA15",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-357992963",
+   "ods_code": "VN16Y",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-3779814420",
+   "ods_code": "F84022",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-4011491980",
+   "ods_code": "V82820",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-421246169",
+   "ods_code": "V82529",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-4406007953",
+   "ods_code": "V80822",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 404,
+   "ods_status": null,
+   "postcode_same": false
+  },
+  {
+   "cqc_location_id": "1-459262293",
+   "ods_code": "VN00C",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-4815644183",
+   "ods_code": "V02938",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-5030000494",
+   "ods_code": "V07946",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-5227662500",
+   "ods_code": "VNADK",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-539516265",
+   "ods_code": "E82088",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-542306952",
+   "ods_code": "G83062",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-544513840",
+   "ods_code": "B81030",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-547633564",
+   "ods_code": "C81063",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-550173004",
+   "ods_code": "H84020",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-554080601",
+   "ods_code": "E82063",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-560678578",
+   "ods_code": "G82754",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-567872178",
+   "ods_code": "L82013",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-571167373",
+   "ods_code": "P89602",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": false
+  },
+  {
+   "cqc_location_id": "1-581884695",
+   "ods_code": "N83009",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 0,
+   "ods_status": null,
+   "postcode_same": false
+  },
+  {
+   "cqc_location_id": "1-593708935",
+   "ods_code": "K84038",
+   "category": "GP Practices",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-623008557",
+   "ods_code": "VN9WA",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-652849262",
+   "ods_code": "VM3NY",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-684959235",
+   "ods_code": "V84580",
+   "category": "Dentists",
+   "rating": "Not applicable",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-719013911",
+   "ods_code": "VN450",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-7574906424",
+   "ods_code": "V06232",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-794243708",
+   "ods_code": "VM3C8",
+   "category": "Residential social care",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-8461470476",
+   "ods_code": "VNFDP",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  },
+  {
+   "cqc_location_id": "1-8861389441",
+   "ods_code": "VNFVC",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": false
+  },
+  {
+   "cqc_location_id": "1-9223751866",
+   "ods_code": "VNGDH",
+   "category": "Community based adult social care services",
+   "rating": "Good",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": false
+  },
+  {
+   "cqc_location_id": "1-963718764",
+   "ods_code": "V83271",
+   "category": "Dentists",
+   "rating": "",
+   "ods_http": 200,
+   "ods_status": "Active",
+   "postcode_same": true
+  }
+ ]
+}
