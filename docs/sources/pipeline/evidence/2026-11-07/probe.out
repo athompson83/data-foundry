@@ -1,0 +1,31 @@
+nadac-metastore | 200 1182662 application/json | https://data.medicaid.gov/api/1/metastore/schemas/dataset/items?show-reference-ids=false&limit=3
+openfda-ndc | 200 3083 application/json; charset=utf-8 | https://api.fda.gov/drug/ndc.json?limit=1
+dailymed-spls | 200 604 application/json | https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json?pagesize=1
+fda-import-refusals | 200 19824 text/html;charset=UTF-8 | https://www.accessdata.fda.gov/scripts/importrefusals/
+fda-import-alerts | 200 66105 text/html | https://www.accessdata.fda.gov/cms_ia/ialist.html
+nasa-landslides | 404 21268 text/html; charset=utf-8 | https://data.nasa.gov/resource/dd9e-wu2v.json?$limit=1
+usgs-nas | 200 901 application/json; charset=utf-8 | https://nas.er.usgs.gov/api/v2/species/search?genus=Dreissena
+easin | 200 6879 application/json; charset=utf-8 | https://easin.jrc.ec.europa.eu/apixg/catxg/term/Dreissena
+gbif-gisd | 404 27 text/plain | https://api.gbif.org/v1/dataset/b351a0e5-cf9e-4e54-b3ce-16ee98d2b8b5
+fueleconomy | 404 1245 text/html | https://www.fueleconomy.gov/feg/ws/vehicle/26425
+fueleconomy-csv | 200 0 application/octet-stream | https://www.fueleconomy.gov/feg/epadata/vehicles.csv
+nrcan-fcr | 200 29689 application/json;charset=utf-8 | https://open.canada.ca/data/api/action/package_show?id=98f1a129-f628-4ce4-b24d-6f16bf24dd64
+vpic | 200 614864 application/json | https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes?format=json
+nhtsa-investigations | 403 42 application/json | https://api.nhtsa.gov/investigations/investigationsByVehicle?make=ford&model=f-150&modelYear=2020
+reliefweb | 403 218 application/json | https://api.reliefweb.int/v2/reports?appname=data-foundry-scout&limit=1
+hdx | 200 56002 application/json;charset=utf-8 | https://data.humdata.org/api/3/action/package_search?rows=1
+aphis-hpai | 200 72263 text/html; charset=utf-8 | https://www.aphis.usda.gov/livestock-poultry-disease/avian/avian-influenza/hpai-detections/commercial-backyard-flocks
+wahis | 400 134 application/json | https://wahis.woah.org/api/v1/pi/event/filtered-list
+patentsview | 000 0  | https://search.patentsview.org/api/v1/patent/?q=%7B%22patent_id%22%3A%2210000000%22%7D
+usda-organic | 200 9566 text/html; charset=utf-8 | https://organic.ams.usda.gov/integrity/Home/DownloadFile
+ttb-cola | 000 0  | https://www.ttbonline.gov/colasonline/publicSearchColasBasic.do
+cdc-mmwr | 200 190 application/json;charset=utf-8 | https://data.cdc.gov/resource/x9gk-5huc.json?$limit=1
+nasa-exoplanets | 200 24 application/json | https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select+count(*)+from+ps&format=json
+dfo-flood | 404 236 text/html; charset=iso-8859-1 | https://floodobservatory.colorado.edu/Archives/index.html
+oecd-ai-incidents | 400 1731 application/json; charset=utf-8 | https://incidentdatabase.ai/api/graphql
+eu-lex-sparql | 200 17919 text/html | https://publications.europa.eu/webapi/rdf/sparql
+uk-cqc | 404 121 application/json | https://api.service.hmrc.gov.uk/
+mfds-cpsc-recall | 200 90292 application/json; charset=utf-8 | https://www.saferproducts.gov/RestWebServices/Recall?format=json&RecallDateStart=2026-10-20
+uscg-recalls | 404 35019 text/html | https://uscgboating.org/software/recalls-search.php
+nhtsa-recalls-api | 200 3415 application/json;charset=UTF-8 | https://api.nhtsa.gov/recalls/recallsByVehicle?make=acura&model=rdx&modelYear=2012
+tc-recalls | 000 0  | https://opendatatc.blob.core.windows.net/rsbvehicle/Recalls.csv

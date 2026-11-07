@@ -9184,6 +9184,156 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/probe.out ]
     next_action: 'Parked 2026-11-04: the open JSON feed answers (10,386 notices published in October 2026; 100 sampled with full entries). The sampled first notice is an individual bankruptcy order carrying a name, home address and birth details, which is unresolved personal data (README RED gate), and only 11 of 100 sampled entries carry a company-number-like token. The Companies House bulk file (BasicCompanyDataAsOneFile-2026-11-01.zip, 494,554,856 bytes) is reachable and would join company notices by company number. Reopen as a company-only slice with a personal-data exclusion design.'
 
+  - key: drug-cost-cms-nadac
+    name: "CMS National Average Drug Acquisition Cost (NADAC) weekly pharmacy acquisition prices"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Centers for Medicare & Medicaid Services
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://data.medicaid.gov/api/1/datastore/query/fbb83258-11c7-47f5-8b18-5f8e79f7e704/0', 'https://data.medicaid.gov/api/1/metastore/schemas/dataset/items' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://data.medicaid.gov/api/1/metastore/schemas/dataset/items
+        quote: "license: https://www.usa.gov/publicdomain/label/1.0/ (metastore license field of the NADAC 2026 dataset, read 2026-11-07)"
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/nadac.py, docs/sources/pipeline/evidence/2026-11-07/nadac.json ]
+    next_action: 'Measured 2026-11-07: the 2026 NADAC table holds 1,328,578 rows, newest effective_date 2026-10-28, dataset modified 2026-11-03; yearly tables back to 2013 plus NADAC Comparison and First Time NADAC Rates. The metastore license field is the US government works / public domain label. Next: write the ADR-0013 rights record, add the yearly tables to tooling/snapshots/plans.json once PR #88 is merged, build the NDC normaliser (11-digit to 5-4-2 package form).'
+
+  - key: drug-cost-openfda-ndc
+    name: "FDA National Drug Code directory (openFDA drug/ndc)"
+    category: health
+    structuring: identifier-extraction
+    format: structured
+    publisher: U.S. Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.fda.gov/drug/ndc.json' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/nadac.json ]
+    next_action: 'Measured 2026-11-07: 170 of 200 sampled NADAC NDCs resolve to a packaging.package_ndc in the openFDA NDC directory (85%). openFDA data is CC0 (already a LIVE source for FDA Recall Intelligence). Next: archive the NDC bulk file and measure the unmatched 30 (repackager and discontinued products).'
+
+  - key: drug-cost-openfda-labels
+    name: "FDA drug labeling text (openFDA drug/label, indications, dosage, warnings prose)"
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: U.S. National Library of Medicine / FDA (SPL)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.fda.gov/drug/label.json' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/nadac_label.json ]
+    next_action: 'Measured 2026-11-07: 43 of the first 60 sampled NADAC NDCs resolve to an openFDA label by openfda.package_ndc (72%); labels carry indications, dosage and warnings as prose. Next: measure label coverage on the full 200 and the unmatched cause (OTC monographs, repackagers).'
+
+  - key: invasive-usgs-nas
+    name: "USGS Nonindigenous Aquatic Species database (species records and fact sheets)"
+    category: environment
+    structuring: identifier-extraction
+    format: free-text
+    publisher: U.S. Geological Survey
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://nas.er.usgs.gov/api/v2/species/search', 'https://nas.er.usgs.gov/queries/FactSheet.aspx' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - 'Attribute USGS as the source; the USGS data-use statement was not read, so the rights record must quote it before EVIDENCED; keep the verbatim raw record and fact-sheet HTML in R2.'
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/invasive2.py, docs/sources/pipeline/evidence/2026-11-07/invasive.json ]
+    next_action: 'Measured 2026-11-07: the species search API answers without a key (1,307 records in the ten animal and plant groups probed, 606 flagged Exotic with a species epithet), every record carries an ITIS TSN, authority and group; the fact-sheet HTML page answers (181,648 bytes). USGS is a US federal agency, so the terms are presumed public domain, but the USGS data-use statement was not read: AMBER. Next: read the terms, write the rights record, measure the fact-sheet prose fields.'
+
+  - key: invasive-easin-catalogue
+    name: "EU Alien Species Information Network (EASIN) species catalogue"
+    category: environment
+    structuring: identifier-extraction
+    format: structured
+    publisher: European Commission Joint Research Centre
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://easin.jrc.ec.europa.eu/apixg/catxg/term/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    conditions:
+      - "Attribute the European Commission JRC EASIN as the source; the JRC reuse terms were not read, so the rights record must quote them before EVIDENCED; keep each record's literature reference."
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/invasive2.py, docs/sources/pipeline/evidence/2026-11-07/invasive.json ]
+    next_action: 'Measured 2026-11-07: the catalogue is reachable by term lookup only (the skip/take listing paths are 404), each record has EASINID, authorship, first introductions with country, year and reference, countries present, status and EU-concern flag. 29 of 60 sampled USGS NAS exotic species match an EASIN record by exact binomial. Terms unread (JRC reuse policy), AMBER. Next: find a bulk listing, read the reuse terms.'
+
+  - key: fda-import-refusals-alerts
+    name: "FDA import refusals and import alerts"
+    category: trade
+    structuring: event-extraction
+    format: free-text
+    publisher: U.S. Food and Drug Administration
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.accessdata.fda.gov/scripts/importrefusals/', 'https://www.accessdata.fda.gov/cms_ia/ialist.html' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out ]
+    next_action: 'Parked 2026-11-07: both pages answer (HTTP 200 HTML, 19,824 and 66,105 bytes) but no bulk download or API was found, and both are from one publisher (FDA), so a two-publisher dataset cannot be formed. Reopen with a non-FDA member (for example a CFIA or EU RASFF border-rejection feed) and a downloadable refusals file.'
+
+  - key: security-control-catalogs-nist-mitre
+    name: "Security control and technique catalogues (NIST SP 800-53 OSCAL, MITRE ATT&CK, CAPEC, CWE)"
+    category: cybersecurity
+    structuring: identifier-extraction
+    format: free-text
+    publisher: NIST / MITRE
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json', 'https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack.json', 'https://raw.githubusercontent.com/mitre/cti/master/capec/2.1/stix-capec.json', 'https://cwe.mitre.org/data/xml/cwec_latest.xml.zip' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe2.out ]
+    next_action: "Parked 2026-11-07: all four files download (800-53 catalogue 10,448,237 bytes; ATT&CK STIX 55,277,605; CAPEC 4,480,297; CWE zip 2,119,263), but the NIST to ATT&CK mapping file was not found at 5 guessed raw paths (HTTP 404) and the GitHub API is out of this session's scope, so no declared cross-publisher join (NIST to MITRE) was measured; ATT&CK, CAPEC and CWE are one publisher. Reopen with the Center for Threat-Informed Defense mapping file path."
+
+  - key: humanitarian-reliefweb-reports
+    name: "Humanitarian situation reports (ReliefWeb, UN OCHA HDX)"
+    category: humanitarian
+    structuring: event-extraction
+    format: free-text
+    publisher: UN OCHA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://api.reliefweb.int/v2/reports', 'https://data.humdata.org/api/3/action/package_search' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out ]
+    next_action: 'Parked 2026-11-07: the ReliefWeb v2 API answers HTTP 403 for an unapproved appname (access needs a registered, approved application name, which is a gate); HDX CKAN search answers 200 but is dataset metadata, and both are UN OCHA, one publisher. Reopen only if ReliefWeb offers an open route or an approved appname exists.'
+
+  - key: vehicle-fuel-economy-specs
+    name: "Vehicle fuel economy and specifications (EPA FuelEconomy.gov, NRCan, NHTSA vPIC)"
+    category: transport
+    structuring: normalization
+    format: structured
+    publisher: U.S. EPA / DOE
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip', 'https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes', 'https://open.canada.ca/data/api/action/package_show?id=98f1a129-f628-4ce4-b24d-6f16bf24dd64' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/probe2.out ]
+    next_action: 'Parked 2026-11-07: vehicles.csv.zip (2,228,192 bytes), the vPIC makes list (614,864 bytes) and the NRCan ratings package all answer, but all three are typed fields with no free-text member, so the dataset cannot pass the free-text-plus-structured gate and the make/model/year join is a candidate join only. Reopen with NHTSA technical-service-bulletin or investigation text (the TSB flat file path tried was 404 and api.nhtsa.gov/investigations answers 403).'
+
+  - key: hazard-landslide-events-glc
+    name: "Landslide events (NASA Global Landslide Catalog)"
+    category: hazard
+    structuring: event-extraction
+    format: free-text
+    publisher: NASA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://data.nasa.gov/resource/dd9e-wu2v.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out ]
+    next_action: 'Parked 2026-11-07: the data.nasa.gov Socrata resource path guessed for the catalogue is HTTP 404, no replacement endpoint was found, and no second publisher with a declared landslide identifier was identified. Reopen with a working catalogue endpoint and a USGS or national inventory.'
+
+  - key: ai-incident-reports
+    name: "AI incident reports (AI Incident Database)"
+    category: security
+    structuring: event-extraction
+    format: free-text
+    publisher: Responsible AI Collaborative
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://incidentdatabase.ai/api/graphql' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out ]
+    next_action: 'Parked 2026-11-07: the GraphQL endpoint answers HTTP 400 to a bare request (reachable, query not yet formed); a single publisher, report text is third-party journalism, and no second publisher was found. Reopen with a second incident source and a rights review of the quoted reports.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -12067,3 +12217,57 @@ datasets:
     evidence: [ docs/sources/pipeline/research-2026-11-04.md, docs/sources/pipeline/evidence/2026-11-04/ics.json, docs/sources/pipeline/evidence/2026-11-04/ics_join.json ]
     next_action: >-
       Quote the CISA and Schneider terms and write the rights records (Siemens terms are quoted; commercial use allowed for informing customers, with a mandatory link to the original); add the three sources to tooling/snapshots/plans.json once PR #88 is merged so the archive workflow can preserve the raw CSAF files; then write the deterministic CSAF parser package with golden tests.
+
+  - key: drug-acquisition-cost-benchmarks
+    name: "Drug acquisition-cost benchmarks (CMS NADAC prices linked by NDC to the FDA NDC directory and drug labelling)"
+    category: health
+    entity: "drug product (one NDC package) with its weekly pharmacy acquisition price history, product identity and labelling text"
+    stage: SCREENED
+    description: "One record per National Drug Code package. CMS NADAC publishes the weekly national average pharmacy acquisition cost per unit; the openFDA NDC directory gives the product identity, labeler and active ingredients for the same NDC; the openFDA drug label gives indications, dosage and warnings as prose. An exact NDC is a declared identifier and links the three records automatically; the 11-digit NADAC form is normalised to the 5-4-2 package form before the join. Brand-versus-generic pairing uses the NADAC corresponding-generic field, never name similarity. Each fact carries its source."
+    sources: [ drug-cost-cms-nadac, drug-cost-openfda-ndc, drug-cost-openfda-labels ]
+    join_keys:
+      - key: NDC package code (NADAC ndc, 11 digits, equals openFDA packaging.package_ndc after 5-4-2 normalisation)
+        between: [ drug-cost-cms-nadac, drug-cost-openfda-ndc ]
+        measured: "170/200 NDCs sampled from the 2026 NADAC table (40 random offsets, 5 rows each, seed 7, 2026-11-07) resolve in the openFDA NDC directory"
+        mode: declared
+      - key: NDC package code (NADAC ndc equals openFDA SPL document openfda.package_ndc)
+        between: [ drug-cost-cms-nadac, drug-cost-openfda-labels ]
+        measured: "43/60 of the first 60 sampled NADAC NDCs resolve to an openFDA drug label"
+        mode: declared
+    taxonomy:
+      - "price_basis: per-unit acquisition cost with pricing_unit (EA, ML, GM) and effective date"
+      - "product_class: brand | generic (NADAC classification_for_rate_setting B, G, B-ANDA) and OTC flag"
+      - "labelling_section: indications | dosage | warnings | contraindications"
+    agent_questions:
+      - "What is the current pharmacy acquisition cost per unit for this NDC, and how has it changed over the last year?"
+      - "Which generic NDCs correspond to this brand product, and what do they cost per unit?"
+      - "What does the label say about indications and dosage for the product behind this price?"
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/nadac.py, docs/sources/pipeline/evidence/2026-11-07/nadac.json, docs/sources/pipeline/evidence/2026-11-07/nadac_label.json ]
+    next_action: >-
+      Write the NADAC rights record (public domain label read from the CMS metastore), add the yearly NADAC tables to tooling/snapshots/plans.json once PR #88 is merged so the archive workflow can preserve them, and re-measure the 30 unmatched NDCs from the archived NDC file.
+
+  - key: invasive-species-records
+    name: "Invasive and nonindigenous species records (USGS NAS and EU EASIN, linked by scientific name and authority)"
+    category: environment
+    entity: "invasive or nonindigenous species with its taxonomy, introduction history, range and impact"
+    stage: SCREENED
+    description: "One record per species. USGS NAS gives US occurrences, ITIS TSN, group and fact-sheet prose; EASIN gives the EU first-introduction history, countries present, status and EU-concern flag. The two publishers share no identifier: an exact scientific binomial proposes a link and the matching author-and-year string confirms it, so the link is a reviewed candidate, never an automatic merge. Each fact carries its source."
+    sources: [ invasive-usgs-nas, invasive-easin-catalogue ]
+    join_keys:
+      - key: exact scientific binomial (NAS genus + species equals EASIN Name); confirmed by equal authority string
+        between: [ invasive-usgs-nas, invasive-easin-catalogue ]
+        measured: "29/60 NAS exotic species sampled (seed 11, 2026-11-07) have an exact-binomial EASIN record; 24/29 of those carry an identical authority string"
+        mode: candidate
+        reviewed: { correct: 24, checked: 29 }
+    taxonomy:
+      - "taxon_group: fishes | mollusks | crustaceans | plants | amphibians | reptiles | birds | mammals | insects"
+      - "regime: US exotic (NAS native_exotic) | EU alien (EASIN status) | EU concern list"
+      - "habitat: freshwater | marine | brackish | terrestrial"
+    agent_questions:
+      - "Is this species established in the US, the EU or both, and when was it first introduced in each?"
+      - "Which species of this group are on the EU concern list and also recorded in US waters?"
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/invasive2.py, docs/sources/pipeline/evidence/2026-11-07/invasive.json ]
+    next_action: >-
+      Read the USGS data-use statement and the JRC reuse terms and write the rights records; find an EASIN bulk listing (the skip/take paths are 404); measure the NAS fact-sheet prose fields; then archive both.
