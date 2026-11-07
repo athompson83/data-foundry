@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "fbaaf099115ed929e15558a9829db56fc8564c372faedb87be9d270b6abf957c",
+  "registry_sha256": "c3529b658b5943c9cd22b180feddde88ffcaa456f3f72d2c87bce3f8eebb0c4a",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -622,6 +622,23 @@
         "ics-advisories-cisa-csaf",
         "ics-advisories-siemens-csaf",
         "ics-advisories-schneider-csaf"
+      ]
+    },
+    "drug-acquisition-cost-benchmarks": {
+      "name": "Drug acquisition-cost benchmarks (CMS NADAC prices linked by NDC to the FDA NDC directory and drug labelling)",
+      "stage": "SCREENED",
+      "sources": [
+        "drug-cost-cms-nadac",
+        "drug-cost-openfda-ndc",
+        "drug-cost-openfda-labels"
+      ]
+    },
+    "invasive-species-records": {
+      "name": "Invasive and nonindigenous species records (USGS NAS and EU EASIN, linked by scientific name and authority)",
+      "stage": "SCREENED",
+      "sources": [
+        "invasive-usgs-nas",
+        "invasive-easin-catalogue"
       ]
     }
   },
@@ -5496,6 +5513,149 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "The Gazette (TSO for The National Archives)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "drug-cost-cms-nadac": {
+      "name": "CMS National Average Drug Acquisition Cost (NADAC) weekly pharmacy acquisition prices",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Centers for Medicare & Medicaid Services",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "drug-cost-openfda-ndc": {
+      "name": "FDA National Drug Code directory (openFDA drug/ndc)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "U.S. Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "drug-cost-openfda-labels": {
+      "name": "FDA drug labeling text (openFDA drug/label, indications, dosage, warnings prose)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "U.S. National Library of Medicine / FDA (SPL)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "invasive-usgs-nas": {
+      "name": "USGS Nonindigenous Aquatic Species database (species records and fact sheets)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "U.S. Geological Survey",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "invasive-easin-catalogue": {
+      "name": "EU Alien Species Information Network (EASIN) species catalogue",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission Joint Research Centre",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fda-import-refusals-alerts": {
+      "name": "FDA import refusals and import alerts",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "U.S. Food and Drug Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "security-control-catalogs-nist-mitre": {
+      "name": "Security control and technique catalogues (NIST SP 800-53 OSCAL, MITRE ATT&CK, CAPEC, CWE)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "NIST / MITRE",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "humanitarian-reliefweb-reports": {
+      "name": "Humanitarian situation reports (ReliefWeb, UN OCHA HDX)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UN OCHA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "vehicle-fuel-economy-specs": {
+      "name": "Vehicle fuel economy and specifications (EPA FuelEconomy.gov, NRCan, NHTSA vPIC)",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "U.S. EPA / DOE",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hazard-landslide-events-glc": {
+      "name": "Landslide events (NASA Global Landslide Catalog)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "NASA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ai-incident-reports": {
+      "name": "AI incident reports (AI Incident Database)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Responsible AI Collaborative",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
