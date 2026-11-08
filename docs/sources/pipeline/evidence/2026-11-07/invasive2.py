@@ -13,8 +13,8 @@ for n in s:
     except Exception: j=[]
     m=[e for e in (j if isinstance(j,list) else []) if isinstance(e,dict) and e['Name'].strip().lower()==b.lower()]
     ok=bool(m); hit+=ok
-    norm=lambda x:re.sub(r'[^a-z]','',(x or '').lower())
-    auth=bool(m) and norm(m[0].get('Authorship'))==norm(n.get('authority'))
+    norm=lambda x:re.sub(r'[^a-z0-9]','',(x or '').lower())
+    auth=bool(m) and bool(norm(m[0].get('Authorship'))) and bool(norm(n.get('authority'))) and norm(m[0].get('Authorship'))==norm(n.get('authority'))
     agree+=auth; detail.append([b,n['itis_tsn'],ok,auth])
 print('authority string equal among matches',agree)
 print('exotic sampled',len(s),'exact binomial found in EASIN',hit)
