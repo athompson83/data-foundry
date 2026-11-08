@@ -11,7 +11,7 @@
 ## Current session — 2026-11-07: daily dataset scout (round 20)
 
 - **Health.** Both recall datasets synced 2026-11-07 (FDA 12:17-12:18Z, CPSC 12:18:13Z, HC 12:18:22Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC/HC (2026-11-05). FDA food total is 2 below openFDA (29,584 vs 29,586), noted. No regression.
-- **Added: 2 data types** (`drug-acquisition-cost-benchmarks`: NADAC + openFDA NDC + labels, declared NDC joins 170/200 and 43/60; `invasive-species-records`: USGS NAS + EU EASIN, reviewed candidate join 24/29). **Screened and parked: 9** (FDA import refusals, NIST/MITRE control catalogues, ReliefWeb/HDX, fuel economy, NASA landslides, AI incident reports, others). Below the 5 to 10 target.
+- **Added: 2 data types** (`drug-acquisition-cost-benchmarks`: NADAC + openFDA NDC + labels, declared NDC joins 169/200 and 48/60; `invasive-species-records`: USGS NAS + EU EASIN, reviewed candidate join 24/29). **Screened and parked: 9** (FDA import refusals, NIST/MITRE control catalogues, ReliefWeb/HDX, fuel economy, NASA landslides, AI incident reports, others). Below the 5 to 10 target.
 - **Widening.** No member added: 0 of 2,572 CPSC recalls and 0 of 34,347 Health Canada notices cite an NHTSA or FDA number, so no declared join. No capture gap found.
 - **Stage.** Both new datasets created at SCREENED. Nothing can pass SCREENED until PR #88 merges (the archive workflow runs from `main`).
 - **Evidence.** `docs/sources/pipeline/research-2026-11-07.md`, `evidence/2026-11-07/`. Nothing deployed.
