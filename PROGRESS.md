@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-08: daily dataset scout (round 21)
+
+- **Health.** Both recall datasets synced 2026-11-08 (FDA 12:17-12:18Z, CPSC 12:18:03Z, HC 12:18:07Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28; totals food 29,586, drug 18,076, device 40,450 against ours 29,584, 18,074, 40,449) and CPSC (2026-11-05). No regression.
+- **Added: 0 data types. Screened and parked: 5** (MSHA mine accidents, NTSB aircraft accidents, FRA rail casualties, CFPB complaints, FEMA disaster declarations). Below the 5 to 10 target; every one failed the two-independent-publisher or declared-join gate for a measured reason.
+- **Widening.** UK OPSS measured (3,822 notices via the GOV.UK content API, 200 sampled): 19 valid GTINs, 0 overlap with 282 GTINs in CPSC recalls since 2023, so no declared join and no member added. EU Safety Gate API 405, FSIS API 403. NHTSA recalls API answers. No capture gap found.
+- **Stage.** `drug-cost-cms-nadac` rights record written (GREEN) and all fourteen yearly NADAC tables staged in `tooling/snapshots/plans.json` for the archive workflow, which runs once PR #88 merges.
+- **Evidence.** `docs/sources/pipeline/research-2026-11-08.md`, `evidence/2026-11-08/`. Nothing deployed.
+
 ## Current session — 2026-11-07: daily dataset scout (round 20)
 
 - **Health.** Both recall datasets synced 2026-11-07 (FDA 12:17-12:18Z, CPSC 12:18:13Z, HC 12:18:22Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC/HC (2026-11-05). FDA food total is 2 below openFDA (29,584 vs 29,586), noted. No regression.

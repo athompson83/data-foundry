@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "c3529b658b5943c9cd22b180feddde88ffcaa456f3f72d2c87bce3f8eebb0c4a",
+  "registry_sha256": "b367aa6285bafe4f7ce5d87ed164a94c4a51fe937b9aab7c63da7f24d39623a7",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -5656,6 +5656,71 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "Responsible AI Collaborative",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "mine-accident-reports": {
+      "name": "MSHA mine accident, injury and illness reports",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US Mine Safety and Health Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "aircraft-accident-registry": {
+      "name": "NTSB aviation accident investigations linked to the FAA aircraft registry",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US National Transportation Safety Board",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "rail-casualty-reports": {
+      "name": "FRA railroad casualty and accident reports",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Federal Railroad Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "consumer-financial-complaints": {
+      "name": "CFPB consumer complaints linked to FCC consumer complaints",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Consumer Financial Protection Bureau",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "disaster-declarations": {
+      "name": "FEMA disaster declarations linked to USGS earthquake events",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Federal Emergency Management Agency",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [

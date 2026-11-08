@@ -1883,6 +1883,131 @@
           "url": "https://open.canada.ca/en/open-government-licence-canada"
         }
       ]
+    },
+    "drug-cost-cms-nadac": {
+      "rights_record": "docs/sources/drug-cost-cms-nadac-rights-record-20261108.md",
+      "files": [
+        {
+          "name": "nadac-2013.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/1fe73992-cbfd-5109-97bc-dee8b33fdcff/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2013.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/1fe73992-cbfd-5109-97bc-dee8b33fdcff?show-reference-ids"
+        },
+        {
+          "name": "nadac-2014.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/ba0c3734-8012-549a-8f50-2ff389d0e0ef/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2014.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/ba0c3734-8012-549a-8f50-2ff389d0e0ef?show-reference-ids"
+        },
+        {
+          "name": "nadac-2015.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/4d7af295-2132-55a8-b40c-d6630061f3e8/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2015.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/4d7af295-2132-55a8-b40c-d6630061f3e8?show-reference-ids"
+        },
+        {
+          "name": "nadac-2016.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/7656fc17-f1b4-566b-9a2d-c4a4f2ac7ae1/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2016.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/7656fc17-f1b4-566b-9a2d-c4a4f2ac7ae1?show-reference-ids"
+        },
+        {
+          "name": "nadac-2017.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/1c5d0fc9-693a-534a-8240-4627d9362b0d/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2017.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/1c5d0fc9-693a-534a-8240-4627d9362b0d?show-reference-ids"
+        },
+        {
+          "name": "nadac-2018.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/8de1b213-73c5-552b-b84e-ac795f34d056/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2018.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/8de1b213-73c5-552b-b84e-ac795f34d056?show-reference-ids"
+        },
+        {
+          "name": "nadac-2019.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/76a1984a-6d69-5e4d-86c8-65eb31f0506d/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2019.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/76a1984a-6d69-5e4d-86c8-65eb31f0506d?show-reference-ids"
+        },
+        {
+          "name": "nadac-2020.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/c933dc16-7de9-52b6-8971-4b75992673e0/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2020.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/c933dc16-7de9-52b6-8971-4b75992673e0?show-reference-ids"
+        },
+        {
+          "name": "nadac-2021.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/d5eaf378-dcef-5779-83de-acdd8347d68e/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2021.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/d5eaf378-dcef-5779-83de-acdd8347d68e?show-reference-ids"
+        },
+        {
+          "name": "nadac-2022.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/dfa2ab14-06c2-457a-9e36-5cb6d80f8d93/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2022.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/dfa2ab14-06c2-457a-9e36-5cb6d80f8d93?show-reference-ids"
+        },
+        {
+          "name": "nadac-2023.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/4a00010a-132b-4e4d-a611-543c9521280f/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2023.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/4a00010a-132b-4e4d-a611-543c9521280f?show-reference-ids"
+        },
+        {
+          "name": "nadac-2024.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/99315a95-37ac-4eee-946a-3c523b4c481e/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2024.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/99315a95-37ac-4eee-946a-3c523b4c481e?show-reference-ids"
+        },
+        {
+          "name": "nadac-2025.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/f38d0706-1239-442c-a3cc-40ef1b686ac0/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2025.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/f38d0706-1239-442c-a3cc-40ef1b686ac0?show-reference-ids"
+        },
+        {
+          "name": "nadac-2026.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/fbb83258-11c7-47f5-8b18-5f8e79f7e704/0/download?format=csv"
+        },
+        {
+          "name": "nadac-2026.metadata.json",
+          "url": "https://data.medicaid.gov/api/1/metastore/schemas/dataset/items/fbb83258-11c7-47f5-8b18-5f8e79f7e704?show-reference-ids"
+        },
+        {
+          "name": "nadac-first-time-rates.csv",
+          "url": "https://data.medicaid.gov/api/1/datastore/query/e3af839d-8175-5be0-b94e-4a302ed7a035/0/download?format=csv"
+        },
+        {
+          "name": "nadac-public-domain-label.html",
+          "url": "https://www.usa.gov/publicdomain/label/1.0/"
+        }
+      ]
     }
   }
 }

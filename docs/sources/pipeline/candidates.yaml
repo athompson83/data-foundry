@@ -9198,7 +9198,7 @@ candidates:
       - url: https://data.medicaid.gov/api/1/metastore/schemas/dataset/items
         quote: "license: https://www.usa.gov/publicdomain/label/1.0/ (metastore license field of the NADAC 2026 dataset, read 2026-11-07)"
     evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out, docs/sources/pipeline/evidence/2026-11-07/nadac.py, docs/sources/pipeline/evidence/2026-11-07/nadac.json ]
-    next_action: 'Measured 2026-11-07: the 2026 NADAC table holds 1,328,578 rows, newest effective_date 2026-10-28, dataset modified 2026-11-03; yearly tables back to 2013 plus NADAC Comparison and First Time NADAC Rates. The metastore license field is the US government works / public domain label. Next: write the ADR-0013 rights record, add the yearly tables to tooling/snapshots/plans.json once PR #88 is merged, build the NDC normaliser (11-digit to 5-4-2 package form).'
+    next_action: 'Rights record written 2026-11-08 (docs/sources/drug-cost-cms-nadac-rights-record-20261108.md, GREEN: public domain label). All fourteen yearly NADAC tables (2013 to 2026) and First Time NADAC Rates are staged in tooling/snapshots/plans.json; once this PR is merged, dispatch Archive source snapshot with source=drug-cost-cms-nadac, record the archive key, bytes and SHA-256, then move to EVIDENCED, re-measure the 30 NDCs unmatched in openFDA, and write the NADAC parser with golden tests.'
 
   - key: drug-cost-openfda-ndc
     name: "FDA National Drug Code directory (openFDA drug/ndc)"
@@ -9333,6 +9333,67 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/probe.out ]
     next_action: 'Parked 2026-11-07: the GraphQL endpoint answers HTTP 400 to a bare request (reachable, query not yet formed); a single publisher, report text is third-party journalism, and no second publisher was found. Reopen with a second incident source and a rights review of the quoted reports.'
+
+  - key: mine-accident-reports
+    name: "MSHA mine accident, injury and illness reports"
+    category: workplace-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US Mine Safety and Health Administration
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://arlweb.msha.gov/OpenGovernmentData/DataSets/Accidents.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-08.md, docs/sources/pipeline/evidence/2026-11-08/probe.out, docs/sources/pipeline/evidence/2026-11-08/probe2.json ]
+    next_action: 'Parked 2026-11-08: Accidents.zip answers HTTP 200 (52,381,452 bytes), 275,799 rows and 57 columns, 275,797 with a NARRATIVE, equipment manufacturer and model columns and a MINE_ID, but the only second workplace-injury publisher (OSHA severe injury reports) answers HTTP 403 and the other DOL files are the same publisher family. Reopen when a second independent accident source with a declared mine or equipment identifier is reachable.'
+  - key: aircraft-accident-registry
+    name: "NTSB aviation accident investigations linked to the FAA aircraft registry"
+    category: transport
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://data.ntsb.gov/avdata/FileDirectory/DownloadFile?fileID=C%3A%5Cavdata%5Cavall.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-08.md, docs/sources/pipeline/evidence/2026-11-08/probe.out, docs/sources/pipeline/evidence/2026-11-08/probe2.json ]
+    next_action: 'Parked 2026-11-08: the NTSB avall.zip download answers (97,140,358 bytes, an Access database with narrative text, N-number per event), but the FAA releasable aircraft registry that the N-number would declare-join to answers HTTP 403 (Akamai) from our egress, as do the FAA airworthiness directive pages and the DRS API. Reopen when the registry or another open aircraft-identity file is reachable; mdbtools is also not installed in the scout image.'
+  - key: rail-casualty-reports
+    name: "FRA railroad casualty and accident reports"
+    category: transport
+    structuring: normalization
+    format: structured
+    publisher: US Federal Railroad Administration
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://data.transportation.gov/resource/rash-pd2d.json' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-08.md, docs/sources/pipeline/evidence/2026-11-08/probe.out, docs/sources/pipeline/evidence/2026-11-08/probe2.json ]
+    next_action: 'Parked 2026-11-08: the FRA casualty table answers on Socrata with 1,152,399 rows but every field is typed (41 columns, no narrative), and the NTSB rail investigations query endpoint answers HTTP 405 to GET with no declared FRA incident number cited. No free-text member. Reopen with a narrative source such as FRA accident narratives.'
+  - key: consumer-financial-complaints
+    name: "CFPB consumer complaints linked to FCC consumer complaints"
+    category: consumer
+    structuring: normalization
+    format: free-text
+    publisher: Consumer Financial Protection Bureau
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-08.md, docs/sources/pipeline/evidence/2026-11-08/probe.out, docs/sources/pipeline/evidence/2026-11-08/probe2.json ]
+    next_action: 'Parked 2026-11-08: the CFPB search API answers with 19,020,152 complaints, newest 2026-11-08, but the narrative field is not returned in the default hit fields (0 of 100 sampled hits carry complaint_what_happened) and the FCC complaint table (opendata.fcc.gov 3xyp-aqkj) is a different complaint domain with no shared company identifier. No declared join. Reopen with an exact company identifier shared across two complaint publishers.'
+  - key: disaster-declarations
+    name: "FEMA disaster declarations linked to USGS earthquake events"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Federal Emergency Management Agency
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-08.md, docs/sources/pipeline/evidence/2026-11-08/probe.out, docs/sources/pipeline/evidence/2026-11-08/probe2.json ]
+    next_action: 'Parked 2026-11-08: OpenFEMA answers with 70,599 declaration rows (29 typed fields, a disasterNumber and a short declarationTitle) and USGS answers a count of 13,104 earthquakes since 2026-10-01, but neither carries free text beyond a title and neither cites the other publisher identifier. No free-text member and no declared join. Reopen with NWS or NOAA event narratives that cite the FEMA disaster number.'
 
 datasets:
   - key: home-product-recalls-global
