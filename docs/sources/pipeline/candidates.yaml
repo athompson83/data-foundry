@@ -9395,6 +9395,90 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-11-08.md, docs/sources/pipeline/evidence/2026-11-08/probe.out, docs/sources/pipeline/evidence/2026-11-08/probe2.json ]
     next_action: 'Parked 2026-11-08: OpenFEMA answers with 70,599 declaration rows (29 typed fields, a disasterNumber and a short declarationTitle) and USGS answers a count of 13,104 earthquakes since 2026-10-01, but neither carries free text beyond a title and neither cites the other publisher identifier. No free-text member and no declared join. Reopen with NWS or NOAA event narratives that cite the FEMA disaster number.'
 
+  - key: rir-delegated-statistics
+    name: "Regional Internet Registry delegated statistics (RIPE NCC, ARIN, APNIC, LACNIC, AFRINIC): ASN and prefix allocations"
+    category: infrastructure
+    structuring: normalization
+    format: structured
+    publisher: Regional Internet Registries
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://ftp.ripe.net/pub/stats/ripencc/delegated-ripencc-extended-latest
+      - https://ftp.arin.net/pub/stats/arin/delegated-arin-extended-latest
+      - https://ftp.apnic.net/stats/apnic/delegated-apnic-extended-latest
+      - https://ftp.lacnic.net/pub/stats/lacnic/delegated-lacnic-extended-latest
+      - https://ftp.afrinic.net/pub/stats/afrinic/delegated-afrinic-extended-latest
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    conditions:
+      - 'Attribution and terms: read and quote each RIR statistics-file terms page before publishing; no personal data is in these files (allocations are to organisations and countries only).'
+      - 'Publish only fields the quoted terms allow; preserve the raw delegated files in R2.'
+    next_action: 'Read each RIR statistics-file terms page and write the rights records (RIR files are published openly with no login; terms not yet quoted). All five extended files answered HTTP 200 on 2026-11-09 (RIPE 18.1 MB, ARIN 12.9 MB, dated 2026-11-08); 123,211 allocated or assigned ASNs across them.'
+  - key: peeringdb-networks
+    name: "PeeringDB network records (ASN, operator notes, peering policy)"
+    category: infrastructure
+    structuring: normalization
+    format: free-text
+    publisher: PeeringDB
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.peeringdb.com/api/net' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    conditions:
+      - 'Terms unread (AUP URL returned 404 on 2026-11-09): quote the PeeringDB terms, including any attribution and redistribution clause, before any rights record.'
+      - 'Exclude contact names, email addresses and other personal data from notes; preserve the raw API pages in R2.'
+    next_action: 'The PeeringDB acceptable-use page answered 404 at docs.peeringdb.com/aup/ on 2026-11-09, so the terms are unread: locate and quote them before any rights record. The unauthenticated API answers (250 nets per page); full-table sync needs a key or the published dump, to be checked against the AUP.'
+  - key: weather-station-metadata
+    name: "GHCN-Daily stations (WMO ids) linked to NWS stations"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: NOAA NCEI
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://www.ncei.noaa.gov/pub/data/ghcn/daily/ghcnd-stations.txt' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    next_action: 'Parked 2026-11-09: GHCN-Daily stations file answers 133,041 stations, 8,096 with a WMO id, and api.weather.gov returns 500 stations per page, but both are typed station metadata with no free text and no join was measured. Reopen with a narrative member and a declared id shared across publishers.'
+  - key: political-donations-uk
+    name: "UK Electoral Commission political donations"
+    category: civic
+    structuring: normalization
+    format: structured
+    publisher: UK Electoral Commission
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://search.electoralcommission.org.uk/api/csv/Donations' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    next_action: 'Parked 2026-11-09: the CSV export returned 94,254 rows in one request, 16,943 carrying a CompanyRegistrationNumber, but it is a single publisher and no second independent member was screened (the FEC individual-contribution files carry a statutory sale and use restriction). Reopen with a second jurisdiction and a measured Companies House join.'
+  - key: exoplanet-catalogues
+    name: "NASA Exoplanet Archive and exoplanet.eu catalogue"
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: NASA / Paris Observatory
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://exoplanetarchive.ipac.caltech.edu/TAP/sync' ]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    next_action: 'Parked 2026-11-09: NASA pscomppars answers 6,464 planets and exoplanet.eu 8,477, with 4,953 equal after lowercasing and removing spaces from the name; the link is a name match only (candidate), neither source carries prose, and the exoplanet.eu terms were not read. Reopen with a declared identifier and a prose member.'
+  - key: music-works-musicbrainz
+    name: "MusicBrainz artists linked to Wikidata by MusicBrainz id"
+    category: culture
+    structuring: normalization
+    format: structured
+    publisher: MusicBrainz
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://musicbrainz.org/ws/2/artist/' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 2, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    next_action: 'Parked 2026-11-09: 24 of 25 artist ids drawn from Wikidata property P434 resolved in MusicBrainz (the declared id works), but only 9 of 24 carry any free text (a short disambiguation comment), so there is no free-text member. Reopen with annotation or biography prose from a second publisher.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -12332,3 +12416,27 @@ datasets:
     evidence: [ docs/sources/pipeline/research-2026-11-07.md, docs/sources/pipeline/evidence/2026-11-07/invasive2.py, docs/sources/pipeline/evidence/2026-11-07/invasive.json ]
     next_action: >-
       Read the USGS data-use statement and the JRC reuse terms and write the rights records; find an EASIN bulk listing (the skip/take paths are 404); measure the NAS fact-sheet prose fields; then archive both.
+
+  - key: internet-number-resources
+    name: "Internet number resources (ASN allocations from the five RIRs linked to PeeringDB network records by ASN)"
+    category: infrastructure
+    entity: "autonomous system (one ASN) with its registry allocation, country, operator notes and peering policy"
+    stage: SCREENED
+    description: "One record per autonomous system number. The five Regional Internet Registries publish allocation and country by ASN; PeeringDB publishes the operator name, peering policy and free-text notes for the same ASN. An ASN is a declared identifier, so the two link automatically; operator-name similarity never links. Each fact carries its source file or record."
+    sources: [ rir-delegated-statistics, peeringdb-networks ]
+    join_keys:
+      - key: ASN (RIR delegated asn start and count range contains the PeeringDB net asn)
+        between: [ rir-delegated-statistics, peeringdb-networks ]
+        measured: "250/250 PeeringDB nets (first page, 2026-11-09) fall inside an allocated or assigned ASN range of the five RIR extended files (123,211 ASNs in total); 99/250 nets carry operator notes"
+        mode: declared
+    taxonomy:
+      - "registry: ripencc | arin | apnic | lacnic | afrinic"
+      - "status: allocated | assigned"
+      - "peering_policy: open | selective | restrictive (PeeringDB)"
+    agent_questions:
+      - "Which registry allocated this ASN, to which country, and what peering policy does its operator publish?"
+      - "Which ASNs in a given country describe themselves as content or transit networks in their notes?"
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
+    next_action: >-
+      Locate and quote the PeeringDB terms (the AUP URL tried answers 404) and each RIR statistics-file terms, write the rights records, then add the five extended files to tooling/snapshots/plans.json once PR #88 is merged so the archive workflow can preserve them; measure the join on the full PeeringDB table.

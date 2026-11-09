@@ -1,0 +1,62 @@
+{
+ "rir_asn_counts": {
+  "ripencc": 40182,
+  "arin": 34329,
+  "apnic": 31465,
+  "lacnic": 14424,
+  "afrinic": 2811
+ },
+ "rir_asn_total": 123211,
+ "peeringdb_sample": {
+  "nets": 250,
+  "asn_in_rir": 250,
+  "with_notes": 99
+ },
+ "ghcn": {
+  "stations": 133041,
+  "with_wmo": 8096
+ },
+ "nws_stations_page": 500,
+ "musicbrainz_wikidata": {
+  "wikidata_sample": 60,
+  "resolved_in_mb": 24,
+  "checked": 25,
+  "with_disambiguation_text": 9
+ },
+ "uk_donations": {
+  "rows": 94254,
+  "newest": "31/12/2025",
+  "with_company_no": 16943,
+  "cols": [
+   "ECRef",
+   "RegulatedEntityName",
+   "RegulatedEntityType",
+   "Value",
+   "AcceptedDate",
+   "AccountingUnitName",
+   "DonorName",
+   "AccountingUnitsAsCentralParty",
+   "IsSponsorship",
+   "DonorStatus",
+   "RegulatedDoneeType",
+   "CompanyRegistrationNumber"
+  ]
+ },
+ "nasa_exoplanets": {
+  "composite_rows": 6464
+ },
+ "exoplanet_eu": {
+  "rows": 8477,
+  "exact_name_overlap": 4953,
+  "cols": [
+   "name",
+   "planet_status",
+   "mass",
+   "mass_error_min",
+   "mass_error_max",
+   "mass_sini",
+   "mass_sini_error_min",
+   "mass_sini_error_max"
+  ]
+ }
+}

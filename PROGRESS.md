@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-09: daily dataset scout (round 22)
+
+- **Health.** Both recall datasets synced 2026-11-09 (FDA 12:17-12:18Z, CPSC 12:18:12Z, HC 12:18:20Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC (2026-11-05) / Health Canada (2026-11-06). No regression.
+- **Added: 1 data type** (`internet-number-resources`: five RIR delegated files + PeeringDB, SCREENED, rights AMBER, declared ASN join 250/250). **Screened and parked: 4** (weather stations, UK political donations, exoplanet catalogues, MusicBrainz). Below the 5 to 10 target.
+- **Widening.** No member added: FSIS 403, EU Safety Gate 405, ACCC and NZ expose no reachable API, RappelConso connection reset. No capture gap found.
+- **Stage.** None advanced. All archive-dependent stages wait on PR #88, which has green CI and no unresolved threads but reports `mergeable_state: blocked` (approval required); the owner or a reviewer must approve and merge it.
+- **Evidence.** `docs/sources/pipeline/research-2026-11-09.md`, `evidence/2026-11-09/`. Nothing deployed.
+
 ## Current session — 2026-11-08: daily dataset scout (round 21)
 
 - **Health.** Both recall datasets synced 2026-11-08 (FDA 12:17-12:18Z, CPSC 12:18:03Z, HC 12:18:07Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28; totals food 29,586, drug 18,076, device 40,450 against ours 29,584, 18,074, 40,449) and CPSC (2026-11-05). No regression.

@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "ce37f7926e290b533067e6fdadbdd1a373da44ba36fb2236c2f6a83cf5b473bd",
+  "registry_sha256": "0d2a1590f91d3816cb0b733ff9372226293f0bc20e982d0991c52088e74c9ee9",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -639,6 +639,14 @@
       "sources": [
         "invasive-usgs-nas",
         "invasive-easin-catalogue"
+      ]
+    },
+    "internet-number-resources": {
+      "name": "Internet number resources (ASN allocations from the five RIRs linked to PeeringDB network records by ASN)",
+      "stage": "SCREENED",
+      "sources": [
+        "rir-delegated-statistics",
+        "peeringdb-networks"
       ]
     }
   },
@@ -5721,6 +5729,84 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "Federal Emergency Management Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "rir-delegated-statistics": {
+      "name": "Regional Internet Registry delegated statistics (RIPE NCC, ARIN, APNIC, LACNIC, AFRINIC): ASN and prefix allocations",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Regional Internet Registries",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "peeringdb-networks": {
+      "name": "PeeringDB network records (ASN, operator notes, peering policy)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "PeeringDB",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "weather-station-metadata": {
+      "name": "GHCN-Daily stations (WMO ids) linked to NWS stations",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "NOAA NCEI",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "political-donations-uk": {
+      "name": "UK Electoral Commission political donations",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "UK Electoral Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "exoplanet-catalogues": {
+      "name": "NASA Exoplanet Archive and exoplanet.eu catalogue",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "NASA / Paris Observatory",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "music-works-musicbrainz": {
+      "name": "MusicBrainz artists linked to Wikidata by MusicBrainz id",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "MusicBrainz",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
