@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "0d2a1590f91d3816cb0b733ff9372226293f0bc20e982d0991c52088e74c9ee9",
+  "registry_sha256": "7307141839c1194e6e658f8494d8f3d0f3c9a2d61d57c7142334a9d4da6328ed",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -647,6 +647,14 @@
       "sources": [
         "rir-delegated-statistics",
         "peeringdb-networks"
+      ]
+    },
+    "legislative-lobbying-activity": {
+      "name": "Lobbying activity on federal legislation (lobbying disclosures linked to bills)",
+      "stage": "SCREENED",
+      "sources": [
+        "lda-lobbying-filings",
+        "legislation-us-govinfo-billstatus"
       ]
     }
   },
@@ -4699,14 +4707,14 @@
     "infrastructure-usace-national-inventory-of-dams": {
       "name": "US Army Corps of Engineers National Inventory of Dams (dam location, hazard class, condition and inspection)",
       "rights": "UNKNOWN",
-      "stage": "PARKED",
+      "stage": "SCREENED",
       "format": "structured",
       "publisher": "US Army Corps of Engineers",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "transport-nhtsa-fars-crash-api": {
@@ -5812,6 +5820,19 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "lda-lobbying-filings": {
+      "name": "US lobbying disclosure filings (lda.gov API: registrants, clients, issue codes, activity descriptions)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Senate Office of Public Records and House Clerk (lda.gov)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },
