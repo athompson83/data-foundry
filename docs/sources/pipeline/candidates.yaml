@@ -8182,12 +8182,12 @@ candidates:
     structuring: normalization
     format: structured
     publisher: US Army Corps of Engineers
-    stage: PARKED
+    stage: SCREENED
     rights: UNKNOWN
     sources: [ 'https://nid.sec.usace.army.mil/api/nation/csv' ]
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-10-19.md ]
-    next_action: 'PARKED 2026-10-19: the CSV export answered HTTP 403 with {"statusCode":403,"code":"ERR_BAD_REQUEST","error":"Forbidden"} to the scout User-Agent; terms unread. Retry from a Cloudflare Worker egress or find the public download link, and add free-text inspection reports as the second member.'
+    next_action: 'REOPENED 2026-11-10: the CSV export now answers HTTP 200 (69,446,745 bytes, 84 columns including Dam Name, NID ID, Federal ID, State or Federal Agency ID, Primary Purpose, latitude/longitude, county) to the declared scout User-Agent (evidence/2026-11-10/probe2.out, measure.json); it was 403 on 2026-10-19. Terms still unread: read the NID data-use page and write the ADR-0013 rights record, then add a free-text member (state dam-safety inspection reports or incident records) before it can join a dataset; not yet a dataset member.'
 
   - key: transport-nhtsa-fars-crash-api
     name: NHTSA Fatality Analysis Reporting System crash API (fatal crashes with person, vehicle and circumstance records)
@@ -9478,6 +9478,22 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 2, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
     next_action: 'Parked 2026-11-09: 24 of 25 artist ids drawn from Wikidata property P434 resolved in MusicBrainz (the declared id works), but only 9 of 24 carry any free text (a short disambiguation comment), so there is no free-text member. Reopen with annotation or biography prose from a second publisher.'
+
+  - key: lda-lobbying-filings
+    name: "US lobbying disclosure filings (lda.gov API: registrants, clients, issue codes, activity descriptions)"
+    category: civic
+    structuring: event-extraction
+    format: free-text
+    publisher: US Senate Office of Public Records and House Clerk (lda.gov)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://lda.gov/api/v1/filings/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-10.md, docs/sources/pipeline/evidence/2026-11-10/measure.py, docs/sources/pipeline/evidence/2026-11-10/lda_bills.py, docs/sources/pipeline/evidence/2026-11-10/lda_bills.json ]
+    conditions:
+      - 'Terms unread (the lda.gov API pages answer 200 but the terms-of-service URLs tried answer 404 on 2026-11-10): locate and quote them before any rights record; the older lda.senate.gov host answered 503.'
+      - 'Registrant contact names, telephone numbers and street addresses are personal or contact data: do not publish them; preserve raw API pages in R2.'
+    next_action: 'Measured 2026-11-10: GET /api/v1/filings/ answers 2,003,591 filings (109,221 for filing_year 2025); every sampled lobbying activity carries a free-text description (46/46, e.g. "FY26 defense appropriations and authorizations"). Only 3 of 455 activities in a third-quarter 2025 sample cite a bill number (5 distinct bills), so the bill join is declared but sparse. Next: quote the terms, then measure bill citations over a full quarter with the pagination cursor before spending more.'
 
 datasets:
   - key: home-product-recalls-global
@@ -12440,3 +12456,26 @@ datasets:
     evidence: [ docs/sources/pipeline/research-2026-11-09.md, docs/sources/pipeline/evidence/2026-11-09/measure.py, docs/sources/pipeline/evidence/2026-11-09/measure.json ]
     next_action: >-
       Locate and quote the PeeringDB terms (the AUP URL tried answers 404) and each RIR statistics-file terms, write the rights records, then add the five extended files to tooling/snapshots/plans.json once PR #88 is merged so the archive workflow can preserve them; measure the join on the full PeeringDB table.
+
+  - key: legislative-lobbying-activity
+    name: "Lobbying activity on federal legislation (lobbying disclosures linked to bills)"
+    category: civic
+    entity: "lobbying activity: one registrant lobbying for one client on stated issues in a filing period, with the bills it cites"
+    stage: SCREENED
+    description: "One record per lobbying activity. The Senate and House lobbying disclosure filings state the issue area and a free-text description, and some cite bill numbers. A cited bill number, congress and chamber is a declared identifier that links the activity to the GovInfo BILLSTATUS record (title, sponsor, actions); a client or sponsor name similarity never links. Every fact carries its source."
+    sources: [ lda-lobbying-filings, legislation-us-govinfo-billstatus ]
+    join_keys:
+      - key: cited bill reference number (H.R. n or S. n in the activity description, within the filing year's congress) to BILLSTATUS congress, type and number
+        between: [ lda-lobbying-filings, legislation-us-govinfo-billstatus ]
+        measured: "5/5 distinct bills cited in 3 of 455 sampled third-quarter 2025 activities exist in the BILLSTATUS 119th Congress bulk files (HTTP 200); the citation rate is low (0.7% of activities) and the resolved titles were not hand-checked (two of the five returned resolution titles, so type-to-record matching must be verified before any publication)"
+        mode: declared
+    taxonomy:
+      - "general_issue_code (LDA two-letter or three-letter issue area)"
+      - "filing_type and filing_period"
+      - "bill status: introduced, passed chamber, enacted"
+    agent_questions:
+      - "Which clients lobbied on this bill and in which quarters?"
+      - "How much did a registrant report lobbying on a given issue area in a quarter?"
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-10.md, docs/sources/pipeline/evidence/2026-11-10/lda_bills.json ]
+    next_action: 'Quote the lda.gov terms; measure bill citations over a full quarter; hand-check 20 bill links before any EVIDENCED claim.'

@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-10: daily dataset scout (round 23)
+
+- Health: both LIVE recall datasets synced 2026-11-10 12:17Z and match openFDA (2026-11-04) and CPSC (2026-11-05); no regression.
+- Added 1 data type at SCREENED (`legislative-lobbying-activity`: lda.gov filings + GovInfo BILLSTATUS, sparse declared bill join 3/455 activities); reopened the US dam inventory (CSV now HTTP 200, was 403); screened and did not add historic places, patents and rail/pipeline incident feeds. Below the 5 to 10 target; shortfall recorded in `docs/sources/pipeline/research-2026-11-10.md`.
+- Widening: ACCC feed (0/100 cite CPSC or Health Canada) and UK OPSS re-checked; no declared join, no member added. No capture gap found.
+- Verification: `npx vitest run tooling/test/source-pipeline.test.ts` 3855 passed. Nothing deployed.
+- Blocker for archives: `main` plans.json lists only ENERGY STAR; the other staged plans wait on PR #88 merging (awaiting required approval).
+
 ## Current session — 2026-11-09: daily dataset scout (round 22)
 
 - **Health.** Both recall datasets synced 2026-11-09 (FDA 12:17-12:18Z, CPSC 12:18:12Z, HC 12:18:20Z; latest attempts SUCCEEDED). Newest records match openFDA (`report_date` 2026-10-28) and CPSC (2026-11-05) / Health Canada (2026-11-06). No regression.
