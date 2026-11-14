@@ -71,9 +71,9 @@
  "fr_with_cfr_ref_1308": 98,
  "fr_sample_size": 100,
  "fr_fulltext_route": {
-  "status": 403,
-  "final_url": "https://www.federalregister.gov/documents/full_text/text/2026/11/12/2026-23075.txt",
-  "is_unblock_page": false
+  "status": 200,
+  "final_url": "https://unblock.federalregister.gov/",
+  "is_unblock_page": true
  },
  "cfr_fr_citations": 27,
  "fr_placement_docs_resolved": "12/12",
@@ -417,18 +417,20 @@
   "C": 183
  },
  "uk_cas_pattern_hits": 0,
- "us_uk_name_matches": "154/418",
- "us_ca_name_matches": "169/418",
+ "us_uk_name_matches": "166/436",
+ "us_ca_name_matches": "200/436",
  "pubchem_resolution": {
   "us": {
    "sampled": 15,
-   "resolved_cid": 6,
-   "with_cas": 6,
+   "resolved_cid": 12,
+   "with_cas": 12,
    "rows": [
     {
      "name": "Acetyl- alpha -methylfentanyl ( N -[1-(1-methyl-2-phenethyl)-4-piperidinyl]- N -",
-     "cid": null,
-     "cas": []
+     "cid": 62307,
+     "cas": [
+      "101860-00-8"
+     ]
     },
     {
      "name": "Dextromoramide",
@@ -440,13 +442,17 @@
     },
     {
      "name": "meta -Fluoroisobutyryl fentanyl ( N -(3-fluorophenyl)- N -(1-phenethylpiperidin-",
-     "cid": null,
-     "cas": []
+     "cid": 137700000,
+     "cas": [
+      "2306827-88-1"
+     ]
     },
     {
      "name": "para -Methylcyclopropyl fentanyl ( N -(4-methylphenyl)- N -(1-phenethylpiperidin",
-     "cid": null,
-     "cas": []
+     "cid": 137700045,
+     "cas": [
+      "2749910-42-5"
+     ]
     },
     {
      "name": "Dihydromorphine",
@@ -462,13 +468,17 @@
     },
     {
      "name": "2-(2,5-Dimethoxyphenyl)ethanamine (2C-H)",
-     "cid": null,
-     "cas": []
+     "cid": 76632,
+     "cas": [
+      "3600-86-0"
+     ]
     },
     {
      "name": "4\u2032-Chloro- alpha -pyrrolidinovalerophenone (Other names: 4-chloro-\u03b1-PVP; 4\u2032-chlo",
-     "cid": null,
-     "cas": []
+     "cid": 69245309,
+     "cas": [
+      "5881-77-6"
+     ]
     },
     {
      "name": "1-pentyl-3-[1-(4-methoxynaphthoyl)]indole (JWH-081)",
@@ -477,8 +487,10 @@
     },
     {
      "name": "(i) Codeine",
-     "cid": null,
-     "cas": []
+     "cid": 5284371,
+     "cas": [
+      "76-57-3"
+     ]
     },
     {
      "name": "Levo-alphacetylmethadol",
@@ -519,8 +531,8 @@
   },
   "ca": {
    "sampled": 15,
-   "resolved_cid": 10,
-   "with_cas": 10,
+   "resolved_cid": 11,
+   "with_cas": 11,
    "rows": [
     {
      "name": "Opium Poppy",
@@ -561,7 +573,7 @@
      "cas": []
     },
     {
-     "name": "5-methoxy-3",
+     "name": "5-methoxy-3,4-methylenedioxy-amphetamine",
      "cid": null,
      "cas": []
     },
@@ -573,14 +585,17 @@
      ]
     },
     {
-     "name": "1-",
+     "name": "1-(5-fluoropentyl)-3-(4-ethyl-1-naphthoyl)indole",
      "cid": null,
      "cas": []
     },
     {
-     "name": "3",
-     "cid": null,
-     "cas": []
+     "name": "3,4-Dichloromethylphenidate",
+     "cid": 44296390,
+     "cas": [
+      "210776-65-1",
+      "1364331-88-3"
+     ]
     },
     {
      "name": "Lefetamine",
@@ -621,8 +636,8 @@
   },
   "uk": {
    "sampled": 15,
-   "resolved_cid": 13,
-   "with_cas": 13,
+   "resolved_cid": 12,
+   "with_cas": 12,
    "rows": [
     {
      "name": "Acetorphine",
@@ -665,11 +680,9 @@
      "cas": []
     },
     {
-     "name": "Dimethyl",
-     "cid": 6324,
-     "cas": [
-      "74-84-0"
-     ]
+     "name": "Dimethyl(a-methyl-3,4-methylenedioxyphenethyl)amine",
+     "cid": null,
+     "cas": []
     },
     {
      "name": "Dihydrocodeine",
@@ -722,7 +735,7 @@
      ]
     },
     {
-     "name": "19-Nor-4-Androstene-3",
+     "name": "19-Nor-4-Androstene-3, 17-dione",
      "cid": null,
      "cas": []
     }
@@ -821,13 +834,13 @@
    ]
   },
   {
-   "us_name": "Aminorex (Some other names: aminoxaphen; 2-amino-5-phenyl-2-",
-   "uk_name": "Aminorex",
-   "us_cid": 16630,
-   "uk_cid": 16630,
+   "us_name": "Amineptine (7-[(10,11-dihydro-5 H -dibenzo[ a,d ]cyclohepten",
+   "uk_name": "Amineptine",
+   "us_cid": 34870,
+   "uk_cid": 34870,
    "same_cid": true,
    "cas": [
-    "2207-50-3"
+    "57574-09-1"
    ]
   }
  ],

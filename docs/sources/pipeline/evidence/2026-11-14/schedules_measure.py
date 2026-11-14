@@ -25,10 +25,36 @@ def get(u, tries=3):
             time.sleep(3)
 
 
+def clean_name(s):
+    """Substance name with explanatory annotations removed and chemical structure kept (Codex review, PR #88).
+
+    Locant commas ("3,4,5-", "N,N-") and attached structural groups ("1-(1-phenylcyclohexyl)piperidine") are part of
+    the name. Removed: a parenthetical preceded by whitespace (" (other names: ...)", " (PCP)"), a list separator
+    (comma or semicolon followed by whitespace) and everything after it, and trailing salt/derivative clauses.
+    """
+    s = " ".join((s or "").split())
+    s = re.sub(r"^\(\w{1,4}\)\s+", "", s)  # list enumerators such as "(i) Codeine"
+    s = re.sub(r"\s*-\s+|\s+-(?=\S)", "-", s)  # XML italic spacing: "Acetyl- alpha -methyl" -> "Acetyl-alpha-methyl"
+    out, depth, drop = [], 0, False
+    for i, ch in enumerate(s):  # drop balanced parentheticals that follow whitespace; keep attached structural groups
+        if ch == "(":
+            if depth == 0:
+                drop = i > 0 and s[i - 1] == " "
+            depth += 1
+        if not (drop and depth > 0):
+            out.append(ch)
+        if ch == ")" and depth > 0:
+            depth -= 1
+            if depth == 0:
+                drop = False
+    s = " ".join("".join(out).split())
+    s = re.split(r"[,;]\s(?!\d)|\s[,;]", s)[0]  # "3, 17-dione" is a locant list, not a separator
+    s = re.sub(r"(?i)\s*\b(and |or )?(any|their|its) (salts?|preparations?|derivatives?|isomers?)\b.*$", "", s)
+    return s.strip().rstrip(".,;: ")
+
+
 def norm(s):
-    s = re.sub(r"\(.*?\)", " ", s or "")
-    s = re.sub(r"(?i)\b(and )?(any|their|its) salts?.*$", "", s)
-    s = re.sub(r"[^a-z0-9]+", "", s.lower())
+    s = re.sub(r"[^a-z0-9]+", "", clean_name(s).lower())
     return s
 
 
@@ -143,7 +169,7 @@ for sch in root.iter("Schedule"):
         t = txt(te)
         if t.startswith("[Repealed"):
             continue
-        ca.append({"schedule": m.group(1), "name": re.split(r"\s*\(|,", t)[0].strip()[:120]})
+        ca.append({"schedule": m.group(1), "name": clean_name(t)[:120]})
 out["ca_items"] = len(ca)
 out["ca_items_by_schedule"] = {k: sum(1 for r in ca if r["schedule"] == k) for k in ("I", "II", "III", "IV", "V")}
 out["ca_cas_pattern_hits"] = len(re.findall(rb"\b\d{2,7}-\d{2}-\d\b", b))
@@ -164,7 +190,7 @@ for part in root.iter(L + "Part"):
     for li in part.iter(L + "ListItem"):
         t = txt(li)
         if len(t) > 3 and not t.lower().startswith(("any ", "the ")):
-            uk.append({"class": cls, "name": re.split(r"\s*\(|\.$|,", t)[0].strip().rstrip(".")[:120]})
+            uk.append({"class": cls, "name": clean_name(t)[:120]})
 out["uk_items"] = len(uk)
 out["uk_items_by_class"] = {k: sum(1 for r in uk if r["class"] == k) for k in "ABC"}
 out["uk_cas_pattern_hits"] = len(re.findall(rb"\b\d{2,7}-\d{2}-\d\b", b))
@@ -186,7 +212,9 @@ def cas_ok(c):
 
 
 def pubchem(name):
-    name = re.split(r"\s*\(|,|;", name)[0].strip()
+    name = clean_name(name)
+    if not name:
+        return {"status": None, "cid": None, "cas": []}
     s, u, b = get("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/" + urllib.parse.quote(name) + "/synonyms/JSON")
     time.sleep(0.35)
     if s != 200:

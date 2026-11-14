@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "e6a650afdf62bd8272c5bfb6faf302bc7aa281ac8bcaa12680210f387f2451b0",
+  "registry_sha256": "03513724e5fd92092240762b796db68c1c6c28971ab57456eca70389c526da3d",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
