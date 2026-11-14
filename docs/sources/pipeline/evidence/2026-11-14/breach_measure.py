@@ -214,10 +214,22 @@ iso = lambda s: datetime.date.fromisoformat(s[:10]) if s else None
 out["join_wa_ca"] = join(warows, lambda r: r.get("name", ""), lambda r: iso(r.get("datesubmitted")), lambda r: iso(r.get("datestart")), lambda r: r.get("id"), "wa")
 out["join_or_ca"] = join(ord_, lambda r: r["org"], lambda r: r["reported"], lambda r: r["breach_first"], lambda r: None, "or")
 
-# Hand-check (2026-11-14, reviewer read every check row): WA-CA 20/20 same organisation and same incident
-# (Avery Products breach start differs by one day). OR-CA 20/20 same organisation; 18/20 same incident confirmed
-# (iRhythm has no Oregon breach date; Kaniksu breach dates differ by 16 days), so 18/20 is recorded.
-out["hand_check"] = {"wa_ca": {"correct": 20, "checked": 20}, "or_ca": {"correct": 18, "checked": 20}}
+# Hand-check: the per-pair verdicts of the 2026-11-14 review live in breach_handcheck.json, keyed by the check row's
+# identifiers. Only a current check row whose key is in that file carries a verdict; any other row is "unreviewed",
+# so a rerun on a changed listing cannot claim reviews it did not have (Codex review, PR #88).
+_hc = json.load(open(os.path.join(HERE, "breach_handcheck.json")))
+
+
+def _bind(join_out, label, verdicts):
+    v = {tuple(x["key"]): x["verdict"] for x in verdicts}
+    for r in join_out["check_rows"]:
+        r["hand_check"] = v.get((r.get(label + "_id"), r[label + "_org"], r[label + "_reported"], r["ca_org"], r["ca_reported"]), "unreviewed")
+    rev = [r for r in join_out["check_rows"] if r["hand_check"] != "unreviewed"]
+    return {"correct": sum(r["hand_check"] == "correct" for r in rev), "checked": len(rev),
+            "unreviewed_check_rows": len(join_out["check_rows"]) - len(rev), "source": "breach_handcheck.json (reviewed " + _hc["reviewed_on"] + ")"}
+
+
+out["hand_check"] = {"wa_ca": _bind(out["join_wa_ca"], "wa", _hc["wa_ca"]), "or_ca": _bind(out["join_or_ca"], "or", _hc["or_ca"])}
 json.dump(out, open(os.path.join(HERE, "breach_measure.json"), "w"), indent=1, default=str)
 s = json.dumps(out, indent=1, default=str)
 print(s[:6000])

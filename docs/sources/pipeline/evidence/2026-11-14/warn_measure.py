@@ -222,9 +222,18 @@ distinct_wa = len({norm(r["company"]) for r in wa_in_window})
 out["join_wa_ca"] = {"wa_rows_in_ca_window": len(wa_in_window), "wa_distinct_employers_in_window": distinct_wa,
                      "matched_employers": len(checks), "check_rows": checks}
 
-# Hand-check (2026-11-14, reviewer read every check row): 6/6 rows are the same corporate employer in both
-# states; 5/6 share the same notice date and type (one multi-state event); Uber differs by 42 days, so it is
-# the same employer but a separate notice event.
-out["hand_check"] = {"wa_ca_employer": {"correct": 6, "checked": 6}, "wa_ca_same_event": {"correct": 5, "checked": 6}}
+# Hand-check: the per-pair verdicts of the 2026-11-14 review live in warn_handcheck.json, keyed by the check row's
+# identifiers. A current row not in that file is "unreviewed" (Codex review, PR #88).
+_hc = json.load(open(os.path.join(HERE, "warn_handcheck.json")))
+_v = {tuple(x["key"]): x for x in _hc["wa_ca"]}
+for r in checks:
+    x = _v.get((r["wa_company"], r["wa_received"], r["ca_company"], r["ca_notice_date"]))
+    r["hand_check"] = {"employer": x["employer"], "same_event": x["same_event"]} if x else "unreviewed"
+_rev = [r for r in checks if r["hand_check"] != "unreviewed"]
+out["hand_check"] = {
+    "wa_ca_employer": {"correct": sum(r["hand_check"]["employer"] == "correct" for r in _rev), "checked": len(_rev)},
+    "wa_ca_same_event": {"correct": sum(r["hand_check"]["same_event"] == "correct" for r in _rev), "checked": len(_rev)},
+    "unreviewed_check_rows": len(checks) - len(_rev), "source": "warn_handcheck.json (reviewed " + _hc["reviewed_on"] + ")",
+}
 json.dump(out, open(os.path.join(HERE, "warn_measure.json"), "w"), indent=1, default=str)
 print(json.dumps(out, indent=1, default=str)[:7000])

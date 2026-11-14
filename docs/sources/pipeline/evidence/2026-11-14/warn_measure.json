@@ -185,7 +185,11 @@
     "ca_notice_date": "2026-11-02",
     "ca_type": "Layoff Permanent",
     "ca_industry": "44-45 Retail Trade",
-    "ca_rows_same_name_in_window": 1
+    "ca_rows_same_name_in_window": 1,
+    "hand_check": {
+     "employer": "correct",
+     "same_event": "correct"
+    }
    },
    {
     "wa_company": "Comcast",
@@ -196,7 +200,11 @@
     "ca_notice_date": "2026-10-29",
     "ca_type": "Layoff Permanent",
     "ca_industry": "51 Information",
-    "ca_rows_same_name_in_window": 1
+    "ca_rows_same_name_in_window": 1,
+    "hand_check": {
+     "employer": "correct",
+     "same_event": "correct"
+    }
    },
    {
     "wa_company": "Oracle America, Inc.",
@@ -207,7 +215,11 @@
     "ca_notice_date": "2026-09-14",
     "ca_type": "Layoff Permanent",
     "ca_industry": "31-33 Manufacturing",
-    "ca_rows_same_name_in_window": 2
+    "ca_rows_same_name_in_window": 2,
+    "hand_check": {
+     "employer": "correct",
+     "same_event": "correct"
+    }
    },
    {
     "wa_company": "Uber Technologies Inc",
@@ -218,7 +230,11 @@
     "ca_notice_date": "2026-07-22",
     "ca_type": "Layoff Permanent",
     "ca_industry": "48-49 Transportation and Warehousing",
-    "ca_rows_same_name_in_window": 3
+    "ca_rows_same_name_in_window": 3,
+    "hand_check": {
+     "employer": "correct",
+     "same_event": "incorrect"
+    }
    },
    {
     "wa_company": "Salesforce, Inc.",
@@ -229,7 +245,11 @@
     "ca_notice_date": "2026-08-05",
     "ca_type": "Layoff Permanent",
     "ca_industry": "51 Information",
-    "ca_rows_same_name_in_window": 1
+    "ca_rows_same_name_in_window": 1,
+    "hand_check": {
+     "employer": "correct",
+     "same_event": "correct"
+    }
    },
    {
     "wa_company": "Visa",
@@ -240,7 +260,11 @@
     "ca_notice_date": "2026-07-31",
     "ca_type": "Layoff Permanent",
     "ca_industry": "52 Finance and Insurance",
-    "ca_rows_same_name_in_window": 1
+    "ca_rows_same_name_in_window": 1,
+    "hand_check": {
+     "employer": "correct",
+     "same_event": "correct"
+    }
    }
   ]
  },
@@ -252,6 +276,8 @@
   "wa_ca_same_event": {
    "correct": 5,
    "checked": 6
-  }
+  },
+  "unreviewed_check_rows": 0,
+  "source": "warn_handcheck.json (reviewed 2026-11-14)"
  }
 }
