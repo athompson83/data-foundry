@@ -1,0 +1,150 @@
+{
+ "aphis_tableau_default_sheet": {
+  "header": "Is Last Reporting Month,Month of Confirmed Diagnosis,Backyard Flocks",
+  "rows": 4,
+  "note": "monthly backyard-flock counts only; no flock id, county or species"
+ },
+ "osu_arcgis_mirror_fields": [
+  "Confirmed",
+  "State",
+  "County_Name",
+  "County_FIPS",
+  "Special_Id",
+  "Production",
+  "Control_Area_Released",
+  "Measure_Names",
+  "Birds_Affected",
+  "LAT_X",
+  "LON_Y",
+  "ObjectId"
+ ],
+ "cfia_investigations_and_orders": {
+  "distinct_infected_premises_ids": 571,
+  "sample_ids": [
+   "AB-IP01",
+   "AB-IP02",
+   "AB-IP03",
+   "AB-IP04",
+   "AB-IP05",
+   "AB-IP06",
+   "AB-IP07",
+   "AB-IP08",
+   "AB-IP09",
+   "AB-IP10"
+  ],
+  "fields": "date detected, IP id, municipality, province, premises type, WOAH premises classification, PCZ id, order status"
+ },
+ "defra_latest_situation": {
+  "public_updated_at": "2026-10-03T16:54:42+01:00",
+  "text_chars": 9284,
+  "case_ids_cited": [
+   "AIV 2026/20"
+  ]
+ },
+ "wahis_event_list": {
+  "totalSize": 6862,
+  "pageSize": 50,
+  "fields": [
+   "country",
+   "createdBy",
+   "disease",
+   "eventId",
+   "eventStartDate",
+   "eventStatus",
+   "isAquatic",
+   "isLastReportUnchanged",
+   "reason",
+   "reportId",
+   "reportNumber",
+   "reportStatus",
+   "reportType",
+   "subType",
+   "submissionDate"
+  ]
+ },
+ "declared_identifier_overlap": {
+  "cfia_ip_ids_in_defra_text": [],
+  "defra_aiv_ids_in_cfia_html": [],
+  "note": "CFIA IP-nnn and Defra AIV yyyy/nn are national series; no APHIS flock id is reachable. Jurisdictions are disjoint, so no candidate join (date+region+species) can match the same record across them."
+ },
+ "probes": [
+  {
+   "url": "https://www.aphis.usda.gov/livestock-poultry-disease/avian/avian-influenza/hpai-detections/commercial-backyard-flocks",
+   "method": "GET",
+   "http": 200,
+   "bytes": 72253,
+   "at": "2026-10-17T14:14:24+00:00"
+  },
+  {
+   "url": "https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections.csv",
+   "method": "GET",
+   "http": 200,
+   "bytes": 155,
+   "at": "2026-10-17T14:14:25+00:00"
+  },
+  {
+   "url": "https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetectionsTable.csv",
+   "method": "GET",
+   "http": 404,
+   "bytes": 306,
+   "at": "2026-10-17T14:14:27+00:00"
+  },
+  {
+   "url": "https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/ConfirmedDetectionsTable.csv",
+   "method": "GET",
+   "http": 404,
+   "bytes": 306,
+   "at": "2026-10-17T14:14:28+00:00"
+  },
+  {
+   "url": "https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/Table.csv",
+   "method": "GET",
+   "http": 404,
+   "bytes": 306,
+   "at": "2026-10-17T14:14:29+00:00"
+  },
+  {
+   "url": "https://services1.arcgis.com/jWQlP64OuwDh6GGX/arcgis/rest/services/hpai_commercial_backyard_usa/FeatureServer/0?f=json",
+   "method": "GET",
+   "http": 200,
+   "bytes": 12048,
+   "at": "2026-10-17T14:14:30+00:00"
+  },
+  {
+   "url": "https://inspection.canada.ca/en/animal-health/terrestrial-animals/diseases/reportable/avian-influenza/latest-bird-flu-situation/investigations-and-orders",
+   "method": "GET",
+   "http": 200,
+   "bytes": 574546,
+   "at": "2026-10-17T14:14:31+00:00"
+  },
+  {
+   "url": "https://www.gov.uk/api/content/guidance/bird-flu-avian-influenza-latest-situation-in-england",
+   "method": "GET",
+   "http": 200,
+   "bytes": 36924,
+   "at": "2026-10-17T14:14:32+00:00"
+  },
+  {
+   "url": "https://wahis.woah.org/api/v1/pi/event/filtered-list",
+   "method": "POST",
+   "http": 200,
+   "bytes": 21650,
+   "at": "2026-10-17T14:14:35+00:00"
+  },
+  {
+   "url": "https://wahis.woah.org/api/v1/pi/getReport/186594",
+   "method": "GET",
+   "http": 403,
+   "bytes": 5482,
+   "at": "2026-10-17T14:14:36+00:00"
+  },
+  {
+   "url": "https://wahis.woah.org/pi/getReportList",
+   "method": "GET",
+   "http": 403,
+   "bytes": 5482,
+   "at": "2026-10-17T14:14:37+00:00"
+  }
+ ],
+ "run_at": "2026-10-17T14:14:37+00:00"
+}

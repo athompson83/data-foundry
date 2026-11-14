@@ -1,0 +1,419 @@
+{
+ "reviewed_on": "2026-11-14",
+ "method": "reviewer read every check row: same organisation and same incident (breach date agrees, or differs by at most a day)",
+ "key_fields": [
+  "<state>_id",
+  "<state>_org",
+  "<state>_reported",
+  "ca_org",
+  "ca_reported"
+ ],
+ "notes": {
+  "wa_ca": "Avery Products breach start differs by one day; counted correct.",
+  "or_ca": "iRhythm has no Oregon breach date and Kaniksu breach dates differ by 16 days: same organisation, incident not confirmed, counted incorrect."
+ },
+ "wa_ca": [
+  {
+   "key": [
+    "18182",
+    "American Trust Company",
+    "2025-01-02",
+    "American Trust Company",
+    "2025-01-02"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18247",
+    "Avery Products Corporation",
+    "2025-01-10",
+    "Avery Products Corporation",
+    "2025-02-11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18293",
+    "Wolf Haldenstein Adler Freeman & Herz LLP",
+    "2025-01-16",
+    "Wolf Haldenstein Adler Freeman & Herz LLP ",
+    "2025-01-15"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18294",
+    "Garden of Life, LLC",
+    "2025-01-17",
+    "Garden of Life, LLC",
+    "2025-01-17"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18339",
+    "PowerSchool Group LLC",
+    "2025-01-27",
+    "PowerSchool Group LLC",
+    "2025-01-27"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18342",
+    "Berman & Rabin, P.A.",
+    "2025-01-28",
+    "Berman & Rabin, P.A.",
+    "2025-01-28"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18446",
+    "New Era Enterprises, Inc.",
+    "2025-02-11",
+    "New Era Enterprises, Inc.",
+    "2025-02-11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18447",
+    "Medusind, Inc.",
+    "2025-02-11",
+    "Medusind, Inc.",
+    "2025-02-11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18499",
+    "Nuna Baby Essentials, Inc ",
+    "2025-02-21",
+    "Nuna Baby Essentials, Inc",
+    "2025-02-21"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18548",
+    "DISA Global Solutions, Inc.",
+    "2025-02-24",
+    "DISA Global Solutions, Inc.",
+    "2025-03-10"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18565",
+    "Valsoft Corporation Inc. d/b/a AllTrust",
+    "2025-02-27",
+    "Valsoft Corporation Inc. d/b/a AllTrust",
+    "2025-02-27"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18568",
+    "Rivers Casino Philadelphia",
+    "2025-02-28",
+    "Rivers Casino Philadelphia",
+    "2025-02-28"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18601",
+    "Hillcrest Convalescent Center, Inc. ",
+    "2025-03-04",
+    "Hillcrest Convalescent Center, Inc. ",
+    "2025-03-04"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18603",
+    "Colorado River Adventures",
+    "2025-03-05",
+    "Colorado River Adventures",
+    "2025-04-14"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18612",
+    "United Seating and Mobility, LLC d/b/a Numotion (\"Numotion\")",
+    "2025-03-07",
+    "United Seating and Mobility, LLC d/b/a Numotion (\u201cNumotion\u201d)",
+    "2025-03-07"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18620",
+    "Smart ERP Solutions, Inc.",
+    "2025-03-11",
+    "Smart ERP Solutions, Inc.",
+    "2025-03-11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18625",
+    "Trinity Petroleum Management, LLC",
+    "2025-03-12",
+    "Trinity Petroleum Management, LLC",
+    "2025-03-12"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18646",
+    "SAG-AFTRA Health Plan",
+    "2025-03-14",
+    "SAG-AFTRA Health Plan",
+    "2025-03-14"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18672",
+    "OBI Seafoods, LLC",
+    "2025-03-19",
+    "OBI Seafoods, LLC ",
+    "2025-03-19"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    "18673",
+    "Southeast Series of Lockton Companies, LLC (\u201cLockton\u201d)",
+    "2025-03-20",
+    "Southeast Series of Lockton Companies, LLC (\u201cLockton\u201d)\u202f",
+    "2025-04-08"
+   ],
+   "verdict": "correct"
+  }
+ ],
+ "or_ca": [
+  {
+   "key": [
+    null,
+    "Hippo Analytics Inc.",
+    "2026-10-29",
+    "Hippo Analytics Inc.",
+    "2026-11-03"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Revolve Group, Inc.",
+    "2026-10-29",
+    "Revolve Group, Inc.",
+    "2026-10-29"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Troutman Pepper Locke LLP",
+    "2026-10-28",
+    "Troutman Pepper Locke LLP",
+    "2026-10-28"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Frontline Education",
+    "2026-10-27",
+    "Frontline Education",
+    "2026-10-26"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Photon Health",
+    "2026-10-21",
+    "Photon Health ",
+    "2026-10-28"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Aldrich Services LLP",
+    "2026-10-21",
+    "Aldrich Services LLP",
+    "2026-10-01"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Mercadien P.C., CPAs",
+    "2026-10-12",
+    "Mercadien, P.C. CPAs ",
+    "2026-10-20"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Blueberry Pediatrics",
+    "2026-10-10",
+    "Blueberry Pediatrics",
+    "2026-10-10"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "iRhythm Technologies Inc.",
+    "2026-10-06",
+    "iRhythm Technologies Inc.",
+    "2026-10-06"
+   ],
+   "verdict": "incorrect"
+  },
+  {
+   "key": [
+    null,
+    "Sheppard, Mullin, Richter & Hampton LLP",
+    "2026-10-02",
+    "Sheppard, Mullin, Richter & Hampton LLP",
+    "2026-10-02"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Poppins Payroll Company",
+    "2026-09-30",
+    "Poppins Payroll Company",
+    "2026-09-29"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "City of McMinnville",
+    "2026-09-29",
+    "City of McMinnville",
+    "2026-09-29"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Upbound Group, Inc.",
+    "2026-09-28",
+    "Upbound Group, Inc.",
+    "2026-09-27"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "MedImpact Healthcare Systems, Inc.",
+    "2026-09-26",
+    "MedImpact Healthcare Systems, Inc.",
+    "2026-09-25"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Ridgeway Pharmacy Ltd",
+    "2026-09-21",
+    "Ridgeway Pharmacy Ltd",
+    "2026-09-21"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Kaniksu Community Health",
+    "2026-09-15",
+    "Kaniksu Community Health",
+    "2026-09-01"
+   ],
+   "verdict": "incorrect"
+  },
+  {
+   "key": [
+    null,
+    "zHealth, Inc.",
+    "2026-09-11",
+    "zHealth, Inc.",
+    "2026-09-11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Cornerstone Staffing Solutions, Inc.",
+    "2026-09-11",
+    "Cornerstone Staffing Solutions, Inc.",
+    "2026-09-11"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Greenberg Traurig, LLP (\u201cGT\u201d)",
+    "2026-09-09",
+    "Greenberg Traurig, LLP (\u201cGT\u201d)",
+    "2026-10-01"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "key": [
+    null,
+    "Quatrro Business Support Services, Inc.",
+    "2026-09-09",
+    "Quatrro Business Support Services, Inc.",
+    "2026-09-09"
+   ],
+   "verdict": "correct"
+  }
+ ]
+}

@@ -1,0 +1,2386 @@
+{
+ "dailymed_total_spls": 158907,
+ "sampled": 200,
+ "setid_found_in_openfda": 127,
+ "version_agrees": 1,
+ "with_indications_text": 125,
+ "rows": [
+  {
+   "setid": "349fa84e-1fdb-4976-b1bb-689b80eac8ad",
+   "title": "ZEGFROVY (SUNVOZERTINIB) TABLET, FILM COATED [DIZAL PHARMACEUTICAL CO., LTD.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "48a366d8-f5ac-47b0-84e3-f88251def70c",
+   "title": "LEVOTHYROXINE SODIUM TABLET [BRYANT RANCH PREPACK]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "4f42d132-9a8d-4cd4-ae94-318205fb870e",
+   "title": "AMLODIPINE BESYLATE TABLET [RISING PHARMA HOLDINGS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "56826bb5-ae70-af65-e063-6294a90abf74",
+   "title": "ATORVASTATIN CALCIUM TABLET, FILM COATED [KESIN PHARMA CORPORATION]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "56946484-17f2-51a4-e063-6394a90a2d5a",
+   "title": "VALSARTAN TABLET, FILM COATED [KESIN PHARMA CORPORATION]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e49324a-caab-cd9f-e063-6294a90a91c9",
+   "title": "MAX REVIVE PLASTER (MENTHOL, METHYL SALICYLATE) PATCH [BIG 5 NUTRITION LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e565825-8cca-8ddd-e063-6394a90a026a",
+   "title": "MOXIFLOXACIN SOLUTION/ DROPS [REDPHARM DRUG]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e569972-eb5d-a0bd-e063-6294a90a2340",
+   "title": "METAXALONE TABLET [REDPHARM DRUG]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e56fa99-3244-0b7b-e063-6394a90af4a1",
+   "title": "NYSTATIN (NYSTATIN CREAM) CREAM [REDPHARM DRUG]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e9d1093-468e-47c9-89bf-d217dc858d61",
+   "title": "FENIVOX (FENBENDAZOLE) SUSPENSION [YASMEEN GLOBAL TRADERS LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "64338ed8-a73b-4d85-bd96-9d426a6db843",
+   "title": "UREVIA 10 LOTION [BLUE HERON PHARMACEUTICALS, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "937171c0-3ec6-48e6-b318-c66ddd669e65",
+   "title": "FENIVOX (PRAZIQUANTEL) SOLUTION [YASMEEN GLOBAL TRADERS LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "abf1bc06-1783-4774-b629-722aa503a898",
+   "title": "PROGESTERONE INSERT [INGENUS PHARMACEUTICALS, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "aeb4cde1-e1d1-4588-9036-ba0df8dd0965",
+   "title": "FENIVOX (PRAZIQUANTEL AND PYRANTEL PAMOATE) TABLET [YASMEEN GLOBAL TRADERS LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "cf493e6a-1603-4c7d-a442-69a119bec843",
+   "title": "CLONIDINE HYDROCHLORIDE TABLET [ALEMBIC PHARMACEUTICALS LIMITED]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "d2a9853a-184a-4134-9ec1-bc21f8dca63c",
+   "title": "LIDOCAINE 4% PATCH (LIDOCAINE 4%) PATCH [BLUE HERON PHARMACEUTICALS LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "e5c3384b-3635-4adf-9bb2-929a5114e392",
+   "title": "FENIVOX (FENBENDAZOLE) SUSPENSION [YASMEEN GLOBAL TRADERS LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "ee600728-df69-4e61-9c94-5ef3801b80ad",
+   "title": "IFOSFAMIDE INJECTION, SOLUTION [MEITHEAL PHARMACEUTICAL INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "2e6ecf0d-3084-4409-9c65-3796ed3c0a89",
+   "title": "CAPSAICIN 0.035 PERCENT (CAPSAICIN) PATCH [BEIJING HKKY MEDICAL TECH. CO., LTD.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "2eba95b5-9270-4450-8d1b-f23eca0e3145",
+   "title": "FENIVOX (IVERMECTIN) PASTE [YASMEEN GLOBAL TRADERS LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "45399f5a-44c5-4bb5-af68-47f1919f71ad",
+   "title": "MAG64 (MAGNESIUM CHLORIDE) TABLET, DELAYED RELEASE [RISING PHARMA HOLDINGS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5afb2260-5b50-de95-e063-6394a90a5a47",
+   "title": "THERAPEUTIC DANDRUFF (SALICYLIC ACID) SHAMPOO [CARDINAL HEALTH 110, LLC. DBA LEADER]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260908",
+   "version_agrees": false
+  },
+  {
+   "setid": "5d9b0c15-7d39-0f3f-e063-6294a90ac6fe",
+   "title": "XZKHDIV WART REMOVER (SALICYLIC ACID 17% WART REMOVER) LIQUID [WENZHOU YUYUAN PHARMACEUTIC",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5df13a27-aa5c-8462-e063-6394a90ab4db",
+   "title": "REVIAMIGO ATHLETES FOOT (TOLNAFTATE 1% ATHLETES FOOT) LIQUID [WENZHOU YUYUAN PHARMACEUTICA",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "686b9456-f16d-4b99-ae58-f607448bed8b",
+   "title": "GENCARE DAYTIME COLD AND FLU SOFTGEL (ACETAMINOPHEN, DEXTROMETHORPHAN HYDROBROMIDE, PHENYL",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260213",
+   "version_agrees": false
+  },
+  {
+   "setid": "8dd6b2f1-f438-4be1-a6c4-4f6c8902dfb6",
+   "title": "NIZORAL (KETOCONAZOLE) SHAMPOO [KRAMER LABORATORIES]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250711",
+   "version_agrees": false
+  },
+  {
+   "setid": "e3a8c0e9-19ed-49b7-8464-11e8806f47fd",
+   "title": "CYTARABINE INJECTION, SOLUTION [HOSPIRA, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250407",
+   "version_agrees": false
+  },
+  {
+   "setid": "e817bc4a-43ef-4126-b903-aabd1390cd0c",
+   "title": "ACETAMINOPHEN 500 MG (ACETAMINOPHEN) TABLET [PIONEER LIFE SCIENCES, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250108",
+   "version_agrees": false
+  },
+  {
+   "setid": "29b5475d-6085-cfe6-e063-6294a90a7e74",
+   "title": "DIAPER RASH SKIN PROTECTANT (LANOLIN AND PETROLATUM) OINTMENT [UNIVERSAL DISTRIBUTION CENT",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251117",
+   "version_agrees": false
+  },
+  {
+   "setid": "2aa62e0a-442d-41af-a2d8-0b8f88d23319",
+   "title": "PRAZOSIN HYDROCHLORIDE CAPSULE [REMEDYREPACK INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251001",
+   "version_agrees": false
+  },
+  {
+   "setid": "2f829466-f2fb-43f1-9e82-0d33b50b913a",
+   "title": "BLIP (NICOTINE POLACRILEX) GUM, CHEWING [BLIP PRODUCTS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250317",
+   "version_agrees": false
+  },
+  {
+   "setid": "4baa5c95-79a6-4ae8-a8c4-1edbf308f92c",
+   "title": "VIREX (ADENOVIREN NOSODE, ASCLEPIAS TUBEROSA, CALCAREA ARSENICICA, CAMPHORA, COXSACKIE A2 ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251003",
+   "version_agrees": false
+  },
+  {
+   "setid": "5bbed26a-e2f0-f12d-e063-6294a90a3b1d",
+   "title": "MINOXIDIL LIQUID [FLEXIGO INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "667f6f1b-5179-481c-a131-940c7937aada",
+   "title": "GENCARE HEADACHE RELIEF (ACETAMINOPHEN, ASPIRIN, CAFFEINE) TABLET [PIONEER LIFE SCIENCES, ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251226",
+   "version_agrees": false
+  },
+  {
+   "setid": "6d82dfbd-f171-4045-9f7a-268e189a658a",
+   "title": "PRUCALOPRIDE TABLET [ANI PHARMACEUTICALS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251205",
+   "version_agrees": false
+  },
+  {
+   "setid": "addb2c44-bab0-430a-8305-281f30a66d87",
+   "title": "ANTIDIARRHEAL MULTI SYMPTOM RELIEF (LOPERAMIDE HYDROCHLORIDE, SIMETHICONE) TABLET [PUBLIX ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20200806",
+   "version_agrees": false
+  },
+  {
+   "setid": "b36d5041-a992-48e1-904d-e99d83583f2f",
+   "title": "IODOZYME LIQUID (IODINE) SOLUTION, CONCENTRATE [DELAVAL INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "02bf0edd-488a-4809-a365-501f6cfea6ac",
+   "title": "DG HEALTH PAIN RELIEF (ACETAMINOPHEN) TABLET, FILM COATED [DOLGENCORP INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20241119",
+   "version_agrees": false
+  },
+  {
+   "setid": "15c8e177-a381-43b2-aed8-d917c7c4372e",
+   "title": "GOOD SENSE TUSSIN DM (DEXTROMETHORPHAN HYDROBROMIDE, GUAIFENESIN) SOLUTION [PREFERRED PHAR",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250113",
+   "version_agrees": false
+  },
+  {
+   "setid": "18520f9b-4d35-1e9c-e063-6294a90aaa39",
+   "title": "ORAL PAIN RELIEF (BENZOCAINE AND BENZALKONIUM CHLORIDE) GEL [UNIVERSAL DISTRIBUTION CENTER",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251030",
+   "version_agrees": false
+  },
+  {
+   "setid": "1852246a-6a1c-49ab-e063-6294a90a9048",
+   "title": "DIAPER RASH SKIN PROTECTANT (LANOLIN AND PETROLATUM) OINTMENT [UNIVERSAL DISTRIBUTION CENT",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251030",
+   "version_agrees": false
+  },
+  {
+   "setid": "18536e21-afc3-8447-e063-6394a90aabae",
+   "title": "MUSCLE RUB PAIN RELIEVER GEL (MENTHOL, UNSPECIFIED FORM) GEL [UNIVERSAL DISTRIBUTION CENTR",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251030",
+   "version_agrees": false
+  },
+  {
+   "setid": "186b2750-5bf6-1702-e063-6294a90a62b3",
+   "title": "BACITRACIN ZINC OINTMENT [UNIVERSAL DISTRIBUTION CENTER LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251030",
+   "version_agrees": false
+  },
+  {
+   "setid": "186c2d32-e8c5-d13d-e063-6294a90a2b0e",
+   "title": "HEMORRHOID ANESTHETIC (MINERAL OIL, PETROLATUM, PHENYLEPHRINE HCL) OINTMENT [UNIVERSAL DIS",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251030",
+   "version_agrees": false
+  },
+  {
+   "setid": "1ea444eb-f2f5-8c63-e063-6294a90acac8",
+   "title": "MEDLINE (MICONAZOLE NITRATE) CREAM [MEDLINE INDUSTRIES, LP]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251106",
+   "version_agrees": false
+  },
+  {
+   "setid": "60976d1e-c415-417f-8168-4e07999a7281",
+   "title": "PHYRAGO (DASATINIB) TABLET [CYCLE PHARMACEUTICALS LTD]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250823",
+   "version_agrees": false
+  },
+  {
+   "setid": "79084b47-7481-4926-9837-e08f633b1ddf",
+   "title": "CICLOPIROX SOLUTION [ENCUBE ETHICALS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251013",
+   "version_agrees": false
+  },
+  {
+   "setid": "7a671ac6-5744-4e87-b1bd-434ca0a86e6d",
+   "title": "TRUBREXA (LIDOCAINE AND CAPSAICIN) PATCH [PREFERRED PHARMACEUTICALS INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "contraindications"
+   ],
+   "effective_time": "20251002",
+   "version_agrees": false
+  },
+  {
+   "setid": "905cade1-9b37-486a-ac12-21f3262ab4e2",
+   "title": "ARTICAINE HCL AND EPINEPHRINE (ARTICAINE HYDROCHLORIDE AND EPINEPHRINE BITARTRATE) INJECTI",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "bbc367cc-6c79-498e-8fca-1347e6ea1a8c",
+   "title": "CHILDRENS PAIN AND FEVER (ACETAMINOPHEN) SUSPENSION [TOPCO ASSOCIATES LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251022",
+   "version_agrees": false
+  },
+  {
+   "setid": "e4304edc-8c80-4118-9d86-7a34c76aa56f",
+   "title": "ALBUTEIN (ALBUMIN (HUMAN)) INJECTION, SOLUTION [GRIFOLS USA, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "eaa9d094-ece6-41fd-97d9-0fdb0a45afd7",
+   "title": "DOLO - NEUROBION ACETAMINOPHEN MAX EXTENDED-RELEASE 650 MG (ACETAMINOPHEN) TABLET [BENARD ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20230619",
+   "version_agrees": false
+  },
+  {
+   "setid": "ed634b03-87cf-4a1c-a513-f34196dabd6f",
+   "title": "DOXORUBICIN HYDROCHLORIDE INJECTION, SUSPENSION, LIPOSOMAL [QILU PHARMACEUTICAL CO., LTD.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "f0e68196-8566-443b-9cc8-b57d5c001558",
+   "title": "COLGATE KIDS CAVITY PROTECTION (SODIUM FLUORIDE) GEL, DENTIFRICE [COLGATE-PALMOLIVE COMPAN",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20261019",
+   "version_agrees": true
+  },
+  {
+   "setid": "186afb11-06b6-4bfa-e063-6294a90aefc6",
+   "title": "HYDROCORTISONE ANTI-ITCH (HYDROCORTISONE) CREAM [UNIVERSAL DISTRIBUTION CENTER LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251030",
+   "version_agrees": false
+  },
+  {
+   "setid": "20538bc0-10c3-492c-952a-6797e46003f2",
+   "title": "FLORIDA GLOW SPF 30 (AVOBENZONE,OCTOCRYLENE,OCTISALATE,HOMOSALATE) SPRAY [SOUTHEAST HOLDIN",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251112",
+   "version_agrees": false
+  },
+  {
+   "setid": "2f26e2a1-5efc-4d40-a3e7-cc06c326103b",
+   "title": "CAPSAICIN PATCH [BEIJING HKKY MEDICAL TECH. CO., LTD.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20200729",
+   "version_agrees": false
+  },
+  {
+   "setid": "2f5c975f-0d35-4f68-a27c-28af9a898733",
+   "title": "POLYETHYLENE GLYCOL 3350 POWDER, FOR SOLUTION [CARDINAL HEALTH 107, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251023",
+   "version_agrees": false
+  },
+  {
+   "setid": "4bf1ca6b-5d87-40ee-97f4-89f1bfadcecb",
+   "title": "FLORIDA GLOW SPF 30 (ZINC OXIDE) LOTION [SOUTHEAST HOLDINGS CORP.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251112",
+   "version_agrees": false
+  },
+  {
+   "setid": "56af704a-bda9-49ed-a177-a8480d90458b",
+   "title": "FLORIDA GLOW SPF 15 (AVOBENZONE,OCTOCRYLENE,OCTISALATE) SPRAY [SOUTHEAST HOLDINGS CORP.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251112",
+   "version_agrees": false
+  },
+  {
+   "setid": "853130e5-7406-4fd6-8138-ff2179195927",
+   "title": "OTULFI (USTEKINUMAB-AAUZ) INJECTION, SOLUTION OTULFI (USTEKINUMAB-AAUZ) SOLUTION [FRESENIU",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260216",
+   "version_agrees": false
+  },
+  {
+   "setid": "98b197ea-bca4-427e-8737-97f70a3262bc",
+   "title": "CAVHANZA (NILOTINIB) TABLET, ORALLY DISINTEGRATING [CYCLE PHARMACEUTICALS LTD]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260807",
+   "version_agrees": false
+  },
+  {
+   "setid": "ad29a37f-39a2-5c84-e053-2995a90a2f39",
+   "title": "PAIN RELIEF PM (ACETAMINOPHEN, DIPHENHYDRAMINE) TABLET [PIONEER LIFE SCIENCES, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251229",
+   "version_agrees": false
+  },
+  {
+   "setid": "b5852b90-e415-47ef-8f73-87266b58e033",
+   "title": "TRAMADOL HYDROCHLORIDE TABLET [RISING PHARMA HOLDINGS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260311",
+   "version_agrees": false
+  },
+  {
+   "setid": "c4b27429-50a3-467c-a5ff-7e49a01a1088",
+   "title": "LEVETIRACETAM TABLET, FILM COATED [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250911",
+   "version_agrees": false
+  },
+  {
+   "setid": "cea54600-5308-4b9f-98ca-fef0b26d79c1",
+   "title": "FLORIDA GLOW FACE SHIELD SPF 55 (HOMOSALATE, OCTOCRYLENE, ZINC OXIDE) LOTION [SOUTHEAST HO",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251112",
+   "version_agrees": false
+  },
+  {
+   "setid": "dcb43ee0-5ab0-495a-8e68-90cab881337d",
+   "title": "FLORIDA GLOW SPF 50 (AVOBENZONE,OCTOCRYLENE,OCTISALATE,HOMOSALATE) SPRAY [SOUTHEAST HOLDIN",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251112",
+   "version_agrees": false
+  },
+  {
+   "setid": "15eb4676-5f6e-4c28-b5b9-4e45412dc37a",
+   "title": "HYDROCORTISONE CREAM [H E B]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20241029",
+   "version_agrees": false
+  },
+  {
+   "setid": "33ffc2c7-3ae1-4cac-b21a-b7d08fe6165d",
+   "title": "CARPRIEVE (CARPROFEN) TABLET [NORBROOK LABORATORIES LIMITED]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "36284496-e56e-466c-9b56-6007bb5bb699",
+   "title": "PYRIDOSTIGMINE BROMIDE TABLET [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260804",
+   "version_agrees": false
+  },
+  {
+   "setid": "93763b39-ba21-449b-bdc5-254ba57154e4",
+   "title": "MYCOPHENOLIC ACID TABLET, DELAYED RELEASE [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260615",
+   "version_agrees": false
+  },
+  {
+   "setid": "b71c557a-eb93-40d1-87c4-847f5468fc1e",
+   "title": "NASAL MIST (OXYMETAZOLINE HYDROCHLORIDE) SPRAY [CVS PHARMACY]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20240828",
+   "version_agrees": false
+  },
+  {
+   "setid": "b78ef44c-b4a3-4b8c-8903-83d7ff0bbf5a",
+   "title": "PENNCHLOR 90G (CHLORTETRACYCLINE CALCIUM) GRANULE [PHARMGATE ANIMAL HEALTH]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "c4a28f8f-030d-4487-b74f-13998482e72d",
+   "title": "MENSTRUAL COMPLETE (ACETAMINOPHEN, CAFFEINE, PYRILAMINE MALEATE) TABLET, FILM COATED [L.N.",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250818",
+   "version_agrees": false
+  },
+  {
+   "setid": "f6ce7cca-d245-44f2-986c-2a8d85dbb5fb",
+   "title": "MEMANTINE HYDROCHLORIDE CAPSULE, EXTENDED RELEASE [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260107",
+   "version_agrees": false
+  },
+  {
+   "setid": "089d77c9-7aa0-4eee-8363-c47a2d5928cf",
+   "title": "PUBLIX EXTRA STRENGTH (SIMETHICONE) CAPSULE, LIQUID FILLED [PUBLIX SUPER MARKETS, INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "0c45d793-6f2f-4622-b5ed-6875acfbc02b",
+   "title": "SPIRONOLACTONE TABLET, FILM COATED [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251229",
+   "version_agrees": false
+  },
+  {
+   "setid": "11112859-ef1e-4b37-9915-ba4d06a3f198",
+   "title": "PUBLIX LAXATIVE MAXIMUM STRENGTH (CALCIUM SENNOSIDES) TABLET [PUBLIX SUPER MARKETS, INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "1dbf8366-c606-4253-aa08-ed555a8de4c3",
+   "title": "DOXAZOSIN TABLET [A-S MEDICATION SOLUTIONS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20210830",
+   "version_agrees": false
+  },
+  {
+   "setid": "28e8dd03-25cf-43db-8c4d-3aae99be9d53",
+   "title": "PUBLIX EXTRA STRENGTH TROPICAL FRUIT (CALCIUM CARBONATE) TABLET, CHEWABLE [PUBLIX SUPER MA",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "2aaf5d99-6d28-4fa6-b3c5-52dcfc94dac0",
+   "title": "SAMS WEST (PSYLLIUM HUSK) CAPSULE [SAM'S WEST INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251120",
+   "version_agrees": false
+  },
+  {
+   "setid": "4dbdabc4-280d-4c9a-8c54-84afc615c8c7",
+   "title": "EXTRA STRENGTH SUGAR FREE ORANGE CREAM FLAVOR (CALCIUM CARBONATE) TABLET, CHEWABLE [PUBLIX",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "6af396c2-af3e-436d-ba9a-583637495910",
+   "title": "ACITRETIN CAPSULE [AVKARE]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20240109",
+   "version_agrees": false
+  },
+  {
+   "setid": "7845a9d5-bf0d-4b64-9e86-17203b7d0f7f",
+   "title": "ASPIRIN TABLET, FILM COATED [AMERISOURCE BERGEN]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250902",
+   "version_agrees": false
+  },
+  {
+   "setid": "814abe38-da4a-48af-bf4b-2ce04a5aabd1",
+   "title": "AZITHROMYCIN TABLET, FILM COATED [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260902",
+   "version_agrees": false
+  },
+  {
+   "setid": "9e1c883f-016e-4c05-b27a-750d14c0f3e5",
+   "title": "PUBLIX ULTRA STRENGTH ASSORTED FRUIT (CALCIUM CARBONATE) TABLET, CHEWABLE [PUBLIX SUPER MA",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "a270fc36-f2b2-4f56-81d4-cf165f6b5abe",
+   "title": "PUBLIX EXTRA STRENGTH ASSORTED BERRY (CALCIUM CARBONATE) TABLET, CHEWABLE [PUBLIX SUPER MA",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "ac9efd62-8fee-b777-e053-2995a90a3783",
+   "title": "TENSION HEADACHE RELIEF (ACETAMINOPHEN, CAFFEINE) TABLET [PIONEER LIFE SCIENCES, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251229",
+   "version_agrees": false
+  },
+  {
+   "setid": "bc619258-7451-460c-9472-95678ea82d6e",
+   "title": "ULTRA STRENGTH ASSORTED BERRIES (CALCIUM CARBONATE) TABLET, CHEWABLE [SAM'S WEST INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251120",
+   "version_agrees": false
+  },
+  {
+   "setid": "c41b6cc2-c852-45fd-858c-c7bedc5dc882",
+   "title": "PUBLIX REGULAR STRENGTH PEPPERMINT FLAVOR (CALCIUM CARBONATE) TABLET, CHEWABLE [PUBLIX SUP",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "fd637431-7a08-4454-9cae-a68716d2d0fa",
+   "title": "PUBLIX REGULAR STRENGTH ASSORTED FRUIT (CALCIUM CARBONATE) TABLET, CHEWABLE [PUBLIX SUPER ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "029f9254-8cfd-4ea0-8691-2d87df450433",
+   "title": "EXTRA STRENGTH GAS RELIEF (SIMETHICONE) TABLET, CHEWABLE [PUBLIX SUPER MARKETS, INC,]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251028",
+   "version_agrees": false
+  },
+  {
+   "setid": "2590ebb6-ce2a-4e23-9244-e54e3010d488",
+   "title": "FUROSEMIDE INJECTION, SOLUTION [CARDINAL HEALTH 107, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260115",
+   "version_agrees": false
+  },
+  {
+   "setid": "2ad63160-4f6f-4970-80b6-f6d19c5660a5",
+   "title": "DYNAMO DELAY (LIDOCAINE) SPRAY [MOMENTUM MANAGEMENT LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251003",
+   "version_agrees": false
+  },
+  {
+   "setid": "3670d66e-c1e4-42ce-8760-c3d5accad925",
+   "title": "DOXYLAMINE SUCCINATE AND PYRIDOXINE HYDROCHLORIDE TABLET, DELAYED RELEASE [ACTAVIS PHARMA,",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250930",
+   "version_agrees": false
+  },
+  {
+   "setid": "fb39a94e-93e6-4afe-a300-f80e8f1e0fa6",
+   "title": "DIVALPROEX SODIUM TABLET, DELAYED RELEASE [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251121",
+   "version_agrees": false
+  },
+  {
+   "setid": "2cfa69b4-e33f-442a-a6df-b021b041da14",
+   "title": "GOOD SENSE ALLERGY RELIEF (DIPHENHYDRAMINE HYDROCHLORIDE) TABLET, FILM COATED [L. PERRIGO ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20240201",
+   "version_agrees": false
+  },
+  {
+   "setid": "c13ced61-c491-4fc2-b83f-78c6d9ad8546",
+   "title": "BETTER LIVING BRANDS CHILDRENS FEVER AND PAIN RELIVER (ACETAMINOPHEN) SUSPENSION [BETTER L",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251120",
+   "version_agrees": false
+  },
+  {
+   "setid": "c5fbec69-e7de-44a8-b9fa-0378ae61a9fe",
+   "title": "BUPRENORPHINE AND NALOXONE TABLET [MAJOR PHARMACEUTICALS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260303",
+   "version_agrees": false
+  },
+  {
+   "setid": "80bef3fd-4f6f-4190-8865-9ac46c8947a3",
+   "title": "AMOXICILLIN AND CLAVULANATE POTASSIUM TABLET, FILM COATED [REMEDYREPACK INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260814",
+   "version_agrees": false
+  },
+  {
+   "setid": "976d9dd0-4f11-4439-b84e-0c0f0e018d8b",
+   "title": "DILTIAZEM HYDROCHLORIDE CAPSULE, EXTENDED RELEASE [SUN PHARMACEUTICAL INDUSTRIES, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250522",
+   "version_agrees": false
+  },
+  {
+   "setid": "a7dae31a-e41d-4bfa-9c0a-060d6e91627b",
+   "title": "ALBUTEIN (ALBUMIN (HUMAN)) INJECTION, SOLUTION [GRIFOLS USA, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "ad784c8e-7201-4336-a310-616e3e979ca4",
+   "title": "BUPROPION HYDROCHLORIDE SR (BUPROPION HYDROCHLORIDE) TABLET, FILM COATED, EXTENDED RELEASE",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260212",
+   "version_agrees": false
+  },
+  {
+   "setid": "1cceab35-dc4a-40bc-a245-10b64820e217",
+   "title": "ATOMOXETINE CAPSULE [RISING PHARMA HOLDINGS, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251212",
+   "version_agrees": false
+  },
+  {
+   "setid": "8d252dab-e868-42d3-95ea-69423d909e84",
+   "title": "PIOGLITAZONE HYDROCHLORIDE AND METFORMIN HYDROCHLORIDE TABLET, FILM COATED [RISING PHARMA ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250227",
+   "version_agrees": false
+  },
+  {
+   "setid": "be32f468-738b-40df-a425-591e12f65159",
+   "title": "RECARBRIO (IMIPENEM ANHYDROUS, CILASTATIN, AND RELEBACTAM ANHYDROUS) INJECTION, POWDER, FO",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251209",
+   "version_agrees": false
+  },
+  {
+   "setid": "966f0506-c2d2-4d3c-bd2d-c5a6b1e0a157",
+   "title": "INFANTS GAS RELIEF DROPS (SIMETHICONE) EMULSION [WAL-MART STORES,INC.,]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251027",
+   "version_agrees": false
+  },
+  {
+   "setid": "0b8bf078-34c2-4f45-9012-38a8ac082b01",
+   "title": "KRAZATI (ADAGRASIB) TABLET, COATED [MIRATI THERAPEUTICS, INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260325",
+   "version_agrees": false
+  },
+  {
+   "setid": "095eab9f-545a-4f12-bfb7-19477fb901a5",
+   "title": "JEMPERLI (DOSTARLIMAB) INJECTION [GLAXOSMITHKLINE LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250902",
+   "version_agrees": false
+  },
+  {
+   "setid": "93454159-0c58-1980-34b9-4038a2260420",
+   "title": "PYRIDOSTIGMINE BROMIDE TABLET, EXTENDED RELEASE [ALVOGEN, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251009",
+   "version_agrees": false
+  },
+  {
+   "setid": "a6ca2871-9a9d-4f03-a5ff-ddb28c6ff945",
+   "title": "ALBUTEIN (ALBUMIN (HUMAN)) INJECTION, SOLUTION [GRIFOLS USA, LLC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "29157995-fa61-4425-86a5-5bd0e4718cd8",
+   "title": "DORZOLAMIDE HYDROCHLORIDE SOLUTION/ DROPS [SANDOZ INC]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20221220",
+   "version_agrees": false
+  },
+  {
+   "setid": "c5f7741b-1f11-4a34-8f11-de6975c9578d",
+   "title": "ISOPROPYL ALCOHOL LIQUID [CVS PHARMACY, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260203",
+   "version_agrees": false
+  },
+  {
+   "setid": "9dff46c6-4b15-4d10-aca6-d5ef3735a530",
+   "title": "PEDVAXHIB (HAEMOPHILUS B CONJUGATE VACCINE (MENINGOCOCCAL PROTEIN CONJUGATE)) INJECTION, S",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "4ace5274-b6cf-414c-b9c0-f60e28a9cea5",
+   "title": "CARBIDOPA AND LEVODOPA TABLET [TEVA PHARMACEUTICALS USA, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260709",
+   "version_agrees": false
+  },
+  {
+   "setid": "92385737-dbad-98c5-e053-2995a90a2805",
+   "title": "GVOKE HYPOPEN 1 MG AUTO-INJECTOR (GLUCAGON INJECTION, SOLUTION) INJECTION, SOLUTION GVOKE ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251223",
+   "version_agrees": false
+  },
+  {
+   "setid": "ce078847-6be4-4663-b311-a4946ab8c6ed",
+   "title": "DERMAPRO (DERMAL CONDITIONER TEAT DIP) SOLUTION [PRESERVE INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "fefb887c-e4ac-431e-8893-e9d1a5a63fea",
+   "title": "NUCALA (MEPOLIZUMAB) INJECTION, POWDER, FOR SOLUTION NUCALA (MEPOLIZUMAB) INJECTION, SOLUT",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250806",
+   "version_agrees": false
+  },
+  {
+   "setid": "89a4bd73-89f4-4fd7-2c9f-921e1da8f96b",
+   "title": "LIDOCAINE HYDROCHLORIDE INJECTION, SOLUTION [HOSPIRA, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260522",
+   "version_agrees": false
+  },
+  {
+   "setid": "af4c2ea8-73bd-429b-8392-fa20fec6fb3f",
+   "title": "AMOXICILLIN AND CLAVULANATE POTASSIUM TABLET, FILM COATED [A-S MEDICATION SOLUTIONS]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250618",
+   "version_agrees": false
+  },
+  {
+   "setid": "1e6dc9ae-1c4c-42d9-87aa-c315ecc51b56",
+   "title": "TREMFYA (GUSELKUMAB) INJECTION TREMFYA (GUSELKUMAB) INJECTION [JANSSEN BIOTECH, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260604",
+   "version_agrees": false
+  },
+  {
+   "setid": "30952400-0572-4431-9150-3a41affffb9a",
+   "title": "GARDASIL (HUMAN PAPILLOMAVIRUS QUADRIVALENT (TYPES 6, 11, 16, AND 18) VACCINE, RECOMBINANT",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "cd61e902-166d-4aa6-9f3c-a18c1008d07e",
+   "title": "REPATHA (EVOLOCUMAB) INJECTION, SOLUTION [AMGEN USA INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260819",
+   "version_agrees": false
+  },
+  {
+   "setid": "bb362a20-6d91-4ae8-bebb-9ee8b2591814",
+   "title": "PNEUMOVAX 23 (PNEUMOCOCCAL VACCINE POLYVALENT) INJECTION, SOLUTION [MERCK SHARP & DOHME LL",
+   "published": "Oct 23, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "f41d8abd-7792-4918-1b93-bd83ea01955e",
+   "title": "PRIMAXIN IV (IMIPENEM AND CILASTATIN SODIUM) INJECTION, POWDER, FOR SOLUTION [MERCK SHARP ",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20240705",
+   "version_agrees": false
+  },
+  {
+   "setid": "df8b8660-0c24-4848-8bea-c1b935090c66",
+   "title": "DICLOFENAC SODIUM AND MISOPROSTOL TABLET, DELAYED RELEASE [ACTAVIS PHARMA, INC.]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260831",
+   "version_agrees": false
+  },
+  {
+   "setid": "ce135638-e551-4bb0-bd2b-f97d381a8c7c",
+   "title": "HYDROCORTISONE BUTYRATE LOTION [BRYANT RANCH PREPACK]",
+   "published": "Oct 23, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260423",
+   "version_agrees": false
+  },
+  {
+   "setid": "0dc82673-ee58-4813-8640-3d00e58ca49f",
+   "title": "COOL RELIEF (HAMAMELIS VIRGINIANA TOP WATER) CREAM [ZENMED RAGING CREATIONS LTD.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "2bb5bba8-60ae-4789-90eb-2d4a43e7a14b",
+   "title": "PREDNISONE TABLET [BRYANT RANCH PREPACK]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "410150a1-a90c-4bd8-88b7-f520169b4118",
+   "title": "MANNITOL 20% (MANNITOL) INJECTION [SHILOH SCIENTIFIC, INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5de3a390-6f44-caea-e063-6294a90aa270",
+   "title": "DEGREE (TOTAL PROTECTION CLEAN ANTIPERSPIRANT DEODORANT) STICK [CONOPCO D/B/A UNILEVER]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5df5c3ed-4836-e920-e063-6294a90abbc7",
+   "title": "ALCOHOL PREP PAD SWAB [JINHUA JINGDI MEDICAL SUPPLIES CO.,LTD]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e38af7c-f5f3-6e5c-e063-6294a90a1772",
+   "title": "MAX RELIEF JUNIOR GRAPE (CHILDRENS ACETAMINOPHEN) LIQUID [ATLANTIC BIOLOGICALS CORP.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e3e16d6-b80f-619d-e063-6394a90afc12",
+   "title": "FEMININE INTIMATE WASH (BISABOLOL) LIQUID [JIANGXI HE-OUMEI HEALTH INDUSTRY CO., LTD.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e420eba-d2ea-d517-e063-6394a90a7b76",
+   "title": "WART REMOVER PEN (SALICYLIC ACID) LIQUID [JIANGXI HE-OUMEI HEALTH INDUSTRY CO., LTD.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e426629-8733-366a-e063-6394a90a8e39",
+   "title": "IBUPROFEN TABLET, FILM COATED [REDPHARM DRUG]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e42871a-5ead-4dbf-e063-6394a90afeed",
+   "title": "TRIAMCINOLONE ACETONIDE CREAM [REDPHARM DRUG]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e42b448-9b4e-6fef-e063-6394a90aaad7",
+   "title": "CEFPODOXIME PROXETIL TABLET, FILM COATED [REDPHARM DRUG]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e46952f-aede-a298-e063-6394a90a17a7",
+   "title": "NITROFURANTOIN (MONOHYDRATE/MACROCRYSTALS) CAPSULE [ST. MARY'S MEDICAL PARK PHARMACY]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e47be90-d687-0599-e063-6294a90a9ec3",
+   "title": "ANTACID AND ANTIGAS (CALCIUM CARBONATE, MAGNESIUM HYDROXIDE, SIMETHICONE) LIQUID [CHAIN DR",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e4825c8-bdd2-a2a5-e063-6294a90ab3a7",
+   "title": "DEGREE (MAX PROTECTION MANDARIN GLOW DRY SPRAY ANTIPERSPIRANT DEODORANT) AEROSOL, SPRAY [C",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e48627b-9ce1-f260-e063-6294a90ab92f",
+   "title": "ANTISEPTIC TOWELETTE CLOTH [JINHUA JINGDI MEDICAL SUPPLIES CO.,LTD]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e48d714-b6b6-a0a2-e063-6394a90ad87e",
+   "title": "DEGREE (MAX PROTECTION CASHMERE PLUM DRY SPRAY ANTIPERSPIRANT DEODORANT) AEROSOL, SPRAY [C",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e495522-7971-ea90-e063-6294a90a649f",
+   "title": "DEGREE (MAX PROTECTION CHERRY AND OAK DRY SPRAY ANTIPERSPIRANT DEODORANT) AEROSOL, SPRAY [",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e4b3a65-04ae-a9e8-e063-6394a90ac095",
+   "title": "VICKS NYQUIL VAPOCOOL COLD AND FLU (ACETAMINOPHEN, DOXYLAMINE SUCCINATE, DEXTROMETHORPHAN ",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5e4e5911-763b-62dc-e063-6394a90a3213",
+   "title": "VALACYCLOVIR TABLET [NUCARE PHARMACEUTICALS, INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "626f10b5-cdbf-45b9-9cba-59a3c15f98bf",
+   "title": "TECHNELITE (TECHNETIUM TC99M GENERATOR) INJECTION, SOLUTION [SHINE SPECT USA, LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "64737ead-8fb4-43c8-8a09-9cfd5c8f702b",
+   "title": "LORATADINE TABLET [A-S MEDICATION SOLUTIONS]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "7c841eed-a98f-43c3-baaf-bf5502207a69",
+   "title": "CILOSTAZOL TABLET [AUROBINDO PHARMA LIMITED]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "bd8b717b-93af-4a2f-b233-db930247e76f",
+   "title": "THE GENERATION CLEANSER (PYRITHIONE ZINC) LOTION/SHAMPOO [ZENMED RAGING CREATIONS LTD.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "db3e16f0-6473-4367-91e1-0ab6792b552b",
+   "title": "EVO PURPLE WHITENING ANTI-CAVITY FLUORIDE-COOL MINT (SODIUM FLUORIDE) MOUTHWASH [ASHTEL ST",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "f5cd3575-d768-473c-b2c3-ba3ab31f6021",
+   "title": "DEXAMETHASONE TABLET [BRYANT RANCH PREPACK]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "fc5d7e38-c05c-4219-a4b2-2488a7da044a",
+   "title": "MAGNESIUM SULFATE IN DEXTROSE (MAGNESIUM SULFATE) INJECTION [WG CRITICAL CARE, LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "06fb73a5-10fb-1a7a-e063-6394a90a9809",
+   "title": "PLANTAGO PRIMULA LIQUID [URIEL PHARMACY, INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20231005",
+   "version_agrees": false
+  },
+  {
+   "setid": "102cff60-3221-9741-e063-6394a90a2a24",
+   "title": "COCCULUS CONIUM LIQUID [URIEL PHARMACY INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20240130",
+   "version_agrees": false
+  },
+  {
+   "setid": "2c28198b-2027-f0d0-e063-6294a90aa05b",
+   "title": "SUNCEUTICAL SPF 50 MINERAL BODY CREAM (ZINC OXIDE) CREAM [BAXTER LABORATORIES PTY. LTD.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250120",
+   "version_agrees": false
+  },
+  {
+   "setid": "2d90680b-acc1-301c-e063-6294a90a2a72",
+   "title": "FERRUM 0.4 OINTMENT [URIEL PHARMACY, INC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250207",
+   "version_agrees": false
+  },
+  {
+   "setid": "2f743f0d-06ca-873c-e063-6394a90a5697",
+   "title": "ACNE SOLUTIONS CLINICAL ADVANCED CLEARING GEL (SALICYLIC ACID) GEL [CLINIQUE LABORATORIES ",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250303",
+   "version_agrees": false
+  },
+  {
+   "setid": "33ddaac7-925e-259c-e063-6294a90a120c",
+   "title": "SILK MINERAL SPF 50 SUNSCREEN FACE (ZINC OXIDE) LOTION [BAXTER LABORATORIES]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250428",
+   "version_agrees": false
+  },
+  {
+   "setid": "3e115ef1-f039-4c72-e063-6394a90a7e64",
+   "title": "DAILY BODY MOISTURIZER SUNSCREEN BROAD SPECTRUM SPF 50 (AVOBENZONE, HOMOSALATE, OCTISALATE",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250905",
+   "version_agrees": false
+  },
+  {
+   "setid": "3e4db4f8-cba5-dbfd-e063-6394a90ab0a0",
+   "title": "PROTECT AND HYDRATE RADIANCE SUNSCREEN BROAD SPECTRUM SPF 50 (AVOBENZONE, HOMOSALATE, OCTI",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250908",
+   "version_agrees": false
+  },
+  {
+   "setid": "472eafe8-aa7a-f435-e063-6294a90acf6b",
+   "title": "ANTACID AND ANTIGAS (CALCIUM CARBONATE, MAGNESIUM HYDROXIDE, SIMETHICONE) LIQUID [GERI-CAR",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251230",
+   "version_agrees": false
+  },
+  {
+   "setid": "4a828eb5-0383-f524-e063-6394a90a8449",
+   "title": "DICLOFENAC POTASSIUM (DICLOFENAC POTASSIUM 25 MG) CAPSULE, LIQUID FILLED [PURETEK CORPORAT",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260410",
+   "version_agrees": false
+  },
+  {
+   "setid": "4e6ac834-9ce3-1b54-e063-6294a90a9dff",
+   "title": "ULTRA STRENGTH GAS RELIEF (SIMETHICONE) CAPSULE, LIQUID FILLED [BIONPHARMA INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260401",
+   "version_agrees": false
+  },
+  {
+   "setid": "53a21928-8f5b-52c1-e063-6294a90add6c",
+   "title": "ESOMEPRAZOLE (ESOMEPRAZOLE MAGNESIUM) CAPSULE, DELAYED RELEASE [GERI-CARE PHARMACEUTICALS,",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260606",
+   "version_agrees": false
+  },
+  {
+   "setid": "57fd8178-0d7d-4dfa-8669-26908c4acf80",
+   "title": "SPRAVEX SPRAY [ONCORA PHARMA, LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "58780980-a5b2-5d1f-e063-6294a90a5a92",
+   "title": "FOSTER AND THRIVE REGULAR STRENGTH PAIN RELIEF ACETAMINOPHEN 325MG (ACETAMINOPHEN 325MG) T",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "58c06fcf-9636-093d-e063-6394a90a0f2f",
+   "title": "WOMENS LAXATIVE (BISACODYL) TABLET [BETTER LIVING BRANDS LLC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "5fc3573d-b938-488d-b88a-7501768662b4",
+   "title": "NICOTINE MINI (NICOTINE POLACRILEX) LOZENGE [KROGER COMPANY]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "62b1cf42-c53a-40fa-a39c-fa5d90dc065a",
+   "title": "DEXAMETHASONE TABLET [PD-RX PHARMACEUTICALS, INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "634efd82-1a35-40cf-9893-50c27d661083",
+   "title": "TOBRAMYCIN SOLUTION [NORTHSTAR RXLLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20240624",
+   "version_agrees": false
+  },
+  {
+   "setid": "760151df-1f53-458c-9f9f-321c62de96d3",
+   "title": "CHILDRENS IBUPROFEN (IBUPROFEN) TABLET, CHEWABLE [AMAZON.COM SERVICES LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "903fb6c6-2b34-4431-9666-d1dcb6743212",
+   "title": "FENIVOX (OMEPRAZOLE) PASTE [YASMEEN GLOBAL TRADERS LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "dc91a427-8214-484b-af72-52075b2286a1",
+   "title": "IBUPROFEN TABLET, FILM COATED [PD-RX PHARMACEUTICALS, INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "e88e793d-2191-4aa8-9751-16eab14f4d0c",
+   "title": "ANTIBACTERIAL WIPES (BENZALKONIUM CHLORIDE) CLOTH [UNIVERSAL DISTRIBUTION CENTER LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20240913",
+   "version_agrees": false
+  },
+  {
+   "setid": "fefd15c9-e55a-4058-b71d-232acb1084cf",
+   "title": "CHILDRENS ALLERGY RELIEF (LORATADINE) TABLET, CHEWABLE [AMAZON.COM SERVICES LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "25dd7dca-2cfd-1e1c-e063-6294a90ad238",
+   "title": "NITROUS OXIDE GAS [FULLERTON WELDING SUPPLY]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [],
+   "effective_time": "20251121",
+   "version_agrees": false
+  },
+  {
+   "setid": "25dd930d-e33c-e8be-e063-6394a90a261c",
+   "title": "OXYGEN GAS [FULLERTON WELDING SUPPLY]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [],
+   "effective_time": "20251121",
+   "version_agrees": false
+  },
+  {
+   "setid": "3c325ede-cc55-4e07-a8d1-d1acfb3c885f",
+   "title": "COLD RELIEF MENTHOL (PELARGONIUM SIDOIDES) SYRUP [SCHWABE NORTH AMERICA, INC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250909",
+   "version_agrees": false
+  },
+  {
+   "setid": "43923c68-87ad-1ab7-e063-6394a90adf7a",
+   "title": "LANOLIPS SUN BALM TROPICAL UNTINTED LIP BALM BROAD SPECTRUM SPF30 (AVOBENZONE, OXTINOXATE,",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251118",
+   "version_agrees": false
+  },
+  {
+   "setid": "5d67f5ac-ea5f-12d7-e063-6294a90a96cb",
+   "title": "DOCOSANOL CREAM [BIONPHARMA INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "ae52866a-0b9a-4baf-af1b-f9d5e00c0e56",
+   "title": "DIAZEPAM INJECTION, SOLUTION [FRESENIUS KABI USA, LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250807",
+   "version_agrees": false
+  },
+  {
+   "setid": "cf1cbcbf-f466-4caf-9ba1-2faccdc2a3cf",
+   "title": "DUTASTERIDE CAPSULE, LIQUID FILLED [HUMANWELL PURACAP PHARMACEUTICAL (WUHAN), LTD.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20180425",
+   "version_agrees": false
+  },
+  {
+   "setid": "0d0cfec0-5d18-c347-e063-6394a90a912c",
+   "title": "ACNE SOLUTIONS ALL-OVER CLEARING TREATMENT (BENZOYL PEROXIDE) LOTION [CLINIQUE LABORATORIE",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250815",
+   "version_agrees": false
+  },
+  {
+   "setid": "15e90101-6c09-9136-e063-6394a90a4cb6",
+   "title": "CLINIQUE ACNE SOLUTIONS CLEANSING FOAM (SALICYLIC ACID) LIQUID [CLINIQUE LABORATORIES LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250313",
+   "version_agrees": false
+  },
+  {
+   "setid": "2f1a3600-9bd6-3651-3ab5-1e4e0b0a3916",
+   "title": "ZOLPIDEM TARTRATE CAPSULE [ALMATICA PHARMA LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20251009",
+   "version_agrees": false
+  },
+  {
+   "setid": "5354c383-08f0-4b89-b36a-96a35f47be3c",
+   "title": "ZEUS (ZINC OXIDE) CREAM [NEWPORT APOTHECARY, INC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20251112",
+   "version_agrees": false
+  },
+  {
+   "setid": "85882893-0661-46c2-a5f2-a73f6ea4fb5a",
+   "title": "AMMONIA N 13 (AMMONIA N-13) INJECTION [SOFIE CO. DBA SOFIE]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250403",
+   "version_agrees": false
+  },
+  {
+   "setid": "c1f588d0-4600-4b97-b2d3-2c08ac351e07",
+   "title": "STOOL SOFTENER LAXATIVE (DOCUSATE SODIUM) CAPSULE, LIQUID FILLED [ATLANTIC BIOLOGICALS COR",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260630",
+   "version_agrees": false
+  },
+  {
+   "setid": "d24f8595-2231-4f15-ac2b-9148ec453324",
+   "title": "AMMONIA N 13 INJECTION [SOFIE CO. DBA SOFIE]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250401",
+   "version_agrees": false
+  },
+  {
+   "setid": "f1cb2efb-456e-4176-b952-fa79e0d4396b",
+   "title": "VISCUM BELLADONNA PELLET [URIEL PHARMACY INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20180510",
+   "version_agrees": false
+  },
+  {
+   "setid": "f55584ee-55c9-4f33-99c1-f0d9f0ae581e",
+   "title": "SPONGIA OVI PELLET [URIEL PHARMACY INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20180607",
+   "version_agrees": false
+  },
+  {
+   "setid": "2640311d-8b88-4513-9c80-a08390b8142a",
+   "title": "CITALOPRAM HYDROBROMIDE SOLUTION [ATLANTIC BIOLOGICALS CORP.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "boxed_warning",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250512",
+   "version_agrees": false
+  },
+  {
+   "setid": "5ea3217d-845d-4781-b849-6b00babdc214",
+   "title": "NAPROXEN SODIUM TABLET, COATED [AAA PHARMACEUTICAL, INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20250617",
+   "version_agrees": false
+  },
+  {
+   "setid": "a0a105a0-531c-4a7e-a368-6201e1091b2e",
+   "title": "IRIS GERMANICA COMP. LIQUID [URIEL PHARMACY INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20180426",
+   "version_agrees": false
+  },
+  {
+   "setid": "ff06d68f-d65f-d097-e053-6294a90a7e5f",
+   "title": "LODOCO (COLCHICINE TABLETS 0.5 MG) TABLET [AGEPHA PHARMA USA, LLC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20260813",
+   "version_agrees": false
+  },
+  {
+   "setid": "36b07e49-c72c-45e5-e063-6394a90a804a",
+   "title": "MUCINEX FAST-MAX COLD AND FLU MAXIMUM STRENGTH (ACETAMINOPHEN, DEXTROMETHORPHAN HYDROBROMI",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260519",
+   "version_agrees": false
+  },
+  {
+   "setid": "6bc88bd3-ffe9-46d7-e053-2a91aa0acf79",
+   "title": "CARBO CHAMOMILLA CAPSULE [URIEL PHARMACY INC.]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "warnings",
+    "dosage_and_administration"
+   ],
+   "effective_time": "20260814",
+   "version_agrees": false
+  },
+  {
+   "setid": "7e651f37-ed89-4135-a992-107286f1ac7b",
+   "title": "OXYGEN GAS [FRESNO OXYGEN & WELDING SUPPLIERS INC]",
+   "published": "Oct 22, 2026",
+   "in_openfda": false,
+   "sections": [],
+   "effective_time": null,
+   "version_agrees": false
+  },
+  {
+   "setid": "915b1f71-616d-4cd9-90a7-bc556736a3d1",
+   "title": "FLUDEOXYGLUCOSE F 18 INJECTION [SOFIE CO. DBA SOFIE]",
+   "published": "Oct 22, 2026",
+   "in_openfda": true,
+   "sections": [
+    "indications_and_usage",
+    "dosage_and_administration",
+    "contraindications",
+    "adverse_reactions"
+   ],
+   "effective_time": "20250430",
+   "version_agrees": false
+  }
+ ]
+}

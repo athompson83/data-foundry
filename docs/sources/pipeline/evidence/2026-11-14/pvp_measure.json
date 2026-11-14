@@ -1,0 +1,430 @@
+{
+ "run_date": "2026-11-14",
+ "pod_cropkinds": {
+  "status": 200,
+  "count": 147
+ },
+ "pod_lentil": {
+  "status": 200,
+  "rows": 51,
+  "distinct_pvpo_numbers": 14,
+  "bytes": 56470,
+  "fields": [
+   "Answer_Name",
+   "Certified_Seed",
+   "Crop_Kind",
+   "Experimental_Name",
+   "Expiration_Date",
+   "Filing_Date",
+   "Issue_Date",
+   "Owner_Name",
+   "PVPO_Number",
+   "Plant_Introduction_Number",
+   "Question_Name",
+   "Scientific_Name",
+   "Status",
+   "UPOV_Code",
+   "Variety_Name"
+  ],
+  "status_values": {
+   "Certificate Issued": 12,
+   "Certificate Expired": 1,
+   "Application Pending and Examiner Received": 1
+  },
+  "with_pi_number": 8,
+  "with_upov_code": 14,
+  "newest_filing_date": "2025-06-10 04:00:00",
+  "newest_issue_date": "2020-11-30 05:00:00"
+ },
+ "pod_barley": {
+  "status": 200,
+  "rows": 949,
+  "distinct_pvpo_numbers": 258,
+  "bytes": 945632,
+  "fields": [
+   "Answer_Name",
+   "Certified_Seed",
+   "Crop_Kind",
+   "Experimental_Name",
+   "Expiration_Date",
+   "Filing_Date",
+   "Issue_Date",
+   "Owner_Name",
+   "PVPO_Number",
+   "Plant_Introduction_Number",
+   "Question_Name",
+   "Scientific_Name",
+   "Status",
+   "UPOV_Code",
+   "Variety_Name"
+  ],
+  "status_values": {
+   "Certificate Issued": 125,
+   "Certificate Expired": 127,
+   "Certificate Withdrawn": 2,
+   "Application Pending and Examiner Received": 2,
+   "Application Reviewed by Commissioner and Certificate Fee Requested": 2
+  },
+  "with_pi_number": 159,
+  "with_upov_code": 258,
+  "newest_filing_date": "2025-05-29 04:00:00",
+  "newest_issue_date": "2025-08-22 00:00:00"
+ },
+ "cms_status": 200,
+ "cms_lentil_list": {
+  "status": 200,
+  "certificate_pdfs": 13
+ },
+ "cms_lentil_pdfs_in_pod": "13/13",
+ "cms_pdf_checks": [
+  {
+   "pv_number": "201800047",
+   "status": 200,
+   "bytes": 5542834,
+   "is_pdf": true,
+   "scanned": true,
+   "pages": 28
+  }
+ ],
+ "grin_join_sampled": 20,
+ "grin_join_pvp_number_equal": "16/20",
+ "grin_join_denomination_equal": "19/20",
+ "grin_join_checks": [
+  {
+   "pvpo_number": 200400044,
+   "pi_number": "634355",
+   "status": 200,
+   "grin_cites_pvp": [
+    "200400044"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Spaulding",
+   "grin_cultivar": "Spaulding",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 200600040,
+   "pi_number": "635120",
+   "status": 200,
+   "grin_cites_pvp": [
+    "200600040"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Aquila",
+   "grin_cultivar": "Aquila",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 200700273,
+   "pi_number": "648224",
+   "status": 200,
+   "grin_cites_pvp": [
+    "200700273"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Stockford",
+   "grin_cultivar": "Stockford",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 200900010,
+   "pi_number": "643354",
+   "status": 200,
+   "grin_cites_pvp": [
+    "200900010"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Pinnacle",
+   "grin_cultivar": "Pinnacle",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201000211,
+   "pi_number": "659088",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201000211"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "BG 006",
+   "grin_cultivar": "BG 006",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201200011,
+   "pi_number": "664266",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201200011"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "ABI Voyager",
+   "grin_cultivar": "ABI Voyager",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201200471,
+   "pi_number": "666223",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201200471"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Verdant",
+   "grin_cultivar": "Verdant",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201500121,
+   "pi_number": "674729",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201500121"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "ABI Growler",
+   "grin_cultivar": "ABI Growler",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201600001,
+   "pi_number": "676102",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201600001"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "AAC Synergy",
+   "grin_cultivar": "AAC Synergy",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201700009,
+   "pi_number": "678971",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201700009"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "UC Tahoe",
+   "grin_cultivar": "UC Tahoe",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201700221,
+   "pi_number": "683535",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201700221"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "LCS Calypso",
+   "grin_cultivar": "LCS Calypso",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201800065,
+   "pi_number": "686351",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201800065"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "AKF-ACE",
+   "grin_cultivar": "AKF-ACE",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 201900103,
+   "pi_number": "690000",
+   "status": 200,
+   "grin_cites_pvp": [
+    "201900103"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Vaquero",
+   "grin_cultivar": "Vaquero",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202000025,
+   "pi_number": "692266",
+   "status": 200,
+   "grin_cites_pvp": [
+    "202000002"
+   ],
+   "pvp_number_equal": false,
+   "denomination_equal": false,
+   "pod_denomination": "Mayflower",
+   "grin_cultivar": "ABI Kranti",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202000161,
+   "pi_number": "693161",
+   "status": 200,
+   "grin_cites_pvp": [
+    "202000161"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "BUZZ",
+   "grin_cultivar": "Buzz",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202000292,
+   "pi_number": "694039",
+   "status": 200,
+   "grin_cites_pvp": [
+    "202000292"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "KWS Somerset",
+   "grin_cultivar": "KWS Somerset",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202100230,
+   "pi_number": "698233",
+   "status": 200,
+   "grin_cites_pvp": [
+    "202100230"
+   ],
+   "pvp_number_equal": true,
+   "denomination_equal": true,
+   "pod_denomination": "Ellinor",
+   "grin_cultivar": "Ellinor",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202200055,
+   "pi_number": "699471",
+   "status": 200,
+   "grin_cites_pvp": [],
+   "pvp_number_equal": false,
+   "denomination_equal": true,
+   "pod_denomination": "BG 2020",
+   "grin_cultivar": "BG 2020",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202200290,
+   "pi_number": "701060",
+   "status": 200,
+   "grin_cites_pvp": [],
+   "pvp_number_equal": false,
+   "denomination_equal": true,
+   "pod_denomination": "LG Diablo",
+   "grin_cultivar": "LG Diablo",
+   "grin_has_narrative_text": true
+  },
+  {
+   "pvpo_number": 202300025,
+   "pi_number": "701524",
+   "status": 200,
+   "grin_cites_pvp": [],
+   "pvp_number_equal": false,
+   "denomination_equal": true,
+   "pod_denomination": "Marouetta",
+   "grin_cultivar": "Marouetta",
+   "grin_has_narrative_text": true
+  }
+ ],
+ "cfia_botanical_A": {
+  "status": 200,
+  "application_pages_listed": 564
+ },
+ "cfia_sample": [
+  {
+   "page": "abe/app00007774e.shtml",
+   "status": 200,
+   "application_number": "09-6712",
+   "certificate_number": "3910",
+   "grant_date": "2010-08-27",
+   "has_description": true,
+   "description_chars": 3603,
+   "has_breeding_history": true
+  },
+  {
+   "page": "ang/app00003209e.shtml",
+   "status": 200,
+   "application_number": "01-2608",
+   "certificate_number": "1508",
+   "grant_date": "2003-09-12",
+   "has_description": false,
+   "description_chars": 0,
+   "has_breeding_history": false
+  },
+  {
+   "page": "arg/app00004226e.shtml",
+   "status": 200,
+   "application_number": "03-3694",
+   "certificate_number": "2163",
+   "grant_date": "2005-07-19",
+   "has_description": false,
+   "description_chars": 0,
+   "has_breeding_history": false
+  },
+  {
+   "page": "astr/app00002950e.shtml",
+   "status": 200,
+   "application_number": "00-2356",
+   "certificate_number": "1811",
+   "grant_date": "2004-05-26",
+   "has_description": true,
+   "description_chars": 2251,
+   "has_breeding_history": true
+  },
+  {
+   "page": "oat/app00006065e.shtml",
+   "status": 200,
+   "application_number": "06-5226",
+   "certificate_number": "3091",
+   "grant_date": "2007-12-04",
+   "has_description": true,
+   "description_chars": 4067,
+   "has_breeding_history": true
+  },
+  {
+   "page": "oni/app00006071e.shtml",
+   "status": 200,
+   "application_number": "06-5228",
+   "certificate_number": null,
+   "grant_date": null,
+   "has_description": false,
+   "description_chars": 0,
+   "has_breeding_history": false
+  }
+ ],
+ "cfia_terms": {
+  "status": 200,
+  "commercial_clause": "Commercial reproduction Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator"
+ },
+ "cpvo_variety_finder": {
+  "status": 200,
+  "bytes": 3442,
+  "spa_shell": true,
+  "recaptcha_marker": true
+ },
+ "upov_pluto": {
+  "status": 200,
+  "final_url": "https://pluto.upov.int/user/en/",
+  "bytes": 9901,
+  "spa_shell": true
+ }
+}

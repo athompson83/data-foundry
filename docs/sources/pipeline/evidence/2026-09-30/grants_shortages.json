@@ -1,0 +1,489 @@
+{
+ "round": "2026-09-30",
+ "grants": {
+  "nsf_sample": 33,
+  "uei_found_on_nih_award": 0,
+  "rows": [
+   {
+    "nsf_award": "2530612",
+    "awardee": "Brown University",
+    "uei": "E3FDXZ6TBHW3",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2443145",
+    "awardee": "University of Connecticut",
+    "uei": "WNTPS995QBM7",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2508707",
+    "awardee": "Trustees of Boston University",
+    "uei": "THL6A6JLE1S7",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2526527",
+    "awardee": "Regents of the University of Michigan - Ann Arbor",
+    "uei": "GNJ7BBP73WE9",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2445784",
+    "awardee": "Temple University",
+    "uei": "QD4MGHFDJKU1",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2452479",
+    "awardee": "University of Massachusetts Boston",
+    "uei": "CGCDJ24JJLZ1",
+    "nih_rows_seen": 22,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2531248",
+    "awardee": "Pennsylvania State Univ University Park",
+    "uei": "NPM2J7MSCF61",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2530613",
+    "awardee": "Massachusetts Institute of Technology",
+    "uei": "E2NYLCDML6V1",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2442788",
+    "awardee": "University of Connecticut",
+    "uei": "WNTPS995QBM7",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2445496",
+    "awardee": "Columbia University",
+    "uei": "F4N1QNPB95M4",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2533260",
+    "awardee": "Regents of the University of Michigan - Dearborn",
+    "uei": "RY78VSF6P4G3",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2452533",
+    "awardee": "Purdue University",
+    "uei": "YRXVL4JYCEF5",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2520502",
+    "awardee": "East Carolina University",
+    "uei": "HWPEKM8VFTJ9",
+    "nih_rows_seen": 21,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2452372",
+    "awardee": "University of Minnesota-Twin Cities",
+    "uei": "KABJZBBJ4B54",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2520689",
+    "awardee": "EAST TEXAS A&M UNIVERSITY",
+    "uei": "FRCKHD9EKUY9",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2530209",
+    "awardee": "Cleveland State University",
+    "uei": "YKGMTXA2NVL6",
+    "nih_rows_seen": 15,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2526737",
+    "awardee": "Lafayette College",
+    "uei": "Q4FMY6KZXBP1",
+    "nih_rows_seen": 1,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2531037",
+    "awardee": "Board of Regents, NSHE, obo University of Nevada, Reno",
+    "uei": "WLDGTNCFFJZ3",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2524641",
+    "awardee": "Riverside Community College District/Moreno Valley Campus",
+    "uei": "K99SEG6M3MK7",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2524375",
+    "awardee": "Syracuse University",
+    "uei": "C4BXLBC11LC6",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2533259",
+    "awardee": "University of Connecticut",
+    "uei": "WNTPS995QBM7",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2440240",
+    "awardee": "Michigan State University",
+    "uei": "R28EKN92ZTZ9",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2520503",
+    "awardee": "North Carolina State University",
+    "uei": "U3NVH931QJJ3",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2503926",
+    "awardee": "Harvard University",
+    "uei": "LN53LCFJFL45",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2526795",
+    "awardee": "University of Wyoming",
+    "uei": "FDR5YF2K32X5",
+    "nih_rows_seen": 22,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2530611",
+    "awardee": "University of Utah",
+    "uei": "LL8GLEVH6MG3",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2447730",
+    "awardee": "Mississippi State University",
+    "uei": "NTXJM52SHKS7",
+    "nih_rows_seen": 9,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2517708",
+    "awardee": "Syracuse University",
+    "uei": "C4BXLBC11LC6",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2447606",
+    "awardee": "University of California-Santa Cruz",
+    "uei": "VXUFPE4MCZH5",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2530555",
+    "awardee": "University of Illinois at Urbana-Champaign",
+    "uei": "Y8CWNJRCNN91",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2530208",
+    "awardee": "Board of Regents, NSHE, obo University of Nevada, Reno",
+    "uei": "WLDGTNCFFJZ3",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2515128",
+    "awardee": "Mount San Antonio College",
+    "uei": "LRMNSGLEVPN4",
+    "nih_rows_seen": 0,
+    "uei_on_nih_award": false
+   },
+   {
+    "nsf_award": "2439897",
+    "awardee": "University of Denver",
+    "uei": "WCUGNQQ8DZU1",
+    "nih_rows_seen": 25,
+    "uei_on_nih_award": false
+   }
+  ],
+  "note": "org_names is a wildcard search capped at 25 rows, so a miss can be a truncation; the count is a lower bound",
+  "nih_fy2025_projects": 76355
+ },
+ "shortages": {
+  "fda_records": 1594,
+  "fda_with_related_info": 1095,
+  "ema_records": 85,
+  "ema_with_fda_candidate": 30,
+  "candidates": [
+   {
+    "ema_inn": "concentrate of proteolytic enzymes enriched in bromelain",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Cromolyn Sodium Concentrate"
+    ]
+   },
+   {
+    "ema_inn": "liraglutide",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Liraglutide Injection"
+    ]
+   },
+   {
+    "ema_inn": "insulin human",
+    "ema_status": "Medicine discontinued",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "methotrexate",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Methotrexate Sodium Injection"
+    ]
+   },
+   {
+    "ema_inn": "pancreas powder;pancrelipase",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Aprepitant Oral Powder for Suspension",
+     "Cefotaxime Sodium Powder, for Solution",
+     "Ritonavir Oral Powder",
+     "Streptozocin Powder, For Solution"
+    ]
+   },
+   {
+    "ema_inn": "ifosfamide",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Ifosfamide Injection"
+    ]
+   },
+   {
+    "ema_inn": "somatropin",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Somatropin Injection"
+    ]
+   },
+   {
+    "ema_inn": "insulin degludec",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "semaglutide",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Semaglutide Tablet"
+    ]
+   },
+   {
+    "ema_inn": "insulin aspart",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "insulin aspart",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "insulin lispro",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "atomoxetine;methylphenidate;lisdexamfetamine",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Lisdexamfetamine Dimesylate Capsule",
+     "Lisdexamfetamine Dimesylate Tablet, Chewable",
+     "Methylphenidate Film, Extended Release",
+     "Methylphenidate Hydrochloride Tablet, Extended Release"
+    ]
+   },
+   {
+    "ema_inn": "hydroxocobalamin",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Hydroxocobalamin Injection"
+    ]
+   },
+   {
+    "ema_inn": "aprepitant",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Aprepitant Oral Powder for Suspension"
+    ]
+   },
+   {
+    "ema_inn": "liraglutide",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Liraglutide Injection"
+    ]
+   },
+   {
+    "ema_inn": "amoxicillin;clavulanic acid",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Amino Acid Injection",
+     "Polyethylene glycol 3350, Sodium Ascorbate, Sodium Sulfate Anhydrous, Ascorbic Acid, Sodium Chloride, and Potassium Chloride  Oral Solution"
+    ]
+   },
+   {
+    "ema_inn": "eptacog alfa (activated)",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Activated Charcoal Oral Suspension",
+     "Peginterferon alfa-2a Injection"
+    ]
+   },
+   {
+    "ema_inn": "peginterferon alfa-2a",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Peginterferon alfa-2a Injection"
+    ]
+   },
+   {
+    "ema_inn": "semaglutide",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Semaglutide Tablet"
+    ]
+   },
+   {
+    "ema_inn": "insulin human",
+    "ema_status": "Shortage ongoing",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "alteplase",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Alteplase Injection"
+    ]
+   },
+   {
+    "ema_inn": "ceftolozane;tazobactam",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Piperacillin and Tazobactam Injection"
+    ]
+   },
+   {
+    "ema_inn": "cetrorelix acetate",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Cetrorelix Acetate Injection"
+    ]
+   },
+   {
+    "ema_inn": "voriconazole",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Voriconazole Injection"
+    ]
+   },
+   {
+    "ema_inn": "arsenic trioxide",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Arsenic Trioxide Injection"
+    ]
+   },
+   {
+    "ema_inn": "dibotermin alfa",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Peginterferon alfa-2a Injection"
+    ]
+   },
+   {
+    "ema_inn": "docetaxel",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Docetaxel Injection"
+    ]
+   },
+   {
+    "ema_inn": "insulin human",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Insulin Glargine Injection",
+     "Insulin Glargine-aglr Injection",
+     "Insulin Lispro Injection",
+     "Insulin Lispro Protamine and Insulin Lispro Injection"
+    ]
+   },
+   {
+    "ema_inn": "midazolam",
+    "ema_status": "Shortage resolved",
+    "fda_generic_names": [
+     "Midazolam Hydrochloride Injection"
+    ]
+   }
+  ]
+ }
+}

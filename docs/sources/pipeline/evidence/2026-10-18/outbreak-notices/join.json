@@ -1,0 +1,129 @@
+{
+ "who_total": 3200,
+ "who_first": "2004-01-05",
+ "who_last": "2026-10-15",
+ "who_with_epidemiology": 234,
+ "who_with_assessment": 766,
+ "who_with_advice": 926,
+ "who_since_2025": 70,
+ "ecdc_items": 10,
+ "ecdc_with_who_candidate": 6,
+ "links": [
+  {
+   "ecdc": "Ebola disease outbreak in the Democratic Republic of the Congo",
+   "ecdc_date": "Wed, 14 Oct 2026 17:36:21 +0200",
+   "who_candidates": [
+    [
+     "2026-DON619",
+     "Ebola disease caused by Bundibugyo virus - Democratic Republic of the Congo"
+    ],
+    [
+     "2026-DON618",
+     "Ebola disease caused by Bundibugyo virus - Democratic Republic of the Congo"
+    ],
+    [
+     "2026-DON617",
+     "Ebola disease caused by Bundibugyo virus - Democratic Republic of the Congo"
+    ]
+   ]
+  },
+  {
+   "ecdc": "Chikungunya virus disease worldwide overview",
+   "ecdc_date": "Mon, 05 Oct 2026 16:05:05 +0200",
+   "who_candidates": [
+    [
+     "2025-DON581",
+     "Chikungunya virus disease- Global situation"
+    ],
+    [
+     "2025-DON567",
+     "Chikungunya - La R\u00e9union and Mayotte"
+    ]
+   ]
+  },
+  {
+   "ecdc": "MERS-CoV worldwide overview",
+   "ecdc_date": "Tue, 29 Sep 2026 14:20:22 +0200",
+   "who_candidates": []
+  },
+  {
+   "ecdc": "Cholera worldwide overview",
+   "ecdc_date": "Mon, 28 Sep 2026 13:56:33 +0200",
+   "who_candidates": [
+    [
+     "2025-DON579",
+     "Cholera \u2013 Multi-country with a focus on countries experiencing current surges"
+    ],
+    [
+     "2025-DON562",
+     "Cholera - Angola"
+    ]
+   ]
+  },
+  {
+   "ecdc": "Dengue worldwide overview",
+   "ecdc_date": "Mon, 28 Sep 2026 09:17:53 +0200",
+   "who_candidates": []
+  },
+  {
+   "ecdc": "Epidemiological update \u2013 11 August 2026: Imported case of Andes hantavirus in the EU/EEA",
+   "ecdc_date": "Thu, 20 Aug 2026 13:39:42 +0200",
+   "who_candidates": [
+    [
+     "2026-DON611",
+     "Hantavirus outbreak linked to cruise ship travel, Multi-locations"
+    ],
+    [
+     "2026-DON604",
+     "Hantavirus outbreak linked to cruise ship travel, Multi-locations"
+    ],
+    [
+     "2026-DON601",
+     "Hantavirus cluster linked to cruise ship travel, Multi-country"
+    ]
+   ]
+  },
+  {
+   "ecdc": "Andes hantavirus outbreak in cruise ship",
+   "ecdc_date": "Tue, 26 May 2026 17:56:17 +0200",
+   "who_candidates": [
+    [
+     "2026-DON611",
+     "Hantavirus outbreak linked to cruise ship travel, Multi-locations"
+    ],
+    [
+     "2026-DON604",
+     "Hantavirus outbreak linked to cruise ship travel, Multi-locations"
+    ],
+    [
+     "2026-DON601",
+     "Hantavirus cluster linked to cruise ship travel, Multi-country"
+    ]
+   ]
+  },
+  {
+   "ecdc": "Epidemiological update: Spread of multidrug-resistant and extensively-drug resistant Shigella in Europe",
+   "ecdc_date": "Wed, 20 May 2026 13:16:59 +0200",
+   "who_candidates": []
+  },
+  {
+   "ecdc": "Mpox worldwide overview",
+   "ecdc_date": "Wed, 13 May 2026 12:26:15 +0200",
+   "who_candidates": [
+    [
+     "2026-DON595",
+     "Mpox: recombinant virus with genomic elements of clades Ib and IIb \u2013 Global situation"
+    ],
+    [
+     "2025-DON587",
+     "Broader transmission of mpox due to clade Ib MPXV \u2013 Global situation"
+    ]
+   ]
+  },
+  {
+   "ecdc": "Epidemiological update: Shigellosis and other gastrointestinal infections in travellers returning from Cabo Verde",
+   "ecdc_date": "Wed, 18 Mar 2026 10:32:55 +0100",
+   "who_candidates": []
+  }
+ ]
+}

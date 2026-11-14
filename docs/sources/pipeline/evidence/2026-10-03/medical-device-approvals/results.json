@@ -1,0 +1,5579 @@
+{
+ "openfda_510k": {
+  "http": 200,
+  "total": 176223,
+  "last_updated": "2026-09-21",
+  "newest": "2026-09-19",
+  "decided_last_12mo": 3234,
+  "with_summary_flag": 93850
+ },
+ "openfda_pma": {
+  "http": 200,
+  "total": 57183,
+  "last_updated": "2026-09-21",
+  "newest": "2026-09-18",
+  "decided_last_12mo": 2182
+ },
+ "openfda_classification": {
+  "http": 200,
+  "total": 7094,
+  "last_updated": "2026-09-21",
+  "newest": null
+ },
+ "openfda_udi": {
+  "http": 200,
+  "total": 5182695,
+  "last_updated": "2026-09-02",
+  "newest": null
+ },
+ "openfda_recall": {
+  "http": 200,
+  "total": 59344,
+  "last_updated": "2026-10-01",
+  "newest": "2026-09-14"
+ },
+ "openfda_510k_pdf_sample": {
+  "n": 25,
+  "pdf_200": 24,
+  "indications_text_found": 24,
+  "cites_predicate_k": 21,
+  "rows": [
+   {
+    "k_number": "K253894",
+    "pdf_http": 200,
+    "decision_date": "2026-05-28",
+    "product_code": "MAX",
+    "applicant": "Global Biomedica s.r.o.",
+    "device_name": "BMD Titanium Spinal Fusion System",
+    "pdf_chars": 7409,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": []
+   },
+   {
+    "k_number": "K260077",
+    "pdf_http": 200,
+    "decision_date": "2026-05-29",
+    "product_code": "QIH",
+    "applicant": "OrthoGrid Systems, Inc.",
+    "device_name": "OrthoGrid Hip AI\u00ae 4.0",
+    "pdf_chars": 41644,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": [
+     "K210136"
+    ]
+   },
+   {
+    "k_number": "K252204",
+    "pdf_http": 200,
+    "decision_date": "2025-12-16",
+    "product_code": "PPW",
+    "applicant": "Prolaio, Inc.",
+    "device_name": "prolaio eVO2peak Module (Version 1.0)",
+    "pdf_chars": 33068,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": [
+     "K173929"
+    ]
+   },
+   {
+    "k_number": "K250167",
+    "pdf_http": 200,
+    "decision_date": "2025-08-18",
+    "product_code": "OLO",
+    "applicant": "Evolution Spine",
+    "device_name": "Evolution Spine Navigation Instruments",
+    "pdf_chars": 7238,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": []
+   },
+   {
+    "k_number": "K244038",
+    "pdf_http": 404,
+    "decision_date": "2025-09-05",
+    "product_code": "DXT",
+    "applicant": "Shandong Int Medical Instruments Co., Ltd.",
+    "device_name": "High Pressure Tubing"
+   },
+   {
+    "k_number": "K250792",
+    "pdf_http": 200,
+    "decision_date": "2025-09-24",
+    "product_code": "QFG",
+    "applicant": "Tandem Diabetes Care, Inc.",
+    "device_name": "t:slim X2 insulin pump with interoperable technology",
+    "pdf_chars": 19298,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": [
+     "K232380"
+    ]
+   },
+   {
+    "k_number": "K250966",
+    "pdf_http": 200,
+    "decision_date": "2025-06-25",
+    "product_code": "OHS",
+    "applicant": "Shenzhen Kaiyan Medical Equipment Co., Ltd.",
+    "device_name": "CurrentBody Skin\u0099 LED Light Therapy Mask Series 2 (MK-90H)",
+    "pdf_chars": 22605,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": [
+     "K221444",
+     "K221946",
+     "K242593"
+    ]
+   },
+   {
+    "k_number": "K251863",
+    "pdf_http": 200,
+    "decision_date": "2025-07-07",
+    "product_code": "LLZ",
+    "applicant": "Customsurg AG",
+    "device_name": "CustomSurg OrthoPlanner",
+    "pdf_chars": 13784,
+    "has_indications_text": true,
+    "indications_snippet": "to legally marketed predicate devices marketed in interstate commerce prior to May 28, 1976, the enactment date of the Medical Device Amendments, or to devices that have been reclassified in accordanc",
+    "pdf_cites_other_k": [
+     "K182464"
+    ]
+   }
+  ]
+ },
+ "join_510k_to_fda_device_recall_by_k_number": {
+  "checked": 40,
+  "matched": 4,
+  "examples": [
+   [
+    "K201670",
+    2
+   ],
+   [
+    "K251327",
+    1
+   ],
+   [
+    "K152531",
+    2
+   ],
+   [
+    "K173356",
+    13
+   ]
+  ]
+ },
+ "join_device_recall_to_510k_by_k_number": {
+  "checked": 30,
+  "matched": 30
+ },
+ "openfda_udi_sample": {
+  "n": 300
+ },
+ "join_udi_to_510k_by_cited_k_number": {
+  "checked": 30,
+  "matched": 29
+ },
+ "join_fda_udi_to_health_canada_by_device_identifier": {
+  "checked": 60,
+  "matched": 0,
+  "hits": []
+ },
+ "hc_mdall_licence_active": {
+  "http": 200,
+  "n": 35844,
+  "newest_first_licence_status_dt": "2026-10-02",
+  "last_refresh_dt": "2026-10-02",
+  "keys": [
+   "appl_risk_class",
+   "company_id",
+   "end_date",
+   "first_licence_status_dt",
+   "last_refresh_dt",
+   "licence_name",
+   "licence_status",
+   "licence_type_cd",
+   "licence_type_desc",
+   "original_licence_no"
+  ],
+  "classes": {
+   "1": 0,
+   "2": 26412,
+   "3": 7850,
+   "4": 1582
+  },
+  "licence_16_in_last_12mo": 2238
+ },
+ "hc_summarybasisdecision": {
+  "http": 404,
+  "n": null,
+  "sample": null
+ },
+ "hc_licencetype": {
+  "http": 200,
+  "n": 7,
+  "sample": [
+   {
+    "licence_type_cd": "D",
+    "licence_type_desc": "Single Device"
+   },
+   {
+    "licence_type_cd": "S",
+    "licence_type_desc": "System"
+   }
+  ]
+ },
+ "tga_reach": {
+  "https://www.tga.gov.au/": "000 curl: (92) HTTP/2 stream 1 was not closed cleanly: INTERNAL_ERROR (err 2)",
+  "https://compliance.health.gov.au/artg/": "200 ",
+  "https://www.tga.gov.au/resources/artg": "000 curl: (92) HTTP/2 stream 1 was not closed cleanly: INTERNAL_ERROR (err 2)"
+ },
+ "join_pass2": {
+  "udi_to_mdall_device_identifier": {
+   "checked": 120,
+   "matched": 0,
+   "hits": []
+  },
+  "hc_company_rows": 7670,
+  "name_join": {
+   "fda_510k_sampled": 150,
+   "company_exact_normalised_match": 72,
+   "candidate_pairs": 461,
+   "distinct_k_with_pair": 54,
+   "pairs": [
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 5130,
+     "hc_licence_name": "ADMINISTRATION SET FILTER",
+     "overlap": [
+      "administration"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 9986,
+     "hc_licence_name": "MINICAP WITH POVIDONE-IODINE SOLUTION",
+     "overlap": [
+      "solution"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 12353,
+     "hc_licence_name": "IV BLOOD ADMINISTRATION SET",
+     "overlap": [
+      "administration"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 14660,
+     "hc_licence_name": "IV SOLUTION ADMINISTRATION SETS",
+     "overlap": [
+      "administration",
+      "sets",
+      "solution"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 73145,
+     "hc_licence_name": "EPIDURAL SOLUTION ADMINISTRATION SETS",
+     "overlap": [
+      "administration",
+      "sets",
+      "solution"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 73147,
+     "hc_licence_name": "VEIN ACCESS CATHETER EXTENSION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 73150,
+     "hc_licence_name": "IV ADMINISTRATION SET EXTENSION SETS",
+     "overlap": [
+      "administration",
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 73151,
+     "hc_licence_name": "SECONDARY MEDICATION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 73152,
+     "hc_licence_name": "BLADDER IRRIGATION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 86991,
+     "hc_licence_name": "IV SOLUTION ADMINISTRATION SETS",
+     "overlap": [
+      "administration",
+      "sets",
+      "solution"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 86992,
+     "hc_licence_name": "SECONDARY MEDICATION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 86993,
+     "hc_licence_name": "IV EXTENSION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 87023,
+     "hc_licence_name": "IV BLOOD ADMINISTRATION SETS",
+     "overlap": [
+      "administration",
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 87024,
+     "hc_licence_name": "BLADDER IRRIGATION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 99780,
+     "hc_licence_name": "IV SOLUTION ADMINISTRATION SETS",
+     "overlap": [
+      "administration",
+      "sets",
+      "solution"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 75984,
+     "hc_licence_name": "AUTOMATED PERITONEAL DIALYSIS (APD) THERAPY SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 83266,
+     "hc_licence_name": "EPIDURAL PUMP SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 83267,
+     "hc_licence_name": "AIR ELIMINATING SPIKE PUMP SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 103585,
+     "hc_licence_name": "VASCULAR ACCESS CATHETER EXTENSION SETS",
+     "overlap": [
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243529",
+     "fda_applicant": "Baxter Healthcare Corporation",
+     "fda_device": "Solution Administration Sets",
+     "fda_code": "FPA",
+     "hc_licence_no": 103589,
+     "hc_licence_name": "BLOOD ADMINISTRATION SETS",
+     "overlap": [
+      "administration",
+      "sets"
+     ]
+    },
+    {
+     "k_number": "K243072",
+     "fda_applicant": "EMA Aesthetics , Ltd.",
+     "fda_device": "Pr\u00e9ime DermaFacial  (MicroT)",
+     "fda_code": "NFO",
+     "hc_licence_no": 113700,
+     "hc_licence_name": "PREIME DERMAFACIAL",
+     "overlap": [
+      "dermafacial"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 109377,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 111896,
+     "hc_licence_name": "TPH WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113630,
+     "hc_licence_name": "BREAST PUMPS",
+     "overlap": [
+      "breast"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113762,
+     "hc_licence_name": "EUFY WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113884,
+     "hc_licence_name": "AMEDA GLO WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114292,
+     "hc_licence_name": "EUFY WEARABLE BREAST PUMP S1 PRO (T8D04)",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114605,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K261199",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S32A)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114628,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K252206",
+     "fda_applicant": "Nova Biomedical Corporation",
+     "fda_device": "Nova Allegro UACR Assay, Nova Allegro Analyzer",
+     "fda_code": "CGX",
+     "hc_licence_no": 92256,
+     "hc_licence_name": "STAT PROFILE PRIME CCS ANALYZER SYSTEM",
+     "overlap": [
+      "analyzer"
+     ]
+    },
+    {
+     "k_number": "K252206",
+     "fda_applicant": "Nova Biomedical Corporation",
+     "fda_device": "Nova Allegro UACR Assay, Nova Allegro Analyzer",
+     "fda_code": "CGX",
+     "hc_licence_no": 94170,
+     "hc_licence_name": "STAT PROFILE PRIME ABG ANALYZER SYSTEM",
+     "overlap": [
+      "analyzer"
+     ]
+    },
+    {
+     "k_number": "K252206",
+     "fda_applicant": "Nova Biomedical Corporation",
+     "fda_device": "Nova Allegro UACR Assay, Nova Allegro Analyzer",
+     "fda_code": "CGX",
+     "hc_licence_no": 101623,
+     "hc_licence_name": "STAT PROFILE PRIME PLUS ANALYZER",
+     "overlap": [
+      "analyzer"
+     ]
+    },
+    {
+     "k_number": "K252206",
+     "fda_applicant": "Nova Biomedical Corporation",
+     "fda_device": "Nova Allegro UACR Assay, Nova Allegro Analyzer",
+     "fda_code": "CGX",
+     "hc_licence_no": 106205,
+     "hc_licence_name": "STAT PROFILE PRIME PLUS ANALYZER",
+     "overlap": [
+      "analyzer"
+     ]
+    },
+    {
+     "k_number": "K252206",
+     "fda_applicant": "Nova Biomedical Corporation",
+     "fda_device": "Nova Allegro UACR Assay, Nova Allegro Analyzer",
+     "fda_code": "CGX",
+     "hc_licence_no": 107593,
+     "hc_licence_name": "STAT PROFILE PRIME ES COMP PLUS ANALYZER SYSTEM",
+     "overlap": [
+      "analyzer"
+     ]
+    },
+    {
+     "k_number": "K252206",
+     "fda_applicant": "Nova Biomedical Corporation",
+     "fda_device": "Nova Allegro UACR Assay, Nova Allegro Analyzer",
+     "fda_code": "CGX",
+     "hc_licence_no": 113067,
+     "hc_licence_name": "NOVA PRIMARY GLUCOSE ANALYZER",
+     "overlap": [
+      "analyzer",
+      "nova"
+     ]
+    },
+    {
+     "k_number": "K251072",
+     "fda_applicant": "DGNCT, LLC",
+     "fda_device": "Segmentron Viewer",
+     "fda_code": "QIH",
+     "hc_licence_no": 113880,
+     "hc_licence_name": "SEGMENTRON VIEWER AI",
+     "overlap": [
+      "segmentron",
+      "viewer"
+     ]
+    },
+    {
+     "k_number": "K251072",
+     "fda_applicant": "DGNCT, LLC",
+     "fda_device": "Segmentron Viewer",
+     "fda_code": "QIH",
+     "hc_licence_no": 114904,
+     "hc_licence_name": "SEGMENTRON IMPLANT",
+     "overlap": [
+      "segmentron"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 38995,
+     "hc_licence_name": "ARTHREX CANNULA FAMILY",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 63243,
+     "hc_licence_name": "ARTHREX FIBERWIRE BUTTON KITS",
+     "overlap": [
+      "arthrex",
+      "button"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 63564,
+     "hc_licence_name": "ARTHREX FIBERWIRE BRAIDED POLYESTER SUTURES WITH NEEDLE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 67713,
+     "hc_licence_name": "ARTHREX SMALL FRACTURE PLATES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 70733,
+     "hc_licence_name": "ARTHREX PEEK SUTURE ANCHOR SETS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 71530,
+     "hc_licence_name": "ARTHREX SUPPORT SCREWS - TITANIUM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 78426,
+     "hc_licence_name": "ARTHREX PEEK INTERFERENCE SCREW",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 78563,
+     "hc_licence_name": "PASSPORT BUTTON CANNULA",
+     "overlap": [
+      "button"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 80249,
+     "hc_licence_name": "ARTHREX DISPOSABLE INSTRUMENTS (SETS)",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 80947,
+     "hc_licence_name": "ARTHREX WASHERS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 82111,
+     "hc_licence_name": "ARTHREX DRIVERS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 82312,
+     "hc_licence_name": "ARTHREX DELIVERY NEEDLES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 84515,
+     "hc_licence_name": "ARTHREX GRAFT PASSING/INSERTING INSTRUMENTS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 87754,
+     "hc_licence_name": "ARTHREX UPPER EXTREMITY PLATES-TITANIUM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 88983,
+     "hc_licence_name": "ARTHREX IMPLANTABLE DEVICE KITS - INTERFERENCE SCREWS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 88984,
+     "hc_licence_name": "ARTHREX IMPLANTABLE DEVICE KITS - SUTURE ANCHORS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 89341,
+     "hc_licence_name": "ARTHREX UPPER EXTREMITY PLATES - STAINLESS STEEL",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 89822,
+     "hc_licence_name": "ARTHREX LOW PROFILE TITANIUM PLATES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 90127,
+     "hc_licence_name": "ARTHREX BUTTON-PLATES, SS",
+     "overlap": [
+      "arthrex",
+      "button"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 90213,
+     "hc_licence_name": "ARTHREX FUNNEL",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 92612,
+     "hc_licence_name": "ARTHREX APPLICATOR KITS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 92855,
+     "hc_licence_name": "ARTHREX 300 POWER SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 92856,
+     "hc_licence_name": "ARTHREX 600 POWER SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 93867,
+     "hc_licence_name": "ARTHREX SHEATH SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 94606,
+     "hc_licence_name": "ARTHREX SUTURE CONSTRUCTS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 94749,
+     "hc_licence_name": "ARTHREX SYNERGY UHD4 SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 96666,
+     "hc_licence_name": "ARTHREX ANGEL KITS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 99096,
+     "hc_licence_name": "ARTHREX ANGEL SYSTEM CONCENTRATED PLATELET RICH PLASMA (CPRP)",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 99382,
+     "hc_licence_name": "ARTHREX SYNERGY RF SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 99535,
+     "hc_licence_name": "ARTHREX BLUNT TIP SCREWS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 99536,
+     "hc_licence_name": "ARTHREX FIBERTAPE WITH NEEDLES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 100058,
+     "hc_licence_name": "ARTHREX SUTURE TENSIONER",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 101287,
+     "hc_licence_name": "ARTHREX FLEXIBLE REAMER WITH FLEXIBLE GUIDE PIN",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 102464,
+     "hc_licence_name": "ARTHREX TRAPEZIECTOMY TOOL",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 103555,
+     "hc_licence_name": "ARTHREX NANOSCOPE SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 104314,
+     "hc_licence_name": "ARTHREX DYNANITE NITINOL STAPLE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 105911,
+     "hc_licence_name": "ARTHREX CERCLAGE SUTURES",
+     "overlap": [
+      "arthrex",
+      "cerclage"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 106747,
+     "hc_licence_name": "ARTHREX SYNERGYID ENDOSCOPIC IMAGING SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 107062,
+     "hc_licence_name": "ARTHREX PROSTHESIS TRIAL INSTRUMENTS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 108617,
+     "hc_licence_name": "ARTHREX CENTRAL/POST SCREW TREPHINE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 110527,
+     "hc_licence_name": "ARTHREX DISPOSABLE HIP INSTRUMENT SETS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 110803,
+     "hc_licence_name": "ARTHREX GUIDES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111236,
+     "hc_licence_name": "ARTHREX RODS AND STICKS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111452,
+     "hc_licence_name": "PASSPORT BUTTON INSERTER",
+     "overlap": [
+      "button"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111709,
+     "hc_licence_name": "ARTHREX GRAFT TUBES AND ACCESSORIES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111710,
+     "hc_licence_name": "ARTHREX PLUGS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111714,
+     "hc_licence_name": "ARTHREX METATARSAL PUSHER",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111736,
+     "hc_licence_name": "ARTHREX VIRTUAL IMPLANT POSITIONING (VIP) SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 111984,
+     "hc_licence_name": "ARTHREX WEDGE INSERTER",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 112857,
+     "hc_licence_name": "ARTHREX OSTEOTOME JACKS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 112858,
+     "hc_licence_name": "ARTHREX OSTEOTOME JACK KITS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 113517,
+     "hc_licence_name": "ARTHREX SPINE ENDOSCOPES AND ACCESSORIES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114100,
+     "hc_licence_name": "ARTHREX PIN EXTRACTORS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114152,
+     "hc_licence_name": "ARTHREX STERILE BONE TAPS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114175,
+     "hc_licence_name": "ARTHREX CHISELS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114220,
+     "hc_licence_name": "ARTHREX BONE TAPS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114227,
+     "hc_licence_name": "ARTHREX CURETTES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114246,
+     "hc_licence_name": "ARTHREX COLLAGEN-COATED FIBER TAPE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114247,
+     "hc_licence_name": "ARTHREX COLLAGEN-COATED SUTURE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114943,
+     "hc_licence_name": "ARTHREX SUTURE PASSER DEVICES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 114944,
+     "hc_licence_name": "ARTHREX PENETRATOR DEVICES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 115455,
+     "hc_licence_name": "ARTHREX GRAFT GUN AND ACCESSORIES",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 115513,
+     "hc_licence_name": "ARTHREX JUMPSTART PIN SITE DRESSING KIT",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 115514,
+     "hc_licence_name": "ARTHREX JUMPSTART FLEXEFIT ANTIBACTERIAL WOUND DRESSING",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 115515,
+     "hc_licence_name": "ARTHREX JUMPSTART CLEARFIT ANTIBACTERIAL WOUND DRESSING",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 115551,
+     "hc_licence_name": "ARTHREX JUMPSTART CONTACT LAYER ANTIBACTERIAL WOUND DRESSING",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 115685,
+     "hc_licence_name": "ARTHREX JUMPSTART COMPOSITE ANTIBACTERIAL WOUND DRESSING",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 14254,
+     "hc_licence_name": "ARTHREX REAMERS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 14260,
+     "hc_licence_name": "ARTHREX KNOT PUSHER",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 15543,
+     "hc_licence_name": "ARTHREX STAPLE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 16567,
+     "hc_licence_name": "ARTHREX BIO-INTERFERENCE SCREW",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 16570,
+     "hc_licence_name": "ARTHREX INTERFERENCE SCREW",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 17393,
+     "hc_licence_name": "ARTHREX SUTURE ANCHORS - TITANIUM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 17666,
+     "hc_licence_name": "ARTHREX CANCELLOUS SCREW",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 17791,
+     "hc_licence_name": "ARTHREX FASTAK SUTURE ANCHOR",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 17795,
+     "hc_licence_name": "ARTHREX FIX FAMILY",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 18279,
+     "hc_licence_name": "ARTHREX TISSUE BUTTON",
+     "overlap": [
+      "arthrex",
+      "button"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 29734,
+     "hc_licence_name": "ARTHREX SUTURE ANCHORS",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 33743,
+     "hc_licence_name": "ARTHREX FIBERWIRE BRAIDED POLYESTER SUTURES WITHOUT NEEDLE",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K243995",
+     "fda_applicant": "Arthrex, Inc.",
+     "fda_device": "Arthrex Humeral Plating System and Cerclage Button",
+     "fda_code": "HRS",
+     "hc_licence_no": 36998,
+     "hc_licence_name": "ARTHREX SINGLE-USE OATS SYSTEM",
+     "overlap": [
+      "arthrex"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 97206,
+     "hc_licence_name": "DIGITAL RADIOGRAPHY FUJIFILM DR FDR D-EVO ADVANCED",
+     "overlap": [
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 106206,
+     "hc_licence_name": "FUJIFILM DIGITAL MAMMOGRAPHY SYSTEM ASPIRE CRISTALLE (FDR MS-3500)",
+     "overlap": [
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 106922,
+     "hc_licence_name": "FUJIFILM DIAGNOSTIC IMAGING WORKSTATION AMULET BELLUS II",
+     "overlap": [
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 107008,
+     "hc_licence_name": "PORTABLE X-RAY UNIT FDR XAIR (XD2000)",
+     "overlap": [
+      "unit"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 97401,
+     "hc_licence_name": "ENDOSCOPE EN-580T",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 99210,
+     "hc_licence_name": "FUJIFILM ULTRASONIC PROCESSORS",
+     "overlap": [
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 99686,
+     "hc_licence_name": "600 SERIES ENDOSCOPE (UPPER GASTROINTESTINAL)",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 100543,
+     "hc_licence_name": "600 SERIES ENDOSCOPE (LOWER GASTROINTESTINAL)",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 104296,
+     "hc_licence_name": "FUJIFILM ULTRASONIC ENDOSCOPE",
+     "overlap": [
+      "endoscope",
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 105413,
+     "hc_licence_name": "ENDOSCOPE VISUALIZER",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 106384,
+     "hc_licence_name": "VIDEO ENDOSCOPE",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 107626,
+     "hc_licence_name": "FUJIFILM VIDEO ENDOSCOPE AND ENDOSCOPY SUPPORT PROGRAM",
+     "overlap": [
+      "endoscope",
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 107846,
+     "hc_licence_name": "VIDEO ENDOSCOPE",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 109922,
+     "hc_licence_name": "FUJIFILM ULTRASONIC ENDOSCOPE",
+     "overlap": [
+      "endoscope",
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 113836,
+     "hc_licence_name": "840 VIDEO ENDOSCOPE (DUODENOSCOPES)",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 115611,
+     "hc_licence_name": "FUJIFILM ULTRASONIC ENDOSCOPE",
+     "overlap": [
+      "endoscope",
+      "fujifilm"
+     ]
+    },
+    {
+     "k_number": "K250550",
+     "fda_applicant": "Fujifilm Corporation",
+     "fda_device": "FUJIFILM Endoscope Model EG-S100XT and VS-1000 Display Unit",
+     "fda_code": "FDS",
+     "hc_licence_no": 115651,
+     "hc_licence_name": "VIDEO ENDOSCOPE",
+     "overlap": [
+      "endoscope"
+     ]
+    },
+    {
+     "k_number": "K251027",
+     "fda_applicant": "Circle Cardiovascular Imaging, Inc.",
+     "fda_device": "cvi42 Coronary Plaque Software Application",
+     "fda_code": "QIH",
+     "hc_licence_no": 93385,
+     "hc_licence_name": "CVI42 SOFTWARE APPLICATION",
+     "overlap": [
+      "application",
+      "cvi42",
+      "software"
+     ]
+    },
+    {
+     "k_number": "K251027",
+     "fda_applicant": "Circle Cardiovascular Imaging, Inc.",
+     "fda_device": "cvi42 Coronary Plaque Software Application",
+     "fda_code": "QIH",
+     "hc_licence_no": 105406,
+     "hc_licence_name": "TRUPLAN COMPUTED TOMOGRAPHY (CT) IMAGING SOFTWARE",
+     "overlap": [
+      "software"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 3902,
+     "hc_licence_name": "MULTIDEX WOUND DRESSING",
+     "overlap": [
+      "wound"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 4132,
+     "hc_licence_name": "BLOOD PRESSURE CUFF BLADDER ASSEMBLY",
+     "overlap": [
+      "pressure"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 65022,
+     "hc_licence_name": "ALGIDEX AG SILVER ALGINATE WOUND DRESSING",
+     "overlap": [
+      "wound"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 107399,
+     "hc_licence_name": "PROSPERA PRO-11",
+     "overlap": [
+      "prospera"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 107433,
+     "hc_licence_name": "NEGATIVE PRESSURE WOUND THERAPY KITS",
+     "overlap": [
+      "kits",
+      "negative",
+      "pressure",
+      "therapy",
+      "wound"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 111902,
+     "hc_licence_name": "PROSPERA FLEX",
+     "overlap": [
+      "prospera"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 112776,
+     "hc_licence_name": "PRESSURE MONITORING LINES",
+     "overlap": [
+      "pressure"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 112818,
+     "hc_licence_name": "HIGH PRESSURE INJECTION LINES (NON-BRAIDED)",
+     "overlap": [
+      "pressure"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 112958,
+     "hc_licence_name": "BRAIDED HIGH PRESSURE INJECTION LINES (NON-STERILE)",
+     "overlap": [
+      "pressure"
+     ]
+    },
+    {
+     "k_number": "K250586",
+     "fda_applicant": "Deroyal Industries, Inc.",
+     "fda_device": "Prospera Spectruum Negative Pressure Wound Therapy Black Foam Kits and White Foam Accessory",
+     "fda_code": "OMP",
+     "hc_licence_no": 113302,
+     "hc_licence_name": "BRAIDED HIGH PRESSURE INJECTION LINES (STERILE)",
+     "overlap": [
+      "pressure"
+     ]
+    },
+    {
+     "k_number": "K250805",
+     "fda_applicant": "Devilbiss Healthcare, LLC",
+     "fda_device": "DeVilbiss PulmO2 10-Liter Oxygen Concentrator (1060AW)",
+     "fda_code": "CAW",
+     "hc_licence_no": 71940,
+     "hc_licence_name": "IFILL PERSONAL OXYGEN STATION",
+     "overlap": [
+      "oxygen"
+     ]
+    },
+    {
+     "k_number": "K250805",
+     "fda_applicant": "Devilbiss Healthcare, LLC",
+     "fda_device": "DeVilbiss PulmO2 10-Liter Oxygen Concentrator (1060AW)",
+     "fda_code": "CAW",
+     "hc_licence_no": 72178,
+     "hc_licence_name": "PULSE DOSE OXYGEN CONSERVING CYLINDER",
+     "overlap": [
+      "oxygen"
+     ]
+    },
+    {
+     "k_number": "K250805",
+     "fda_applicant": "Devilbiss Healthcare, LLC",
+     "fda_device": "DeVilbiss PulmO2 10-Liter Oxygen Concentrator (1060AW)",
+     "fda_code": "CAW",
+     "hc_licence_no": 78709,
+     "hc_licence_name": "IGO PORTABLE OXYGEN SYSTEM",
+     "overlap": [
+      "oxygen"
+     ]
+    },
+    {
+     "k_number": "K250805",
+     "fda_applicant": "Devilbiss Healthcare, LLC",
+     "fda_device": "DeVilbiss PulmO2 10-Liter Oxygen Concentrator (1060AW)",
+     "fda_code": "CAW",
+     "hc_licence_no": 77045,
+     "hc_licence_name": "DEVILBISS 5 LITER COMPACT CONCENTRATOR",
+     "overlap": [
+      "concentrator",
+      "devilbiss",
+      "liter"
+     ]
+    },
+    {
+     "k_number": "K250805",
+     "fda_applicant": "Devilbiss Healthcare, LLC",
+     "fda_device": "DeVilbiss PulmO2 10-Liter Oxygen Concentrator (1060AW)",
+     "fda_code": "CAW",
+     "hc_licence_no": 99760,
+     "hc_licence_name": "OXYGEN CONCENTRATOR",
+     "overlap": [
+      "concentrator",
+      "oxygen"
+     ]
+    },
+    {
+     "k_number": "K250805",
+     "fda_applicant": "Devilbiss Healthcare, LLC",
+     "fda_device": "DeVilbiss PulmO2 10-Liter Oxygen Concentrator (1060AW)",
+     "fda_code": "CAW",
+     "hc_licence_no": 37754,
+     "hc_licence_name": "DEVILBISS PULMO-AIDE COMPACT COMPRESSOR",
+     "overlap": [
+      "devilbiss"
+     ]
+    },
+    {
+     "k_number": "K243690",
+     "fda_applicant": "PAJUNK GmbH Medizintechnologie",
+     "fda_device": "SonoMSK",
+     "fda_code": "BSP",
+     "hc_licence_no": 103946,
+     "hc_licence_name": "SONOMSK/UNIMSK",
+     "overlap": [
+      "sonomsk"
+     ]
+    },
+    {
+     "k_number": "K243272",
+     "fda_applicant": "Zest Anchors, LLC",
+     "fda_device": "LOCATOR Angled Abutment",
+     "fda_code": "NHA",
+     "hc_licence_no": 60110,
+     "hc_licence_name": "LOCATOR IMPLANT ATTACHMENT (ANCHOR)",
+     "overlap": [
+      "locator"
+     ]
+    },
+    {
+     "k_number": "K243272",
+     "fda_applicant": "Zest Anchors, LLC",
+     "fda_device": "LOCATOR Angled Abutment",
+     "fda_code": "NHA",
+     "hc_licence_no": 65283,
+     "hc_licence_name": "LOCATOR BAR ATTACHMENT",
+     "overlap": [
+      "locator"
+     ]
+    },
+    {
+     "k_number": "K243272",
+     "fda_applicant": "Zest Anchors, LLC",
+     "fda_device": "LOCATOR Angled Abutment",
+     "fda_code": "NHA",
+     "hc_licence_no": 90076,
+     "hc_licence_name": "LOCATOR OVERDENTURE IMPLANT SYSTEM",
+     "overlap": [
+      "locator"
+     ]
+    },
+    {
+     "k_number": "K243272",
+     "fda_applicant": "Zest Anchors, LLC",
+     "fda_device": "LOCATOR Angled Abutment",
+     "fda_code": "NHA",
+     "hc_licence_no": 96593,
+     "hc_licence_name": "LOCATOR R-TX ATTACHMENT SYSTEM",
+     "overlap": [
+      "locator"
+     ]
+    },
+    {
+     "k_number": "K243272",
+     "fda_applicant": "Zest Anchors, LLC",
+     "fda_device": "LOCATOR Angled Abutment",
+     "fda_code": "NHA",
+     "hc_licence_no": 97966,
+     "hc_licence_name": "LOCATOR F-TX FIXED ATTACHMENT SYSTEM",
+     "overlap": [
+      "locator"
+     ]
+    },
+    {
+     "k_number": "K243272",
+     "fda_applicant": "Zest Anchors, LLC",
+     "fda_device": "LOCATOR Angled Abutment",
+     "fda_code": "NHA",
+     "hc_licence_no": 115436,
+     "hc_licence_name": "LOCATOR ANGLED ABUTMENT",
+     "overlap": [
+      "abutment",
+      "angled",
+      "locator"
+     ]
+    },
+    {
+     "k_number": "K252423",
+     "fda_applicant": "Bain Medical Equipment (Guangzhou) Co., Ltd.",
+     "fda_device": "NovaLine Tubing Set for Hemodialysis (BL 124)",
+     "fda_code": "FJK",
+     "hc_licence_no": 102677,
+     "hc_licence_name": "NOVALINE TUBING SETS FOR HEMODIALYSIS",
+     "overlap": [
+      "hemodialysis",
+      "novaline",
+      "tubing"
+     ]
+    },
+    {
+     "k_number": "K243415",
+     "fda_applicant": "P.G.F. Industry Solutions GmbH",
+     "fda_device": "Granudacyn\u00ae Wound Irrigation Solution",
+     "fda_code": "FRO",
+     "hc_licence_no": 116261,
+     "hc_licence_name": "PGF GRANUDACYN WOUND GEL",
+     "overlap": [
+      "granudacyn",
+      "wound"
+     ]
+    },
+    {
+     "k_number": "K243415",
+     "fda_applicant": "P.G.F. Industry Solutions GmbH",
+     "fda_device": "Granudacyn\u00ae Wound Irrigation Solution",
+     "fda_code": "FRO",
+     "hc_licence_no": 116265,
+     "hc_licence_name": "PGF GRANUDACYN WOUND IRRIGATION SOLUTION",
+     "overlap": [
+      "granudacyn",
+      "irrigation",
+      "solution",
+      "wound"
+     ]
+    },
+    {
+     "k_number": "K251817",
+     "fda_applicant": "Intuitive Surgical, Inc.",
+     "fda_device": "da Vinci SP Surgical System (SP1098)",
+     "fda_code": "NAY",
+     "hc_licence_no": 81353,
+     "hc_licence_name": "DA VINCI SI SURGICAL SYSTEM",
+     "overlap": [
+      "surgical",
+      "vinci"
+     ]
+    },
+    {
+     "k_number": "K251817",
+     "fda_applicant": "Intuitive Surgical, Inc.",
+     "fda_device": "da Vinci SP Surgical System (SP1098)",
+     "fda_code": "NAY",
+     "hc_licence_no": 97378,
+     "hc_licence_name": "DA VINCI XI SURGICAL SYSTEM",
+     "overlap": [
+      "surgical",
+      "vinci"
+     ]
+    },
+    {
+     "k_number": "K251817",
+     "fda_applicant": "Intuitive Surgical, Inc.",
+     "fda_device": "da Vinci SP Surgical System (SP1098)",
+     "fda_code": "NAY",
+     "hc_licence_no": 103348,
+     "hc_licence_name": "DA VINCI X SURGICAL SYSTEM",
+     "overlap": [
+      "surgical",
+      "vinci"
+     ]
+    },
+    {
+     "k_number": "K251817",
+     "fda_applicant": "Intuitive Surgical, Inc.",
+     "fda_device": "da Vinci SP Surgical System (SP1098)",
+     "fda_code": "NAY",
+     "hc_licence_no": 114166,
+     "hc_licence_name": "DA VINCI MONOPOLAR AND BIPOLAR ADAPTERS",
+     "overlap": [
+      "vinci"
+     ]
+    },
+    {
+     "k_number": "K252815",
+     "fda_applicant": "Varian Medical Systems, Inc.",
+     "fda_device": "ProBeam 360 Proton Therapy System v3.0",
+     "fda_code": "LHN",
+     "hc_licence_no": 68836,
+     "hc_licence_name": "ARIA RADIATION THERAPY MANAGEMENT",
+     "overlap": [
+      "therapy"
+     ]
+    },
+    {
+     "k_number": "K261380",
+     "fda_applicant": "Proscia, Inc.",
+     "fda_device": "Concentriq AP-Dx",
+     "fda_code": "QKQ",
+     "hc_licence_no": 111750,
+     "hc_licence_name": "CONCENTRIQ AP-DX",
+     "overlap": [
+      "concentriq"
+     ]
+    },
+    {
+     "k_number": "K252144",
+     "fda_applicant": "Riverpoint Medical",
+     "fda_device": "Iconix Speed Anchor; Iconix Speed HA+ Anchor",
+     "fda_code": "MBI",
+     "hc_licence_no": 107500,
+     "hc_licence_name": "SOFT ANCHOR",
+     "overlap": [
+      "anchor"
+     ]
+    },
+    {
+     "k_number": "K252144",
+     "fda_applicant": "Riverpoint Medical",
+     "fda_device": "Iconix Speed Anchor; Iconix Speed HA+ Anchor",
+     "fda_code": "MBI",
+     "hc_licence_no": 112905,
+     "hc_licence_name": "HARD BONE DRILL FOR ICONIX KNOTLESS",
+     "overlap": [
+      "iconix"
+     ]
+    },
+    {
+     "k_number": "K252144",
+     "fda_applicant": "Riverpoint Medical",
+     "fda_device": "Iconix Speed Anchor; Iconix Speed HA+ Anchor",
+     "fda_code": "MBI",
+     "hc_licence_no": 113252,
+     "hc_licence_name": "ICONIX KNOTLESS ANCHOR",
+     "overlap": [
+      "anchor",
+      "iconix"
+     ]
+    },
+    {
+     "k_number": "K260012",
+     "fda_applicant": "Bard Peripheral Vascular, Inc.",
+     "fda_device": "UltraScore\u0099 Focused Force PTA Balloon",
+     "fda_code": "PNO",
+     "hc_licence_no": 60373,
+     "hc_licence_name": "CONQUEST PTA BALLOON CATHETER",
+     "overlap": [
+      "balloon"
+     ]
+    },
+    {
+     "k_number": "K260012",
+     "fda_applicant": "Bard Peripheral Vascular, Inc.",
+     "fda_device": "UltraScore\u0099 Focused Force PTA Balloon",
+     "fda_code": "PNO",
+     "hc_licence_no": 67649,
+     "hc_licence_name": "ATLAS PTA BALLOON DILATATION CATHETER",
+     "overlap": [
+      "balloon"
+     ]
+    },
+    {
+     "k_number": "K260012",
+     "fda_applicant": "Bard Peripheral Vascular, Inc.",
+     "fda_device": "UltraScore\u0099 Focused Force PTA Balloon",
+     "fda_code": "PNO",
+     "hc_licence_no": 77301,
+     "hc_licence_name": "DORADO PTA BALLOON DILATATION CATHETER",
+     "overlap": [
+      "balloon"
+     ]
+    },
+    {
+     "k_number": "K260012",
+     "fda_applicant": "Bard Peripheral Vascular, Inc.",
+     "fda_device": "UltraScore\u0099 Focused Force PTA Balloon",
+     "fda_code": "PNO",
+     "hc_licence_no": 103349,
+     "hc_licence_name": "TRUE DILATATION BALLOON VALVULOPLASTY CATHETER",
+     "overlap": [
+      "balloon"
+     ]
+    },
+    {
+     "k_number": "K253894",
+     "fda_applicant": "Global Biomedica s.r.o.",
+     "fda_device": "BMD Titanium Spinal Fusion System",
+     "fda_code": "MAX",
+     "hc_licence_no": 115465,
+     "hc_licence_name": "BMD TITANIUM CERVICAL FUSION SYSTEM",
+     "overlap": [
+      "fusion",
+      "titanium"
+     ]
+    },
+    {
+     "k_number": "K251828",
+     "fda_applicant": "Cerenovus, Inc.",
+     "fda_device": "CEREGLIDE 71 Catheter System; Cerenovus Aspiration Tubing Set",
+     "fda_code": "NRY",
+     "hc_licence_no": 10137,
+     "hc_licence_name": "CERENOVUS MICROCATHETERS",
+     "overlap": [
+      "cerenovus"
+     ]
+    },
+    {
+     "k_number": "K251828",
+     "fda_applicant": "Cerenovus, Inc.",
+     "fda_device": "CEREGLIDE 71 Catheter System; Cerenovus Aspiration Tubing Set",
+     "fda_code": "NRY",
+     "hc_licence_no": 88517,
+     "hc_licence_name": "ENVOY DA, GUIDING CATHETER",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K251828",
+     "fda_applicant": "Cerenovus, Inc.",
+     "fda_device": "CEREGLIDE 71 Catheter System; Cerenovus Aspiration Tubing Set",
+     "fda_code": "NRY",
+     "hc_licence_no": 112348,
+     "hc_licence_name": "CEREGLIDE 71 INTERMEDIATE CATHETER",
+     "overlap": [
+      "catheter",
+      "cereglide"
+     ]
+    },
+    {
+     "k_number": "K251828",
+     "fda_applicant": "Cerenovus, Inc.",
+     "fda_device": "CEREGLIDE 71 Catheter System; Cerenovus Aspiration Tubing Set",
+     "fda_code": "NRY",
+     "hc_licence_no": 112364,
+     "hc_licence_name": "CEREGLIDE 92 CATHETER SYSTEM",
+     "overlap": [
+      "catheter",
+      "cereglide"
+     ]
+    },
+    {
+     "k_number": "K251828",
+     "fda_applicant": "Cerenovus, Inc.",
+     "fda_device": "CEREGLIDE 71 Catheter System; Cerenovus Aspiration Tubing Set",
+     "fda_code": "NRY",
+     "hc_licence_no": 113879,
+     "hc_licence_name": "CEREGLIDE 42 INTERMEDIATE CATHETER, CEREGLIDE 57 INTERMEDIATE CATHETER",
+     "overlap": [
+      "catheter",
+      "cereglide"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 97429,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST MIDSTREAM",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 97430,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST PANEL WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 97431,
+     "hc_licence_name": "LH OVULATION RAPID TEST MIDSTREAM",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 97595,
+     "hc_licence_name": "MULTI-DRUG RAPID 1-STEP TEST CUP WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 97764,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST CASSETTE WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 97826,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST CASSETTE (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 98910,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST DIPSTICK (SERUM/PLASMA/URINE SPECIMEN)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 99054,
+     "hc_licence_name": "H.PYLORI ANTIGEN RAPID TEST CASSETTE (FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 99055,
+     "hc_licence_name": "RSV RAPID TEST CASSETTE (NASAL SWAB/NASAL ASPIRATE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 99135,
+     "hc_licence_name": "INFLUENZA A+B RAPID TEST CASSETTE (SWAB/NASAL ASPIRATE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 99684,
+     "hc_licence_name": "MONO RAPID TEST CASSETTE",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 99718,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST CASSETTE (SERUM, PLASMA, URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 100096,
+     "hc_licence_name": "HCG PREGNANCY ENHANCED SENSITIVITY RAPID TEST MIDSTREAM (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102075,
+     "hc_licence_name": "FYL RAPID TEST PANEL (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102076,
+     "hc_licence_name": "FYL RAPID TEST CASSETTE (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102077,
+     "hc_licence_name": "MALARIA P.F./PAN RAPID TEST CASSETTE (WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102078,
+     "hc_licence_name": "MALARIA P.F./P.V. RAPID TEST CASSETTE (WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102080,
+     "hc_licence_name": "FYL RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102536,
+     "hc_licence_name": "SINGLE DRUG OR MULTI-DRUG RAPID TEST PANEL WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102657,
+     "hc_licence_name": "D-DIMER RAPID TEST CASSETTE(WHOLE BLOOD/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102659,
+     "hc_licence_name": "MYCOPLASMA PNEUMONIAE IGM RAPID TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102660,
+     "hc_licence_name": "PCT RAPID TEST CASSETTE(WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102661,
+     "hc_licence_name": "VITAMIN D RAPID TEST CASSETTE (WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102662,
+     "hc_licence_name": "MYCOPLASMA PNEUMONIAE ANTIGEN RAPID TEST CASSETTE (THROAT SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102680,
+     "hc_licence_name": "LEPTOSPIRA IGG&IGM RAPID TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102742,
+     "hc_licence_name": "ACE5000 RAPID TEST PANEL (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102743,
+     "hc_licence_name": "ACE5000 RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102887,
+     "hc_licence_name": "ROTAVIRUS RAPID TEST CASSETTE (FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102888,
+     "hc_licence_name": "CRP SEMI-QUANTITATIVE RAPID TEST CASSETTE (WHOLE BLOOD/ SERUM/ PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 102889,
+     "hc_licence_name": "H. PYLORI ANTIBODY RAPID TEST CASSETTE (WHOLE BLOOD/ SERUM/ PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103015,
+     "hc_licence_name": "THC50 RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103016,
+     "hc_licence_name": "THC50 RAPID TEST PANEL (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103197,
+     "hc_licence_name": "LYME IGG/IGM RAPID TEST CASSETTE(WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103198,
+     "hc_licence_name": "ADENOVIRUS / RSV / INFLUENZA A+B COMBO RAPID TEST CASSETTE (NASOPHARYNGEAL SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103199,
+     "hc_licence_name": "NOROVIRUS/ROTAVIRUS/ADENOVIRUS COMBO RAPID TEST CASSETTE (FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103200,
+     "hc_licence_name": "TYPHOID RAPID TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103669,
+     "hc_licence_name": "LH OVULATION RAPID TEST CASSETTE (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 103670,
+     "hc_licence_name": "LH OVULATION RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 104904,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST 1-STEP CUP WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 105346,
+     "hc_licence_name": "THC (PARENT) RAPID TEST CASSETTE (ORAL FLUID)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 106246,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST KEY CUP WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 106386,
+     "hc_licence_name": "FILARIASIS IGG/IGM RAPID TEST CASSETTE",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 107943,
+     "hc_licence_name": "BETA-HCG TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108026,
+     "hc_licence_name": "VITAMIN D RAPID TEST CASSETTE (FINGERSTICK WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108222,
+     "hc_licence_name": "LH TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108297,
+     "hc_licence_name": "PREGNANCY FIA TEST",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108302,
+     "hc_licence_name": "GHB10000 RAPID TEST CASSETTE (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108580,
+     "hc_licence_name": "PCT TEST CASSETTE(WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108592,
+     "hc_licence_name": "CRP TEST CASSETTE(WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108722,
+     "hc_licence_name": "FIATEST INFLUENZA A+B TEST CASSETTE (SWAB/NASAL ASPIRATE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108906,
+     "hc_licence_name": "ALCOHOL RAPID TEST CASSETTE (SALIVA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108957,
+     "hc_licence_name": "DIGITAL HCG PREGANCY TEST(URINE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 108974,
+     "hc_licence_name": "HBA1C RAPID TEST CASSETTE (WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109004,
+     "hc_licence_name": "H. PYLORI ANTIGEN RAPID TEST(FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109020,
+     "hc_licence_name": "NOROVIRUS, ROTAVIRUS, ADENOVIRUS AND ASTROVIRUS COMBO RAPID TEST (FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109036,
+     "hc_licence_name": "TSH RAPID TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109173,
+     "hc_licence_name": "MULTI-DRUG X RAPID TEST (ORAL FLUID)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109239,
+     "hc_licence_name": "MET RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109477,
+     "hc_licence_name": "MALARIA P.F./P.V./PAN RAPID TEST CASSETTE(WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109748,
+     "hc_licence_name": "MULTI-DRUG 2 DRUGS RAPID TEST DIPSTICK (URINE & POWDER) XYL1000/FYL10",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 109767,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110006,
+     "hc_licence_name": "ROTAVIRUS AND ADENOVIRUS COMBO RAPID TEST CASSETTE (FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110047,
+     "hc_licence_name": "INFLUENZA A/B+H1N1 COMBO RAPID TEST CASSETTE (SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110057,
+     "hc_licence_name": "ADULTERATION TEST DIPSTICK (URINE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110159,
+     "hc_licence_name": "STREP A RAPID TEST (THROAT SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110465,
+     "hc_licence_name": "PSILOCYBIN (PY) RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110554,
+     "hc_licence_name": "PSILOCYBIN (PY) RAPID TEST CASSETTE(URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110555,
+     "hc_licence_name": "PSILOCYBIN (PY) RAPID TEST PANEL (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110821,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST 1-STEP CUP WITH/WITHOUT ADULTERATION WITH READER (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110822,
+     "hc_licence_name": "MET1000 RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 110924,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST DIPSTICK (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111018,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST CASSETTE WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111141,
+     "hc_licence_name": "SINGLE DRUG TEST CASSETTE (URINE)",
+     "overlap": [
+      "drug",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111155,
+     "hc_licence_name": "RHEUMATOID FACTOR IGM TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111179,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST PANEL WITH READER (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111181,
+     "hc_licence_name": "FENTANYL RAPID TEST (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111255,
+     "hc_licence_name": "FT3 TEST CASSETTE (SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111258,
+     "hc_licence_name": "IGA TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111259,
+     "hc_licence_name": "TETANUS IGG TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111268,
+     "hc_licence_name": "H.PYLORI ANTIGEN TEST CASSETTE (FECES)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111279,
+     "hc_licence_name": "ROTAVIRUS TEST CASSETTE (FECES)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111361,
+     "hc_licence_name": "ADENOVIRUS RAPID TEST CASSETTE (FECES)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111381,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST CASSETTE WITH/WITHOUT ADULTERATION (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111518,
+     "hc_licence_name": "ADENOVIRUS ANTIGEN RAPID TEST CASSETTE (SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111561,
+     "hc_licence_name": "SPERM CONCENTRATION RAPID TEST CASSETTE (SEMEN)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111567,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST (ORAL FLUID)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111633,
+     "hc_licence_name": "ADENOVIRUS AND RSV COMBO RAPID TEST CASSETTE (NASOPHARYNGEAL SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111661,
+     "hc_licence_name": "URINARY TRACT INFECTIONS TEST (URINE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 111781,
+     "hc_licence_name": "FSH RAPID TEST MIDSTREAM (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 112134,
+     "hc_licence_name": "ABO AND RHD BLOOD GROUPING RAPID TEST CASSETTE (WHOLE BLOOD)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 112383,
+     "hc_licence_name": "FENTANYL URINE TEST CASSETTE",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 112612,
+     "hc_licence_name": "HMPV RAPID TEST (NASOPHARYNGEAL SWAB)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 112667,
+     "hc_licence_name": "RSV TEST CASSETTE (NASOPHARYNGEAL SWAB/NASAL ASPIRATE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 112668,
+     "hc_licence_name": "PREGNANCY RAPID TESTS (URINE)",
+     "overlap": [
+      "rapid"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 112970,
+     "hc_licence_name": "VITAMIN D TEST CASSETTE (WHOLE BLOOD/SERUM/PLASMA)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 113232,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST KEY CUP WITH/WITHOUT ADULTERATION WITH READER (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 113384,
+     "hc_licence_name": "PREGNANCY RAPID COMBO TEST CASSETTE (URINE/SERUM)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 113446,
+     "hc_licence_name": "TOTAL CHOLESTEROL TEST CARD (WHOLE BLOOD)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 113539,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST CUP (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 113590,
+     "hc_licence_name": "DIGITAL OVULATION TEST (URINE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114037,
+     "hc_licence_name": "IGFBP-1 AND FFN RAPID TEST (VAGINAL SECRETION)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114108,
+     "hc_licence_name": "ETOMIDATE (ETO) RAPID TEST (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114342,
+     "hc_licence_name": "IRON DEFICIENCY (FERRITIN) RAPID TEST",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114398,
+     "hc_licence_name": "MULTI-DRUG RAPID TEST 1-STEP CUP WITH ADULTERATION WITH HCG TEST (URINE)",
+     "overlap": [
+      "drug",
+      "multi",
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114662,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST CASSETTE (URINE) FOR SELF-TESTING",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114668,
+     "hc_licence_name": "DIGITAL HCG PREGNANCY TEST (URINE)",
+     "overlap": [
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 114684,
+     "hc_licence_name": "HCG PREGNANCY ENHANCED SENSITIVITY RAPID TEST MIDSTREAM (URINE)",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 116139,
+     "hc_licence_name": "STOMACH HEALTH (H. PYLORI) RAPID TEST",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 116307,
+     "hc_licence_name": "LH OVULATION RAPID TEST DIPSTICK (URINE) FOR SELF-TESTING",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K244043",
+     "fda_applicant": "Hangzhou AllTest Biotech Co., Ltd.",
+     "fda_device": "AllTest Multi-Drug Rapid Test Cup ; AllTest Multi-Drug Test Cup",
+     "fda_code": "NFT",
+     "hc_licence_no": 116308,
+     "hc_licence_name": "HCG PREGNANCY RAPID TEST DIPSTICK (URINE) FOR SELF-TESTING",
+     "overlap": [
+      "rapid",
+      "test"
+     ]
+    },
+    {
+     "k_number": "K251978",
+     "fda_applicant": "Diasorin Molecular, LLC",
+     "fda_device": "LIAISON NES FLU A/B, RSV & COVID-19",
+     "fda_code": "QOF",
+     "hc_licence_no": 115341,
+     "hc_licence_name": "SIMPLEXA COVID-19 / FLU A/B & RSV DIRECT ASSAY",
+     "overlap": [
+      "covid"
+     ]
+    },
+    {
+     "k_number": "K251728",
+     "fda_applicant": "Sonic Incytes Medical Corp",
+     "fda_device": "Velacur One (LI-1100)",
+     "fda_code": "IYO",
+     "hc_licence_no": 115374,
+     "hc_licence_name": "VELACUR ONE",
+     "overlap": [
+      "velacur"
+     ]
+    },
+    {
+     "k_number": "K242155",
+     "fda_applicant": "NIKKISO CO., LTD.",
+     "fda_device": "DBB-06 PRO Hemodialysis Delivery System (DBB-06 PRO)",
+     "fda_code": "KDI",
+     "hc_licence_no": 100761,
+     "hc_licence_name": "HEMODIALYSIS EQUIPMENT",
+     "overlap": [
+      "hemodialysis"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 10163,
+     "hc_licence_name": "ELEKTA TREATMENT TABLE",
+     "overlap": [
+      "elekta"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 14773,
+     "hc_licence_name": "LEKSELL GAMMA KNIFE",
+     "overlap": [
+      "gamma",
+      "knife",
+      "leksell"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 15016,
+     "hc_licence_name": "LEKSELL GAMMAPLAN",
+     "overlap": [
+      "leksell"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 65314,
+     "hc_licence_name": "LEKSELL STEREOTACTIC SYSTEM",
+     "overlap": [
+      "leksell"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 83741,
+     "hc_licence_name": "ELEKTA MEDICAL LINEAR ACCELERATOR",
+     "overlap": [
+      "elekta"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 102587,
+     "hc_licence_name": "ELEKTA UNITY",
+     "overlap": [
+      "elekta"
+     ]
+    },
+    {
+     "k_number": "K250391",
+     "fda_applicant": "Elekta Solutions AB",
+     "fda_device": "Leksell Gamma Knife\u00ae (Elekta Esprit); Leksell Gamma Knife\u00ae (Icon\u0099); Leksell Gamma Knife\u00ae (Perfexion\u0099)",
+     "fda_code": "IWB",
+     "hc_licence_no": 107207,
+     "hc_licence_name": "LEKSELL VANTAGE STEREOTACTIC SYSTEM",
+     "overlap": [
+      "leksell"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 105549,
+     "hc_licence_name": "STRAUMANN TISSUE LEVEL TORCFIT IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 2574,
+     "hc_licence_name": "STRAUMANN DENTAL IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 39304,
+     "hc_licence_name": "STRAUMANN IMPLANTS - TITANIUM SLA AND SLACTIVE",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 69570,
+     "hc_licence_name": "STRAUMANN BONE CERAMIC",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 95288,
+     "hc_licence_name": "3M ESPE LAVA PLUS RESTORATIONS BY STRAUMANN",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 100467,
+     "hc_licence_name": "STRAUMANN BONE LEVEL TAPERED IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 101200,
+     "hc_licence_name": "STRAUMANN BONE LEVEL TORCFIT IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 113628,
+     "hc_licence_name": "STRAUMANN IGUIDE",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 237,
+     "hc_licence_name": "STRAUMANN BONE GRAFT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 72200,
+     "hc_licence_name": "STRAUMANN CARES TITANIUM ABUTMENT",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 72437,
+     "hc_licence_name": "STRAUMANN DALBO ROTEX MATRIX",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 72443,
+     "hc_licence_name": "STRAUMANN CADCAM ABUTMENT CERAMIC",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 72449,
+     "hc_licence_name": "STRAUMANN NN TEMPORARY COPING (WITH SCREW)",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 72607,
+     "hc_licence_name": "STRAUMANN NN FRAMEWORK BLANK",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 72781,
+     "hc_licence_name": "STRAUMANN TEMPORARY IMPLANTS SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 73302,
+     "hc_licence_name": "STRAUMANN BL IMPLANTS",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 80058,
+     "hc_licence_name": "STRAUMANN IPS E.MAX ABUTMENTS",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 81632,
+     "hc_licence_name": "GLASS CERAMIC RESTORATIONS BY STRAUMANN CADCAM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 86237,
+     "hc_licence_name": "STRAUMANN CARES RESTORATION DEVICES (CORON)",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 87386,
+     "hc_licence_name": "STRAUMANN SERVICE SETS",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 88318,
+     "hc_licence_name": "VITA MARK II AND TRILUXE RESTORATIONS BY STRAUMANN",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 88499,
+     "hc_licence_name": "STRAUMANN NARROW NECK CROSSFIT (NNC) IMPLANTS",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 88642,
+     "hc_licence_name": "STRAUMANN DENTAL IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 88904,
+     "hc_licence_name": "STRAUMANN CARES RESTORATIONS MADE OF 3M ESPE LAVA ULTIMATE RESTORATIVE",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 88928,
+     "hc_licence_name": "STRAUMANN CARES SCREW RETAINED BRIDGE, STRAUMANN CARES DOLDER BAR(TI)",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 90945,
+     "hc_licence_name": "STRAUMANN CARES ABUTMENTS, CERAMIC",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 91088,
+     "hc_licence_name": "STRAUMANN TEMPORARY ABUTMENT(PMMA)",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 93103,
+     "hc_licence_name": "STRAUMANN CUSTOM ABUTMENTS",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 95999,
+     "hc_licence_name": "STRAUMANN XENOGRAFT",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 96943,
+     "hc_licence_name": "STRAUMANN PRE-MILLED ABUTMENT BLANK",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 97824,
+     "hc_licence_name": "STRAUMANN RETENTIVE SYSTEM - ABUTMENTS",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 98208,
+     "hc_licence_name": "STRAUMANN PURE CERAMIC IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 99835,
+     "hc_licence_name": "STRAUMANN CARES ABUTMENTS COCR",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K260726",
+     "fda_applicant": "Institut Straumann AG",
+     "fda_device": "Straumann\u00ae ProClean\u0099 Cassette (041.800 ; 041.801)",
+     "fda_code": "KCT",
+     "hc_licence_no": 103615,
+     "hc_licence_name": "STRAUMANN MINI IMPLANT SYSTEM",
+     "overlap": [
+      "straumann"
+     ]
+    },
+    {
+     "k_number": "K254086",
+     "fda_applicant": "Oculogica, Inc.",
+     "fda_device": "EyeBOX SNAP",
+     "fda_code": "QEA",
+     "hc_licence_no": 111890,
+     "hc_licence_name": "EYEBOX",
+     "overlap": [
+      "eyebox"
+     ]
+    },
+    {
+     "k_number": "K254086",
+     "fda_applicant": "Oculogica, Inc.",
+     "fda_device": "EyeBOX SNAP",
+     "fda_code": "QEA",
+     "hc_licence_no": 115488,
+     "hc_licence_name": "EYEBOX SNAP",
+     "overlap": [
+      "eyebox",
+      "snap"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 95455,
+     "hc_licence_name": "YUMIZEN H500 OT",
+     "overlap": [
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 99484,
+     "hc_licence_name": "YUMIZEN H2500 HEMATOLOGY ANALYZER",
+     "overlap": [
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 99927,
+     "hc_licence_name": "YUMIZEN SPS",
+     "overlap": [
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 99931,
+     "hc_licence_name": "YUMIZEN H1500",
+     "overlap": [
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 100020,
+     "hc_licence_name": "YUMIZEN H500 CT",
+     "overlap": [
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 100316,
+     "hc_licence_name": "YUMIZEN H550",
+     "overlap": [
+      "h550",
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K260781",
+     "fda_applicant": "HORIBA ABX SAS",
+     "fda_device": "Yumizen H550",
+     "fda_code": "GKZ",
+     "hc_licence_no": 105116,
+     "hc_licence_name": "YUMIZEN C1200",
+     "overlap": [
+      "yumizen"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 109377,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 111896,
+     "hc_licence_name": "TPH WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113630,
+     "hc_licence_name": "BREAST PUMPS",
+     "overlap": [
+      "breast"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113762,
+     "hc_licence_name": "EUFY WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113884,
+     "hc_licence_name": "AMEDA GLO WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114292,
+     "hc_licence_name": "EUFY WEARABLE BREAST PUMP S1 PRO (T8D04)",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114605,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250365",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Motif Aura Glow breast pump (Model Motif Aura Glow)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114628,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump"
+     ]
+    },
+    {
+     "k_number": "K250289",
+     "fda_applicant": "Varian Medical Systems",
+     "fda_device": "Intracavitary/Interstitial System",
+     "fda_code": "JAQ",
+     "hc_licence_no": 75860,
+     "hc_licence_name": "INTERSTITIAL STAINLESS STEEL NEEDLES",
+     "overlap": [
+      "interstitial"
+     ]
+    },
+    {
+     "k_number": "K250289",
+     "fda_applicant": "Varian Medical Systems",
+     "fda_device": "Intracavitary/Interstitial System",
+     "fda_code": "JAQ",
+     "hc_licence_no": 84717,
+     "hc_licence_name": "INTERSTITIAL TITANIUM NEEDLES",
+     "overlap": [
+      "interstitial"
+     ]
+    },
+    {
+     "k_number": "K250289",
+     "fda_applicant": "Varian Medical Systems",
+     "fda_device": "Intracavitary/Interstitial System",
+     "fda_code": "JAQ",
+     "hc_licence_no": 85695,
+     "hc_licence_name": "INTERSTITIAL PLASTIC NEEDLES",
+     "overlap": [
+      "interstitial"
+     ]
+    },
+    {
+     "k_number": "K250289",
+     "fda_applicant": "Varian Medical Systems",
+     "fda_device": "Intracavitary/Interstitial System",
+     "fda_code": "JAQ",
+     "hc_licence_no": 104048,
+     "hc_licence_name": "FLEXIBLE INTERSTITIAL IMPLANT TUBE SET",
+     "overlap": [
+      "interstitial"
+     ]
+    },
+    {
+     "k_number": "K250289",
+     "fda_applicant": "Varian Medical Systems",
+     "fda_device": "Intracavitary/Interstitial System",
+     "fda_code": "JAQ",
+     "hc_licence_no": 113807,
+     "hc_licence_name": "INTRACAVITARY INTERSTITIAL SYSTEM",
+     "overlap": [
+      "interstitial",
+      "intracavitary"
+     ]
+    },
+    {
+     "k_number": "K250438",
+     "fda_applicant": "CooperSurgical, Inc.",
+     "fda_device": "CooperSurgical Milex\u00ae Pessaries",
+     "fda_code": "HHW",
+     "hc_licence_no": 8676,
+     "hc_licence_name": "COOPERSURGICAL LEEP SYSTEM 1000",
+     "overlap": [
+      "coopersurgical"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 6742,
+     "hc_licence_name": "DIDECO CARDIOPLEGIA",
+     "overlap": [
+      "cardioplegia"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 14993,
+     "hc_licence_name": "PERFUSION TUBING SYSTEMS",
+     "overlap": [
+      "systems"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 65147,
+     "hc_licence_name": "AUTOLOGOUS BLOOD REINFUSION BAG",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 65152,
+     "hc_licence_name": "ASPIRATION AND ANTICOAGULATION BLOOD COLLECTION SETS",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 65153,
+     "hc_licence_name": "AUTOLOGOUS BLOOD COMPONENT PROCESSING SETS",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 75746,
+     "hc_licence_name": "REVOLUTION CENTRIFUGAL BLOOD PUMP",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K250150",
+     "fda_applicant": "Sorin Group Italia S.R.L.",
+     "fda_device": "VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood cardioplegia set with shunt); VANGUARD Blood cardioplegia Systems (Vanguard 4:1 Blood Cardioplegia Set Mini)",
+     "fda_code": "DTR",
+     "hc_licence_no": 93821,
+     "hc_licence_name": "PERFUSION TUBING PACKS (MINI-BYPASS)",
+     "overlap": [
+      "mini"
+     ]
+    },
+    {
+     "k_number": "K250864",
+     "fda_applicant": "Medskin Solutions Dr. Suwelack AG",
+     "fda_device": "MatriDerm pluS+ Bi-Layer",
+     "fda_code": "KGN",
+     "hc_licence_no": 100625,
+     "hc_licence_name": "MATRIDERM DERMAL MATRIX",
+     "overlap": [
+      "matriderm"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 63731,
+     "hc_licence_name": "BD VACUTAINER PUSH BUTTON BLOOD COLLECTION SET",
+     "overlap": [
+      "blood",
+      "collection",
+      "vacutainer"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 96176,
+     "hc_licence_name": "BD VACUTAINER ECLIPSE SIGNAL BLOOD COLLECTION NEEDLE",
+     "overlap": [
+      "blood",
+      "collection",
+      "vacutainer"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 788,
+     "hc_licence_name": "ARTERIAL BLOOD COLLECTION SYRINGE",
+     "overlap": [
+      "blood",
+      "collection"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 4379,
+     "hc_licence_name": "B-D ALLERGY SYRINGE WITH NEEDLE (PERMANENTLY ATTACHED)",
+     "overlap": [
+      "attached"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 5168,
+     "hc_licence_name": "ECLIPSE BLOOD COLLECTION NEEDLE",
+     "overlap": [
+      "blood",
+      "collection"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 6967,
+     "hc_licence_name": "SAFETY-LOK BLOOD COLLECTION SETS",
+     "overlap": [
+      "blood",
+      "collection",
+      "safety"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 7779,
+     "hc_licence_name": "B-D TUBERCULIN SYRINGE & NEEDLE (PERMANENTLY ATTACHED)",
+     "overlap": [
+      "attached"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 80651,
+     "hc_licence_name": "VACUTAINER PRECISIONGLIDE MULTIPLE SAMPLE NEEDLE",
+     "overlap": [
+      "vacutainer"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 5023,
+     "hc_licence_name": "VENOUS ARTERIAL BLOOD MANAGEMENT PROTECTION SYSTEM (VAMP)",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 90061,
+     "hc_licence_name": "VAMP FLEX CLOSED BLOOD SAMPLING SYSTEM",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K252506",
+     "fda_applicant": "Becton, Dickinson and Company",
+     "fda_device": "BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set; BD Vacutainer\u00ae Safety-Lok\u0099 Blood Collection Set with Pre-Attached Holder",
+     "fda_code": "JKA",
+     "hc_licence_no": 100235,
+     "hc_licence_name": "VAMP CLOSED BLOOD SAMPLING SYSTEM",
+     "overlap": [
+      "blood"
+     ]
+    },
+    {
+     "k_number": "K250792",
+     "fda_applicant": "Tandem Diabetes Care, Inc.",
+     "fda_device": "t:slim X2 insulin pump with interoperable technology",
+     "fda_code": "QFG",
+     "hc_licence_no": 103869,
+     "hc_licence_name": "T:SLIM X2 INSULIN PUMP WITH BASAL-IQ TECHNOLOGY",
+     "overlap": [
+      "insulin",
+      "pump",
+      "slim",
+      "technology"
+     ]
+    },
+    {
+     "k_number": "K250792",
+     "fda_applicant": "Tandem Diabetes Care, Inc.",
+     "fda_device": "t:slim X2 insulin pump with interoperable technology",
+     "fda_code": "QFG",
+     "hc_licence_no": 105420,
+     "hc_licence_name": "T:SLIM X2 INSULIN PUMP WITH CONTROL-IQ+ TECHNOLOGY",
+     "overlap": [
+      "insulin",
+      "pump",
+      "slim",
+      "technology"
+     ]
+    },
+    {
+     "k_number": "K251103",
+     "fda_applicant": "Philips Image Guided Therapy Corporation",
+     "fda_device": "VeriSight Intracardiac Echocardiography Catheter (VSICE2D); VeriSight Pro Intracardiac Echocardiography Catheter (VSICE3D)",
+     "fda_code": "OBJ",
+     "hc_licence_no": 22771,
+     "hc_licence_name": "VITESSE - COS EXCIMER LASER ABLATION CATHETER",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K251103",
+     "fda_applicant": "Philips Image Guided Therapy Corporation",
+     "fda_device": "VeriSight Intracardiac Echocardiography Catheter (VSICE2D); VeriSight Pro Intracardiac Echocardiography Catheter (VSICE3D)",
+     "fda_code": "OBJ",
+     "hc_licence_no": 37261,
+     "hc_licence_name": "PERCUTANEOUS CORONARY ANGIOPLASTY CATHETER",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K251103",
+     "fda_applicant": "Philips Image Guided Therapy Corporation",
+     "fda_device": "VeriSight Intracardiac Echocardiography Catheter (VSICE2D); VeriSight Pro Intracardiac Echocardiography Catheter (VSICE3D)",
+     "fda_code": "OBJ",
+     "hc_licence_no": 76589,
+     "hc_licence_name": "QUICK-CROSS SUPPORT CATHETER",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K251103",
+     "fda_applicant": "Philips Image Guided Therapy Corporation",
+     "fda_device": "VeriSight Intracardiac Echocardiography Catheter (VSICE2D); VeriSight Pro Intracardiac Echocardiography Catheter (VSICE3D)",
+     "fda_code": "OBJ",
+     "hc_licence_no": 78623,
+     "hc_licence_name": "QUICK-CROSS SUPPORT CATHETER - SS BRAIDED",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K251103",
+     "fda_applicant": "Philips Image Guided Therapy Corporation",
+     "fda_device": "VeriSight Intracardiac Echocardiography Catheter (VSICE2D); VeriSight Pro Intracardiac Echocardiography Catheter (VSICE3D)",
+     "fda_code": "OBJ",
+     "hc_licence_no": 84358,
+     "hc_licence_name": "ANGIOSCULPT PTCA SCORING BALLOON CATHETER",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K251103",
+     "fda_applicant": "Philips Image Guided Therapy Corporation",
+     "fda_device": "VeriSight Intracardiac Echocardiography Catheter (VSICE2D); VeriSight Pro Intracardiac Echocardiography Catheter (VSICE3D)",
+     "fda_code": "OBJ",
+     "hc_licence_no": 101319,
+     "hc_licence_name": "VISIONS PV.014P RX DIGITAL IVUS CATHETER",
+     "overlap": [
+      "catheter"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 104789,
+     "hc_licence_name": "SAFETY LANCET",
+     "overlap": [
+      "safety"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 104821,
+     "hc_licence_name": "VERIFINE INSULIN PEN NEEDLES",
+     "overlap": [
+      "insulin"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 104822,
+     "hc_licence_name": "VERIFINE DUAL SAFETY PEN NEEDLES",
+     "overlap": [
+      "safety"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 104981,
+     "hc_licence_name": "TRIPLE SAFETY PEN NEEDLE",
+     "overlap": [
+      "safety"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 106461,
+     "hc_licence_name": "INSULIN SYRINGE",
+     "overlap": [
+      "insulin"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 110329,
+     "hc_licence_name": "X-SAFETY PEN NEEDLE",
+     "overlap": [
+      "safety"
+     ]
+    },
+    {
+     "k_number": "K250192",
+     "fda_applicant": "Promisemed Hangzhou Meditech Co., Ltd.",
+     "fda_device": "Verisafe Safety Retractable Insulin Syringes",
+     "fda_code": "FMF",
+     "hc_licence_no": 115564,
+     "hc_licence_name": "VERIFINE SAFETY PEN NEEDLES",
+     "overlap": [
+      "safety"
+     ]
+    },
+    {
+     "k_number": "K243120",
+     "fda_applicant": "Erbe Elektromedizin GmbH",
+     "fda_device": "HybridAPC probe",
+     "fda_code": "GEI",
+     "hc_licence_no": 96648,
+     "hc_licence_name": "HYBRIDAPC PROBE",
+     "overlap": [
+      "hybridapc",
+      "probe"
+     ]
+    },
+    {
+     "k_number": "K251436",
+     "fda_applicant": "Pioneer Surgical Technology, Inc.",
+     "fda_device": "Resolve Anterior Cervical Plate System",
+     "fda_code": "KWQ",
+     "hc_licence_no": 110654,
+     "hc_licence_name": "CODA ANTERIOR CERVICAL PLATE SYSTEM",
+     "overlap": [
+      "anterior",
+      "cervical",
+      "plate"
+     ]
+    },
+    {
+     "k_number": "K251436",
+     "fda_applicant": "Pioneer Surgical Technology, Inc.",
+     "fda_device": "Resolve Anterior Cervical Plate System",
+     "fda_code": "KWQ",
+     "hc_licence_no": 114388,
+     "hc_licence_name": "DVR CROSSLOCK WRIST SPANNING PLATE",
+     "overlap": [
+      "plate"
+     ]
+    },
+    {
+     "k_number": "K243291",
+     "fda_applicant": "Neoventa Medical AB",
+     "fda_device": "Goldtrace Fetal Spiral Electrode (FSE) (CNS000004)",
+     "fda_code": "HGP",
+     "hc_licence_no": 112460,
+     "hc_licence_name": "GOLDTRACE FETAL SPIRAL ELECTRODE (FSE)",
+     "overlap": [
+      "electrode",
+      "fetal",
+      "goldtrace",
+      "spiral"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 109377,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 111896,
+     "hc_licence_name": "TPH WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113630,
+     "hc_licence_name": "BREAST PUMPS",
+     "overlap": [
+      "breast"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113762,
+     "hc_licence_name": "EUFY WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 113884,
+     "hc_licence_name": "AMEDA GLO WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114292,
+     "hc_licence_name": "EUFY WEARABLE BREAST PUMP S1 PRO (T8D04)",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114605,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K254203",
+     "fda_applicant": "Shenzhen TPH Technology Co., Ltd.",
+     "fda_device": "Wearable Breast Pump (Model S36)",
+     "fda_code": "HGX",
+     "hc_licence_no": 114628,
+     "hc_licence_name": "WEARABLE BREAST PUMP",
+     "overlap": [
+      "breast",
+      "pump",
+      "wearable"
+     ]
+    },
+    {
+     "k_number": "K250648",
+     "fda_applicant": "Philips Medical Systems Nederland B.V.",
+     "fda_device": "Philips iCT CT system",
+     "fda_code": "JAK",
+     "hc_licence_no": 68435,
+     "hc_licence_name": "PHILIPS CT BIG BORE",
+     "overlap": [
+      "philips"
+     ]
+    },
+    {
+     "k_number": "K250648",
+     "fda_applicant": "Philips Medical Systems Nederland B.V.",
+     "fda_device": "Philips iCT CT system",
+     "fda_code": "JAK",
+     "hc_licence_no": 94859,
+     "hc_licence_name": "PHILIPS INTELLISITE PATHOLOGY SOLUTION",
+     "overlap": [
+      "philips"
+     ]
+    },
+    {
+     "k_number": "K250648",
+     "fda_applicant": "Philips Medical Systems Nederland B.V.",
+     "fda_device": "Philips iCT CT system",
+     "fda_code": "JAK",
+     "hc_licence_no": 101405,
+     "hc_licence_name": "PHILIPS HEMODYNAMIC APPLICATION",
+     "overlap": [
+      "philips"
+     ]
+    },
+    {
+     "k_number": "K250648",
+     "fda_applicant": "Philips Medical Systems Nederland B.V.",
+     "fda_device": "Philips iCT CT system",
+     "fda_code": "JAK",
+     "hc_licence_no": 107210,
+     "hc_licence_name": "PHILIPS MR COILS",
+     "overlap": [
+      "philips"
+     ]
+    },
+    {
+     "k_number": "K250648",
+     "fda_applicant": "Philips Medical Systems Nederland B.V.",
+     "fda_device": "Philips iCT CT system",
+     "fda_code": "JAK",
+     "hc_licence_no": 81040,
+     "hc_licence_name": "PHILIPS EXTENDED MR WORKSPACE (EWS)",
+     "overlap": [
+      "philips"
+     ]
+    },
+    {
+     "k_number": "K243568",
+     "fda_applicant": "Wilson-Cook Medical, Inc.",
+     "fda_device": "Teslatome Bipolar Sphincterotome; Tesla BiCord Active Cord",
+     "fda_code": "KNS",
+     "hc_licence_no": 571,
+     "hc_licence_name": "PAPILLOTOMES/SPHINCTEROTOME CANNULATOMES",
+     "overlap": [
+      "sphincterotome"
+     ]
+    },
+    {
+     "k_number": "K250986",
+     "fda_applicant": "Mevion Medical Systems, Inc.",
+     "fda_device": "S250-FIT Proton Beam Radiation Therapy Device (S250-FIT)",
+     "fda_code": "LHN",
+     "hc_licence_no": 94484,
+     "hc_licence_name": "MEVION PROTON BEAM RADIATION THERAPY SYSTEMS",
+     "overlap": [
+      "beam",
+      "proton",
+      "radiation",
+      "therapy"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 78196,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 89365,
+     "hc_licence_name": "DISPOSABLE DISTAL ATTACHMENT",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 101459,
+     "hc_licence_name": "SINGLE USE BIOPSY FORCEPS FB-433D",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 103649,
+     "hc_licence_name": "SINGLE USE HOT BIOPSY FORCEPS FD-231",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 104439,
+     "hc_licence_name": "SINGLE USE ROTATABLE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 104440,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 105295,
+     "hc_licence_name": "SINGLE USE BIOPSY FORCEPS FB-237Z",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 105484,
+     "hc_licence_name": "SINGLE USE BIOPSY FORCEPS FB-456D",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 112220,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 112221,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 112222,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 112226,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 112519,
+     "hc_licence_name": "SINGLE USE GRASPING FORCEPS",
+     "overlap": [
+      "forceps",
+      "grasping"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 60626,
+     "hc_licence_name": "DISPOSABLE ELECTROSURGICAL FORCEPS",
+     "overlap": [
+      "disposable",
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 60627,
+     "hc_licence_name": "DISPOSABLE RETRIEVAL BASKETS",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 60628,
+     "hc_licence_name": "DISPOSABLE CANNULAS",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 61076,
+     "hc_licence_name": "DISPOSABLE NEEDLES",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 61677,
+     "hc_licence_name": "DISPOSABLE NON-ELECTROSURGICAL FORCEPS",
+     "overlap": [
+      "disposable",
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 62490,
+     "hc_licence_name": "DISPOSABLE ENDOSCOPIC MUCOSAL RESECTION KITS",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 62679,
+     "hc_licence_name": "REUSABLE ELECTROSURGICAL FORCEPS",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 62737,
+     "hc_licence_name": "DISPOSABLE LITHOTRIPTORS",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 62801,
+     "hc_licence_name": "DISPOSABLE BALLOON CATHETERS",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 65685,
+     "hc_licence_name": "DISPOSABLE LIGATING DEVICE",
+     "overlap": [
+      "disposable"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 68911,
+     "hc_licence_name": "SINGLE USE ELECTROSURGICAL HEMOSTATIC FORCEPS",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 73659,
+     "hc_licence_name": "REUSABLE BIOPSY FORCEPS (B)",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 73660,
+     "hc_licence_name": "REUSABLE BIOPSY FORCEPS (C)",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K250263",
+     "fda_applicant": "Olympus Medical Systems Corp.",
+     "fda_device": "Disposable Grasping Forceps FG-52D/FG-54D",
+     "fda_code": "KTI",
+     "hc_licence_no": 73661,
+     "hc_licence_name": "REUSABLE BIOPSY FORCEPS (A)",
+     "overlap": [
+      "forceps"
+     ]
+    },
+    {
+     "k_number": "K254085",
+     "fda_applicant": "Biosense Webster, Inc.",
+     "fda_device": "CARTO\u0099 3 EP Navigation System V9.0 with PIU Plus",
+     "fda_code": "DQK",
+     "hc_licence_no": 79031,
+     "hc_licence_name": "CARTO 3 SYSTEM EXTERNAL REFERENCE PATCHES",
+     "overlap": [
+      "carto"
+     ]
+    },
+    {
+     "k_number": "K254085",
+     "fda_applicant": "Biosense Webster, Inc.",
+     "fda_device": "CARTO\u0099 3 EP Navigation System V9.0 with PIU Plus",
+     "fda_code": "DQK",
+     "hc_licence_no": 101897,
+     "hc_licence_name": "CARTO VIZIGO 8.5F BI-DIRECTIONAL GUIDING SHEATH",
+     "overlap": [
+      "carto"
+     ]
+    },
+    {
+     "k_number": "K254085",
+     "fda_applicant": "Biosense Webster, Inc.",
+     "fda_device": "CARTO\u0099 3 EP Navigation System V9.0 with PIU Plus",
+     "fda_code": "DQK",
+     "hc_licence_no": 105640,
+     "hc_licence_name": "QDOT MICRO NAVIGATION CATHETER",
+     "overlap": [
+      "navigation"
+     ]
+    },
+    {
+     "k_number": "K242072",
+     "fda_applicant": "Ceraroot SL",
+     "fda_device": "CeraRoot TL Implant System (TL)",
+     "fda_code": "DZE",
+     "hc_licence_no": 87566,
+     "hc_licence_name": "CERAROOT ZIRCONIUM OXIDE DENTAL IMPLANT",
+     "overlap": [
+      "ceraroot",
+      "implant"
+     ]
+    },
+    {
+     "k_number": "K242072",
+     "fda_applicant": "Ceraroot SL",
+     "fda_device": "CeraRoot TL Implant System (TL)",
+     "fda_code": "DZE",
+     "hc_licence_no": 114276,
+     "hc_licence_name": "CERAROOT GUIDED SURGERY SYSTEM",
+     "overlap": [
+      "ceraroot"
+     ]
+    },
+    {
+     "k_number": "K252073",
+     "fda_applicant": "Voco GmbH",
+     "fda_device": "VOCO Profluorid Varnish + BioMin",
+     "fda_code": "LBH",
+     "hc_licence_no": 114311,
+     "hc_licence_name": "VOCO PROFLUORID VARNISH + BIOMIN",
+     "overlap": [
+      "biomin",
+      "profluorid",
+      "varnish",
+      "voco"
+     ]
+    },
+    {
+     "k_number": "K252073",
+     "fda_applicant": "Voco GmbH",
+     "fda_device": "VOCO Profluorid Varnish + BioMin",
+     "fda_code": "LBH",
+     "hc_licence_no": 34486,
+     "hc_licence_name": "ADMIRA PROTECT LIGHT CURING VARNISH",
+     "overlap": [
+      "varnish"
+     ]
+    },
+    {
+     "k_number": "K252073",
+     "fda_applicant": "Voco GmbH",
+     "fda_device": "VOCO Profluorid Varnish + BioMin",
+     "fda_code": "LBH",
+     "hc_licence_no": 79401,
+     "hc_licence_name": "PROFLUORID VARNISH",
+     "overlap": [
+      "profluorid",
+      "varnish"
+     ]
+    },
+    {
+     "k_number": "K252450",
+     "fda_applicant": "Ivoclar Vivadent, Inc.",
+     "fda_device": "Adhese 2",
+     "fda_code": "KLE",
+     "hc_licence_no": 92705,
+     "hc_licence_name": "ADHESE UNIVERSAL",
+     "overlap": [
+      "adhese"
+     ]
+    },
+    {
+     "k_number": "K252450",
+     "fda_applicant": "Ivoclar Vivadent, Inc.",
+     "fda_device": "Adhese 2",
+     "fda_code": "KLE",
+     "hc_licence_no": 106793,
+     "hc_licence_name": "ADHESE UNIVERSAL DC / CENTION PRIMER",
+     "overlap": [
+      "adhese"
+     ]
+    },
+    {
+     "k_number": "K252450",
+     "fda_applicant": "Ivoclar Vivadent, Inc.",
+     "fda_device": "Adhese 2",
+     "fda_code": "KLE",
+     "hc_licence_no": 115434,
+     "hc_licence_name": "ADHESE 2",
+     "overlap": [
+      "adhese"
+     ]
+    },
+    {
+     "k_number": "K253974",
+     "fda_applicant": "Roosin Medical Co., Ltd.",
+     "fda_device": "Roosin Collagen Dressing",
+     "fda_code": "KGN",
+     "hc_licence_no": 95262,
+     "hc_licence_name": "BURNCARE RELIEVE BURN GEL DRESSING",
+     "overlap": [
+      "dressing"
+     ]
+    },
+    {
+     "k_number": "K253974",
+     "fda_applicant": "Roosin Medical Co., Ltd.",
+     "fda_device": "Roosin Collagen Dressing",
+     "fda_code": "KGN",
+     "hc_licence_no": 103558,
+     "hc_licence_name": "HYDROCOLLOID DRESSING",
+     "overlap": [
+      "dressing"
+     ]
+    },
+    {
+     "k_number": "K253974",
+     "fda_applicant": "Roosin Medical Co., Ltd.",
+     "fda_device": "Roosin Collagen Dressing",
+     "fda_code": "KGN",
+     "hc_licence_no": 103560,
+     "hc_licence_name": "OIL EMULSION DRESSING",
+     "overlap": [
+      "dressing"
+     ]
+    },
+    {
+     "k_number": "K253974",
+     "fda_applicant": "Roosin Medical Co., Ltd.",
+     "fda_device": "Roosin Collagen Dressing",
+     "fda_code": "KGN",
+     "hc_licence_no": 116219,
+     "hc_licence_name": "POLYVER SILVER ALGINATE DRESSING",
+     "overlap": [
+      "dressing"
+     ]
+    },
+    {
+     "k_number": "K251391",
+     "fda_applicant": "Brainsway , Ltd.",
+     "fda_device": "BrainsWay Deep TMS System",
+     "fda_code": "OBP",
+     "hc_licence_no": 90504,
+     "hc_licence_name": "DEEP TMS SYSTEM",
+     "overlap": [
+      "deep"
+     ]
+    },
+    {
+     "k_number": "K251391",
+     "fda_applicant": "Brainsway , Ltd.",
+     "fda_device": "BrainsWay Deep TMS System",
+     "fda_code": "OBP",
+     "hc_licence_no": 105539,
+     "hc_licence_name": "DEEP TRANSCRANIAL MAGNETIC STIMULATION (DTMS) DEVICE",
+     "overlap": [
+      "deep"
+     ]
+    },
+    {
+     "k_number": "K251391",
+     "fda_applicant": "Brainsway , Ltd.",
+     "fda_device": "BrainsWay Deep TMS System",
+     "fda_code": "OBP",
+     "hc_licence_no": 106075,
+     "hc_licence_name": "DEEP TMS SYSTEM (MODEL 104)",
+     "overlap": [
+      "deep"
+     ]
+    },
+    {
+     "k_number": "K251391",
+     "fda_applicant": "Brainsway , Ltd.",
+     "fda_device": "BrainsWay Deep TMS System",
+     "fda_code": "OBP",
+     "hc_licence_no": 106125,
+     "hc_licence_name": "BRAINSWAY DEEP TMS SYSTEM FOR TREATMENT OF OBSESSIVE COMPULSIVE DISORDER (OCD)",
+     "overlap": [
+      "brainsway",
+      "deep"
+     ]
+    },
+    {
+     "k_number": "K251391",
+     "fda_applicant": "Brainsway , Ltd.",
+     "fda_device": "BrainsWay Deep TMS System",
+     "fda_code": "OBP",
+     "hc_licence_no": 108401,
+     "hc_licence_name": "BRAINSWAY DEEP TMS SYSTEM FOR SHORT TERM SMOKING CESSATION",
+     "overlap": [
+      "brainsway",
+      "deep"
+     ]
+    },
+    {
+     "k_number": "K250364",
+     "fda_applicant": "St. shine Optical Co., Ltd.",
+     "fda_device": "Saview SH Optic 38 UV (Senofilcon A) Visibility Tinted Soft (Hydrophilic) Contact Lens; Saview SH Optic 38 UV toric (Senofilcon A) Visibility Tinted Soft (Hydrophilic) Contact Lens; Saview SH Optic 38 UV multifocal (Senofilcon A) Visibility Tinted Soft (Hydrophilic) Contact Lens",
+     "fda_code": "LPL",
+     "hc_licence_no": 72856,
+     "hc_licence_name": "SOFT CONTACT LENSES",
+     "overlap": [
+      "contact",
+      "soft"
+     ]
+    },
+    {
+     "k_number": "K250364",
+     "fda_applicant": "St. shine Optical Co., Ltd.",
+     "fda_device": "Saview SH Optic 38 UV (Senofilcon A) Visibility Tinted Soft (Hydrophilic) Contact Lens; Saview SH Optic 38 UV toric (Senofilcon A) Visibility Tinted Soft (Hydrophilic) Contact Lens; Saview SH Optic 38 UV multifocal (Senofilcon A) Visibility Tinted Soft (Hydrophilic) Contact Lens",
+     "fda_code": "LPL",
+     "hc_licence_no": 95072,
+     "hc_licence_name": "ETAFILCON A CONTACT LENSES",
+     "overlap": [
+      "contact"
+     ]
+    },
+    {
+     "k_number": "K252239",
+     "fda_applicant": "Imris Imaging, Inc.",
+     "fda_device": "InVision\u0099 3T Recharge Operating Suite",
+     "fda_code": "LNH",
+     "hc_licence_no": 113561,
+     "hc_licence_name": "INVISION 3T RECHARGE OPERATING SUITE",
+     "overlap": [
+      "invision",
+      "operating",
+      "recharge",
+      "suite"
+     ]
+    }
+   ]
+  }
+ },
+ "join_enforcement_to_510k_via_device_recall": {
+  "enforcement_sampled": 100,
+  "found_in_device_recall_by_recall_number": 99,
+  "with_k_numbers": 60,
+  "k_resolves_to_510k": 58
+ }
+}

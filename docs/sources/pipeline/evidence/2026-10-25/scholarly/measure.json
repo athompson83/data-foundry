@@ -1,0 +1,2248 @@
+{
+ "arxiv_sampled": 300,
+ "with_doi": 23,
+ "doi_resolves_in_crossref": 23,
+ "title_agrees": 22,
+ "crossref_with_abstract": 13,
+ "arxiv_abstract_mean_chars": 1445,
+ "rows": [
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31664v1",
+   "title": "Odd radio circle J1555+2726: Observational evidence for shock re-acceleration of fossil plasma",
+   "abstract_chars": 1879,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31660v1",
+   "title": "Sound-Horizon-Agnostic Forecast for Constraints on $H_0$ and $\u03a3m_\u03bd$ from BAO, CMB Lensing, Supernovae and LSST-like Galaxy Lensing",
+   "abstract_chars": 1474,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31626v1",
+   "title": "A Robust Estimator for the Lyman-$\u03b1$ Forest 1D Power Spectrum at High Redshift",
+   "abstract_chars": 1736,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2609.01154v2",
+   "title": "The cosmic multipoles: a series of consistency tests for the Szekeres cosmological model",
+   "abstract_chars": 647,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.15339v2",
+   "title": "Tighter Dark Matter Constraints from the Projected Mass Method: A Neural Network Enhanced Method for Galaxy Groups and Clusters",
+   "abstract_chars": 1533,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31469v1",
+   "title": "QUIJOTE scientific results - XII. Characterization of the polarized synchrotron emission at the power spectrum level in the QUIJOTE-MFI wide survey",
+   "abstract_chars": 1392,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31441v1",
+   "title": "Gravitational Wave Diffractive Images Reveal the Structure of Astrophysical Objects",
+   "abstract_chars": 1729,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2502.08748v4",
+   "title": "Vacuum Polarization, Geodesic Equation and Sachs-Wolfe Effect",
+   "abstract_chars": 827,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.13128v2",
+   "title": "Dark Energy and Neutrino Flavor from the Weak Axion",
+   "abstract_chars": 1476,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2605.28817v2",
+   "title": "Fewer simulations, sharper covariances: Reducing mock covariance noise with Zeldovich approximation control variates",
+   "abstract_chars": 1879,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31181v1",
+   "title": "A cosmological intercept tension in local distance ladders",
+   "abstract_chars": 1658,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31175v1",
+   "title": "Robust paths to primordial $B$ modes in the presence of polarised point source contamination",
+   "abstract_chars": 1450,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31168v1",
+   "title": "A cosmic filament catalog for COSMOS-Web Data Release 1 across 0.5 < z < 3.5",
+   "abstract_chars": 1636,
+   "doi": "10.1051/0004-6361/202659407",
+   "crossref": {
+    "title": "A cosmic filament catalog for COSMOS-Web Data Release 1 across 0.5 &lt; z &lt; 3.5",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31101v1",
+   "title": "Saxion Decay and Dark Radiation in the KSVZ Axion Model",
+   "abstract_chars": 1022,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31081v1",
+   "title": "Cosmological Inference with Gravitational-Wave Dark Sirens and 21-cm Intensity Mapping: Forecasts for LIGO-Virgo-KAGRA with MeerKAT and SKAO",
+   "abstract_chars": 1903,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.31044v1",
+   "title": "Assessing the consistency of the CPL dark-energy model with cosmological data: Simulation-calibrated neural posterior disagreement",
+   "abstract_chars": 1229,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30961v1",
+   "title": "GPAge: a Global Parameterization based on cosmic Age for some unified early-time and late-time solutions to the Hubble tension",
+   "abstract_chars": 1348,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2511.21134v2",
+   "title": "Testing Bump in the Cosmological Power Spectrum Using Dwarf Galaxies",
+   "abstract_chars": 844,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2604.25171v3",
+   "title": "Multi-tracers, multi-surveys: a joint Fisher analysis of DESI+PFS",
+   "abstract_chars": 1704,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30784v1",
+   "title": "Constraints on interacting dark energy with a constant equation of state in light of DESI DR2: The role of the interaction term",
+   "abstract_chars": 1426,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.28074v3",
+   "title": "Dark energy perturbations and the robustness of cosmological neutrino-mass constraints",
+   "abstract_chars": 1430,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30723v1",
+   "title": "Decoherence of the quantum superradiant cloud from graviton emission",
+   "abstract_chars": 1047,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.28918v3",
+   "title": "An E-value Reanalysis of DESI's Dynamical Dark Energy Signal",
+   "abstract_chars": 1905,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.05133v2",
+   "title": "CMB Bounds on Primordial Black Holes via Radiation Capture",
+   "abstract_chars": 1336,
+   "doi": "10.1103/tl5k-67r8",
+   "crossref": {
+    "title": "CMB bounds on primordial black holes via radiation capture",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2505.10429v3",
+   "title": "Environmental dependence of galaxy properties in the southern GAMA regions",
+   "abstract_chars": 1596,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2111.14254v3",
+   "title": "Understanding Big Bang Nucleosynthesis: the physics and its history",
+   "abstract_chars": 998,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30510v1",
+   "title": "Same Events, Weaker Bound: Model Dependence in Magellanic Microlensing Limits on Primordial Black Holes",
+   "abstract_chars": 730,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30507v1",
+   "title": "ULTRAMAN: A Proposed ultrasound detector for macroscopic dark matter",
+   "abstract_chars": 1281,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2603.15734v2",
+   "title": "Crowdsourcing Gravitational Waves from Superradiant Axions",
+   "abstract_chars": 1520,
+   "doi": "10.1103/ddc7-2pch",
+   "crossref": {
+    "title": "Crowdsourcing gravitational waves from superradiant axions",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.17916v2",
+   "title": "Nested Sampling: A Critical and Comprehensive Theoretical Guide",
+   "abstract_chars": 1221,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30360v1",
+   "title": "Gravitational Waves From an Entangled SO(3) Cosmic String Network",
+   "abstract_chars": 1235,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30309v1",
+   "title": "The PAU Survey: Active galactic nucleus galaxies in galaxy pairs",
+   "abstract_chars": 1585,
+   "doi": "10.1051/0004-6361/202556897",
+   "crossref": {
+    "title": "The PAU Survey: Active galactic nucleus galaxies in galaxy pairs",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30294v1",
+   "title": "Optimal cosmological cross-correlation analysis with U-Net-based processing",
+   "abstract_chars": 1704,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30285v1",
+   "title": "The black hole-galaxy correlations of the 12 micron local AGN sample: a NuSTAR perspective",
+   "abstract_chars": 1638,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30267v1",
+   "title": "Density-split analyses of the pairwise kinetic Sunyaev-Zeldovich effect",
+   "abstract_chars": 1724,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30265v1",
+   "title": "The THESAN-ZOOM project: the delayed rise of Lyman continuum escape fractions in bursty high-redshift galaxies",
+   "abstract_chars": 1692,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30261v1",
+   "title": "Variable-phase methods and data for long-range scattering",
+   "abstract_chars": 1208,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30253v1",
+   "title": "Mass-Varying Dark Matter, Naturally",
+   "abstract_chars": 664,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30244v1",
+   "title": "2Flow2SN: Dusty Supernova Cosmology with Photometric Redshifts and Contamination using Neural Simulation-Based Inference",
+   "abstract_chars": 1906,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30133v1",
+   "title": "Optimal galaxy magnification: generalized fundamental-plane residuals and number counts are all you need",
+   "abstract_chars": 1478,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30106v1",
+   "title": "On Particle Production from Bubble Collisions in the Non-runaway Regime",
+   "abstract_chars": 1474,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2605.19615v2",
+   "title": "Anisotropy and tracer-profile assumptions in aperture-based strong-lens dynamics: Conditional inference from supernova distance ratios and unresolved stellar kinematics",
+   "abstract_chars": 1734,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2602.23915v3",
+   "title": "Impact of non-standard neutrino-electron interactions on Big Bang Nucleosynthesis",
+   "abstract_chars": 1106,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.31629v2",
+   "title": "Ultralight dark matter mixed with primordial black holes",
+   "abstract_chars": 1680,
+   "doi": "10.1088/1475-7516/2026/10/054",
+   "crossref": {
+    "title": "Ultralight dark matter mixed with primordial black holes",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29967v1",
+   "title": "Gravitational Waves from New Inflation",
+   "abstract_chars": 605,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29937v1",
+   "title": "Constraining Dynamical Dark Energy with Tomographic Galaxy and CMB Weak Lensing Through Higher-Order Statistics",
+   "abstract_chars": 1875,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.26532v3",
+   "title": "Primordial black hole formation in bulk-viscous cosmology",
+   "abstract_chars": 777,
+   "doi": "10.1103/x8p6-4zwv",
+   "crossref": {
+    "title": "Primordial black hole formation in bulk-viscous cosmology",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29908v1",
+   "title": "Testing Dynamical Dark-Energy Model with Standard Sirens",
+   "abstract_chars": 1206,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29885v1",
+   "title": "Cosmological Gravitational Wave Collider Physics",
+   "abstract_chars": 1288,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2605.30236v2",
+   "title": "Signals from the early Universe: a comprehensive search for primordial features in Planck CMB datasets",
+   "abstract_chars": 1853,
+   "doi": "10.1088/1475-7516/2026/10/024",
+   "crossref": {
+    "title": "Signals from the early Universe: a comprehensive search for primordial features in Planck CMB datasets",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2605.09829v4",
+   "title": "Stardust Galaxies at z>9: A Dust-Origin Transition Behind the Excess of UV-Bright Galaxies",
+   "abstract_chars": 1889,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.26911v2",
+   "title": "Impact of numerical stability in Bayesian noise wave calibration on global 21-cm experiments",
+   "abstract_chars": 1571,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29764v1",
+   "title": "Alleviating CMB-BAO tension with a large cosmic birefringence angle during reionization induced by energy injection to axion-like particles",
+   "abstract_chars": 1083,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.04081v2",
+   "title": "The role of major mergers in triggering super-Eddington accretion",
+   "abstract_chars": 1721,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29591v1",
+   "title": "HETDEX [OII] galaxies at $z \\le 0.48$: Growth of structures from power spectrum multipoles",
+   "abstract_chars": 1138,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29582v1",
+   "title": "Cosmology of self-interacting ultralight dark matter: simultaneous shifts in the Hubble constant and structure growth",
+   "abstract_chars": 1119,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2604.00420v2",
+   "title": "Calibrating optical galaxy cluster projection effects with sparse spectroscopic samples: A clustering redshift approach",
+   "abstract_chars": 1292,
+   "doi": "10.1103/j128-fvwd",
+   "crossref": {
+    "title": "Calibrating optical galaxy cluster projection effects with sparse spectroscopic samples: A clustering redshift approach",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.27325v2",
+   "title": "Seesaw Cosmology",
+   "abstract_chars": 1390,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2609.30440v2",
+   "title": "SN Helios: A Multiply Imaged Type II Supernova Opening Time-Delay Cosmography beyond redshift of 3",
+   "abstract_chars": 1857,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29541v1",
+   "title": "Domain models of turbulent magnetic fields and the spectral shape of ensemble averaged axion-photon conversion",
+   "abstract_chars": 1089,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.30201v1",
+   "title": "Partial geometrization of dark matter in metric $f(R)$ gravity: Exact reconstruction and growth constraints",
+   "abstract_chars": 1826,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2603.13106v4",
+   "title": "Ridged Lagrangian Perturbation Theory (RLPT)",
+   "abstract_chars": 1436,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2608.21963v2",
+   "title": "Searching for signatures of self-interacting dark matter in halos from full physics simulations: From 3D structure to projected observables",
+   "abstract_chars": 1746,
+   "doi": "10.1051/0004-6361/202661789",
+   "crossref": {
+    "title": "Searching for signatures of self-interacting dark matter in halos from full physics simulations: From 3D structure to projected observables",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29349v1",
+   "title": "Magnetic monopoles produced by first-order phase transition",
+   "abstract_chars": 1186,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2609.29852v2",
+   "title": "Discovery of an isolated RELHIC Candidate: J1351+0039",
+   "abstract_chars": 1163,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.10823v3",
+   "title": "Black hole populations and hierarchical growth across the AGN parameter space",
+   "abstract_chars": 1880,
+   "doi": "10.1051/0004-6361/202661302",
+   "crossref": {
+    "title": "Black hole populations and hierarchical growth across the active galactic nuclei parameter space",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.12446v2",
+   "title": "Measuring Ultralight-Axion Coherence with Galaxy Polarization Correlations",
+   "abstract_chars": 1207,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29182v1",
+   "title": "Parity-odd CMB Correlations induced by a Chiral Gravitational Wave Background",
+   "abstract_chars": 567,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2601.00436v2",
+   "title": "Anatomy of RHN DM relic in the vanilla scotogenic neutrino mass model",
+   "abstract_chars": 1288,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.29116v1",
+   "title": "$\u03bd$Gundam: a unified framework for point-redshift and PDF-aware spatial correlation functions",
+   "abstract_chars": 1901,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28890v1",
+   "title": "Not so Fast: Revised Calibration of SIDM Core Collapse",
+   "abstract_chars": 1733,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.16496v2",
+   "title": "Sensitivity of calibration-free DESI DR2 BAO--supernova constraints to a distance-duality tilt",
+   "abstract_chars": 1866,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28825v1",
+   "title": "Spherization of the velocity field of cosmological perturbations near density extrema",
+   "abstract_chars": 587,
+   "doi": "10.1134/S1063772926700794",
+   "crossref": {
+    "title": "Spherization of the Velocity Field of Cosmological Perturbations Near Density Extrema",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28775v1",
+   "title": "Can we constrain the binary neutron star merger time from kilonova light curves?",
+   "abstract_chars": 1914,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28765v1",
+   "title": "Constraints on Reionization from Planck Low-$\\ell$ EE Polarization and the Lyman-Series Forests",
+   "abstract_chars": 1874,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28758v1",
+   "title": "PIANISTpy: A JAX-based Python package for velocity-anisotropic astrophysical equilibrium models",
+   "abstract_chars": 1917,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28745v1",
+   "title": "Gravothermal Evolution of Self-Interacting Dark Matter Halos across Knudsen Numbers",
+   "abstract_chars": 1687,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28739v1",
+   "title": "Prior volume effect inflates the gravitational-wave background in pulsar timing arrays",
+   "abstract_chars": 1233,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28723v1",
+   "title": "Poisson Clustering and Seed Effect of PBHs: Implications for Microlensing, Gravitational Waves, Little Red Dots and Ultra-Faint Dwarf Galaxies",
+   "abstract_chars": 1811,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28608v1",
+   "title": "Slow-Roll Inflation at Arbitrary Order",
+   "abstract_chars": 1164,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28526v1",
+   "title": "MadStree: automated evaluation of tree-level de Sitter correlators",
+   "abstract_chars": 468,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28482v1",
+   "title": "The \"Rubin 2036: Opportunities for Discovery\" Workshop: A Community Roadmap for the Future of the Vera C. Rubin Observatory After the LSST",
+   "abstract_chars": 1715,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.24064v2",
+   "title": "Consistently Reproducing Early Galaxy Observations and 21-cm Signal during the Epoch of Reionization",
+   "abstract_chars": 1871,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2607.22802v2",
+   "title": "Entropic Chaplygin-Gas cosmology and late-universe tension diagnostics",
+   "abstract_chars": 1226,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.18348v2",
+   "title": "Structure and evolution of cosmic voids within DESI DR1",
+   "abstract_chars": 1656,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2509.07943v6",
+   "title": "Dark Energy Survey Year 6 Results: improved mitigation of spatially varying observational systematics with masking for the MagLim++ lens sample",
+   "abstract_chars": 1791,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28014v1",
+   "title": "Two-Component Dark Matter and Strongly First-Order Electroweak Phase Transition via a Two-Step Mechanism in the Inert Doublet plus Real Singlet Model",
+   "abstract_chars": 1649,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.28013v1",
+   "title": "Kinematically isolating intracluster light in AS1063: a distinct stellar population tracing the dark matter core",
+   "abstract_chars": 1370,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.27933v1",
+   "title": "Probing Minihalos in the Late Dark Ages through Velocity Acoustic Oscillations in the 21-cm Power Spectrum",
+   "abstract_chars": 1586,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2309.11496v3",
+   "title": "Unveiling dark forces with measurements of the Large Scale Structure of the Universe",
+   "abstract_chars": 589,
+   "doi": "10.1103/PhysRevLett.132.201002",
+   "crossref": {
+    "title": "Unveiling Dark Forces with Measurements of the Large Scale Structure of the Universe",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2605.22245v2",
+   "title": "Probing freeze-in dark matter using Bose-Einstein condensate in neutron star",
+   "abstract_chars": 1517,
+   "doi": "10.1088/1475-7516/2026/10/047",
+   "crossref": {
+    "title": "Probing freeze-in dark matter using Bose-Einstein condensate in neutron star",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2512.07930v3",
+   "title": "Inflationary Particle Production and the Swampland",
+   "abstract_chars": 1093,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.27731v1",
+   "title": "Axion detection in the non-Markovian noise",
+   "abstract_chars": 1194,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.27514v1",
+   "title": "Stability Analysis of Axion Dark Energy Model",
+   "abstract_chars": 1316,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.02700v2",
+   "title": "The Life and Death of Stars That Capture Primordial Black Holes",
+   "abstract_chars": 1857,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2606.06557v3",
+   "title": "A dark-matter-sensitive orientation clock near rotating black holes",
+   "abstract_chars": 1173,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2510.23695v3",
+   "title": "New Bounds on Heavy QCD Axions from Big Bang Nucleosynthesis",
+   "abstract_chars": 1305,
+   "doi": "10.1103/l2m1-h1cp",
+   "crossref": {
+    "title": "New bounds on heavy QCD axions from big bang nucleosynthesis",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2309.10133v3",
+   "title": "Don't miss the forest for the trees: the Lyman alpha forest power spectrum in effective field theory",
+   "abstract_chars": 1184,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.27282v1",
+   "title": "The Future of Gamma-Ray Bursts as Probes of the Epoch of Reionization in the Era of JWST and the Extremely Large Telescope",
+   "abstract_chars": 1584,
+   "doi": null
+  },
+  {
+   "cat": "astro-ph.CO",
+   "id": "2610.27236v1",
+   "title": "Searching for Dense Perturbers in Cold Dark Matter Simulations",
+   "abstract_chars": 1184,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31670v1",
+   "title": "Sensorimotor Alignment: A Platonic Proxy for Embodied Policy Success",
+   "abstract_chars": 1389,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31663v1",
+   "title": "Phase Transition from Random Features to Fully Trainable Networks",
+   "abstract_chars": 1649,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31662v1",
+   "title": "Reliable AI-Assisted Decisions via Selective Auditing",
+   "abstract_chars": 1370,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2512.01775v2",
+   "title": "How Does RL Post-training Induce Skill Composition? A Case Study on Countdown",
+   "abstract_chars": 1433,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.30329v2",
+   "title": "SoundnessBench: Can Your AI Scientist Really Tell Good Research Ideas from Bad Ones?",
+   "abstract_chars": 1280,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31659v1",
+   "title": "SpectralCanary: Embarrassingly Simple Low-Frequency Traces for T2I Dataset-Use Auditing",
+   "abstract_chars": 1794,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31657v1",
+   "title": "Cost-Aware Abstention for LLM-Based IT Ticket Classification",
+   "abstract_chars": 1839,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31656v1",
+   "title": "METTA: Memory-Enhanced Test-Time Adaptation for Meta-Reinforcement Learning",
+   "abstract_chars": 1405,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31650v1",
+   "title": "EpiSEM-Bench: Evaluating Safety and Evidence Recovery in LLM Agents under Missing Evidence",
+   "abstract_chars": 1312,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.17528v2",
+   "title": "ATTUNE: Agentic Throughput Tuning for LLM Training",
+   "abstract_chars": 1707,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31642v1",
+   "title": "A Fix for Softmax and Cross-Entropy",
+   "abstract_chars": 907,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31639v1",
+   "title": "Causal Chain of Thought: Mitigating Attention Leakage via Context Isolation",
+   "abstract_chars": 1274,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31633v1",
+   "title": "BeNice! Closing Looping's Inference-Memory Gap via KV-Sharing",
+   "abstract_chars": 1763,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31624v1",
+   "title": "Questioning Instrumental Convergence in RLVR: Checkpoint Evidence from OLMo-3",
+   "abstract_chars": 1876,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31616v1",
+   "title": "OP-Print: Tracing Membership Imprints in On-Policy Self-Distillation",
+   "abstract_chars": 1527,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31612v1",
+   "title": "Efficient and Optimal Learning of Discrete Distributions with Person-Level Privacy",
+   "abstract_chars": 1639,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31594v1",
+   "title": "CRANE: Post-Hoc Counterfactual Retrieval for Multimodal Classifiers",
+   "abstract_chars": 1340,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31592v1",
+   "title": "Beyond Best-of-$k$: Prior-Consistent DAPS for Ambiguous Nonlinear Inverse Problems",
+   "abstract_chars": 1260,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31586v1",
+   "title": "Would an LLM Match into a Residency? Uncertainty, Reasoning and Image Use of Open Language Models on the Spanish MIR Examination",
+   "abstract_chars": 1248,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31585v1",
+   "title": "Action Learning for Scientific Simulations",
+   "abstract_chars": 1591,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31574v1",
+   "title": "Rethinking Sequence Compression with Test-time Regression",
+   "abstract_chars": 1226,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31572v1",
+   "title": "On the Token Collapse Phenomenon in Textual Graph Soft Prompting",
+   "abstract_chars": 1900,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.19721v2",
+   "title": "Projecting Latent RL Actions: Towards Generalizable and Scalable Graph Combinatorial Optimization",
+   "abstract_chars": 1438,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31563v1",
+   "title": "When to Follow the Teacher: Advantage-Based On-Policy Distillation",
+   "abstract_chars": 1410,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31558v1",
+   "title": "Diffusion Language Models for Perplexity-Aware Black-Box Attacks",
+   "abstract_chars": 1225,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31551v1",
+   "title": "Fine-Grained Analysis of Catastrophic Forgetting in Continual Learning via Algorithmic Stability",
+   "abstract_chars": 1571,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31549v1",
+   "title": "Shift-aware score transport for privacy auditing without retraining",
+   "abstract_chars": 1588,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31544v1",
+   "title": "Same Luck, Different Choice: Twin-World Credit Assignment for Agentic Reinforcement Learning",
+   "abstract_chars": 1648,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31539v1",
+   "title": "PYTHIA, a transferable machine learning framework for simultaneous defect and adsorption site optimization",
+   "abstract_chars": 1309,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31538v1",
+   "title": "LACToS: Local Anomaly Detection via Conditional Typicality of Superpixels",
+   "abstract_chars": 1046,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2507.00034v3",
+   "title": "Aggregation of Published Non-Uniform Axial Power Data for Phase II of the OECD/NEA AI/ML Critical Heat Flux Benchmark",
+   "abstract_chars": 1246,
+   "doi": "10.13182/T133-49117",
+   "crossref": {
+    "title": "Aggregation of Published Non-Uniform Axial Power Data for Phase II of the OECD/NEA AI/ML Critical Heat Flux Benchmark",
+    "type": "proceedings-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31526v1",
+   "title": "Direct Inference on Admissible Sets (Diona)",
+   "abstract_chars": 1353,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31524v1",
+   "title": "Nonparametric autoregressive estimation of probability distributions with parallel gradient boosting",
+   "abstract_chars": 1754,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2510.02308v3",
+   "title": "Robust Tangent Space Estimation via Laplacian Eigenvector Gradient Orthogonalization",
+   "abstract_chars": 1675,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31510v1",
+   "title": "Piano2Pop: Expanding Piano Demos into Pop Productions Without Aligned Supervision",
+   "abstract_chars": 992,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2609.22486v2",
+   "title": "Semantics Delivery Network: Rethinking Web Retrieval Infrastructure for LLM Agents",
+   "abstract_chars": 1795,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31504v1",
+   "title": "Structure-preserving reduced-order models of thin panels in supersonic and hypersonic flow",
+   "abstract_chars": 1769,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2606.03057v2",
+   "title": "Rethinking Molecular Text Representations for LLMs: An Empirical Study",
+   "abstract_chars": 1518,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31495v1",
+   "title": "SABLE: Scalable Affine Bayesian Latent-space Exploration",
+   "abstract_chars": 1557,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2510.25609v4",
+   "title": "Revisiting GAN with Bayes-Optimal Discrimination",
+   "abstract_chars": 1185,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31483v1",
+   "title": "Training Small Language Models for Transferable Tool Selection",
+   "abstract_chars": 810,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31479v1",
+   "title": "Evaluating the Applicability of LLM Inference Optimizations on Apple Silicon",
+   "abstract_chars": 1300,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31478v1",
+   "title": "MoG-VLM: Efficient Video Anomaly Detection through Motion-Guided Vision-Language Models",
+   "abstract_chars": 1691,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.22873v3",
+   "title": "When Should LLMs Reason? Adaptive Inference Routing via Entropy Dynamics",
+   "abstract_chars": 1440,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31465v1",
+   "title": "RheOPT: Few-Shot Non-Newtonian Flow Prediction via Newtonian Pretraining of RheOFormer",
+   "abstract_chars": 1909,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2607.13550v2",
+   "title": "Parallel gradient boosting for flexible estimation of conditional distributions",
+   "abstract_chars": 1787,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2505.18374v3",
+   "title": "ShIOEnv: A Command Evaluation Environment for Grammar-Constrained Synthesis and Execution Behavior Modeling",
+   "abstract_chars": 1918,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2602.11957v2",
+   "title": "Are Two LLMs Better Than One? A Student-Teacher Dual-Head LLMs Architecture for Pharmaceutical Content Optimization",
+   "abstract_chars": 1270,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31439v1",
+   "title": "Multi-Token Prediction and Alternative Tokenization Improve Learning Latent Multi-Hop Graph Search at Scale",
+   "abstract_chars": 728,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31438v1",
+   "title": "DIAL: Steerable Language Models with Distilled Instruction-Adherence Levels",
+   "abstract_chars": 1857,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31436v1",
+   "title": "Conservative Meta-Agent Search: Architecture Adaptation under Non-Stationarity",
+   "abstract_chars": 1915,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31433v1",
+   "title": "Drift Says When, Budget Says How Much: Rate-Controlled KV Re-selection for Long-Form Multimodal Generation",
+   "abstract_chars": 1899,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31431v1",
+   "title": "Dimension-free regimes for unadjusted Langevin in ridge-separable models: A subspace robust Wasserstein analysis",
+   "abstract_chars": 1099,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31428v1",
+   "title": "Predictable performance is suboptimal, and what it means for model routing",
+   "abstract_chars": 1646,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2609.30085v2",
+   "title": "Residual Correlation as a Diagnostic for Joint-Uncertainty Gains from GP Coregionalisation",
+   "abstract_chars": 1778,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31421v1",
+   "title": "How Depth Growth and Looping Shape In-Context Learning in Language Models",
+   "abstract_chars": 1234,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31420v1",
+   "title": "Post-Hoc Feature Selection Layer for Neural Networks Interpretability",
+   "abstract_chars": 1506,
+   "doi": "10.1109/IJCNN69854.2026.11729834",
+   "crossref": {
+    "title": "Post-Hoc Feature Selection Layer for Neural Networks Interpretability",
+    "type": "proceedings-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31412v1",
+   "title": "SQuAT: Spherical Lattice Vector Quantization-Aware Training",
+   "abstract_chars": 1373,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.17680v3",
+   "title": "Deficit-Driven Stratified Acquisition for Building STRATA-S12: An Open SAR-Optical Corpus for Self-Supervised Learning",
+   "abstract_chars": 1914,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2609.25373v2",
+   "title": "Extending FunctionGemma for Practical On-Device Mobile Function Calling",
+   "abstract_chars": 1345,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2602.07628v3",
+   "title": "SleepMaMi: A Universal Sleep Foundation Model for Integrating Macro- and Micro-structures",
+   "abstract_chars": 1320,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31401v1",
+   "title": "HERD: Harness-Evolving Recursive Distillation for Continual Learning",
+   "abstract_chars": 1200,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.30526v3",
+   "title": "Measuring, Localizing, and Reducing the AI-Like Writing Style of Post-Trained LLMs",
+   "abstract_chars": 1415,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2606.19129v2",
+   "title": "Giskard : Byzantine Robust and Private Aggregation for Large-Scale Decentralized Learning",
+   "abstract_chars": 1867,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31386v1",
+   "title": "Convex Equilibrium Potentials for Monge--Amp\u00e8re: Curvature Bounds and A Posteriori Evaluation",
+   "abstract_chars": 1443,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.00451v3",
+   "title": "PACT: End-to-End Learning of Human Pose, Contacts, and Forces from Video",
+   "abstract_chars": 1503,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2609.37076v2",
+   "title": "UnlearningSoup: Is Repeated Tuning Necessary for Large Language Model Unlearning?",
+   "abstract_chars": 1688,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31366v1",
+   "title": "AfterDeleteBench: Auditing Post-Deletion Information Persistence in LLM Agents",
+   "abstract_chars": 1614,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2510.03207v2",
+   "title": "To Distill or Decide? Understanding the Algorithmic Trade-off in Partially Observable Reinforcement Learning",
+   "abstract_chars": 1377,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2404.06966v2",
+   "title": "Are EEG Sequences Time Series? EEG Classification with Time Series Models and Joint Subject Training",
+   "abstract_chars": 1305,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.27733v2",
+   "title": "Can Entry-Wise Clipping Give Spectral Control of Stochastic Gradients?",
+   "abstract_chars": 1219,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.28315v2",
+   "title": "Disclosure Begets Disclosure: A Self-Reinforcing Privacy Loop in LLM Agents with Persistent Memory",
+   "abstract_chars": 1613,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31350v1",
+   "title": "Graph-Recurrent Learning of Emergent Collective Dynamics",
+   "abstract_chars": 1158,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2603.11228v2",
+   "title": "Markovian Generation Chains in Large Language Models",
+   "abstract_chars": 907,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2603.21782v2",
+   "title": "Show Me What You Don't Know: Efficient Sampling from Invariant Sets for Model Validation",
+   "abstract_chars": 1438,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2604.23862v4",
+   "title": "Graph Memory Transformer (GMT)",
+   "abstract_chars": 1524,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31336v1",
+   "title": "Metric Conformal Prediction via the Conditional Expected Local Radius",
+   "abstract_chars": 1123,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.29680v2",
+   "title": "TraceForge: Distilling with Your Own Thinking",
+   "abstract_chars": 1886,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2502.13024v3",
+   "title": "Fragility-aware Classification for Risk Characterization and Robust Learning",
+   "abstract_chars": 1685,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31331v1",
+   "title": "Harmful Responses Are Jailbreak Templates: Transferring Autoregressive Jailbreaks to Diffusion Language Models",
+   "abstract_chars": 1077,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31328v1",
+   "title": "Deep Learning for Random Objects in Metric Spaces: Beyond Manifold Assumptions",
+   "abstract_chars": 1741,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31326v1",
+   "title": "AgenticEvolve: Evolutionary Program Search with Persistent Language Model Agents that Design and Run Experiments",
+   "abstract_chars": 1078,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2505.05492v2",
+   "title": "DetoxAI: a Python Toolkit for Debiasing Deep Learning Models in Computer Vision",
+   "abstract_chars": 811,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31323v1",
+   "title": "Bridging the Data Gap: Source-Informed Task-Space Transport for Few-Shot Diffusion",
+   "abstract_chars": 1866,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31315v1",
+   "title": "The Value of System 1 Models in Medicine",
+   "abstract_chars": 1912,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31310v1",
+   "title": "Identifiability from Stationary Covariance in Linear SDEs with Reciprocal Interactions and Latent Variables",
+   "abstract_chars": 853,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31309v1",
+   "title": "Extreme Compression of Per-Layer Embeddings via Cross-Layer Latent Vector Quantization",
+   "abstract_chars": 1364,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31308v1",
+   "title": "The Bayesian Learning Rule Beyond KL Geometry",
+   "abstract_chars": 1247,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31304v1",
+   "title": "Data-Driven Vision-Language Models for Remote Sensing: A Survey",
+   "abstract_chars": 1625,
+   "doi": "10.1109/MGRS.2026.3696441",
+   "crossref": {
+    "title": "Data-Driven Vision-Language Models for Remote Sensing: A survey",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2602.03358v2",
+   "title": "GFlowPO: Generative Flow Network as a Language Model Prompt Optimizer",
+   "abstract_chars": 1278,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2502.10295v4",
+   "title": "The Fenchel-Young Generalization of Bayesian Principles",
+   "abstract_chars": 1030,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.21437v2",
+   "title": "Evaluating Neural Probabilistic Forecasts of Sparse Earthquake Counts: What Survives a Careful Evaluation",
+   "abstract_chars": 1826,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31288v1",
+   "title": "DISC: Domain-Integrated Similarity Cost for Time-Series Dataset",
+   "abstract_chars": 1470,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31280v1",
+   "title": "Beyond Accuracy: Disentangling Decomposition from Typed-State Quality Assurance in Multi-Agent LLM Pipelines",
+   "abstract_chars": 1486,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31275v1",
+   "title": "Learning Robot Behavior Priors from Non-Robotic Synthetic Data",
+   "abstract_chars": 1451,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2606.04767v2",
+   "title": "Measuring Model Robustness via Fisher Information: Spectral Bounds, Theoretical Guarantees, and Practical Algorithms",
+   "abstract_chars": 1281,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2609.32196v2",
+   "title": "Is the Judge Its Twin? Post-training makes a model's writing more predictable but barely moves its taste, as a judge, toward predictable writing",
+   "abstract_chars": 1461,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2605.21143v3",
+   "title": "CoarseSoundNet: Building a reliable model for ecological soundscape analysis",
+   "abstract_chars": 1886,
+   "doi": "10.1016/j.ecoinf.2026.104101",
+   "crossref": {
+    "title": "CoarseSoundNet: Building a reliable model for ecological soundscape analysis",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31264v1",
+   "title": "Deep ReLU Networks Can Fail the Best Approximation Property for Continuous Target Functions",
+   "abstract_chars": 720,
+   "doi": null
+  },
+  {
+   "cat": "cs.LG",
+   "id": "2610.31260v1",
+   "title": "Can Entanglement-Induced Feature-Map Designs Improve Projected Quantum Kernels?",
+   "abstract_chars": 1281,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.31575v1",
+   "title": "Dynamics of random recurrent neural networks: colored noise and sublinear activations",
+   "abstract_chars": 1327,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2307.10178v3",
+   "title": "A Formalizable Proof of the No-Supervenience Theorem: A Diagonal Limitation on the Viability of Physicalist Theories of Consciousness",
+   "abstract_chars": 606,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.31131v1",
+   "title": "Music Between Two Minds: Individual Signatures, Shared States, and the Emergence of Creative Interaction",
+   "abstract_chars": 1581,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.30364v1",
+   "title": "Gate-Based Feature Importance in Simulation-Based Inference for EEG: A Cautionary Tale",
+   "abstract_chars": 1859,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.30217v1",
+   "title": "The medium is the message: How neurometabolic entanglement generates conscious experience",
+   "abstract_chars": 1827,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.29720v1",
+   "title": "Bio-Inspired Auditory Processing: Coupling Parallel Resonate-and-Fire Dynamics with Ternary Recurrent Networks for Speech Recognition",
+   "abstract_chars": 1902,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2602.08079v3",
+   "title": "Bootstrapping Life-Inspired Machine Intelligence: The Biological Route from Chemistry to Cognition and Creativity",
+   "abstract_chars": 1495,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2508.20961v3",
+   "title": "Distinct weak antisymmetric interactions shape human brain functions as probability fluxes",
+   "abstract_chars": 1416,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.09226v2",
+   "title": "Adaptive Entangled Neurons in the Brain and Natural Intelligence Simulations for Artificial General Intelligence",
+   "abstract_chars": 1854,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2605.24585v3",
+   "title": "Word-Class and Construction-Like Structure Emerges in Neural Successor Representations Trained on Natural Language",
+   "abstract_chars": 1228,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2605.09409v2",
+   "title": "Predictive and feedback signals differently shape the formation of language representations",
+   "abstract_chars": 1425,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2212.04195v4",
+   "title": "Population Neuroscience 3.0: Bridging large-N and small-N paradigms in brain-wide association studies",
+   "abstract_chars": 1860,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.23977v3",
+   "title": "Binding-Motivated Contextuality: A Cross-Domain Cyclic Test in Perception and Judgment",
+   "abstract_chars": 1908,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2607.19681v4",
+   "title": "Perceived vertical and eye level as one orientation process: a closed-form account of the Li-Matin combination rules for egocentric space",
+   "abstract_chars": 1889,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.29042v1",
+   "title": "Vagus nerve stimulation strengthens beta- and gamma-rate auditory steady-state responses in rat cortex",
+   "abstract_chars": 1657,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2507.16080v3",
+   "title": "Interpretable Embeddings of Speech Enhance and Explain Brain Encoding Performance of Audio Models",
+   "abstract_chars": 1337,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.28747v1",
+   "title": "A Reverse-Gold Theorem: Positive-Data Identification by Substrate-Bounded Contrastive Learners",
+   "abstract_chars": 1818,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2607.00851v2",
+   "title": "DRIADA: an open-source Python toolkit for linking single-neuron selectivity and population activity to behavior",
+   "abstract_chars": 1157,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.28357v1",
+   "title": "What I Disbelieve: Quantifying Belief With Negative Ranking Functions",
+   "abstract_chars": 1629,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.22569v2",
+   "title": "Alignment of visual brain encoding models with individual perceptual similarity judgments",
+   "abstract_chars": 1839,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2106.03580v5",
+   "title": "One-shot learning of paired association navigation with biologically plausible schemas",
+   "abstract_chars": 1469,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2509.02139v8",
+   "title": "On sources to variabilities of simple cells in the primary visual cortex: A principled theory for the interaction between geometric image transformations and receptive field responses",
+   "abstract_chars": 1266,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2608.24219v2",
+   "title": "Beauty is in the ELBO of the Beholder: A Variational Account of Processing Fluency in Face Perception",
+   "abstract_chars": 1081,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2608.05658v4",
+   "title": "Two base rates, two weights: base-rate neglect has a second axis",
+   "abstract_chars": 1918,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.27235v1",
+   "title": "Does a Flux-Defined Markov Blanket Screen Self-Replicating Gray--Scott Spots? A Computational Test of a Blanket Condition from the Free Energy Principle",
+   "abstract_chars": 1138,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.27150v1",
+   "title": "Cross-disorder Learning of Imaging-derived Joint Mophometric Markers in Alzheimer's and Parkinson's Diseases",
+   "abstract_chars": 1164,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.27140v1",
+   "title": "Representing short-term movement to reveal animal identity and learning progress",
+   "abstract_chars": 1891,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.27139v1",
+   "title": "Ontic state recovery through prediction",
+   "abstract_chars": 1068,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.26350v1",
+   "title": "Affective Valence as the Interoceptive Rate of Change of Jacobian Scale",
+   "abstract_chars": 1490,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.26304v1",
+   "title": "PyGPLA: A Python Package for Generalized Phase Locking Analysis",
+   "abstract_chars": 1340,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2507.14056v4",
+   "title": "Dynamic gain neuromodulation attenuates stability gaps during continual joint training",
+   "abstract_chars": 1391,
+   "doi": "10.1016/j.neunet.2026.109767",
+   "crossref": {
+    "title": "Dynamic gain neuromodulation attenuates stability gaps during continual joint training",
+    "type": "journal-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.25898v1",
+   "title": "HP-GSBS: Accelerating greedy state boundary search with reusable interval statistics",
+   "abstract_chars": 1133,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.25312v3",
+   "title": "A theory of plasticity: capacity for change as inverse configurational constraint",
+   "abstract_chars": 1453,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.25377v1",
+   "title": "Simulating Infant Senses with Age-Tuned Networks",
+   "abstract_chars": 1165,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2602.23410v4",
+   "title": "Brain-OF: An Omnifunctional Foundation Model for fMRI, EEG and MEG",
+   "abstract_chars": 1581,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2604.23903v2",
+   "title": "Integrative neurocybernetic modeling in the era of large-scale neuroscience",
+   "abstract_chars": 1309,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.25061v1",
+   "title": "Spontaneous brain-wide rotational dynamics constrain cue-evoked behavior",
+   "abstract_chars": 1765,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.26927v1",
+   "title": "Multilingual Brain Decoding Reveals Shared Cortical Semantic Geometry",
+   "abstract_chars": 930,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.24433v1",
+   "title": "Longitudinal fMRI reveals multi-network reconfiguration and a recurrent frontoparietal shift across rest and task states during adult aging",
+   "abstract_chars": 1901,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.24216v1",
+   "title": "Spaceflight-associated Motion Sickness in Commercial Crew Astronauts",
+   "abstract_chars": 1335,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2210.01768v3",
+   "title": "Disentanglement with Biological Constraints: A Theory of Functional Cell Types",
+   "abstract_chars": 1056,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.23638v1",
+   "title": "Deep LLM layers expose passage-level context in EEG during silent reading",
+   "abstract_chars": 1794,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.23607v1",
+   "title": "Distributional signatures of computation: inferring mechanisms from computation time distributions",
+   "abstract_chars": 1917,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.23231v1",
+   "title": "EEG Lempel-Ziv Complexity vis-\u00e0-vis Autocorrelation Function",
+   "abstract_chars": 1830,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.22961v1",
+   "title": "What Shapes Brain Alignment of Large Language Models during Dialogue? Insights from Language Production and Comprehension",
+   "abstract_chars": 1045,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2605.04115v2",
+   "title": "Learning reveals invisible structure in low-rank RNNs",
+   "abstract_chars": 1376,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2602.01019v2",
+   "title": "Inter- and Intra-Subject Variability in EEG: A Systematic Survey",
+   "abstract_chars": 1414,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.03827v3",
+   "title": "The Score Is Not the Structure: Brain Alignment and Cross-Lingual Transfer",
+   "abstract_chars": 1366,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.22706v1",
+   "title": "Brain-Aligned Multimodal LLMs for Social and Emotional Understanding of Cartoon Movies",
+   "abstract_chars": 1484,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.04195v3",
+   "title": "From anatomy to computation: axonal delay dispersion shifts neurons from event to sequence detection",
+   "abstract_chars": 1915,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.22484v1",
+   "title": "Upper bounds on the number of causal pieces in spiking neural networks",
+   "abstract_chars": 1455,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.22206v1",
+   "title": "Mutual Information in High-Dimensional Neural Coding",
+   "abstract_chars": 642,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.31204v2",
+   "title": "FlatClip: Reusing Image Foundation Models for fMRI Representation Learning via Cortical Flatmaps",
+   "abstract_chars": 1103,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.21660v1",
+   "title": "Transferable conditional brain charts link cortico-subcortical structure to Alzheimer's disease progression",
+   "abstract_chars": 1452,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.21486v1",
+   "title": "Neural Computation Runs on Dissipative Structures Under Cyclic Calibration: A Systems Perspective on Sleep",
+   "abstract_chars": 1224,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.21176v1",
+   "title": "Language Models Share a Readout Bottleneck in Working Memory",
+   "abstract_chars": 1691,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2510.25119v4",
+   "title": "Effect of an auditory static distractor on the perception of an auditory moving target",
+   "abstract_chars": 1130,
+   "doi": "10.1121/10.0044523",
+   "crossref": {
+    "title": "Effect of an auditory static distractor on the perception of an auditory moving target",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.20971v1",
+   "title": "Statistical Mechanics of Spike Trains: Self-Consistent Activity Ensembles and Phase Transitions",
+   "abstract_chars": 1788,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.20954v1",
+   "title": "Cross-subject decoding of imagined speech from scalp EEG: a leakage-controlled evaluation on three public corpora",
+   "abstract_chars": 1819,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.20942v1",
+   "title": "How large an effect would we have seen? Positive controls, detection floors and dataset pitfalls in scalp-EEG speech decoding",
+   "abstract_chars": 1901,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.20856v1",
+   "title": "Awakening as a Trait-Level Transformation of Consciousness",
+   "abstract_chars": 1576,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.20854v1",
+   "title": "Two dissociable axes of brain hierarchical dynamics track universal and population-specific effects of mindfulness",
+   "abstract_chars": 1684,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.20766v1",
+   "title": "Semantic Alignment of EEG and Text: A Contrastive Learning Framework for Decoding Imagined Speech",
+   "abstract_chars": 1881,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2601.10034v4",
+   "title": "Contextual Probability and Operational Minimality in Tug-of-War Decision Making",
+   "abstract_chars": 1115,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.35445v4",
+   "title": "NeuronSifter: An Agent-in-Twin for Prioritizing Central Nervous System Interventions with World Action Models",
+   "abstract_chars": 1729,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.35338v2",
+   "title": "NeuronDiscover: Agent-in-Twin for Mechanistic Discovery in Neuronal Microenvironments with World Action Models",
+   "abstract_chars": 1802,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2507.13638v4",
+   "title": "State Space Models Naturally Produce Time Cell and Oscillatory Behaviors and Scale to Abstract Cognitive Functions",
+   "abstract_chars": 1084,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.19979v1",
+   "title": "EEG Correlates of Verbal and Perceptual Reasoning",
+   "abstract_chars": 988,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.19949v1",
+   "title": "Reciprocity coordinates a three-way trade-off in recurrent neural circuits",
+   "abstract_chars": 1494,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2604.18599v2",
+   "title": "Simulation Based Inference of a Simple Neural Network Structure",
+   "abstract_chars": 1143,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.19487v1",
+   "title": "How Long Is the Coast of a Neuron? Resolution-Dependent Interaction Order and Computational Capacity",
+   "abstract_chars": 1277,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2606.11245v2",
+   "title": "Position: Hippocampal Explicit Memory Is the Cornerstone for AGI",
+   "abstract_chars": 865,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.19282v1",
+   "title": "Effects of cortisol time-scales in a model of emotion regulation",
+   "abstract_chars": 1781,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.19153v1",
+   "title": "Simulating Alzheimer's amyloid-like pathology on a fly central nervous system connectome",
+   "abstract_chars": 1880,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.18617v1",
+   "title": "Two Routes to Interoceptive Prioritisation: Dissociating Likelihood Precision and Preference Reweighting in Active Inference",
+   "abstract_chars": 1079,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2603.14161v3",
+   "title": "Deep probabilistic model synthesis enables unified modeling of whole-brain neural activity across individual subjects",
+   "abstract_chars": 1050,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2603.27347v2",
+   "title": "Information in a recurrent Retina-V1 network with realistic noise, feedback and nonlinearities",
+   "abstract_chars": 1796,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.18115v1",
+   "title": "Sense-Making phase transition framework for Affect",
+   "abstract_chars": 1466,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.18024v1",
+   "title": "Rewiring of adult neural networks - learning from structural plasticity across multiple scales",
+   "abstract_chars": 1177,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.17510v1",
+   "title": "Rethinking World Models for Biosignals",
+   "abstract_chars": 1013,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.17506v1",
+   "title": "Collective Benefits and Efficiency in Coupled Echo State Networks",
+   "abstract_chars": 1302,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.17310v1",
+   "title": "Beyond Successful Play: Diagnosing Opponent Modeling in Large Language Models",
+   "abstract_chars": 1910,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2609.33366v2",
+   "title": "Towards a full-stack functionalist theory of consciousness: Identifying its functional profile",
+   "abstract_chars": 1821,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.17164v1",
+   "title": "Learning Perceptual Geometry of Natural Odor Mixtures from LLM-Derived Descriptors",
+   "abstract_chars": 1914,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2511.19548v2",
+   "title": "Neural Evidence and Behavioural Welfare Economics: When Can Neuroeconomics Inform Policy?",
+   "abstract_chars": 1381,
+   "doi": "10.14324/111.444.2755-0877.2257",
+   "crossref": {
+    "title": "Neural Evidence and Behavioural Welfare Economics: When Can Neuroeconomics Inform Policy?",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2606.16041v2",
+   "title": "EEGDash: An open-source platform for machine learning on public neurophysiological data",
+   "abstract_chars": 1266,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.15263v1",
+   "title": "Simple model of neurogliovascular unit activity with noradrenaline leading force",
+   "abstract_chars": 619,
+   "doi": "10.1109/DCNA63495.2024.10718403",
+   "crossref": {
+    "title": "Simple model of neurogliovascular unit activity with noradrenaline leading force",
+    "type": "proceedings-article",
+    "has_abstract": false,
+    "title_agrees": true
+   }
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.15104v1",
+   "title": "Predicting Cognitive Tasks from Single-Channel EEG through Task-Semantic Alignment",
+   "abstract_chars": 1804,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.15000v1",
+   "title": "Bayesian adaptive design for neural recruitment curves",
+   "abstract_chars": 1424,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.14922v1",
+   "title": "Full Lyapunov Spectra of Random Neural Networks, Part I: Finite-Time and Asymptotic Theory",
+   "abstract_chars": 1224,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2507.06041v2",
+   "title": "Spin-Based Modeling of Perception as Emergent from contextualized Internal Evaluation",
+   "abstract_chars": 1386,
+   "doi": "10.1098/rsos.252221",
+   "crossref": {
+    "title": "Spin-based modelling of perception as emergent from contextualized internal evaluation",
+    "type": "journal-article",
+    "has_abstract": true,
+    "title_agrees": false
+   }
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.13918v1",
+   "title": "DyssomniaNN: Multi-Scale Spiking Neural Modeling of Human Sleep Disorders and Perceived Restedness",
+   "abstract_chars": 1568,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.13419v1",
+   "title": "EEG Entrainment to Non-Speech Rhythmic Patterns Associated with Dimensions of Language Performance",
+   "abstract_chars": 1458,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2605.05907v2",
+   "title": "Decoding Alignment without Encoding Alignment: A critique of similarity analysis in neuroscience",
+   "abstract_chars": 1358,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.13312v1",
+   "title": "Beyond Anxiety and Avoidance: A Dynamic Feedback-Regulation Framework for Adult Romantic Attachment",
+   "abstract_chars": 1623,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.13275v1",
+   "title": "Excitability across scales: a unifying EI model",
+   "abstract_chars": 1767,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2008.13211v5",
+   "title": "Cultural evolution shaped human's uniquely sensitive disgust avoidance",
+   "abstract_chars": 1482,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.13018v1",
+   "title": "FlyHack: Stress-Testing Mechanistic Claims in a Connectome-Constrained Visual Model",
+   "abstract_chars": 1905,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.14095v1",
+   "title": "Energy, Information, and the Limits of Neuropsychiatric Classification",
+   "abstract_chars": 1905,
+   "doi": null
+  },
+  {
+   "cat": "q-bio.NC",
+   "id": "2610.12426v1",
+   "title": "Lyapunov spectrum of random neural networks",
+   "abstract_chars": 750,
+   "doi": null
+  }
+ ]
+}

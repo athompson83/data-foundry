@@ -1,0 +1,118 @@
+{
+ "n": 12,
+ "meteorological_history": 6,
+ "casualty_damage": 12,
+ "forecast_verification": 6,
+ "has_deaths_figure": 3,
+ "text_nonempty": 12,
+ "rows": [
+  {
+   "pdf": "AL192024_Sara.pdf",
+   "bytes": 4979423,
+   "chars": 36199,
+   "meteorological_history": true,
+   "casualty_damage": true,
+   "forecast_verification": true,
+   "has_deaths_figure": true
+  },
+  {
+   "pdf": "AL052023_Don.pdf",
+   "bytes": 2466576,
+   "chars": 19342,
+   "meteorological_history": false,
+   "casualty_damage": true,
+   "forecast_verification": false,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL082023_Franklin.pdf",
+   "bytes": 11258679,
+   "chars": 51868,
+   "meteorological_history": true,
+   "casualty_damage": true,
+   "forecast_verification": true,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL022024_Beryl.pdf",
+   "bytes": 10289313,
+   "chars": 203534,
+   "meteorological_history": true,
+   "casualty_damage": true,
+   "forecast_verification": true,
+   "has_deaths_figure": true
+  },
+  {
+   "pdf": "AL102025_Jerry.pdf",
+   "bytes": 2700038,
+   "chars": 33657,
+   "meteorological_history": true,
+   "casualty_damage": true,
+   "forecast_verification": true,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL112025_Karen.pdf",
+   "bytes": 4833649,
+   "chars": 17591,
+   "meteorological_history": false,
+   "casualty_damage": true,
+   "forecast_verification": false,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL122024_Kirk.pdf",
+   "bytes": 2397564,
+   "chars": 20378,
+   "meteorological_history": false,
+   "casualty_damage": true,
+   "forecast_verification": false,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL032024_Chris.pdf",
+   "bytes": 2272145,
+   "chars": 15548,
+   "meteorological_history": true,
+   "casualty_damage": true,
+   "forecast_verification": true,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL052025_Erin.pdf",
+   "bytes": 8102335,
+   "chars": 72928,
+   "meteorological_history": true,
+   "casualty_damage": true,
+   "forecast_verification": true,
+   "has_deaths_figure": true
+  },
+  {
+   "pdf": "AL022023_Arlene.pdf",
+   "bytes": 4910974,
+   "chars": 13527,
+   "meteorological_history": false,
+   "casualty_damage": true,
+   "forecast_verification": false,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL142023_Margot.pdf",
+   "bytes": 6255336,
+   "chars": 21463,
+   "meteorological_history": false,
+   "casualty_damage": true,
+   "forecast_verification": false,
+   "has_deaths_figure": false
+  },
+  {
+   "pdf": "AL062025_Fernand.pdf",
+   "bytes": 2354905,
+   "chars": 18136,
+   "meteorological_history": false,
+   "casualty_damage": true,
+   "forecast_verification": false,
+   "has_deaths_figure": false
+  }
+ ]
+}

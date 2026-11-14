@@ -1,0 +1,43 @@
+{
+ "archive": {
+  "bucket": "data-foundry-raw-artifacts",
+  "key": "research/pipeline/snapshots/equipment-energystar-model-index/2026-10-01/snapshot.tar.gz",
+  "bytes": 25677258,
+  "sha256": "e3a5c5792b3ab416790f71a594dd08a809c66d624b11e6dafc665f11d11b17f7"
+ },
+ "note": "ENERGY STAR Model Index (8wj2-sec8) and UPC Codes (8edu-y555) as fetched on 2026-10-01 by the Archive source snapshot workflow (run 36878079058; paged $limit/$offset by pd_id), with both datasets' metadata and the EPA data licence page. The workflow read the object back from R2 and matched its SHA-256 (AGENTS.md rule 10). The tarball's manifest.json records each file's URL, retrieval time, bytes and SHA-256.",
+ "replay": [
+  [
+   "scripts/energystar_assess.py",
+   "results/energystar_assess.txt"
+  ]
+ ],
+ "acquisition_only": [],
+ "files": [
+  {
+   "path": "equipment-energystar-model-index/model-index.csv",
+   "bytes": 525964568,
+   "sha256": "7aaf90e24ec95b3c06ac2541100f4601189b9f0d6da00073c404930e88877dcb"
+  },
+  {
+   "path": "equipment-energystar-model-index/model-index.metadata.json",
+   "bytes": 8742,
+   "sha256": "da2ae29a6472cef2b72a9f1a0a92c9cb2eb3e5d0f801bbe0ff1bfe3127ca656f"
+  },
+  {
+   "path": "equipment-energystar-model-index/upc-codes.csv",
+   "bytes": 5993199,
+   "sha256": "6061370e190575f6be73429ba00f3fa3b9aafa62d4b87a344ebae80d5515fe44"
+  },
+  {
+   "path": "equipment-energystar-model-index/upc-codes.metadata.json",
+   "bytes": 20579,
+   "sha256": "5997cccf26824289471888da11293c05ef762270166642a41a7e1eaa4ac122ff"
+  },
+  {
+   "path": "equipment-energystar-model-index/epa-data-license.html",
+   "bytes": 10968,
+   "sha256": "deff40a15da6593a56f4c3bf4a975b1430c809635d382da95cb9dbd3da4ef052"
+  }
+ ]
+}

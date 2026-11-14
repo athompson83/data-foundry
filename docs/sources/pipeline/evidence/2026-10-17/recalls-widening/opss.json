@@ -1,0 +1,2960 @@
+{
+ "run_date": "2026-10-17",
+ "search_total": 3779,
+ "listed": 3779,
+ "newest": "2026-10-16T09:09:30Z",
+ "oldest": "2022-03-04T17:01:06Z",
+ "search_result_fields": [
+  "_id",
+  "description",
+  "document_type",
+  "elasticsearch_type",
+  "es_score",
+  "expanded_organisations",
+  "format",
+  "index",
+  "link",
+  "organisation_content_ids",
+  "organisations",
+  "public_timestamp",
+  "title",
+  "topical_events"
+ ],
+ "content_fetched": 3779,
+ "content_failed": 0,
+ "content_detail_keys": [
+  "attachments",
+  "body",
+  "change_history",
+  "headers",
+  "max_cache_time",
+  "metadata",
+  "temporary_update_type"
+ ],
+ "metadata_keys": [
+  "product_alert_type",
+  "product_category",
+  "product_measure_type",
+  "product_recall_alert_date",
+  "product_risk_level"
+ ],
+ "table_labels_top": [
+  [
+   "Type",
+   3736
+  ],
+  [
+   "Product Name",
+   61
+  ],
+  [
+   "Personal protective equipment (PPE) – Climbing Harness",
+   51
+  ],
+  [
+   "Barcode",
+   36
+  ],
+  [
+   "Personal Protective Equipment (PPE) - Life Jacket",
+   33
+  ],
+  [
+   "Electrical appliances and equipment - Chargers",
+   29
+  ],
+  [
+   "Clothing, textiles and fashion items – Baby sleeping bag",
+   28
+  ],
+  [
+   "Hobby/sports equipment - Cycles (Powered)",
+   26
+  ],
+  [
+   "Model Number",
+   24
+  ],
+  [
+   "Toys - Plush Toy",
+   23
+  ],
+  [
+   "Toys - Magnetic Toy",
+   23
+  ],
+  [
+   "PSD Case Number",
+   23
+  ],
+  [
+   "Product name",
+   22
+  ],
+  [
+   "Toys",
+   22
+  ],
+  [
+   "Model",
+   21
+  ],
+  [
+   "Product Description",
+   21
+  ],
+  [
+   "Product Identifiers",
+   20
+  ],
+  [
+   "Toys - Sensory Toys",
+   19
+  ],
+  [
+   "SKU",
+   19
+  ],
+  [
+   "Personal Protective Equipment (PPE) – Climbing Harness",
+   19
+  ],
+  [
+   "Other - Ladder",
+   19
+  ],
+  [
+   "Image and Report PDF",
+   18
+  ],
+  [
+   "Description",
+   17
+  ],
+  [
+   "Personal Protective Equipment (PPE) – Life Jacket / buoyancy aid",
+   17
+  ],
+  [
+   "Electrical appliances and equipment – Chargers",
+   16
+  ]
+ ],
+ "alerts_with_barcode_cell": 47,
+ "alerts_with_model_cell": 89,
+ "alerts_with_valid_gtin_anywhere": 615,
+ "alerts_with_valid_gtin_in_barcode_cells": 41,
+ "alerts_with_anchored_gtin_in_prose": 615,
+ "distinct_gtin14": 1424,
+ "text_citations_of_other_agencies": {
+  "rapex": 1
+ },
+ "alerts_citing_cpsc": 0,
+ "gtin_match_cpsc": "2/615",
+ "gtin_match_safety_gate_cached_reports": "146/615",
+ "safety_gate_distinct_gtin14_cached": 10339,
+ "gtin_match_hc": "0/615",
+ "by_year": {
+  "2022": 894,
+  "2023": 640,
+  "2024": 798,
+  "2025": 794,
+  "2026": 653
+ },
+ "matches": [
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-squishy-dumpling-d-9373-2609-0028",
+   "title": "Product Safety Report: Squishy Dumpling D-9373 (2609-0028)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00562723240557"
+   ],
+   "gtins": [
+    "00562723240557"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02882/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-lorelli-silicone-rattle-teether-2606-0257",
+   "title": "Product Recall: Lorelli Silicone Rattle Teether (2606-0257)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03800166113395"
+   ],
+   "gtins": [
+    "03800166113395"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02774/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-snugly-weighted-stuffed-toy-2603-0011",
+   "title": "Product Safety Report: Snugly Weighted Stuffed Toy (2603-0011)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06941262828435"
+   ],
+   "gtins": [
+    "06941262828435"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02640/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-marco-paul-electric-hot-water-bottle-2608-0088",
+   "title": "Product Safety Report: Marco Paul Electric Hot Water Bottle (2608-0088)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05056713212730"
+   ],
+   "gtins": [
+    "05056713212730"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02638/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-kiddo-world-make-your-own-sensory-bin-construction-site-2608-0004",
+   "title": "Product Recall: Kiddo World Make Your Own Sensory Bin Construction Site (2608-0004)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03830086780681"
+   ],
+   "gtins": [
+    "03830086780681"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01892/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-hashmi-kajal-eyeliner-2607-0193",
+   "title": "Product Recall: Hashmi Kajal Eyeliner (2607-0193)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08961100314003"
+   ],
+   "gtins": [
+    "08961100314003"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02531/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-mini-projector-q5-mate-2607-0189",
+   "title": "Product Safety Report: Mini Projector Q5 Mate (2607-0189)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00921607010745"
+   ],
+   "gtins": [
+    "00921607010745"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02336/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-b-and-q-table-fan-2607-0303",
+   "title": "Product Recall: B&Q Table Fan (2607-0303)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05063022605689"
+   ],
+   "gtins": [
+    "05063022605689"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02317/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-lcd-projector-hy300-2607-0206",
+   "title": "Product Safety Report: LCD Projector HY300 (2607-0206)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00921315887301"
+   ],
+   "gtins": [
+    "00921315887301"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02282/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-pr-francoise-bedon-paris-carotte-lightening-body-lotion-2606-0305",
+   "title": "Product Safety Report: Pr. Francoise Bedon Paris Carotte Lightening Body Lotion (2606-0305)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03760091560735"
+   ],
+   "gtins": [
+    "03760091560735"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00041/22",
+    "SR/02102/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-cook-n-repeat-electric-indoor-grill-sold-via-amazon-2606-0201",
+   "title": "Product Safety Report: Cook N Repeat Electric Indoor Grill sold via Amazon (2606-0201)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00786368956448"
+   ],
+   "gtins": [
+    "00786368956448"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02105/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-primark-pepper-mills-2607-0032",
+   "title": "Product Recall: Primark Pepper Mills (2607-0032)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05397349037541",
+    "05397349037640",
+    "05397349075604"
+   ],
+   "gtins": [
+    "05397349037541",
+    "05397349037640",
+    "05397349075604"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02114/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-tickit-sensory-blocks-2606-0321",
+   "title": "Product Recall: Tickit Sensory Blocks (2606-0321)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060138820289"
+   ],
+   "gtins": [
+    "05060138820289"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02546/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-automatic-electric-gel-ball-blaster-2512-0121",
+   "title": "Product Safety Report: Automatic Electric Gel Ball Blaster sold via DHGate, eBay and OnBuy (2512-0121 and 2606-0230)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09778354766743"
+   ],
+   "gtins": [
+    "09778354766743"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01005/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-dongguan-mumiy-technology-industry-co-ltd-colobyby-baby-self-feeding-bottle-2606-0119",
+   "title": "Product Safety Report: Dongguan Mumiy Technology Industry Co Ltd Colobyby Baby Self Feeding Bottle (2606-0119)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06970367837066"
+   ],
+   "gtins": [
+    "06970367837066"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02012/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-benq-gv31-portable-mini-projector-2605-0190",
+   "title": "Product Recall: BenQ GV31 Portable Mini Projector  (2605-0190)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "04718755092220"
+   ],
+   "gtins": [
+    "04718755092220"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02312/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-pinch-family-slime-filled-doughnut-2602-0250",
+   "title": "Product Safety Report: Pinch Family Slime-Filled Doughnut (2602-0250)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06923091191683"
+   ],
+   "gtins": [
+    "06923091191683"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01596/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-various-fragrances-sold-by-savers-health-and-beauty-2605-0070",
+   "title": "Product Recall: Various Fragrances sold by Savers Health and Beauty (2605-0070)",
+   "gtins_barcode_cells": [
+    "00085715671028",
+    "00608940567975",
+    "00870283001021",
+    "03352818517858",
+    "03386469215535",
+    "03414200908559",
+    "03414202011820",
+    "03439600038446",
+    "03607344163773",
+    "03607347575825",
+    "03607348541812",
+    "05055654037600",
+    "05060074667139",
+    "08435415011310"
+   ],
+   "gtins_prose": [
+    "00085715671028",
+    "00608940567975",
+    "00870283001021",
+    "03352818517858",
+    "03386469215535",
+    "03414200908559",
+    "03414202011820",
+    "03439600038446",
+    "03607344163773",
+    "03607347575825",
+    "03607348541812",
+    "05055654037600",
+    "05060074667139",
+    "08435415011310"
+   ],
+   "gtins": [
+    "00085715671028",
+    "00608940567975",
+    "00870283001021",
+    "03352818517858",
+    "03386469215535",
+    "03414200908559",
+    "03414202011820",
+    "03439600038446",
+    "03607344163773",
+    "03607347575825",
+    "03607348541812",
+    "05055654037600",
+    "05060074667139",
+    "08435415011310"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01548/26",
+    "SR/01567/26",
+    "SR/01568/26",
+    "SR/01698/26",
+    "SR/01702/26",
+    "SR/01703/26",
+    "SR/01704/26",
+    "SR/01705/26",
+    "SR/01706/26",
+    "SR/01707/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-hobbycraft-3d-pen-kit-2604-0194",
+   "title": "Product Recall: Hobbycraft 3D Pen Kit (2604-0194)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03666085950462"
+   ],
+   "gtins": [
+    "03666085950462"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01316/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-turkish-household-uk-limited-small-foldable-stools-2601-0256",
+   "title": "Product Recall: Turkish Household (UK) Limited Small Foldable Stools (2601-0256)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08682416569788"
+   ],
+   "gtins": [
+    "08682416569788"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01282/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-joyin-pop-up-mochi-toys-2604-0090",
+   "title": "Product Safety Report: Joyin Pop Up Mochi Toys (2604-0090)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00840332624051"
+   ],
+   "gtins": [
+    "00840332624051"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01277/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-disney-frozen-bath-bomb-set-sold-by-tk-maxx-2604-0007",
+   "title": "Product Recall: Disney Frozen Bath Bomb Set sold by TK Maxx (2604-0007)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03666085950462"
+   ],
+   "gtins": [
+    "03666085950462"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01316/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-ann-summers-remote-rotating-dildo-2604-0025",
+   "title": "Product Recall: Ann Summers Remote Rotating Dildo (2604-0025)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05050890824779"
+   ],
+   "gtins": [
+    "05050890824779"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01385/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-teddy-mountain-uk-ltd-peter-rabbit-plush-toy-2511-0216",
+   "title": "Product Recall: Teddy Mountain UK Ltd Peter Rabbit Plush Toy (2511-0216)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00679124006047"
+   ],
+   "gtins": [
+    "00679124006047"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01135/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-comforder-water-beads-sold-via-amazon-2603-0277",
+   "title": "Product Safety Report: Comforder Water Beads sold via Amazon (2603-0277)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08721046700861"
+   ],
+   "gtins": [
+    "08721046700861"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01146/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-borderline-editions-kluster-classic-game-2603-0079",
+   "title": "Product Recall: Borderline Editions Kluster (Classic) Game (2603-0079)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03770003625605"
+   ],
+   "gtins": [
+    "03770003625605"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00057/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-silentnight-smart-wi-fi-plug-2602-0174",
+   "title": "Product Recall: Silentnight Smart Wi-Fi Plug (2602-0174)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05012701485418"
+   ],
+   "gtins": [
+    "05012701485418"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01181/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-joie-serina-elephant-duo-swivel-baby-swing-2603-0090",
+   "title": "Product Recall: Joie Serina Elephant Duo Swivel Baby Swing (2603-0090)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05056080615509"
+   ],
+   "gtins": [
+    "05056080615509"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00036/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-sokany-grill-maker-2603-0226",
+   "title": "Product Safety Report: SOKANY “Electric Grill Maker”  (2603-0226)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06942242502109",
+    "06974824282239"
+   ],
+   "gtins": [
+    "06942242502109",
+    "06974824282239"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01184/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-novmax-anti-volume-keratin-hair-treatment-2602-0256",
+   "title": "Product Recall: Nov'Max Anti Volume Keratin Hair Treatment (2602-0256)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "07898675094584"
+   ],
+   "gtins": [
+    "07898675094584"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00999/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-topbright-care-pets-dr-dog-sold-via-amazon-2603-0018",
+   "title": "Product Safety Report: TopBright Care Pets Dr Dog sold via Amazon (2603-0018)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00011122507001"
+   ],
+   "gtins": [
+    "00011122507001"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01018/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-glow-and-lovely-hydraglow-rose-enrich-serum-cream-50g-2511-0082d",
+   "title": "Product Safety Report: Glow & Lovely Hydraglow Rose Enrich Serum Cream 50g (2511-0082d)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08961014255669"
+   ],
+   "gtins": [
+    "08961014255669"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01117/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-red-crystal-pearls-100g-sold-by-easy-florist-supplies-2601-0349",
+   "title": "Product Safety Report: Red Crystal Pearls 100g sold by Easy Florist Supplies (2601-0349)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05055141691544"
+   ],
+   "gtins": [
+    "05055141691544"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01045/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-f-and-f-home-valentines-youll-do-xl-mug-2602-0098",
+   "title": "Product Recall: F&F Home Valentine's 'You'll Do' XL Mug (2602-0098)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05063446721248"
+   ],
+   "gtins": [
+    "05063446721248"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00025/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-mini-sewing-machine-2602-0050",
+   "title": "Product Safety Report: Mini Sewing Machine (2602-0050)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00921011606589"
+   ],
+   "gtins": [
+    "00921011606589"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00919/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-air-heater-cry-786-2601-0356",
+   "title": "Product Safety Report: Air Heater, CRY-786 (2601-0356)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06979461631365"
+   ],
+   "gtins": [
+    "06979461631365"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00972/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-folding-washing-machine-2601-0327",
+   "title": "Product Safety Report: Folding Washing Machine (2601-0327)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06987857868783"
+   ],
+   "gtins": [
+    "06987857868783"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00924/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-bajaj-almond-drops-hair-oil-2509-0229",
+   "title": "Product Safety Report: Bajaj Almond Drops Hair Oil  (2509-0229)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08906014765251"
+   ],
+   "gtins": [
+    "08906014765251"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00635/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-tinc-festive-santa-bottle-sold-via-waitrose-2601-0057",
+   "title": "Product Recall: Tinc Festive Santa Bottle sold by Waitrose (2601-0057)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05055610335627"
+   ],
+   "gtins": [
+    "05055610335627"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00699/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-ultrapods-true-wireless-headset-2510-0030",
+   "title": "Product Recall: Ultrapods True Wireless Headset (2510-0030)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060353228556"
+   ],
+   "gtins": [
+    "05060353228556"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00748/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-skillmatics-aqua-puffs-watch-your-art-grow-toy-2512-0276",
+   "title": "Product Safety Report: Skillmatics Aqua Puffs 'Watch Your Art Grow' Toy (2512-0276)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08904279510043"
+   ],
+   "gtins": [
+    "08904279510043"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01001/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-disney-miniso-stitch-doll-2510-0154",
+   "title": "Product Safety Report: Disney Miniso Stitch Doll (2510-0154)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06931604349094"
+   ],
+   "gtins": [
+    "06931604349094"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00149/26",
+    "SR/00674/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-letsvan-fuzzy-trendy-fun-party-doll-2510-0160",
+   "title": "Product Safety Report: Letsvan Fuzzy Trendy Fun Party Doll (2510-0160)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06974773055557"
+   ],
+   "gtins": [
+    "06974773055557"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00430/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-lillagunga-toddler-oak-and-black-dice-toy-swing-2511-0085",
+   "title": "Product Safety Report: Lillagunga Toddler Oak and Black Dice Toy Swing (2511-0085)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06430064323076"
+   ],
+   "gtins": [
+    "06430064323076"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00036/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-wet-n-wild-proline-felt-tip-eyeliner-e8752-2512-0234",
+   "title": "Product Recall: Wet n Wild Proline Felt Tip Eyeliner E8752 (2512-0234)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "04049775587527"
+   ],
+   "gtins": [
+    "04049775587527"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/04337/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-b-and-q-goodhome-saturnia-electric-blanket-2512-0163",
+   "title": "Product Recall: B&Q GoodHome Saturnia Electric Blanket (2512-0163)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05059340980560"
+   ],
+   "gtins": [
+    "05059340980560"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00120/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-sandal-whitening-beauty-cream-2508-0103a",
+   "title": "Product Safety Report: Sandal Whitening Beauty Cream (2508-0103a)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00151973298090"
+   ],
+   "gtins": [
+    "00151973298090"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01615/20"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-vidaxl-outdoor-playset-2512-0095",
+   "title": "Product Safety Report: VidaXL Outdoor Playset (2512-0095)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08721012825024"
+   ],
+   "gtins": [
+    "08721012825024"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00132/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-yepoda-the-cocoa-cloud-body-butter-in-2025-yepoda-advent-calendar-2512-0021",
+   "title": "Product Recall: Yepoda The Cocoa Cloud Body Butter in 2025 Yepoda Advent Calendar (2512-0021) ",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08721154343752"
+   ],
+   "gtins": [
+    "08721154343752"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/04402/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-e-bike-conversion-kit-2511-0171",
+   "title": "Product Safety Report: E-Bike Conversion Kit (2511-0171)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00250630678913"
+   ],
+   "gtins": [
+    "00250630678913"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/04289/25",
+    "SR/04429/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-squishy-dino-and-unicorn-eggs-sold-via-matalan-2511-0211",
+   "title": "Product Recall: Squishy Dino and Unicorn Eggs sold by Matalan (2511-0211)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05050565670175",
+    "05050565670182"
+   ],
+   "gtins": [
+    "05050565670175",
+    "05050565670182"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/04331/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-tefal-x-force-stick-vacuum-cleaner-2511-0016",
+   "title": "Product Recall: Tefal X-Force Stick Vacuum Cleaner (2511-0016)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03221616004573"
+   ],
+   "gtins": [
+    "03221616004573"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00944/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-lila-grace-dots-and-stripes-cherry-blossom-scented-hand-sanitiser-sold-by-the-range-2510-0135",
+   "title": "Product Safety Report: Lila Grace Dots and Stripes Cherry Blossom Scented Hand Sanitiser sold by The Range (2510-0135)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08058040041509"
+   ],
+   "gtins": [
+    "08058040041509"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/04051/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-sistaco-rapid-removal-hub-2510-0208",
+   "title": "Product Safety Report: Sistaco Rapid Removal Hub (2510-0208)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00754523935379"
+   ],
+   "gtins": [
+    "00754523935379"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/04107/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-henry-quick-corded-vacuum-2510-0171",
+   "title": "Product Recall: Henry Quick Corded Vacuum (2510-0171)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05028965881910"
+   ],
+   "gtins": [
+    "05028965881910"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03935/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-bubble-up-mermaid-you-look-the-bath-bomb-2510-0138",
+   "title": "Product Recall: Bubble Up Mermaid You Look The Bath Bomb sold by One Beyond (2510-0138)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05013692253406"
+   ],
+   "gtins": [
+    "05013692253406"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03829/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-les-laboratoires-biopharma-rapid-clair-super-eclaircissant-lightening-cream-2505-0100",
+   "title": "Product Safety Report: Les Laboratoires Biopharma Rapid Clair Super Eclaircissant Lightening Cream  (2505-0100)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03700607900013"
+   ],
+   "gtins": [
+    "03700607900013"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03772/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-angel-cosmetics-clairmen-lightening-program-for-men-2505-0030",
+   "title": "Product Safety Report: Angel Cosmetics Clairmen Lightening Program for Men (2505-0030)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09501101370173"
+   ],
+   "gtins": [
+    "09501101370173"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03575/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-3pin-3m-power-cable-b6182-2509-0004",
+   "title": "Product Safety Report: 3Pin 3M Power Cable B6182 (2509-0004)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08435606732666"
+   ],
+   "gtins": [
+    "08435606732666"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03565/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-moonboon-organic-baby-hammock-mounting-kit-2508-0194",
+   "title": "Product Recall: Moonboon Organic Baby Hammock Mounting Kit (2508-0194)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05744001611593"
+   ],
+   "gtins": [
+    "05744001611593"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01084/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-counterfeit-apple-branded-usb-c-power-adapter-2507-0047",
+   "title": "Product Safety Report: Counterfeit “Apple” branded USB-C Power Adapter (2507-0047)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00194252157053"
+   ],
+   "gtins": [
+    "00194252157053"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02899/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-floson-2m-extension-socket-2507-0010a",
+   "title": "Product Safety Report: Floson 2m Extension Socket (2507-0010a)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06922345696615"
+   ],
+   "gtins": [
+    "06922345696615"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03191/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-tribord-lifejacket-harness-sold-by-decathlon-2506-0147",
+   "title": "Product Recall: TRIBORD Lifejacket Harness sold by Decathlon (2506-0147)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03608390327027"
+   ],
+   "gtins": [
+    "03608390327027"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02760/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-poundland-8-pack-of-valentines-day-heart-balloons-2506-0139",
+   "title": "Product Recall: Poundland 8-Pack of Valentine's Day Heart Balloons (2506-0139)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05045735005543"
+   ],
+   "gtins": [
+    "05045735005543"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02339/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-first-baby-days-bath-time-bath-book-2504-0165",
+   "title": "Product Recall: First Baby Days Bath Time Bath Book (2504-0165)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09781526381354",
+    "09788230524039"
+   ],
+   "gtins": [
+    "09781526381354",
+    "09788230524039"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00104/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-battery-operated-robot-deform-toy-car-2505-0094",
+   "title": "Product Safety Report: Battery-Operated Robot Deform Toy Car (2505-0094)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06900123880227"
+   ],
+   "gtins": [
+    "06900123880227"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02755/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-buki-france-sensory-slime-2504-0162",
+   "title": "Product Recall: Buki France Sensory Slime (2504-0162)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03700802105374"
+   ],
+   "gtins": [
+    "03700802105374"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01632/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-my-1st-bath-toy-ducks-2409-0089",
+   "title": "Product Recall: My 1st Bath Toy Ducks (2409-0089)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05012866610380"
+   ],
+   "gtins": [
+    "05012866610380"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02748/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-jorge-kasjopeja-firework-2408-0133",
+   "title": "Product Safety Report: JORGE Kasjopeja Firework (2408-0133)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05901583660818"
+   ],
+   "gtins": [
+    "05901583660818"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A11/00065/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-minidream-wooden-play-gym-sold-via-amazon-2504-0139b",
+   "title": "Product Safety Report: MiniDream Wooden Play Gym sold via Amazon (2504-0139b)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060727541205"
+   ],
+   "gtins": [
+    "05060727541205"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02882/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-minidream-tummy-time-pillow-sold-via-amazon-2504-0139d",
+   "title": "Product Safety Report: MiniDream Tummy Time Pillow sold via Amazon (2504-0139d)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060727543278"
+   ],
+   "gtins": [
+    "05060727543278"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02333/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-minidream-organic-5-in-1-baby-activity-gym-sold-via-amazon-2504-0139c",
+   "title": "Product Safety Report: MiniDream Organic 5-in-1 Baby Activity Gym sold via Amazon (2504-0139c)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060727542240"
+   ],
+   "gtins": [
+    "05060727542240"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02475/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-quechua-sh500l-mountain-showshoe-2503-0072",
+   "title": "Product Recall: Quechua SH500L Mountain Snowshoe (2503-0072)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03608439231469"
+   ],
+   "gtins": [
+    "03608439231469"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00069/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-maison-louis-marie-no-04-bois-de-balincourt-luxury-gift-set-2505-0122",
+   "title": "Product Safety Report: Maison Louis Marie No 04 Bois de Balincourt Luxury Gift Set (2505-0122)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00851254008355"
+   ],
+   "gtins": [
+    "00851254008355"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02438/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-wire-xtra-super-fast-usb-adaptor-2502-0133",
+   "title": "Product Safety Report: Wire Xtra Super Fast USB Adaptor (2502-0133)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05011397041656"
+   ],
+   "gtins": [
+    "05011397041656"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02646/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-george-stitch-and-angel-two-piece-childrens-clothing-set-sold-by-asda-2505-0161",
+   "title": "Product Recall: George 'Stitch and Angel' Two Piece Children's Clothing Set sold by Asda (2505-0161)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05059201121453",
+    "05059201121477",
+    "05059201121491",
+    "05059201121811",
+    "05059201121835",
+    "05059201121859",
+    "05059201121873",
+    "05059201121897"
+   ],
+   "gtins": [
+    "05059201121453",
+    "05059201121477",
+    "05059201121491",
+    "05059201121811",
+    "05059201121835",
+    "05059201121859",
+    "05059201121873",
+    "05059201121897"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02309/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-jia-le-xin-hub-with-3-sockets-and-6-usb-ports-sold-via-tiktok-2504-0105",
+   "title": "Product Recall: Jia Le Xin Hub with 3 sockets and 6 USB ports sold via TikTok (2504-0105)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06952640500010"
+   ],
+   "gtins": [
+    "06952640500010"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01970/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-dinosaur-themed-childrens-scooter-2502-0079",
+   "title": "Product Safety Report: Dinosaur-Themed Children's Scooter (2502-0079)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00764460046250"
+   ],
+   "gtins": [
+    "00764460046250"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01768/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-wireless-boombox-speaker-2502-0053",
+   "title": "Product Safety Report: Wireless Boombox Speaker (2502-0053)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09202407260082"
+   ],
+   "gtins": [
+    "09202407260082"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01794/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-elbow-grease-heavy-duty-hand-cleaner-2503-0036",
+   "title": "Product Recall: Elbow Grease Heavy Duty Hand Cleaner (2503-0036)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05053249248059"
+   ],
+   "gtins": [
+    "05053249248059"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00411/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-sloosh-red-and-yellow-floating-boards-2408-0044",
+   "title": "Product Safety Report: Sloosh Red and Yellow Floating Boards (2408-0044)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00810029967211"
+   ],
+   "gtins": [
+    "00810029967211"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01774/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-sostrene-grene-microwave-kiln-for-clay-2502-0140",
+   "title": "Product Recall: Søstrene Grene Microwave Kiln for Clay (2502-0140)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05711812840979"
+   ],
+   "gtins": [
+    "05711812840979"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01314/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-elgetec-mini-salon-travel-hair-straightener-and-platinum-pro-salon-ceramic-hair-straightener-sold-by-tk-maxx-and-homesense-2502-0115",
+   "title": "Product Recall: Elgetec Mini Salon Travel Hair Straightener and Platinum Pro Salon Ceramic Hair Straightener sold by TK Maxx and HomeSense (2502-0115)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "07426978603181",
+    "07426978603198"
+   ],
+   "gtins": [
+    "07426978603181",
+    "07426978603198"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00955/25",
+    "SR/00956/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-sostrene-grene-watercolours-12-pcs-2502-0120",
+   "title": "Product Recall: Søstrene Grene Watercolours 12 pcs (2502-0120)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05711812887851"
+   ],
+   "gtins": [
+    "05711812887851"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02464/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-home-teeth-whitening-diamond-white-toothpaste-2502-0123",
+   "title": "Product Safety Report: Home Teeth Whitening Diamond White Toothpaste (2502-0123)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00659675851839"
+   ],
+   "gtins": [
+    "00659675851839"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01136/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-saltrock-corp-flame-flip-flops-2502-0019",
+   "title": "Product Recall: Saltrock Corp Flame Flip Flops (2502-0019)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05056720900026"
+   ],
+   "gtins": [
+    "05056720900026"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01177/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-snuggla-king-size-electric-blanket-sold-via-amazon-ebay-etsy-and-tiktok-shop-2501-0051",
+   "title": "Product Recall: Snuggla King Size Electric Blanket sold via Amazon, eBay, Etsy and TikTok Shop (2502-0051)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05028664122833"
+   ],
+   "gtins": [
+    "05028664122833"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/01116/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-uniparco-cosmetique-lightup-dark-spots-correcting-beauty-lotion-2501-0012a",
+   "title": "Product Safety Report: Uniparco Cosmetique LightUp Dark Spots Correcting Beauty Lotion (2501-0012a)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06043000036963"
+   ],
+   "gtins": [
+    "06043000036963"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00957/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-hoot-girls-printed-flip-flops-2411-0145",
+   "title": "Product Recall: Hoot Girls Printed Flip Flops (2411-0145)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05056283853135"
+   ],
+   "gtins": [
+    "05056283853135"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00858/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-flying-tiger-wooden-vegetable-playset-2501-0152",
+   "title": "Product Recall: Flying Tiger Wooden Vegetable Playset (2501-0152)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00200030512775"
+   ],
+   "gtins": [
+    "00200030512775"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00578/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-dunelm-heated-winged-airer-2501-0138",
+   "title": "Product Recall: Dunelm Heated Winged Airer (2501-0138)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05057722844042"
+   ],
+   "gtins": [
+    "05057722844042"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00872/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-nuage-ceramide-gentle-cleanser-2501-0157",
+   "title": "Product Recall: Nuagé Ceramide Gentle Cleanser (2501-0157)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05053249265476"
+   ],
+   "gtins": [
+    "05053249265476"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/03398/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-tongbao-toys-ltd-monkey-plush-toy-2410-0073",
+   "title": "Product Safety Report: Tongbao Toys Ltd Monkey Plush Toy (2410-0073)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06902405003492"
+   ],
+   "gtins": [
+    "06902405003492"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00760/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-tongbao-toys-ltd-teddy-bear-plush-toy-2410-0085",
+   "title": "Product Safety Report: Tongbao Toys Ltd Teddy Bear Plush Toy (2410-0085)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06902405003584"
+   ],
+   "gtins": [
+    "06902405003584"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00026/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-uniparco-light-up-dark-spots-correcting-serum-30ml-2407-0104",
+   "title": "Product Safety Report: Uniparco Light Up Dark Spots Correcting Serum 30ml (2407-0104)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06043000037007"
+   ],
+   "gtins": [
+    "06043000037007"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00474/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-auchan-baby-soothers-2412-0104",
+   "title": "Product Recall: Auchan Baby Soothers (2412-0104)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03245672218507"
+   ],
+   "gtins": [
+    "03245672218507"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00684/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-beeline-belly-bar-sold-by-sainsburys-and-matalan-2411-0128",
+   "title": "Product Recall: Beeline Belly Bar sold by Sainsbury's and Matalan (2411-0128)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "04050261861540"
+   ],
+   "gtins": [
+    "04050261861540"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/03249/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-matalan-stripe-tree-christmas-decoration-2412-0120",
+   "title": "Product Recall: Matalan Stripe Tree Christmas Decoration (2412-0120)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06207676000004"
+   ],
+   "gtins": [
+    "06207676000004"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00685/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-matalan-doughnuts-christmas-tree-decorations-3pk-2412-0135",
+   "title": "Product Recall: Matalan Doughnuts Christmas Tree Decorations 3PK (2412-0135)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06207659000007"
+   ],
+   "gtins": [
+    "06207659000007"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00686/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-matalan-sweets-christmas-tree-decorations-2pk-2412-0136",
+   "title": "Product Recall: Matalan Sweets Christmas Tree Decorations 2PK (2412-0136)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06207658000008"
+   ],
+   "gtins": [
+    "06207658000008"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00683/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-matalan-ice-lolly-christmas-tree-decoration-2412-0133",
+   "title": "Product Recall: Matalan Ice Lolly Christmas Tree Decoration (2412-0133)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06207668000005"
+   ],
+   "gtins": [
+    "06207668000005"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00012/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-matalan-candy-cane-pick-christmas-decorations-2412-0123",
+   "title": "Product Recall: Matalan Candy Cane Pick Christmas Decorations (2412-0123)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06207664000009"
+   ],
+   "gtins": [
+    "06207664000009"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00011/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-childrens-heart-shaped-earmuffs-sold-by-matalan-2412-0118",
+   "title": "Product Recall: Children's Heart Shaped Earmuffs sold by Matalan (2412-0118)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "02321115000012"
+   ],
+   "gtins": [
+    "02321115000012"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00682/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-elpine-plug-in-heater-2405-0115",
+   "title": "Product Recall: ELPINE Plug-In Heater (2405-0115)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05038673314921"
+   ],
+   "gtins": [
+    "05038673314921"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00290/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-radley-cosy-up-ribbed-socks-and-ceramic-mug-gift-set-in-chalk-2412-0074",
+   "title": "Product Recall: Radley Cosy Up Ribbed Socks and Ceramic Mug Gift Set in Chalk (2412-0074)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05016155273331"
+   ],
+   "gtins": [
+    "05016155273331"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00023/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-hush-by-venture-bedside-crib-2412-0016",
+   "title": "Product Safety Report: Hush by Venture Bedside Crib (2412-0016)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060656240576"
+   ],
+   "gtins": [
+    "05060656240576"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00707/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-yoto-player-2nd-generation-2411-0070",
+   "title": "Product Safety Report: Yoto Player 2nd Generation (2411-0070)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060744162025"
+   ],
+   "gtins": [
+    "05060744162025"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "OR/00042/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-makari-de-suisse-active-intense-unify-and-illuminate-dark-spot-corrector-serum-2411-0088",
+   "title": "Product Safety Report: Makari De Suisse Active Intense Unify & Illuminate Dark Spot Corrector Serum (2411-0088)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00098864008454"
+   ],
+   "gtins": [
+    "00098864008454"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00150/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-flying-tiger-unicorn-hairband-with-light-2411-0146",
+   "title": "Product Recall: Flying Tiger Unicorn Hairband with Light (2411-0146)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00200030569151"
+   ],
+   "gtins": [
+    "00200030569151"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/03411/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-acctel-24v-vertex-utv-24vnurc-ride-on-toy-sold-by-smyths-2410-0147",
+   "title": "Product Recall: ACCTEL 24V Vertex UTV 24VNURC Ride On Toy sold by Smyths (2410-0157)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060307678208"
+   ],
+   "gtins": [
+    "05060307678208"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A11/00155/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-my-first-bath-animals-bath-toys-sold-by-tk-maxx-2410-0029",
+   "title": "Product Recall: My First Bath Animals' Bath Toys sold by TK Maxx (2410-0029)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05012866610366",
+    "05012866610373"
+   ],
+   "gtins": [
+    "05012866610366",
+    "05012866610373"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/02794/24",
+    "A12/02795/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-avionaut-dock-2-isofix-childrens-car-seat-base-2409-0153",
+   "title": "Product Recall: Avionaut Dock 2 Isofix Children's Car Seat Base (2409-0153)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05907603464107"
+   ],
+   "gtins": [
+    "05907603464107"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01843/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-petzl-laser-speed-10cm-ice-screws-2410-0026",
+   "title": "Product Recall: Petzl Laser Speed 10CM Ice Screws (2410-0026)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03342540832695"
+   ],
+   "gtins": [
+    "03342540832695"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/02449/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-golden-pearl-beauty-cream-2409-0152",
+   "title": "Product Recall: Golden Pearl Beauty Cream (2409-0152)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08964001078586"
+   ],
+   "gtins": [
+    "08964001078586"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01775/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-the-works-halloween-projector-torch-hal24-2410-0011",
+   "title": "Product Recall: The Works Halloween Projector Torch HAL24 (2410-0011)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05052089358256"
+   ],
+   "gtins": [
+    "05052089358256"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A11/00139/24",
+    "OR/00102/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-taf-toys-savannah-and-urban-garden-foam-playmats-2409-0034",
+   "title": "Product Recall: Taf Toys Savannah & Urban Garden Foam Playmats (2409-0034)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00605566127156",
+    "00605566130859"
+   ],
+   "gtins": [
+    "00605566127156",
+    "00605566130859"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/02404/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-cooke-and-lewis-lesina-mirrored-bathroom-cabinet-sold-by-b-and-q-2408-0093",
+   "title": "Product Recall: Cooke & Lewis Lesina Mirrored Bathroom Cabinet sold by B&Q (2408-0093)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05397007165494"
+   ],
+   "gtins": [
+    "05397007165494"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00079/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-equikids-hobby-horses-models-unicorn-and-brown-horse-2408-0027",
+   "title": "Product Recall: Equikids Hobby Horses (Models: Unicorn and Brown Horse) (2408-0027)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "03338025677608",
+    "03338025677622"
+   ],
+   "gtins": [
+    "03338025677608",
+    "03338025677622"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01612/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-cocomelon-jj-interactive-learning-doll-2312-0070",
+   "title": "Product Recall: CocoMelon JJ Interactive Learning Doll (2312-0070)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08056379128359"
+   ],
+   "gtins": [
+    "08056379128359"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A11/00051/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-2-pack-baby-girl-licensed-minnie-mouse-bodysuit-sold-by-poundland-2404-0126",
+   "title": "Product Recall: 2-Pack Baby Girl Licensed Minnie Mouse Bodysuit sold by Poundland (2404-0126)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05045735552733",
+    "05045735552740",
+    "05045735552757",
+    "05045735552764",
+    "05045735552771",
+    "05045735552788",
+    "05045735552795"
+   ],
+   "gtins": [
+    "05045735552733",
+    "05045735552740",
+    "05045735552757",
+    "05045735552764",
+    "05045735552771",
+    "05045735552788",
+    "05045735552795"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01308/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-irodis-bb-clear-skin-lightening-cream-2312-0035",
+   "title": "Product Safety Report: Irodis B.B. Clear Skin Lightening Cream (2312-0035)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06028050091414"
+   ],
+   "gtins": [
+    "06028050091414"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/03784/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-gandour-light-and-natural-carotone-skin-lightening-cream-2312-0043",
+   "title": "Product Safety Report: Gandour Light & Natural Carotone Skin Lightening Cream (2312-0043)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06182000105382"
+   ],
+   "gtins": [
+    "06182000105382"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00446/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-tractor-ted-and-trailer-wooden-toy-2401-0025",
+   "title": "Product Recall: Tractor Ted and Trailer Wooden Toy (2401-0025)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060541944718"
+   ],
+   "gtins": [
+    "05060541944718"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00651/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-creepy-town-evil-furry-mask-sold-by-poundland-2312-0006",
+   "title": "Product Recall: Creepy Town Evil Furry Mask sold by Poundland (2312-0006)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05045733302187",
+    "05045733351659",
+    "05045733351666"
+   ],
+   "gtins": [
+    "05045733302187",
+    "05045733351659",
+    "05045733351666"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00093/24"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-pumpkin-ceramic-tealight-holder-sold-by-aldi-2310-0242",
+   "title": "Product Recall: Pumpkin Ceramic Tealight Holder sold by Aldi (2310-0242)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "04061464788312"
+   ],
+   "gtins": [
+    "04061464788312"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00154/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-rainbow-road-board-books-2309-0140-and-2310-0060",
+   "title": "Product Recall: Rainbow Road Board Books (2309-0140 and 2310-0060)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09781803371450",
+    "09781803372723",
+    "09781803372730",
+    "09781803372945",
+    "09781803374772",
+    "09781803374789",
+    "09781803374796",
+    "09781803374802",
+    "09781803374819",
+    "09781803374826",
+    "09781803374833",
+    "09781803374932",
+    "09781803376288",
+    "09781803376790",
+    "09781803376806",
+    "09781803378459",
+    "09782359908510",
+    "09782359909333",
+    "09786075328669",
+    "09786075328683",
+    "09786075328768",
+    "09786526102008",
+    "09786526102701",
+    "09786526103791"
+   ],
+   "gtins": [
+    "09781803371450",
+    "09781803372723",
+    "09781803372730",
+    "09781803372945",
+    "09781803374772",
+    "09781803374789",
+    "09781803374796",
+    "09781803374802",
+    "09781803374819",
+    "09781803374826",
+    "09781803374833",
+    "09781803374932",
+    "09781803376288",
+    "09781803376790",
+    "09781803376806",
+    "09781803378459",
+    "09782359908510",
+    "09782359909333",
+    "09786075328669",
+    "09786075328683",
+    "09786075328768",
+    "09786526102008",
+    "09786526102701",
+    "09786526103791"
+   ],
+   "cpsc_matches": [
+    "23292"
+   ],
+   "hc_matches": [],
+   "sg_matches": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-haunted-house-dracula-pumpkin-and-frankenstein-childrens-halloween-face-masks-sold-by-the-works-2310-0236",
+   "title": "Product Recall: Haunted House Dracula, Pumpkin and Frankenstein children’s Halloween face masks sold by The Works (2310-0236)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05050565730367"
+   ],
+   "gtins": [
+    "05050565730367"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/03008/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-creepy-town-hanging-ghost-sold-by-poundland-2310-0186",
+   "title": "Product Recall: Creepy town hanging ghost sold by Poundland (2310-0186)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05045733253472"
+   ],
+   "gtins": [
+    "05045733253472"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00153/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-cooke-and-lewis-gas-hobs",
+   "title": "Product Safety Report: Cooke & Lewis Gas Hobs",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05059340157993",
+    "05059340158020"
+   ],
+   "gtins": [
+    "05059340157993",
+    "05059340158020"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/03075/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-smyths-toys-jumping-ball-toy-2303-0054",
+   "title": "Product Recall: Smyths Toys’ jumping ball toy (2303-0054)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "02400018526222",
+    "05390946046107"
+   ],
+   "gtins": [
+    "02400018526222",
+    "05390946046107"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00130/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-black-and-white-portable-heater-sold-via-amazon-b0brw4yq7s-2301-0086",
+   "title": "Product Safety Report: Black and white portable heater sold via Amazon (B0BRW4YQ7S) (2301-0086)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09559976086668"
+   ],
+   "gtins": [
+    "09559976086668"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02921/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-artemis-and-alcudina-white-double-door-bathroom-mirror-cabinets-2302-0053",
+   "title": "Product Recall: Artemis & Alcudina White Double Door Bathroom Mirror Cabinets (2302-0053)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05052931138418",
+    "05052931707317"
+   ],
+   "gtins": [
+    "05052931138418",
+    "05052931707317"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00022/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-poundland-small-and-bright-wooden-xylophone-toy-2302-0014",
+   "title": "Product Recall: Poundland 'Small and bright' Wooden Xylophone Toy (2302-0014)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05059334963159"
+   ],
+   "gtins": [
+    "05059334963159"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00464/23"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-portable-heater-sold-via-ebay-2212-0070",
+   "title": "Product Safety Report: Portable Fan Heater sold via Amazon, eBay, Fruugo, Gumtree and U-Buy (2212-0070)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "09559976086668"
+   ],
+   "gtins": [
+    "09559976086668"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/02921/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-rodis-creme-skin-light-2212-0099",
+   "title": "Product Safety Report: RODIS Creme Skin Light (2212-0099)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06181100463125"
+   ],
+   "gtins": [
+    "06181100463125"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01459/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-kirkton-house-pumpkin-ceramic-tealight-wax-burner-sold-by-aldi-2210-0049",
+   "title": "Product Recall: Kirkton House Pumpkin Ceramic Tealight Wax Burner sold by Aldi (2210-0049)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "04088600518978"
+   ],
+   "gtins": [
+    "04088600518978"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "INFO/00133/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-optimus-gemini-portable-2-burner-gas-stove-2209-0256",
+   "title": "Product Recall: Optimus Gemini Portable 2-Burner Gas Stove (2209-0256)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00604375208728"
+   ],
+   "gtins": [
+    "00604375208728"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01775/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-5-in-1-hot-air-styler-sold-via-the-range-2208-0067",
+   "title": "Product Recall: 5-in-1 Hot Air Styler sold via The Range (2208-0067)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06983450235878"
+   ],
+   "gtins": [
+    "06983450235878"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00103/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-oen-setp-hot-air-hair-dryer-brush-and-styler-sold-via-amazon-asin-b08rsm5hbd-2206-0053",
+   "title": "Product Recall: 'Oen Setp' Hot Air Hair Dryer brush and styler sold via Amazon (ASIN: B08RSM5HBD) (2206-0053)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06997201732189"
+   ],
+   "gtins": [
+    "06997201732189"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01110/20",
+    "SR/00054/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-hot-air-hair-dryer-brush-and-styler-sold-via-amazon-asin-b09xf4cmkj-2206-0084",
+   "title": "Product Recall: Hot Air Hair Dryer brush and styler sold via Amazon (ASIN: B09XF4CMKJ) (2206-0084)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06997201732189"
+   ],
+   "gtins": [
+    "06997201732189"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01110/20",
+    "SR/00054/26"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-nathe-bits-for-horses-2205-0250",
+   "title": "Product Recall: Nathe Bits for Horses (2205-0250)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "04022853239112",
+    "04022853239129",
+    "04022853239136",
+    "04022853239143",
+    "04022853239150",
+    "04022853239167",
+    "04022853239174",
+    "04022853239181",
+    "04022853239198",
+    "04022853239204",
+    "04022853239211",
+    "04022853239228",
+    "04022853239235",
+    "04022853239242",
+    "04022853239259",
+    "04022853239266",
+    "04022853239273",
+    "04022853239280",
+    "04022853239297",
+    "04022853239303",
+    "04022853239310",
+    "04022853239327",
+    "04022853239334",
+    "04022853239341",
+    "04022853239419",
+    "04022853239426",
+    "04022853239433",
+    "04022853239440",
+    "04022853239457",
+    "04022853239464",
+    "04022853239532",
+    "04022853239549",
+    "04022853239556",
+    "04022853239563",
+    "04022853239570",
+    "04022853239587",
+    "04022853239594",
+    "04022853239600",
+    "04022853239617",
+    "04022853239624",
+    "04022853239631",
+    "04022853239648",
+    "04022853239778",
+    "04022853239785",
+    "04022853239792",
+    "04022853239808",
+    "04022853239815",
+    "04022853239822",
+    "04022853240217",
+    "04022853240224",
+    "04022853240231",
+    "04022853240248",
+    "04022853240255",
+    "04022853240262",
+    "04022853240361",
+    "04022853240378",
+    "04022853240392",
+    "04022853240408",
+    "04022853240422",
+    "04022853240439",
+    "04022853240453",
+    "04022853240460",
+    "04022853243317",
+    "04022853243324",
+    "04022853243331",
+    "04022853243348",
+    "04022853243409",
+    "04022853243416",
+    "04022853243423",
+    "04022853243430",
+    "04022853243454",
+    "04022853243461"
+   ],
+   "gtins": [
+    "04022853239112",
+    "04022853239129",
+    "04022853239136",
+    "04022853239143",
+    "04022853239150",
+    "04022853239167",
+    "04022853239174",
+    "04022853239181",
+    "04022853239198",
+    "04022853239204",
+    "04022853239211",
+    "04022853239228",
+    "04022853239235",
+    "04022853239242",
+    "04022853239259",
+    "04022853239266",
+    "04022853239273",
+    "04022853239280",
+    "04022853239297",
+    "04022853239303",
+    "04022853239310",
+    "04022853239327",
+    "04022853239334",
+    "04022853239341",
+    "04022853239419",
+    "04022853239426",
+    "04022853239433",
+    "04022853239440",
+    "04022853239457",
+    "04022853239464",
+    "04022853239532",
+    "04022853239549",
+    "04022853239556",
+    "04022853239563",
+    "04022853239570",
+    "04022853239587",
+    "04022853239594",
+    "04022853239600",
+    "04022853239617",
+    "04022853239624",
+    "04022853239631",
+    "04022853239648",
+    "04022853239778",
+    "04022853239785",
+    "04022853239792",
+    "04022853239808",
+    "04022853239815",
+    "04022853239822",
+    "04022853240217",
+    "04022853240224",
+    "04022853240231",
+    "04022853240248",
+    "04022853240255",
+    "04022853240262",
+    "04022853240361",
+    "04022853240378",
+    "04022853240392",
+    "04022853240408",
+    "04022853240422",
+    "04022853240439",
+    "04022853240453",
+    "04022853240460",
+    "04022853243317",
+    "04022853243324",
+    "04022853243331",
+    "04022853243348",
+    "04022853243409",
+    "04022853243416",
+    "04022853243423",
+    "04022853243430",
+    "04022853243454",
+    "04022853243461"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00743/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-a-le-toy-van-petilou-sensory-shapes-pl089-2206-0022",
+   "title": "Product Recall: A Le Toy Van Petilou Sensory Shapes PL089 (2206-0022)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05060023420891"
+   ],
+   "gtins": [
+    "05060023420891"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/01087/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-banwood-childrens-bicycle-helmet-model-enw0121-2205-0147",
+   "title": "Product Recall: Banwood Children's Bicycle Helmet (Model ENW0121) (2205-0147)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "08435441827640"
+   ],
+   "gtins": [
+    "08435441827640"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00593/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-boxine-tonies-r-blocks-2203-0518",
+   "title": "Product Recall: Boxine tonies® Blocks (2203-0518)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00840147407580",
+    "00840147407689",
+    "00840147407733"
+   ],
+   "gtins": [
+    "00840147407580",
+    "00840147407689",
+    "00840147407733"
+   ],
+   "cpsc_matches": [
+    "22736"
+   ],
+   "hc_matches": [],
+   "sg_matches": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-fashion-5-in1-hair-dryer-volumizer-brush-hot-air-hair-comb-curling-and-wand-straighter-2201-0178",
+   "title": "Product Safety Report: Fashion 5 In1 Hair Dryer Volumizer Brush Hot Air Hair Comb Curling And Wand Straighter (2201-0178)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "06983450235878"
+   ],
+   "gtins": [
+    "06983450235878"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "SR/00103/25"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-red5-remote-control-light-bulb-2111-0198",
+   "title": "Product Recall: RED5 Remote Control Light Bulb (2111-0198)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "05055371515252"
+   ],
+   "gtins": [
+    "05055371515252"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00994/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-baylis-and-harding-goodness-hair-detangler-watermelon-burst-2109-0172",
+   "title": "Product Recall: Baylis & Harding Goodness Hair Detangler Watermelon Burst (2109-0172)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00017854107465"
+   ],
+   "gtins": [
+    "00017854107465"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A12/00894/22"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-zebra-a-slash-s-wooden-toy-truck-and-trailer-with-cars-2101-0158",
+   "title": "Product Recall: Zebra A/S Wooden Toy Truck and Trailer with Cars (2101-0158)",
+   "gtins_barcode_cells": [],
+   "gtins_prose": [
+    "00200030193301"
+   ],
+   "gtins": [
+    "00200030193301"
+   ],
+   "cpsc_matches": [],
+   "hc_matches": [],
+   "sg_matches": [
+    "A11/00014/21"
+   ]
+  }
+ ],
+ "examples_with_gtin": [
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-autojare-multi-function-cordless-drill-2609-0230",
+   "title": "Product Safety Report: AutoJare Multi-Function Cordless Drill (2609-0230)",
+   "gtins": [
+    "95353920612197"
+   ],
+   "barcode_cells": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-pimple-popping-squishes-containing-needles-sold-via-alibaba-2610-0052",
+   "title": "Product Safety Report: Pimple Popping Squishes containing needles sold via Alibaba (2610-0052)",
+   "gtins": [
+    "11601539751942"
+   ],
+   "barcode_cells": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-electronic-guitar-toy-2609-0125",
+   "title": "Product Safety Report: Electronic Guitar Toy (2609-0125)",
+   "gtins": [
+    "05060596067875"
+   ],
+   "barcode_cells": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-safety-report-oakes-leisure-limited-warrior-crossbow-toy-2609-0218",
+   "title": "Product Safety Report: Oakes Leisure Limited Warrior Crossbow Toy (2609-0218)",
+   "gtins": [
+    "06991200636677"
+   ],
+   "barcode_cells": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-asda-mens-hiker-boots-and-shoes-2610-0025",
+   "title": "Product Recall: ASDA Men's Hiker Boots and Shoes (2610-0025)",
+   "gtins": [
+    "05059202353853",
+    "05059202353877",
+    "05059202353891",
+    "05059202353976",
+    "05059202353990",
+    "05059202354010",
+    "05059202354034",
+    "05059202354058",
+    "05059202354713",
+    "05059202354737",
+    "05059202354751",
+    "05059202354775",
+    "05059204347317",
+    "05059204347331",
+    "05059204347355",
+    "05059204347379",
+    "05059204347393",
+    "05059204347416",
+    "05059204617090",
+    "05059204617113",
+    "05059204617137",
+    "05059204617151",
+    "05059204617175",
+    "05059204617199",
+    "05059206979219",
+    "05059206979233",
+    "05059206979257",
+    "05059206979271",
+    "05059206979295",
+    "05059206979417",
+    "05059206979431"
+   ],
+   "barcode_cells": [
+    "5059202354010, 5059202354034, 5059202354058 , 5059202353853, 5059202353877, 5059202353891",
+    "5059204617151, 5059204617175, 5059204617199, 5059204617090, 5059204617113, 5059204617137",
+    "5059204347379, 5059204347393, 5059204347416, 5059204347317, 5059204347331, 5059204347355"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-asda-ladies-handbags-2609-0009",
+   "title": "Product Recall: George Ladies’ Handbags (2609-0009)",
+   "gtins": [
+    "05059204184790",
+    "05059204259931",
+    "05059206285778",
+    "05059206286959",
+    "05059206404971",
+    "05059206491797",
+    "05059206962570",
+    "05059207039158"
+   ],
+   "barcode_cells": [
+    "5059206404971",
+    "5059206962570",
+    "5059204259931"
+   ]
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-asda-kidz-pop-up-bear-tent-2609-0244",
+   "title": "Product Recall: ASDA Kidz Pop Up Bear Tent (2609-0244)",
+   "gtins": [
+    "05063717171192"
+   ],
+   "barcode_cells": []
+  },
+  {
+   "link": "/product-safety-alerts-reports-recalls/product-recall-tesco-f-and-f-glass-latte-mug-2610-0017",
+   "title": "Product Recall: Tesco F&F Glass Latte Mug (2610-0017)",
+   "gtins": [
+    "05057967613311"
+   ],
+   "barcode_cells": []
+  }
+ ],
+ "hand_check": {
+  "file": "opss-handcheck.json",
+  "vs_safety_gate": {
+   "correct": 19,
+   "checked": 20
+  },
+  "vs_cpsc": {
+   "correct": 2,
+   "checked": 2
+  }
+ }
+}

@@ -5,17 +5,17 @@ Deterministic structuring of the EPA ENERGY STAR Certified Products Model Index 
 parser `equipment-model-structuring@1`).
 
 - **Rights:** [rights record](../../../equipment-energystar-model-index-rights-record-20260930.md), GREEN (§ 105; ADR-0018).
-- **Snapshot:** taken by `tooling/scripts/snapshot-source.sh equipment-energystar-model-index` (paged `$limit/$offset`
-  by `pd_id`). The 2026-09-30 run took 3 m 24 s: `model-index.csv` 525,964,568 bytes, 1,796,876 rows (all `pd_id`
-  unique, so the paging had no gaps or overlaps); `upc-codes.csv` 5,974,880 bytes, 38,993 rows. Packed, 25,676,229
-  bytes. **Pending:** the R2 copy made by the `Archive source snapshot` workflow, whose object key, bytes and SHA-256
-  go into `coverage.json` before the source is marked `PROTOTYPED`.
+- **Snapshot:** archived by the `Archive source snapshot` workflow (run 36878079058, 2026-10-01) at
+  `data-foundry-raw-artifacts/research/pipeline/snapshots/equipment-energystar-model-index/2026-10-01/snapshot.tar.gz`
+  (25,677,258 bytes, SHA-256 `e3a5c579…1b17f7`, verified by read-back). It holds `model-index.csv` (525,964,568
+  bytes, 1,796,876 rows, all `pd_id` unique, read in pages by `pd_id`), `upc-codes.csv` (5,993,199 bytes, 39,108 rows),
+  both datasets' metadata, the EPA licence page and `manifest.json`.
 - **Runner:** `pnpm exec tsx tooling/prototypes/equipment-energystar-model-index.ts <model-index.csv> <upc-codes.csv>`.
   **0 errors over all 1,796,876 rows**, 0 duplicate source ids, 58 s.
 - **Golden tests:** `packages/equipment-model-structuring/test/energy-star.test.ts` (verbatim rows; patterns, GTIN
   check digits, markets, dates, and fail-closed errors).
 
-## Field coverage (2026-09-30 snapshot)
+## Field coverage (2026-10-01 archived snapshot)
 
 | Field | Hits of 1,796,876 | Notes |
 | --- | --- | --- |
@@ -30,10 +30,12 @@ parser `equipment-model-structuring@1`).
 Trades: HVAC 1,767,921; electronics 7,745; appliance 7,500; electrical 6,727; commercial food 3,709; plumbing 2,350;
 lab 894; building envelope 30.
 
-The UPC Codes dataset names 14,685 distinct `pd_id`s, of which 11,710 are in the Model Index. The other 2,975 are
-not listed there now; they are kept in the snapshot and are candidates for the "no longer listed" status.
+Of the `pd_id`s named in the UPC Codes dataset, 11,711 are in the Model Index. The others are not listed there now; they are kept in the snapshot and are candidates for the "no longer listed" status.
 
 ## Linking
 
 Only `source_id` and check-digit-valid GTINs link automatically. GTIN against CPSC recall UPCs measured 0/1,462 on
 2026-09-27 (screening); brand and model keys and patterns only propose review links (AGENTS.md rules 3 and 7).
+
+Evidence round: [research 2026-10-01](../../research-2026-10-01.md); an independent Python assessment over the same archive
+reproduces the GTIN (11,719), rejected-UPC (886), pattern and market counts.

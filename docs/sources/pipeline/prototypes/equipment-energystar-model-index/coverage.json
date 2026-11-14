@@ -1,0 +1,82 @@
+{
+  "key": "equipment-energystar-model-index",
+  "parser_version": "equipment-model-structuring@1",
+  "package": "packages/equipment-model-structuring",
+  "golden_tests": [
+    "packages/equipment-model-structuring/test/energy-star.test.ts"
+  ],
+  "runner": "tooling/prototypes/equipment-energystar-model-index.ts",
+  "command": "pnpm exec tsx tooling/prototypes/equipment-energystar-model-index.ts equipment-energystar-model-index/model-index.csv equipment-energystar-model-index/upc-codes.csv (snapshot restored from the archive below)",
+  "snapshot": {
+    "source": "https://data.energystar.gov/resource/8wj2-sec8.json",
+    "retrieved": "2026-10-01",
+    "records": 1796876,
+    "archives": [
+      {
+        "bucket": "data-foundry-raw-artifacts",
+        "key": "research/pipeline/snapshots/equipment-energystar-model-index/2026-10-01/snapshot.tar.gz",
+        "bytes": 25677258,
+        "sha256": "e3a5c5792b3ab416790f71a594dd08a809c66d624b11e6dafc665f11d11b17f7"
+      }
+    ]
+  },
+  "errors": 0,
+  "fields": {
+    "source_id": {
+      "hits": 1796876,
+      "of": 1796876
+    },
+    "brand_key": {
+      "hits": 1796876,
+      "of": 1796876
+    },
+    "model_key": {
+      "hits": 1796875,
+      "of": 1796876
+    },
+    "model_is_pattern": {
+      "hits": 1576700,
+      "of": 1796876
+    },
+    "model_name": {
+      "hits": 1796876,
+      "of": 1796876
+    },
+    "product_type": {
+      "hits": 1796876,
+      "of": 1796876
+    },
+    "gtins": {
+      "hits": 11719,
+      "of": 1796876
+    },
+    "rejected_upcs": {
+      "hits": 886,
+      "of": 1796876
+    },
+    "markets": {
+      "hits": 1796875,
+      "of": 1796876
+    },
+    "markets.CA": {
+      "hits": 1644779,
+      "of": 1796876
+    },
+    "unknown_markets": {
+      "hits": 48,
+      "of": 1796876
+    },
+    "date_certified": {
+      "hits": 1796876,
+      "of": 1796876
+    },
+    "date_available": {
+      "hits": 1796876,
+      "of": 1796876
+    },
+    "most_efficient": {
+      "hits": 71602,
+      "of": 1796876
+    }
+  }
+}

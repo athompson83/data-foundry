@@ -1,0 +1,904 @@
+{
+ "fema_terms_page": 403,
+ "fema": {
+  "http": 200,
+  "total_all_time": 70423,
+  "newest": "2026-09-25T00:00:00.000Z",
+  "rows_since_2025_06": 2147,
+  "fields": [
+   "femaDeclarationString",
+   "disasterNumber",
+   "state",
+   "declarationType",
+   "declarationDate",
+   "fyDeclared",
+   "incidentType",
+   "declarationTitle",
+   "ihProgramDeclared",
+   "iaProgramDeclared",
+   "paProgramDeclared",
+   "hmProgramDeclared",
+   "incidentBeginDate",
+   "incidentEndDate",
+   "disasterCloseoutDate",
+   "tribalRequest",
+   "fipsStateCode",
+   "fipsCountyCode",
+   "placeCode",
+   "designatedArea",
+   "declarationRequestNumber",
+   "declarationRequestDate",
+   "lastIAFilingDate",
+   "incidentId",
+   "region",
+   "designatedIncidentTypes",
+   "lastRefresh",
+   "hash",
+   "id"
+  ],
+  "free_text": [
+   "declarationTitle (short title only)"
+  ],
+  "ids": [
+   "femaDeclarationString",
+   "disasterNumber",
+   "fipsStateCode+fipsCountyCode",
+   "placeCode",
+   "incidentId"
+  ],
+  "refresh_cadence": "accrualPeriodicity R/PT20M; lastDataSetRefresh 2026-10-01T13:48Z",
+  "metadata": {
+   "accessLevel": "public",
+   "license": null,
+   "accrualPeriodicity": "R/PT20M",
+   "temporal": "1953-05-01/",
+   "recordCount": 70423,
+   "lastDataSetRefresh": "2026-10-01T13:48:03.178Z",
+   "publisher": "FEMA/Office of External Affairs/Disaster Operations Division"
+  }
+ },
+ "nws": {
+  "http": 200,
+  "active_alerts": 347,
+  "ids": [
+   "id (urn:oid)",
+   "geocode.SAME",
+   "geocode.UGC",
+   "eventCode",
+   "parameters.AWIPSidentifier"
+  ],
+  "free_text": [
+   "headline",
+   "description",
+   "instruction"
+  ],
+  "desc_nonempty": 347,
+  "newest_sent": "2026-10-01T23:11:00+10:00",
+  "history_probe_2026-06-01_features": 0
+ },
+ "usgs_count_since_2026-09-01": "{\"count\":10854,\"maxAllowed\":20000}",
+ "usgs": {
+  "http": 200,
+  "m2.5_month_events": 2013,
+  "newest_time": "2026-10-01T13:36:26.180000",
+  "fields": [
+   "mag",
+   "place",
+   "time",
+   "updated",
+   "tz",
+   "url",
+   "detail",
+   "felt",
+   "cdi",
+   "mmi",
+   "alert",
+   "status",
+   "tsunami",
+   "sig",
+   "net",
+   "code",
+   "ids",
+   "sources",
+   "types",
+   "nst",
+   "dmin",
+   "rms",
+   "gap",
+   "magType",
+   "type",
+   "title"
+  ],
+  "ids": [
+   "id",
+   "ids",
+   "code",
+   "net",
+   "url"
+  ],
+  "free_text": [
+   "place (e.g. \"10 km N of Town, ST\")",
+   "title"
+  ],
+  "sample": [
+   "3 km SW of P\u0101hala, Hawaii",
+   "53 km SSE of King Salmon, Alaska",
+   "0 km NNE of Y\u014dkaichiba, Japan",
+   "2 km NNW of Little America, Wyoming",
+   "66 km ESE of Denali National Park, Alaska"
+  ]
+ },
+ "ncei": {
+  "http": 200,
+  "bytes": 7490892,
+  "rows_2026": 39062,
+  "months": [
+   "202601",
+   "202606"
+  ],
+  "event_narrative_nonempty": 32574,
+  "episode_narrative_nonempty": 39062,
+  "ids": [
+   "EVENT_ID",
+   "EPISODE_ID",
+   "STATE_FIPS",
+   "CZ_TYPE",
+   "CZ_FIPS",
+   "WFO"
+  ],
+  "free_text": [
+   "EVENT_NARRATIVE",
+   "EPISODE_NARRATIVE"
+  ],
+  "files_listed": [
+   "d2025_c20260819",
+   "d2026_c20260918"
+  ]
+ },
+ "eccc": {
+  "http": 200,
+  "day_dirs": [
+   "20261001"
+  ],
+  "day_listing_http": 200,
+  "wfo_dirs_sample": [
+   "CWTO/",
+   "CWUL/",
+   "CWWG/"
+  ],
+  "cap_files_found": 12,
+  "samples": [
+   {
+    "file": "20261001/CWTO/09/T_WOCN12_C_CWTO_202610010952_0616756551.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.0616756551.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "048620"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "3558051"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWTO/12/T_WOCN12_C_CWTO_202610011215_1455036853.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.1455036853.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "048620"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "3558051"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWUL/00/T_WOCN10_C_CWUL_202610010046_4123543157.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.4123543157.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "036220"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "2497007"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWUL/08/T_WOCN10_C_CWUL_202610010837_0373029928.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.0373029928.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "036220"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "2497007"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWUL/08/T_WOCN10_C_CWUL_202610010858_2367542369.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.2367542369.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "036220"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "2497007"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWUL/08/T_WOCN10_C_CWUL_202610010858_3979692030.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.3979692030.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "036220"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "2497007"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWWG/02/T_WOCN15_C_CWWG_202610010242_2553243156.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.2553243156.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "071310"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "4811032"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWWG/02/T_WOCN16_C_CWWG_202610010242_0363588641.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.0363588641.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "066400-075260"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "4717029"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWWG/10/T_WOCN15_C_CWWG_202610011034_3436154470.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.3436154470.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "071310"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "4811032"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWWG/10/T_WOCN16_C_CWWG_202610011034_4174752458.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.4174752458.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "066400-075260"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "4717029"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWWG/11/T_WOCN11_C_CWWG_202610011115_0810613960.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.0810613960.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "051110"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "4606028"
+     ]
+    ]
+   },
+   {
+    "file": "20261001/CWWG/11/T_WOCN13_C_CWWG_202610011115_0785918351.cap",
+    "http": 200,
+    "identifier": "urn:oid:2.49.0.1.124.0785918351.2026",
+    "has_description": true,
+    "geocodes": [
+     [
+      "layer:EC-MSC-SMC:1.0:CLC",
+      "061111"
+     ],
+     [
+      "profile:CAP-CP:Location:0.3",
+      "4708061"
+     ]
+    ]
+   }
+  ]
+ },
+ "linkA_nws_ncei": {
+  "nws_distinct_county_SAME": 555,
+  "matched_county_in_ncei2026": 321,
+  "nws_distinct_zone_UGC": 615,
+  "matched_zone_in_ncei2026": 365,
+  "event_level_overlap_note": "NWS API keeps only active alerts (history probe returned 0); NCEI 2026 ends 2026-06-30; time-overlapping event pairs = 0"
+ },
+ "linkB_fema_ncei": {
+  "fema_dr_county_rows_incident_2026": 543,
+  "with_ncei_county_event_in_window": 128,
+  "fema_rows_county_fips_present": 950
+ },
+ "samples": {
+  "fema": [
+   {
+    "femaDeclarationString": "EM-3654-HI",
+    "incidentType": "Tropical Storm",
+    "declarationTitle": "TROPICAL STORM NOLO",
+    "fipsStateCode": "15",
+    "fipsCountyCode": "001",
+    "incidentBeginDate": "2026-09-23T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "EM-3654-HI",
+    "incidentType": "Tropical Storm",
+    "declarationTitle": "TROPICAL STORM NOLO",
+    "fipsStateCode": "15",
+    "fipsCountyCode": "007",
+    "incidentBeginDate": "2026-09-23T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "EM-3654-HI",
+    "incidentType": "Tropical Storm",
+    "declarationTitle": "TROPICAL STORM NOLO",
+    "fipsStateCode": "15",
+    "fipsCountyCode": "009",
+    "incidentBeginDate": "2026-09-23T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "EM-3654-HI",
+    "incidentType": "Tropical Storm",
+    "declarationTitle": "TROPICAL STORM NOLO",
+    "fipsStateCode": "15",
+    "fipsCountyCode": "003",
+    "incidentBeginDate": "2026-09-23T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "FM-5676-AR",
+    "incidentType": "Fire",
+    "declarationTitle": "BUNKER FIRE",
+    "fipsStateCode": "05",
+    "fipsCountyCode": "013",
+    "incidentBeginDate": "2026-09-14T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "FM-5676-AR",
+    "incidentType": "Fire",
+    "declarationTitle": "BUNKER FIRE",
+    "fipsStateCode": "05",
+    "fipsCountyCode": "103",
+    "incidentBeginDate": "2026-09-14T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "FM-5677-TX",
+    "incidentType": "Fire",
+    "declarationTitle": "HYDRA FIRE",
+    "fipsStateCode": "48",
+    "fipsCountyCode": "035",
+    "incidentBeginDate": "2026-09-14T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4943-KS",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "20",
+    "fipsCountyCode": "153",
+    "incidentBeginDate": "2026-06-18T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4943-KS",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "20",
+    "fipsCountyCode": "063",
+    "incidentBeginDate": "2026-06-18T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4938-SD",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "46",
+    "fipsCountyCode": "017",
+    "incidentBeginDate": "2026-06-28T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4935-TX",
+    "incidentType": "Flood",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "48",
+    "fipsCountyCode": "507",
+    "incidentBeginDate": "2026-07-12T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4941-SD",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, AND FLOODING",
+    "fipsStateCode": "46",
+    "fipsCountyCode": "000",
+    "incidentBeginDate": "2026-06-02T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4938-SD",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "46",
+    "fipsCountyCode": "000",
+    "incidentBeginDate": "2026-06-28T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4939-MO",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, AND FLOODING",
+    "fipsStateCode": "29",
+    "fipsCountyCode": "221",
+    "incidentBeginDate": "2026-07-09T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4934-ND",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, AND TORNADOES",
+    "fipsStateCode": "38",
+    "fipsCountyCode": "105",
+    "incidentBeginDate": "2026-06-07T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4935-TX",
+    "incidentType": "Flood",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "48",
+    "fipsCountyCode": "105",
+    "incidentBeginDate": "2026-07-12T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4937-KY",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, FLOODING, LANDSLIDES, AND MUDSLIDES",
+    "fipsStateCode": "21",
+    "fipsCountyCode": "113",
+    "incidentBeginDate": "2026-06-26T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4937-KY",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, FLOODING, LANDSLIDES, AND MUDSLIDES",
+    "fipsStateCode": "21",
+    "fipsCountyCode": "183",
+    "incidentBeginDate": "2026-06-26T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4940-KS",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+    "fipsStateCode": "20",
+    "fipsCountyCode": "145",
+    "incidentBeginDate": "2026-06-04T00:00:00.000Z"
+   },
+   {
+    "femaDeclarationString": "DR-4937-KY",
+    "incidentType": "Severe Storm",
+    "declarationTitle": "SEVERE STORMS, STRAIGHT-LINE WINDS, FLOODING, LANDSLIDES, AND MUDSLIDES",
+    "fipsStateCode": "21",
+    "fipsCountyCode": "167",
+    "incidentBeginDate": "2026-06-26T00:00:00.000Z"
+   }
+  ],
+  "nws": [
+   {
+    "id": "7ecff405185e2d.001.1",
+    "event": "Coastal Flood Advisory",
+    "SAME": [
+     "012087"
+    ],
+    "desc_len": 436
+   },
+   {
+    "id": "7ecff405185e2d.002.1",
+    "event": "Coastal Flood Statement",
+    "SAME": [
+     "012087"
+    ],
+    "desc_len": 459
+   },
+   {
+    "id": "d4eedb8f598b05.001.1",
+    "event": "Small Craft Advisory",
+    "SAME": [
+     "092740",
+     "092741",
+     "092742"
+    ],
+    "desc_len": 276
+   },
+   {
+    "id": "840.0-KEEPALIVE-5839",
+    "event": "Test Message",
+    "SAME": [
+     "024031"
+    ],
+    "desc_len": 42
+   },
+   {
+    "id": "0d06a461016288.001.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "048465"
+    ],
+    "desc_len": 1402
+   },
+   {
+    "id": "0d06a461016288.002.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "048465"
+    ],
+    "desc_len": 1182
+   },
+   {
+    "id": "0d06a461016288.003.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "048465"
+    ],
+    "desc_len": 1419
+   },
+   {
+    "id": "71c6c206f8ffdb.001.1",
+    "event": "Small Craft Advisory",
+    "SAME": [
+     "077033",
+     "077034"
+    ],
+    "desc_len": 570
+   },
+   {
+    "id": "71c6c206f8ffdb.002.1",
+    "event": "Small Craft Advisory",
+    "SAME": [
+     "077052",
+     "077053",
+     "077054"
+    ],
+    "desc_len": 533
+   },
+   {
+    "id": "23fc81ff7d6d75.001.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "004005",
+     "004017"
+    ],
+    "desc_len": 273
+   },
+   {
+    "id": "41b94bc700233d.001.1",
+    "event": "Flood Advisory",
+    "SAME": [
+     "048319",
+     "048411"
+    ],
+    "desc_len": 628
+   },
+   {
+    "id": "3b218a4a9b4cbe.001.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "020005",
+     "020103"
+    ],
+    "desc_len": 1099
+   },
+   {
+    "id": "e8f47f010aefce.001.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "019155"
+    ],
+    "desc_len": 1106
+   },
+   {
+    "id": "21563a4e87941b.001.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "019071",
+     "019129"
+    ],
+    "desc_len": 913
+   },
+   {
+    "id": "a7b265efe53ab6.001.1",
+    "event": "Special Marine Warning",
+    "SAME": [
+     "077656",
+     "077657",
+     "077676"
+    ],
+    "desc_len": 942
+   },
+   {
+    "id": "1df746b8c67e7c.001.1",
+    "event": "Flash Flood Warning",
+    "SAME": [
+     "048113",
+     "048121",
+     "048439"
+    ],
+    "desc_len": 1052
+   },
+   {
+    "id": "3572099902a2ba.001.1",
+    "event": "Small Craft Advisory",
+    "SAME": [
+     "096144",
+     "096145",
+     "096146"
+    ],
+    "desc_len": 262
+   },
+   {
+    "id": "cd1de8f7b5fdfe.001.1",
+    "event": "Flood Advisory",
+    "SAME": [
+     "020041",
+     "020127"
+    ],
+    "desc_len": 626
+   },
+   {
+    "id": "e9af7ecb5210ae.001.1",
+    "event": "Flood Warning",
+    "SAME": [
+     "012069",
+     "012127"
+    ],
+    "desc_len": 1419
+   },
+   {
+    "id": "edefa5f593b35d.001.1",
+    "event": "Special Marine Warning",
+    "SAME": [
+     "075630",
+     "075650",
+     "075651"
+    ],
+    "desc_len": 1171
+   }
+  ],
+  "ncei": [
+   {
+    "EVENT_ID": "1318063",
+    "STATE_FIPS": "25",
+    "CZ_TYPE": "C",
+    "CZ_FIPS": "27",
+    "EVENT_TYPE": "Thunderstorm Wind",
+    "BEGIN_YEARMONTH": "202604",
+    "narr_len": 66
+   },
+   {
+    "EVENT_ID": "1318061",
+    "STATE_FIPS": "25",
+    "CZ_TYPE": "C",
+    "CZ_FIPS": "27",
+    "EVENT_TYPE": "Thunderstorm Wind",
+    "BEGIN_YEARMONTH": "202604",
+    "narr_len": 58
+   },
+   {
+    "EVENT_ID": "1318062",
+    "STATE_FIPS": "25",
+    "CZ_TYPE": "C",
+    "CZ_FIPS": "27",
+    "EVENT_TYPE": "Thunderstorm Wind",
+    "BEGIN_YEARMONTH": "202604",
+    "narr_len": 54
+   },
+   {
+    "EVENT_ID": "1318064",
+    "STATE_FIPS": "25",
+    "CZ_TYPE": "C",
+    "CZ_FIPS": "27",
+    "EVENT_TYPE": "Thunderstorm Wind",
+    "BEGIN_YEARMONTH": "202604",
+    "narr_len": 59
+   },
+   {
+    "EVENT_ID": "1312615",
+    "STATE_FIPS": "47",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "94",
+    "EVENT_TYPE": "Strong Wind",
+    "BEGIN_YEARMONTH": "202603",
+    "narr_len": 171
+   },
+   {
+    "EVENT_ID": "1312663",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "35",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202603",
+    "narr_len": 0
+   },
+   {
+    "EVENT_ID": "1312689",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "36",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202603",
+    "narr_len": 0
+   },
+   {
+    "EVENT_ID": "1319098",
+    "STATE_FIPS": "40",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "2",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 203
+   },
+   {
+    "EVENT_ID": "1318892",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "16",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 232
+   },
+   {
+    "EVENT_ID": "1318894",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "19",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 234
+   },
+   {
+    "EVENT_ID": "1318895",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "14",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 232
+   },
+   {
+    "EVENT_ID": "1318911",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "3",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 238
+   },
+   {
+    "EVENT_ID": "1318930",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "8",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 491
+   },
+   {
+    "EVENT_ID": "1318966",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "5",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 227
+   },
+   {
+    "EVENT_ID": "1316249",
+    "STATE_FIPS": "40",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "3",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 219
+   },
+   {
+    "EVENT_ID": "1319095",
+    "STATE_FIPS": "40",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "1",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 299
+   },
+   {
+    "EVENT_ID": "1318970",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "7",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 534
+   },
+   {
+    "EVENT_ID": "1318888",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "13",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 232
+   },
+   {
+    "EVENT_ID": "1318914",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "6",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 197
+   },
+   {
+    "EVENT_ID": "1318884",
+    "STATE_FIPS": "48",
+    "CZ_TYPE": "Z",
+    "CZ_FIPS": "18",
+    "EVENT_TYPE": "High Wind",
+    "BEGIN_YEARMONTH": "202602",
+    "narr_len": 198
+   }
+  ]
+ }
+}

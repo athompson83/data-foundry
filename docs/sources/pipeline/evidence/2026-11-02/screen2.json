@@ -1,0 +1,325 @@
+{
+ "legistar": {
+  "seattle": {
+   "sample": 200,
+   "newest_modified": "2026-10-30T21:47:42.41",
+   "max_matter_id": 17692,
+   "title_len_median": 102.0,
+   "title_over_100": 102,
+   "types": [
+    [
+     "Information Item (Inf)",
+     78
+    ],
+    [
+     "Council Bill (CB)",
+     44
+    ],
+    [
+     "Ordinance (Ord)",
+     30
+    ],
+    [
+     "Appointment (Appt)",
+     26
+    ]
+   ],
+   "fields": [
+    "MatterAgendaDate",
+    "MatterAgiloftId",
+    "MatterBodyId",
+    "MatterBodyName",
+    "MatterCost",
+    "MatterDate1",
+    "MatterDate2",
+    "MatterEXDate1",
+    "MatterEXDate10",
+    "MatterEXDate2",
+    "MatterEXDate3",
+    "MatterEXDate4",
+    "MatterEXDate5",
+    "MatterEXDate6",
+    "MatterEXDate7",
+    "MatterEXDate8",
+    "MatterEXDate9",
+    "MatterEXText1",
+    "MatterEXText10",
+    "MatterEXText11",
+    "MatterEXText2",
+    "MatterEXText3",
+    "MatterEXText4",
+    "MatterEXText5",
+    "MatterEXText6",
+    "MatterEXText7",
+    "MatterEXText8",
+    "MatterEXText9",
+    "MatterEnactmentDate",
+    "MatterEnactmentNumber",
+    "MatterFile",
+    "MatterGuid",
+    "MatterId",
+    "MatterIntroDate",
+    "MatterLastModifiedUtc",
+    "MatterName",
+    "MatterNotes",
+    "MatterPassedDate",
+    "MatterReference",
+    "MatterReports"
+   ],
+   "attachments_first": 1
+  },
+  "boston": {
+   "sample": 200,
+   "newest_modified": "2026-11-02T14:37:19.477",
+   "max_matter_id": 43754,
+   "title_len_median": 109.0,
+   "title_over_100": 103,
+   "types": [
+    [
+     "Consent Agenda Resolution",
+     77
+    ],
+    [
+     "Matters Recently Heard-For Possible Action",
+     22
+    ],
+    [
+     "Council Hearing Order",
+     19
+    ],
+    [
+     "Council Legislative Resolution",
+     18
+    ]
+   ],
+   "fields": [
+    "MatterAgendaDate",
+    "MatterAgiloftId",
+    "MatterBodyId",
+    "MatterBodyName",
+    "MatterCost",
+    "MatterDate1",
+    "MatterDate2",
+    "MatterEXDate1",
+    "MatterEXDate10",
+    "MatterEXDate2",
+    "MatterEXDate3",
+    "MatterEXDate4",
+    "MatterEXDate5",
+    "MatterEXDate6",
+    "MatterEXDate7",
+    "MatterEXDate8",
+    "MatterEXDate9",
+    "MatterEXText1",
+    "MatterEXText10",
+    "MatterEXText11",
+    "MatterEXText2",
+    "MatterEXText3",
+    "MatterEXText4",
+    "MatterEXText5",
+    "MatterEXText6",
+    "MatterEXText7",
+    "MatterEXText8",
+    "MatterEXText9",
+    "MatterEnactmentDate",
+    "MatterEnactmentNumber",
+    "MatterFile",
+    "MatterGuid",
+    "MatterId",
+    "MatterIntroDate",
+    "MatterLastModifiedUtc",
+    "MatterName",
+    "MatterNotes",
+    "MatterPassedDate",
+    "MatterReference",
+    "MatterReports"
+   ],
+   "attachments_first": 1
+  },
+  "phoenix": {
+   "sample": 200,
+   "newest_modified": "2026-10-31T02:05:17.9",
+   "max_matter_id": 36461,
+   "title_len_median": 104.0,
+   "title_over_100": 107,
+   "types": [
+    [
+     "Ordinance-S",
+     67
+    ],
+    [
+     "Law Dept. Consolidated S-Ordinance",
+     31
+    ],
+    [
+     "License - Liquor",
+     27
+    ],
+    [
+     "License - Special Event",
+     18
+    ]
+   ],
+   "fields": [
+    "MatterAgendaDate",
+    "MatterAgiloftId",
+    "MatterBodyId",
+    "MatterBodyName",
+    "MatterCost",
+    "MatterDate1",
+    "MatterDate2",
+    "MatterEXDate1",
+    "MatterEXDate10",
+    "MatterEXDate2",
+    "MatterEXDate3",
+    "MatterEXDate4",
+    "MatterEXDate5",
+    "MatterEXDate6",
+    "MatterEXDate7",
+    "MatterEXDate8",
+    "MatterEXDate9",
+    "MatterEXText1",
+    "MatterEXText10",
+    "MatterEXText11",
+    "MatterEXText2",
+    "MatterEXText3",
+    "MatterEXText4",
+    "MatterEXText5",
+    "MatterEXText6",
+    "MatterEXText7",
+    "MatterEXText8",
+    "MatterEXText9",
+    "MatterEnactmentDate",
+    "MatterEnactmentNumber",
+    "MatterFile",
+    "MatterGuid",
+    "MatterId",
+    "MatterIntroDate",
+    "MatterLastModifiedUtc",
+    "MatterName",
+    "MatterNotes",
+    "MatterPassedDate",
+    "MatterReference",
+    "MatterReports"
+   ],
+   "attachments_first": 4
+  },
+  "pittsburgh": {
+   "sample": 200,
+   "newest_modified": "2026-11-02T14:31:50.4",
+   "max_matter_id": 33831,
+   "title_len_median": 308.0,
+   "title_over_100": 190,
+   "types": [
+    [
+     "Resolution",
+     105
+    ],
+    [
+     "Report",
+     27
+    ],
+    [
+     "Proclamation",
+     20
+    ],
+    [
+     "Ordinance",
+     20
+    ]
+   ],
+   "fields": [
+    "MatterAgendaDate",
+    "MatterAgiloftId",
+    "MatterBodyId",
+    "MatterBodyName",
+    "MatterCost",
+    "MatterDate1",
+    "MatterDate2",
+    "MatterEXDate1",
+    "MatterEXDate10",
+    "MatterEXDate2",
+    "MatterEXDate3",
+    "MatterEXDate4",
+    "MatterEXDate5",
+    "MatterEXDate6",
+    "MatterEXDate7",
+    "MatterEXDate8",
+    "MatterEXDate9",
+    "MatterEXText1",
+    "MatterEXText10",
+    "MatterEXText11",
+    "MatterEXText2",
+    "MatterEXText3",
+    "MatterEXText4",
+    "MatterEXText5",
+    "MatterEXText6",
+    "MatterEXText7",
+    "MatterEXText8",
+    "MatterEXText9",
+    "MatterEnactmentDate",
+    "MatterEnactmentNumber",
+    "MatterFile",
+    "MatterGuid",
+    "MatterId",
+    "MatterIntroDate",
+    "MatterLastModifiedUtc",
+    "MatterName",
+    "MatterNotes",
+    "MatterPassedDate",
+    "MatterReference",
+    "MatterReports"
+   ],
+   "attachments_first": 0
+  }
+ },
+ "cms_nursing_citations": {
+  "count": 418682,
+  "sample": 500,
+  "desc_len_median": 115.0,
+  "desc_len_max": 286,
+  "scope_codes": [
+   [
+    "D",
+    317
+   ],
+   [
+    "E",
+    70
+   ],
+   [
+    "F",
+    53
+   ],
+   [
+    "G",
+    48
+   ],
+   [
+    "J",
+    5
+   ],
+   [
+    "C",
+    3
+   ],
+   [
+    "B",
+    3
+   ],
+   [
+    "K",
+    1
+   ]
+  ],
+  "distinct_ccn_in_sample": 17,
+  "meta_released": "2026-10-28"
+ },
+ "fema_pa": {
+  "count": 0,
+  "sample": 500,
+  "title_len_median": 40.0,
+  "title_over_40": 222
+ },
+ "fcsi_zip_error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1018)>"
+}

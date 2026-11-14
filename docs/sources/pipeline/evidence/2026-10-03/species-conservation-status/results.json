@@ -1,0 +1,286 @@
+{
+ "ecos_listed_total": 2478,
+ "ecos_listed_unique_names": 2324,
+ "ecos_recovery_doc_rows": 1834,
+ "canada_ch_distinct_rows": 459,
+ "canada_ch_unique_names": 273,
+ "exact_name_overlap_listed": 19,
+ "gbif_key_pairs": 21,
+ "gbif_key_pairs_not_exact_name": [
+  [
+   "vulpes velox",
+   "vulpes velox hebes"
+  ],
+  [
+   "ambystoma mavortium",
+   "ambystoma mavortium stebbinsi"
+  ]
+ ],
+ "exact_pairs_sample": [
+  {
+   "sci": "accipiter gentilis laingi",
+   "ecos_common": "Queen Charlotte goshawk",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/6751",
+   "ca_common": "Northern Goshawk laingi subspecies",
+   "ca_sara": 3,
+   "ca_cosewic_id": 56
+  },
+  {
+   "sci": "bombus affinis",
+   "ecos_common": "Rusty patched bumble bee",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/9383",
+   "ca_common": "Rusty-patched Bumble Bee",
+   "ca_sara": 2,
+   "ca_cosewic_id": 1081
+  },
+  {
+   "sci": "brachyramphus marmoratus",
+   "ecos_common": "Marbled Murrelet",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/4467",
+   "ca_common": "Marbled Murrelet",
+   "ca_sara": 3,
+   "ca_cosewic_id": 39
+  },
+  {
+   "sci": "brychius hungerfordi",
+   "ecos_common": "Hungerford's crawling water Beetle",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/6123",
+   "ca_common": "Hungerford's Crawling Water Beetle",
+   "ca_sara": 2,
+   "ca_cosewic_id": 1146
+  },
+  {
+   "sci": "calidris canutus rufa",
+   "ecos_common": "rufa red knot",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/1864",
+   "ca_common": "Red Knot rufa subspecies",
+   "ca_sara": 2,
+   "ca_cosewic_id": 980
+  },
+  {
+   "sci": "euphydryas editha taylori",
+   "ecos_common": "Taylor's (=whulge) Checkerspot",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/5907",
+   "ca_common": "Taylor's Checkerspot ",
+   "ca_sara": 2,
+   "ca_cosewic_id": 649
+  },
+  {
+   "sci": "grus americana",
+   "ecos_common": "Whooping crane",
+   "ecos_status": "Experimental Population, Non-Essential",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/758",
+   "ca_common": "Whooping Crane",
+   "ca_sara": 2,
+   "ca_cosewic_id": 34
+  },
+  {
+   "sci": "isotria medeoloides",
+   "ecos_common": "Small whorled pogonia",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/1890",
+   "ca_common": "Small Whorled Pogonia",
+   "ca_sara": 2,
+   "ca_cosewic_id": 194
+  },
+  {
+   "sci": "marmota vancouverensis",
+   "ecos_common": "Vancouver Island marmot",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/6990",
+   "ca_common": "Vancouver Island Marmot",
+   "ca_sara": 2,
+   "ca_cosewic_id": 136
+  },
+  {
+   "sci": "mustela nigripes",
+   "ecos_common": "Black-footed ferret",
+   "ecos_status": "Experimental Population, Non-Essential",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/6953",
+   "ca_common": "Black-footed Ferret",
+   "ca_sara": 1,
+   "ca_cosewic_id": 138
+  },
+  {
+   "sci": "myotis septentrionalis",
+   "ecos_common": "Northern Long-Eared Bat",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/9045",
+   "ca_common": "Northern Myotis",
+   "ca_sara": 2,
+   "ca_cosewic_id": 1175
+  },
+  {
+   "sci": "oarisma poweshiek",
+   "ecos_common": "Poweshiek skipperling",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/9161",
+   "ca_common": "Poweshiek Skipperling",
+   "ca_sara": 3,
+   "ca_cosewic_id": 796
+  },
+  {
+   "sci": "platanthera leucophaea",
+   "ecos_common": "Eastern prairie fringed orchid",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/601",
+   "ca_common": "Eastern Prairie Fringed-orchid",
+   "ca_sara": 2,
+   "ca_cosewic_id": 248
+  },
+  {
+   "sci": "platanthera praeclara",
+   "ecos_common": "Western prairie fringed Orchid",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/1669",
+   "ca_common": "Western Prairie Fringed-orchid",
+   "ca_sara": 2,
+   "ca_cosewic_id": 200
+  },
+  {
+   "sci": "rana pretiosa",
+   "ecos_common": "Oregon spotted frog",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/6633",
+   "ca_common": "Oregon Spotted Frog",
+   "ca_sara": 2,
+   "ca_cosewic_id": 614
+  },
+  {
+   "sci": "silene spaldingii",
+   "ecos_common": "Spalding's Catchfly",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/3681",
+   "ca_common": "Spalding's Campion",
+   "ca_sara": 2,
+   "ca_cosewic_id": 867
+  },
+  {
+   "sci": "sistrurus catenatus",
+   "ecos_common": "Eastern Massasauga (=rattlesnake)",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/2202",
+   "ca_common": "Massasauga",
+   "ca_sara": 2,
+   "ca_cosewic_id": 1221
+  },
+  {
+   "sci": "somatochlora hineana",
+   "ecos_common": "Hine's emerald dragonfly",
+   "ecos_status": "Endangered",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/7877",
+   "ca_common": "Hine's Emerald",
+   "ca_sara": 2,
+   "ca_cosewic_id": 1145
+  },
+  {
+   "sci": "strix occidentalis caurina",
+   "ecos_common": "Northern spotted owl",
+   "ecos_status": "Threatened",
+   "ecos_url": "https://ecos.fws.gov/ecp/species/1123",
+   "ca_common": "Spotted Owl caurina subspecies",
+   "ca_sara": 2,
+   "ca_cosewic_id": 33
+  }
+ ],
+ "gbif_errors_after_retry": {
+  "canada": 0,
+  "ecos": 0
+ },
+ "gbif_lookups": {
+  "canada": 273,
+  "ecos": 180
+ },
+ "gbif_key_pairs_list": [
+  [
+   "grus americana",
+   "grus americana"
+  ],
+  [
+   "rana pretiosa",
+   "rana pretiosa"
+  ],
+  [
+   "myotis septentrionalis",
+   "myotis septentrionalis"
+  ],
+  [
+   "sistrurus catenatus",
+   "sistrurus catenatus"
+  ],
+  [
+   "calidris canutus rufa",
+   "calidris canutus rufa"
+  ],
+  [
+   "mustela nigripes",
+   "mustela nigripes"
+  ],
+  [
+   "bombus affinis",
+   "bombus affinis"
+  ],
+  [
+   "oarisma poweshiek",
+   "oarisma poweshiek"
+  ],
+  [
+   "vulpes velox",
+   "vulpes velox hebes"
+  ],
+  [
+   "strix occidentalis caurina",
+   "strix occidentalis caurina"
+  ],
+  [
+   "isotria medeoloides",
+   "isotria medeoloides"
+  ],
+  [
+   "accipiter gentilis laingi",
+   "accipiter gentilis laingi"
+  ],
+  [
+   "ambystoma mavortium",
+   "ambystoma mavortium stebbinsi"
+  ],
+  [
+   "platanthera leucophaea",
+   "platanthera leucophaea"
+  ],
+  [
+   "marmota vancouverensis",
+   "marmota vancouverensis"
+  ],
+  [
+   "brachyramphus marmoratus",
+   "brachyramphus marmoratus"
+  ],
+  [
+   "euphydryas editha taylori",
+   "euphydryas editha taylori"
+  ],
+  [
+   "somatochlora hineana",
+   "somatochlora hineana"
+  ],
+  [
+   "brychius hungerfordi",
+   "brychius hungerfordi"
+  ],
+  [
+   "platanthera praeclara",
+   "platanthera praeclara"
+  ],
+  [
+   "silene spaldingii",
+   "silene spaldingii"
+  ]
+ ]
+}

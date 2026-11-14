@@ -1,0 +1,22 @@
+{
+ "sampled": 200,
+ "with_barcode_field": 25,
+ "valid_gtin": 19,
+ "distinct_gtins": 19,
+ "cpsc_since_2023_recalls": 1563,
+ "cpsc_distinct_valid_gtins_in_json": 282,
+ "overlap": [],
+ "field_presence": {
+  "hazard": 199,
+  "model": 106,
+  "brand": 125,
+  "corrective": 199,
+  "notif": 172
+ },
+ "alert_types": {
+  "product-safety-report": 144,
+  "product-recall": 55,
+  "product-safety-alert": 1
+ },
+ "opss_total_search": 3822
+}

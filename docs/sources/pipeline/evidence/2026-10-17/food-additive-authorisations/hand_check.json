@@ -1,0 +1,307 @@
+{
+ "method": "Reviewer read each pair (EU Union-list name and E-number against FDA substance name and CAS number) and judged whether both name the same additive, using the E-number to CAS correspondence in the reviewer own chemical knowledge; every third pair of the 111 exact normalised-name pairs.",
+ "checked": 37,
+ "correct": 37,
+ "pairs": [
+  {
+   "index": 0,
+   "eu_name": "Ascorbic acid",
+   "eu_e": "E 300",
+   "fda_substance": "ASCORBIC ACID",
+   "fda_cas": "50-81-7",
+   "same_substance": true
+  },
+  {
+   "index": 3,
+   "eu_name": "Sodium nitrite",
+   "eu_e": "E 250",
+   "fda_substance": "SODIUM NITRITE",
+   "fda_cas": "7632-00-0",
+   "same_substance": true
+  },
+  {
+   "index": 6,
+   "eu_name": "Potassium nitrate",
+   "eu_e": "E 252",
+   "fda_substance": "POTASSIUM NITRATE",
+   "fda_cas": "7757-79-1",
+   "same_substance": true
+  },
+  {
+   "index": 9,
+   "eu_name": "Potassium lactate",
+   "eu_e": "E 326",
+   "fda_substance": "POTASSIUM LACTATE",
+   "fda_cas": "996-31-6",
+   "same_substance": true
+  },
+  {
+   "index": 12,
+   "eu_name": "Calcium lactate",
+   "eu_e": "E 327",
+   "fda_substance": "CALCIUM LACTATE",
+   "fda_cas": "814-80-2",
+   "same_substance": true
+  },
+  {
+   "index": 15,
+   "eu_name": "Lactic acid",
+   "eu_e": "E 270",
+   "fda_substance": "LACTIC ACID",
+   "fda_cas": "50-21-5",
+   "same_substance": true
+  },
+  {
+   "index": 18,
+   "eu_name": "Calcium propionate",
+   "eu_e": "E 282",
+   "fda_substance": "CALCIUM PROPIONATE",
+   "fda_cas": "4075-81-4",
+   "same_substance": true
+  },
+  {
+   "index": 21,
+   "eu_name": "Carbon dioxide",
+   "eu_e": "E 290",
+   "fda_substance": "CARBON DIOXIDE",
+   "fda_cas": "124-38-9",
+   "same_substance": true
+  },
+  {
+   "index": 24,
+   "eu_name": "Dodecyl gallate",
+   "eu_e": "E 312/REMOVED FROM THE UNION LIST",
+   "fda_substance": "DODECYL GALLATE",
+   "fda_cas": "1166-52-5",
+   "same_substance": true,
+   "note": "EU row is flagged \"REMOVED FROM THE UNION LIST\" in its E-number field: same substance, but the EU authorisation is withdrawn."
+  },
+  {
+   "index": 27,
+   "eu_name": "Canthaxanthin",
+   "eu_e": "E 161g",
+   "fda_substance": "CANTHAXANTHIN",
+   "fda_cas": "514-78-3",
+   "same_substance": true
+  },
+  {
+   "index": 30,
+   "eu_name": "Titanium dioxide",
+   "eu_e": "E 171",
+   "fda_substance": "TITANIUM DIOXIDE",
+   "fda_cas": "13463-67-7",
+   "same_substance": true
+  },
+  {
+   "index": 33,
+   "eu_name": "Sorbic acid",
+   "eu_e": "E 200",
+   "fda_substance": "SORBIC ACID",
+   "fda_cas": "110-44-1",
+   "same_substance": true
+  },
+  {
+   "index": 36,
+   "eu_name": "Potassium benzoate",
+   "eu_e": "E 212",
+   "fda_substance": "POTASSIUM BENZOATE",
+   "fda_cas": "582-25-2",
+   "same_substance": true
+  },
+  {
+   "index": 39,
+   "eu_name": "Aspartame",
+   "eu_e": "E 951",
+   "fda_substance": "ASPARTAME",
+   "fda_cas": "22839-47-0",
+   "same_substance": true
+  },
+  {
+   "index": 42,
+   "eu_name": "Benzyl alcohol",
+   "eu_e": "E 1519",
+   "fda_substance": "BENZYL ALCOHOL",
+   "fda_cas": "100-51-6",
+   "same_substance": true
+  },
+  {
+   "index": 45,
+   "eu_name": "Polydextrose",
+   "eu_e": "E 1200",
+   "fda_substance": "POLYDEXTROSE",
+   "fda_cas": "68424-04-4",
+   "same_substance": true
+  },
+  {
+   "index": 48,
+   "eu_name": "Hydrochloric acid",
+   "eu_e": "E 507",
+   "fda_substance": "HYDROCHLORIC ACID",
+   "fda_cas": "7647-01-0",
+   "same_substance": true
+  },
+  {
+   "index": 51,
+   "eu_name": "Calcium chloride",
+   "eu_e": "E 509",
+   "fda_substance": "CALCIUM CHLORIDE",
+   "fda_cas": "10035-04-8",
+   "same_substance": true,
+   "note": "FDA CAS 10035-04-8 is the dihydrate; same additive (E 509)."
+  },
+  {
+   "index": 54,
+   "eu_name": "Magnesium chloride",
+   "eu_e": "E 511",
+   "fda_substance": "MAGNESIUM CHLORIDE",
+   "fda_cas": "7786-30-3",
+   "same_substance": true
+  },
+  {
+   "index": 57,
+   "eu_name": "Sodium gluconate",
+   "eu_e": "E 576",
+   "fda_substance": "SODIUM GLUCONATE",
+   "fda_cas": "527-07-1",
+   "same_substance": true
+  },
+  {
+   "index": 60,
+   "eu_name": "Ferrous gluconate",
+   "eu_e": "E 579",
+   "fda_substance": "FERROUS GLUCONATE",
+   "fda_cas": "6047-12-7",
+   "same_substance": true,
+   "note": "FDA CAS 6047-12-7 is the dihydrate; same additive (E 579)."
+  },
+  {
+   "index": 63,
+   "eu_name": "Sodium hydroxide",
+   "eu_e": "E 524",
+   "fda_substance": "SODIUM HYDROXIDE",
+   "fda_cas": "1310-73-2",
+   "same_substance": true
+  },
+  {
+   "index": 66,
+   "eu_name": "Potassium hydroxide",
+   "eu_e": "E 525",
+   "fda_substance": "POTASSIUM HYDROXIDE",
+   "fda_cas": "1310-58-3",
+   "same_substance": true
+  },
+  {
+   "index": 69,
+   "eu_name": "Calcium hydroxide",
+   "eu_e": "E 526",
+   "fda_substance": "CALCIUM HYDROXIDE",
+   "fda_cas": "1305-62-0",
+   "same_substance": true
+  },
+  {
+   "index": 72,
+   "eu_name": "Ammonium hydroxide",
+   "eu_e": "E 527",
+   "fda_substance": "AMMONIUM HYDROXIDE",
+   "fda_cas": "1336-21-6",
+   "same_substance": true
+  },
+  {
+   "index": 75,
+   "eu_name": "Sorbitan monooleate",
+   "eu_e": "E 494",
+   "fda_substance": "SORBITAN MONOOLEATE",
+   "fda_cas": "1338-43-8",
+   "same_substance": true
+  },
+  {
+   "index": 78,
+   "eu_name": "Helium",
+   "eu_e": "E 939",
+   "fda_substance": "HELIUM",
+   "fda_cas": "7440-59-7",
+   "same_substance": true
+  },
+  {
+   "index": 81,
+   "eu_name": "Isobutane",
+   "eu_e": "E 943b",
+   "fda_substance": "ISOBUTANE",
+   "fda_cas": "75-28-5",
+   "same_substance": true
+  },
+  {
+   "index": 84,
+   "eu_name": "Silicon dioxide",
+   "eu_e": "E 551",
+   "fda_substance": "SILICON DIOXIDE",
+   "fda_cas": "7631-86-9",
+   "same_substance": true
+  },
+  {
+   "index": 87,
+   "eu_name": "Zinc acetate",
+   "eu_e": "E 650",
+   "fda_substance": "ZINC ACETATE",
+   "fda_cas": "557-34-6",
+   "same_substance": true
+  },
+  {
+   "index": 90,
+   "eu_name": "Chlorine dioxide",
+   "eu_e": "E 926",
+   "fda_substance": "CHLORINE DIOXIDE",
+   "fda_cas": "10049-04-4",
+   "same_substance": true
+  },
+  {
+   "index": 93,
+   "eu_name": "Sodium diacetate\u00a0",
+   "eu_e": "E 262(ii)",
+   "fda_substance": "SODIUM DIACETATE",
+   "fda_cas": "126-96-5",
+   "same_substance": true,
+   "note": "EU name carries a trailing non-breaking space; normalised before matching."
+  },
+  {
+   "index": 96,
+   "eu_name": "Hydroxypropyl cellulose",
+   "eu_e": "E 463",
+   "fda_substance": "HYDROXYPROPYL CELLULOSE",
+   "fda_cas": "9004-64-2",
+   "same_substance": true
+  },
+  {
+   "index": 99,
+   "eu_name": "Adipic acid",
+   "eu_e": "E 355",
+   "fda_substance": "ADIPIC ACID",
+   "fda_cas": "124-04-9",
+   "same_substance": true
+  },
+  {
+   "index": 102,
+   "eu_name": "Xanthan gum",
+   "eu_e": "E 415",
+   "fda_substance": "XANTHAN GUM",
+   "fda_cas": "11138-66-2",
+   "same_substance": true
+  },
+  {
+   "index": 105,
+   "eu_name": "Gellan gum",
+   "eu_e": "E 418",
+   "fda_substance": "GELLAN GUM",
+   "fda_cas": "71010-52-1",
+   "same_substance": true
+  },
+  {
+   "index": 108,
+   "eu_name": "Calcium ascorbate",
+   "eu_e": "E 302",
+   "fda_substance": "CALCIUM ASCORBATE",
+   "fda_cas": "5743-27-1",
+   "same_substance": true
+  }
+ ]
+}

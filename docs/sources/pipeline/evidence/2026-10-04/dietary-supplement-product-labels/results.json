@@ -1,0 +1,1457 @@
+{
+ "dsld": {
+  "reach_status": 200,
+  "total_labels": 214780,
+  "newest_entryDate": "2025-09-25",
+  "version": {
+   "title": "DSLD API",
+   "config": "production",
+   "version": "9.5.0",
+   "versionTimeStamp": "May 2026",
+   "esIndexProcessed": "dsldnxt_labels-2025-09-25n and dsldnxt_ing_groups-2025-09-25n"
+  },
+  "sample_n": 48,
+  "sample_ids": [
+   20658,
+   26315,
+   26999,
+   31408,
+   31990,
+   32248,
+   33433,
+   33919,
+   37624,
+   38977,
+   43915,
+   46061,
+   50351,
+   55030,
+   62757,
+   65907,
+   70821,
+   76631,
+   80088,
+   208001,
+   208974,
+   220242,
+   220749,
+   223570,
+   228355,
+   238599,
+   245109,
+   261264,
+   267042,
+   279774,
+   281956,
+   284475,
+   288175,
+   289907,
+   292852,
+   294736,
+   296891,
+   297460,
+   300323,
+   300475,
+   302163,
+   303568,
+   305925,
+   306548,
+   306658,
+   307992,
+   308003,
+   325539
+  ],
+  "upc_present": 40,
+  "upc_checkdigit_valid": 37,
+  "claims_nonempty": 48,
+  "statements_nonempty": 48,
+  "ingredient_rows_nonempty": 48,
+  "ingredient_rows_total": 227,
+  "ingredient_rows_with_unii": 100,
+  "entry_year_counts": {
+   "2013": 3,
+   "2014": 7,
+   "2015": 4,
+   "2016": 2,
+   "2017": 3,
+   "2019": 2,
+   "2020": 5,
+   "2021": 1,
+   "2022": 4,
+   "2023": 10,
+   "2024": 6,
+   "2025": 1
+  },
+  "offMarket_counts": {
+   "1": 22,
+   "0": 26
+  },
+  "statement_types_top": [
+   [
+    "General Statements: All Other Content",
+    109
+   ],
+   [
+    "Suggested/Recommended/Usage/Directions",
+    54
+   ],
+   [
+    "Formula re: Contains",
+    53
+   ],
+   [
+    "Brand IP Statement(s) re: (c), (TM), (SM)",
+    49
+   ],
+   [
+    "Formulation re: Other",
+    49
+   ],
+   [
+    "Precautions re: All Other",
+    48
+   ],
+   [
+    "Precautions re: Children",
+    45
+   ],
+   [
+    "Formulation re: Does NOT Contain",
+    45
+   ]
+  ],
+  "sample_trim": [
+   {
+    "id": 20658,
+    "fullName": "Super Potency Biotin 5000 mcg",
+    "brandName": "21st Century",
+    "upcSku": "7 40985 27116 2",
+    "entryDate": "2013-04-25",
+    "n_ingredients": 2
+   },
+   {
+    "id": 26315,
+    "fullName": "Glucosamine Chondroitin Complex Advanced",
+    "brandName": "Safeway Care",
+    "upcSku": "0 21130 78651 0",
+    "entryDate": "2013-11-25",
+    "n_ingredients": 8
+   },
+   {
+    "id": 26999,
+    "fullName": "Cal Mag D",
+    "brandName": "NutriLite",
+    "upcSku": "",
+    "entryDate": "2013-11-25",
+    "n_ingredients": 8
+   },
+   {
+    "id": 31408,
+    "fullName": "Borage/GLA 1000 mg",
+    "brandName": "Protocol For Life Balance",
+    "upcSku": "7 07359 11720 4",
+    "entryDate": "2014-03-25",
+    "n_ingredients": 3
+   },
+   {
+    "id": 31990,
+    "fullName": "Cardio Synergy Herbal",
+    "brandName": "Designs for Health",
+    "upcSku": "8 79452 00402 3",
+    "entryDate": "2014-04-25",
+    "n_ingredients": 5
+   },
+   {
+    "id": 32248,
+    "fullName": "Xylitol Gum Green Tea",
+    "brandName": "Nature's Sunshine Nature's Sweet Life",
+    "upcSku": "0 99904 05403 5",
+    "entryDate": "2014-04-25",
+    "n_ingredients": 5
+   },
+   {
+    "id": 33433,
+    "fullName": "M3",
+    "brandName": "Monster Energy",
+    "upcSku": "",
+    "entryDate": "2014-05-23",
+    "n_ingredients": 10
+   },
+   {
+    "id": 33919,
+    "fullName": "Magnesium Glycinate",
+    "brandName": "Vinco's",
+    "upcSku": "7 39930 19531 8",
+    "entryDate": "2014-06-25",
+    "n_ingredients": 2
+   },
+   {
+    "id": 37624,
+    "fullName": "QH-absorb 100 mg",
+    "brandName": "Jarrow Formulas",
+    "upcSku": "7 90011 06025 3",
+    "entryDate": "2014-10-10",
+    "n_ingredients": 1
+   },
+   {
+    "id": 38977,
+    "fullName": "Origanox",
+    "brandName": "OL Olympian Labs",
+    "upcSku": "7 10013 03159 4",
+    "entryDate": "2014-10-27",
+    "n_ingredients": 1
+   },
+   {
+    "id": 43915,
+    "fullName": "R-ALA-200",
+    "brandName": "AST Sports Science",
+    "upcSku": "7 05077 00265 9",
+    "entryDate": "2015-03-25",
+    "n_ingredients": 1
+   },
+   {
+    "id": 46061,
+    "fullName": "TrimULean Chocolate",
+    "brandName": "Chews-4-Health International",
+    "upcSku": "7 05105 62196 8",
+    "entryDate": "2015-06-25",
+    "n_ingredients": 4
+   },
+   {
+    "id": 50351,
+    "fullName": "ImmunoBoost",
+    "brandName": "Herbs Etc.",
+    "upcSku": "7 65704 11102 4",
+    "entryDate": "2015-09-25",
+    "n_ingredients": 1
+   },
+   {
+    "id": 55030,
+    "fullName": "Especially for Men",
+    "brandName": "The Vitamin Shoppe",
+    "upcSku": "7 66536 01313 5",
+    "entryDate": "2015-12-23",
+    "n_ingredients": 41
+   },
+   {
+    "id": 62757,
+    "fullName": "Vision Performance",
+    "brandName": "Dr. Krawitz",
+    "upcSku": "8 99205 00034 8",
+    "entryDate": "2016-07-25",
+    "n_ingredients": 12
+   },
+   {
+    "id": 65907,
+    "fullName": "Benfotiamine",
+    "brandName": "XYMOGEN",
+    "upcSku": "8 71149 00361 6",
+    "entryDate": "2016-10-22",
+    "n_ingredients": 1
+   },
+   {
+    "id": 70821,
+    "fullName": "Sweet Dreams Pear Flavor",
+    "brandName": "Instavit",
+    "upcSku": "8 12189 02002 7",
+    "entryDate": "2017-02-24",
+    "n_ingredients": 1
+   },
+   {
+    "id": 76631,
+    "fullName": "ParaFree",
+    "brandName": "Herbs, Etc.",
+    "upcSku": "7 65704 52536 4",
+    "entryDate": "2017-07-25",
+    "n_ingredients": 2
+   },
+   {
+    "id": 80088,
+    "fullName": "Methyl B-12 1000 Micrograms",
+    "brandName": "NutraBio",
+    "upcSku": "6 49908 51596 6",
+    "entryDate": "2017-11-20",
+    "n_ingredients": 1
+   },
+   {
+    "id": 208001,
+    "fullName": "Cranberry Bladder Control",
+    "brandName": "Whitaker Nutrition",
+    "upcSku": "6 78829 21256 2",
+    "entryDate": "2019-10-23",
+    "n_ingredients": 2
+   },
+   {
+    "id": 208974,
+    "fullName": "Flex",
+    "brandName": "AdvoCare FIT",
+    "upcSku": "",
+    "entryDate": "2019-11-21",
+    "n_ingredients": 7
+   },
+   {
+    "id": 220242,
+    "fullName": "African Mango Seed",
+    "brandName": "Samsara Herbs",
+    "upcSku": "X0017NBHYD",
+    "entryDate": "2020-05-22",
+    "n_ingredients": 1
+   },
+   {
+    "id": 220749,
+    "fullName": "Kudzu",
+    "brandName": "Samsara Herbs",
+    "upcSku": "X000YHMX7D",
+    "entryDate": "2020-05-22",
+    "n_ingredients": 1
+   },
+   {
+    "id": 223570,
+    "fullName": "Ultra GHT Male Maximum Strength",
+    "brandName": "Natures Plus",
+    "upcSku": "0 97467 48720 8",
+    "entryDate": "2020-06-24",
+    "n_ingredients": 23
+   },
+   {
+    "id": 228355,
+    "fullName": "Female Multiple",
+    "brandName": "Solgar",
+    "upcSku": "0 33984 59199 8",
+    "entryDate": "2020-07-23",
+    "n_ingredients": 41
+   }
+  ],
+  "q_NPN_total": 334
+ },
+ "dsld_npn": {
+  "labels_fetched": 120,
+  "labels_with_8digit_npn": 120,
+  "pairs": [
+   [
+    70540,
+    "80031290"
+   ],
+   [
+    70540,
+    "80031290"
+   ],
+   [
+    54974,
+    "80044719"
+   ],
+   [
+    54974,
+    "80044721"
+   ],
+   [
+    54975,
+    "80044719"
+   ],
+   [
+    54975,
+    "80044721"
+   ],
+   [
+    54973,
+    "80044719"
+   ],
+   [
+    54973,
+    "80044721"
+   ],
+   [
+    272912,
+    "80023080"
+   ],
+   [
+    272917,
+    "80009339"
+   ],
+   [
+    273000,
+    "80079890"
+   ],
+   [
+    273095,
+    "80039352"
+   ],
+   [
+    273128,
+    "80111795"
+   ],
+   [
+    273164,
+    "80033806"
+   ],
+   [
+    273185,
+    "80033148"
+   ],
+   [
+    273188,
+    "80072213"
+   ],
+   [
+    273218,
+    "80024409"
+   ],
+   [
+    273232,
+    "80029764"
+   ],
+   [
+    273254,
+    "80024885"
+   ],
+   [
+    273269,
+    "80040746"
+   ],
+   [
+    273272,
+    "80042711"
+   ],
+   [
+    273283,
+    "80046851"
+   ],
+   [
+    273343,
+    "80061791"
+   ],
+   [
+    273418,
+    "80067312"
+   ],
+   [
+    273426,
+    "80071928"
+   ],
+   [
+    273442,
+    "80073937"
+   ],
+   [
+    273500,
+    "80084370"
+   ],
+   [
+    275068,
+    "80058249"
+   ],
+   [
+    275073,
+    "80058249"
+   ],
+   [
+    275076,
+    "80058249"
+   ],
+   [
+    275958,
+    "80090819"
+   ],
+   [
+    211633,
+    "80039957"
+   ],
+   [
+    216761,
+    "80029606"
+   ],
+   [
+    216764,
+    "80051039"
+   ],
+   [
+    292792,
+    "80049805"
+   ],
+   [
+    293087,
+    "80057676"
+   ],
+   [
+    293164,
+    "80109917"
+   ],
+   [
+    241804,
+    "80024488"
+   ],
+   [
+    271214,
+    "80094845"
+   ],
+   [
+    275760,
+    "80104436"
+   ],
+   [
+    275765,
+    "80090024"
+   ],
+   [
+    275875,
+    "80024716"
+   ],
+   [
+    275880,
+    "80046338"
+   ],
+   [
+    258339,
+    "80094256"
+   ],
+   [
+    312717,
+    "80090819"
+   ],
+   [
+    312727,
+    "80108855"
+   ],
+   [
+    314439,
+    "80089977"
+   ],
+   [
+    321419,
+    "80010092"
+   ],
+   [
+    323189,
+    "80080950"
+   ],
+   [
+    327056,
+    "80108855"
+   ],
+   [
+    327467,
+    "80036228"
+   ],
+   [
+    320029,
+    "80100927"
+   ],
+   [
+    320257,
+    "80012080"
+   ],
+   [
+    54969,
+    "80044719"
+   ],
+   [
+    216789,
+    "80029662"
+   ],
+   [
+    216797,
+    "80029606"
+   ],
+   [
+    216810,
+    "80049805"
+   ],
+   [
+    275064,
+    "80058249"
+   ],
+   [
+    259031,
+    "80053689"
+   ],
+   [
+    263198,
+    "80065788"
+   ]
+  ]
+ },
+ "lnhpd": {
+  "rows": 307002,
+  "distinct_licences": 153370,
+  "distinct_lnhpd_ids": 153389,
+  "newest_licence_date": "2026-10-02",
+  "newest_revised_date": "2026-10-02",
+  "revised_since_2026_09_01": 2797,
+  "licensed_2026": 4811,
+  "fields": [
+   "company_id",
+   "company_name",
+   "company_name_id",
+   "date_start",
+   "dosage_form",
+   "flag_attested_monograph",
+   "flag_primary_name",
+   "flag_product_status",
+   "licence_date",
+   "licence_number",
+   "lnhpd_id",
+   "product_name",
+   "product_name_id",
+   "revised_date",
+   "sub_submission_type_code",
+   "sub_submission_type_desc",
+   "time_receipt"
+  ],
+  "status_flag_counts": {
+   "1": 267001,
+   "0": 31510,
+   "4": 6141,
+   "3": 2004,
+   "2": 346
+  },
+  "submission_types": [
+   [
+    "Compendial",
+    157618
+   ],
+   [
+    "Non-Traditional",
+    68099
+   ],
+   [
+    "General (non-traditional)",
+    43601
+   ],
+   [
+    "Traditional",
+    14724
+   ],
+   [
+    "Homeopathic",
+    13430
+   ],
+   [
+    "Transitional DIN",
+    5753
+   ]
+  ],
+  "medicinalingredient_total": 829863,
+  "medicinalingredient_fields": [
+   "dhe_unit_of_measure",
+   "dried_herb_equivalent",
+   "extract_type_desc",
+   "ingredient_Text",
+   "ingredient_name",
+   "lnhpd_id",
+   "potency_amount",
+   "potency_constituent",
+   "potency_unit_of_measure",
+   "quantity",
+   "quantity_maximum",
+   "quantity_minimum",
+   "quantity_unit_of_measure",
+   "ratio_denominator",
+   "ratio_numerator",
+   "source_material"
+  ],
+  "productpurpose_total": 162954,
+  "purpose_sample": [
+   "Instant hand antiseptic.  Kills harmful bacteria.  Use as part of your daily cleaning routine.",
+   "Traditionally used to treat tonsillitus.",
+   "Helps to relieve the pain of osteoarthritis.  Factor in the building of healthy cartilage.  Protects against the deterioration of cartilage from chronic joint d"
+  ],
+  "productrisk_total": 262897,
+  "risk_fields": [
+   "lnhpd_id",
+   "risk_id",
+   "risk_text",
+   "risk_type_desc",
+   "sub_risk_type_desc"
+  ],
+  "has_upc_field": false,
+  "sample_trim": [
+   {
+    "lnhpd_id": 30352179,
+    "licence_number": "80151178",
+    "licence_date": "2026-09-22",
+    "product_name": "Organika\u00ae D3 + K2 + B12 Gummies",
+    "dosage_form": "Chewable gel",
+    "company_name": "Organika Health Products Inc."
+   },
+   {
+    "lnhpd_id": 30352179,
+    "licence_number": "80151178",
+    "licence_date": "2026-09-22",
+    "product_name": "Organika\u00ae D3 + K2 + B12 Chews",
+    "dosage_form": "Chewable gel",
+    "company_name": "Organika Health Products Inc."
+   },
+   {
+    "lnhpd_id": 30352218,
+    "licence_number": "80151177",
+    "licence_date": "2026-09-22",
+    "product_name": "Organika\u00ae Vitamin B-Complex Gummies",
+    "dosage_form": "Chewable gel",
+    "company_name": "Organika Health Products Inc."
+   },
+   {
+    "lnhpd_id": 30352218,
+    "licence_number": "80151177",
+    "licence_date": "2026-09-22",
+    "product_name": "Organika\u00ae Vitamin B-Complex Chews",
+    "dosage_form": "Chewable gel",
+    "company_name": "Organika Health Products Inc."
+   },
+   {
+    "lnhpd_id": 30352335,
+    "licence_number": "80151176",
+    "licence_date": "2026-09-22",
+    "product_name": "Vitamin C Capsules",
+    "dosage_form": "Capsule",
+    "company_name": "1545267 B.C. LTD"
+   },
+   {
+    "lnhpd_id": 30352959,
+    "licence_number": "80151175",
+    "licence_date": "2026-09-22",
+    "product_name": "NMN",
+    "dosage_form": "Capsule, hard",
+    "company_name": "Shenzhen Fenghe Rili Trading Co., LTD"
+   },
+   {
+    "lnhpd_id": 30352959,
+    "licence_number": "80151175",
+    "licence_date": "2026-09-22",
+    "product_name": "Premium NMN",
+    "dosage_form": "Capsule, hard",
+    "company_name": "Shenzhen Fenghe Rili Trading Co., LTD"
+   },
+   {
+    "lnhpd_id": 30352959,
+    "licence_number": "80151175",
+    "licence_date": "2026-09-22",
+    "product_name": "NMN Supplement",
+    "dosage_form": "Capsule, hard",
+    "company_name": "Shenzhen Fenghe Rili Trading Co., LTD"
+   },
+   {
+    "lnhpd_id": 30353388,
+    "licence_number": "80151174",
+    "licence_date": "2026-09-22",
+    "product_name": "Magnesium Bisglycinate",
+    "dosage_form": "Capsule",
+    "company_name": "Capwork Health Inc."
+   },
+   {
+    "lnhpd_id": 30353544,
+    "licence_number": "80151237",
+    "licence_date": "2026-09-24",
+    "product_name": "Coenzyme Q10 (300mg)",
+    "dosage_form": "Capsule",
+    "company_name": "Capwork Health Inc."
+   },
+   {
+    "lnhpd_id": 30353973,
+    "licence_number": "80151173",
+    "licence_date": "2026-09-22",
+    "product_name": "Biogenique Bioactive Silica liquid",
+    "dosage_form": "Liquids",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30353973,
+    "licence_number": "80151173",
+    "licence_date": "2026-09-22",
+    "product_name": "Bioactive Silica liquid",
+    "dosage_form": "Liquids",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354129,
+    "licence_number": "80151172",
+    "licence_date": "2026-09-22",
+    "product_name": "Biogenique Hyaluronic Acid & Vitamin C",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354129,
+    "licence_number": "80151172",
+    "licence_date": "2026-09-22",
+    "product_name": "Hyaluronic Acid & Vitamin C",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354207,
+    "licence_number": "80151171",
+    "licence_date": "2026-09-22",
+    "product_name": "Biogenique Silicon",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354207,
+    "licence_number": "80151171",
+    "licence_date": "2026-09-22",
+    "product_name": "Silicon",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354246,
+    "licence_number": "80151170",
+    "licence_date": "2026-09-22",
+    "product_name": "Biogenique Silicon and Choline",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354246,
+    "licence_number": "80151170",
+    "licence_date": "2026-09-22",
+    "product_name": "Silicon and Choline",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354363,
+    "licence_number": "80151169",
+    "licence_date": "2026-09-22",
+    "product_name": "Biogenique NMN 600 Mg",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354363,
+    "licence_number": "80151169",
+    "licence_date": "2026-09-22",
+    "product_name": "NMN 600 Mg",
+    "dosage_form": "Capsule",
+    "company_name": "Jensens Labs Inc."
+   },
+   {
+    "lnhpd_id": 30354519,
+    "licence_number": "80151168",
+    "licence_date": "2026-09-22",
+    "product_name": "Silver21 Amla",
+    "dosage_form": "Capsule",
+    "company_name": "2201371 Ontario Inc."
+   },
+   {
+    "lnhpd_id": 30354519,
+    "licence_number": "80151168",
+    "licence_date": "2026-09-22",
+    "product_name": "Nutridom Amla",
+    "dosage_form": "Capsule",
+    "company_name": "2201371 Ontario Inc."
+   },
+   {
+    "lnhpd_id": 30354519,
+    "licence_number": "80151168",
+    "licence_date": "2026-09-22",
+    "product_name": "Silver21 Amla Superfruit Extract",
+    "dosage_form": "Capsule",
+    "company_name": "2201371 Ontario Inc."
+   },
+   {
+    "lnhpd_id": 30354519,
+    "licence_number": "80151168",
+    "licence_date": "2026-09-22",
+    "product_name": "Nutridom Amla Superfruit Extract",
+    "dosage_form": "Capsule",
+    "company_name": "2201371 Ontario Inc."
+   },
+   {
+    "lnhpd_id": 30354519,
+    "licence_number": "80151168",
+    "licence_date": "2026-09-22",
+    "product_name": "Silver21 Indian Gooseberry Extract",
+    "dosage_form": "Capsule",
+    "company_name": "2201371 Ontario Inc."
+   }
+  ]
+ },
+ "join_dsld_lnhpd_npn": {
+  "dsld_labels_with_npn": 120,
+  "distinct_npn_pairs": 123,
+  "npn_present_in_lnhpd": 93,
+  "labels_matched": 120,
+  "matched_pairs": [
+   [
+    12122,
+    "80015438"
+   ],
+   [
+    49337,
+    "80054219"
+   ],
+   [
+    54968,
+    "80044719"
+   ],
+   [
+    54969,
+    "80044719"
+   ],
+   [
+    54973,
+    "80044719"
+   ],
+   [
+    54973,
+    "80044721"
+   ],
+   [
+    54974,
+    "80044719"
+   ],
+   [
+    54974,
+    "80044721"
+   ],
+   [
+    54975,
+    "80044719"
+   ],
+   [
+    54975,
+    "80044721"
+   ],
+   [
+    70540,
+    "80031290"
+   ],
+   [
+    211633,
+    "80039957"
+   ],
+   [
+    216731,
+    "80049805"
+   ],
+   [
+    216761,
+    "80029606"
+   ],
+   [
+    216764,
+    "80051039"
+   ],
+   [
+    216781,
+    "80029662"
+   ],
+   [
+    216785,
+    "80029606"
+   ],
+   [
+    216789,
+    "80029662"
+   ],
+   [
+    216795,
+    "80029606"
+   ],
+   [
+    216797,
+    "80029606"
+   ],
+   [
+    216810,
+    "80049805"
+   ],
+   [
+    216818,
+    "80029606"
+   ],
+   [
+    241804,
+    "80024488"
+   ],
+   [
+    258339,
+    "80094256"
+   ],
+   [
+    259031,
+    "80053689"
+   ],
+   [
+    263198,
+    "80065788"
+   ],
+   [
+    263265,
+    "80085709"
+   ],
+   [
+    268570,
+    "80079882"
+   ],
+   [
+    271214,
+    "80094845"
+   ],
+   [
+    271220,
+    "80083585"
+   ]
+  ]
+ },
+ "off": {
+  "reach_status": 200,
+  "dietary_supplements_category_count": 32230,
+  "newest_last_modified_t": 1791122919,
+  "lookup_by_gtin": {
+   "checked": 37,
+   "found": 3,
+   "found_with_supplement_category": 1,
+   "pairs": [
+    {
+     "dsld_id": 20658,
+     "dsld_name": "Super Potency Biotin 5000 mcg",
+     "dsld_brand": "21st Century",
+     "gtin13": "0740985271162",
+     "off_name": "Biotin, 5000 mcg",
+     "off_brands": "21st Century",
+     "off_has_ingredients_text": false,
+     "off_supplement_category": true
+    },
+    {
+     "dsld_id": 223570,
+     "dsld_name": "Ultra GHT Male Maximum Strength",
+     "dsld_brand": "Natures Plus",
+     "gtin13": "0097467487208",
+     "off_name": "Ultra GHT MALE (Maximum Strength)",
+     "off_brands": null,
+     "off_has_ingredients_text": false,
+     "off_supplement_category": false
+    },
+    {
+     "dsld_id": 302163,
+     "dsld_name": "Con-Cret Raspberry",
+     "dsld_brand": "CON-CRET",
+     "gtin13": "0682676702640",
+     "off_name": "Creatine HCI - CON-CR\u0112T - CON-CR\u0112T - CON-CR\u0112T - CON-CR\u0112T - CON-CR\u0112T",
+     "off_brands": "Con-Cret",
+     "off_has_ingredients_text": true,
+     "off_supplement_category": false
+    }
+   ]
+  }
+ },
+ "fda_hfpd": {
+  "reach_status": 200,
+  "rows": 2202,
+  "newest": "20260915",
+  "actions": [
+   [
+    "Public Notification",
+    821
+   ],
+   [
+    "Warning Letter",
+    553
+   ],
+   [
+    "Recall",
+    535
+   ],
+   [
+    "Online Advisory Letter",
+    131
+   ],
+   [
+    "Q&A",
+    71
+   ],
+   [
+    "Alert",
+    69
+   ],
+   [
+    "News Release",
+    14
+   ],
+   [
+    "Drug Alert",
+    2
+   ],
+   [
+    "Safety Alert",
+    2
+   ],
+   [
+    "Public Notiication",
+    1
+   ],
+   [
+    "Drug Safety Alert",
+    1
+   ],
+   [
+    "Press Release",
+    1
+   ],
+   [
+    "Consumer Update",
+    1
+   ]
+  ],
+  "areas": [
+   [
+    "Drugs",
+    1579
+   ],
+   [
+    "Foods",
+    404
+   ],
+   [
+    "Foods; Drugs",
+    117
+   ],
+   [
+    "Devices",
+    30
+   ],
+   [
+    "Cosmetics/Drugs",
+    15
+   ],
+   [
+    "Veterinary",
+    15
+   ],
+   [
+    "Cosmetics",
+    10
+   ],
+   [
+    "Foods, Drugs",
+    9
+   ],
+   [
+    "Cosmetics, Drugs",
+    7
+   ],
+   [
+    "Drugs, Foods",
+    5
+   ],
+   [
+    "Drugs; Animal & Veterinary",
+    4
+   ],
+   [
+    "",
+    3
+   ],
+   [
+    "Drugs, Veterinary",
+    3
+   ],
+   [
+    "Food; Drugs",
+    1
+   ]
+  ],
+  "undeclared_rows": 1293,
+  "content_current": null,
+  "sample_trim": [
+   {
+    "date": "09/15/2026",
+    "product": "LUZE Fit",
+    "firm": "n/a",
+    "source": "shop.app",
+    "subject": "Undeclared sibutramine",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/luze-fit-intensity-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "09/15/2026",
+    "product": "Beauty 911",
+    "firm": "n/a",
+    "source": "shop.app",
+    "subject": "Undeclared sibutramine",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/beauty-911-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "09/15/2026",
+    "product": "DEEP",
+    "firm": "n/a",
+    "source": "Various Distributors",
+    "subject": "Undeclared amino tadalafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/deep-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "09/04/2026",
+    "product": "ZUBB Dietary Supplement",
+    "firm": "n/a",
+    "source": "International Mail Shipments",
+    "subject": "Undeclared sildenafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/zubb-dietary-supplement-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "09/02/2026",
+    "product": "MAXMAN Coffee",
+    "firm": "n/a",
+    "source": "Various Distributors",
+    "subject": "Undeclared sildenafil and tadalafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/maxman-coffee-may-be-harmful-due-hidden-drug-ingredients"
+   },
+   {
+    "date": "08/25/2026",
+    "product": "Qu Feng Huo Lou Dan",
+    "firm": "n/a",
+    "source": "newgreenusa.com",
+    "subject": "Undeclared dexamethasone",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/qu-feng-huo-lou-dan-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "08/18/2026",
+    "product": "Esbelta Chupapanza Flat Belly",
+    "firm": "n/a",
+    "source": "elegantfigure.com",
+    "subject": "Undeclared phenolphthalein",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/esbelta-chupapanza-flat-belly-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "08/18/2026",
+    "product": "Esbelta Intense Loss",
+    "firm": "n/a",
+    "source": "elegantfigure.com",
+    "subject": "Undeclared sibutramine, desmethyl sibutramine, benzyl sibutramine and sildenafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/esbelta-intense-loss-may-be-harmful-due-hidden-ingredients"
+   },
+   {
+    "date": "08/12/2026",
+    "product": "Premium OrgaZEN 10000",
+    "firm": "n/a",
+    "source": "n/a",
+    "subject": "Undeclared sildenafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/premium-orgazen-10000-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "08/12/2026",
+    "product": "Anaconda Premium 500K",
+    "firm": "n/a",
+    "source": "n/a",
+    "subject": "Undeclared tadalafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/anaconda-premium-500k-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "08/12/2026",
+    "product": "DMagic Plus",
+    "firm": "n/a",
+    "source": "lamilagrosalab.com",
+    "subject": "Undeclared diclofenac, neriifolin and thevetin B",
+    "action": "Public Notification",
+    "area": "Drugs, Foods",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/b-magi-may-be-harmful-due-hidden-ingredients"
+   },
+   {
+    "date": "08/12/2026",
+    "product": "B. MAGI",
+    "firm": "n/a",
+    "source": "lamilagrosalab.com",
+    "subject": "Undeclared phenolphthalein, neriifolin and thevetin B",
+    "action": "Public Notification",
+    "area": "Drugs, Foods",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/b-magi-may-be-harmful-due-hidden-ingredients"
+   },
+   {
+    "date": "07/23/2026",
+    "product": "Kangaroo Intense Venus 3000",
+    "firm": "n/a",
+    "source": "usroyalhoney.com",
+    "subject": "Undeclared sildenafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/kangaroo-intense-venus-3000-may-be-harmful-due-hidden-drug-ingredient"
+   },
+   {
+    "date": "07/14/2026",
+    "product": "Xian Ling",
+    "firm": "n/a",
+    "source": "Various Distributors",
+    "subject": "Undeclared tapentadol and meloxicam",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/xian-ling-may-be-harmful-due-hidden-drug-ingredients"
+   },
+   {
+    "date": "07/14/2026",
+    "product": "Detoxi Slim",
+    "firm": "People's Bazaar II",
+    "source": "International Mail Shipments",
+    "subject": "Undeclared sibutramine",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud/public-notification-detoxi-slim-contains-hidden-drug-ingredient"
+   },
+   {
+    "date": "07/01/2026",
+    "product": "MAGNUM XXL 300K Honey",
+    "firm": "n/a",
+    "source": "Various Distributors",
+    "subject": "Undeclared sildenafil and tadalafil",
+    "action": "Public Notification",
+    "area": "Drugs",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/magnum-brand-products-may-be-harmful-due-hidden-drug-ingredients"
+   },
+   {
+    "date": "06/24/2026",
+    "product": "PRE-FORMANCE BLACK",
+    "firm": "n/a",
+    "source": "advancedsupps.com",
+    "subject": "Undeclared 1,4-dimethylamylamine or DMAA",
+    "action": "Public Notification",
+    "area": "Foods",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/pre-formance-black-may-be-harmful-due-hidden-ingredient"
+   },
+   {
+    "date": "06/10/2026",
+    "product": "Branch Manager for Men",
+    "firm": "n/a",
+    "source": "supplx.com",
+    "subject": "Undeclared yohimbine",
+    "action": "Public Notification",
+    "area": "Drugs, Foods",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/branch-manager-men-may-be-harmful-due-hidden-drug-ingredient"
+   },
+   {
+    "date": "06/10/2026",
+    "product": "Business Pill",
+    "firm": "n/a",
+    "source": "supplx.com",
+    "subject": "Undeclared yohimbine",
+    "action": "Public Notification",
+    "area": "Drugs, Foods",
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/business-pill-may-be-harmful-due-hidden-drug-ingredient"
+   },
+   {
+    "date": "06/01/2026",
+    "product": "Dr. Yanhee Cream Set (Green)",
+    "firm": "n/a",
+    "source": "luessentials.store",
+    "subject": "Skin Product with Mercury and/or Hydroquinone",
+    "action": "Alert",
+    "area": "Cosmetics, Drugs",
+    "url": "https://www.fda.gov/consumers/health-fraud-scams/fda-warns-consumers-skin-products-containing-mercury-andor-hydroquinone"
+   },
+   {
+    "date": "06/01/2026",
+    "product": "Omni\u00ae GOLD Anti-Marks Cream Extra Brightening",
+    "firm": "n/a",
+    "source": "ebay.com",
+    "subject": "Skin Product with Mercury and/or Hydroquinone",
+    "action": "Alert",
+    "area": "Cosmetics, Drugs",
+    "url": "https://www.fda.gov/consumers/health-fraud-scams/fda-warns-consumers-skin-products-containing-mercury-andor-hydroquinone"
+   },
+   {
+    "date": "06/01/2026",
+    "product": "Orbi 20\u00ae Whitening Cream",
+    "firm": "n/a",
+    "source": "ebay.com",
+    "subject": "Skin Product with Mercury and/or Hydroquinone",
+    "action": "Alert",
+    "area": "Cosmetics, Drugs",
+    "url": "https://www.fda.gov/consumers/health-fraud-scams/fda-warns-consumers-skin-products-containing-mercury-andor-hydroquinone"
+   },
+   {
+    "date": "06/01/2026",
+    "product": "Jhalak\u00ae Hand & Foot Beauty Cream",
+    "firm": "n/a",
+    "source": "ebay.com",
+    "subject": "Skin Product with Mercury and/or Hydroquinone",
+    "action": "Alert",
+    "area": "Cosmetics, Drugs",
+    "url": "https://www.fda.gov/consumers/health-fraud-scams/fda-warns-consumers-skin-products-containing-mercury-andor-hydroquinone"
+   },
+   {
+    "date": "06/01/2026",
+    "product": "La Crema De Rebeca",
+    "firm": "n/a",
+    "source": "lacremaderebeca.com",
+    "subject": "Skin Product with Mercury and/or Hydroquinone",
+    "action": "Alert",
+    "area": "Cosmetics, Drugs",
+    "url": "https://www.fda.gov/consumers/health-fraud-scams/fda-warns-consumers-skin-products-containing-mercury-andor-hydroquinone"
+   },
+   {
+    "date": "06/01/2026",
+    "product": "La Crema De Rebeca",
+    "firm": "n/a",
+    "source": "ebay.com",
+    "subject": "Skin Product with Mercury and/or Hydroquinone",
+    "action": "Alert",
+    "area": "Cosmetics, Drugs",
+    "url": "https://www.fda.gov/consumers/health-fraud-scams/fda-warns-consumers-skin-products-containing-mercury-andor-hydroquinone"
+   }
+  ],
+  "public_notification_sample": [
+   {
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/luze-fit-intensity-may-be-harmful-due-hidden-ingredient",
+    "status": 200,
+    "chars": 4174,
+    "excerpt": "FDA Skip to main content Skip to FDA Search Skip to in this section menu Skip to footer links An official website of the United States government Here\u2019s how you know The .gov means it\u2019s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure y"
+   },
+   {
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/beauty-911-may-be-harmful-due-hidden-ingredient",
+    "status": 200,
+    "chars": 4134,
+    "excerpt": "FDA Skip to main content Skip to FDA Search Skip to in this section menu Skip to footer links An official website of the United States government Here\u2019s how you know The .gov means it\u2019s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure y"
+   },
+   {
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/deep-may-be-harmful-due-hidden-ingredient",
+    "status": 200,
+    "chars": 4130,
+    "excerpt": "FDA Skip to main content Skip to FDA Search Skip to in this section menu Skip to footer links An official website of the United States government Here\u2019s how you know The .gov means it\u2019s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure y"
+   },
+   {
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/zubb-dietary-supplement-may-be-harmful-due-hidden-ingredient",
+    "status": 200,
+    "chars": 4262,
+    "excerpt": "FDA Skip to main content Skip to FDA Search Skip to in this section menu Skip to footer links An official website of the United States government Here\u2019s how you know The .gov means it\u2019s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure y"
+   },
+   {
+    "url": "https://www.fda.gov/drugs/medication-health-fraud-notifications/maxman-coffee-may-be-harmful-due-hidden-drug-ingredients",
+    "status": 200,
+    "chars": 4378,
+    "excerpt": "FDA Skip to main content Skip to FDA Search Skip to in this section menu Skip to footer links An official website of the United States government Here\u2019s how you know The .gov means it\u2019s official. Federal government websites often end in .gov or .mil. Before sharing sensitive information, make sure y"
+   }
+  ]
+ },
+ "join_hfpd_dsld_name": {
+  "checked": 40,
+  "dsld_exact_fullname_or_brand_hits": [
+   {
+    "hfpd_product": "Arize",
+    "hfpd_date": "08/11/2014",
+    "hfpd_subject": "Undeclared sulfoaildenafil",
+    "dsld_id": "309950",
+    "dsld_fullName": "Arize",
+    "dsld_brand": "Arize"
+   }
+  ],
+  "queries": []
+ }
+}

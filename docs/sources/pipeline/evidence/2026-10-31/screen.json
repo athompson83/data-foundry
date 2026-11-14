@@ -1,0 +1,137 @@
+{
+ "run": "2026-10-31T13:55:20.947772Z",
+ "airworthiness-directives": {
+  "faa_fr_rule_documents_ad": 10000,
+  "status": 200,
+  "newest": [
+   {
+    "document_number": "2026-22318",
+    "publication_date": "2026-11-02"
+   },
+   {
+    "document_number": "2026-22317",
+    "publication_date": "2026-11-02"
+   },
+   {
+    "document_number": "2026-22310",
+    "publication_date": "2026-11-02"
+   },
+   {
+    "document_number": "2026-22307",
+    "publication_date": "2026-11-02"
+   },
+   {
+    "document_number": "2026-21902",
+    "publication_date": "2026-10-27"
+   }
+  ],
+  "abstract_present": 5,
+  "easa_ad_site": {
+   "status": 200,
+   "bytes": 5559
+  },
+  "easa_ad_rss": {
+   "status": 200,
+   "bytes": 5559
+  },
+  "tc_cad": {
+   "status": 200,
+   "bytes": 601
+  },
+  "faa_drs": {
+   "status": 200,
+   "bytes": 22876
+  }
+ },
+ "marine-accident-investigations": {
+  "maib_reports_total": 1106,
+  "status": 200,
+  "newest_public_timestamp": "2026-10-15T08:59:30Z",
+  "sample_report_body_chars": 3122,
+  "sample_license": {
+   "date_of_occurrence": "2025-09-09",
+   "report_type": "investigation-report",
+   "vessel_type": [
+    "recreational-craft-power"
+   ]
+  },
+  "tsb_canada_marine": {
+   "status": 403,
+   "bytes": 0
+  },
+  "ntsb_carol": {
+   "status": 200,
+   "bytes": 477
+  },
+  "dutch_dsb": {
+   "status": 200,
+   "bytes": 69532
+  }
+ },
+ "drug-adverse-events": {
+  "faers_2026_reports": 673772,
+  "meta_last_updated": "2026-07-30",
+  "status": 200,
+  "faers_report_fields": [
+   "companynumb",
+   "fulfillexpeditecriteria",
+   "occurcountry",
+   "patient",
+   "primarysource",
+   "primarysourcecountry",
+   "receiptdate",
+   "receiptdateformat",
+   "receivedate",
+   "receivedateformat",
+   "receiver",
+   "reporttype",
+   "safetyreportid",
+   "safetyreportversion",
+   "sender",
+   "serious",
+   "seriousnesscongenitalanomali",
+   "seriousnessdeath",
+   "seriousnessdisabling",
+   "seriousnesshospitalization",
+   "seriousnesslifethreatening",
+   "seriousnessother",
+   "transmissiondate",
+   "transmissiondateformat"
+  ],
+  "canada_vigilance_page": {
+   "status": 200,
+   "zip_links": [
+    "/content/dam/hc-sc/migration/hc-sc/dhp-mps/alt_formats/zip/medeff/databasdon/extract_extrait.zip"
+   ],
+   "licence_mention": []
+  }
+ },
+ "historic-places": {
+  "nrhp_locations": 74636,
+  "nhle_listed_building_points": 379683,
+  "free_text_fields": "NRHP layer: none (name, address, refnum, NARA_URL link); NHLE layer: Name, Grade, hyperlink only. The descriptive text sits on the list-entry pages."
+ },
+ "legislation-texts": {
+  "uk_new_feed_status": 200,
+  "uk_new_feed_entries_first_page": 20,
+  "uk_public_general_acts_feed_total": null,
+  "congress_gov_demo_key": {
+   "status": 429,
+   "count": null
+  }
+ },
+ "nuclear-event-reports": {
+  "status": 200,
+  "year_links": [],
+  "event_links": 0,
+  "sample_day_status": {
+   "status": 200,
+   "bytes": 108227,
+   "has_event_number": true
+  },
+  "year_index": {
+   "status": 200,
+   "bytes": 132657
+  }
+ }
+}

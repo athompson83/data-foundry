@@ -1,0 +1,828 @@
+{
+ "maude_probe": {
+  "http": 200,
+  "total": 26136889,
+  "last_updated": "2026-09-22",
+  "received_2026": 2503728,
+  "newest_date_received": "20260831",
+  "received_jan2015": 73153
+ },
+ "maude_sample_n": 300,
+ "maude_sample_stats": {
+  "reports": 300,
+  "devices": 300,
+  "with_narrative": 124,
+  "median_narrative_chars": 0,
+  "text_types": [
+   "Additional Manufacturer Narrative",
+   "Description of Event or Problem"
+  ],
+  "with_udi_di": 101,
+  "with_product_code": 300,
+  "with_510k_baseline": 0,
+  "with_pma_pmn_number": 261,
+  "event_types": {
+   "Other": 1,
+   "Death": 3,
+   "Injury": 24,
+   "Malfunction": 272
+  },
+  "has_patient_demographics_fields": [
+   "date_received",
+   "patient_age",
+   "patient_ethnicity",
+   "patient_problems",
+   "patient_race",
+   "patient_sequence_number",
+   "patient_sex",
+   "patient_weight",
+   "sequence_number_outcome",
+   "sequence_number_treatment"
+  ]
+ },
+ "maude_510k_numbers_cited_in_sample": 32,
+ "maude_k_to_openfda_510k": "32/32",
+ "maude_productcode_to_classification": "29/30",
+ "fda_device_recall_probe": {
+  "http": 200,
+  "total": 59344,
+  "last_updated": "2026-10-01"
+ },
+ "openfda_terms": {
+  "http": 200,
+  "quote": "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication. In "
+ },
+ "mdall_deviceidentifier_rows": 3152063,
+ "mdall_newest_first_licence_dt": "2026-10-02",
+ "join_udi_di_vs_mdall": {
+  "matched": 0,
+  "total": 101,
+  "examples": []
+ },
+ "join_catalog_number_vs_mdall_candidate": {
+  "matched": 62,
+  "total": 196,
+  "examples": [
+   [
+    "3014585508-2026-52149",
+    "PODOMNII16720",
+    "Omnipod 5 Automated Insulin Delivery System",
+    111065
+   ],
+   [
+    "3004203816-2026-19223",
+    "MF7D11420",
+    "SEVEN XD int. hex. implant D4.2 L11.50mm SP",
+    109328
+   ],
+   [
+    "3004203816-2026-19225",
+    "MF7D11420",
+    "SEVEN XD int. hex. implant D4.2 L11.50mm SP",
+    109328
+   ],
+   [
+    "3004203816-2026-19226",
+    "MF7D11420",
+    "SEVEN XD int. hex. implant D4.2 L11.50mm SP",
+    109328
+   ],
+   [
+    "3004203816-2026-19224",
+    "MF7D11420",
+    "SEVEN XD int. hex. implant D4.2 L11.50mm SP",
+    109328
+   ],
+   [
+    "3004203816-2026-19227",
+    "MF7D11420",
+    "SEVEN XD int. hex. implant D4.2 L11.50mm SP",
+    109328
+   ],
+   [
+    "3004203816-2026-19228",
+    "MF7D11420",
+    "SEVEN XD int. hex. implant D4.2 L11.50mm SP",
+    109328
+   ],
+   [
+    "3004753838-2026-213010",
+    "STPGT008",
+    "Dexcom G7 Continuous Glucose Monitoring System",
+    109685
+   ]
+  ]
+ },
+ "mdall_identifier_gtin_like_share": "261520/1550527",
+ "udi_big_sample": 500,
+ "join_udi_di_vs_mdall_big": {
+  "matched": 0,
+  "total": 500,
+  "examples": []
+ },
+ "mhra_fsn": {
+  "search_http": 200,
+  "fsn_list_pages_total": 618,
+  "newest": "2026-09-29T14:49:41Z",
+  "oldest_in_100": "2024-12-10T09:03:35Z",
+  "entries_parsed_from_12_pages": 122,
+  "with_model": 49,
+  "with_mhra_ref": 117,
+  "sample": [
+   {
+    "page": "d-safety-notices-21-to-25-september-2026",
+    "title": "Becton Dickinson: BD Phoenix CPO Detect 6-well panel",
+    "mfr": "Becton Dickinson",
+    "model": null,
+    "paras": [
+     "25 August 2025"
+    ],
+    "mhra_ref": "2026/008/018/601/095"
+   },
+   {
+    "page": "d-safety-notices-21-to-25-september-2026",
+    "title": "CX Engineering: Electric table HE Spectralis BW 110-230V",
+    "mfr": "CX Engineering",
+    "model": null,
+    "paras": [
+     "04 September 2026"
+    ],
+    "mhra_ref": "2026/009/014/601/039"
+   },
+   {
+    "page": "d-safety-notices-21-to-25-september-2026",
+    "title": "F.H INDUSTRIE: CALCANAIL THREADED CANULATED SCREW D5",
+    "mfr": "F.H INDUSTRIE",
+    "model": null,
+    "paras": [
+     "September 2026"
+    ],
+    "mhra_ref": "2026/009/022/601/105"
+   },
+   {
+    "page": "d-safety-notices-21-to-25-september-2026",
+    "title": "Gyrus: Olympus POWERSEAL 5-mm diameter x 23-cm long Curve",
+    "mfr": "Gyrus",
+    "model": "PS-523CJDA",
+    "paras": [
+     "18 August 2026",
+     "Endoscopic electrosurgical handpiece/electrode"
+    ],
+    "mhra_ref": "2026/008/012/601/106"
+   },
+   {
+    "page": "d-safety-notices-21-to-25-september-2026",
+    "title": "Gyrus: BiCOAG Hemostasis Probe",
+    "mfr": "Gyrus",
+    "model": "CD-B610LA,CD-B612LA,CD-B620LA,CD-B622LA",
+    "paras": [
+     "19 August 2026",
+     "Endoscopic electrosurgical electrode, bipolar"
+    ],
+    "mhra_ref": "2026/008/012/601/046"
+   },
+   {
+    "page": "d-safety-notices-21-to-25-september-2026",
+    "title": "Inspire Medical Systems: II Model 3024; lV Model 3028",
+    "mfr": "Inspire Medical Systems",
+    "model": "3024; 3028",
+    "paras": [
+     "Ref QP-00019",
+     "Implantable Pulse Generator"
+    ],
+    "mhra_ref": "2026/009/018/601/058"
+   }
+  ],
+  "filecamp_http": 200
+ },
+ "ogl3_terms": {
+  "http": 200,
+  "quote": "You are free to: copy , publish, distribute and transmit the Information ; adapt the Information ; exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product o"
+ },
+ "ogl3_attribution": "",
+ "govuk_terms": {
+  "http": 200,
+  "quote": " websites before you use them. Using GOV.UK content Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt. If any content is not subject to Crown "
+ },
+ "mhra_vs_maude_candidate": {
+  "tried": 36,
+  "with_any_model_hit": 20,
+  "rows": [
+   {
+    "mhra_mfr": "Gyrus",
+    "mhra_title": "Gyrus: Olympus POWERSEAL 5-mm diameter x 23-cm long Curve",
+    "model": "PS-523CJDA",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Gyrus",
+    "mhra_title": "Gyrus: BiCOAG Hemostasis Probe",
+    "model": "CD-B610LA",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Inspire Medical Systems",
+    "mhra_title": "Inspire Medical Systems: II Model 3024; lV Model 3028",
+    "model": "3024",
+    "maude_hits": [
+     {
+      "report": "MW5095465",
+      "mfr": "INSPIRE MEDICAL SYSTEMS, INC.",
+      "brand": "INSPIRE II 3024",
+      "model": "INSPIRE II 3024"
+     },
+     {
+      "report": "3007666314-2020-00024",
+      "mfr": "INSPIRE MEDICAL SYSTEMS",
+      "brand": "INSPIRE MODEL 3024 IPG",
+      "model": "3024"
+     },
+     {
+      "report": "3007666314-2020-00046",
+      "mfr": "INSPIRE MEDICAL SYSTEMS",
+      "brand": "INSPIRE MODEL 3024 IPG",
+      "model": "3024"
+     }
+    ],
+    "total": 68
+   },
+   {
+    "mhra_mfr": "Intervascular SAS",
+    "mhra_title": "Intervascular SAS: Intergard Synergy & Intergard Standard",
+    "model": "IGK0008-40",
+    "maude_hits": [
+     {
+      "report": "1640201-2009-00005",
+      "mfr": "INTERVASCULAR",
+      "brand": "INTERGARD KNITTED VASCULAR GRAFT",
+      "model": "IGK0008-40"
+     },
+     {
+      "report": "1640201-2009-00014",
+      "mfr": "INTERVASCULAR",
+      "brand": "INTERGARD KNITTED VASCULAR GRAFT",
+      "model": "IGK0008-40"
+     },
+     {
+      "report": "1640201-2009-00042",
+      "mfr": "INTERVASCULAR",
+      "brand": "INTERGARD KNITTED VASCULAR GRAFT",
+      "model": "IGK0008-40"
+     }
+    ],
+    "total": 23
+   },
+   {
+    "mhra_mfr": "Medtronic",
+    "mhra_title": "Medtronic: InterStim SureScan MRI Lead & Percutaneous Extens",
+    "model": "978A1",
+    "maude_hits": [
+     {
+      "report": "2182207-2021-00930",
+      "mfr": "MEDTRONIC NEUROMODULATION",
+      "brand": "SURESCAN",
+      "model": "978A1"
+     }
+    ],
+    "total": 1
+   },
+   {
+    "mhra_mfr": "Medtronic",
+    "mhra_title": "Medtronic: OmniaSecure MRI SureScan 3930M Lead",
+    "model": "3930M",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Shockwave Medical",
+    "mhra_title": "Shockwave Medical: Reducer",
+    "model": "RED-001",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Abbott",
+    "mhra_title": "Abbott: Amplatzer Amulet Left Atrial Appendage Occluder",
+    "model": "9-ACP2-007-016",
+    "maude_hits": [
+     {
+      "report": "2135147-2022-00299",
+      "mfr": "ABBOTT MEDICAL",
+      "brand": "AMPLATZER AMULET",
+      "model": "9-ACP2-007-016"
+     },
+     {
+      "report": "2135147-2022-00359",
+      "mfr": "ABBOTT MEDICAL",
+      "brand": "AMPLATZER AMULET",
+      "model": "9-ACP2-007-016"
+     },
+     {
+      "report": "2135147-2022-01761",
+      "mfr": "ABBOTT MEDICAL",
+      "brand": "AMPLATZER AMULET",
+      "model": "9-ACP2-007-016"
+     }
+    ],
+    "total": 25
+   },
+   {
+    "mhra_mfr": "Abiomed",
+    "mhra_title": "Abiomed: Automated Impella Controller (AIC)",
+    "model": "0042-0040",
+    "maude_hits": [
+     {
+      "report": "16806300",
+      "mfr": "ABIOMED, INC.",
+      "brand": "IMPELLA",
+      "model": "0042-0040-US"
+     },
+     {
+      "report": "22104523",
+      "mfr": "ABIOMED, INC.",
+      "brand": "IMPELLA",
+      "model": "0042-0040-US"
+     },
+     {
+      "report": "1220648-2025-47215",
+      "mfr": "ABIOMED, INC.",
+      "brand": "AUTOMATED IMPELLA CONTROLLER",
+      "model": "0042-0040"
+     }
+    ],
+    "total": 4
+   },
+   {
+    "mhra_mfr": "Cook",
+    "mhra_title": "Cook: Williams Cystoscopic Injection Needle",
+    "model": "090001-S26",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Hologic",
+    "mhra_title": "Hologic: APTIMA DBS EXTRACTION BUFFER",
+    "model": "ASY-12006",
+    "maude_hits": [
+     {
+      "report": "2024800-2026-00054",
+      "mfr": "Hologic, Inc.",
+      "brand": "Aptima DBS Extraction Buffer",
+      "model": "ASY-12006"
+     },
+     {
+      "report": "2024800-2026-00057",
+      "mfr": "Hologic, Inc.",
+      "brand": "Aptima DBS Extraction Buffer",
+      "model": "ASY-12006"
+     },
+     {
+      "report": "2024800-2026-00060",
+      "mfr": "Hologic, Inc.",
+      "brand": "Aptima DBS Extraction Buffer",
+      "model": "ASY-12006"
+     }
+    ],
+    "total": 3
+   },
+   {
+    "mhra_mfr": "Innovacon",
+    "mhra_title": "Innovacon: InstAlert hCG Strip (Urine)",
+    "model": "4564649001",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "NORTHERN DIGITAL",
+    "mhra_title": "NORTHERN DIGITAL: NDI Passive Spheres",
+    "model": "8801071",
+    "maude_hits": [
+     {
+      "report": "1723170-2023-01252",
+      "mfr": "MEDTRONIC NAVIGATION, INC",
+      "brand": "",
+      "model": "8801071"
+     },
+     {
+      "report": "1723170-2023-01262",
+      "mfr": "MEDTRONIC NAVIGATION, INC",
+      "brand": "",
+      "model": "8801071"
+     },
+     {
+      "report": "1723170-2026-00335",
+      "mfr": "MEDTRONIC NAVIGATION, INC.",
+      "brand": "NDI PASSIVE SPHERES",
+      "model": "8801071"
+     }
+    ],
+    "total": 11
+   },
+   {
+    "mhra_mfr": "Dr\u00e4gerwerk",
+    "mhra_title": "Dr\u00e4gerwerk: VentStar Resus Neo, VentStar Resuscitaire",
+    "model": "MP00310",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: BV Endura, BV Pulsera, BV Vectra, Veradius, Zenition",
+    "model": "718075",
+    "maude_hits": [
+     {
+      "report": "3003768277-2020-00033",
+      "mfr": "PHILIPS HEALTHCARE",
+      "brand": "BV-ENDURA 2.3",
+      "model": "718075"
+     },
+     {
+      "report": "3003768277-2020-00055",
+      "mfr": "PHILIPS HEALTHCARE",
+      "brand": "BV-ENDURA 2.3",
+      "model": "718075"
+     },
+     {
+      "report": "3003768277-2016-00064",
+      "mfr": "PHILIPS HEALTHCARE",
+      "brand": "BV-ENDURA 2.3",
+      "model": "718075"
+     }
+    ],
+    "total": 4
+   },
+   {
+    "mhra_mfr": "Taizhou Kangjian Medical Equipment",
+    "mhra_title": "Taizhou Kangjian Medical Equipment: Medcare Gynae",
+    "model": "KJ-V01-XS",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "AMO Uppsala",
+    "mhra_title": "AMO Uppsala: Healon EndoCoat PRO, Healon Duet PRO II",
+    "model": "10301012",
+    "maude_hits": [
+     {
+      "report": "3012236936-2026-000193",
+      "mfr": "AMO UPPSALA AB",
+      "brand": "HEALON ENDOCOAT PRO",
+      "model": "10301012"
+     }
+    ],
+    "total": 1
+   },
+   {
+    "mhra_mfr": "Cook",
+    "mhra_title": "Cook: Hemospray Endoscopic Hemostat",
+    "model": "HEMO-7-EU",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Fresenius",
+    "mhra_title": "Fresenius: Smartbag - Liquid Acid Concentrates",
+    "model": "F00005286",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: Azurion systems",
+    "model": "722063",
+    "maude_hits": [
+     {
+      "report": "3003768277-2019-00092",
+      "mfr": "PHILIPS HEALTHCARE",
+      "brand": "AZURION 3 M12",
+      "model": "722063"
+     }
+    ],
+    "total": 1
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: EPIQ Elite Diagnostic Ultrasound system",
+    "model": "795234",
+    "maude_hits": [
+     {
+      "report": "3019216-2025-000253",
+      "mfr": "PHILIPS ULTRASOUND, INC",
+      "brand": "EPIQ ELITE DIAGNOSTIC ULTRASOUND SYSTEM",
+      "model": "795234"
+     },
+     {
+      "report": "3019216-2025-000274",
+      "mfr": "PHILIPS ULTRASOUND",
+      "brand": "EPIQ ELITE DIAGNOSTIC ULTRASOUND SYSTEM",
+      "model": "795234"
+     },
+     {
+      "report": "3019216-2025-000287",
+      "mfr": "PHILIPS ULTRASOUND, INC",
+      "brand": "EPIQ ELITE DIAGNOSTIC ULTRASOUND SYSTEM",
+      "model": "795234"
+     }
+    ],
+    "total": 21
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: IntraSight Plus",
+    "model": "797423",
+    "maude_hits": [
+     {
+      "report": "3008363989-2026-00114",
+      "mfr": "VOLCANO CORPORATION",
+      "brand": "INTRASIGHT PLUS",
+      "model": "797423"
+     }
+    ],
+    "total": 1
+   },
+   {
+    "mhra_mfr": "Kayserbetten",
+    "mhra_title": "Kayserbetten: Paediatric care beds",
+    "model": "Olaf",
+    "maude_hits": [
+     {
+      "report": "3006795806-2026-00001",
+      "mfr": "KAYSERBETTEN GMBH & CO. KG",
+      "brand": "KAYSERBETT OLAF",
+      "model": "OLAF 135"
+     }
+    ],
+    "total": 1
+   },
+   {
+    "mhra_mfr": "Medtronic",
+    "mhra_title": "Medtronic: Sphere-360 Catheter",
+    "model": "AFR-00012",
+    "maude_hits": [
+     {
+      "report": "3012520654-2026-00195",
+      "mfr": "MEDTRONIC, INC.",
+      "brand": "AFFERA",
+      "model": "AFR-00012"
+     },
+     {
+      "report": "9612164-2026-03410",
+      "mfr": "MEDTRONIC IRELAND",
+      "brand": "AFFERA",
+      "model": "AFR-00012"
+     },
+     {
+      "report": "3012520654-2026-00343",
+      "mfr": "MEDTRONIC, INC.",
+      "brand": "AFFERA",
+      "model": "AFR-00012"
+     }
+    ],
+    "total": 19
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: Cardiac Workstation 5000,Cardiac Workstation 7000",
+    "model": "860439",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Fritz Stephan",
+    "mhra_title": "Fritz Stephan: EVE",
+    "model": "EVE-IN",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Given Imaging",
+    "mhra_title": "Given Imaging: Bravo CF capsule delivery",
+    "model": "FGS-0635",
+    "maude_hits": [
+     {
+      "report": "9710107-2020-00211",
+      "mfr": "GIVEN IMAGING LTD., YOQNEAM",
+      "brand": "BRAVO",
+      "model": "FGS-0635"
+     },
+     {
+      "report": "9710107-2020-00218",
+      "mfr": "GIVEN IMAGING LTD., YOQNEAM",
+      "brand": "BRAVO",
+      "model": "FGS-0635"
+     },
+     {
+      "report": "9710107-2020-00226",
+      "mfr": "GIVEN IMAGING LTD., YOQNEAM",
+      "brand": "BRAVO",
+      "model": "FGS-0635"
+     }
+    ],
+    "total": 1736
+   },
+   {
+    "mhra_mfr": "Intervascular",
+    "mhra_title": "Intervascular: CARDIOROOT Woven",
+    "model": "HEWROOT0024",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "medin Medical Innovation",
+    "mhra_title": "medin Medical Innovation: medin-NC3",
+    "model": "NC3",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Oscor",
+    "mhra_title": "Oscor: Introducer Kit for Impella distributed within the Abiomed Impella 14 Fr and 23 Fr Introducer Kits",
+    "model": "0052-3006",
+    "maude_hits": [
+     {
+      "report": "1035166-2021-00026",
+      "mfr": "OSCOR INC.",
+      "brand": "ABIOMED INTRODUCER KIT FOR IMPELLA",
+      "model": "0052-3006"
+     },
+     {
+      "report": "1035166-2021-00067",
+      "mfr": "OSCOR INC.",
+      "brand": "ABIOMED INTRODUCER KIT FOR IMPELLA\u00ae",
+      "model": "0052-3006"
+     },
+     {
+      "report": "1035166-2021-00071",
+      "mfr": "OSCOR INC.",
+      "brand": "INTRODUCER KIT FOR IMPELLA\u00ae",
+      "model": "0052-3006"
+     }
+    ],
+    "total": 31
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: Patient Information Center iX, PIC iX Essentials",
+    "model": "866389",
+    "maude_hits": [
+     {
+      "report": "1218950-2020-02493",
+      "mfr": "PHILIPS MEDICAL SYSTEMS",
+      "brand": "INTELLIVUE INFORMATION CENTER IX",
+      "model": "866389"
+     },
+     {
+      "report": "1218950-2020-02501",
+      "mfr": "PHILIPS MEDICAL SYSTEMS",
+      "brand": "INTELLIVUE INFORMATION CENTER IX",
+      "model": "866389"
+     },
+     {
+      "report": "1218950-2020-02530",
+      "mfr": "PHILIPS MEDICAL SYSTEMS",
+      "brand": "INTELLIVUE INFORMATION CENTER IX",
+      "model": "866389"
+     }
+    ],
+    "total": 2149
+   },
+   {
+    "mhra_mfr": "Rocialle Healthcare",
+    "mhra_title": "Rocialle Healthcare: Bandage Ortho Wool (Velband) 10cm",
+    "model": "RML111-301",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Corin",
+    "mhra_title": "Corin: TaperFit",
+    "model": "588.3600",
+    "maude_hits": [
+     {
+      "report": "9614209-2024-00321",
+      "mfr": "CORIN LTD",
+      "brand": "TAPERFIT",
+      "model": "588.3600"
+     },
+     {
+      "report": "9614209-2024-00324",
+      "mfr": "CORIN LTD",
+      "brand": "TAPERFIT",
+      "model": "588.3600"
+     },
+     {
+      "report": "9614209-2025-00621",
+      "mfr": "CORIN LTD",
+      "brand": "TAPERFIT",
+      "model": "588.3600"
+     }
+    ],
+    "total": 3
+   },
+   {
+    "mhra_mfr": "Philips",
+    "mhra_title": "Philips: Allura and Azurion",
+    "model": "722003",
+    "maude_hits": [
+     {
+      "report": "3003768277-2020-00062",
+      "mfr": "PHILIPS HEALTHCARE",
+      "brand": "ALLURA XPER FD10",
+      "model": "722003"
+     },
+     {
+      "report": "1217116-2008-00074",
+      "mfr": "PHILIPS MEDICAL SYSTEMS",
+      "brand": "ALLURA XPER FD10",
+      "model": "722003"
+     },
+     {
+      "report": "3003768277-2009-00019",
+      "mfr": "PHILIPS MEDICAL SYSTEMS",
+      "brand": "ALLURA XPER FD10 SERIES",
+      "model": "722003"
+     }
+    ],
+    "total": 147
+   },
+   {
+    "mhra_mfr": "WEINMANN Emergency Medical Technology",
+    "mhra_title": "WEINMANN Emergency Medical Technology: MEDUMAT Standard\u00b2, with and without CO2",
+    "model": "28710-01",
+    "maude_hits": [],
+    "total": 0
+   },
+   {
+    "mhra_mfr": "Olympus",
+    "mhra_title": "Olympus: Evis Exera III Colonovideoscope",
+    "model": "PCF-HQ190L",
+    "maude_hits": [
+     {
+      "report": "8010047-2020-10946",
+      "mfr": "OLYMPUS MEDICAL SYSTEMS CORP.",
+      "brand": "EVIS EXERA III COLONOVIDEOSCOPE",
+      "model": "PCF-HQ190L"
+     },
+     {
+      "report": "8010047-2021-02327",
+      "mfr": "OLYMPUS MEDICAL SYSTEMS CORP.",
+      "brand": "EVIS EXERA III COLONOVIDEOSCOPE",
+      "model": "PCF-HQ190L"
+     },
+     {
+      "report": "8010047-2021-06995",
+      "mfr": "OLYMPUS MEDICAL SYSTEMS CORP.",
+      "brand": "EVIS EXERA III COLONOVIDEOSCOPE",
+      "model": "PCF-HQ190L"
+     }
+    ],
+    "total": 3582
+   }
+  ]
+ },
+ "hc_open_canada_search": {
+  "http": 200,
+  "count": 229,
+  "hc_titles": [
+   "Adverse reactions, medical device incidents and health product recalls in Canada",
+   "Mandatory reporting of serious adverse drug reactions and medical device inciden",
+   "Mandatory Reporting of Serious Adverse Drug Reactions and Medical Device Inciden",
+   "Mandatory reporting of serious adverse drug reactions and medical device inciden",
+   "Medical Device reports and publications",
+   "Mandatory Medical Device Problem Reporting Form for Industry",
+   "About medical device problems",
+   "Medical device shortages: Report a shortage",
+   "Medical device shortages: Report a shortage",
+   "Medical Devices Action Plan: Progress report",
+   "Medical device shortages: Report a discontinuation",
+   "Medical device shortages: Overview"
+  ]
+ },
+ "hc_problem_page": {
+  "http": 200,
+  "mentions_incidents_database_link": true
+ },
+ "tga_daen": {
+  "http": 404,
+  "bytes": 1936
+ },
+ "tga_copyright": {
+  "http": 0,
+  "bytes": 45
+ },
+ "bfarm_kundeninfo": {
+  "http": 403,
+  "bytes": 146
+ },
+ "swissmedic_fsca": {
+  "http": 200,
+  "total": 11092,
+  "newest": "2026-10-01"
+ },
+ "swissmedic_terms": {
+  "http": 200,
+  "quote": "Information provided on the website must not be reproduced in any form without the express authorisation of Swissmedic or the respective rights owner. This includes in particular any form of automated information extraction and storage (scraping/data mining). Areas of the website explicitly intended for autom"
+ }
+}

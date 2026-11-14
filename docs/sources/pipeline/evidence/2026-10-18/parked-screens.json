@@ -1,0 +1,25 @@
+{
+  "note": "HTTP probes made 2026-10-18 with User-Agent data-foundry-scout/1.0 (data@mail.proviciency.com). Only statuses and sizes observed are recorded.",
+  "probes": [
+    {"url": "https://www.courtlistener.com/api/rest/v4/opinions/?page_size=1", "status": 401},
+    {"url": "https://static.case.law/ReportersMetadata.json", "status": 200, "bytes": 146015},
+    {"url": "https://static.case.law/LICENSE.txt", "status": 404},
+    {"url": "https://com-courtlistener-storage.s3-us-west-2.amazonaws.com/?prefix=bulk-data/&max-keys=20", "status": 200, "note": "first 1,000 keys listed people, courts and financial-disclosure files; newest dated 2025-01-31; no opinion file seen"},
+    {"url": "https://www.accessdata.fda.gov/scripts/opdlisting/oopd/index.cfm", "status": 200, "note": "search form only"},
+    {"url": "https://www.accessdata.fda.gov/scripts/opdlisting/oopd/OOPD_Download.cfm", "status": 404},
+    {"url": "https://www.ema.europa.eu/en/human-regulatory-overview/orphan-designation-overview/orphan-designations-reports-statistics", "status": 404},
+    {"url": "https://volcanoes.usgs.gov/hans-public/api/volcano/getUSVolcanoes", "status": 200, "bytes": 170148},
+    {"url": "https://api.geonet.org.nz/volcano/val", "status": 200},
+    {"url": "https://volcano.si.edu/news/WeeklyVolcanoRSS.xml", "status": 403},
+    {"url": "https://api.si.edu/openaccess/api/v1.0/stats", "status": 403, "note": "API key required"},
+    {"url": "https://www.fema.gov/about/openfema/terms-conditions", "status": 403},
+    {"url": "https://www.cbp.gov/site-policy-notices", "status": 403},
+    {"url": "https://www.usitc.gov/the_commission/website_policy", "status": 403},
+    {"url": "https://www.artic.edu/terms", "status": 403},
+    {"url": "https://www.metmuseum.org/policies/image-resource", "status": 429},
+    {"url": "https://collectionapi.metmuseum.org/public/collection/v1/search?isHighlight=true&q=portrait", "status": 410, "note": "retired 2026-10-01; replacement /public/collection/v1.1/search"},
+    {"url": "https://www.productsafety.gov.au/recalls", "status": 403},
+    {"url": "https://www.fsis.usda.gov/fsis/api/recall/v/1", "status": 403},
+    {"url": "https://www.trade-tariff.service.gov.uk/api/v2/commodities/8418610000", "status": 404}
+  ]
+}

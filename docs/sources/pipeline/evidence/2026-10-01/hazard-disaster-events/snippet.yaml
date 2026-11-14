@@ -1,0 +1,106 @@
+candidates:
+  - key: hazard-fema-disaster-declarations
+    name: FEMA OpenFEMA DisasterDeclarationsSummaries (federal disaster declarations by county, 1953 to date)
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: FEMA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 2,
+        acquisition_ease: 5,
+        structuring_value: 2,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: 'https://www.fema.gov/api/open/v1/OpenFemaDataSets'
+        quote: "Citation: FEMA's citation requirements for datasets (API usage or file downloads) can be found on the OpenFEMA Terms and Conditions page, Citing Data section"
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Parked UNKNOWN; the API answers 200 (70,423 rows, refreshed every 20 minutes) but the OpenFEMA terms page returns 403 from our egress, so terms are unread. Reopen when the terms are readable; then GREEN or AMBER (US government data, citation required) and FIPS-join to roofing-ncei-storm-events (128/543).
+
+  - key: hazard-nws-active-alerts
+    name: NWS api.weather.gov active watches, warnings and advisories (CAP text with SAME and UGC geocodes)
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: NOAA National Weather Service
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.weather.gov/alerts/active' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 5,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://www.weather.gov/disclaimer
+        quote: "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own"
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: The API holds only active alerts (347 now; a 2026-06-01 history query returned 0), so build means polling and archiving every alert to R2 to create history; join to NCEI by UGC zone and SAME county codes (place level).
+
+  - key: hazard-usgs-earthquakes
+    name: USGS ComCat earthquake GeoJSON feeds and FDSN event service
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: USGS
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_month.geojson' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 2,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 1
+      }
+    terms:
+      - url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+        quote: "USGS-authored or produced data and information are considered to be in the U.S. Public Domain."
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Keep as a reference feed (2,013 M2.5+ events in the last month; 10,854 events of all magnitudes since 2026-09-01); no FIPS, so it joins only by a derived state or county (candidate), and has no narrative text.
+
+  - key: hazard-eccc-cap-alerts
+    name: Environment and Climate Change Canada CAP weather alerts (dd.weather.gc.ca)
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Environment and Climate Change Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://dd.weather.gc.ca/today/alerts/cap/' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://eccc-msc.github.io/open-data/licence/readme_en/
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+      - url: https://eccc-msc.github.io/open-data/licence/readme_en/
+        quote: "In the case of weather alerts (i.e. watches/warnings), any information shall be reproduced in such a way that there is no alteration of the content or intent of the alert."
+    conditions:
+      - Acknowledge the source with the ECCC attribution statement and link to the licence.
+      - Reproduce alerts without altering their content or intent.
+      - No implied endorsement by ECCC.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: Archive CAP XML per day (only 12 files existed in today's tree at 14:00 UTC); Canadian CLC and SGC codes do not join to US FIPS, so it joins no US member by an identifier.

@@ -1,0 +1,1101 @@
+{
+ "probes": {
+  "phmsa_incident_data_page": {
+   "url": "https://www.phmsa.dot.gov/data-and-statistics/pipeline/source-data",
+   "http": 403,
+   "bytes": 435
+  },
+  "phmsa_home": {
+   "url": "https://www.phmsa.dot.gov/",
+   "http": 403,
+   "bytes": 375
+  },
+  "tsb_pods_csv": {
+   "url": "https://www.tsb.gc.ca/sites/default/files/stats/PODSdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv",
+   "http": 403,
+   "bytes": 179
+  },
+  "uscg_disclaim": {
+   "url": "https://www.uscg.mil/Disclaim/",
+   "http": 403,
+   "bytes": 379
+  },
+  "nrc_home": {
+   "url": "https://nrc.uscg.mil/",
+   "http": 200,
+   "bytes": 32152
+  },
+  "cer_dictionary": {
+   "url": "https://www.cer-rec.gc.ca/open/incident/pipeline-incidents-data-dictionary.csv",
+   "http": 200,
+   "bytes": 15407
+  },
+  "ogl_canada": {
+   "url": "https://open.canada.ca/en/open-government-licence-canada",
+   "http": 200,
+   "bytes": 23079
+  },
+  "nrc_cy26": {
+   "http": 200
+  },
+  "cer_csv": {
+   "http": 200
+  },
+  "niosh_npg_index": {
+   "http": 200
+  }
+ },
+ "run": "2026-10-04",
+ "nrc": {
+  "workbook_bytes": 9828856,
+  "sheets": [
+   "CALLS",
+   "INCIDENT_COMMONS",
+   "INCIDENT_DETAILS",
+   "INCIDENTS",
+   "MATERIAL_INVOLVED",
+   "MATERIAL_INV0LVED_CR",
+   "TRAINS_DETAIL",
+   "DERAILED_UNITS",
+   "VESSELS_DETAIL",
+   "MOBILE_DETAILS"
+  ],
+  "calls_rows": 16552,
+  "incident_commons_rows": 16552,
+  "material_rows": 16558,
+  "received_min": "2026-01-01 00:13:00",
+  "received_max": "2026-09-27 23:21:00",
+  "type_of_incident_top": [
+   [
+    "FIXED",
+    4783
+   ],
+   [
+    "VESSEL",
+    3018
+   ],
+   [
+    "UNKNOWN SHEEN",
+    2285
+   ],
+   [
+    "RAILROAD NON-RELEASE",
+    1730
+   ],
+   [
+    "MOBILE",
+    1623
+   ],
+   [
+    "PIPELINE",
+    1121
+   ],
+   [
+    "STORAGE TANK",
+    989
+   ],
+   [
+    "RAILROAD",
+    497
+   ],
+   [
+    "PLATFORM",
+    293
+   ],
+   [
+    "AIRCRAFT",
+    203
+   ],
+   [
+    "CONTINUOUS",
+    10
+   ]
+  ],
+  "pipeline_type_incidents": 1121,
+  "rows_with_pipeline_type_field": 1121,
+  "description_nonempty_pct": 100.0,
+  "median_description_chars": 215,
+  "material_rows_with_cas_pct": 8.8,
+  "material_rows_with_un_pct": 0.0,
+  "pipeline_with_material_pct": 99.6,
+  "pipeline_with_damage_amount": 144,
+  "distinct_cas_in_materials": 89,
+  "state_agency_report_num_nonempty": 2278,
+  "phmsa_or_nrc_cross_ref_in_text": {
+   "phmsa_mentions": 306,
+   "responsible_company_pipeline_nonempty_pct": 75.1
+  },
+  "personal_data_pattern_hits_in_descriptions": {
+   "phone_like": 89,
+   "of": 16552
+  }
+ },
+ "cer": {
+  "rows": 2034,
+  "columns": 102,
+  "reported_min": "2008-01-02",
+  "reported_max": "2026-09-25",
+  "countries": [
+   [
+    "Canada",
+    2033
+   ],
+   [
+    "United States",
+    1
+   ]
+  ],
+  "substance_top": [
+   [
+    "Not Applicable",
+    1188
+   ],
+   [
+    "Natural Gas - Sweet",
+    559
+   ],
+   [
+    "Crude Oil - Sweet",
+    53
+   ],
+   [
+    "Natural Gas - Sour",
+    50
+   ],
+   [
+    "Natural Gas Liquids",
+    23
+   ],
+   [
+    "Propane",
+    21
+   ]
+  ],
+  "free_text_columns": [
+   "Detailed what happened",
+   "Detailed why it happened",
+   "Related NEB event number",
+   "Equipment or component involved"
+  ],
+  "has_cas_or_un_column": false,
+  "incident_number_example": "INC2017-027",
+  "companies_distinct": 63,
+  "volume_released_nonempty_pct": 40.1
+ },
+ "link_nrc_niosh_cas": {
+  "niosh_cas_count": 648,
+  "nrc_distinct_cas": 89,
+  "nrc_distinct_cas_in_niosh": 62,
+  "nrc_material_rows_with_cas": 1453,
+  "nrc_material_rows_cas_in_niosh": 1321,
+  "nrc_incidents_with_a_niosh_cas": 1264,
+  "pipeline_incidents_with_a_niosh_cas": 18,
+  "top_matched": [
+   [
+    "7664-41-7",
+    459
+   ],
+   [
+    "107-21-1",
+    151
+   ],
+   [
+    "71-43-2",
+    117
+   ],
+   [
+    "7782-50-5",
+    82
+   ],
+   [
+    "7439-97-6",
+    74
+   ],
+   [
+    "7783-06-4",
+    73
+   ],
+   [
+    "7664-93-9",
+    65
+   ],
+   [
+    "75-01-4",
+    47
+   ]
+  ]
+ },
+ "nrc_pipeline_samples_n": 40,
+ "nrc_pipeline_samples": [
+  {
+   "seqnos": 1451761,
+   "received": "2026-01-01 06:51:00",
+   "company": null,
+   "state": "OH",
+   "cause": "EXPLOSION",
+   "descr": "///THIS A 48 HR PHMSA UPDATE TO NRC REPORT 1451706///\n\nTHE UPDATED INFO IS AS FOLLOWS: THE CAUSE OF THE INCIDENT WAS NOT DUE TO A RELEASE BY A PIPELINE. THE CAU",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451814,
+   "received": "2026-01-02 11:44:00",
+   "company": "GENESIS PIPELINE USA",
+   "state": "AL",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "/// THIS IS A 48 HOUR UPDATE TO NRC REPORT 1451746 ///\n\n/// THE UPDATE IS AS FOLLOWS ///\n\nNO SIGNIFICANT CHANGES TO REPORT. CLEANUP IS STILL UNDERWAY AND WILL B",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     20,
+     "BARREL(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451817,
+   "received": "2026-01-02 12:45:00",
+   "company": "WEST TEXAS UTILITIES LLC",
+   "state": "TX",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "CALLER REPORTED A REGULATION FAILURE ON A NATURAL GAS DISTRIBUTION PIPELINE CAUSED THE OPP TO START RELIEVING. THIS LED TO A DISCHARGE OF 3,000,000 MILLION CUBI",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     3000000,
+     "CUBIC FEET"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451819,
+   "received": "2026-01-02 12:55:00",
+   "company": "WILLIAMS COMPANIES",
+   "state": "OH",
+   "cause": "UNKNOWN",
+   "descr": "THE CALLER REPORTED A RELEASE OF APPROXIMATELY 6.538 MMSCF OF NATURAL GAS FROM A PSV (PRESSURE SAFETY VALVE) ON A COMPRESSOR UNIT (UNIT 2) AT A COMPRESSOR STATI",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     6.538,
+     "MMCF"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451831,
+   "received": "2026-01-02 14:19:00",
+   "company": "HILCORP ENERGY COMPANY",
+   "state": "LA",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "CALLER REPORTED THAT AN OUT OF SERVICE GAS LIFT LINE LEAKED DUE TO EXTERNAL CORROSION, DISCHARGING 30 GALLONS OF CRUDE OIL INTO WATER AND MARSH.",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     30,
+     "GALLON(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451839,
+   "received": "2026-01-02 15:53:00",
+   "company": "ENBRIDGE",
+   "state": "TX",
+   "cause": "UNKNOWN",
+   "descr": "/// THIS IS A 48 HR PHMSA UPDATE TO NRC REPORT # 1451747 ///\n\n\nUPDATE:\nESTIMATED QUANTITY RELEASED HAS BEEN INCREASED TO TWO BARRELS\n\nORIGINAL REPORT IS AS FOLL",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     2,
+     "BARREL(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451897,
+   "received": "2026-01-03 14:44:00",
+   "company": "WILLIAMS COMPANIES",
+   "state": "OH",
+   "cause": "UNKNOWN",
+   "descr": "/// THIS IS A 48 HOUR UPDATE TO NRC REPORT 1451819 ///\n\n/// THE UPDATE IS AS FOLLOWS ///\n\nTHE PIPELINE TYPE WAS UPDATED TO STATION. IT IS DOT REGULATED. THE INV",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     6.538,
+     "MMCF"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451921,
+   "received": "2026-01-04 00:51:00",
+   "company": "KINDER MORGAN",
+   "state": "PA",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "NATURAL GAS RELEASED FROM A RELIEF VALVE AT A NATURAL GAS STORAGE FACILITY DUE TO AN EQUIPMENT MALFUNCTION.",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1451983,
+   "received": "2026-01-04 19:59:00",
+   "company": "NAVY SUPPLY/ GUAM AREA FUEL DIVISION",
+   "state": "GU",
+   "cause": "OTHER",
+   "descr": "THE CALLER STATED THAT WHILE DOING MAINTENANCE ON A DISTRIBUTION LINE A HISSING SOUND WAS HEARD. UPON FURTHER INVESTIGATION A CRACK WAS DISCOVERED ON THE LINE U",
+   "materials": [
+    [
+     "OIL: DIESEL",
+     "000000-00-0",
+     null,
+     250,
+     "GALLON(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452006,
+   "received": "2026-01-05 12:12:00",
+   "company": "KINDER MORGAN",
+   "state": "PA",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "/// THIS IS AN UPDATE TO REPORT 1451921 /// \n\nUPDATE AS FOLLOWS: THE ESTIMATED QUANTITY RELEASED IS 16.88 MMCF. THE EXACT CAUSE OF THE EQUIPMENT FAILURE IS UNKN",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     16.88,
+     "MMCF"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452055,
+   "received": "2026-01-05 16:24:00",
+   "company": null,
+   "state": "VA",
+   "cause": "UNKNOWN",
+   "descr": "NATURAL GAS RELEASED FROM AN 8 INCH MAIN PIPELINE DUE TO DAMAGE FOUND ON THE LINE, BUT THE EXACT CAUSE OF THE DAMAGE IS UNKNOWN AT THIS TIME.  CALLER WAS NOTIFI",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452086,
+   "received": "2026-01-06 08:42:00",
+   "company": null,
+   "state": "MI",
+   "cause": "OPERATOR ERROR",
+   "descr": "CALLER REPORTED THAT A DRUNK DRIVER STRUCK A GAS METER CAUSING A MOBILE HOME TO CATCH FIRE. NO INJURIES OR FATALITIES WERE REPORTED. CALLER STATED THAT THERE AR",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452098,
+   "received": "2026-01-06 10:59:00",
+   "company": "ARENA OFFSHORE",
+   "state": "LA",
+   "cause": "OTHER",
+   "descr": "THE CALLER IS REPORTING A RELEASE OF CRUDE OIL, INTO THE GULF OF AMERICA, FROM A PIPELINE TIE-IN. THE CALLER STATES THAT THERE WAS A RELEASE OF RESIDUAL OIL FRO",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     7.33,
+     "BARREL(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452144,
+   "received": "2026-01-06 16:31:00",
+   "company": "CAPTURE POINT",
+   "state": "OK",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "SALT WATER RELEASED FROM AN UNDERGROUND 4 INCH HIGH PRESSURE PRODUCTION LINE DUE TO INTERNAL CORROSION.",
+   "materials": [
+    [
+     "DRILLING BRINE (WITH ZINC SALTS)",
+     "000000-00-0",
+     null,
+     5,
+     "BARREL(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452165,
+   "received": "2026-01-06 21:04:00",
+   "company": "BLACK RIVER OIL",
+   "state": "KY",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "THE CALLER REPORTED A DISCHARGE OF APPROXIMATELY 10 BARRELS OF CRUDE OIL FROM A FLOW LINE PIPELINE THAT WENT ONTO SOIL AND INTO AN UNNAMED TRIBUTARY AT THE INCI",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     10,
+     "BARREL(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452170,
+   "received": "2026-01-07 08:02:00",
+   "company": "GEOTHERMAL TECHNICAL",
+   "state": "VA",
+   "cause": "UNKNOWN",
+   "descr": "///THIS IS A 48 HR PHMSA UPDATE TO NRC REPORT 1452055///\n\nTHE UPDATED INFO IS AS FOLLOWS: 6 INCH AUGER THAT WAS BEING USED TO DRILL THAT HIT THE PIPE. CALLER RE",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452204,
+   "received": "2026-01-07 13:55:00",
+   "company": "DCP MIDSTREAM",
+   "state": "TX",
+   "cause": "OPERATOR ERROR",
+   "descr": "CALLER REPORTED THAT A TYPE R GAS GATHERING PIPELINE RELEASED 12 MMCF OF NATURAL GAS DUE TO AN OPEN VALVE CAUSED BY OPERATING ERROR. THE INCIDENT WAS \nDETERMINE",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     12,
+     "MMCF"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452214,
+   "received": "2026-01-07 15:33:00",
+   "company": "ENERGY TRANSFER",
+   "state": "TX",
+   "cause": "UNKNOWN",
+   "descr": "CALLER REPORTED THAT AN UNKNOWN AMOUNT OF NATURAL GAS HAS RELEASED FROM A BELOW GROUND INTERSTATE TRANSMISSION PIPELINE. THE CAUSE OF THE RELEASE IS UNKNOWN. MA",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452250,
+   "received": "2026-01-08 08:23:00",
+   "company": null,
+   "state": "MI",
+   "cause": "OPERATOR ERROR",
+   "descr": "/// THIS IS AN UPDATE TO REPORT 1452086 ///\n\nUPDATE AS FOLLOWS: THERE IS NOTHING TO UPDATE\n\nORIGINAL REPORT AS FOLLOWS: CALLER REPORTED THAT A DRUNK DRIVER STRU",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452295,
+   "received": "2026-01-08 16:39:00",
+   "company": "ARENA OFFSHORE",
+   "state": "LA",
+   "cause": "OTHER",
+   "descr": "/// THIS IS AN UPDATE TO REPORT 1452098 ///\n\nUPDATE AS FOLLOWS: AFTER INVESTIGATION, THE AMOUNT OF CRUDE OIL RELEASED IS BEING UPDATED TO 5 BARRELS.\n\nORIGINAL R",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     5,
+     "BARREL(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452325,
+   "received": "2026-01-09 09:21:00",
+   "company": "DCP MIDSTREAM",
+   "state": "TX",
+   "cause": "OPERATOR ERROR",
+   "descr": "///THIS IS A 48 HR PHMSA UPDATE TO NRC REPORT 1452204///\n\nTHERE IS NO NEW INFORMATION\n\nTHE ORIGINAL REPORTED INFO IS AS FOLLOWS: CALLER REPORTED THAT A TYPE R G",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     12,
+     "MMCF"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452329,
+   "received": "2026-01-09 10:02:00",
+   "company": "ENERGY TRANSFER",
+   "state": "TX",
+   "cause": "UNKNOWN",
+   "descr": "///THIS IS A 48 HR PHMSA UPDATE TO NRC REPORT 1452214///\n\nTHE UPDATED INFORMATION IS AS FOLLOWS: LINE HAD ZERO PRESSURE AT MIDNIGHT 1/9, SECURING THE RELEASE. T",
+   "materials": [
+    [
+     "NATURAL GAS",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452367,
+   "received": "2026-01-09 14:15:00",
+   "company": "GOM SHELF LLC",
+   "state": "LA",
+   "cause": "EQUIPMENT FAILURE",
+   "descr": "CALLER REPORTED A DEPARTING PIPELINE CARRYING OIL, WATER, AND GAS, DEVELOPED A HOLE. NEARBY FACILITIES WERE SHUT DOWN UPON DISCOVERY. THE AMOUNT OF THE MIXTURE ",
+   "materials": [
+    [
+     "WATER, OIL, GAS MIXTURE",
+     "000000-00-0",
+     null,
+     3,
+     "GALLON(S)"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452385,
+   "received": "2026-01-09 16:19:00",
+   "company": "WEST COAST CONTRACTORS",
+   "state": "OR",
+   "cause": "OPERATOR ERROR",
+   "descr": "CALLER STATES THAT UPON ATTEMPTING TO FUEL THEIR VESSEL, THEIR FIXED FUEL SYSTEM GAVE AN ERROR CODE; OPERATOR WAS UNABLE TO PUMP FUEL. UPON FURTHER INVESTIGATIO",
+   "materials": [
+    [
+     "UNKNOWN OIL",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  },
+  {
+   "seqnos": 1452404,
+   "received": "2026-01-10 00:38:00",
+   "company": "DENBURY ONSHORE",
+   "state": "MS",
+   "cause": "UNKNOWN",
+   "descr": "THE CALLER REPORTED A DISCOVERY OF A DISCHARGE OF AN UNKNOWN AMOUNT OF CRUDE OIL FROM AN UNKNOWN SOURCE (LIKELY AN UNDERGROUND FLOW LINE)  ON A RIGHT OF WAY AND",
+   "materials": [
+    [
+     "OIL: CRUDE",
+     "000000-00-0",
+     null,
+     0,
+     "UNKNOWN AMOUNT"
+    ]
+   ],
+   "niosh_hit": false
+  }
+ ],
+ "nrc_pipeline_sample_niosh_hits": 0,
+ "link_nrc_cer_company_first_token": {
+  "nrc_pipeline_incidents": 1121,
+  "candidate_pairs": 76,
+  "pairs_sample": [
+   {
+    "seqnos": 1451839,
+    "nrc_company": "ENBRIDGE",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "TX",
+    "descr": "/// THIS IS A 48 HR PHMSA UPDATE TO NRC REPORT # 1451747 ///\n\n\nUPDATE:\nESTIMATED QUANTITY RELEASED HAS BEEN INCREASED TO TWO BARRELS\n\nORIGIN"
+   },
+   {
+    "seqnos": 1451921,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "PA",
+    "descr": "NATURAL GAS RELEASED FROM A RELIEF VALVE AT A NATURAL GAS STORAGE FACILITY DUE TO AN EQUIPMENT MALFUNCTION."
+   },
+   {
+    "seqnos": 1452006,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "PA",
+    "descr": "/// THIS IS AN UPDATE TO REPORT 1451921 /// \n\nUPDATE AS FOLLOWS: THE ESTIMATED QUANTITY RELEASED IS 16.88 MMCF. THE EXACT CAUSE OF THE EQUIP"
+   },
+   {
+    "seqnos": 1452977,
+    "nrc_company": "ENBRIDGE INC",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "LA",
+    "descr": "// 48 HOUR UPDATE TO NRC REPORT 1452878 //\n\nUPDATE IS AS FOLLOWS:\n\n- UPDATED INCIDENT TYPE FROM FIXED TO PIPELINE DUE TO THE RELEASE OCCURRI"
+   },
+   {
+    "seqnos": 1453058,
+    "nrc_company": "ENBRIDGE ENERGY",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "MT",
+    "descr": "THE CALLER IS REPORTING A RELEASE OF CRUDE OIL, INTO EARTHEN BERM SECOND CONTAINMENT, FROM A 24\" TRANSMISSION PIPELINE. THE CALLER STATES TH"
+   },
+   {
+    "seqnos": 1453153,
+    "nrc_company": "ENBRIDGE ENERGY",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "MT",
+    "descr": "/// THIS IS A 48 HOUR PHMSA UPDATE TO NRC REPORT 1453058 ///\n\n/// THE UPDATE IS AS FOLLOWS ///\n\nTHE AREA HAS BEEN CLEANED UP. REPAIRS ARE ST"
+   },
+   {
+    "seqnos": 1453622,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "LA",
+    "descr": "CALLER STATED THE SHUTDOWN DID NOT OPERATE FULLY AND THIS RESULTED IN A VENT OF NATURAL GAS TO THE ATMOSPHERE AT THE SHADYSIDE COMPRESSOR ST"
+   },
+   {
+    "seqnos": 1453733,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "LA",
+    "descr": "///THIS IS A 48 HOUR PHMSA UPDATE TO REPORT# 1453622///\nUPDATE IS AS FOLLOWS:\n\nAMOUNT OF MATERIAL RELEASED UPDATED TO: 20.324 MMCF\n\nORIGINAL"
+   },
+   {
+    "seqnos": 1453842,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "TX",
+    "descr": "CALLER REPORTED A RELIEF VALVE OPEN AND CAUSE A RELEASE OF NATURAL GAS TO THE ATMOSPHERE. NO EVACUATIONS."
+   },
+   {
+    "seqnos": 1453968,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "TX",
+    "descr": "/// THIS IS A 48 PHMSA UPDATE TO NRC REPORT # 1453842 ///\n\n\nUPDATES:\nNO FURTHER UPDATES\nINVESTIGATION ONGOING\n\n\nORIGINAL REPORT:\nCALLER REPO"
+   },
+   {
+    "seqnos": 1454452,
+    "nrc_company": "KINDER MORGAN - TENNESSEE GAS PIPELINE",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "KY",
+    "descr": "THE CALLER IS REPORTING A RELEASE OF NATURAL GAS, INTO THE ATMOSPHERE, FROM A TRANSMISSION PIPELINE. THE CALLER STATES THE CAUSE OF THE RELE"
+   },
+   {
+    "seqnos": 1454522,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "TX",
+    "descr": "GASOLINE DISCHARGED FROM A TRANSFER PIPELINE CONNECTED TO A TANK (#130-3) DUE TO AN UNKNOWN CAUSE AT THIS TIME."
+   },
+   {
+    "seqnos": 1454641,
+    "nrc_company": "KINDER MORGAN - TENNESSEE GAS PIPELINE",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "KY",
+    "descr": "///THIS IS 48 HR PHMSA UPDATE TO NRC REPORT 1454452///\n\nTHE UPDATED INFO IS AS FOLLOWS: THE UPDATED AMOUNT OF GAS RELEASED 6724.6 MCF OF NAT"
+   },
+   {
+    "seqnos": 1454696,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "TX",
+    "descr": "/// THIS IS A 48 HOUR PHMSA UPDATE TO NRC REPORT 1454522 ///\n\n/// THE UPDATE IS AS FOLLOWS ///\n\nTHE CALLER UPDATED THE AMOUNT RELEASED TO (8"
+   },
+   {
+    "seqnos": 1455216,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "VA",
+    "descr": "CALLER REPORTED THAT AN UNKNOWN AMOUNT OF AN UNKNOWN TYPE OF JET FUEL IS COMING OUT OF THE VENT OF A TRANSMISSION PIPELINE, IMPACTING SOIL. "
+   },
+   {
+    "seqnos": 1455242,
+    "nrc_company": "ENBRIDGE",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "TX",
+    "descr": "CALLER STATES APPROX. 1 BARREL OF CRUDE OIL WAS RELEASED ONTO THE GRAVEL FROM A MANIFOLD OFF OF A TRANSMISSION PIPELINE. THE CAUSE OF THE RE"
+   },
+   {
+    "seqnos": 1455394,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "VA",
+    "descr": "/// THIS IS A 48-HR PHMSA UPDATE FOR NRC REPORT # 1455216 ///\n\n\n\nUPDATES:\n- ESTIMATED AMOUNT OF JET FUEL RELEASED IS NOW AT 385 BARRELS\n- AN"
+   },
+   {
+    "seqnos": 1455422,
+    "nrc_company": "ENBRIDGE",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "TX",
+    "descr": "///THIS IS A 48 HOUR PHMSA UPDATE TO REPORT #1455242////\nUPDATE IS AS FOLLOWS:\nDAMAGE AMOUNT HAS EXCEEDED 50000\nSYSTEM FIXED AND RUNNING AGA"
+   },
+   {
+    "seqnos": 1455530,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "VA",
+    "descr": "///THIS IS A CORRECTION TO NRC REPORT 1455394/1455216///\n\nTHE UPDATED INFORMATION IS THAT THE TIME OF THE INCIDENT WAS CHANGED FROM 0858 TO "
+   },
+   {
+    "seqnos": 1456002,
+    "nrc_company": "ENBRIDGE",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "TX",
+    "descr": "CALLER IS REPORTING A CONNECTION FAILURE ON AN ABOVE GROUND TRANSMISSION PIPELINE THAT RESULTED IN THE RELEASE OF 4 BARRELS OF CRUDE OIL ONT"
+   },
+   {
+    "seqnos": 1456012,
+    "nrc_company": "ENBRIDGE GAS",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "OH",
+    "descr": "THE CALLER REPORTED AN EXPLOSION AT A PRIVATE RESIDENCE DUE TO UNKNOWN REASONS. THE ALSO REPORTED A RELEASE OF AN UNKNOWN AMOUNT OF NATURAL "
+   },
+   {
+    "seqnos": 1456092,
+    "nrc_company": "ENBRIDGE",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "TX",
+    "descr": "/// THIS IS A 48 HOUR PHMSA UPDATE UPDATE TO REPORT 1456002 ///\n\nUPDATE AS FOLLOWS: THE INCIDENT TIME HAS BEEN UPDATED TO 0835 AM. CALLER ST"
+   },
+   {
+    "seqnos": 1456897,
+    "nrc_company": "ENBRIDGE",
+    "cer_companies": [
+     "Enbridge G and P Canada Pipelines Inc.",
+     "Enbridge Pipelines (NW) Inc.",
+     "Enbridge Pipelines (Westspur) Inc."
+    ],
+    "state": "OK",
+    "descr": "// 48 HOUR PHMSA UPDATE TO NRC REPORT 1456733 //\n\nUPDATE IS AS FOLLOWS:\n\n- NO SIGNIFANT CHANGES IN THE VOLUME RELEASED.\n- THE TANK WAS OUT O"
+   },
+   {
+    "seqnos": 1457156,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "CA",
+    "descr": "/// THIS IS AN UPDATE TO NRC REPORT 1457001 ///\n\nTHE CALLER UPDATED THE SUSPECTED RESPONSIBLE PARTY INFORMATION. THE MATERIAL RELEASED HAS B"
+   },
+   {
+    "seqnos": 1457198,
+    "nrc_company": "KINDER MORGAN",
+    "cer_companies": [
+     "Kinder Morgan Cochin ULC"
+    ],
+    "state": "CA",
+    "descr": "///THIS IS A 48 HR PHMSA UPDATE TO NRC REPORT 1457156/1457001///\n\nTHE UPDATED INFO IS AS FOLLOWS: THE QUANTITY OF MATERIAL RELEASED IS 22 BA"
+   }
+  ]
+ },
+ "nrc_cited_report_numbers": {
+  "descriptions_citing_an_nrc_report_number": 829,
+  "cited_number_exists_in_cy26_file": 809,
+  "of_pipeline_incidents": 281,
+  "example": [
+   {
+    "seqnos": 1451761,
+    "cites": 1451706
+   },
+   {
+    "seqnos": 1451790,
+    "cites": 1451784
+   },
+   {
+    "seqnos": 1451814,
+    "cites": 1451746
+   },
+   {
+    "seqnos": 1451821,
+    "cites": 1451721
+   },
+   {
+    "seqnos": 1451839,
+    "cites": 1451747
+   }
+  ]
+ },
+ "link_nrc_cer_company_plus_date": {
+  "rule": "responsible company first token equal AND CER reported date within 7 days of NRC receipt, 2026 only",
+  "nrc_pipeline_incidents": 1121,
+  "cer_2026_incidents": 52,
+  "candidate_pairs": 9,
+  "hand_checked": 9,
+  "same_event_correct": 0,
+  "hand_check_note": "read NRC narratives vs CER incident type/province/facility: all 9 pairs are different events (US releases in LA/MT/TX/WI vs Canadian SK/AB/MB incidents); 2 NRC narratives carry no CER reference"
+ },
+ "cas_name_hand_check": {
+  "index_entries_with_cas_and_name": 626,
+  "checked": 25,
+  "same_substance_by_eye": 25,
+  "pairs": [
+   [
+    "7664-41-7",
+    "AMMONIA, ANHYDROUS",
+    "Ammonia"
+   ],
+   [
+    "107-21-1",
+    "ETHYLENE GLYCOL",
+    "Ethylene glycol"
+   ],
+   [
+    "71-43-2",
+    "BENZENE",
+    "Benzene"
+   ],
+   [
+    "7782-50-5",
+    "CHLORINE",
+    "Chlorine"
+   ],
+   [
+    "7783-06-4",
+    "HYDROGEN SULFIDE",
+    "Hydrogen sulfide"
+   ],
+   [
+    "7664-93-9",
+    "SULFURIC ACID",
+    "Sulfuric acid"
+   ],
+   [
+    "75-01-4",
+    "VINYL CHLORIDE",
+    "Vinyl chloride"
+   ],
+   [
+    "7647-01-0",
+    "HYDROCHLORIC ACID",
+    "Hydrogen chloride"
+   ],
+   [
+    "1310-73-2",
+    "SODIUM HYDROXIDE",
+    "Sodium hydroxide"
+   ],
+   [
+    "108-88-3",
+    "TOLUENE",
+    "Toluene"
+   ],
+   [
+    "7664-38-2",
+    "PHOSPHORIC ACID",
+    "Phosphoric acid"
+   ],
+   [
+    "64-19-7",
+    "ACETIC ACID",
+    "Acetic acid"
+   ],
+   [
+    "7664-39-3",
+    "HYDROGEN FLUORIDE",
+    "Hydrogen fluoride"
+   ],
+   [
+    "7697-37-2",
+    "NITRIC ACID",
+    "Nitric acid"
+   ],
+   [
+    "67-64-1",
+    "ACETONE",
+    "Acetone"
+   ],
+   [
+    "75-21-8",
+    "ETHYLENE OXIDE",
+    "Ethylene oxide"
+   ],
+   [
+    "91-20-3",
+    "NAPHTHALENE",
+    "Naphthalene"
+   ],
+   [
+    "74-90-8",
+    "HYDROGEN CYANIDE",
+    "Hydrogen cyanide"
+   ],
+   [
+    "100-41-4",
+    "ETHYLBENZENE",
+    "Ethyl benzene"
+   ],
+   [
+    "100-42-5",
+    "STYRENE",
+    "Styrene"
+   ],
+   [
+    "110-54-3",
+    "HEXANE",
+    "n-Hexane"
+   ],
+   [
+    "75-56-9",
+    "PROPYLENE OXIDE",
+    "Propylene oxide"
+   ],
+   [
+    "7631-90-5",
+    "SODIUM BISULFITE",
+    "Sodium bisulfite"
+   ],
+   [
+    "10102-43-9",
+    "NITRIC OXIDE",
+    "Nitric oxide"
+   ],
+   [
+    "75-00-3",
+    "ETHYL CHLORIDE",
+    "Ethyl chloride"
+   ]
+  ]
+ }
+}

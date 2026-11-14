@@ -1,0 +1,118 @@
+{
+ "reachability": {
+  "https://open.canada.ca/data/api/action/package_show?id=6abd20d4-7a1c-4b38-baa2-9525d0bb2fd2": 200,
+  "https://canadabuys.canada.ca/opendata/pub/2026-2027-TenderNotice-AvisAppelOffres.csv": 200,
+  "https://canadabuys.canada.ca/opendata/pub/2026-2027-awardNotice-avisAttribution.csv": 200,
+  "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search?limit=1": 200,
+  "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages?limit=1": 200,
+  "https://api.usaspending.gov/api/v2/references/toptier_agencies/": 200,
+  "https://api.sam.gov/prod/opportunities/v2/search?limit=1": 404,
+  "https://ted.europa.eu/en/legal-notice": 200
+ },
+ "terms_found": {
+  "ogl-canada": true,
+  "ogl-canada-exempt": true,
+  "cf-terms": true,
+  "fts-terms": false,
+  "ted-api": true,
+  "usaspending-readme": true
+ },
+ "canadabuys": {
+  "tender_rows_2026_27": 3148,
+  "award_rows_2026_27": 4262,
+  "tender_pub_range": [
+   "2026-04-01",
+   "2026-09-28"
+  ],
+  "award_pub_range": [
+   "2026-04-01",
+   "2026-09-30"
+  ],
+  "unspsc_fill_tender": 0.914,
+  "unspsc_fill_award": 0.978,
+  "desc_fill_tender": 0.986,
+  "desc_fill_award": 0.861,
+  "solicitation_ids_tender": 3039,
+  "solicitation_ids_award": 2790,
+  "award_solicitation_found_in_tenders": 927
+ },
+ "contracts_finder": {
+  "award_releases_sampled": 2000,
+  "date_range": [
+   "2026-09-10T10:46:42+01:00",
+   "2026-09-29T18:39:24+01:00"
+  ],
+  "description_fill": 1.0,
+  "distinct_gb_coh_suppliers": 482
+ },
+ "find_a_tender": {
+  "award_releases_sampled": 2000,
+  "date_range": [
+   "2026-08-03T16:02:48+01:00",
+   "2026-09-29T17:05:57+01:00"
+  ],
+  "description_fill": 1.0,
+  "distinct_gb_coh_suppliers": 779
+ },
+ "cf_fts_ocid_overlap": 0,
+ "cf_fts_shared_supplier_ids": 56,
+ "ted": {
+  "total_notices_all_time": 7060653,
+  "notices_since_2026-09-25": 17507,
+  "winner_country_GBR_since_2026-01-01": 1019,
+  "sampled": 1000,
+  "newest": "2026-09-25+02:00"
+ },
+ "link_gb_coh": {
+  "ted_distinct_gb_coh_shaped_winner_ids": 624,
+  "matched_in_contracts_finder": [
+   "01383511",
+   "01869600",
+   "02174990",
+   "03743494",
+   "04107459",
+   "05083841",
+   "06029195",
+   "OC326074"
+  ],
+  "matched_in_find_a_tender": [
+   "01524302",
+   "02174990",
+   "08990928",
+   "NI606324",
+   "OC303471"
+  ],
+  "matched_distinct": 12,
+  "matched_ted_notices": [
+   "133623-2026",
+   "135813-2026",
+   "148462-2026",
+   "179967-2026",
+   "2069-2026",
+   "207585-2026",
+   "27801-2026",
+   "349870-2026",
+   "400743-2026",
+   "486642-2026",
+   "492676-2026",
+   "531128-2026",
+   "585852-2026",
+   "620245-2026",
+   "623125-2026",
+   "626500-2026",
+   "97733-2026"
+  ]
+ },
+ "ted_can_to_cn_by_procedure_identifier": [
+  22,
+  25
+ ],
+ "usaspending": {
+  "rows_sampled": 50,
+  "contracts_in_sept_2026": 191110,
+  "uei_fill": 1.0,
+  "last_updated": {
+   "last_updated": "09/30/2026"
+  }
+ }
+}

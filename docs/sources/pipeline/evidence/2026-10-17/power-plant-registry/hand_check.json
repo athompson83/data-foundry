@@ -1,0 +1,194 @@
+{
+ "method": "Reviewer read each NRC facility name and state against the EIA-860 nuclear plant name and state and judged whether both name the same generating station (reviewer own knowledge of US nuclear stations).",
+ "checked": 25,
+ "correct": 25,
+ "candidate_misses": [
+  {
+   "nrc_facility": "Saint Lucie",
+   "reason": "EIA writes \"St. Lucie\"; normalised names differ (Saint vs St) so no candidate was proposed"
+  }
+ ],
+ "pairs": [
+  {
+   "nrc_facility": "Hatch",
+   "state": "GA",
+   "eia_plant_code": "6051",
+   "eia_plant_name": "Edwin I Hatch",
+   "same_plant": true,
+   "note": "NRC \"Hatch\" = Edwin I. Hatch (GA): same station."
+  },
+  {
+   "nrc_facility": "Sequoyah",
+   "state": "TN",
+   "eia_plant_code": "6152",
+   "eia_plant_name": "Sequoyah",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Callaway",
+   "state": "MO",
+   "eia_plant_code": "6153",
+   "eia_plant_name": "Callaway",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Summer",
+   "state": "SC",
+   "eia_plant_code": "6127",
+   "eia_plant_name": "V C Summer",
+   "same_plant": true,
+   "note": "NRC \"Summer\" = V.C. Summer (SC): same station."
+  },
+  {
+   "nrc_facility": "Comanche Peak",
+   "state": "TX",
+   "eia_plant_code": "6145",
+   "eia_plant_name": "Comanche Peak",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Brunswick",
+   "state": "NC",
+   "eia_plant_code": "6014",
+   "eia_plant_name": "Brunswick Nuclear",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Byron",
+   "state": "IL",
+   "eia_plant_code": "6023",
+   "eia_plant_name": "Byron Generating Station",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Clinton",
+   "state": "IL",
+   "eia_plant_code": "204",
+   "eia_plant_name": "Clinton Power Station",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Palo Verde",
+   "state": "AZ",
+   "eia_plant_code": "6008",
+   "eia_plant_name": "Palo Verde",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Beaver Valley",
+   "state": "PA",
+   "eia_plant_code": "6040",
+   "eia_plant_name": "Beaver Valley",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Millstone",
+   "state": "CT",
+   "eia_plant_code": "566",
+   "eia_plant_name": "Millstone",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Cook",
+   "state": "MI",
+   "eia_plant_code": "6000",
+   "eia_plant_name": "Donald C Cook",
+   "same_plant": true,
+   "note": "NRC \"Cook\" = Donald C. Cook Nuclear Plant (Bridgman, MI): same station."
+  },
+  {
+   "nrc_facility": "Vogtle 3/4",
+   "state": "GA",
+   "eia_plant_code": "649",
+   "eia_plant_name": "Vogtle",
+   "same_plant": true,
+   "note": "EIA lists the four Vogtle units under one plant record; same plant, event concerns units 3/4 only."
+  },
+  {
+   "nrc_facility": "Vogtle 1/2",
+   "state": "GA",
+   "eia_plant_code": "649",
+   "eia_plant_name": "Vogtle",
+   "same_plant": true,
+   "note": "EIA lists the four Vogtle units under one plant record; same plant, event concerns units 1/2 only."
+  },
+  {
+   "nrc_facility": "Nine Mile Point",
+   "state": "NY",
+   "eia_plant_code": "2589",
+   "eia_plant_name": "Nine Mile Point Nuclear Station",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Catawba",
+   "state": "SC",
+   "eia_plant_code": "6036",
+   "eia_plant_name": "Catawba",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Grand Gulf",
+   "state": "MS",
+   "eia_plant_code": "6072",
+   "eia_plant_name": "Grand Gulf",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "LaSalle",
+   "state": "IL",
+   "eia_plant_code": "6026",
+   "eia_plant_name": "LaSalle Generating Station",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "South Texas",
+   "state": "TX",
+   "eia_plant_code": "6251",
+   "eia_plant_name": "South Texas Project",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Surry",
+   "state": "VA",
+   "eia_plant_code": "3806",
+   "eia_plant_name": "Surry",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Browns Ferry",
+   "state": "AL",
+   "eia_plant_code": "46",
+   "eia_plant_name": "Browns Ferry",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Hope Creek",
+   "state": "NJ",
+   "eia_plant_code": "6118",
+   "eia_plant_name": "PSEG Hope Creek Generating Station",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Columbia Generating Station",
+   "state": "WA",
+   "eia_plant_code": "371",
+   "eia_plant_name": "Columbia Generating Station",
+   "same_plant": true
+  },
+  {
+   "nrc_facility": "Fermi",
+   "state": "MI",
+   "eia_plant_code": "1729",
+   "eia_plant_name": "Fermi",
+   "same_plant": true,
+   "note": "NRC \"Fermi\" (MI) = Fermi 2, the only operating Fermi unit."
+  },
+  {
+   "nrc_facility": "Quad Cities",
+   "state": "IL",
+   "eia_plant_code": "880",
+   "eia_plant_name": "Quad Cities Generating Station",
+   "same_plant": true
+  }
+ ]
+}

@@ -1,0 +1,113 @@
+{
+ "reviewed_on": "2026-11-14",
+ "reviewer": "daily scout session (names, communes and certifier codes compared side by side, in memory)",
+ "method": "compared operator name, commune and certifier EU code side by side for each pair; one pair matched on the operator's second address",
+ "operators_named_after_a_person": 5,
+ "pairs": [
+  {
+   "numeroBio": 114649,
+   "traces_refs": [
+    "FR-BIO-01.250-0044427.2026.003"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 308551,
+   "traces_refs": [
+    "FR-BIO-01.250-0114004.2026.002"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 142297,
+   "traces_refs": [
+    "FR-BIO-01.250-0074054.2026.002"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 147193,
+   "traces_refs": [
+    "FR-BIO-01.250-0002153.2026.005"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 43704,
+   "traces_refs": [
+    "FR-BIO-01.250-0069715.2026.004"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 113398,
+   "traces_refs": [
+    "FR-BIO-16.250-0027016.2025.003"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 60608,
+   "traces_refs": [
+    "FR-BIO-16.250-0094627.2026.001"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 24821,
+   "traces_refs": [
+    "FR-BIO-10.250-0052769.2026.001",
+    "FR-BIO-10.250-0052769.2023.001",
+    "FR-BIO-10.250-0052769.2024.001",
+    "FR-BIO-10.250-0052769.2025.001"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 70295,
+   "traces_refs": [
+    "FR-BIO-01.250-0104037.2026.004"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 24624,
+   "traces_refs": [
+    "FR-BIO-01.250-0011124.2026.002"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 171914,
+   "traces_refs": [
+    "FR-BIO-10.250-0067229.2024.001",
+    "FR-BIO-10.250-0067229.2023.001",
+    "FR-BIO-10.250-0067229.2025.001",
+    "FR-BIO-10.250-0067229.2026.001",
+    "FR-BIO-10.250-0067229.2025.002"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 100018,
+   "traces_refs": [
+    "FR-BIO-16.250-0011775.2026.003"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 58891,
+   "traces_refs": [
+    "FR-BIO-01.250-0029468.2026.004"
+   ],
+   "verdict": "correct"
+  },
+  {
+   "numeroBio": 60770,
+   "traces_refs": [
+    "FR-BIO-01.250-0098015.2026.004"
+   ],
+   "verdict": "correct"
+  }
+ ]
+}

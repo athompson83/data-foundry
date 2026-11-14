@@ -1,0 +1,240 @@
+# Paste under `candidates:` and `datasets:` in docs/sources/pipeline/candidates.yaml (orchestrator merges).
+candidates:
+  - key: fda-maude-device-adverse-events
+    name: FDA MAUDE device adverse-event reports with manufacturer and user narratives (openFDA device/event)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: US Food and Drug Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://api.fda.gov/device/event.json
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: 'Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Measured 2026-10-04: 26,136,889 reports, 2,503,728 received in 2026, newest date_received 20260831 (API last_updated 2026-09-22); 124 of 300 recent reports carry mdr_text narratives; archive the openFDA bulk event files to R2 (paged API is capped), extract event, patient-outcome and device-problem facts from mdr_text, link to 510(k) by cited K-number (32/32) and to product code.'
+
+  - key: hc-medical-device-incidents
+    name: Health Canada Medical Device Incidents extract (incident, device, company and patient/device problem codes)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://hpr-rps.hres.ca/mdi_landing.php?lang=en
+      - https://hpr-rps.hres.ca/files/extract.zip
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://hpr-rps.hres.ca/files/extract.zip
+        quote: 'This information is provided with the understanding that the data will be appropriately referenced and used in conjunction with this Terms of Use statement.'
+      - url: https://hpr-rps.hres.ca/static/content/mdidisclaim.php
+        quote: 'Information related to the identity of people who report a voluntary incident is protected under the Privacy Act.'
+    conditions:
+      - 'Reference Health Canada as the source on every record and carry the extract Terms of use (Terms of use.pdf inside extract.zip) with the data.'
+      - 'No incidence, prevalence or comparative-risk claims: the Terms of use say the counts are not suitable for inferring risk, so serve counts as reported with that caveat.'
+      - 'Serve only the coded fields in the extract (no reporter or patient identity exists in it); no free-text narrative is published by this source.'
+      - 'No express open licence is stated on the extract; rights record under ADR-0018 must confirm the extract terms before publication.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Measured 2026-10-04: 327,430 incidents received 1998-07-15 to 2026-07-29 (6,505 in 2026) in a 21 MB extract.zip refreshed 2026-10-01, joined to MDALL by Health Canada device ID (17,801/22,977); archive the zip to R2 and map PREF_NAME_CODE (FDA product code with a 2-digit specialty prefix) and patient/device codes to the shared taxonomy.'
+
+  - key: mhra-device-field-safety-notices
+    name: MHRA medical device Field Safety Notices (weekly GOV.UK lists with manufacturer, device, model, MHRA reference and FSN documents)
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Medicines and Healthcare products Regulatory Agency
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.gov.uk/drug-device-alerts
+      - https://www.gov.uk/api/search.json?filter_document_type=medical_safety_alert
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence (OGL), which also sets out which content is exempt.'
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'You are free to: copy, publish, distribute and transmit the Information; adapt the Information; exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+    conditions:
+      - 'Open Government Licence v3.0: attribute MHRA and link the licence; the OGL excludes third-party rights.'
+      - 'The FSN documents themselves are manufacturer-authored files on the third-party host mhra-gov.filecamp.com; serve only the GOV.UK list metadata until the document rights are separately determined.'
+      - 'MHRA states the FSN lists are published for information only; keep that wording with any served record.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Measured 2026-10-04: 618 weekly FSN list pages (newest 2026-09-29), 122 entries parsed from the newest 12 pages, 117 with an MHRA reference; archive the 618 list pages through the GOV.UK content API and parse manufacturer, device, model and MHRA reference; fetch FSN PDFs only after a rights check of the filecamp host.'
+
+  - key: swissmedic-device-fsca-notices
+    name: Swissmedic list of medical device Field Safety Corrective Actions (fsca.swissmedic.ch publication service)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Swissmedic
+    stage: PARKED
+    rights: RED
+    sources:
+      - https://fsca.swissmedic.ch/mep/
+      - https://www.swissmedic.ch/swissmedic/en/home/legal-framework.html
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.swissmedic.ch/swissmedic/en/home/legal-framework.html
+        quote: 'Information provided on the website must not be reproduced in any form without the express authorisation of Swissmedic or the respective rights owner. This includes in particular any form of automated information extraction and storage (scraping/data mining).'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: Swissmedic terms prohibit reproduction and automated extraction and storage (scraping/data mining) of the FSCA list (11,092 publications, newest 2026-10-01, JSON behind the site). Reopen only if Swissmedic publishes a licence or a feed expressly intended for automated use.'
+
+  - key: tga-daen-device-adverse-events
+    name: TGA Database of Adverse Event Notifications (DAEN), medical device reports
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Therapeutic Goods Administration
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://apps.tga.gov.au/PROD/DAEN/daen-entry.aspx
+      - https://www.tga.gov.au/resources/copyright
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: tga.gov.au copyright page fails from our egress (HTTP/2 INTERNAL_ERROR), apps.tga.gov.au DAEN entry returned 404, no terms readable and no bulk or API found. Re-screen when the terms page loads and a DAEN export or API is documented.'
+
+  - key: bfarm-device-field-safety-notices
+    name: BfArM (Germany) medical device field safety notices (Kundeninformationen zu Sicherheitsmassnahmen)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: Bundesinstitut fuer Arzneimittel und Medizinprodukte
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      - https://www.bfarm.de/EN/Medical-devices/_node.html
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Parked: the BfArM customer-information search form returned HTTP 403 and the guessed English FSCA and imprint paths returned 404, so neither data nor terms were readable. Re-screen with the correct list URL and imprint terms.'
+
+datasets:
+  - key: medical-device-adverse-events
+    name: Medical device adverse events and field safety actions (multi-regulator, product-code and cited-510(k)-linked)
+    category: health
+    entity: device_incident_report (one regulator report or notice) linked to the device model, product code, premarket clearance and manufacturer, with outcome, device problem and narrative-derived facts
+    stage: SCREENED
+    description: 'One record per regulator report or notice about a medical device problem: FDA MAUDE reports with manufacturer and user narratives (26.1 million reports), Health Canada coded incident records (327,430), and MHRA field safety notices. Free text is parsed deterministically into event type, patient outcome, device problem, model, catalogue and lot identifiers. A cited 510(k) K-number links a MAUDE report to its FDA clearance automatically (32 of 32 measured); Health Canada device IDs link incidents to the MDALL licence register. Catalogue-number, manufacturer plus model and trade-name matches across regulators only propose reviewed links, never merges. Every fact carries its source report; disagreements are kept per source.'
+    sources:
+      - fda-maude-device-adverse-events
+      - hc-medical-device-incidents
+      - mhra-device-field-safety-notices
+      - hc-mdall-device-licences
+      - fda-device-510k-pma-clearances
+    join_keys:
+      - key: cited premarket notification reference number (MAUDE pma_pmn_number holds a K-number) to FDA 510(k) k_number
+        between:
+          - fda-maude-device-adverse-events
+          - fda-device-510k-pma-clearances
+        measured: '32/32 distinct K-numbers cited in 300 recent MAUDE reports found in openFDA 510(k); same publisher, so not counted as independent'
+        mode: declared
+      - key: MAUDE UDI-DI as GTIN against Health Canada device identifier
+        between:
+          - fda-maude-device-adverse-events
+          - hc-mdall-device-licences
+        measured: '0/101 UDI-DI in recent MAUDE reports match any of 3,152,063 MDALL device identifiers (0/500 in a larger sample); MDALL holds catalogue numbers, only 261,520 of 1,550,527 normalised identifiers are GTIN-like'
+        mode: declared
+      - key: manufacturer name plus device model token (MHRA FSN to MAUDE model_number)
+        between:
+          - mhra-device-field-safety-notices
+          - fda-maude-device-adverse-events
+        measured: '20/36 MHRA FSN model tokens (122 entries parsed, 36 with a usable token) appear as MAUDE model_number; 19/20 correct on hand check (the miss: a different manufacturer name)'
+        mode: candidate
+        reviewed: { correct: 19, checked: 20 }
+      - key: catalogue number token (MAUDE catalog_number to MDALL device identifier)
+        between:
+          - fda-maude-device-adverse-events
+          - hc-mdall-device-licences
+        measured: '62/196 recent MAUDE reports with a catalogue number of 6+ characters match an MDALL device identifier; 15/17 distinct product matches same product on hand check'
+        mode: candidate
+        reviewed: { correct: 15, checked: 17 }
+      - key: exact trade name (HC incident device to MAUDE brand_name)
+        between:
+          - hc-medical-device-incidents
+          - fda-maude-device-adverse-events
+        measured: '21/40 recent Health Canada trade names have an exact MAUDE brand_name hit; 14/21 correct on hand check (UNKNOWN placeholders and generic names are wrong)'
+        mode: candidate
+        reviewed: { correct: 14, checked: 21 }
+    taxonomy:
+      - event_type (death, injury, malfunction, other)
+      - device_problem and patient_problem (FDA and Health Canada coded terms, mapped to one list)
+      - product_code and medical_specialty (FDA three-letter code, Health Canada 2-digit specialty prefix)
+      - device_class (I to IV)
+      - report_source (manufacturer, user facility, voluntary, foreign compiled)
+      - safety_action (field safety notice, recall)
+    agent_questions:
+      - Which adverse events were reported for this device model, UDI or 510(k) clearance, and what did the manufacturer narrative say happened?
+      - Has this device model been the subject of a field safety notice in the UK, and do FDA or Health Canada hold reports for the same model?
+      - Which product codes show a rising count of death or injury reports in the last 12 months across both North American regulators?
+      - Which cleared devices (by 510(k) K-number) have reports citing them, and what device problems recur?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: 'Archive the openFDA MAUDE bulk files, the Health Canada extract.zip and the 618 MHRA FSN pages to R2, then re-measure the K-number, catalogue-number and trade-name links on the full files; the MDALL UDI-DI link is 0/101, so do not rely on it.'

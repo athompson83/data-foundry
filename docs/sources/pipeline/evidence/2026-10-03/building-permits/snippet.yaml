@@ -1,0 +1,228 @@
+# Paste under `candidates:` (the first six entries) and `datasets:` (the last entry) in candidates.yaml.
+# Reuses the existing member key contractors-wa-lni-licences (not redefined here).
+candidates:
+  - key: building-permits-seattle-sdci
+    name: Seattle SDCI building permits (free-text work description, contractor company name)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Seattle SDCI
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.seattle.gov/resource/76t5-zqzr.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://data.seattle.gov/stories/s/Data-Policy/6ukr-wvup/',
+          quote: 'To the extent the data consists of a list of individuals or can be readily sorted, filtered, or configured as a list of individuals, it is not to be used for a commercial purpose.'
+        }
+      - {
+          url: 'https://data.seattle.gov/stories/s/Data-Policy/6ukr-wvup/',
+          quote: 'Unless otherwise indicated, data on this site does not require specific attribution.'
+        }
+    conditions:
+      [
+        'Dataset licence is Public Domain (Socrata metadata, fetched 2026-10-03); the portal terms bar commercial use of any extract that works as a list of individuals, so publish permits per property and per business only.',
+        'contractorcompanyname is present on 32,086 of 193,407 rows (16.6 percent) and sometimes holds a natural person (for example a personal name); publish it only when it normalises to a business entity and matches a licensed business.',
+        'The dataset carries no contractor licence number and no parcel number, so contractor links are review candidates only and the property link is address or coordinates.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive a full snapshot (193,407 rows), then measure address-to-parcel linkage against King County parcel data and contractor name linkage against WA L&I on the full population.
+
+  - key: building-permits-sf-dbi
+    name: San Francisco DBI building permits with permit contacts (firm and CSLB licence number)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: San Francisco Department of Building Inspection
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.sfgov.org/resource/i98e-djp9.json',
+        'https://data.sfgov.org/resource/3pee-9qhc.json'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.sf.gov/reports/april-2017/datasf-terms-use',
+          quote: 'Except where otherwise stated in the file containing such Data or on the page from which such Data is accessed, including its metadata, Data is made available under the Public Domain Dedication and License v1.0'
+        }
+    conditions:
+      [
+        'Both datasets carry the PDDL in their Socrata metadata; the DataSF terms forbid re-identifying individuals, so publish from the contacts table only firm_name, firm address and licence number for role contractor, never first_name, last_name or agent_address.',
+        'Exclude contact rows where firm_name is empty (the contractor is then a natural person) and the contact roles lessee and payor.',
+        'The contacts table holds invalid dates (newest from_date is 2048); do not use from_date as a freshness signal.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Link contractor licence numbers (license1, 585,340 of 585,805 contractor rows) to the CSLB licence master once that file is reachable, and measure the declared join on 50 permits.
+
+  - key: building-permits-sf-assessor-roll
+    name: San Francisco Assessor secured property tax roll (parcel attributes)
+    category: home-services
+    structuring: normalization
+    format: structured
+    publisher: San Francisco Assessor-Recorder
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.sfgov.org/resource/wv5m-vpq2.json' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.sf.gov/reports/april-2017/datasf-terms-use',
+          quote: 'Except where otherwise stated in the file containing such Data or on the page from which such Data is accessed, including its metadata, Data is made available under the Public Domain Dedication and License v1.0'
+        }
+    conditions:
+      [
+        'Annual roll (latest closed_roll_year 2025); show the roll year as the as-of date.',
+        'Publish parcel attributes only (use, year built, units, zoning, assessed values); the dataset has no owner names and none may be added.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive the latest roll year only and measure block+lot coverage against all SF DBI permits issued since 2020.
+
+  - key: building-permits-chicago-dbs
+    name: Chicago Department of Buildings building permits (work description, up to 15 contacts)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Chicago
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.cityofchicago.org/resource/ydr8-5enu.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked UNKNOWN - the portal terms of use page (cityofchicago.org data_disclaimer) returned 403 and dataset licence is the placeholder SEE_TERMS_OF_USE; contact_N_name holds owners and natural persons and there is no licence number column. Reopen if the terms become readable.
+
+  - key: building-permits-nyc-dob
+    name: NYC DOB NOW approved permits and DOB permit issuance (job description, BBL, permittee licence)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: NYC Department of Buildings
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      [
+        'https://data.cityofnewyork.us/resource/rbx6-tga4.json',
+        'https://data.cityofnewyork.us/resource/ipu4-2q9a.json'
+      ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 1,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked UNKNOWN - dataset licence is null, the NYC terms resolve to the Admin Code page that returned 403 in the 2026-09-27 round, and rows carry owner_name, applicant names and permittee phone (natural persons). Reopen if a readable open-data licence appears; the BBL and hic_license keys are strong.
+
+  - key: building-permits-la-ladbs
+    name: Los Angeles LADBS building permits issued 2020 to present (work description, APN)
+    category: home-services
+    structuring: event-extraction
+    format: free-text
+    publisher: City of Los Angeles Building and Safety
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.lacity.org/resource/pi9x-tg5x.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 1,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Parked UNKNOWN - dataset licence is null and the lacity.gov terms page returned 403; the dataset also has no contractor column. Reopen if terms become readable; APN and PIN are strong parcel keys.
+
+# Dataset passes: two non-RED members on different registrable domains (seattle.gov, wa.gov) with a hand-checked name link.
+datasets:
+  - key: building-permits
+    name: Building permits (work description, parcel and licensed contractor)
+    category: home-services
+    entity: BuildingPermit - one municipal building or trade permit with its free-text work description, the property it is for and, where published, the contractor business
+    stage: SCREENED
+    description: One record per permit from city open-data portals (Seattle SDCI and San Francisco DBI live now, Chicago, NYC and LA parked on unreadable terms), linked to its parcel through exact block and lot or address and to the licensed contractor business through the state licence record. Personal owner and applicant names are never published.
+    sources:
+      - building-permits-seattle-sdci
+      - building-permits-sf-dbi
+      - building-permits-sf-assessor-roll
+      - contractors-wa-lni-licences
+    join_keys:
+      - key: parcel block+lot (exact)
+        between:
+          - building-permits-sf-dbi
+          - building-permits-sf-assessor-roll
+        measured: 60/60
+        mode: candidate
+        reviewed: { correct: 8, checked: 8 }
+      - key: normalised contractor name
+        between:
+          - building-permits-seattle-sdci
+          - contractors-wa-lni-licences
+        measured: 22/40
+        mode: candidate
+        reviewed: { correct: 18, checked: 22 }
+    taxonomy:
+      - permit type (new construction, alteration, re-roof, electrical, plumbing, mechanical, demolition, sign)
+      - trade scope extracted from the work description
+      - residential or commercial use
+      - permit status (applied, issued, completed, expired)
+    agent_questions:
+      - What work was permitted on this property, when, and at what declared cost?
+      - Which licensed contractor business did the work, and is its licence active?
+      - Which re-roof or HVAC permits were issued in this neighbourhood in the last year?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Archive Seattle and SF snapshots, add a King County parcel or SF CSLB-licence declared join, and re-measure the contractor-name link on the full Seattle population before EVIDENCED.

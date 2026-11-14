@@ -1,0 +1,174 @@
+{
+ "date": "2026-10-01",
+ "dataset": "food-and-health-recalls-global",
+ "reachability": {
+  "fsis_api": "403 Akamai Access Denied (https://www.fsis.usda.gov/fsis/api/recall/v/1)",
+  "fsa_food_alerts": "200 application/json; 1359 items (limit 5000 not reached), created 2018-01-09..2026-09-25",
+  "hc_open_data_json": "200; 34140 rows total; CFIA 5318, Medical devices 8647, Drugs and health products 1934, Marketed health products 1161, Communications and Public Affairs 1814, Controlled substances 99; Last updated max 2026-09-29",
+  "cfia_ckan_class1_csv": "listed on open.canada.ca, 2018-2021 only (superseded by HC index)",
+  "fsanz_rss": "200; 10 items 2026-08-05..2026-09-30; HTML listing 19 pages of 12 (page=18 last in pager; page=20 returns none), back to ~early 2024",
+  "rasff_window_backend": "405 on POST path; official API needs subscription key at developer.datalake.sante.service.ec.europa.eu; pre-2021 xlsx 200 (8.2MB)",
+  "accc_rss": "200 (existing candidate au-accc-product-recalls; not re-screened)",
+  "openfda_food_drug": "200; 4000 rows pulled (food 2000, drug 2000), report_date 2024-01-03..2026-09-23"
+ },
+ "linkage": {
+  "fda_rows": 4000,
+  "fda_report_date_range": [
+   "20240103",
+   "20260923"
+  ],
+  "fda_rows_with_valid_gtin12_14": 609,
+  "census_fsa": {
+   "records": 1359
+  },
+  "census_hc_food_health": {
+   "mentions_FDA_or_US": 12,
+   "valid_gtin_tokens": 2,
+   "gtin_matches_fda": 0,
+   "records": 18973
+  },
+  "fsa_records_since_2024": 416,
+  "fsa_candidate_pairs": 11,
+  "hc_records_since_2023_12": 2364,
+  "hc_candidate_pairs": 117,
+  "hc_candidate_distinct_notices_checked": 80,
+  "hc_candidate_hand_correct": 9,
+  "hc_correct_nids": [
+   "82641",
+   "82092",
+   "81542",
+   "81490",
+   "81339",
+   "81288",
+   "81219",
+   "77655",
+   "75338"
+  ],
+  "fsa_candidate_distinct_notices_checked": 7,
+  "fsa_candidate_hand_correct": 0
+ },
+ "detail_pages": {
+  "hand_correct_fetched": 9,
+  "with_upc": 6,
+  "declared_gtin_matches_to_fda": 4,
+  "recent_cfia_sample": 20,
+  "recent_cfia_with_upc": 15,
+  "recent_cfia_declared_matches": 1
+ },
+ "detail_samples": [
+  {
+   "nid": "82641",
+   "title": "Heinz brand Real Mayonnaise single serve units recalled due to undeclared mustar",
+   "has_affected_products_table": true,
+   "upcs": [],
+   "lot_or_bb_codes_present": false,
+   "recall_number_field": true,
+   "declared_fda_matches": [],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "82092",
+   "title": "Blackstone brand Parmesan Ranch Seasoning recalled due to Salmonella",
+   "has_affected_products_table": true,
+   "upcs": [
+    "717604041062"
+   ],
+   "lot_or_bb_codes_present": true,
+   "recall_number_field": true,
+   "declared_fda_matches": [
+    "H-0817-2026"
+   ],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "81542",
+   "title": "Gerber brand arrowroot biscuits recalled due to possible presence of pieces of s",
+   "has_affected_products_table": true,
+   "upcs": [
+    "055000403146"
+   ],
+   "lot_or_bb_codes_present": true,
+   "recall_number_field": true,
+   "declared_fda_matches": [],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "81490",
+   "title": "Tom Bumble Nutty and Tom Bumble brand Peanut Butter Flake Candy recalled due to ",
+   "has_affected_products_table": true,
+   "upcs": [
+    "852905007024",
+    "852905007055"
+   ],
+   "lot_or_bb_codes_present": false,
+   "recall_number_field": true,
+   "declared_fda_matches": [
+    "H-0391-2026"
+   ],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "81339",
+   "title": "McCain Tasti Taters brand Crispy Potato Bites recalled due to pieces of plastic",
+   "has_affected_products_table": true,
+   "upcs": [
+    "055773000795",
+    "055773003062"
+   ],
+   "lot_or_bb_codes_present": false,
+   "recall_number_field": true,
+   "declared_fda_matches": [],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "81288",
+   "title": "Celebration Herbals brand Senna Leaf Herbal Tea recalled due to Salmonella",
+   "has_affected_products_table": true,
+   "upcs": [
+    "628240201829"
+   ],
+   "lot_or_bb_codes_present": true,
+   "recall_number_field": true,
+   "declared_fda_matches": [
+    "H-0328-2026"
+   ],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "81219",
+   "title": "ByHeart Whole Nutrition Infant Formula may be unsafe due to potential presence o",
+   "has_affected_products_table": true,
+   "upcs": [],
+   "lot_or_bb_codes_present": false,
+   "recall_number_field": true,
+   "declared_fda_matches": [],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "77655",
+   "title": "Peeters Mushroom Farm brand Sliced Mushrooms recalled due to Listeria monocytoge",
+   "has_affected_products_table": true,
+   "upcs": [
+    "033383676005",
+    "068414969603"
+   ],
+   "lot_or_bb_codes_present": true,
+   "recall_number_field": true,
+   "declared_fda_matches": [
+    "H-0316-2025",
+    "H-0318-2025"
+   ],
+   "group": "hand-correct"
+  },
+  {
+   "nid": "75338",
+   "title": "Honeywell Eyesaline Emergency Eyewash: deficiencies in Good Manufacturing Practi",
+   "has_affected_products_table": true,
+   "upcs": [],
+   "lot_or_bb_codes_present": true,
+   "recall_number_field": true,
+   "declared_fda_matches": [],
+   "group": "hand-correct"
+  }
+ ]
+}
