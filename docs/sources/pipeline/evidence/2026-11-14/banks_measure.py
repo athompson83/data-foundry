@@ -42,7 +42,10 @@ out["fdic_institutions_active_status"] = st
 out["fdic_institutions_active"] = len(inst)
 nz = lambda v: v not in (None, "", "0", 0)
 out["fdic_active_fill"] = {k: sum(nz(r.get(k)) for r in inst) for k in ["FED_RSSD", "RSSDHCR", "NAMEHCR", "LEI"]}
-out["fdic_active_newest_DATEUPDT"] = max((r.get("DATEUPDT") or "") for r in inst)
+import datetime as _dt
+_upd = [_dt.datetime.strptime(r["DATEUPDT"], "%m/%d/%Y").date() for r in inst if r.get("DATEUPDT")]
+# FDIC dates are MM/DD/YYYY strings: compare them as dates, not text (Codex review, PR #88)
+out["fdic_active_newest_DATEUPDT"] = max(_upd).isoformat() if _upd else None
 fdic_by_rssd = {str(r["FED_RSSD"]): r for r in inst if nz(r.get("FED_RSSD"))}
 
 # 2. FDIC structure history events

@@ -126,13 +126,18 @@ out["join_agencebio_traces"] = {
     "rows": rows,
 }
 
-# Manual review on 2026-11-14 of the matched pairs (names and towns read in memory, not stored):
-# every matched pair showed the same operator name, the same commune and the same certifier code.
-# 5 of the 14 matched operators are sole proprietors named after a person.
-out["join_agencebio_traces"]["hand_check_2026_11_14"] = {
-    "correct": 14, "checked": 14, "matched_numeroBio_reviewed": [r["numeroBio"] for r in matched],
-    "operators_named_after_a_person": 5,
-    "method": "compared operator name, commune and certifier EU code side by side for each pair; one pair matched on the operator's second address",
+# Manual review: the verdicts live in organic_handcheck.json, bound to the exact (numeroBio, TRACES references) pair that
+# was reviewed on 2026-11-14 (names and towns read in memory, not stored). A pair found on a later run that is not in
+# that file, or whose TRACES references changed, stays unreviewed (Codex review, PR #88).
+_hc = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "organic_handcheck.json")))
+_verdicts = {(p["numeroBio"], tuple(sorted(p["traces_refs"]))): p["verdict"] for p in _hc["pairs"]}
+for r in matched:
+    r["hand_check"] = _verdicts.get((r["numeroBio"], tuple(sorted(r["traces_refs"]))), "unreviewed")
+_rev = [r for r in matched if r["hand_check"] != "unreviewed"]
+out["join_agencebio_traces"]["hand_check"] = {
+    "source": "organic_handcheck.json (reviewed " + _hc["reviewed_on"] + ")",
+    "correct": sum(r["hand_check"] == "correct" for r in _rev), "checked": len(_rev),
+    "unreviewed_matches": len(matched) - len(_rev),
 }
 
 # 4. TRACES certificate PDFs (free text: product directory in Part II)

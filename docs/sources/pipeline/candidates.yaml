@@ -9698,7 +9698,7 @@ candidates:
     sources: [ 'https://www.occ.gov/topics/charters-and-licensing/financial-institution-lists/index-financial-institution-lists.html', 'https://apps.occ.gov/EASearch' ]
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
-    next_action: 'Parked 2026-11-14: www.occ.gov deep pages answer 302 "Security Redirect" to the home page; the EASearch Count API returned 6071 once via curl but an HTML page via urllib. Next: find the documented EASearch Actions parameters.'
+    next_action: 'Parked 2026-11-14: www.occ.gov deep pages answer 302 "Security Redirect" to the home page; the EASearch Count API returned 6071 via curl, an HTML page via urllib on the first run and 6071 via urllib on the rerun, so it answers intermittently. Next: find the documented EASearch Actions parameters.'
   - key: ec-merger-cases
     name: "European Commission merger cases (M.xxxx) open data JSON with decision documents"
     category: competition

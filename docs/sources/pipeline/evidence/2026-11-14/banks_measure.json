@@ -9,7 +9,7 @@
   "NAMEHCR": 3529,
   "LEI": 2258
  },
- "fdic_active_newest_DATEUPDT": "12/30/2025",
+ "fdic_active_newest_DATEUPDT": "2026-11-12",
  "fdic_history_status": 200,
  "fdic_history_total_events": 585705,
  "fdic_history_newest_PROCDATE": "2026-11-12T00:00:00",
@@ -375,6 +375,6 @@
  "occ_lists_status": 302,
  "occ_lists_location": "https://www.occ.treas.gov/",
  "occ_ea_count_status": 200,
- "occ_ea_count": "\t\n<!DOCTYPE html>\n<html lang=\"en\" prefix",
+ "occ_ea_count": "6071",
  "fed_terms": "Unless otherwise indicated, information on Board's website is in the public domain and may be copied and distributed without permission."
 }

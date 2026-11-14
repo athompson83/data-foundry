@@ -106,7 +106,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0044427.2026.003"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 308551,
@@ -114,7 +115,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0114004.2026.002"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 142297,
@@ -122,7 +124,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0074054.2026.002"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 57234,
@@ -172,7 +175,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0002153.2026.005"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 43704,
@@ -180,7 +184,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0069715.2026.004"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 12571,
@@ -194,7 +199,8 @@
     "traces_refs": [
      "FR-BIO-16.250-0027016.2025.003"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 60608,
@@ -202,7 +208,8 @@
     "traces_refs": [
      "FR-BIO-16.250-0094627.2026.001"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 24821,
@@ -213,7 +220,8 @@
      "FR-BIO-10.250-0052769.2024.001",
      "FR-BIO-10.250-0052769.2025.001"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 70295,
@@ -221,7 +229,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0104037.2026.004"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 24624,
@@ -229,7 +238,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0011124.2026.002"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 171914,
@@ -241,7 +251,8 @@
      "FR-BIO-10.250-0067229.2026.001",
      "FR-BIO-10.250-0067229.2025.002"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 100018,
@@ -249,7 +260,8 @@
     "traces_refs": [
      "FR-BIO-16.250-0011775.2026.003"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 58891,
@@ -257,7 +269,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0029468.2026.004"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 60770,
@@ -265,7 +278,8 @@
     "traces_refs": [
      "FR-BIO-01.250-0098015.2026.004"
     ],
-    "certifier_code_equal": true
+    "certifier_code_equal": true,
+    "hand_check": "correct"
    },
    {
     "numeroBio": 151927,
@@ -286,27 +300,11 @@
     "certifier_code_equal": false
    }
   ],
-  "hand_check_2026_11_14": {
+  "hand_check": {
+   "source": "organic_handcheck.json (reviewed 2026-11-14)",
    "correct": 14,
    "checked": 14,
-   "matched_numeroBio_reviewed": [
-    114649,
-    308551,
-    142297,
-    147193,
-    43704,
-    113398,
-    60608,
-    24821,
-    70295,
-    24624,
-    171914,
-    100018,
-    58891,
-    60770
-   ],
-   "operators_named_after_a_person": 5,
-   "method": "compared operator name, commune and certifier EU code side by side for each pair; one pair matched on the operator's second address"
+   "unreviewed_matches": 0
   }
  },
  "eu_traces_certificate_pdfs": {
@@ -407,14 +405,14 @@
    "West": 1222,
    "Quebec": 957,
    "Atlantic": 80,
-   "Québec": 306,
+   "Qu\u00e9bec": 306,
    "North": 1
   },
   "action_counts": {
    "Cancellation (voluntary withdrawal)": 2746,
    "Cancellation": 884,
    "Cancellation (Voluntary Withdrawal)": 319,
-   "Cancellation (voluntary withdrawal)": 1
+   "Cancellation (voluntary\u00a0withdrawal)": 1
   },
   "holder_cell_with_parenthesised_certifier": 3149,
   "rows_located_in_eu_member_state": 1,
