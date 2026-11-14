@@ -1,5 +1,13 @@
 # Progress
 
+## Current session — 2026-11-14: daily dataset scout (round 24)
+
+- Health: both LIVE recall datasets synced 2026-11-14 at about 12:18Z. Newest records match openFDA (2026-11-04), CPSC (2026-11-12) and Health Canada (2026-11-10; 5,237 = 5,237). No regression.
+- Added 7 data types at SCREENED: `data-breach-notifications`, `mass-layoff-notices`, `financial-institution-registry`, `merger-control-cases`, `certified-organic-operations`, `controlled-substance-schedules`, `plant-variety-protections`. Screened and parked: `vehicle-crash-test-ratings` (Euro NCAP, ANCAP, Latin NCAP and IIHS terms forbid commercial reuse). 43 new candidates. `RSSD ID` added to the declared-join allow-list.
+- Widening: Transport Canada re-measured at 74/79 declared CPSC citations. It is not added as a member, because the BUILDING-dataset member-stage gate needs the TC feed built first. Two known structuring gaps remain open: the HC organisation filter and the unpersisted legacy/TC/PROFECO citation links. No raw-capture gap.
+- Stage advance: `plumbing-wikidata-brand-owners` DISCOVERED → SCREENED (3/50 brands carry an owner claim). No dataset past SCREENED, because the archive workflow needs PR #88 merged.
+- Verification: `npx vitest run tooling/test/source-pipeline.test.ts` 4234 passed. Nothing deployed.
+
 ## Current session — 2026-11-10: daily dataset scout (round 23)
 
 - Health: both LIVE recall datasets synced 2026-11-10 12:17Z and match openFDA (2026-11-04) and CPSC (2026-11-05); no regression.

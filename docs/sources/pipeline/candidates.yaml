@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-04
+updated: 2026-11-14
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -1586,15 +1586,17 @@ candidates:
     name: Wikidata plumbing brand to owner and private-label links (nongovernmental, CC0)
     category: home-services
     structuring: normalization
-    stage: DISCOVERED
+    format: structured
+    publisher: Wikidata
+    stage: SCREENED
     rights: GREEN
-    sources: [ https://query.wikidata.org/sparql ]
+    sources: [ https://query.wikidata.org/sparql, https://www.wikidata.org/w/api.php ]
     scores:
       {
         agent_demand: 2,
         rights_clarity: 5,
-        acquisition_ease: 3,
-        structuring_value: 3,
+        acquisition_ease: 2,
+        structuring_value: 2,
         freshness: 3,
         low_onboarding_cost: 4,
         poor_existing_access: 2
@@ -1602,12 +1604,19 @@ candidates:
     evidence:
       [
         docs/sources/pipeline/research-2026-09-27-service-trades.md,
-        docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing
+        docs/sources/pipeline/evidence/2026-09-27-service-trades/plumbing,
+        docs/sources/pipeline/research-2026-11-14.md,
+        docs/sources/pipeline/evidence/2026-11-14/wikidata_brands.py,
+        docs/sources/pipeline/evidence/2026-11-14/wikidata_brands.json
       ]
     next_action: >-
-      wbsearchentities returned 429 from this egress on 2026-09-27, so coverage is unmeasured. Measure how
-      many of WaterSense's top 50 brands resolve to Wikidata items with an owner (P127) or parent (P749), for
-      use as a brand-canonicalization aid only.
+      Screened 2026-11-14 (wikidata_brands.py): the WaterSense API now needs an api.data.gov key (DEMO_KEY allows 10
+      requests an hour at 10 rows a page), so the brand list came from ENERGY STAR Certified Water Heaters (73 brands,
+      1,374 models). WDQS answered HTTP 429 (1 request a minute during an outage), so the Action API was used: 29/50 top
+      brands have an item whose English label or alias equals the brand, mostly ambiguous (Richmond, State, Giant,
+      Kepler resolve to places and people), and only 3/50 carry any owner (P127), parent (P749) or manufacturer (P176)
+      claim. Wikidata does not cover water-heater brand ownership well enough to canonicalize brands; park unless a
+      reviewed brand list (not exact labels) raises coverage.
 
   # --- Service trades, research round 2 (2026-09-27): roofing ---
   - key: roofing-miami-dade-noa
@@ -5000,6 +5009,7 @@ candidates:
     sources:
       - https://www.gov.uk/api/search.json?filter_format=cma_case
       - https://www.gov.uk/cma-cases
+      - https://www.gov.uk/api/search.json?filter_format=cma_case&filter_case_type=mergers
     scores:
       {
         agent_demand: 3,
@@ -5013,10 +5023,13 @@ candidates:
     terms:
       - url: https://www.gov.uk/help/terms-conditions
         quote: "is published under the Open Government Licence (OGL), which also sets out which content is exempt."
-    evidence: [docs/sources/pipeline/research-2026-10-01.md]
+    evidence: [docs/sources/pipeline/research-2026-10-01.md, docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.py, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.json]
     next_action: >-
-      Keep only the enforcement case types (consumer-enforcement, ca98-and-civil-cartels, criminal-cartels, markets);
-      ingest case body text and decision documents; add OGL attribution and the Crown copyright notice.
+      Member of regulatory-enforcement-actions (enforcement case types: consumer-enforcement, ca98-and-civil-cartels,
+      criminal-cartels, markets) and, from 2026-11-14, of merger-control-cases (case_type mergers: 2,001 cases,
+      description 2,001/2,001, opened_date 790/2,001, newest 2026-11-13; content API bodies 2,332 to 14,521 chars on 3
+      samples; no M.xxxx citations in 3 sampled referral bodies). Ingest case body text and decision documents; add OGL
+      attribution and the Crown copyright notice.
 
   - key: uk-fca-enforcement
     name: UK FCA final notices and enforcement
@@ -5296,7 +5309,7 @@ candidates:
     publisher: US Federal Deposit Insurance Corporation
     stage: SCREENED
     rights: GREEN
-    sources: [ https://api.fdic.gov/banks/failures, https://api.fdic.gov/banks/institutions ]
+    sources: [ https://api.fdic.gov/banks/failures, https://api.fdic.gov/banks/institutions, https://api.fdic.gov/banks/history ]
     scores:
       {
         agent_demand: 3,
@@ -5307,9 +5320,12 @@ candidates:
         low_onboarding_cost: 4,
         poor_existing_access: 2
       }
-    evidence: [ docs/sources/pipeline/research-2026-09-28.md ]
+    evidence: [ docs/sources/pipeline/research-2026-09-28.md, docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
     next_action: >-
-      Standalone this round. banks.data.fdic.gov/api/failures redirects (301) to api.fdic.gov/banks/failures,
+      2026-11-14: member of financial-institution-registry. Measured: institutions 200, 27,835 records (4,208 active;
+      FED_RSSD 4,208/4,208, RSSDHCR 3,529, LEI 2,258); history 200, 585,705 structure events, newest PROCDATE
+      2026-11-12, CHANGECODE_DESC filled 500/500 on a sample. Next: quote the FDIC website reuse statement (the
+      policies page read has none). Earlier (2026-09-28): standalone. banks.data.fdic.gov/api/failures redirects (301) to api.fdic.gov/banks/failures,
       which returned 200 with 4,117 total failure records back to 1934 (CERT-numbered) and the institutions
       endpoint returned 200 with 4,231 active institutions; both already structured (low structuring_value).
       finance already has sec-8k-events (EVIDENCED) and sec-xbrl-financial-facts (PARKED); no independent
@@ -5951,7 +5967,9 @@ candidates:
         docs/sources/pipeline/research-2026-10-03.md,
         docs/sources/pipeline/evidence/2026-10-03/recalls-widening/notes.md,
         docs/sources/pipeline/research-2026-11-02.md,
-        docs/sources/ca-tc-vehicle-recalls-database-rights-record-20261102.md
+        docs/sources/ca-tc-vehicle-recalls-database-rights-record-20261102.md,
+        docs/sources/pipeline/evidence/2026-11-14/widen_measure.py,
+        docs/sources/pipeline/evidence/2026-11-14/widen_measure.json
       ]
     next_action: >-
       Candidate 2026-10-03 widening member of consumer-product-recalls-north-america. Measured: 17,978 recalls /
@@ -5965,6 +5983,12 @@ candidates:
       tooling/snapshots/plans.json so the Archive source snapshot workflow can preserve it in R2 once this PR is merged,
       and the declared CPSC link (cited VRDB URL, rn parameter) was re-measured at 76/84 CPSC recalls resolving to a VRDB recall number. The dataset gate (every member of a BUILDING dataset at BUILDING or later) keeps it out of `sources` of consumer-product-recalls-north-america until it is built. Next: dispatch the archive workflow from main, then write the
       parser package (COMMENT_ETXT Issue / Safety Risk / Corrective Actions) with golden tests and a prototype runner.
+      2026-11-14 (evidence/2026-11-14/widen_measure.py): 74/79 CPSC recalls citing a wwwapps.tc.gc.ca VRDB URL resolve to
+      a recall number in the TC VRDB API (72/76 distinct numbers; the VRDB make agrees with the CPSC firm or brand family
+      in 74/74 on inspection; ATVs, ROVs, snowmobiles, off-road motorcycles); 71/79 also resolve to a TC notice in the
+      Health Canada index, and 4 CPSC recalls-rappels citations land on TC notices there. The index holds 9,984 TC
+      notices (child car seat 85, booster 11, tire 105, equipment 160). Still held out of the BUILDING dataset by the
+      member-stage gate.
 
   - key: food-safety-uk-fsa-hygiene-ratings
     name: UK Food Standards Agency Food Hygiene Rating Scheme API (614k establishments, FHRSID)
@@ -9495,6 +9519,558 @@ candidates:
       - 'Registrant contact names, telephone numbers and street addresses are personal or contact data: do not publish them; preserve raw API pages in R2.'
     next_action: 'Measured 2026-11-10: GET /api/v1/filings/ answers 2,003,591 filings (109,221 for filing_year 2025); every sampled lobbying activity carries a free-text description (46/46, e.g. "FY26 defense appropriations and authorizations"). Only 3 of 455 activities in a third-quarter 2025 sample cite a bill number (5 distinct bills), so the bill join is declared but sparse. Next: quote the terms, then measure bill citations over a full quarter with the pagination cursor before spending more.'
 
+  # --- Round 24 (2026-11-14): data breaches, WARN layoffs, bank registry, merger control, crash ratings, organic certification ---
+  - key: breach-wa-ago-notifications
+    name: "Washington AG data breach notifications affecting Washington residents (data.wa.gov sb4j-ca4h)"
+    category: privacy-security
+    structuring: normalization
+    format: structured
+    publisher: Washington State Attorney General's Office
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.wa.gov/resource/sb4j-ca4h.json' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/breach_measure.py, docs/sources/pipeline/evidence/2026-11-14/breach_measure.json ]
+    conditions: [ 'Terms unread (Socrata licence field empty): quote the data.wa.gov terms before any rights record; preserve raw API pages in R2; attribute the Washington AG.' ]
+    next_action: 'Measured 2026-11-14: 1,698 rows (submitted 2015-08-11 to 2026-11-09), 25 columns including id, breach start/aware dates, residents affected, cause and cyberattack type; 616 rows since 2024 with datestart 95% and cyberattacktype 73% filled; Socrata licence field is empty. Next: read and quote the data.wa.gov terms.'
+  - key: breach-ca-oag-sb24
+    name: "California AG SB24 data security breach reports with sample consumer notice letters"
+    category: privacy-security
+    structuring: event-extraction
+    format: free-text
+    publisher: California Department of Justice, Office of the Attorney General
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://oag.ca.gov/privacy/databreach/list-export', 'https://oag.ca.gov/privacy/databreach/list' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/breach_measure.py, docs/sources/pipeline/evidence/2026-11-14/breach_measure.json ]
+    terms:
+      - url: https://oag.ca.gov/conditions
+        quote: "OWNERSHIP Considered in the public domain. It may be distributed or copied as permitted by law."
+    conditions: [ 'The sample notice letters are written by the breached organisations, and the same conditions page says content not owned by the Department needs the owner''s permission. Treat the letter text as AMBER evidence: extract the facts, do not republish the letters verbatim.' ]
+    next_action: 'Measured 2026-11-14: the CSV export has 5,440 reports (2012-01-20 to 2026-11-13; breach dates 91% filled); 8/8 sampled report pages (sb24-NNNNNN ids) link a sample-notice PDF; 4 parsed PDFs hold 1,761 to 3,198 words, 3/4 with "What Happened" and information-involved sections. Next: crawl the report pages for sb24 ids and PDFs, archive the PDFs in R2 and write the notice-section extractor.'
+  - key: breach-or-doj-list
+    name: "Oregon DOJ consumer data breach list"
+    category: privacy-security
+    structuring: normalization
+    format: structured
+    publisher: Oregon Department of Justice
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://justice.oregon.gov/consumer/DataBreach/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/breach_measure.py, docs/sources/pipeline/evidence/2026-11-14/breach_measure.json ]
+    conditions: [ 'Terms unread (no terms page found): locate and quote the Oregon DOJ site terms before any rights record; attribute the Oregon DOJ; preserve the raw HTML table in R2.' ]
+    next_action: 'Measured 2026-11-14: one HTML table, 1,682 rows (reported 2015-10-30 to 2026-10-29) with breach, discovery and notice dates and number affected (88% filled); no terms page found. Next: find and quote the Oregon DOJ site terms.'
+  - key: breach-hhs-ocr-portal
+    name: "HHS OCR breach portal: HIPAA breaches affecting 500 or more individuals"
+    category: privacy-security
+    structuring: normalization
+    format: structured
+    publisher: US Department of Health and Human Services, Office for Civil Rights
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/breach_measure.py, docs/sources/pipeline/evidence/2026-11-14/breach_measure.json ]
+    conditions: [ 'Covered-entity names include sole practitioners (personal names), so filter individuals before publishing. US government work, but the HHS policy page answered 403 and was not read.' ]
+    next_action: 'Measured 2026-11-14: no CAPTCHA. The direct report URL redirects to the front page; two JSF postbacks reach the list and its CSV export (HTTP 200, text/csv). 718 open cases (submitted 2023-10-12 to 2026-10-16), individuals affected 100% filled, web description 0% on the open list. Next: fetch the Archive tab CSV, which may hold the web-description prose.'
+  - key: warn-tx-twc
+    name: "Texas Workforce Commission WARN notices (data.texas.gov 8w53-c4f6)"
+    category: labor
+    structuring: normalization
+    format: structured
+    publisher: Texas Workforce Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.texas.gov/resource/8w53-c4f6.json' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/warn_measure.py, docs/sources/pipeline/evidence/2026-11-14/warn_measure.json ]
+    conditions: [ 'Terms unread (Socrata licence field empty): quote the data.texas.gov terms before any rights record; site names can be sole proprietors, so withhold natural-person names.' ]
+    next_action: 'Measured 2026-11-14: 2,368 rows, notice dates 2019-01-04 to 2026-06-23, rows last updated 2026-07-07 (more than 4 months stale); 8 columns (site name, city, county, WDA, layoff number, notice, layoff and received dates); no id and no free text; Socrata licence empty. Next: check whether TWC publishes newer notices elsewhere, then quote the terms.'
+  - key: warn-ca-edd
+    name: "California EDD WARN report (current fiscal-year xlsx)"
+    category: labor
+    structuring: normalization
+    format: structured
+    publisher: California Employment Development Department
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://edd.ca.gov/siteassets/files/jobs_and_training/warn/warn_report1.xlsx', 'https://edd.ca.gov/en/jobs_and_training/Layoff_Services_WARN' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/warn_measure.py, docs/sources/pipeline/evidence/2026-11-14/warn_measure.json ]
+    terms:
+      - url: https://edd.ca.gov/en/about_edd/conditions_of_use
+        quote: "Most of the information on this website is considered public and can be shared or copied, unless stated otherwise."
+    conditions: [ 'Attribute the California EDD; publish employer, site, dates, counts and type only; snapshot each xlsx release to R2 so history survives the fiscal-year rollover.' ]
+    next_action: 'Measured 2026-11-14: the "Detailed WARN Report" sheet has 479 notices (notice dates 2026-06-26 to 2026-11-09) with county, notice/processed/effective dates, layoff or closure type and NAICS industry (100% filled); earlier fiscal years are PDFs only (2014-15 to 2025-26). Next: snapshot the xlsx weekly so history beyond the current fiscal year is kept.'
+  - key: warn-wa-esd
+    name: "Washington ESD WARN layoff and closure database with notice letters (PDF)"
+    category: labor
+    structuring: event-extraction
+    format: free-text
+    publisher: Washington State Employment Security Department
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://fortress.wa.gov/esd/file/WARN/Public/SearchWARN.aspx' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/warn_measure.py, docs/sources/pipeline/evidence/2026-11-14/warn_measure.json ]
+    conditions: [ 'Notice letters carry HR contact names, phones and emails; extract employer and event facts only.' ]
+    next_action: 'Measured 2026-11-14: an ASP.NET grid with 15 rows per page; 12 pages walked by postback (180 rows, received up to 2026-11-04). Every row (100%) links a notice PDF by GUID; 4 PDFs parsed to 352, 931, 272 and 6 words (the last is a scan that needs OCR). Next: walk all pages, archive the PDFs, and quote the ESD terms.'
+  - key: warn-ny-dol-notices
+    name: "New York DOL WARN notice PDFs (legacy listing, with FEIN and event number)"
+    category: labor
+    structuring: identifier-extraction
+    format: free-text
+    publisher: New York State Department of Labor
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://dol.ny.gov/legacy-warn-notices', 'https://dol.ny.gov/warn-dashboard' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 5, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/warn_measure.py, docs/sources/pipeline/evidence/2026-11-14/warn_measure.json ]
+    conditions: [ 'PDFs name an HR contact and DOL coordinators with phone numbers; extract employer facts only.' ]
+    next_action: 'Measured 2026-11-14: 69 notice links (posted January to March 2025 only); 6/6 sampled PDFs carry a FEIN, an event number (YYYY-NNNN), a reason for closure and a NAICS industry type. Newer notices are only on a Tableau Public dashboard (the CSV view answers 404, and the page loads an AWS WAF captcha script). Next: find a current machine source for NY notices, then test FEIN against the SEC EDGAR submissions "ein" field.'
+  - key: frb-large-commercial-banks
+    name: "Federal Reserve Large Commercial Banks release (quarterly; Bank ID = RSSD)"
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: Board of Governors of the Federal Reserve System
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.federalreserve.gov/releases/lbr/current/lrg_bnk_lst.txt' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
+    terms:
+      - url: https://www.federalreserve.gov/disclaimer.htm
+        quote: "Unless otherwise indicated, information on Board's website is in the public domain and may be copied and distributed without permission."
+    conditions: [ 'Cite the Board as the source.' ]
+    next_action: 'Measured 2026-11-14: 200, 3,762 banks as of June 30, 2026 (fixed-width text, rank, Bank ID, charter, assets); 3,676/3,762 Bank IDs equal an active FDIC FED_RSSD (the 86 unmatched are unexplained; possibly inactive since the release date or trust companies). Next: parse the archived quarterly releases for history.'
+  - key: frb-enforcement-actions
+    name: "Federal Reserve enforcement actions (press releases and attached orders/agreements)"
+    category: finance
+    structuring: event-extraction
+    format: free-text
+    publisher: Board of Governors of the Federal Reserve System
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.federalreserve.gov/supervisionreg/files/enforcementactions.csv', 'https://www.federalreserve.gov/supervisionreg/enforcementactions.htm' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
+    terms:
+      - url: https://www.federalreserve.gov/disclaimer.htm
+        quote: "Unless otherwise indicated, information on Board's website is in the public domain and may be copied and distributed without permission."
+    conditions: [ 'Exclude the 1,336 individual (prohibition) rows; publish banking-organization actions only.', 'Cite the Board as the source.' ]
+    next_action: 'Measured 2026-11-14: CSV 200, 2,899 actions, newest 2026-11-09, 1,563 banking-organization rows; 12/12 sampled press releases carry an attached PDF order. No RSSD or cert in the text. Next: extract action type, dates and named entities from the order PDFs.'
+  - key: ncua-credit-union-call-report
+    name: "NCUA credit union call report quarterly data (FOICU profile with RSSD)"
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: US National Credit Union Administration
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ncua.gov/analysis/credit-union-corporate-call-report-data/quarterly-data' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
+    conditions: [ 'Terms unread (ncua.gov/policies answered 404): quote the NCUA website policy before any rights record; attribute NCUA; preserve the quarterly zips in R2.' ]
+    next_action: 'Measured 2026-11-14: 2026-06 zip 200, 8,141,577 bytes, 26 files; FOICU 4,299 credit unions, RSSD 4,299/4,299, 0 overlap with FDIC FED_RSSD (separate population). Terms not read (ncua.gov/policies 404). Next: find and quote the NCUA website policy.'
+  - key: ffiec-nic-structure
+    name: "FFIEC National Information Center bulk structure data (attributes, relationships, transformations by RSSD)"
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: FFIEC / Federal Reserve
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.ffiec.gov/npw/FinancialReport/DataDownload' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
+    next_action: 'Parked 2026-11-14: /npw/ and the DataDownload page answer 403 with a CAPTCHA challenge from our egress (gated access, so RED for now). Reopen if a keyless bulk URL is reachable.'
+  - key: occ-institution-lists
+    name: "OCC financial institution lists and enforcement action search"
+    category: finance
+    structuring: normalization
+    format: structured
+    publisher: US Office of the Comptroller of the Currency
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.occ.gov/topics/charters-and-licensing/financial-institution-lists/index-financial-institution-lists.html', 'https://apps.occ.gov/EASearch' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
+    next_action: 'Parked 2026-11-14: www.occ.gov deep pages answer 302 "Security Redirect" to the home page; the EASearch Count API returned 6071 once via curl but an HTML page via urllib. Next: find the documented EASearch Actions parameters.'
+  - key: ec-merger-cases
+    name: "European Commission merger cases (M.xxxx) open data JSON with decision documents"
+    category: competition
+    structuring: event-extraction
+    format: structured
+    publisher: European Commission DG Competition
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://compcases-open-data-portal-files-prod.s3.eu-west-1.amazonaws.com/case-data-M.json', 'https://data.europa.eu/data/datasets/cc7e224e-6569-40f0-8037-d3389aa0fae7' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.py, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.json ]
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence . This means that reuse is allowed, provided appropriate credit is given and changes are indicated."
+    conditions: [ 'Attribute the European Commission and indicate changes (CC BY 4.0; data.europa.eu lists COM_REUSE).', 'Third-party content and identifiable individuals in decision texts need separate clearance.' ]
+    next_action: 'Measured 2026-11-14: 200, 41,667,658 bytes, 10,424 cases, newest notification 2026-11-12, dataset modified 2026-11-13; 10,076/10,424 cases link a decision document; 2 of 3 newest links returned application/pdf and 1 returned HTML. Next: extract text from the decision PDFs.'
+  - key: ftc-early-termination-notices
+    name: "FTC HSR early termination notices (transaction number, acquiring and acquired parties)"
+    category: competition
+    structuring: normalization
+    format: structured
+    publisher: US FTC
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ftc.gov/legal-library/browse/early-termination-notices' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 2, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.py, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.json ]
+    terms:
+      - url: https://www.ftc.gov/policy-notices/website-policy
+        quote: "Most material on the FTC’s website is considered work of the United States Government, meaning that the material is in the public domain and is not subject to copyright restrictions"
+    conditions: [ 'robots Crawl-delay 5: about 1,412 listing pages means about 2 hours per full crawl.' ]
+    next_action: 'Measured 2026-11-14: 200, 20 notices per page, last page index 1411 (about 28,240 notices), newest 2026-11-12 (transaction 20262405). Next: crawl the listing at 5 s and match parties to EC/CMA cases.'
+  - key: accc-acquisitions-register
+    name: "ACCC acquisitions register (mandatory notification regime from July 2025)"
+    category: competition
+    structuring: event-extraction
+    format: free-text
+    publisher: Australian Competition and Consumer Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.accc.gov.au/public-registers/acquisitions-and-mergers-registers/acquisitions-register' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.py, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.json ]
+    terms:
+      - url: https://www.accc.gov.au/about-us/using-our-website/disclaimer-and-copyright
+        quote: "All material presented on this website is provided under a Creative Commons Attribution 4.0 International licence (or CC BY 4.0 licence), except for: the Commonwealth Coat of Arms"
+    conditions: [ 'Attribute the ACCC under CC BY 4.0; third-party submissions and logos are excluded.' ]
+    next_action: 'Measured 2026-11-14: 200, 20 per page, last page index 42 (about 860 acquisitions); 5/5 detail pages carry an MN- number, ANZSIC code and prose Description, plus company registration numbers (ABN/RCS). Next: crawl the register and the 2002-25 informal review register.'
+  - key: ca-competition-bureau-merger-reviews
+    name: "Competition Bureau Canada monthly report of concluded merger reviews"
+    category: competition
+    structuring: normalization
+    format: structured
+    publisher: Competition Bureau Canada (ISED)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ised-isde.canada.ca/site/competition-bureau-canada/en/mergers-and-acquisitions/monthly-report-concluded-merger-reviews' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.py, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.json ]
+    conditions: [ 'Licence per the open.canada.ca record is the Open Government Licence - Canada; the licence text was not quoted this round. Attribute the Bureau.' ]
+    next_action: 'Measured 2026-11-14: 200, 861 rows (parties, opened, concluded, NAICS, outcome), opened 2021-03-12 to 2026-11-06; no case number column. Next: quote the OGL-Canada text and snapshot the table monthly.'
+  - key: crash-ratings-nhtsa-ncap
+    name: "NHTSA NCAP 5-Star Safety Ratings API (per model-year variant)"
+    category: transport
+    structuring: normalization
+    format: structured
+    publisher: US NHTSA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://api.nhtsa.gov/SafetyRatings' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.py, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.json ]
+    conditions: [ 'NHTSA terms not read (nhtsa.gov pages answered Akamai 403 in earlier rounds); rights rest on ADR-0018 free public API and the US-government-work basis until read.' ]
+    next_action: 'Parked 2026-11-14: 42/38/38 makes rated for MY2024/2025/2026; 12/12 sampled VehicleId records carry ComplaintsCount, RecallsCount and InvestigationCount, and every field is coded (no free text); crash photo URLs cite NHTSA Research Database test numbers (6/6 resolve on nrd.api.nhtsa.dot.gov, all with a report PDF), but that is the same publisher. No second ratings publisher with open terms exists. Reopen only if a government NCAP (KNCAP, JNCAP) publishes open-licensed results.'
+  - key: crash-ratings-nhtsa-nrd-tests
+    name: "NHTSA Research Database crash-test metadata and test reports"
+    category: transport
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US NHTSA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://nrd.api.nhtsa.dot.gov/nhtsa/vehicle/api/v1/vehicle-database-test-results/metadata/10146' ]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.py, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.json ]
+    next_action: 'Parked 2026-11-14: 6/6 NCAP test numbers cited in rating photo URLs resolve to NRD metadata (test date, lab, contract, 72-107 photos, 1-2 report PDFs each; PDFs not opened); the nrd.nhtsa.dot.gov HTML site failed CONNECT 502. Same publisher as the ratings API, so it cannot make a two-publisher dataset on its own.'
+  - key: crash-ratings-euro-ncap
+    name: "Euro NCAP assessment pages"
+    category: transport
+    structuring: normalization
+    format: free-text
+    publisher: Euro NCAP
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.euroncap.com/sitemap.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.py, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.json ]
+    terms:
+      - url: https://www.euroncap.com/terms-conditions/
+        quote: "This site and its content are subject to the copyright of Euro NCAP. Reproduction is not authorised for commercial purposes."
+    next_action: 'Parked 2026-11-14: sitemap answers (638 URLs, 505 under /assessments/; robots disallows /api/), but the terms forbid commercial reproduction. Reopen only with written permission.'
+  - key: crash-ratings-ancap
+    name: "ANCAP safety ratings pages"
+    category: transport
+    structuring: normalization
+    format: free-text
+    publisher: ANCAP
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.ancap.com.au/safety-ratings' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.py, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.json ]
+    terms:
+      - url: https://www.ancap.com.au/privacy-and-terms-of-use
+        quote: "You must not: (a) reproduce or exploit any Content on this Platform for commercial purpose; (b) edit or otherwise modify any Content on the Platform; or (c) redistribute any Content from this Platform unless we expressly permitted"
+    next_action: 'Parked 2026-11-14: terms forbid commercial reuse, redistribution and "systematic or automated data collection activities". Reopen only with written permission.'
+  - key: crash-ratings-latin-ncap
+    name: "Latin NCAP results pages"
+    category: transport
+    structuring: normalization
+    format: free-text
+    publisher: Latin NCAP
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.latinncap.com/en/results' ]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.py, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.json ]
+    terms:
+      - url: https://www.latinncap.com/en/terms-and-conditions
+        quote: "Any reproduction, distribution, public communication, or editing—whether in whole or in part—for commercial or advertising purposes is prohibited"
+    next_action: 'Parked 2026-11-14: express prohibition of commercial reproduction.'
+  - key: crash-ratings-iihs-api
+    name: "IIHS-HLDI ratings API"
+    category: transport
+    structuring: normalization
+    format: structured
+    publisher: IIHS-HLDI
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://api.iihs.org/docs/terms' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.py, docs/sources/pipeline/evidence/2026-11-14/ncap_measure.json ]
+    terms:
+      - url: https://api.iihs.org/docs/terms
+        quote: "You will not sublicense (except as expressly provided herein), sell, lease, share, transfer, or make any other use of any IIHS Materials (including \"service bureau\" use), whether for direct commercial or monetary gain or otherwise, without IIHS' prior,"
+    next_action: 'Parked 2026-11-14: an unauthenticated /V4/ratings call redirects to /Account/Login; a key needs an application with name, organisation and job title, and the terms bar selling. Reopen only with a written licence.'
+  - key: organic-eu-traces-certificates
+    name: "EU TRACES organic operator certificates (public directory JSON)"
+    category: agriculture
+    structuring: normalization
+    format: structured
+    publisher: European Commission (DG SANTE, TRACES)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://webgate.ec.europa.eu/tracesnt/directory/publication/organic-operator/for/query' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/organic_measure.py, docs/sources/pipeline/evidence/2026-11-14/organic_measure.json ]
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence"
+    conditions: [ 'The quoted notice covers commission.europa.eu; a TRACES-specific notice was not read.', 'Personal data: many operators are sole proprietors whose operation name and street address identify a person; publish certificate reference, certifier, status, scope and dates, and withhold names and addresses of natural persons.', 'Attribute the European Commission (TRACES) per CC BY 4.0.' ]
+    next_action: 'Measured 2026-11-14: for/count = 1,016,697 certificates, no login; 100/100 first-page rows carry operatorIdentifier, product categories, activities and expiry; EU/EEA operators only; paging fails at offset 10,000 (HTTP 500), so a full pull must partition by issuing body or country. Next: read the TRACES legal notice and define the partitioned acquisition.'
+  - key: organic-eu-traces-certificate-pdfs
+    name: "EU TRACES organic certificate PDFs (Part II product directory)"
+    category: agriculture
+    structuring: identifier-extraction
+    format: free-text
+    publisher: European Commission (DG SANTE, TRACES)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://webgate.ec.europa.eu/tracesnt/directory/publication/organic-operator/FR-BIO-01.250-0074054.2026.002.pdf' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 5 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/organic_measure.py, docs/sources/pipeline/evidence/2026-11-14/organic_measure.json ]
+    conditions: [ 'Same rights and personal-data conditions as organic-eu-traces-certificates; extract product names and CN codes only.' ]
+    next_action: 'Measured 2026-11-14: 7/10 sampled certificate PDFs answer 200 (the 3 withdrawn/superseded ones answer 403); 7/7 have a Part II product directory (1-28 product lines; CN codes on 1 of 7). Next: write the deterministic Part II parser and measure product and CN-code hit rates on 30 issued certificates.'
+  - key: organic-fr-agence-bio-directory
+    name: "Agence BIO directory of operators engaged in organic (France)"
+    category: agriculture
+    structuring: normalization
+    format: structured
+    publisher: Agence BIO (France)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://opendata.agencebio.org/api/gouv/operateurs/', 'https://static.data.gouv.fr/resources/professionnels-engages-en-bio/20261113-220107/operateursbio.csv' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/organic_measure.py, docs/sources/pipeline/evidence/2026-11-14/organic_measure.json ]
+    conditions: [ 'data.gouv.fr metadata gives licence lov2 (Licence Ouverte 2.0); the licence text was not read in this round.', 'Personal data: the gerant field is filled on 32/50 sampled records and many raisonSociale values are personal names; exclude gerant, phones and personal names from publication.' ]
+    next_action: 'Measured 2026-11-14: 138,391 operators, daily CSV (8,495,952 bytes, updated 2026-11-13); in a 50-record sample, SIRET is present on 49, certificates (certifier EU code, status, dates) on 50 and products on 49. Next: quote the Licence Ouverte 2.0 text and write the rights record with the personal-data exclusion.'
+  - key: organic-ca-cfia-cancelled-certifications
+    name: "CFIA cancelled organic certifications (Canada Organic Regime enforcement list)"
+    category: agriculture
+    structuring: event-extraction
+    format: structured
+    publisher: Canadian Food Inspection Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://inspection.canada.ca/en/food-labels/organic-products/cancelled-organic-certifications' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/organic_measure.py, docs/sources/pipeline/evidence/2026-11-14/organic_measure.json ]
+    terms:
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    conditions: [ 'Not on open.canada.ca under OGL; following the Health Canada precedent, extract only non-copyrightable facts (certifier, action, date, region) and never republish page text.', 'Personal data: holder cells often name a person; withhold natural-person names.' ]
+    next_action: 'Measured 2026-11-14: 3,950 rows (2021-01-04 to 2026-09-25, page modified 2026-10-16); 3,149 holder cells end with the certifier in parentheses; 714 are International, and only 1 is located in an EU state, so no TRACES join. Not a member of a dataset yet. Next: join it to USDA OID once that member is reachable.'
+  - key: organic-us-usda-integrity-database
+    name: "USDA Organic INTEGRITY Database (certified operations)"
+    category: agriculture
+    structuring: normalization
+    format: structured
+    publisher: USDA AMS National Organic Program
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://organic.ams.usda.gov/integrity/' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/organic_measure.py, docs/sources/pipeline/evidence/2026-11-14/organic_measure.json ]
+    conditions: [ 'Use our own api.data.gov key, never a key embedded in the site JavaScript.', 'Withhold names of sole-proprietor operations.' ]
+    next_action: 'Parked 2026-11-14: the site is a Blazor-server app (Data History snapshots and exports render only through SignalR, no static URL found); its public data service answers 403 API_KEY_MISSING without a key and 404 with DEMO_KEY. Next: register an api.data.gov key and find the live service path.'
+  - key: schedules-us-cfr-1308
+    name: "US 21 CFR 1308.11-1308.15 schedules of controlled substances (GovInfo annual CFR XML)"
+    category: regulatory
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Office of the Federal Register / GPO (GovInfo)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.govinfo.gov/content/pkg/CFR-2025-title21-vol9/xml/CFR-2025-title21-vol9-sec1308-11.xml', 'https://www.ecfr.gov/api/versioner/v1/full/2026-11-01/title-21.xml?part=1308' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.py, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.json ]
+    conditions: [ 'US federal work; the GovInfo policy page returned 522 and was not read.', 'The eCFR versioner API refused this client: 406 without compression, then 403 "Your IP address has been blocked" with compression. The annual CFR edition (2025-04-01) lags the current text by up to a year.' ]
+    next_action: 'Measured 2026-11-14: 443 schedule rows (I 261, II 64, III 31, IV 80, V 7), 440 distinct DEA codes, 0 CAS numbers. Next: retry the eCFR current text from Worker egress so post-April-2025 placements are covered.'
+  - key: schedules-federal-register-dea-rules
+    name: "Federal Register DEA scheduling rules (API listing, GovInfo document text)"
+    category: regulatory
+    structuring: event-extraction
+    format: free-text
+    publisher: US Office of the Federal Register (federalregister.gov; text via GovInfo)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=drug-enforcement-administration&conditions[term]=%22Schedules+of+Controlled+Substances%22&conditions[type][]=RULE', 'https://www.govinfo.gov/content/pkg/FR-2024-10-22/html/2024-24083.htm' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.py, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.json ]
+    conditions: [ 'The federalregister.gov API went 200, then 403 IP block, then 200 again within the session; its full-text .txt route redirects to unblock.federalregister.gov. Keep the rate low; read document text from GovInfo.', 'The developer terms page returned 403 and was not read.' ]
+    next_action: 'Measured 2026-11-14: 260 DEA RULE documents match "Schedules of Controlled Substances"; newest is 2026-11-12 (2026-23075, oveporexton to Schedule IV); 98/100 newest cite 21 CFR part 1308. Next: parse action type (temporary, permanent, extension, removal) and effective dates from all 260.'
+  - key: schedules-canada-cdsa
+    name: "Canada Controlled Drugs and Substances Act schedules I-V (Justice Laws XML)"
+    category: regulatory
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Department of Justice Canada
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://laws-lois.justice.gc.ca/eng/XML/C-38.8.xml' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.py, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.json ]
+    terms:
+      - url: https://laws-lois.justice.gc.ca/eng/FAQ/
+        quote: "anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada"
+    conditions: [ 'Reproduction must not be represented as an official version.', 'Items are class entries ("its salts, derivatives...") with nested named substances; there is no code number and no CAS number.' ]
+    next_action: 'Measured 2026-11-14: 447 non-repealed items (I 211, II 46, III 45, IV 145; schedule V has no items), last amended 2026-10-01, 0 CAS-pattern strings. Next: model class-versus-named-substance entries before linking.'
+  - key: schedules-uk-misuse-of-drugs
+    name: "UK Misuse of Drugs Act 1971 schedule 2, classes A/B/C (legislation.gov.uk XML)"
+    category: regulatory
+    structuring: identifier-extraction
+    format: free-text
+    publisher: The National Archives (legislation.gov.uk)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.legislation.gov.uk/ukpga/1971/38/schedule/2/data.xml' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.py, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.json ]
+    terms:
+      - url: https://www.legislation.gov.uk/help
+        quote: "All content is available under the Open Government Licence v3.0 except where otherwise stated"
+    next_action: 'Measured 2026-11-14: 414 list items (A 180, B 51, C 183); dc:modified 2025-01-18; 0 CAS-pattern strings. Next: check the 4 outstanding unapplied effects (ukm:UnappliedEffect) before publishing class status.'
+  - key: schedules-pubchem-cas
+    name: "PubChem name-to-CID-to-CAS resolver for scheduled substances"
+    category: regulatory
+    structuring: normalization
+    format: structured
+    publisher: NCBI / National Library of Medicine (PubChem)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/alprazolam/synonyms/JSON' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.py, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.json ]
+    terms:
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: "All persons reproducing, redistributing, or making commercial use of this information are expected to adhere to the terms and conditions asserted by the copyright holder."
+    conditions: [ 'The CAS numbers are depositor-supplied synonyms; keep them as resolver output with the CID, never as source-declared facts.' ]
+    next_action: 'Measured 2026-11-14 on samples of 15 per list: a check-digit-valid CAS number resolved for 6/15 US CFR names (long IUPAC strings fail), 10/15 Canada and 13/15 UK. Next: retry failed US names with their "other names" synonyms and InChIKey lookups.'
+  - key: pvp-usda-pod
+    name: "USDA AMS Plant Variety Protection Office Online Dashboard (JSON API)"
+    category: agriculture
+    structuring: normalization
+    format: structured
+    publisher: USDA Agricultural Marketing Service (PVPO)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pvpocomingsoon.scinet.usda.gov/api/amsapi?request=pv&cropKind=Barley', 'https://pvpo.scinet.usda.gov/' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    conditions: [ 'Undocumented API found in the dashboard script (host name "pvpocomingsoon"); it could change. www.ams.usda.gov pages returned 403, so terms were not read.', 'Owner_Name can be a private individual; exclude it or gate it as personal data.', 'One row per variety per question/answer; dedupe on PVPO_Number.' ]
+    next_action: 'Measured 2026-11-14: 147 crop kinds; Barley 258 distinct PVP numbers (159 with PI number, newest issue 2025-08-22); Lentil 14 (8 with PI). Fields include UPOV_Code, filing, issue and expiry dates, and status. Next: pull every crop kind once and count the whole register.'
+  - key: pvp-usda-cms-certificates
+    name: "USDA AMS PVP Certificate Management System (scanned certificate PDFs)"
+    category: agriculture
+    structuring: identifier-extraction
+    format: free-text
+    publisher: USDA Agricultural Marketing Service (PVPO certificates)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://apps.ams.usda.gov/CMS/' ]
+    scores: { agent_demand: 2, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 5 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    terms:
+      - url: https://apps.ams.usda.gov/CMS/
+        quote: "In compliance with the USDA’s updated Personally Identifiable Information (PII) handling protocols and requirements, PVPO no longer publishes entire applications online."
+    conditions: [ 'Scanned PDFs need OCR; one tested was 5.5 MB with 28 pages. They name the applicant, so do personal-data review before any text is served.', 'Listing needs an ASP.NET session postback.' ]
+    next_action: 'Measured 2026-11-14: the Lentil crop list has 13 certificate PDFs, named by PV number; 13/13 exist in POD. Next: OCR 10 certificates and measure field extraction (denomination, crop, issue date).'
+  - key: pvp-grin-global-accessions
+    name: "USDA ARS GRIN-Global accession pages (PVP voucher accessions with IPR block)"
+    category: agriculture
+    structuring: identifier-extraction
+    format: structured
+    publisher: USDA Agricultural Research Service (NPGS)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://npgsweb.ars-grin.gov/gringlobal/accessiondetail?accid=PI+642340' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    conditions: [ 'Pages are HTML (about 70 KB each); a bulk route has not been found. The disclaimer page read covers germplasm distribution, not data reuse; read the data-reuse terms before any rights record.' ]
+    next_action: 'Measured 2026-11-14: 20/20 PI pages returned 200; 16/20 IPR blocks cite the same PVP number. Next: look for a GRIN-Global bulk or web-service export so pages need not be scraped.'
+  - key: pvp-cfia-plant-breeders-rights
+    name: "CFIA Plant Breeders' Rights variety pages (Canada)"
+    category: agriculture
+    structuring: normalization
+    format: free-text
+    publisher: Canadian Food Inspection Agency
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://active.inspection.gc.ca/english/plaveg/pbrpov/cropreport/gsae.shtml' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 3, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    terms:
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator"
+    next_action: 'Parked 2026-11-14 (RED: the canada.ca terms linked from the CFIA pages prohibit commercial redistribution without permission; open.canada.ca has no Plant Breeders Rights dataset). Measured: 564 application pages under the letter A botanical index; 3 of 6 sampled pages have prose descriptions of 2,251-4,067 characters; pages also name breeders and agents. Reopen only with written permission or an OGL release.'
+  - key: pvp-cpvo-variety-finder
+    name: "EU CPVO Variety Finder / online.plantvarieties.eu"
+    category: agriculture
+    structuring: normalization
+    format: structured
+    publisher: Community Plant Variety Office (EU)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://online.plantvarieties.eu/' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    next_action: 'Parked 2026-11-14: 200 but only a 3,442-byte JavaScript app shell with a reCAPTCHA marker; no documented open API or download was found, and the app''s internal endpoints were not called. Next: look for a CPVO open-data download.'
+  - key: pvp-upov-pluto
+    name: "UPOV PLUTO plant variety database"
+    category: agriculture
+    structuring: normalization
+    format: structured
+    publisher: UPOV
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://pluto.upov.int/user/en/' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    next_action: 'Parked 2026-11-14: www3.wipo.int/pluto redirects to pluto.upov.int, a 9,901-byte JavaScript app shell; the access and login model and terms were not measured. Next: read the PLUTO terms of use and check for a bulk route.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -12479,3 +13055,204 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-10.md, docs/sources/pipeline/evidence/2026-11-10/lda_bills.json ]
     next_action: 'Quote the lda.gov terms; measure bill citations over a full quarter; hand-check 20 bill links before any EVIDENCED claim.'
+
+  - key: data-breach-notifications
+    name: "Data breach notifications (state AG and HHS breach reports with consumer notice letters)"
+    category: privacy-security
+    entity: "data breach notification: one organisation's report of one breach, with breach and report dates, people affected, cause and notice narrative"
+    stage: SCREENED
+    description: "One record per breach notification. State attorneys general (WA, CA, OR) and HHS OCR each publish an organisation's breach report with dates and counts; California adds the consumer notice letter as prose (what happened, information involved). No shared identifier exists: an exact normalised organisation name with report dates within 45 days only proposes a link, and an equal breach date confirms it for review. Name similarity never merges records automatically. Every fact carries its source."
+    sources: [ breach-wa-ago-notifications, breach-ca-oag-sb24, breach-or-doj-list, breach-hhs-ocr-portal ]
+    join_keys:
+      - key: organisation name (normalised) with reported dates within 45 days, confirmed by an equal breach start date
+        between: [ breach-wa-ago-notifications, breach-ca-oag-sb24 ]
+        measured: "221/380 distinct WA organisations reporting since 2025-01-01 have a same-name CA AG report within 45 days; 195 of the 221 share a breach start date"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: organisation name (normalised) with reported dates within 45 days, confirmed by an equal first breach date
+        between: [ breach-or-doj-list, breach-ca-oag-sb24 ]
+        measured: "199/391 distinct OR organisations reporting since 2025-01-01 have a same-name CA AG report within 45 days; 151 of the 199 share a breach date"
+        mode: candidate
+        reviewed: { correct: 18, checked: 20 }
+    taxonomy:
+      - "breach_cause: cyberattack (ransomware | malware | phishing | other) | unauthorized access | theft or loss | inadvertent disclosure"
+      - "regime: state AG notification | HIPAA (HHS OCR, 500 or more individuals)"
+      - "sector: health | finance | education | government | retail | professional services | other"
+      - "information_involved: SSN | financial account | health | driver licence | credentials (from notice text)"
+    agent_questions:
+      - "Has this company reported a data breach in any state, when did it happen, and how many residents were affected in each state?"
+      - "What information was exposed in this breach according to the notice letter?"
+      - "Which ransomware breaches were reported in the last 30 days, and how long after the breach did notification come?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/breach_measure.py, docs/sources/pipeline/evidence/2026-11-14/breach_measure.json ]
+    next_action: 'Quote the data.wa.gov and Oregon DOJ terms and write the rights records; archive the CA sample-notice PDFs; fetch the HHS archive tab; add an individual-name filter before any HHS publication.'
+
+  - key: mass-layoff-notices
+    name: "Mass layoff and plant closure notices (state WARN Act filings with notice letters)"
+    category: labor
+    entity: "WARN notice: one employer's notice of a layoff or closure at one or more sites, with notice and effective dates, workers affected and layoff type"
+    stage: SCREENED
+    description: "One record per WARN notice. State workforce agencies (TX, CA, WA, NY) publish the employer, site, dates, workers affected and closure or layoff type; WA and NY attach the notice letter as PDF prose (reason, sites, union status, and FEIN plus event number in NY). Across states, an exact normalised employer name with notice dates within 45 days only proposes a link for review. NY's FEIN may later give a declared employer identifier (not yet measured)."
+    sources: [ warn-tx-twc, warn-ca-edd, warn-wa-esd, warn-ny-dol-notices ]
+    join_keys:
+      - key: employer name (normalised) with notice dates within 45 days
+        between: [ warn-wa-esd, warn-ca-edd ]
+        measured: "6/74 distinct WA employers with notices received on or after 2026-06-26 (80 rows from the 12 newest pages) have a same-name CA EDD notice within 45 days; 5/6 share the same notice date"
+        mode: candidate
+        reviewed: { correct: 6, checked: 6 }
+    taxonomy:
+      - "action: layoff | closure | relocation"
+      - "duration: permanent | temporary | not known"
+      - "industry: NAICS 2-digit sector (CA EDD, NY Industry Type)"
+      - "jurisdiction: state and county or WDA region"
+    agent_questions:
+      - "Has this employer filed WARN notices in any state in the last 12 months, and how many workers were affected in each?"
+      - "Which employers announced permanent closures in a given county or sector this month?"
+      - "Why does the notice letter say the layoff is happening, and when does it take effect?"
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/warn_measure.py, docs/sources/pipeline/evidence/2026-11-14/warn_measure.json ]
+    next_action: 'Walk all WA ESD pages and archive the notice PDFs; quote the WA ESD, TWC and NY DOL terms; test NY FEIN against the SEC EDGAR submissions ein field as a declared join.'
+
+  - key: financial-institution-registry
+    name: "US depository institution registry (FDIC, Federal Reserve and NCUA, linked by RSSD)"
+    category: finance
+    entity: "depository institution: one bank or credit union with charter, regulator, status, holding company, structure history and supervisory actions"
+    stage: SCREENED
+    description: "One record per depository institution. FDIC BankFind gives charter, regulator, holding company (RSSDHCR) and 585,705 structure-history events; the Federal Reserve Large Commercial Banks release gives rank and assets by RSSD; Fed enforcement orders add supervisory actions in prose; NCUA covers credit unions with RSSD. The RSSD ID is a Federal Reserve identifier that names one institution, so it links automatically; enforcement-order names only propose a link for review. Individual prohibition orders are excluded."
+    sources: [ fdic-bank-failures, frb-large-commercial-banks, frb-enforcement-actions, ncua-credit-union-call-report ]
+    join_keys:
+      - key: "RSSD ID (FDIC FED_RSSD = Federal Reserve LBR Bank ID)"
+        between: [ fdic-bank-failures, frb-large-commercial-banks ]
+        measured: "3676/3762 LBR banks (June 30, 2026) equal an active FDIC FED_RSSD"
+        mode: declared
+      - key: "bank or holding company name + city + state (Fed Banking Organization vs FDIC NAME/NAMEHCR)"
+        between: [ frb-enforcement-actions, fdic-bank-failures ]
+        measured: "46/195 banking-organization actions since 2016 match an active FDIC bank or holding company"
+        mode: candidate
+        reviewed: { correct: 15, checked: 15 }
+    taxonomy:
+      - "charter: national | state member | state nonmember | savings | credit union"
+      - "regulator: OCC | FED | FDIC | NCUA"
+      - "structure event: merger | branch purchase/sale | name change | charter change | failure"
+      - "supervisory action: written agreement | cease and desist | civil money penalty"
+    agent_questions:
+      - "Which regulator supervises this bank, who is its holding company, and has it had a Fed enforcement action?"
+      - "Which banks merged or changed charter this quarter, and what are their RSSD and FDIC certificate numbers?"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/banks_measure.py, docs/sources/pipeline/evidence/2026-11-14/banks_measure.json ]
+    next_action: 'Quote the FDIC and NCUA reuse terms; extract action types from the Fed order PDFs; explain the 86 LBR Bank IDs without an active FDIC match; retry FFIEC NIC (403 CAPTCHA today).'
+
+  - key: merger-control-cases
+    name: "Merger control cases across authorities (EC, UK CMA, Canada, ACCC, FTC)"
+    category: competition
+    entity: "merger review case: one authority's review of one transaction, with parties, case number, dates, decision and narrative text"
+    stage: SCREENED
+    description: "One record per authority case, grouped into transactions. The EC open data gives 10,424 M.xxxx cases with decision documents; the CMA gives 2,001 merger case pages with prose; Canada lists concluded reviews with outcomes; the ACCC register gives MN numbers and prose descriptions; FTC early termination gives HSR transaction numbers. No authority cites another's case number, so cross-authority links are party-name plus date-window candidates and are always reviewed."
+    sources: [ ec-merger-cases, uk-cma-cases, ca-competition-bureau-merger-reviews, accc-acquisitions-register, ftc-early-termination-notices ]
+    join_keys:
+      - key: "party name first tokens + date window (EC caseTitle vs CMA case title, notification within 400 days of opened_date)"
+        between: [ ec-merger-cases, uk-cma-cases ]
+        measured: "54/583 CMA merger cases opened since 2015 have an EC candidate"
+        mode: candidate
+        reviewed: { correct: 19, checked: 20 }
+      - key: "party name first tokens + date window (EC caseTitle vs Canada parties, within 400 days)"
+        between: [ ec-merger-cases, ca-competition-bureau-merger-reviews ]
+        measured: "55/861 Canada concluded reviews have an EC candidate"
+        mode: candidate
+        reviewed: { correct: 18, checked: 20 }
+    taxonomy:
+      - "authority: EC | CMA | Competition Bureau | ACCC | FTC"
+      - "phase/outcome: phase 1 clearance | simplified | conditional | phase 2 | prohibited | abandoned | ARC/NAL/CA"
+      - "sector: NACE (EC) | NAICS (Canada) | ANZSIC (ACCC) | GOV.UK market_sector"
+    agent_questions:
+      - "Which other authorities reviewed this transaction and what did each decide, and when?"
+      - "Which deals in a sector cleared in the EU but went to phase 2 at the CMA?"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.py, docs/sources/pipeline/evidence/2026-11-14/mergers_measure.json ]
+    next_action: 'Extract text from the EC decision PDFs; crawl the ACCC and FTC listings; measure EC to ACCC and EC to FTC candidates; hand-check 20 more of each join.'
+
+  - key: certified-organic-operations
+    name: "Certified organic operations (EU TRACES certificates linked to the Agence BIO directory)"
+    category: agriculture
+    entity: "certified organic operation with its certificate, certifier, scope, product directory and status"
+    stage: SCREENED
+    description: "One record per certified organic operation. EU TRACES publishes every certificate issued under Regulation (EU) 2018/848: reference, operator identifier, certifier code, status, validity, activities and product categories. Its certificate PDF lists the certified products as prose (Part II). The French Agence BIO directory adds SIRET, certifier, engagement dates and products for the same operator. The publishers share no identifier: an exact normalised name plus an equal postal code proposes a link, and an equal certifier EU code confirms it for review, never as an automatic merge. Natural-person names and addresses are withheld. Each fact carries its source."
+    sources: [ organic-eu-traces-certificates, organic-eu-traces-certificate-pdfs, organic-fr-agence-bio-directory ]
+    join_keys:
+      - key: exact normalised operator name and equal postal code (Agence BIO raisonSociale + codePostal equals TRACES operator name + postalCode); confirmed by equal certifier EU code
+        between: [ organic-fr-agence-bio-directory, organic-eu-traces-certificates ]
+        measured: "14/25 Agence BIO operators with an engaged certificate (10 seeded offsets, seed 14, 2026-11-14) match a French TRACES certificate; 14/14 also agree on the certifier EU code"
+        mode: candidate
+        reviewed: { correct: 14, checked: 14 }
+    taxonomy:
+      - "certificate_status: issued | withdrawn | expired | suspended"
+      - "activity: production | preparation | distribution | import | export | storage"
+      - "product_category (Reg. 2018/848 Art. 35(7)): (a) unprocessed plants | (b) livestock | (c) algae/aquaculture | (d) processed food | (e) feed | (f) wine | (g) other"
+      - "certifier: EU control body code (e.g. FR-BIO-01)"
+    agent_questions:
+      - "Is this operation currently certified organic, by which control body, and until when?"
+      - "Which products does this operator's certificate cover?"
+      - "Which operators certified by a given control body had certificates withdrawn this year?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/organic_measure.py, docs/sources/pipeline/evidence/2026-11-14/organic_measure.json ]
+    next_action: 'Read the TRACES legal notice and the Licence Ouverte 2.0 text and write both rights records with the natural-person exclusion; then add USDA OID (api.data.gov key) and the CFIA list as further members.'
+
+  - key: controlled-substance-schedules
+    name: "Controlled substance schedules (US DEA, Canada CDSA, UK Misuse of Drugs Act)"
+    category: regulatory
+    entity: "controlled substance with its schedule or class in each jurisdiction, DEA controlled substances code number, CAS number where resolvable, and its scheduling actions"
+    stage: SCREENED
+    description: "One record per controlled substance. 21 CFR 1308 gives the US schedule and DEA code number (443 rows); Federal Register DEA rules give each scheduling action with the code in their amendment text (260 rules); the Canada CDSA gives 447 schedule items and the UK Act 414 class entries. None of the three lists carries a CAS number. A DEA code links a Federal Register action to the CFR table; cross-border links use the substance name and are reviewed candidates confirmed through a PubChem CID and CAS number, never automatic merges. Class entries ('its salts, derivatives') are kept apart from named substances."
+    sources: [ schedules-us-cfr-1308, schedules-federal-register-dea-rules, schedules-canada-cdsa, schedules-uk-misuse-of-drugs, schedules-pubchem-cas ]
+    join_keys:
+      - key: DEA controlled substances code number (FR rule amendment text "(n) Name .... 9868" equals the CFR 1308 table code)
+        between: [ schedules-federal-register-dea-rules, schedules-us-cfr-1308 ]
+        measured: "34/35 code entries in 12 FR placement rules (2023-10 to 2024-12) exist in the 2025-04-01 CFR edition; 34/34 have the same substance name prefix on hand check (code 9664 was not found in the parsed table)"
+        mode: candidate
+        reviewed: { correct: 34, checked: 34 }
+      - key: substance name (normalised; US CFR name equals UK schedule 2 name), confirmed by the same PubChem CID
+        between: [ schedules-us-cfr-1308, schedules-uk-misuse-of-drugs ]
+        measured: "154/418 normalised US names have an exact UK match (US to Canada: 169/418); 10/10 checked pairs resolve to the same PubChem CID and CAS number"
+        mode: candidate
+        reviewed: { correct: 10, checked: 10 }
+    taxonomy:
+      - "jurisdiction: US | CA | UK"
+      - "control_level: US schedule I-V | CA schedule I-V | UK class A/B/C"
+      - "action: permanent placement | temporary placement | extension | specific listing | removal | correction"
+      - "entry_kind: named substance | class/derivative group"
+    agent_questions:
+      - "What schedule is this substance in the US, Canada and the UK, and what is its DEA code number?"
+      - "Which substances did the DEA place or temporarily control in the last 12 months, with effective dates?"
+      - "Is this CAS number controlled anywhere, and under which entry?"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.py, docs/sources/pipeline/evidence/2026-11-14/schedules_measure.json ]
+    next_action: 'Get current 21 CFR 1308 text (eCFR from Worker egress); parse all 260 FR rules into action events; consider adding the DEA controlled substances code number to the declared allow-list once the FR-to-CFR join is re-measured on the current text; raise PubChem CAS resolution for long IUPAC US names before any CAS-keyed publication.'
+
+  - key: plant-variety-protections
+    name: "Plant variety protection certificates (USDA PVPO linked to GRIN-Global voucher accessions)"
+    category: agriculture
+    entity: "protected plant variety: one PVP certificate with species, denomination, holder, filing/issue/expiry dates and status"
+    stage: SCREENED
+    description: "One record per US PVP certificate. The PVPO dashboard API (USDA AMS) gives the structured register: PVP number, denomination, scientific name, UPOV code, status, dates and PI number. Certificate PDFs named by PV number give the signed certificate text after OCR. GRIN-Global (USDA ARS, a separate agency and host) gives the voucher accession under that PI number, whose IPR block cites the PVP number back. Holder names may be private individuals and are excluded until reviewed. Both publishers are USDA agencies; the non-US members (CFIA RED, CPVO and UPOV PLUTO unreachable) are parked, so the dataset is US-only for now."
+    sources: [ pvp-usda-pod, pvp-usda-cms-certificates, pvp-grin-global-accessions ]
+    join_keys:
+      - key: PVP certificate number via plant introduction number (POD PI number to GRIN accession, whose IPR block cites "PVP <number>" equal to POD PVPO_Number)
+        between: [ pvp-usda-pod, pvp-grin-global-accessions ]
+        measured: "16/20 sampled Barley/Lentil certificates (every 12th by PVP number) have a GRIN accession citing the same PVP number; the 3 newest (2022-2023) have no IPR block yet; 1 conflict (POD gives PI 692266 for 202000025, but GRIN PI 692266 cites 202000002)"
+        mode: candidate
+        reviewed: { correct: 19, checked: 20 }
+      - key: PV number in the certificate PDF file name equals POD PVPO_Number
+        between: [ pvp-usda-cms-certificates, pvp-usda-pod ]
+        measured: "13/13 Lentil certificate PDFs listed in CMS exist in POD"
+        mode: candidate
+        reviewed: { correct: 13, checked: 13 }
+    taxonomy:
+      - "status: application pending | certificate issued | expired | withdrawn"
+      - "crop_kind (POD 147 kinds) with UPOV code and scientific name"
+      - "protection term: filing, issue and expiration dates"
+    agent_questions:
+      - "Is this barley variety PVP-protected in the US, until when, and is the voucher seed in GRIN?"
+      - "Which certificates for a given crop expire in the next 12 months?"
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
+    next_action: 'Pull all 147 crop kinds from the POD API once and count the register; OCR 10 certificates; find a non-US member that is not RED (CPVO open data or a PLUTO bulk route) to make the dataset cross-jurisdiction.'

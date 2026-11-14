@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "7307141839c1194e6e658f8494d8f3d0f3c9a2d61d57c7142334a9d4da6328ed",
+  "registry_sha256": "e6a650afdf62bd8272c5bfb6faf302bc7aa281ac8bcaa12680210f387f2451b0",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -656,6 +656,76 @@
         "lda-lobbying-filings",
         "legislation-us-govinfo-billstatus"
       ]
+    },
+    "data-breach-notifications": {
+      "name": "Data breach notifications (state AG and HHS breach reports with consumer notice letters)",
+      "stage": "SCREENED",
+      "sources": [
+        "breach-wa-ago-notifications",
+        "breach-ca-oag-sb24",
+        "breach-or-doj-list",
+        "breach-hhs-ocr-portal"
+      ]
+    },
+    "mass-layoff-notices": {
+      "name": "Mass layoff and plant closure notices (state WARN Act filings with notice letters)",
+      "stage": "SCREENED",
+      "sources": [
+        "warn-tx-twc",
+        "warn-ca-edd",
+        "warn-wa-esd",
+        "warn-ny-dol-notices"
+      ]
+    },
+    "financial-institution-registry": {
+      "name": "US depository institution registry (FDIC, Federal Reserve and NCUA, linked by RSSD)",
+      "stage": "SCREENED",
+      "sources": [
+        "fdic-bank-failures",
+        "frb-large-commercial-banks",
+        "frb-enforcement-actions",
+        "ncua-credit-union-call-report"
+      ]
+    },
+    "merger-control-cases": {
+      "name": "Merger control cases across authorities (EC, UK CMA, Canada, ACCC, FTC)",
+      "stage": "SCREENED",
+      "sources": [
+        "ec-merger-cases",
+        "uk-cma-cases",
+        "ca-competition-bureau-merger-reviews",
+        "accc-acquisitions-register",
+        "ftc-early-termination-notices"
+      ]
+    },
+    "certified-organic-operations": {
+      "name": "Certified organic operations (EU TRACES certificates linked to the Agence BIO directory)",
+      "stage": "SCREENED",
+      "sources": [
+        "organic-eu-traces-certificates",
+        "organic-eu-traces-certificate-pdfs",
+        "organic-fr-agence-bio-directory"
+      ]
+    },
+    "controlled-substance-schedules": {
+      "name": "Controlled substance schedules (US DEA, Canada CDSA, UK Misuse of Drugs Act)",
+      "stage": "SCREENED",
+      "sources": [
+        "schedules-us-cfr-1308",
+        "schedules-federal-register-dea-rules",
+        "schedules-canada-cdsa",
+        "schedules-uk-misuse-of-drugs",
+        "schedules-pubchem-cas"
+      ]
+    },
+    "plant-variety-protections": {
+      "name": "Plant variety protection certificates (USDA PVPO linked to GRIN-Global voucher accessions)",
+      "stage": "SCREENED",
+      "sources": [
+        "pvp-usda-pod",
+        "pvp-usda-cms-certificates",
+        "pvp-grin-global-accessions"
+      ]
     }
   },
   "sources": {
@@ -1281,14 +1351,14 @@
     "plumbing-wikidata-brand-owners": {
       "name": "Wikidata plumbing brand to owner and private-label links (nongovernmental, CC0)",
       "rights": "GREEN",
-      "stage": "DISCOVERED",
-      "format": null,
-      "publisher": null,
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Wikidata",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
-        "stage DISCOVERED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "roofing-miami-dade-noa": {
@@ -5833,6 +5903,513 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "breach-wa-ago-notifications": {
+      "name": "Washington AG data breach notifications affecting Washington residents (data.wa.gov sb4j-ca4h)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Washington State Attorney General's Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "breach-ca-oag-sb24": {
+      "name": "California AG SB24 data security breach reports with sample consumer notice letters",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "California Department of Justice, Office of the Attorney General",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "breach-or-doj-list": {
+      "name": "Oregon DOJ consumer data breach list",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Oregon Department of Justice",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "breach-hhs-ocr-portal": {
+      "name": "HHS OCR breach portal: HIPAA breaches affecting 500 or more individuals",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Department of Health and Human Services, Office for Civil Rights",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "warn-tx-twc": {
+      "name": "Texas Workforce Commission WARN notices (data.texas.gov 8w53-c4f6)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Texas Workforce Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "warn-ca-edd": {
+      "name": "California EDD WARN report (current fiscal-year xlsx)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "California Employment Development Department",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "warn-wa-esd": {
+      "name": "Washington ESD WARN layoff and closure database with notice letters (PDF)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Washington State Employment Security Department",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "warn-ny-dol-notices": {
+      "name": "New York DOL WARN notice PDFs (legacy listing, with FEIN and event number)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "New York State Department of Labor",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "frb-large-commercial-banks": {
+      "name": "Federal Reserve Large Commercial Banks release (quarterly; Bank ID = RSSD)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Board of Governors of the Federal Reserve System",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "frb-enforcement-actions": {
+      "name": "Federal Reserve enforcement actions (press releases and attached orders/agreements)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Board of Governors of the Federal Reserve System",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ncua-credit-union-call-report": {
+      "name": "NCUA credit union call report quarterly data (FOICU profile with RSSD)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US National Credit Union Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ffiec-nic-structure": {
+      "name": "FFIEC National Information Center bulk structure data (attributes, relationships, transformations by RSSD)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "FFIEC / Federal Reserve",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "occ-institution-lists": {
+      "name": "OCC financial institution lists and enforcement action search",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Office of the Comptroller of the Currency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ec-merger-cases": {
+      "name": "European Commission merger cases (M.xxxx) open data JSON with decision documents",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission DG Competition",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ftc-early-termination-notices": {
+      "name": "FTC HSR early termination notices (transaction number, acquiring and acquired parties)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FTC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "accc-acquisitions-register": {
+      "name": "ACCC acquisitions register (mandatory notification regime from July 2025)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Australian Competition and Consumer Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ca-competition-bureau-merger-reviews": {
+      "name": "Competition Bureau Canada monthly report of concluded merger reviews",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Competition Bureau Canada (ISED)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "crash-ratings-nhtsa-ncap": {
+      "name": "NHTSA NCAP 5-Star Safety Ratings API (per model-year variant)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US NHTSA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "crash-ratings-nhtsa-nrd-tests": {
+      "name": "NHTSA Research Database crash-test metadata and test reports",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US NHTSA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "crash-ratings-euro-ncap": {
+      "name": "Euro NCAP assessment pages",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Euro NCAP",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "crash-ratings-ancap": {
+      "name": "ANCAP safety ratings pages",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "ANCAP",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "crash-ratings-latin-ncap": {
+      "name": "Latin NCAP results pages",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Latin NCAP",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "crash-ratings-iihs-api": {
+      "name": "IIHS-HLDI ratings API",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "IIHS-HLDI",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "organic-eu-traces-certificates": {
+      "name": "EU TRACES organic operator certificates (public directory JSON)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission (DG SANTE, TRACES)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "organic-eu-traces-certificate-pdfs": {
+      "name": "EU TRACES organic certificate PDFs (Part II product directory)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "European Commission (DG SANTE, TRACES)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "organic-fr-agence-bio-directory": {
+      "name": "Agence BIO directory of operators engaged in organic (France)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Agence BIO (France)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "organic-ca-cfia-cancelled-certifications": {
+      "name": "CFIA cancelled organic certifications (Canada Organic Regime enforcement list)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Canadian Food Inspection Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "organic-us-usda-integrity-database": {
+      "name": "USDA Organic INTEGRITY Database (certified operations)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "USDA AMS National Organic Program",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "schedules-us-cfr-1308": {
+      "name": "US 21 CFR 1308.11-1308.15 schedules of controlled substances (GovInfo annual CFR XML)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Office of the Federal Register / GPO (GovInfo)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "schedules-federal-register-dea-rules": {
+      "name": "Federal Register DEA scheduling rules (API listing, GovInfo document text)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Office of the Federal Register (federalregister.gov; text via GovInfo)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "schedules-canada-cdsa": {
+      "name": "Canada Controlled Drugs and Substances Act schedules I-V (Justice Laws XML)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Department of Justice Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "schedules-uk-misuse-of-drugs": {
+      "name": "UK Misuse of Drugs Act 1971 schedule 2, classes A/B/C (legislation.gov.uk XML)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "The National Archives (legislation.gov.uk)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "schedules-pubchem-cas": {
+      "name": "PubChem name-to-CID-to-CAS resolver for scheduled substances",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NCBI / National Library of Medicine (PubChem)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pvp-usda-pod": {
+      "name": "USDA AMS Plant Variety Protection Office Online Dashboard (JSON API)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "USDA Agricultural Marketing Service (PVPO)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pvp-usda-cms-certificates": {
+      "name": "USDA AMS PVP Certificate Management System (scanned certificate PDFs)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "USDA Agricultural Marketing Service (PVPO certificates)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pvp-grin-global-accessions": {
+      "name": "USDA ARS GRIN-Global accession pages (PVP voucher accessions with IPR block)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "USDA Agricultural Research Service (NPGS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pvp-cfia-plant-breeders-rights": {
+      "name": "CFIA Plant Breeders' Rights variety pages (Canada)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Canadian Food Inspection Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "pvp-cpvo-variety-finder": {
+      "name": "EU CPVO Variety Finder / online.plantvarieties.eu",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Community Plant Variety Office (EU)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "pvp-upov-pluto": {
+      "name": "UPOV PLUTO plant variety database",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "UPOV",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },

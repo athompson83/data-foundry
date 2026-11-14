@@ -1,0 +1,434 @@
+{
+ "measured_on": "2026-11-14",
+ "eu_traces_json": {
+  "count_http": 200,
+  "certificates_total": 1016697,
+  "page_http": 200,
+  "page_rows": 100,
+  "status_on_first_page": {
+   "WITHDRAWN": 79,
+   "ISSUED": 15,
+   "EXPIRED": 6
+  },
+  "operator_country_on_first_page": {
+   "FR": 22,
+   "NL": 16,
+   "IT": 15,
+   "DE": 12,
+   "PT": 10,
+   "GR": 6,
+   "ES": 4,
+   "BE": 3
+  },
+  "fill_operatorIdentifier": 100,
+  "fill_categoriesOfProduct": 100,
+  "fill_activities": 100,
+  "fill_expiresOn": 100,
+  "newest_lastUpdateOn_first_page": "2025-03-14T12:24:20.000Z",
+  "fields": [
+   "activities",
+   "categoriesOfProduct",
+   "competentAuthorityName",
+   "createdOn",
+   "digitallySignedPdfIds",
+   "documentLinkReferences",
+   "expiresOn",
+   "groupOfOperators",
+   "id",
+   "issuedOn",
+   "issuingAuthority",
+   "issuingBody",
+   "lastStatusUpdateDateTime",
+   "lastUpdateOn",
+   "nomenclatures",
+   "operator",
+   "operatorIdentifier",
+   "reference",
+   "relativeUrl",
+   "status"
+  ],
+  "deep_paging_http": {
+   "offset_1000": 200,
+   "offset_10000": 500
+  },
+  "query_TR-BIO_operator_countries": [
+   "DE",
+   "ES",
+   "FR",
+   "HR",
+   "IT",
+   "NL",
+   "PL",
+   "PT"
+  ],
+  "query_US-BIO_operator_countries": [
+   "PT"
+  ],
+  "query_CA-BIO_operator_countries": [
+   "BE",
+   "DE",
+   "FR",
+   "IT"
+  ]
+ },
+ "agence_bio_directory": {
+  "http": 200,
+  "operators_total": 138391,
+  "datagouv_license": "lov2",
+  "datagouv_frequency": "daily",
+  "datagouv_last_update": "2026-11-13T22:01:11.732000+00:00",
+  "datagouv_resources": [
+   [
+    "operateursbio.csv",
+    8495952
+   ],
+   [
+    "operateursbio.xlsx",
+    4873377
+   ]
+  ],
+  "sample_operators": 50,
+  "fill_siret": 49,
+  "fill_certificats": 50,
+  "fill_productions": 49,
+  "fill_gerant_personal_name_field": 32,
+  "newest_dateMaj_in_sample": "2026-11-13"
+ },
+ "join_agencebio_traces": {
+  "rule": "exact normalised operator name AND equal postal code (candidate); confirm by equal certifier EU code",
+  "agencebio_engaged_operators_queried": 25,
+  "matched": "14/25",
+  "confirmed_by_certifier_code": "14/14",
+  "rows": [
+   {
+    "numeroBio": 114649,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0044427.2026.003"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 308551,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0114004.2026.002"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 142297,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0074054.2026.002"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 57234,
+    "traces_http": 200,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 172015,
+    "traces_http": 400,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 41242,
+    "traces_http": 400,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 138094,
+    "traces_http": 400,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 103629,
+    "traces_http": 400,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 63643,
+    "traces_http": 400,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 59996,
+    "traces_http": 200,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 147193,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0002153.2026.005"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 43704,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0069715.2026.004"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 12571,
+    "traces_http": 200,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 113398,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-16.250-0027016.2025.003"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 60608,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-16.250-0094627.2026.001"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 24821,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-10.250-0052769.2026.001",
+     "FR-BIO-10.250-0052769.2023.001",
+     "FR-BIO-10.250-0052769.2024.001",
+     "FR-BIO-10.250-0052769.2025.001"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 70295,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0104037.2026.004"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 24624,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0011124.2026.002"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 171914,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-10.250-0067229.2024.001",
+     "FR-BIO-10.250-0067229.2023.001",
+     "FR-BIO-10.250-0067229.2025.001",
+     "FR-BIO-10.250-0067229.2026.001",
+     "FR-BIO-10.250-0067229.2025.002"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 100018,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-16.250-0011775.2026.003"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 58891,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0029468.2026.004"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 60770,
+    "traces_http": 200,
+    "traces_refs": [
+     "FR-BIO-01.250-0098015.2026.004"
+    ],
+    "certifier_code_equal": true
+   },
+   {
+    "numeroBio": 151927,
+    "traces_http": 200,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 60021,
+    "traces_http": 200,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   },
+   {
+    "numeroBio": 52819,
+    "traces_http": 200,
+    "traces_refs": [],
+    "certifier_code_equal": false
+   }
+  ],
+  "hand_check_2026_11_14": {
+   "correct": 14,
+   "checked": 14,
+   "matched_numeroBio_reviewed": [
+    114649,
+    308551,
+    142297,
+    147193,
+    43704,
+    113398,
+    60608,
+    24821,
+    70295,
+    24624,
+    171914,
+    100018,
+    58891,
+    60770
+   ],
+   "operators_named_after_a_person": 5,
+   "method": "compared operator name, commune and certifier EU code side by side for each pair; one pair matched on the operator's second address"
+  }
+ },
+ "eu_traces_certificate_pdfs": {
+  "pdftotext": true,
+  "sampled": 10,
+  "http_200": 7,
+  "with_product_lines": 7,
+  "rows": [
+   {
+    "reference": "FR-BIO-01.250-0044427.2026.003",
+    "http": 200,
+    "bytes": 56565,
+    "has_product_directory": true,
+    "product_lines": 1,
+    "cn_code_lines": 0
+   },
+   {
+    "reference": "FR-BIO-01.250-0114004.2026.002",
+    "http": 200,
+    "bytes": 56198,
+    "has_product_directory": true,
+    "product_lines": 1,
+    "cn_code_lines": 0
+   },
+   {
+    "reference": "FR-BIO-01.250-0074054.2026.002",
+    "http": 200,
+    "bytes": 57254,
+    "has_product_directory": true,
+    "product_lines": 13,
+    "cn_code_lines": 11
+   },
+   {
+    "reference": "FR-BIO-01.250-0002153.2026.005",
+    "http": 200,
+    "bytes": 58164,
+    "has_product_directory": true,
+    "product_lines": 28,
+    "cn_code_lines": 0
+   },
+   {
+    "reference": "FR-BIO-01.250-0069715.2026.004",
+    "http": 200,
+    "bytes": 56673,
+    "has_product_directory": true,
+    "product_lines": 9,
+    "cn_code_lines": 0
+   },
+   {
+    "reference": "FR-BIO-16.250-0027016.2025.003",
+    "http": 403,
+    "bytes": 0
+   },
+   {
+    "reference": "FR-BIO-16.250-0094627.2026.001",
+    "http": 200,
+    "bytes": 56651,
+    "has_product_directory": true,
+    "product_lines": 2,
+    "cn_code_lines": 0
+   },
+   {
+    "reference": "FR-BIO-10.250-0052769.2026.001",
+    "http": 200,
+    "bytes": 56112,
+    "has_product_directory": true,
+    "product_lines": 2,
+    "cn_code_lines": 0
+   },
+   {
+    "reference": "FR-BIO-10.250-0052769.2023.001",
+    "http": 403,
+    "bytes": 0
+   },
+   {
+    "reference": "FR-BIO-10.250-0052769.2024.001",
+    "http": 403,
+    "bytes": 0
+   }
+  ]
+ },
+ "cfia_cancelled_certifications": {
+  "http": 200,
+  "header": [
+   "Region",
+   "Certification holder (Certification Body)",
+   "Authority",
+   "Enforcement action",
+   "Date of enforcement action"
+  ],
+  "rows": 3950,
+  "earliest_action": "2021-01-04",
+  "latest_action": "2026-09-25",
+  "page_date_modified": "2026-10-16",
+  "region_counts": {
+   "International": 714,
+   "Ontario": 670,
+   "West": 1222,
+   "Quebec": 957,
+   "Atlantic": 80,
+   "Québec": 306,
+   "North": 1
+  },
+  "action_counts": {
+   "Cancellation (voluntary withdrawal)": 2746,
+   "Cancellation": 884,
+   "Cancellation (Voluntary Withdrawal)": 319,
+   "Cancellation (voluntary withdrawal)": 1
+  },
+  "holder_cell_with_parenthesised_certifier": 3149,
+  "rows_located_in_eu_member_state": 1,
+  "terms_http": 200,
+  "terms_quote": "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+ },
+ "usda_oid": {
+  "site_http": 200,
+  "site_is_blazor_server": true,
+  "api_js_names_data_service": true,
+  "data_service_demo_key_http": 404,
+  "data_service_no_key_http": 403,
+  "data_service_no_key_error": "API_KEY_MISSING",
+  "telerik_report_service_formats_http": 200,
+  "note": "Data History snapshots and search export are rendered by the Blazor server UI (SignalR); no static download URL was found"
+ }
+}

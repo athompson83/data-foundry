@@ -1,0 +1,380 @@
+{
+ "measured_on": "2026-11-14",
+ "fdic_institutions_all_total": 27835,
+ "fdic_institutions_active_status": 200,
+ "fdic_institutions_active": 4208,
+ "fdic_active_fill": {
+  "FED_RSSD": 4208,
+  "RSSDHCR": 3529,
+  "NAMEHCR": 3529,
+  "LEI": 2258
+ },
+ "fdic_active_newest_DATEUPDT": "12/30/2025",
+ "fdic_history_status": 200,
+ "fdic_history_total_events": 585705,
+ "fdic_history_newest_PROCDATE": "2026-11-12T00:00:00",
+ "fdic_history_sample_change_types": [
+  [
+   "Branch Purchased",
+   141
+  ],
+  [
+   "Branch Sold",
+   139
+  ],
+  [
+   "Branch Opening",
+   62
+  ],
+  [
+   "Branch Closing",
+   62
+  ],
+  [
+   "Branch Acquired in Merger/Consolidation/Failure",
+   43
+  ],
+  [
+   "Change in Physical Location (FO or BR)",
+   21
+  ],
+  [
+   "Merger -Without Assistance",
+   10
+  ],
+  [
+   "Participated in Absorbtion/Consolidation/Merger",
+   10
+  ],
+  [
+   "Change in Legal Name (FO or BR)",
+   7
+  ],
+  [
+   "Phantom (Interim) Corporate Reorganization",
+   3
+  ],
+  [
+   "Institution Becomes a Member of FRS (Federal Reserve System)",
+   2
+  ]
+ ],
+ "fdic_history_sample_with_desc": "500/500",
+ "fed_lbr_status": 200,
+ "fed_lbr_as_of": "June 30, 2026",
+ "fed_lbr_banks": 3762,
+ "join_lbr_bankid_to_fdic_fed_rssd": "3676/3762",
+ "join_lbr_sample_rows": [
+  {
+   "rssd": "852218",
+   "fdic_cert": 628
+  },
+  {
+   "rssd": "480228",
+   "fdic_cert": 3510
+  },
+  {
+   "rssd": "476810",
+   "fdic_cert": 7213
+  },
+  {
+   "rssd": "451965",
+   "fdic_cert": 3511
+  },
+  {
+   "rssd": "2182786",
+   "fdic_cert": 33124
+  },
+  {
+   "rssd": "504713",
+   "fdic_cert": 6548
+  },
+  {
+   "rssd": "112837",
+   "fdic_cert": 4297
+  },
+  {
+   "rssd": "817824",
+   "fdic_cert": 6384
+  },
+  {
+   "rssd": "852320",
+   "fdic_cert": 9846
+  },
+  {
+   "rssd": "541101",
+   "fdic_cert": 639
+  },
+  {
+   "rssd": "1456501",
+   "fdic_cert": 32992
+  },
+  {
+   "rssd": "35301",
+   "fdic_cert": 14
+  },
+  {
+   "rssd": "497404",
+   "fdic_cert": 18409
+  },
+  {
+   "rssd": "723112",
+   "fdic_cert": 6672
+  },
+  {
+   "rssd": "12311",
+   "fdic_cert": 6560
+  },
+  {
+   "rssd": "75633",
+   "fdic_cert": 16571
+  },
+  {
+   "rssd": "2489805",
+   "fdic_cert": 34221
+  },
+  {
+   "rssd": "491224",
+   "fdic_cert": 11063
+  },
+  {
+   "rssd": "3303298",
+   "fdic_cert": 57957
+  },
+  {
+   "rssd": "501105",
+   "fdic_cert": 588
+  }
+ ],
+ "join_lbr_unmatched_rssd_sample": [
+  "761806",
+  "52719",
+  "3579589",
+  "1391778",
+  "1444021",
+  "3437483",
+  "3807880",
+  "5561001",
+  "688079",
+  "307679",
+  "384652",
+  "423449",
+  "2839790",
+  "2600039",
+  "101671",
+  "5136959",
+  "321273",
+  "935250",
+  "3348468",
+  "3635029"
+ ],
+ "ncua_status": 200,
+ "ncua_zip_bytes": 8141577,
+ "ncua_files": 26,
+ "ncua_credit_unions": 4299,
+ "ncua_cycle_date": "6/30/2026 0:00:00",
+ "ncua_rssd_fill": "4299/4299",
+ "ncua_rssd_overlap_fdic_fed_rssd": 0,
+ "fed_ea_status": 200,
+ "fed_ea_rows": 2899,
+ "fed_ea_newest": "2026-11-09",
+ "fed_ea_banking_org_rows": 1563,
+ "fed_ea_individual_rows_excluded": 1336,
+ "join_fed_ea_to_fdic_name_city_state": "46/195 banking-organization actions since 2016",
+ "join_fed_ea_check_rows": [
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20260820b.htm",
+   "effective": "2026-08-14",
+   "role": "holding",
+   "fdic_cert": 58088,
+   "fed_rssd": "3386536",
+   "rssdhcr": "4975049"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20251106a.htm",
+   "effective": "2025-09-12",
+   "role": "bank",
+   "fdic_cert": 15362,
+   "fed_rssd": "223751",
+   "rssdhcr": ""
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20251106a.htm",
+   "effective": "2025-09-12",
+   "role": "bank",
+   "fdic_cert": 17451,
+   "fed_rssd": "747257",
+   "rssdhcr": "1064513"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20250320a.htm",
+   "effective": "2025-02-24",
+   "role": "bank",
+   "fdic_cert": 18053,
+   "fed_rssd": "795968",
+   "rssdhcr": "1025309"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20250320a.htm",
+   "effective": "2025-02-20",
+   "role": "holding",
+   "fdic_cert": 1484,
+   "fed_rssd": "166531",
+   "rssdhcr": "1136447"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20241203a.htm",
+   "effective": "2024-11-25",
+   "role": "holding",
+   "fdic_cert": 3818,
+   "fed_rssd": "303747",
+   "rssdhcr": "1097678"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20241003a.htm",
+   "effective": "2024-09-30",
+   "role": "bank",
+   "fdic_cert": 30182,
+   "fed_rssd": "685676",
+   "rssdhcr": "4126609"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20240904a.htm",
+   "effective": "2024-08-28",
+   "role": "bank",
+   "fdic_cert": 1105,
+   "fed_rssd": "659855",
+   "rssdhcr": "1123670"
+  },
+  {
+   "fed_ea_url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20240723a.htm",
+   "effective": "2024-07-18",
+   "role": "bank",
+   "fdic_cert": 8850,
+   "fed_rssd": "126553",
+   "rssdhcr": "1136540"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20240719a.htm",
+   "effective": "2024-07-16",
+   "role": "holding",
+   "fdic_cert": 30943,
+   "fed_rssd": "773171",
+   "rssdhcr": "5306499"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20240710a.htm",
+   "effective": "2024-07-10",
+   "role": "holding",
+   "fdic_cert": 7213,
+   "fed_rssd": "476810",
+   "rssdhcr": "1951350"
+  },
+  {
+   "fed_ea_url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20240314a.htm",
+   "effective": "2024-03-13",
+   "role": "holding",
+   "fdic_cert": 8122,
+   "fed_rssd": "391418",
+   "rssdhcr": "1363935"
+  },
+  {
+   "fed_ea_url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20240314a.htm",
+   "effective": "2024-03-08",
+   "role": "holding",
+   "fdic_cert": 21761,
+   "fed_rssd": "651448",
+   "rssdhcr": "1039502"
+  },
+  {
+   "fed_ea_url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20240213a.htm",
+   "effective": "2024-02-09",
+   "role": "bank",
+   "fdic_cert": 58563,
+   "fed_rssd": "3567269",
+   "rssdhcr": "4488857"
+  },
+  {
+   "fed_ea_url": "/newsevents/pressreleases/enforcement20231019a.htm",
+   "effective": "2023-10-16",
+   "role": "bank",
+   "fdic_cert": 34699,
+   "fed_rssd": "2705895",
+   "rssdhcr": "2820211"
+  }
+ ],
+ "hand_check_fed_ea_fdic": {
+  "checked": 15,
+  "correct": 15
+ },
+ "fed_ea_press_release_pdf_fill": "12/12",
+ "fed_ea_press_release_sample": [
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20261008a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20261002a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260820b.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260730b.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260709a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260702a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20260416a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20251106a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20251106a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/orders20250418a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20250320a.htm",
+   "status": 200,
+   "has_pdf": true
+  },
+  {
+   "url": "https://www.federalreserve.gov/newsevents/pressreleases/enforcement20250320a.htm",
+   "status": 200,
+   "has_pdf": true
+  }
+ ],
+ "ffiec_nic_status": 403,
+ "ffiec_nic_captcha_marker": true,
+ "occ_lists_status": 302,
+ "occ_lists_location": "https://www.occ.treas.gov/",
+ "occ_ea_count_status": 200,
+ "occ_ea_count": "\t\n<!DOCTYPE html>\n<html lang=\"en\" prefix",
+ "fed_terms": "Unless otherwise indicated, information on Board's website is in the public domain and may be copied and distributed without permission."
+}

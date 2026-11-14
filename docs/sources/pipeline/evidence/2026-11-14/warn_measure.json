@@ -1,0 +1,257 @@
+{
+ "measured_on": "2026-11-14",
+ "user_agent": "data-foundry-scout/1.0 (data@mail.proviciency.com)",
+ "tx_twc": {
+  "stats": {
+   "count": "2368",
+   "min_notice_date": "2019-01-04T00:00:00.000",
+   "max_notice_date": "2026-06-23T00:00:00.000"
+  },
+  "columns": [
+   "notice_date",
+   "job_site_name",
+   "county_name",
+   "wda_name",
+   "total_layoff_number",
+   "layoff_date",
+   "wfdd_received_date",
+   "city_name"
+  ],
+  "license": null,
+  "attribution": "Texas Workforce Commission",
+  "rows_updated_at": "2026-07-07T18:15:59",
+  "has_free_text": false
+ },
+ "ca_edd": {
+  "url": "https://edd.ca.gov/siteassets/files/jobs_and_training/warn/warn_report1.xlsx",
+  "http": 200,
+  "bytes": 71090,
+  "sheets": [
+   "Index",
+   "WARN Report Summary",
+   "Detailed WARN Report ",
+   "Call Center Relocations Summary",
+   "Call Center Relocations Report",
+   "Industry List"
+  ],
+  "title_cell": "WARN REPORT - 07/01/26 to 11/09/2026 A detailed WARN summary by county and filte",
+  "header": [
+   "County/Parish",
+   "Notice Date",
+   "Processed Date",
+   "Effective  Date",
+   "Company",
+   "Layoff/ Closure",
+   "No. Of Employees",
+   "Address",
+   "Related Industry"
+  ],
+  "rows": 479,
+  "notice_date_min": "2026-06-26",
+  "notice_date_max": "2026-11-09",
+  "industry_fill": 1.0,
+  "layoff_closure_values": [
+   "Closure Permanent",
+   "Closure Temporary",
+   "Layoff Not known at this time",
+   "Layoff Permanent",
+   "Layoff Temporary",
+   "Relocation Permanent"
+  ],
+  "has_free_text": false
+ },
+ "wa_esd": {
+  "url": "https://fortress.wa.gov/esd/file/WARN/Public/SearchWARN.aspx",
+  "pages_fetched": 12,
+  "rows_fetched": 180,
+  "page_size": 15,
+  "received_max": "2026-11-04",
+  "received_min_in_fetched": "2025-09-29",
+  "notice_pdf_fill": 1.0,
+  "notice_pdf_sample": [
+   {
+    "notice_file": "6b2e777f-eb94-4a4a-a74f-bb6b2aec6ddc.pdf",
+    "content_type": "application/pdf",
+    "bytes": 536870,
+    "words": 352,
+    "mentions_warn_act": true,
+    "states_reason_or_separation": true
+   },
+   {
+    "notice_file": "0fde3d45-7ede-4123-af1d-bedf4d6152c3.pdf",
+    "content_type": "application/pdf",
+    "bytes": 466367,
+    "words": 931,
+    "mentions_warn_act": true,
+    "states_reason_or_separation": true
+   },
+   {
+    "notice_file": "8dbddda5-1e4e-43bb-9cd6-529acd3d4df6.pdf",
+    "content_type": "application/pdf",
+    "bytes": 929442,
+    "words": 272,
+    "mentions_warn_act": true,
+    "states_reason_or_separation": true
+   },
+   {
+    "notice_file": "3b33f7df-fb60-454e-9761-9137ca511101.pdf",
+    "content_type": "application/pdf",
+    "bytes": 2072072,
+    "words": 6,
+    "mentions_warn_act": false,
+    "states_reason_or_separation": false
+   }
+  ],
+  "has_free_text": true
+ },
+ "ny_dol": {
+  "url": "https://dol.ny.gov/legacy-warn-notices",
+  "notice_links": 69,
+  "pdf_sample": [
+   {
+    "path": "/warn-57th-street-associates-dba-rue-57-region-new-york-city-date-posted-1172025",
+    "is_pdf": true,
+    "words": 140,
+    "has_fein": true,
+    "has_event_number": true,
+    "has_reason": true,
+    "has_naics_industry": true
+   },
+   {
+    "path": "/warn-air-products-and-chemicals-inc-region-western-notice-date-1302025-date-pos",
+    "is_pdf": true,
+    "words": 139,
+    "has_fein": true,
+    "has_event_number": true,
+    "has_reason": true,
+    "has_naics_industry": true
+   },
+   {
+    "path": "/warn-amscan-inc-party-city-holdings-inc-region-hudson-valley-date-posted-123202",
+    "is_pdf": true,
+    "words": 130,
+    "has_fein": true,
+    "has_event_number": true,
+    "has_reason": true,
+    "has_naics_industry": true
+   },
+   {
+    "path": "/warn-amscan-inc-party-city-holdings-inc-region-hudson-valley-date-posted-315202",
+    "is_pdf": true,
+    "words": 160,
+    "has_fein": true,
+    "has_event_number": true,
+    "has_reason": true,
+    "has_naics_industry": true
+   },
+   {
+    "path": "/warn-bamia-2-llc-dba-reef-technology-region-new-york-city-date-posted-232025-or",
+    "is_pdf": true,
+    "words": 318,
+    "has_fein": true,
+    "has_event_number": true,
+    "has_reason": true,
+    "has_naics_industry": true
+   },
+   {
+    "path": "/warn-barrette-outdoor-living-inc-region-western-date-posted-2192025-notice-date",
+    "is_pdf": true,
+    "words": 132,
+    "has_fein": true,
+    "has_event_number": true,
+    "has_reason": true,
+    "has_naics_industry": true
+   }
+  ],
+  "dashboard_is_tableau_public": true,
+  "tableau_csv": {
+   "error": "HTTP Error 404: Not Found"
+  }
+ },
+ "terms": {
+  "edd_conditions_of_use": "Most of the information on this website is considered public and can be shared or copied, unless stated otherwise."
+ },
+ "join_wa_ca": {
+  "wa_rows_in_ca_window": 80,
+  "wa_distinct_employers_in_window": 74,
+  "matched_employers": 6,
+  "check_rows": [
+   {
+    "wa_company": "Amazon",
+    "wa_received": "11/2/2026",
+    "wa_type": "Layoff Permanent",
+    "wa_notice_file": "0fde3d45-7ede-4123-af1d-bedf4d6152c3.pdf",
+    "ca_company": "Amazon",
+    "ca_notice_date": "2026-11-02",
+    "ca_type": "Layoff Permanent",
+    "ca_industry": "44-45 Retail Trade",
+    "ca_rows_same_name_in_window": 1
+   },
+   {
+    "wa_company": "Comcast",
+    "wa_received": "10/29/2026",
+    "wa_type": "Layoff Permanent",
+    "wa_notice_file": "3b33f7df-fb60-454e-9761-9137ca511101.pdf",
+    "ca_company": "Comcast",
+    "ca_notice_date": "2026-10-29",
+    "ca_type": "Layoff Permanent",
+    "ca_industry": "51 Information",
+    "ca_rows_same_name_in_window": 1
+   },
+   {
+    "wa_company": "Oracle America, Inc.",
+    "wa_received": "9/14/2026",
+    "wa_type": "Layoff Permanent",
+    "wa_notice_file": "d1804142-9ad0-4903-9024-53e2bb62ab34.pdf",
+    "ca_company": "Oracle America, Inc.",
+    "ca_notice_date": "2026-09-14",
+    "ca_type": "Layoff Permanent",
+    "ca_industry": "31-33 Manufacturing",
+    "ca_rows_same_name_in_window": 2
+   },
+   {
+    "wa_company": "Uber Technologies Inc",
+    "wa_received": "9/2/2026",
+    "wa_type": "Layoff Permanent",
+    "wa_notice_file": "1877ae68-2d96-4399-b3a5-a71dbbc4a481.pdf",
+    "ca_company": "Uber Technologies, Inc. (1655 3rd Street)",
+    "ca_notice_date": "2026-07-22",
+    "ca_type": "Layoff Permanent",
+    "ca_industry": "48-49 Transportation and Warehousing",
+    "ca_rows_same_name_in_window": 3
+   },
+   {
+    "wa_company": "Salesforce, Inc.",
+    "wa_received": "8/5/2026",
+    "wa_type": "Layoff Permanent",
+    "wa_notice_file": "d45558b4-d475-41ab-9be4-ce38bf71571c.pdf",
+    "ca_company": "Salesforce, Inc.",
+    "ca_notice_date": "2026-08-05",
+    "ca_type": "Layoff Permanent",
+    "ca_industry": "51 Information",
+    "ca_rows_same_name_in_window": 1
+   },
+   {
+    "wa_company": "Visa",
+    "wa_received": "7/31/2026",
+    "wa_type": "Layoff Permanent",
+    "wa_notice_file": "79dd878d-e60b-4048-8cd5-1de53475f71b.pdf",
+    "ca_company": "Visa",
+    "ca_notice_date": "2026-07-31",
+    "ca_type": "Layoff Permanent",
+    "ca_industry": "52 Finance and Insurance",
+    "ca_rows_same_name_in_window": 1
+   }
+  ]
+ },
+ "hand_check": {
+  "wa_ca_employer": {
+   "correct": 6,
+   "checked": 6
+  },
+  "wa_ca_same_event": {
+   "correct": 5,
+   "checked": 6
+  }
+ }
+}

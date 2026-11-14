@@ -1,0 +1,835 @@
+{
+ "run_date": "2026-11-14",
+ "ecfr_api": {
+  "status": 406,
+  "body_head": "<error>\n  <message>This endpoint requires response compression. Send an Accept-Encoding header that permits compression.</message>\n  <supportCode>11</supportCod"
+ },
+ "cfr_sections": {
+  "11": {
+   "status": 200,
+   "edition_date": "2025-04-01",
+   "rows_with_dea_code": 261,
+   "bytes": 86611
+  },
+  "12": {
+   "status": 200,
+   "edition_date": "2025-04-01",
+   "rows_with_dea_code": 64,
+   "bytes": 16060
+  },
+  "13": {
+   "status": 200,
+   "edition_date": "2025-04-01",
+   "rows_with_dea_code": 31,
+   "bytes": 18764
+  },
+  "14": {
+   "status": 200,
+   "edition_date": "2025-04-01",
+   "rows_with_dea_code": 80,
+   "bytes": 14629
+  },
+  "15": {
+   "status": 200,
+   "edition_date": "2025-04-01",
+   "rows_with_dea_code": 7,
+   "bytes": 6508
+  }
+ },
+ "us_rows": 443,
+ "us_distinct_dea_codes": 440,
+ "us_rows_with_cas": 0,
+ "fr_status": 200,
+ "fr_rule_count": 260,
+ "fr_newest": [
+  [
+   "2026-11-12",
+   "2026-23075",
+   "Schedules of Controlled Substances: Placement of Oveporexton in Schedule IV"
+  ],
+  [
+   "2026-11-06",
+   "2026-22717",
+   "Specific Listing for 3-Chloromethcathinone, A Currently Controlled Schedule I Substance"
+  ],
+  [
+   "2026-10-30",
+   "2026-22208",
+   "Schedules of Controlled Substances: Placement of Centanafadine in Schedule III"
+  ],
+  [
+   "2026-10-09",
+   "2026-20757",
+   "Schedules of Controlled Substances; Removal of Exemption Status for Inactive Butalbital Products"
+  ],
+  [
+   "2026-10-09",
+   "2026-20748",
+   "Schedules of Controlled Substances: Placement of O-Desmethyltramadol in Schedule I; Correction"
+  ]
+ ],
+ "fr_with_cfr_ref_1308": 98,
+ "fr_sample_size": 100,
+ "fr_fulltext_route": {
+  "status": 403,
+  "final_url": "https://www.federalregister.gov/documents/full_text/text/2026/11/12/2026-23075.txt",
+  "is_unblock_page": false
+ },
+ "cfr_fr_citations": 27,
+ "fr_placement_docs_resolved": "12/12",
+ "fr_cfr_join_rows": 35,
+ "fr_cfr_join_code_found": 34,
+ "fr_cfr_join_name_prefix_equal": 34,
+ "fr_cfr_join_checks": [
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9868",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-phenyl-N-(1-(2-phenylpropyl)piperidin-4-yl)acetamide, its isomers, esters, ethers, salts",
+   "cfr_name": "N -phenyl-N-(1-(2-phenylpropyl)piperidin-4-yl)acetamide, its isomers, esters, ethers, salt"
+  },
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9871",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(3-fluorophenyl)-N-(1-phenethylpiperidin-4-yl)furan-2- carboxamide, its isomers, esters,",
+   "cfr_name": "N -(3-fluorophenyl)- N -(1-phenethylpiperidin-4-yl)furan-2-carboxamide, its isomers, ester"
+  },
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9828",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(2-chlorophenyl)-N-(1-phenethylpiperidin-4- yl)propionamide, its isomers, esters, ethers",
+   "cfr_name": "N -(2-chlorophenyl)- N -(1-phenethylpiperidin-4-yl)propionamide, its isomers, esters, ethe"
+  },
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9849",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(2-methylphenyl)-N-(1-phenethylpiperidin-4- yl)cyclopropanecarboxamide, its isomers, est",
+   "cfr_name": "N -(2-methylphenyl)- N -(1-phenethylpiperidin-4-yl)cyclopropanecarboxamide, its isomers, e"
+  },
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9818",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(4-chlorophenyl)-N-(1-phenethylpiperidin-4- yl)propionamide, its isomers, esters, ethers",
+   "cfr_name": "N -(4-chlorophenyl)- N -(1-phenethylpiperidin-4-yl)propionamide, its isomers, esters, ethe"
+  },
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9870",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(4-fluorophenyl)-N-(1-phenethylpiperidin-4- yl)pentanamide, its isomers, esters, ethers,",
+   "cfr_name": "N -(4-fluorophenyl)- N -(1-phenethylpiperidin-4-yl)pentanamide, its isomers, esters, ether"
+  },
+  {
+   "fr_doc": "2024-31130",
+   "fr_date": "2024-12-30",
+   "dea_code": "9869",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(1-phenethylpiperidin-4-yl)-N-phenyltetrahydrothiophene-2- carboxamide, its isomers, est",
+   "cfr_name": "N -(1-phenethylpiperidin-4-yl)- N -phenyltetrahydrothiophene-2-carboxamide, its isomers, e"
+  },
+  {
+   "fr_doc": "2024-24635",
+   "fr_date": "2024-10-25",
+   "dea_code": "9751",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Butonitazene (2-(2-(4-butoxybenzyl)-5-nitro-1H- benzimidazol-1-yl)-N,N-diethylethan-1-amin",
+   "cfr_name": "Butonitazene (2-(2-(4-butoxybenzyl)-5-nitro-1 H -benzimidazol-1-yl)- N,N -diethylethan-1-a"
+  },
+  {
+   "fr_doc": "2024-24635",
+   "fr_date": "2024-10-25",
+   "dea_code": "9756",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Flunitazene (N,N-diethyl-2-(2-(4-fluorobenzyl)-5- nitro-1H-benzimidazol-1-yl)ethan-1-amine",
+   "cfr_name": "Flunitazene ( N,N -diethyl-2-(2-(4-fluorobenzyl)-5-nitro-1 H -benzimidazol-1-yl)ethan-1-am"
+  },
+  {
+   "fr_doc": "2024-24635",
+   "fr_date": "2024-10-25",
+   "dea_code": "9764",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Metodesnitazene (N,N-diethyl-2-(2-(4-methoxybenzyl)- 1H-benzimidazol-1-yl)ethan-1-amine) -",
+   "cfr_name": "Metodesnitazene ( N,N -diethyl-2-(2-(4-methoxybenzyl)-1 H -benzimidazol-1-yl)ethan-1-amine"
+  },
+  {
+   "fr_doc": "2024-24083",
+   "fr_date": "2024-10-22",
+   "dea_code": "1727",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Ethylphenidate (ethyl 2-phenyl-2-(piperidin-2- yl)acetate)",
+   "cfr_name": "Ethylphenidate (ethyl 2-phenyl-2-(piperidin-2-yl)acetate)"
+  },
+  {
+   "fr_doc": "2024-16391",
+   "fr_date": "2024-07-29",
+   "dea_code": "9760",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-ethyl-2-(2-(4-isopropoxybenzyl)-5-nitro-1H- benzimidazol-1-yl)ethan-1-amine, its isomers",
+   "cfr_name": "N- ethyl-2-(2-(4-isopropoxybenzyl)-5-nitro-1 H -benzimidazol-1-yl)ethan-1-amine, its isome"
+  },
+  {
+   "fr_doc": "2024-16391",
+   "fr_date": "2024-07-29",
+   "dea_code": "9761",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "2-(4-ethoxybenzyl)-5-nitro-1-(2-(piperidin-1- yl)ethyl)-1H-benzimidazole, its isomers, est",
+   "cfr_name": "2-(4-ethoxybenzyl)-5-nitro-1-(2-(piperidin-1-yl)ethyl)-1 H -benzimidazole, its isomers, es"
+  },
+  {
+   "fr_doc": "2024-07684",
+   "fr_date": "2024-04-11",
+   "dea_code": "9765",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "2-(2-(4-ethoxybenzyl)-1H-benzimidazol-1-yl)-N,N- diethylethan-1-amine (Other names: etodes",
+   "cfr_name": "2-(2-(4-ethoxybenzyl)-1 H -benzimidazol-1-yl)- N,N -diethylethan-1-amine (Other names: eto"
+  },
+  {
+   "fr_doc": "2024-07684",
+   "fr_date": "2024-04-11",
+   "dea_code": "9758",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "2-(4-ethoxybenzyl)-5-nitro-1-(2-(pyrrolidin-1-yl)ethyl)-1H- benzimidazole (Other names: N-",
+   "cfr_name": "2-(4-ethoxybenzyl)-5-nitro-1-(2-(pyrrolidin-1-yl)ethyl)-1 H -benzimidazole (Other names: N"
+  },
+  {
+   "fr_doc": "2024-07684",
+   "fr_date": "2024-04-11",
+   "dea_code": "9759",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N,N-diethyl-2-(5-nitro-2-(4-propoxybenzyl)-1H-benzimidazol- 1-yl)ethan-1-amine (Other name",
+   "cfr_name": "N,N -diethyl-2-(5-nitro-2-(4-propoxybenzyl)-1 H -benzimidazol-1-yl)ethan-1-amine (Other na"
+  },
+  {
+   "fr_doc": "2024-05543",
+   "fr_date": "2024-03-15",
+   "dea_code": "9664",
+   "in_cfr_2025": false,
+   "name_prefix_equal": false,
+   "fr_name": "2-Methyl AP-237 (1-(2-methyl-4-(3-phenylprop-2-en-1- yl)piperazin-1-yl)butan-1-one)",
+   "cfr_name": null
+  },
+  {
+   "fr_doc": "2023-27292",
+   "fr_date": "2023-12-13",
+   "dea_code": "7027",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(1-amino-3,3-dimethyl-1-oxobutan-2-yl)-1-butyl-1H- indazole-3-carboxamide (other name: A",
+   "cfr_name": "N -(1-amino-3,3-dimethyl-1-oxobutan-2-yl)-1-butyl-1 H -indazole-3-carboxamide (other name:"
+  },
+  {
+   "fr_doc": "2023-27292",
+   "fr_date": "2023-12-13",
+   "dea_code": "7551",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "4-methyl-1-phenyl-2-(pyrrolidin-1-yl)pentan-1-one (other names: [alpha]-PiHP; alpha-PiHP)",
+   "cfr_name": "4-methyl-1-phenyl-2-(pyrrolidin-1-yl)pentan-1-one (other names: \u03b1-PiHP; alpha -PiHP)"
+  },
+  {
+   "fr_doc": "2023-27292",
+   "fr_date": "2023-12-13",
+   "dea_code": "1259",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "2-(methylamino)-1-(3-methylphenyl)propan-1-one (other names: 3-MMC; 3-methylmethcathinone)",
+   "cfr_name": "2-(methylamino)-1-(3-methylphenyl)propan-1-one (other names: 3-MMC; 3-methylmethcathinone)"
+  },
+  {
+   "fr_doc": "2023-27243",
+   "fr_date": "2023-12-12",
+   "dea_code": "7090",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Methyl 3,3-dimethyl-2-(1-(pent-4-en-1-yl)-1H-indazole-3- carboxamido)butanoate, its optica",
+   "cfr_name": "Methyl 3,3-dimethyl-2-(1-(pent-4-en-1-yl)-1 H -indazole-3-carboxamido)butanoate, its optic"
+  },
+  {
+   "fr_doc": "2023-27243",
+   "fr_date": "2023-12-12",
+   "dea_code": "7091",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Methyl 2-[[1-(4-fluorobutyl)indole-3-carbonyl]amino]-3,3- dimethyl-butanoate, its optical ",
+   "cfr_name": "Methyl 2-[[1-(4-fluorobutyl)indole-3-carbonyl]amino]-3,3-dimethyl-butanoate, its optical a"
+  },
+  {
+   "fr_doc": "2023-27243",
+   "fr_date": "2023-12-12",
+   "dea_code": "7092",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "N-(1-Amino-3,3-dimethyl-1-oxobutan-2-yl)-1-(pent-4-en-1- yl)-1H-indazole-3-carboxamide, it",
+   "cfr_name": "N -(1-Amino-3,3-dimethyl-1-oxobutan-2-yl)-1-(pent-4-en-1-yl)-1 H -indazole-3-carboxamide, "
+  },
+  {
+   "fr_doc": "2023-27243",
+   "fr_date": "2023-12-12",
+   "dea_code": "7093",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "5-Pentyl-2-(2-phenylpropan-2-yl)pyrido[4,3-b]indol-1-one, its optical and geometric isomer",
+   "cfr_name": "5-Pentyl-2-(2-phenylpropan-2-yl)pyrido[4,3-b]indol-1-one, its optical and geometric isomer"
+  },
+  {
+   "fr_doc": "2023-27243",
+   "fr_date": "2023-12-12",
+   "dea_code": "7094",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Ethyl 2-[[1-(5-fluoropentyl)indole-3-carbonyl]amino]-3,3- dimethyl-butanoate, its optical ",
+   "cfr_name": "Ethyl 2-[[1-(5-fluoropentyl)indole-3-carbonyl]amino]-3,3-dimethyl-butanoate, its optical a"
+  },
+  {
+   "fr_doc": "2023-27243",
+   "fr_date": "2023-12-12",
+   "dea_code": "7095",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Methyl 2-(1-(4-fluorobenzyl)-1H-indole-3-carboxamido)-3- methyl butanoate, its optical and",
+   "cfr_name": "Methyl 2-(1-(4-fluorobenzyl)-1 H -indole-3-carboxamido)-3-methyl butanoate, its optical an"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9864",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "alpha'-Methyl butyryl fentanyl (2-methyl-N-(1- phenethylpiperidin-4-yl)-N-phenylbutanamide",
+   "cfr_name": "alpha\u2032 -Methyl butyryl fentanyl (2-methyl- N -(1-phenethylpiperidin-4-yl)- N -phenylbutana"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9861",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "2',5'-Dimethoxyfentanyl (N-(1-(2,5- dimethoxyphenethyl)piperidin-4-yl)-N-phenylpropionamid",
+   "cfr_name": "2\u2032,5\u2032-Dimethoxyfentanyl ( N -(1-(2,5-dimethoxyphenethyl)piperidin-4-yl)- N -phenylpropiona"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9860",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "3-Furanyl fentanyl (N-(1-phenethylpiperidin-4-yl)-N- phenylfuran-3-carboxamide)",
+   "cfr_name": "3-Furanyl fentanyl ( N -(1-phenethylpiperidin-4-yl)- N -phenylfuran-3-carboxamide)"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9862",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "Isovaleryl fentanyl (3-methyl-N-(1-phenethylpiperidin-4-yl)- N-phenylbutanamide)",
+   "cfr_name": "Isovaleryl fentanyl (3-methyl- N -(1-phenethylpiperidin-4-yl)- N- phenylbutanamide)"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9857",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "meta-Fluorofentanyl (N-(3-fluorophenyl)-N-(1- phenethylpiperidin-4-yl)propionamide)",
+   "cfr_name": "meta -Fluorofentanyl (N -(3-fluorophenyl)- N -(1-phenethylpiperidin-4-yl)propionamide)"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9858",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "meta-Fluoroisobutyryl fentanyl (N-(3-fluorophenyl)-N-(1- phenethylpiperidin-4-yl)isobutyra",
+   "cfr_name": "meta -Fluoroisobutyryl fentanyl ( N -(3-fluorophenyl)- N -(1-phenethylpiperidin-4-yl)isobu"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9863",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "ortho-Fluorofuranyl fentanyl (N-(2-fluorophenyl)-N-(1- phenethylpiperidin-4-yl)furan-2-car",
+   "cfr_name": "ortho -Fluorofuranyl fentanyl ( N -(2-fluorophenyl)- N -(1-phenethylpiperidin-4-yl)furan-2"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9859",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "para-Methoxyfuranyl fentanyl (N-(4-methoxyphenyl)-N-(1- phenethylpiperidin-4-yl)furan-2-ca",
+   "cfr_name": "para -Methoxyfuranyl fentanyl ( N -(4-methoxyphenyl)- N -(1-phenethylpiperidin-4-yl)furan-"
+  },
+  {
+   "fr_doc": "2023-26694",
+   "fr_date": "2023-12-07",
+   "dea_code": "9865",
+   "in_cfr_2025": true,
+   "name_prefix_equal": true,
+   "fr_name": "para-Methylcyclopropyl fentanyl (N-(4-methylphenyl)-N-(1- phenethylpiperidin-4-yl)cyclopro",
+   "cfr_name": "para -Methylcyclopropyl fentanyl ( N -(4-methylphenyl)- N -(1-phenethylpiperidin-4-yl)cycl"
+  }
+ ],
+ "ca_status": 200,
+ "ca_last_amended": "2026-10-01",
+ "ca_items": 447,
+ "ca_items_by_schedule": {
+  "I": 211,
+  "II": 46,
+  "III": 45,
+  "IV": 145,
+  "V": 0
+ },
+ "ca_cas_pattern_hits": 0,
+ "uk_status": 200,
+ "uk_modified": "2025-01-18",
+ "uk_items": 414,
+ "uk_items_by_class": {
+  "A": 180,
+  "B": 51,
+  "C": 183
+ },
+ "uk_cas_pattern_hits": 0,
+ "us_uk_name_matches": "154/418",
+ "us_ca_name_matches": "169/418",
+ "pubchem_resolution": {
+  "us": {
+   "sampled": 15,
+   "resolved_cid": 6,
+   "with_cas": 6,
+   "rows": [
+    {
+     "name": "Acetyl- alpha -methylfentanyl ( N -[1-(1-methyl-2-phenethyl)-4-piperidinyl]- N -",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Dextromoramide",
+     "cid": 92943,
+     "cas": [
+      "357-56-2",
+      "13013-15-5"
+     ]
+    },
+    {
+     "name": "meta -Fluoroisobutyryl fentanyl ( N -(3-fluorophenyl)- N -(1-phenethylpiperidin-",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "para -Methylcyclopropyl fentanyl ( N -(4-methylphenyl)- N -(1-phenethylpiperidin",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Dihydromorphine",
+     "cid": 5359421,
+     "cas": [
+      "509-60-4"
+     ]
+    },
+    {
+     "name": "3,4,5-trimethoxy amphetamine",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "2-(2,5-Dimethoxyphenyl)ethanamine (2C-H)",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "4\u2032-Chloro- alpha -pyrrolidinovalerophenone (Other names: 4-chloro-\u03b1-PVP; 4\u2032-chlo",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "1-pentyl-3-[1-(4-methoxynaphthoyl)]indole (JWH-081)",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "(i) Codeine",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Levo-alphacetylmethadol",
+     "cid": 15130,
+     "cas": [
+      "1477-40-3",
+      "34433-66-4"
+     ]
+    },
+    {
+     "name": "Nabilone",
+     "cid": 5284592,
+     "cas": [
+      "51022-71-0",
+      "61617-09-2"
+     ]
+    },
+    {
+     "name": "Tiletamine and zolazepam or any salt thereof",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Dichloralphenazone",
+     "cid": 10188,
+     "cas": [
+      "480-30-8"
+     ]
+    },
+    {
+     "name": "Phenobarbital",
+     "cid": 4763,
+     "cas": [
+      "50-06-6"
+     ]
+    }
+   ]
+  },
+  "ca": {
+   "sampled": 15,
+   "resolved_cid": 10,
+   "with_cas": 10,
+   "rows": [
+    {
+     "name": "Opium Poppy",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Oxycodone",
+     "cid": 5284603,
+     "cas": [
+      "76-42-6"
+     ]
+    },
+    {
+     "name": "Diphenoxylate",
+     "cid": 13505,
+     "cas": [
+      "915-30-0"
+     ]
+    },
+    {
+     "name": "Normethadone",
+     "cid": 10090,
+     "cas": [
+      "467-85-6"
+     ]
+    },
+    {
+     "name": "Levophenacylmorphan",
+     "cid": 5362482,
+     "cas": [
+      "10061-32-2"
+     ]
+    },
+    {
+     "name": "Fentanyls",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "5-methoxy-3",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "U-77891",
+     "cid": 117071705,
+     "cas": [
+      "119878-31-8"
+     ]
+    },
+    {
+     "name": "1-",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "3",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Lefetamine",
+     "cid": 443970,
+     "cas": [
+      "7262-75-1"
+     ]
+    },
+    {
+     "name": "Propallylonal",
+     "cid": 11020,
+     "cas": [
+      "545-93-7"
+     ]
+    },
+    {
+     "name": "Ethinamate",
+     "cid": 3284,
+     "cas": [
+      "126-52-3"
+     ]
+    },
+    {
+     "name": "Nitrazepam",
+     "cid": 4506,
+     "cas": [
+      "146-22-5"
+     ]
+    },
+    {
+     "name": "Calusterone",
+     "cid": 28204,
+     "cas": [
+      "17021-26-0"
+     ]
+    }
+   ]
+  },
+  "uk": {
+   "sampled": 15,
+   "resolved_cid": 13,
+   "with_cas": 13,
+   "rows": [
+    {
+     "name": "Acetorphine",
+     "cid": 20055090,
+     "cas": [
+      "25333-77-1"
+     ]
+    },
+    {
+     "name": "Diamorphine",
+     "cid": 5462328,
+     "cas": [
+      "561-27-3"
+     ]
+    },
+    {
+     "name": "Hydromorphinol",
+     "cid": 5463858,
+     "cas": [
+      "2183-56-4"
+     ]
+    },
+    {
+     "name": "Nicomorphine",
+     "cid": 5362460,
+     "cas": [
+      "639-48-5"
+     ]
+    },
+    {
+     "name": "Racemorphan",
+     "cid": 3918,
+     "cas": [
+      "297-90-5"
+     ]
+    },
+    {
+     "name": "N-Hydroxy-tenamphetamine",
+     "cid": null,
+     "cas": []
+    },
+    {
+     "name": "Dimethyl",
+     "cid": 6324,
+     "cas": [
+      "74-84-0"
+     ]
+    },
+    {
+     "name": "Dihydrocodeine",
+     "cid": 5284543,
+     "cas": [
+      "125-28-0"
+     ]
+    },
+    {
+     "name": "Phenmetrazine",
+     "cid": 4762,
+     "cas": [
+      "134-49-6",
+      "57919-12-7"
+     ]
+    },
+    {
+     "name": "Camazepam",
+     "cid": 37367,
+     "cas": [
+      "36104-80-0"
+     ]
+    },
+    {
+     "name": "Ethyl loflazepate",
+     "cid": 3299,
+     "cas": [
+      "29177-84-2"
+     ]
+    },
+    {
+     "name": "Medazepam",
+     "cid": 4041,
+     "cas": [
+      "2898-12-6"
+     ]
+    },
+    {
+     "name": "Temazepam",
+     "cid": 5391,
+     "cas": [
+      "846-50-4"
+     ]
+    },
+    {
+     "name": "Clostebol",
+     "cid": 68947,
+     "cas": [
+      "1093-58-9"
+     ]
+    },
+    {
+     "name": "19-Nor-4-Androstene-3",
+     "cid": null,
+     "cas": []
+    }
+   ]
+  }
+ },
+ "us_uk_pairs_checked": [
+  {
+   "us_name": "Acetorphine",
+   "uk_name": "Acetorphine",
+   "us_cid": 20055090,
+   "uk_cid": 20055090,
+   "same_cid": true,
+   "cas": [
+    "25333-77-1"
+   ]
+  },
+  {
+   "us_name": "Acetyldihydrocodeine",
+   "uk_name": "Acetyldihydrocodeine",
+   "us_cid": 5463874,
+   "uk_cid": 5463874,
+   "same_cid": true,
+   "cas": [
+    "3861-72-1"
+   ]
+  },
+  {
+   "us_name": "Alfentanil",
+   "uk_name": "Alfentanil",
+   "us_cid": 51263,
+   "uk_cid": 51263,
+   "same_cid": true,
+   "cas": [
+    "71195-58-9"
+   ]
+  },
+  {
+   "us_name": "Allylprodine",
+   "uk_name": "Allylprodine",
+   "us_cid": 32938,
+   "uk_cid": 32938,
+   "same_cid": true,
+   "cas": [
+    "25384-17-2"
+   ]
+  },
+  {
+   "us_name": "Alphacetylmethadol (except levo -alphacetylmethadol also kno",
+   "uk_name": "Alphacetylmethadol",
+   "us_cid": 22308,
+   "uk_cid": 22308,
+   "same_cid": true,
+   "cas": [
+    "17199-58-5"
+   ]
+  },
+  {
+   "us_name": "Alphameprodine",
+   "uk_name": "Alphameprodine",
+   "us_cid": 61119,
+   "uk_cid": 61119,
+   "same_cid": true,
+   "cas": [
+    "468-51-9"
+   ]
+  },
+  {
+   "us_name": "Alphamethadol",
+   "uk_name": "Alphamethadol",
+   "us_cid": 62709,
+   "uk_cid": 62709,
+   "same_cid": true,
+   "cas": [
+    "17199-54-1"
+   ]
+  },
+  {
+   "us_name": "Alphaprodine",
+   "uk_name": "Alphaprodine",
+   "us_cid": 120738,
+   "uk_cid": 120738,
+   "same_cid": true,
+   "cas": [
+    "77-20-3"
+   ]
+  },
+  {
+   "us_name": "Alprazolam",
+   "uk_name": "Alprazolam",
+   "us_cid": 2118,
+   "uk_cid": 2118,
+   "same_cid": true,
+   "cas": [
+    "28981-97-7"
+   ]
+  },
+  {
+   "us_name": "Aminorex (Some other names: aminoxaphen; 2-amino-5-phenyl-2-",
+   "uk_name": "Aminorex",
+   "us_cid": 16630,
+   "uk_cid": 16630,
+   "same_cid": true,
+   "cas": [
+    "2207-50-3"
+   ]
+  }
+ ],
+ "us_uk_pairs_same_cid": "10/10"
+}

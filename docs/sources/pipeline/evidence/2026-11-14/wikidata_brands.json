@@ -1,0 +1,695 @@
+{
+ "measured": "2026-11-14",
+ "energystar_http": 200,
+ "energystar_models_total": 1374,
+ "energystar_brands_total": 73,
+ "top50_models_covered": 1334,
+ "top50_resolved_exact_label": "29/50",
+ "top50_with_owner_parent_or_manufacturer": "3/50",
+ "errors": 0,
+ "by_brand": {
+  "Rheem": {
+   "items": [
+    "Q7320324",
+    "Q37087767",
+    "Q7320325",
+    "Q7320326"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q17343829",
+    "Q4830453",
+    "Q486972"
+   ]
+  },
+  "A. O. Smith": {
+   "items": [
+    "Q4648219",
+    "Q109007303"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q4830453",
+    "Q5",
+    "Q891723"
+   ]
+  },
+  "Ruud": {
+   "items": [
+    "Q19831822",
+    "Q30080388"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q1130279",
+    "Q12308941"
+   ]
+  },
+  "State": {
+   "items": [
+    "Q7275",
+    "Q37234491"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q15617994",
+    "Q211606"
+   ]
+  },
+  "Richmond": {
+   "items": [
+    "Q43421",
+    "Q1009324",
+    "Q2500974",
+    "Q548664",
+    "Q16882071",
+    "Q3407391",
+    "Q19968319",
+    "Q139694",
+    "Q1184885"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q1093829",
+    "Q1115575",
+    "Q12308941",
+    "Q1266818",
+    "Q141162078",
+    "Q1549591",
+    "Q18511725",
+    "Q188509",
+    "Q2755753",
+    "Q27676416",
+    "Q3957",
+    "Q62049",
+    "Q98433835"
+   ]
+  },
+  "American": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "RELIANCE WATER HEATERS": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Lochinvar": {
+   "items": [
+    "Q1272485",
+    "Q3835990",
+    "Q6665121",
+    "Q6665122",
+    "Q31943258",
+    "Q83668691",
+    "Q117321491",
+    "Q123627911"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q1655611",
+    "Q188509",
+    "Q190107",
+    "Q23397",
+    "Q24862",
+    "Q26817508",
+    "Q3257686",
+    "Q7725634",
+    "Q820477"
+   ]
+  },
+  "Friedrich": {
+   "items": [
+    "Q14038597",
+    "Q14038466",
+    "Q1457974"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q12308941",
+    "Q5",
+    "Q98775491"
+   ]
+  },
+  "Midea": {
+   "items": [
+    "Q4639608",
+    "Q2609533",
+    "Q502897",
+    "Q16607057",
+    "Q30928877",
+    "Q21590229"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q15661340",
+    "Q16521",
+    "Q26214208",
+    "Q3346693",
+    "Q4830453",
+    "Q486972",
+    "Q6881511",
+    "Q839954",
+    "Q891723"
+   ]
+  },
+  "GSW WATER HEATERS": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Noritz": {
+   "items": [
+    "Q11325939"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q4830453"
+   ]
+  },
+  "Rinnai": {
+   "items": [
+    "Q795243",
+    "Q26813541"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q39816",
+    "Q4830453",
+    "Q6881511",
+    "Q891723"
+   ]
+  },
+  "Bradford White": {
+   "items": [
+    "Q4954778"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q4830453"
+   ]
+  },
+  "GE Profile": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "John Wood": {
+   "items": [
+    "Q1181231",
+    "Q1987620",
+    "Q18601675",
+    "Q2729966",
+    "Q108162227",
+    "Q2730600",
+    "Q2729653",
+    "Q110700067",
+    "Q2729993",
+    "Q2730699"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q22808320",
+    "Q5"
+   ]
+  },
+  "Takagi": {
+   "items": [
+    "Q61121282",
+    "Q708090",
+    "Q24090425",
+    "Q1203939",
+    "Q3979547",
+    "Q15520497",
+    "Q27156134",
+    "Q763739",
+    "Q106572898",
+    "Q11584136"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q18663566",
+    "Q19914123",
+    "Q2367508",
+    "Q3863",
+    "Q4174776",
+    "Q486972",
+    "Q5"
+   ]
+  },
+  "Giant": {
+   "items": [
+    "Q3707571",
+    "Q340069",
+    "Q834328",
+    "Q124272845",
+    "Q12581137"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q1107679",
+    "Q3742928",
+    "Q482994",
+    "Q5",
+    "Q82821"
+   ]
+  },
+  "VAUGHN THERMAL": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "LG": {
+   "items": [
+    "Q33368"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q1288568",
+    "Q33742"
+   ]
+  },
+  "Bosch": {
+   "items": [
+    "Q15789461",
+    "Q130531",
+    "Q109462412",
+    "Q234021",
+    "Q3438551",
+    "Q16844915",
+    "Q4421"
+   ],
+   "owner_P127": [
+    "Q319347",
+    "Q41638066",
+    "Q91906999",
+    "Q91908053"
+   ],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q125824188",
+    "Q137022846",
+    "Q151885",
+    "Q161726",
+    "Q17143070",
+    "Q1714800",
+    "Q2083910",
+    "Q4830453",
+    "Q5",
+    "Q5398426",
+    "Q641347",
+    "Q778575"
+   ]
+  },
+  "Vesta": {
+   "items": [
+    "Q3030",
+    "Q178710",
+    "Q25114526",
+    "Q71457177",
+    "Q19600807",
+    "Q37306545",
+    "Q74820954",
+    "Q47502820",
+    "Q95742196"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [
+    "Q37156"
+   ],
+   "instance_of_P31": [
+    "Q101352",
+    "Q11688446",
+    "Q11879590",
+    "Q121117",
+    "Q16521",
+    "Q3863",
+    "Q5",
+    "Q7889"
+   ]
+  },
+  "Navien": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Laars": {
+   "items": [
+    "Q190868",
+    "Q130397098"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352"
+   ]
+  },
+  "Ariston": {
+   "items": [
+    "Q2861405",
+    "Q63346646",
+    "Q65097155",
+    "Q3622704",
+    "Q1059709",
+    "Q11906545",
+    "Q22121619",
+    "Q21874839"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q12308941",
+    "Q16521",
+    "Q18127",
+    "Q4830453",
+    "Q5",
+    "Q6881511"
+   ]
+  },
+  "SAMMLER": {
+   "items": [
+    "Q108489192",
+    "Q28833446",
+    "Q3243461",
+    "Q78847256"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q12737077",
+    "Q214339",
+    "Q5"
+   ]
+  },
+  "Elios": {
+   "items": [
+    "Q43382346",
+    "Q102282919"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q12308941",
+    "Q5"
+   ]
+  },
+  "Solahart": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Kiturami": {
+   "items": [
+    "Q12586194"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q4830453"
+   ]
+  },
+  "AET": {
+   "items": [
+    "Q136655210",
+    "Q18712717"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q43229",
+    "Q5074440",
+    "Q5341295",
+    "Q60740677"
+   ]
+  },
+  "SANCO2": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "JETGLAS": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "HTP": {
+   "items": [
+    "Q28657989",
+    "Q1967862",
+    "Q5754751",
+    "Q5636120"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q1976594",
+    "Q2424752",
+    "Q43229",
+    "Q482994"
+   ]
+  },
+  "Heliodyne": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Kepler": {
+   "items": [
+    "Q16277846",
+    "Q54353399",
+    "Q16467597",
+    "Q8963",
+    "Q136323"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q202444",
+    "Q3863",
+    "Q482994",
+    "Q5"
+   ]
+  },
+  "U.S. Craftmaster": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Eco-Logical": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "GREENoneTEC": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Universal Solar Products": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Senville": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "JUNSKY, CAMPLUX, GASLAND, ThermoMate": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Hubbell": {
+   "items": [
+    "Q16870911",
+    "Q122063781",
+    "Q955023",
+    "Q3291431",
+    "Q22030575"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q17343829",
+    "Q202444",
+    "Q498162",
+    "Q751708"
+   ]
+  },
+  "AMERICAN STANDARD WATER HEATERS": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Envirosense": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "stream33": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "Lennox": {
+   "items": [
+    "Q37496487",
+    "Q20000065",
+    "Q53740898",
+    "Q1551721",
+    "Q3243599",
+    "Q64145662"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q1093829",
+    "Q12308941",
+    "Q3375722",
+    "Q498162",
+    "Q5"
+   ]
+  },
+  "NOVAIR": {
+   "items": [
+    "Q1811322",
+    "Q104879873",
+    "Q134667281"
+   ],
+   "owner_P127": [],
+   "parent_P749": [
+    "Q684355"
+   ],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q43229",
+    "Q46970"
+   ]
+  },
+  "Dimas": {
+   "items": [
+    "Q42314949",
+    "Q49912664",
+    "Q19611164",
+    "Q134481603"
+   ],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": [
+    "Q101352",
+    "Q12308941",
+    "Q20202352",
+    "Q327333"
+   ]
+  },
+  "Smart Solar": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  },
+  "SunEarth": {
+   "items": [],
+   "owner_P127": [],
+   "parent_P749": [],
+   "manufacturer_P176": [],
+   "instance_of_P31": []
+  }
+ }
+}

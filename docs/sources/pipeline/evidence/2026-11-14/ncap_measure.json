@@ -1,0 +1,175 @@
+{
+ "measured_on": "2026-11-14",
+ "nhtsa_ncap_api": {
+  "makes_2024": 42,
+  "makes_2025": 38,
+  "makes_2026": 38,
+  "models_2024_by_sample_make": {
+   "TOYOTA": 30,
+   "FORD": 35,
+   "HONDA": 14,
+   "HYUNDAI": 18,
+   "TESLA": 6
+  },
+  "variants_2024_first4models_sample": 30,
+  "detail_sampled": 12,
+  "detail_fields": [
+   "ComplaintsCount",
+   "FrontCrashDriversideRating",
+   "FrontCrashPassengersideRating",
+   "FrontCrashPicture",
+   "FrontCrashVideo",
+   "InvestigationCount",
+   "Make",
+   "Model",
+   "ModelYear",
+   "NHTSAElectronicStabilityControl",
+   "NHTSAForwardCollisionWarning",
+   "NHTSALaneDepartureWarning",
+   "OverallFrontCrashRating",
+   "OverallRating",
+   "OverallSideCrashRating",
+   "RecallsCount",
+   "RolloverPossibility",
+   "RolloverPossibility2",
+   "RolloverRating",
+   "RolloverRating2",
+   "SideCrashDriversideRating",
+   "SideCrashPassengersideRating",
+   "SideCrashPicture",
+   "SideCrashVideo",
+   "SidePoleCrashRating",
+   "SidePolePicture",
+   "SidePoleVideo",
+   "VehicleDescription",
+   "VehicleId",
+   "combinedSideBarrierAndPoleRating-Front",
+   "combinedSideBarrierAndPoleRating-Rear",
+   "dynamicTipResult",
+   "sideBarrierRating-Overall"
+  ],
+  "fill_overall_rating_not_rated": 2,
+  "fill_complaints_recalls_investigations": 12,
+  "sample_vehicle_ids": [
+   19441,
+   19440,
+   19464,
+   19463,
+   19427,
+   19426,
+   19428,
+   19107,
+   19106,
+   19108,
+   19110,
+   19109
+  ],
+  "nrd_test_numbers_cited": [
+   7755,
+   8647,
+   8648,
+   10146,
+   10649,
+   10652,
+   10653,
+   11395,
+   11397,
+   11597,
+   14065,
+   15009,
+   15010,
+   15047
+  ],
+  "free_text_fields": "none: every field is a coded rating, count, flag or media URL"
+ },
+ "nhtsa_nrd_api": {
+  "tests_resolved": "6/6",
+  "with_report_pdf": 6,
+  "rows": [
+   {
+    "tstno": 7755,
+    "title_has_NCAP": true,
+    "test_date": "2012-03-15 00:00:00",
+    "reports": 2,
+    "photos": 79
+   },
+   {
+    "tstno": 8647,
+    "title_has_NCAP": true,
+    "test_date": "2014-04-15 00:00:00",
+    "reports": 1,
+    "photos": 107
+   },
+   {
+    "tstno": 8648,
+    "title_has_NCAP": true,
+    "test_date": "2014-04-16 00:00:00",
+    "reports": 1,
+    "photos": 73
+   },
+   {
+    "tstno": 10146,
+    "title_has_NCAP": true,
+    "test_date": "2017-10-03 00:00:00",
+    "reports": 1,
+    "photos": 81
+   },
+   {
+    "tstno": 10649,
+    "title_has_NCAP": false,
+    "test_date": "2019-01-10 00:00:00",
+    "reports": 1,
+    "photos": 72
+   },
+   {
+    "tstno": 10652,
+    "title_has_NCAP": false,
+    "test_date": "2019-01-11 00:00:00",
+    "reports": 1,
+    "photos": 80
+   }
+  ],
+  "note": "nrd.nhtsa.dot.gov (HTML query site) failed CONNECT 502 from this egress on 2026-11-14; the nrd.api host answered"
+ },
+ "nhtsa_vpic": {
+  "http": 200,
+  "toyota_2024_models": 22,
+  "ncap_toyota_2024_models_exact_name_in_vpic": "15/30"
+ },
+ "euro_ncap": {
+  "sitemap_http": 200,
+  "sitemap_urls": 638,
+  "assessment_urls": 505,
+  "robots_disallow_api": true,
+  "terms_http": 200,
+  "terms_quote": "untry Copyright This site and its content are subject to the copyright of Euro NCAP. Reproduction is not authorised for commercial purposes. Prior permission from Euro NCAP must be obtained for the reproduction or use of textual and multimedia information (videos, pictures, illu"
+ },
+ "ancap": {
+  "terms_http": 200,
+  "quote_automated": "conduct any systematic or automated data collection activities",
+  "quote_commercial": "3 You must not: (a) reproduce or exploit any Content on this Platform for commercial purpose; (b) edit or otherwise modify any Content on the Platform; or (c) redistribute any Content from this Platform unless we expressly permitted"
+ },
+ "latin_ncap": {
+  "terms_http": 200,
+  "quote": "Any reproduction, distribution, public communication, or editing\u2014whether in whole or in part\u2014for commercial or advertising purposes is prohibited, as is any use not expressly authorized by Latin NCAP. T"
+ },
+ "iihs_api": {
+  "terms_http": 200,
+  "unauthenticated_ratings_call_http": 200,
+  "unauthenticated_ratings_call_final_url": "https://api.iihs.org/Account/Login?ReturnUrl=%2FV4%2Fratings%2Fmodelyears",
+  "unauthenticated_ratings_call_is_json": false,
+  "quote_key": "ate whether you agree to the terms of this agreement and to submit an application for an API key",
+  "quote_sell": "You will not sublicense (except as expressly provided herein), sell, lease, share, transfer, or make any other use of any IIHS Materials (including \"service bureau\" use), whether for direct commercial or monetary gain or otherwise, without IIHS' prior,"
+ },
+ "transport_canada_open_data": {
+  "http": 200,
+  "hits": 53,
+  "orgs": [
+   "cfia-acia",
+   "phac-aspc",
+   "nrcan-rncan",
+   "ec",
+   "hc-sc"
+  ]
+ }
+}
