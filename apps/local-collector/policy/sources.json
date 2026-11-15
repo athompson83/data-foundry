@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "702417269b3b093e0e5ff5ae410f2875a3a5115bd6f05624c082d80a1a5d81a2",
+  "registry_sha256": "73cddb1bb59a1cbbb46059b47ae09afc08f60197446450f67b25f1bc9ee96b91",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -758,15 +758,6 @@
         "fcomp-health-canada-cnf",
         "fcomp-fsanz-afcd",
         "fcomp-uk-cofid"
-      ]
-    },
-    "animal-disease-outbreaks": {
-      "name": "Animal disease outbreaks (EU ADIS, Netherlands Rijksoverheid, GOV.UK England case notices)",
-      "stage": "SCREENED",
-      "sources": [
-        "ahd-eu-adis-outbreak-reports",
-        "ahd-rijksoverheid-hpai-culls",
-        "ahd-gov-uk-animal-disease-cases"
       ]
     },
     "geographical-indications": {

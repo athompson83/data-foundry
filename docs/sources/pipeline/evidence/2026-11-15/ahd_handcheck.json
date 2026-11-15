@@ -84,5 +84,6 @@
     "note": "Maasland is the former municipality (now Midden-Delfland) that ADIS still uses"
    }
   ]
- }
+ },
+ "review_note": "Codex review on PR #88: these verdicts establish municipality-and-period agreement, not outbreak identity, so they are not counted as confirmed links and animal-disease-outbreaks is recorded as screened, not added."
 }
