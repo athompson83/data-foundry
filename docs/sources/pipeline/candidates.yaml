@@ -10390,248 +10390,248 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
     conditions: [ 'ntc.gov.au closed the connection without a response (HTTP/2 stream reset from curl); no terms were read.' ]
     next_action: 'Measured 2026-11-15: no response from ntc.gov.au. Parked. Next: retry from Worker egress; the ADG Code is a PDF whose dangerous goods list would be a free-text member.'
-    - key: fcomp-usda-fdc-sr-legacy
-      name: "USDA FoodData Central SR Legacy reference foods (CSV bulk, NDB numbers)"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: US USDA Agricultural Research Service (FoodData Central)
-      stage: SCREENED
-      rights: GREEN
-      sources: [ 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip' ]
-      scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 1, low_onboarding_cost: 5, poor_existing_access: 2 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
-      terms:
-        - url: https://fdc.nal.usda.gov/
-          quote: "USDA FoodData Central data are in the public domain and they are not copyrighted. They are published under CC0 1.0 Universal (CC0 1.0)"
-      next_action: 'Measured 2026-11-15: zip 6,074,592 bytes, 7,793 foods each with an NDB_number (sr_legacy_food.csv), 644,125 food_nutrient rows; frozen release (publication_date 2019-04-01, last SR Legacy data 2018-04). It is the hub that CNF (USDA_NDB_Code) and AFCD (cited FDC ID) point at. Next: archive the zip in R2; load nutrient.csv to map nutrient ids across CNF and AFCD nutrient codes.'
-    - key: fcomp-usda-fdc-foundation
-      name: "USDA FoodData Central Foundation Foods (analytical reference foods with sample metadata)"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: US USDA Agricultural Research Service (FoodData Central)
-      stage: SCREENED
-      rights: GREEN
-      sources: [ 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_json_2026-10-29.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2026-10-29.zip' ]
-      scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
-      terms:
-        - url: https://fdc.nal.usda.gov/
-          quote: "USDA FoodData Central data are in the public domain and they are not copyrighted. They are published under CC0 1.0 Universal (CC0 1.0)"
-      next_action: 'Measured 2026-11-15: 2026-10-29 release (zip Last-Modified 2026-10-28). JSON: 424 foods, all with ndbNumber, 22,138 food nutrients; 212 NDB numbers also in SR Legacy. The CSV zip of the same release has no food.csv or food_nutrient.csv (only foundation_food.csv: 424 rows, 82 non-empty footnotes, and 7,607 market_acquisition sample rows), so use the JSON. Next: confirm the CSV omission against the next release; read sample metadata (acquisition and lab method) into per-fact provenance.'
-    - key: fcomp-health-canada-cnf
-      name: "Health Canada Canadian Nutrient File 2026 (open.canada.ca, cites the USDA NDB number)"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: Health Canada
-      stage: SCREENED
-      rights: AMBER
-      sources: [ 'https://open.canada.ca/data/dataset/1b6139bd-ed7e-4043-bc28-ff00e10f3109/resource/e1ffee62-58cb-4e3e-b359-115c658388ad/download/food_name.csv', 'https://open.canada.ca/data/dataset/1b6139bd-ed7e-4043-bc28-ff00e10f3109/resource/019f2a90-e3a9-489d-b6e1-f74f4ba1d006/download/cnf_fcen_all-files-data_2026.zip' ]
-      scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
-      terms:
-        - url: https://open.canada.ca/en/open-government-licence-canada
-          quote: "You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose."
-      conditions:
-        - "Attribute Health Canada (Canadian Nutrient File 2026) and link the Open Government Licence - Canada, as the licence requires."
-        - "Serve the open.canada.ca release (licence_id ca-ogl-lgo), not the canada.ca web pages, whose terms forbid commercial redistribution."
-      next_action: 'Measured 2026-11-15: package "Canadian Nutrient File, 2026" (ca-ogl-lgo, 14 resources, metadata modified 2026-10-04). food_name.csv: 5,993 foods, newest Food_Last_Updated_Date 2026-02-11 (3,383 updated in 2026), 4,798 carry USDA_NDB_Code, 497 carry a Comment_EN note. Declared join to SR Legacy 4,615/4,798. Next: load nutrient_amount.csv and map CNF NutrientID to FDC nutrient numbers; keep the French descriptions.'
-    - key: fcomp-fsanz-afcd
-      name: "FSANZ Australian Food Composition Database Release 3 (food details with sampling prose)"
-      category: food
-      structuring: identifier-extraction
-      format: free-text
-      publisher: Food Standards Australia New Zealand
-      stage: SCREENED
-      rights: AMBER
-      sources: [ 'https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Food%20Details.xlsx', 'https://www.foodstandards.gov.au/science-data/food-nutrient-databases/afcd/data-files' ]
-      scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 4 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
-      terms:
-        - url: https://www.foodstandards.gov.au/legal-policies/copyright
-          quote: "Unless expressly noted otherwise, material presented on this website is provided under a Creative Commons Attribution 4.0 Australia (CC BY 4.0) licence, except for: the Food Standards Australia New Zealand logo; and third party material."
-      conditions:
-        - "Attribute as '© Food Standards Australia New Zealand' under CC BY 4.0 and indicate changes."
-        - "Values AFCD borrowed from other databases (Derivation 'Borrowed', 78 foods) keep the cited origin; borrowed USDA values are CC0, other third-party material is excluded until its licence is read."
-      next_action: 'Measured 2026-11-15: data-files page (last updated 23 December 2025) lists 6 Release 3 xlsx files and a PDF. Food Details: 1,588 foods; Derivation Analysed 1,046, Recipe 417, Borrowed 78, Imputed 29, Estimated 9, Label Data 9; every food has Sampling Details prose (mean 448 chars); 248 mention USDA and 221 foods cite 232 "FDC ID" numbers, 214 of which resolve to an FDC fdc_id and 12 more are SR NDB numbers mislabelled as FDC ID. Next: load Nutrient profiles.xlsx; extract sample counts, purchase locations and analysis years from the prose deterministically.'
-    - key: fcomp-uk-cofid
-      name: "UK McCance and Widdowson's Composition of Foods Integrated Dataset 2021 (CoFID, GOV.UK xlsx)"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: Public Health England (now OHID), GOV.UK
-      stage: SCREENED
-      rights: AMBER
-      sources: [ 'https://assets.publishing.service.gov.uk/media/60538b91e90e07527df82ae4/McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx', 'https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid' ]
-      scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
-      terms:
-        - url: https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid
-          quote: "All content is available under the Open Government Licence v3.0, except where otherwise stated"
-      conditions:
-        - "Attribute Public Health England / McCance and Widdowson's CoFID 2021 under the Open Government Licence v3.0."
-        - "Read the user guide's data-reference appendix before publishing values whose Main data references cite third-party literature tables."
-      next_action: 'Measured 2026-11-15: GOV.UK page last updated 19 March 2021. Proximates sheet: 2,887 foods with Food Code, Description and Main data references (2,886 non-empty prose citations, 26 cite USDA SR, 0 cite an NDB or FDC number), 12 footnotes; 15 sheets in the workbook. Candidate name match to SR Legacy for the 26 USDA-citing foods: 10/20 correct on hand-check. Next: confirm the licence statement inside the workbook; parse Main data references into source tags.'
-    - key: fcomp-anses-ciqual
-      name: "ANSES CIQUAL French food composition table 2020"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: ANSES (France)
-      stage: PARKED
-      rights: AMBER
-      sources: [ 'https://www.data.gouv.fr/api/1/datasets/5369a15fa3a729239d2065b7/', 'https://ciqual.anses.fr/cms/sites/default/files/inline-files/XML_2020_07_07.zip' ]
-      scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
-      next_action: 'Measured 2026-11-15: the data.gouv.fr record lists licence fr-lo (Licence Ouverte), last modified 2025-11-20, but every resource points at ciqual.anses.fr, which answered 503 (site and XML zip). Licence text not read. Next: retry the ANSES download and read the Licence Ouverte terms before screening.'
-    - key: fcomp-nz-foodfiles
-      name: "New Zealand FOODfiles food composition database"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: New Zealand Institute for Bioeconomy Science and Ministry of Health (NZ)
-      stage: PARKED
-      rights: AMBER
-      sources: [ 'https://www.foodcomposition.co.nz/foodfiles/', 'https://www.foodcomposition.co.nz/terms/' ]
-      scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
-      terms:
-        - url: https://www.foodcomposition.co.nz/terms/
-          quote: "Other than as expressly set out in these terms of use, you may not reproduce any of our intellectual property, in whole or in part, without our prior specific written permission."
-        - url: https://www.foodcomposition.co.nz/terms/
-          quote: "We grant you a worldwide, non-exclusive, non-transferable, royalty free, right to access and use the FOODfiles™ Data subject to the following conditions: You must not modify any part of the FOODfiles™ Data;"
-      next_action: 'Measured 2026-11-15: downloads are Windows .msi installers and a PDF manual only; the licence requires the data to be presented "in its original and unaltered form", which conflicts with normalisation. Parked. Next: none unless a modifiable open release appears.'
-    - key: fcomp-dtu-frida
-      name: "DTU Food Frida Danish food composition database"
-      category: food
-      structuring: normalization
-      format: structured
-      publisher: Technical University of Denmark (DTU Food)
-      stage: PARKED
-      rights: UNKNOWN
-      sources: [ 'https://frida.fooddata.dk/' ]
-      scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
-      next_action: 'Measured 2026-11-15: frida.fooddata.dk redirects to fcdb.fooddata.dk, a 2,392-byte JavaScript app shell ("Loading..."); no bulk download link or licence text visible without running the app. Next: find a documented download and its licence.'
-    - key: ahd-gov-uk-animal-disease-cases
-      name: "GOV.UK animal disease cases in England (Defra/APHA case notices with AIV case numbers)"
-      category: animal-health
-      structuring: event-extraction
-      format: free-text
-      publisher: Defra / Animal and Plant Health Agency (GOV.UK)
-      stage: SCREENED
-      rights: AMBER
-      sources: [ 'https://www.gov.uk/api/search.json?filter_format=animal_disease_case&count=1000', 'https://www.gov.uk/api/content/guidance/bird-flu-avian-influenza-latest-situation-in-england' ]
-      scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
-      terms:
-        - url: https://www.gov.uk/help/terms-conditions
-          quote: "All content is available under the Open Government Licence v3.0, except where otherwise stated"
-      conditions:
-        - "Attribute Defra/APHA and GOV.UK under the Open Government Licence v3.0."
-        - "Publish premises at the 'near <town>, <district>, <county>' level the notices use; never derive or store keeper or owner names."
-      next_action: 'Measured 2026-11-15: search API format animal_disease_case: 350 cases (bird-flu 345, bluetongue 5), 338 titles carry an AIV case number, opened dates 2005-10-18 to 2026-11-12, newest update 2026-11-13, 11 zones in force. 5/5 sampled notices (478-950 chars of prose) state premises type and cite the AIV number; 4/5 state zone radii. The latest-situation page cites 5 AIV numbers and links the Scottish case page for AIV 2026/29. Next: parse premises type, species, confirmation date and zone radii from all 350 bodies; add the Scottish and Welsh case pages once reachable.'
-    - key: ahd-eu-adis-outbreak-reports
-      name: "EU Animal Disease Information System (ADIS) current-year and weekly outbreak reports"
-      category: animal-health
-      structuring: event-extraction
-      format: structured
-      publisher: European Commission DG SANTE (ADIS)
-      stage: SCREENED
-      rights: AMBER
-      sources: [ 'https://webgate.ec.europa.eu/tracesnt/adis/public/notification/outbreaks-current-year-report', 'https://webgate.ec.europa.eu/tracesnt/adis/public/notification/outbreaks-weekly-report' ]
-      scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
-      terms:
-        - url: https://commission.europa.eu/legal-notice_en
-          quote: "Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence"
-      conditions:
-        - "Credit the European Commission (ADIS) and indicate changes, per CC BY 4.0."
-        - "The reports are compiled from member-state notifications on webgate.ec.europa.eu; confirm the EC reuse notice covers that host before redistribution."
-      next_action: 'Measured 2026-11-15: current-year PDF (164 pages, 01/01/2026-11/11/2026, created 2026-11-14) yields 15,910 outbreak references from 38 countries, 334 of them HPAI in poultry; weekly PDF (2026-11-05 to 2026-11-11) yields 234 references. References follow CC-DISEASE-YYYY-NNNNN (e.g. NL-HPAI(P)-2026-00024) with species and smallest administrative division, parsed with a stdlib PDF text decoder. Next: find a per-outbreak export with dates (the PDFs group references and municipalities per country and disease block).'
-    - key: ahd-rijksoverheid-hpai-culls
-      name: "Rijksoverheid (Netherlands) HPAI-infected premises and culls table and outbreak news notices"
-      category: animal-health
-      structuring: event-extraction
-      format: free-text
-      publisher: Government of the Netherlands (Rijksoverheid, ministry LVVN)
-      stage: SCREENED
-      rights: GREEN
-      sources: [ 'https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/vogelgriep/besmettingen-vogelgriep-bij-bedrijven', 'https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/vogelgriep' ]
-      scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
-      terms:
-        - url: https://www.rijksoverheid.nl/service/copyright
-          quote: "Voor deze website geldt de Creative Commons zero-verklaring (CC0 1.0)."
-      next_action: 'Measured 2026-11-15: culling table: 69 dated rows from 2022-07-31 to 2026-11-11 (25 in 2026) with place and culled-animal count; news notices (newest 2026-11-15, Oosterwolde) give place, "gemeente", premises type and bird count in prose (2/2 outbreak notices sampled). Next: extract gemeente, premises type and species from every news notice; map villages to municipalities with a CBS place-name gazetteer before joining to ADIS.'
-    - key: ahd-usda-aphis-hpai-detections
-      name: "USDA APHIS confirmed HPAI detections in commercial and backyard flocks and livestock"
-      category: animal-health
-      structuring: event-extraction
-      format: structured
-      publisher: US USDA Animal and Plant Health Inspection Service
-      stage: PARKED
-      rights: AMBER
-      sources: [ 'https://www.aphis.usda.gov/livestock-poultry-disease/avian/avian-influenza/hpai-detections/commercial-backyard-flocks', 'https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections.csv' ]
-      scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
-      next_action: 'Measured 2026-11-15: the flock and livestock pages embed Tableau dashboards on publicdashboards.dl.usda.gov; the documented ".csv" view export answers 200 but returns only the first worksheet (4 rows of monthly backyard-flock counts, August-November 2026). Per-detection rows (state, county, flock type, date) were not requested through the Tableau session API. APHIS terms not read. Next: find a documented per-detection download (APHIS data page or a USDA open-data listing) before screening.'
-    - key: ahd-cfia-avian-influenza
-      name: "CFIA (Canada) status of ongoing avian influenza response by province"
-      category: animal-health
-      structuring: event-extraction
-      format: free-text
-      publisher: Canadian Food Inspection Agency
-      stage: PARKED
-      rights: RED
-      sources: [ 'https://inspection.canada.ca/en/animal-health/terrestrial-animals/diseases/reportable/avian-influenza/latest-bird-flu-situation/status-province' ]
-      scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
-      terms:
-        - url: https://www.canada.ca/en/transparency/terms.html
-          quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
-      next_action: 'Measured 2026-11-15: the page answers 200 with an HTML table of infected flocks and links the canada.ca terms; open.canada.ca has no CFIA avian influenza dataset (search returned only an Auditor General report). RED under the canada.ca terms. Next: reopen only if CFIA publishes the table on open.canada.ca under the Open Government Licence.'
-    - key: ahd-woah-wahis
-      name: "WOAH World Animal Health Information System (WAHIS) event and outbreak reports"
-      category: animal-health
-      structuring: event-extraction
-      format: structured
-      publisher: World Organisation for Animal Health
-      stage: PARKED
-      rights: RED
-      sources: [ 'https://wahis.woah.org/', 'https://www.woah.org/en/terms-and-conditions/' ]
-      scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
-      terms:
-        - url: https://www.woah.org/en/terms-and-conditions/
-          quote: "Without prior written permission of WOAH it is forbidden: to make any other use than those specified above, including commercial use, of information posted on the Site, to copy, store in a retrieval system, or transmit in any form or by any means the information of the Site to any third party, to use any of data mining, robots, or similar data-gathering and extraction tools."
-      next_action: 'Measured 2026-11-15: wahis.woah.org answers 200 with an app shell; the WAHIS API was not called because the WOAH terms forbid commercial use and data-mining tools. RED. Next: none without written permission from WOAH.'
-    - key: ahd-gov-scot-avian-influenza
-      name: "Scottish Government avian influenza outbreak and case pages (AIV case numbers)"
-      category: animal-health
-      structuring: event-extraction
-      format: free-text
-      publisher: Scottish Government
-      stage: PARKED
-      rights: UNKNOWN
-      sources: [ 'https://www.gov.scot/publications/avian-influenza-outbreaks/' ]
-      scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
-      next_action: 'Measured 2026-11-15: the outbreaks page and the AIV 2026/29 case page (which GOV.UK links) both answered HTTP 202 with an empty body, a bot-challenge response that was not bypassed. Terms not read. It would give a declared join (the UK-wide AIV case number that GOV.UK cites). Next: retry from Worker egress; if it is reachable, measure the GOV.UK-cited AIV numbers against the Scottish case list.'
-    - key: ahd-nz-mpi-biosecurity-responses
-      name: "New Zealand MPI active biosecurity responses (animal disease)"
-      category: animal-health
-      structuring: event-extraction
-      format: free-text
-      publisher: New Zealand Ministry for Primary Industries
-      stage: PARKED
-      rights: UNKNOWN
-      sources: [ 'https://www.mpi.govt.nz/biosecurity/exotic-pests-and-diseases-in-new-zealand/active-biosecurity-responses/' ]
-      scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
-      next_action: 'Measured 2026-11-15: answers with an Incapsula bot-challenge iframe (212 bytes); not bypassed. Terms not read. Next: none until a documented feed or open-data release is found.'
+  - key: fcomp-usda-fdc-sr-legacy
+    name: "USDA FoodData Central SR Legacy reference foods (CSV bulk, NDB numbers)"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: US USDA Agricultural Research Service (FoodData Central)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 1, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
+    terms:
+      - url: https://fdc.nal.usda.gov/
+        quote: "USDA FoodData Central data are in the public domain and they are not copyrighted. They are published under CC0 1.0 Universal (CC0 1.0)"
+    next_action: 'Measured 2026-11-15: zip 6,074,592 bytes, 7,793 foods each with an NDB_number (sr_legacy_food.csv), 644,125 food_nutrient rows; frozen release (publication_date 2019-04-01, last SR Legacy data 2018-04). It is the hub that CNF (USDA_NDB_Code) and AFCD (cited FDC ID) point at. Next: archive the zip in R2; load nutrient.csv to map nutrient ids across CNF and AFCD nutrient codes.'
+  - key: fcomp-usda-fdc-foundation
+    name: "USDA FoodData Central Foundation Foods (analytical reference foods with sample metadata)"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: US USDA Agricultural Research Service (FoodData Central)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_json_2026-10-29.zip', 'https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2026-10-29.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
+    terms:
+      - url: https://fdc.nal.usda.gov/
+        quote: "USDA FoodData Central data are in the public domain and they are not copyrighted. They are published under CC0 1.0 Universal (CC0 1.0)"
+    next_action: 'Measured 2026-11-15: 2026-10-29 release (zip Last-Modified 2026-10-28). JSON: 424 foods, all with ndbNumber, 22,138 food nutrients; 212 NDB numbers also in SR Legacy. The CSV zip of the same release has no food.csv or food_nutrient.csv (only foundation_food.csv: 424 rows, 82 non-empty footnotes, and 7,607 market_acquisition sample rows), so use the JSON. Next: confirm the CSV omission against the next release; read sample metadata (acquisition and lab method) into per-fact provenance.'
+  - key: fcomp-health-canada-cnf
+    name: "Health Canada Canadian Nutrient File 2026 (open.canada.ca, cites the USDA NDB number)"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/dataset/1b6139bd-ed7e-4043-bc28-ff00e10f3109/resource/e1ffee62-58cb-4e3e-b359-115c658388ad/download/food_name.csv', 'https://open.canada.ca/data/dataset/1b6139bd-ed7e-4043-bc28-ff00e10f3109/resource/019f2a90-e3a9-489d-b6e1-f74f4ba1d006/download/cnf_fcen_all-files-data_2026.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose."
+    conditions:
+      - "Attribute Health Canada (Canadian Nutrient File 2026) and link the Open Government Licence - Canada, as the licence requires."
+      - "Serve the open.canada.ca release (licence_id ca-ogl-lgo), not the canada.ca web pages, whose terms forbid commercial redistribution."
+    next_action: 'Measured 2026-11-15: package "Canadian Nutrient File, 2026" (ca-ogl-lgo, 14 resources, metadata modified 2026-10-04). food_name.csv: 5,993 foods, newest Food_Last_Updated_Date 2026-02-11 (3,383 updated in 2026), 4,798 carry USDA_NDB_Code, 497 carry a Comment_EN note. Declared join to SR Legacy 4,615/4,798. Next: load nutrient_amount.csv and map CNF NutrientID to FDC nutrient numbers; keep the French descriptions.'
+  - key: fcomp-fsanz-afcd
+    name: "FSANZ Australian Food Composition Database Release 3 (food details with sampling prose)"
+    category: food
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Food Standards Australia New Zealand
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.foodstandards.gov.au/sites/default/files/2025-12/AFCD%20Release%203%20-%20Food%20Details.xlsx', 'https://www.foodstandards.gov.au/science-data/food-nutrient-databases/afcd/data-files' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
+    terms:
+      - url: https://www.foodstandards.gov.au/legal-policies/copyright
+        quote: "Unless expressly noted otherwise, material presented on this website is provided under a Creative Commons Attribution 4.0 Australia (CC BY 4.0) licence, except for: the Food Standards Australia New Zealand logo; and third party material."
+    conditions:
+      - "Attribute as '© Food Standards Australia New Zealand' under CC BY 4.0 and indicate changes."
+      - "Values AFCD borrowed from other databases (Derivation 'Borrowed', 78 foods) keep the cited origin; borrowed USDA values are CC0, other third-party material is excluded until its licence is read."
+    next_action: 'Measured 2026-11-15: data-files page (last updated 23 December 2025) lists 6 Release 3 xlsx files and a PDF. Food Details: 1,588 foods; Derivation Analysed 1,046, Recipe 417, Borrowed 78, Imputed 29, Estimated 9, Label Data 9; every food has Sampling Details prose (mean 448 chars); 248 mention USDA and 221 foods cite 232 "FDC ID" numbers, 214 of which resolve to an FDC fdc_id and 12 more are SR NDB numbers mislabelled as FDC ID. Next: load Nutrient profiles.xlsx; extract sample counts, purchase locations and analysis years from the prose deterministically.'
+  - key: fcomp-uk-cofid
+    name: "UK McCance and Widdowson's Composition of Foods Integrated Dataset 2021 (CoFID, GOV.UK xlsx)"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: Public Health England (now OHID), GOV.UK
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://assets.publishing.service.gov.uk/media/60538b91e90e07527df82ae4/McCance_Widdowsons_Composition_of_Foods_Integrated_Dataset_2021..xlsx', 'https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
+    terms:
+      - url: https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid
+        quote: "All content is available under the Open Government Licence v3.0, except where otherwise stated"
+    conditions:
+      - "Attribute Public Health England / McCance and Widdowson's CoFID 2021 under the Open Government Licence v3.0."
+      - "Read the user guide's data-reference appendix before publishing values whose Main data references cite third-party literature tables."
+    next_action: 'Measured 2026-11-15: GOV.UK page last updated 19 March 2021. Proximates sheet: 2,887 foods with Food Code, Description and Main data references (2,886 non-empty prose citations, 26 cite USDA SR, 0 cite an NDB or FDC number), 12 footnotes; 15 sheets in the workbook. Candidate name match to SR Legacy for the 26 USDA-citing foods: 10/20 correct on hand-check. Next: confirm the licence statement inside the workbook; parse Main data references into source tags.'
+  - key: fcomp-anses-ciqual
+    name: "ANSES CIQUAL French food composition table 2020"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: ANSES (France)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.data.gouv.fr/api/1/datasets/5369a15fa3a729239d2065b7/', 'https://ciqual.anses.fr/cms/sites/default/files/inline-files/XML_2020_07_07.zip' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
+    next_action: 'Measured 2026-11-15: the data.gouv.fr record lists licence fr-lo (Licence Ouverte), last modified 2025-11-20, but every resource points at ciqual.anses.fr, which answered 503 (site and XML zip). Licence text not read. Next: retry the ANSES download and read the Licence Ouverte terms before screening.'
+  - key: fcomp-nz-foodfiles
+    name: "New Zealand FOODfiles food composition database"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: New Zealand Institute for Bioeconomy Science and Ministry of Health (NZ)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.foodcomposition.co.nz/foodfiles/', 'https://www.foodcomposition.co.nz/terms/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
+    terms:
+      - url: https://www.foodcomposition.co.nz/terms/
+        quote: "Other than as expressly set out in these terms of use, you may not reproduce any of our intellectual property, in whole or in part, without our prior specific written permission."
+      - url: https://www.foodcomposition.co.nz/terms/
+        quote: "We grant you a worldwide, non-exclusive, non-transferable, royalty free, right to access and use the FOODfiles™ Data subject to the following conditions: You must not modify any part of the FOODfiles™ Data;"
+    next_action: 'Measured 2026-11-15: downloads are Windows .msi installers and a PDF manual only; the licence requires the data to be presented "in its original and unaltered form", which conflicts with normalisation. Parked. Next: none unless a modifiable open release appears.'
+  - key: fcomp-dtu-frida
+    name: "DTU Food Frida Danish food composition database"
+    category: food
+    structuring: normalization
+    format: structured
+    publisher: Technical University of Denmark (DTU Food)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://frida.fooddata.dk/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 2, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json ]
+    next_action: 'Measured 2026-11-15: frida.fooddata.dk redirects to fcdb.fooddata.dk, a 2,392-byte JavaScript app shell ("Loading..."); no bulk download link or licence text visible without running the app. Next: find a documented download and its licence.'
+  - key: ahd-gov-uk-animal-disease-cases
+    name: "GOV.UK animal disease cases in England (Defra/APHA case notices with AIV case numbers)"
+    category: animal-health
+    structuring: event-extraction
+    format: free-text
+    publisher: Defra / Animal and Plant Health Agency (GOV.UK)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=animal_disease_case&count=1000', 'https://www.gov.uk/api/content/guidance/bird-flu-avian-influenza-latest-situation-in-england' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "All content is available under the Open Government Licence v3.0, except where otherwise stated"
+    conditions:
+      - "Attribute Defra/APHA and GOV.UK under the Open Government Licence v3.0."
+      - "Publish premises at the 'near <town>, <district>, <county>' level the notices use; never derive or store keeper or owner names."
+    next_action: 'Measured 2026-11-15: search API format animal_disease_case: 350 cases (bird-flu 345, bluetongue 5), 338 titles carry an AIV case number, opened dates 2005-10-18 to 2026-11-12, newest update 2026-11-13, 11 zones in force. 5/5 sampled notices (478-950 chars of prose) state premises type and cite the AIV number; 4/5 state zone radii. The latest-situation page cites 5 AIV numbers and links the Scottish case page for AIV 2026/29. Next: parse premises type, species, confirmation date and zone radii from all 350 bodies; add the Scottish and Welsh case pages once reachable.'
+  - key: ahd-eu-adis-outbreak-reports
+    name: "EU Animal Disease Information System (ADIS) current-year and weekly outbreak reports"
+    category: animal-health
+    structuring: event-extraction
+    format: structured
+    publisher: European Commission DG SANTE (ADIS)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://webgate.ec.europa.eu/tracesnt/adis/public/notification/outbreaks-current-year-report', 'https://webgate.ec.europa.eu/tracesnt/adis/public/notification/outbreaks-weekly-report' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence"
+    conditions:
+      - "Credit the European Commission (ADIS) and indicate changes, per CC BY 4.0."
+      - "The reports are compiled from member-state notifications on webgate.ec.europa.eu; confirm the EC reuse notice covers that host before redistribution."
+    next_action: 'Measured 2026-11-15: current-year PDF (164 pages, 01/01/2026-11/11/2026, created 2026-11-14) yields 15,910 outbreak references from 38 countries, 334 of them HPAI in poultry; weekly PDF (2026-11-05 to 2026-11-11) yields 234 references. References follow CC-DISEASE-YYYY-NNNNN (e.g. NL-HPAI(P)-2026-00024) with species and smallest administrative division, parsed with a stdlib PDF text decoder. Next: find a per-outbreak export with dates (the PDFs group references and municipalities per country and disease block).'
+  - key: ahd-rijksoverheid-hpai-culls
+    name: "Rijksoverheid (Netherlands) HPAI-infected premises and culls table and outbreak news notices"
+    category: animal-health
+    structuring: event-extraction
+    format: free-text
+    publisher: Government of the Netherlands (Rijksoverheid, ministry LVVN)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/vogelgriep/besmettingen-vogelgriep-bij-bedrijven', 'https://www.rijksoverheid.nl/themas/klimaat-milieu-en-natuur/vogelgriep' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
+    terms:
+      - url: https://www.rijksoverheid.nl/service/copyright
+        quote: "Voor deze website geldt de Creative Commons zero-verklaring (CC0 1.0)."
+    next_action: 'Measured 2026-11-15: culling table: 69 dated rows from 2022-07-31 to 2026-11-11 (25 in 2026) with place and culled-animal count; news notices (newest 2026-11-15, Oosterwolde) give place, "gemeente", premises type and bird count in prose (2/2 outbreak notices sampled). Next: extract gemeente, premises type and species from every news notice; map villages to municipalities with a CBS place-name gazetteer before joining to ADIS.'
+  - key: ahd-usda-aphis-hpai-detections
+    name: "USDA APHIS confirmed HPAI detections in commercial and backyard flocks and livestock"
+    category: animal-health
+    structuring: event-extraction
+    format: structured
+    publisher: US USDA Animal and Plant Health Inspection Service
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.aphis.usda.gov/livestock-poultry-disease/avian/avian-influenza/hpai-detections/commercial-backyard-flocks', 'https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections.csv' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
+    next_action: 'Measured 2026-11-15: the flock and livestock pages embed Tableau dashboards on publicdashboards.dl.usda.gov; the documented ".csv" view export answers 200 but returns only the first worksheet (4 rows of monthly backyard-flock counts, August-November 2026). Per-detection rows (state, county, flock type, date) were not requested through the Tableau session API. APHIS terms not read. Next: find a documented per-detection download (APHIS data page or a USDA open-data listing) before screening.'
+  - key: ahd-cfia-avian-influenza
+    name: "CFIA (Canada) status of ongoing avian influenza response by province"
+    category: animal-health
+    structuring: event-extraction
+    format: free-text
+    publisher: Canadian Food Inspection Agency
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://inspection.canada.ca/en/animal-health/terrestrial-animals/diseases/reportable/avian-influenza/latest-bird-flu-situation/status-province' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
+    terms:
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    next_action: 'Measured 2026-11-15: the page answers 200 with an HTML table of infected flocks and links the canada.ca terms; open.canada.ca has no CFIA avian influenza dataset (search returned only an Auditor General report). RED under the canada.ca terms. Next: reopen only if CFIA publishes the table on open.canada.ca under the Open Government Licence.'
+  - key: ahd-woah-wahis
+    name: "WOAH World Animal Health Information System (WAHIS) event and outbreak reports"
+    category: animal-health
+    structuring: event-extraction
+    format: structured
+    publisher: World Organisation for Animal Health
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://wahis.woah.org/', 'https://www.woah.org/en/terms-and-conditions/' ]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
+    terms:
+      - url: https://www.woah.org/en/terms-and-conditions/
+        quote: "Without prior written permission of WOAH it is forbidden: to make any other use than those specified above, including commercial use, of information posted on the Site, to copy, store in a retrieval system, or transmit in any form or by any means the information of the Site to any third party, to use any of data mining, robots, or similar data-gathering and extraction tools."
+    next_action: 'Measured 2026-11-15: wahis.woah.org answers 200 with an app shell; the WAHIS API was not called because the WOAH terms forbid commercial use and data-mining tools. RED. Next: none without written permission from WOAH.'
+  - key: ahd-gov-scot-avian-influenza
+    name: "Scottish Government avian influenza outbreak and case pages (AIV case numbers)"
+    category: animal-health
+    structuring: event-extraction
+    format: free-text
+    publisher: Scottish Government
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.gov.scot/publications/avian-influenza-outbreaks/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
+    next_action: 'Measured 2026-11-15: the outbreaks page and the AIV 2026/29 case page (which GOV.UK links) both answered HTTP 202 with an empty body, a bot-challenge response that was not bypassed. Terms not read. It would give a declared join (the UK-wide AIV case number that GOV.UK cites). Next: retry from Worker egress; if it is reachable, measure the GOV.UK-cited AIV numbers against the Scottish case list.'
+  - key: ahd-nz-mpi-biosecurity-responses
+    name: "New Zealand MPI active biosecurity responses (animal disease)"
+    category: animal-health
+    structuring: event-extraction
+    format: free-text
+    publisher: New Zealand Ministry for Primary Industries
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.mpi.govt.nz/biosecurity/exotic-pests-and-diseases-in-new-zealand/active-biosecurity-responses/' ]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
+    next_action: 'Measured 2026-11-15: answers with an Incapsula bot-challenge iframe (212 bytes); not bypassed. Terms not read. Next: none until a documented feed or open-data release is found.'
 
 datasets:
   - key: home-product-recalls-global
@@ -13918,68 +13918,68 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
     evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
     next_action: 'Type all HMT and TDG columns and match rows within a UN number on packing group; get the current 49 CFR text (eCFR) from Worker egress; read the CAMEO terms via a permitted route; retry PHMSA, UNECE and NTC from Worker egress for an international (ADR or UN Model Regulations) member.'
-    - key: food-composition-reference
-      name: "Food composition reference (USDA FoodData Central, Canadian Nutrient File, Australian AFCD, UK CoFID)"
-      category: food
-      entity: "generic reference food (not a branded GTIN product) with its nutrient values per 100 g, derivation (analysed, borrowed, recipe), sampling notes and the national identifiers of every table that describes it"
-      stage: SCREENED
-      description: "One record per generic reference food. USDA FoodData Central SR Legacy (7,793 foods) and Foundation Foods (424, refreshed 2026-10-29) are the CC0 hub keyed by NDB number and FDC ID. The Canadian Nutrient File 2026 cites the USDA NDB number for 4,798 of its 5,993 foods; the Australian AFCD Release 3 cites the FDC ID in the sampling prose of 221 of its 1,588 foods; UK CoFID (2,887 foods) cites only sources in prose, so it links through reviewed candidates. A cited identifier names the USDA profile a national value was borrowed from or based on, so it links a national food to its source profile; it is not proof that the two foods are identical (hand-checks 18/20 and 17/20). Distinct from packaged-food-products, which covers branded GTIN foods."
-      sources: [ fcomp-usda-fdc-sr-legacy, fcomp-usda-fdc-foundation, fcomp-health-canada-cnf, fcomp-fsanz-afcd, fcomp-uk-cofid ]
-      join_keys:
-        - key: cited USDA NDB reference number (CNF 2026 USDA_NDB_Code equals SR Legacy NDB_number)
-          between: [ fcomp-health-canada-cnf, fcomp-usda-fdc-sr-legacy ]
-          measured: "4615/4798 CNF foods with a USDA_NDB_Code resolve to an SR Legacy NDB_number (188 also resolve to a Foundation Foods ndbNumber); 18/20 sampled pairs are the same food on hand-check, 2 are a base profile for a different cut or product"
-          mode: declared
-          reviewed: { correct: 18, checked: 20 }
-        - key: cited FDC reference number (AFCD Sampling Details "FDC ID nnnnnn" equals FoodData Central fdc_id)
-          between: [ fcomp-fsanz-afcd, fcomp-usda-fdc-sr-legacy ]
-          measured: "214/232 FDC ID citations in 221 AFCD foods resolve (211 SR Legacy, 3 Foundation); 12 of the 18 others are SR NDB numbers labelled as FDC ID; 17/20 sampled pairs are the same food, 3 cite a component or a different form"
-          mode: declared
-          reviewed: { correct: 17, checked: 20 }
-        - key: food name (CoFID Food Name to the closest SR Legacy description, for CoFID foods whose Main data references cite USDA SR)
-          between: [ fcomp-uk-cofid, fcomp-usda-fdc-sr-legacy ]
-          measured: "26/26 USDA-citing CoFID foods get a proposed SR Legacy match; 10 of the first 20 are the same food on hand-check"
-          mode: candidate
-          reviewed: { correct: 10, checked: 20 }
-      taxonomy:
-        - "jurisdiction: US | CA | AU | UK"
-        - "derivation: analysed | borrowed | recipe | imputed | estimated | label data"
-        - "food group (FDC food_category, CNF food group, AFCD classification, CoFID group) mapped to one group list"
-        - "nutrient: FDC nutrient number as the shared nutrient key"
-      agent_questions:
-        - "What is the protein, fat and vitamin D content per 100 g of this generic food in the US, Canada, Australia and the UK, and where does each value come from?"
-        - "Which national food tables borrow this food's values from USDA, and which analysed it locally?"
-        - "Given a USDA NDB number or FDC ID, what are the matching Canadian and Australian food codes?"
-      scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
-      next_action: 'Map CNF, AFCD and CoFID nutrient codes to FDC nutrient numbers; extract sample counts and analysis years from AFCD Sampling Details; archive all four releases in R2; retry CIQUAL (503) for a fifth jurisdiction.'
-    - key: animal-disease-outbreaks
-      name: "Animal disease outbreaks (EU ADIS, Netherlands Rijksoverheid, GOV.UK England case notices)"
-      category: animal-health
-      entity: "confirmed outbreak or detection of a notifiable animal disease: disease and subtype, species, premises type, municipality or district, confirmation date, control zones, and every national and EU reference that names it"
-      stage: SCREENED
-      description: "One record per confirmed outbreak. EU ADIS reports give the EU-wide outbreak references (15,910 in 2026 to 11 November, 334 HPAI in poultry) with species and smallest administrative division; Rijksoverheid gives the Netherlands' infected and culled premises with date, place and animal count in a table and prose notices; GOV.UK gives England's 350 case notices with AIV case numbers, premises type and zones in prose. No publisher cites another's reference, so cross-publisher links are reviewed candidates on country, disease, period and municipality. WOAH WAHIS and CFIA are RED and excluded; the USDA APHIS, Scottish Government and NZ MPI members are parked. Owner and keeper names are never stored."
-      sources: [ ahd-eu-adis-outbreak-reports, ahd-rijksoverheid-hpai-culls, ahd-gov-uk-animal-disease-cases ]
-      join_keys:
-        - key: country + disease (HPAI poultry) + ADIS reporting week (Rijksoverheid cull dated inside the weekly report period)
-          between: [ ahd-rijksoverheid-hpai-culls, ahd-eu-adis-outbreak-reports ]
-          measured: "2/2 Rijksoverheid culls dated 2026-11-05..11 (Hierden) pair with the 2 NL-HPAI(P) references in that ADIS week (NL-HPAI(P)-2026-00024/00025, Harderwijk); the Rijksoverheid notice places Hierden in gemeente Harderwijk"
-          mode: candidate
-          reviewed: { correct: 2, checked: 2 }
-        - key: municipality name (Rijksoverheid 2026 place or 'gemeente' equals an ADIS NL HPAI(P) 2026 administrative division)
-          between: [ ahd-rijksoverheid-hpai-culls, ahd-eu-adis-outbreak-reports ]
-          measured: "6/25 Rijksoverheid 2026 culls match an ADIS municipality by name (ADIS lists 23 NL HPAI(P) references in 20 municipalities, using pre-merger names); 6/6 correct at municipality-and-year level on hand-check, outbreak-level pairing needs per-reference dates"
-          mode: candidate
-          reviewed: { correct: 6, checked: 6 }
-      taxonomy:
-        - "disease: HPAI (poultry | captive birds | wild birds) | ASF (domestic | wild boar) | bluetongue (serotype) | West Nile fever | other WOAH-listed"
-        - "premises type: commercial | backyard | captive | wild"
-        - "jurisdiction: country, then the smallest administrative division the publisher gives"
-        - "status: confirmed | zones in force | zones lifted"
-      agent_questions:
-        - "Which HPAI poultry outbreaks were confirmed in the Netherlands and England in the last 14 days, where, and which control zones are still in force?"
-        - "How many African swine fever outbreaks in wild boar has each EU country reported this year?"
-        - "Is there a confirmed outbreak within this municipality or district this season, and what premises type was it?"
-      scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
-      evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
-      next_action: 'Find an ADIS per-outbreak export with confirmation dates so the NL join can pair single outbreaks; add a CBS place-name to municipality gazetteer; retry gov.scot from Worker egress for a declared AIV case-number join with GOV.UK; look for a documented USDA APHIS per-detection download.'
+  - key: food-composition-reference
+    name: "Food composition reference (USDA FoodData Central, Canadian Nutrient File, Australian AFCD, UK CoFID)"
+    category: food
+    entity: "generic reference food (not a branded GTIN product) with its nutrient values per 100 g, derivation (analysed, borrowed, recipe), sampling notes and the national identifiers of every table that describes it"
+    stage: SCREENED
+    description: "One record per generic reference food. USDA FoodData Central SR Legacy (7,793 foods) and Foundation Foods (424, refreshed 2026-10-29) are the CC0 hub keyed by NDB number and FDC ID. The Canadian Nutrient File 2026 cites the USDA NDB number for 4,798 of its 5,993 foods; the Australian AFCD Release 3 cites the FDC ID in the sampling prose of 221 of its 1,588 foods; UK CoFID (2,887 foods) cites only sources in prose, so it links through reviewed candidates. A cited identifier names the USDA profile a national value was borrowed from or based on, so it links a national food to its source profile; it is not proof that the two foods are identical (hand-checks 18/20 and 17/20). Distinct from packaged-food-products, which covers branded GTIN foods."
+    sources: [ fcomp-usda-fdc-sr-legacy, fcomp-usda-fdc-foundation, fcomp-health-canada-cnf, fcomp-fsanz-afcd, fcomp-uk-cofid ]
+    join_keys:
+      - key: cited USDA NDB reference number (CNF 2026 USDA_NDB_Code equals SR Legacy NDB_number)
+        between: [ fcomp-health-canada-cnf, fcomp-usda-fdc-sr-legacy ]
+        measured: "4615/4798 CNF foods with a USDA_NDB_Code resolve to an SR Legacy NDB_number (188 also resolve to a Foundation Foods ndbNumber); 18/20 sampled pairs are the same food on hand-check, 2 are a base profile for a different cut or product"
+        mode: declared
+        reviewed: { correct: 18, checked: 20 }
+      - key: cited FDC reference number (AFCD Sampling Details "FDC ID nnnnnn" equals FoodData Central fdc_id)
+        between: [ fcomp-fsanz-afcd, fcomp-usda-fdc-sr-legacy ]
+        measured: "214/232 FDC ID citations in 221 AFCD foods resolve (211 SR Legacy, 3 Foundation); 12 of the 18 others are SR NDB numbers labelled as FDC ID; 17/20 sampled pairs are the same food, 3 cite a component or a different form"
+        mode: declared
+        reviewed: { correct: 17, checked: 20 }
+      - key: food name (CoFID Food Name to the closest SR Legacy description, for CoFID foods whose Main data references cite USDA SR)
+        between: [ fcomp-uk-cofid, fcomp-usda-fdc-sr-legacy ]
+        measured: "26/26 USDA-citing CoFID foods get a proposed SR Legacy match; 10 of the first 20 are the same food on hand-check"
+        mode: candidate
+        reviewed: { correct: 10, checked: 20 }
+    taxonomy:
+      - "jurisdiction: US | CA | AU | UK"
+      - "derivation: analysed | borrowed | recipe | imputed | estimated | label data"
+      - "food group (FDC food_category, CNF food group, AFCD classification, CoFID group) mapped to one group list"
+      - "nutrient: FDC nutrient number as the shared nutrient key"
+    agent_questions:
+      - "What is the protein, fat and vitamin D content per 100 g of this generic food in the US, Canada, Australia and the UK, and where does each value come from?"
+      - "Which national food tables borrow this food's values from USDA, and which analysed it locally?"
+      - "Given a USDA NDB number or FDC ID, what are the matching Canadian and Australian food codes?"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.py, docs/sources/pipeline/evidence/2026-11-15/fcomp_measure.json, docs/sources/pipeline/evidence/2026-11-15/fcomp_handcheck.json ]
+    next_action: 'Map CNF, AFCD and CoFID nutrient codes to FDC nutrient numbers; extract sample counts and analysis years from AFCD Sampling Details; archive all four releases in R2; retry CIQUAL (503) for a fifth jurisdiction.'
+  - key: animal-disease-outbreaks
+    name: "Animal disease outbreaks (EU ADIS, Netherlands Rijksoverheid, GOV.UK England case notices)"
+    category: animal-health
+    entity: "confirmed outbreak or detection of a notifiable animal disease: disease and subtype, species, premises type, municipality or district, confirmation date, control zones, and every national and EU reference that names it"
+    stage: SCREENED
+    description: "One record per confirmed outbreak. EU ADIS reports give the EU-wide outbreak references (15,910 in 2026 to 11 November, 334 HPAI in poultry) with species and smallest administrative division; Rijksoverheid gives the Netherlands' infected and culled premises with date, place and animal count in a table and prose notices; GOV.UK gives England's 350 case notices with AIV case numbers, premises type and zones in prose. No publisher cites another's reference, so cross-publisher links are reviewed candidates on country, disease, period and municipality. WOAH WAHIS and CFIA are RED and excluded; the USDA APHIS, Scottish Government and NZ MPI members are parked. Owner and keeper names are never stored."
+    sources: [ ahd-eu-adis-outbreak-reports, ahd-rijksoverheid-hpai-culls, ahd-gov-uk-animal-disease-cases ]
+    join_keys:
+      - key: country + disease (HPAI poultry) + ADIS reporting week (Rijksoverheid cull dated inside the weekly report period)
+        between: [ ahd-rijksoverheid-hpai-culls, ahd-eu-adis-outbreak-reports ]
+        measured: "2/2 Rijksoverheid culls dated 2026-11-05..11 (Hierden) pair with the 2 NL-HPAI(P) references in that ADIS week (NL-HPAI(P)-2026-00024/00025, Harderwijk); the Rijksoverheid notice places Hierden in gemeente Harderwijk"
+        mode: candidate
+        reviewed: { correct: 2, checked: 2 }
+      - key: municipality name (Rijksoverheid 2026 place or 'gemeente' equals an ADIS NL HPAI(P) 2026 administrative division)
+        between: [ ahd-rijksoverheid-hpai-culls, ahd-eu-adis-outbreak-reports ]
+        measured: "6/25 Rijksoverheid 2026 culls match an ADIS municipality by name (ADIS lists 23 NL HPAI(P) references in 20 municipalities, using pre-merger names); 6/6 correct at municipality-and-year level on hand-check, outbreak-level pairing needs per-reference dates"
+        mode: candidate
+        reviewed: { correct: 6, checked: 6 }
+    taxonomy:
+      - "disease: HPAI (poultry | captive birds | wild birds) | ASF (domestic | wild boar) | bluetongue (serotype) | West Nile fever | other WOAH-listed"
+      - "premises type: commercial | backyard | captive | wild"
+      - "jurisdiction: country, then the smallest administrative division the publisher gives"
+      - "status: confirmed | zones in force | zones lifted"
+    agent_questions:
+      - "Which HPAI poultry outbreaks were confirmed in the Netherlands and England in the last 14 days, where, and which control zones are still in force?"
+      - "How many African swine fever outbreaks in wild boar has each EU country reported this year?"
+      - "Is there a confirmed outbreak within this municipality or district this season, and what premises type was it?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
+    next_action: 'Find an ADIS per-outbreak export with confirmation dates so the NL join can pair single outbreaks; add a CBS place-name to municipality gazetteer; retry gov.scot from Worker egress for a declared AIV case-number join with GOV.UK; look for a documented USDA APHIS per-detection download.'

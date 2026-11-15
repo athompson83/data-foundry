@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "97b2fafbfff6abf493deee8dec81a2b960dcd2407f386c02ccc892b2c2a61920",
+  "registry_sha256": "f35a1f42011df9a31e01aa9b5ff63f11afce9fd220104806ec190c4fe83c741a",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -747,6 +747,26 @@
         "dg-ca-tdg-schedule-1",
         "dg-niosh-npg-dot-ids",
         "dg-noaa-cameo-chemicals"
+      ]
+    },
+    "food-composition-reference": {
+      "name": "Food composition reference (USDA FoodData Central, Canadian Nutrient File, Australian AFCD, UK CoFID)",
+      "stage": "SCREENED",
+      "sources": [
+        "fcomp-usda-fdc-sr-legacy",
+        "fcomp-usda-fdc-foundation",
+        "fcomp-health-canada-cnf",
+        "fcomp-fsanz-afcd",
+        "fcomp-uk-cofid"
+      ]
+    },
+    "animal-disease-outbreaks": {
+      "name": "Animal disease outbreaks (EU ADIS, Netherlands Rijksoverheid, GOV.UK England case notices)",
+      "stage": "SCREENED",
+      "sources": [
+        "ahd-eu-adis-outbreak-reports",
+        "ahd-rijksoverheid-hpai-culls",
+        "ahd-gov-uk-animal-disease-cases"
       ]
     }
   },
@@ -6678,6 +6698,214 @@
       "tasks": [],
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-usda-fdc-sr-legacy": {
+      "name": "USDA FoodData Central SR Legacy reference foods (CSV bulk, NDB numbers)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US USDA Agricultural Research Service (FoodData Central)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-usda-fdc-foundation": {
+      "name": "USDA FoodData Central Foundation Foods (analytical reference foods with sample metadata)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US USDA Agricultural Research Service (FoodData Central)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-health-canada-cnf": {
+      "name": "Health Canada Canadian Nutrient File 2026 (open.canada.ca, cites the USDA NDB number)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Health Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-fsanz-afcd": {
+      "name": "FSANZ Australian Food Composition Database Release 3 (food details with sampling prose)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Food Standards Australia New Zealand",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-uk-cofid": {
+      "name": "UK McCance and Widdowson's Composition of Foods Integrated Dataset 2021 (CoFID, GOV.UK xlsx)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Public Health England (now OHID), GOV.UK",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-anses-ciqual": {
+      "name": "ANSES CIQUAL French food composition table 2020",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "ANSES (France)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-nz-foodfiles": {
+      "name": "New Zealand FOODfiles food composition database",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "New Zealand Institute for Bioeconomy Science and Ministry of Health (NZ)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "fcomp-dtu-frida": {
+      "name": "DTU Food Frida Danish food composition database",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Technical University of Denmark (DTU Food)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ahd-gov-uk-animal-disease-cases": {
+      "name": "GOV.UK animal disease cases in England (Defra/APHA case notices with AIV case numbers)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Defra / Animal and Plant Health Agency (GOV.UK)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ahd-eu-adis-outbreak-reports": {
+      "name": "EU Animal Disease Information System (ADIS) current-year and weekly outbreak reports",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission DG SANTE (ADIS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ahd-rijksoverheid-hpai-culls": {
+      "name": "Rijksoverheid (Netherlands) HPAI-infected premises and culls table and outbreak news notices",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Government of the Netherlands (Rijksoverheid, ministry LVVN)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "ahd-usda-aphis-hpai-detections": {
+      "name": "USDA APHIS confirmed HPAI detections in commercial and backyard flocks and livestock",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US USDA Animal and Plant Health Inspection Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ahd-cfia-avian-influenza": {
+      "name": "CFIA (Canada) status of ongoing avian influenza response by province",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Canadian Food Inspection Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ahd-woah-wahis": {
+      "name": "WOAH World Animal Health Information System (WAHIS) event and outbreak reports",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "World Organisation for Animal Health",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ahd-gov-scot-avian-influenza": {
+      "name": "Scottish Government avian influenza outbreak and case pages (AIV case numbers)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Scottish Government",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "ahd-nz-mpi-biosecurity-responses": {
+      "name": "New Zealand MPI active biosecurity responses (animal disease)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "New Zealand Ministry for Primary Industries",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
         "stage PARKED is before PROTOTYPED"
       ]
     }
