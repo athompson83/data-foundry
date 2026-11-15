@@ -2285,13 +2285,15 @@ candidates:
     name: DOE/NREL AFDC EV charging stations (ev_pricing free text)
     category: home-services
     structuring: normalization
-    stage: DISCOVERED
-    rights: UNKNOWN
-    sources: [ "https://afdc.energy.gov/data_download" ]
+    format: structured
+    publisher: US DOE Alternative Fuels Data Center (National Laboratory of the Rockies)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ "https://afdc.energy.gov/data_download", "https://afdc.energy.gov/files/docs/historical-station-counts.xlsx" ]
     scores:
       {
         agent_demand: 3,
-        rights_clarity: 3,
+        rights_clarity: 4,
         acquisition_ease: 2,
         structuring_value: 3,
         freshness: 5,
@@ -2301,10 +2303,18 @@ candidates:
     evidence:
       [
         docs/sources/pipeline/research-2026-09-27-service-trades.md,
-        docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical
+        docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical,
+        docs/sources/pipeline/research-2026-11-15.md,
+        docs/sources/pipeline/evidence/2026-11-15/afdc_measure.py,
+        docs/sources/pipeline/evidence/2026-11-15/afdc_measure.json
       ]
-    next_action: developer.nrel.gov and www.nrel.gov return proxy CONNECT 502 from this egress; read terms and
-      measure from Cloudflare Worker egress.
+    terms:
+      - url: https://afdc.energy.gov/data_download
+        quote: 'These data and software code ("Data") are provided by the National Laboratory of the Rockies ("NLR"), which is operated by the Alliance for Energy Innovation, LLC ("Alliance"), for the U.S. Department of Energy ("DOE"), and may be used for any purpose whatsoever.'
+    conditions:
+      - 'No endorsement: the terms forbid using the DOE/NLR/Alliance names to endorse or promote the user.'
+      - 'The bulk download form asks for a name, email, use description and terms acceptance (no login or CAPTCHA seen); the station API needs an api.data.gov key and developer.nrel.gov answers proxy CONNECT 502 from this egress. Acquire through the API from Worker egress with a project key, not a personal registration.'
+    next_action: 'Measured 2026-11-15: download page 200 with the terms above; the field reference documents id, ev_pricing, ev_network, ev_connector_types, ev_level2_evse_num, ev_dc_fast_num, facility_type, access_days_time, open_date, date_last_confirmed and updated_at; the annual counts workbook (2007 to 2025 sheets) gives 85,692 public and private electric station locations and 271,488 EVSE ports at the end of 2025, across 51 state rows. Next: pull the full station list through the API from Worker egress and measure the ev_pricing parse rate.'
 
   - key: electrical-dlc-qpl
     name: DesignLights Consortium Qualified Products Lists
@@ -10070,6 +10080,55 @@ candidates:
     scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
     next_action: 'Parked 2026-11-14: www3.wipo.int/pluto redirects to pluto.upov.int, a 9,901-byte JavaScript app shell; the access and login model and terms were not measured. Next: read the PLUTO terms of use and check for a bulk route.'
+  - key: hk-cfs-food-alerts-datagovhk
+    name: "Hong Kong Centre for Food Safety food and allergy alerts (DATA.GOV.HK dataset cfs-foodalert-foodalert)"
+    category: product-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Hong Kong Food and Environmental Hygiene Department (Centre for Food Safety)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cfs.gov.hk/filemanager/foodalert/english/foodalert_datagovhk.xml', 'https://data.gov.hk/en-data/api/3/action/package_show?id=cfs-foodalert-foodalert' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/widen_measure.py, docs/sources/pipeline/evidence/2026-11-15/widen_measure.json, docs/sources/pipeline/evidence/2026-11-15/widen_handcheck.json ]
+    terms:
+      - url: https://data.gov.hk/en/terms-and-conditions
+        quote: "You are allowed to browse, download, distribute, reproduce, hyperlink to, and print the Data for both commercial and non-commercial purposes on a free-of-charge basis on condition that:- you shall comply with the Terms of Use; you shall identify clearly the source of the Data and acknowledge the Government and the Relevant Organisations’ ownership of the intellectual property rights in the Data"
+      - url: https://www.cfs.gov.hk/english/notices/notices.html
+        quote: "Any reproduction, adaptation, distribution, dissemination or making available of such copyright works to the public is strictly prohibited unless prior written authorization is obtained from the Food and Environmental Hygiene Department."
+    conditions:
+      - 'Only the DATA.GOV.HK resources (the RSS feeds listed in the package) are covered by the DATA.GOV.HK terms. The full alert pages on www.cfs.gov.hk sit under the CFS site notice, which prohibits redistribution: never republish their text; store them in R2 as private evidence only, and serve only the feed fields plus deterministic facts.'
+      - 'Attribute the Government of the HKSAR and FEHD/CFS as the source.'
+      - 'The feed holds only the 10 most recent items and lagged the site by a month on 2026-11-15, so history accumulates only by polling and archiving each feed version.'
+      - 'Importer and distributor names are organisations; hotline numbers are not stored.'
+    next_action: 'Measured 2026-11-15: DATA.GOV.HK package 200 ("As and when necessary"), English feed 200 with 10 items (newest 2026-10-05, 9/10 with product, origin, distributor and date lines); the site year lists carry 26 alerts in 2026 and 28 in 2025 (54 parsed, newest page 2026-11-06). Source of Information names an overseas agency on 20/54 (RASFF 12, FDA and Canada 1, FSA and FSAI 1, FSANZ 1, USDA 1). Next: poll and archive the feed daily; ask whether DATA.GOV.HK lists a history resource.'
+  - key: de-lebensmittelwarnung-portal
+    name: "Germany lebensmittelwarnung.de food and product warnings (BVL and the Länder, RSS)"
+    category: product-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: German Federal Office of Consumer Protection and Food Safety (BVL) and the federal states
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.lebensmittelwarnung.de/___LMW-Redaktion/RSSNewsfeed/Functions/RssFeeds/rssnewsfeed_Alle_DE.xml?nn=314268' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/widen_measure.py, docs/sources/pipeline/evidence/2026-11-15/widen_measure.json ]
+    terms:
+      - url: https://www.lebensmittelwarnung.de/DE/Service/Impressum/impressum_node.html
+        quote: "Eine kommerzielle Verwertung oder die Erhebung von Entgelten für den Zugang zu diesen Informationen ist nicht gestattet."
+    next_action: 'Parked 2026-11-15: the portal terms expressly forbid commercial exploitation and charging for access. Measured: RSS 200 with 268 warnings (2018-06-21 to 2026-11-13), every item with reason, manufacturer and product fields and 177 with a lot field; 7/268 carry a 13-digit code. Reopen only if BVL publishes the warnings under an open licence (for example on GovData).'
+  - key: nz-mpi-food-recalls
+    name: "New Zealand MPI recalled food products"
+    category: product-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: New Zealand Ministry for Primary Industries
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md ]
+    next_action: 'Parked 2026-11-15: the page answers 200 with a 212-byte Incapsula challenge script and no content, and /rss/food-recalls is 404. Reopen if MPI publishes the list on data.govt.nz or an open feed.'
 
 datasets:
   - key: home-product-recalls-global
@@ -10989,7 +11048,7 @@ datasets:
     next_action: Add NDC|RxCUI to the declared-key regex, archive the openFDA, EMA and NLM inputs in R2, and decide ATC redistribution before advancing to EVIDENCED.
 
   - key: food-and-health-recalls-global
-    name: Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ)
+    name: Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ, FSAI, Hong Kong CFS)
     category: product-safety
     entity: recall_notice (one agency notice for a food, drug, device or health product) with affected products (lot, GTIN/UPC, NDC, establishment) and the recalling firm
     stage: SCREENED
@@ -11001,7 +11060,29 @@ datasets:
       - ca-recalls-food-health-open-data
       - au-nz-fsanz-food-recalls
       - fsai-food-alerts
+      - hk-cfs-food-alerts-datagovhk
     join_keys:
+      - key: agency cited in the CFS Source of Information field, then product, hazard and date compared by hand (Hong Kong CFS alert vs FDA enforcement report)
+        between:
+          - hk-cfs-food-alerts-datagovhk
+          - fda-recalls
+        measured: '1/1 CFS alert citing the FDA (2025_581, Gerber teething sticks) resolves to FDA enforcement reports F-0578-2025 and F-0579-2025; 54 CFS alerts parsed (evidence/2026-11-15/widen_handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 1, checked: 1 }
+      - key: agency cited in the CFS Source of Information field, then product, hazard and date compared by hand (Hong Kong CFS alert vs UK FSA alert)
+        between:
+          - hk-cfs-food-alerts-datagovhk
+          - uk-fsa-food-alerts
+        measured: '1/1 CFS alert citing the FSA (2025_587, hollow chocolate egg, metal) resolves to FSA-PRIN-18-2025 (evidence/2026-11-15/widen_handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 1, checked: 1 }
+      - key: agency cited in the CFS Source of Information field, then product, hazard and date compared by hand (Hong Kong CFS alert vs Health Canada and CFIA notice)
+        between:
+          - hk-cfs-food-alerts-datagovhk
+          - ca-recalls-food-health-open-data
+        measured: '1/1 CFS alert citing Canadian authorities (2025_581) resolves to Health Canada index NID 76890 (CFIA, 2025-01-31) (evidence/2026-11-15/widen_handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 1, checked: 1 }
       - key: recalling firm name + product tokens, dates within 30 days (Ireland FSAI alert vs UK FSA alert)
         between:
           - fsai-food-alerts
@@ -11037,7 +11118,7 @@ datasets:
         mode: candidate
         reviewed: { correct: 0, checked: 7 }
     taxonomy:
-      - 'agency: FDA | HC-CFIA | HC | FSA | FSANZ; jurisdiction: US | CA | UK | AU-NZ'
+      - 'agency: FDA | HC-CFIA | HC | FSA | FSANZ | FSAI | CFS-HK; jurisdiction: US | CA | UK | AU-NZ | IE | HK'
       - 'product_class: food | drug | device | natural-health-product | veterinary | biologic'
       - 'hazard: undeclared-allergen | pathogen | foreign-material | chemical-contaminant | labelling | cgmp-deviation | mislabelled | other'
       - 'severity: FDA Class I-III | CFIA Class 1-3 | Health Canada Type I-III, kept verbatim and mapped to I | II | III'

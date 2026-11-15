@@ -1,0 +1,102 @@
+{
+ "run_date": "2026-11-15",
+ "data_download": {
+  "status": 200,
+  "form_fields": [
+   "download[data][format]",
+   "download[registration][terms_and_conditions]",
+   "download[registration][use_description]",
+   "download[registration][user][email]",
+   "download[registration][user][first_name]",
+   "download[registration][user][last_name]"
+  ],
+  "captcha_markers": false,
+  "terms_first_sentence": "These data and software code (\"Data\") are provided by the National Laboratory of the Rockies (\"NLR\"), which is operated by the Alliance for Energy Innovation, LLC (\"Alliance\"), for the U.S. Department of Energy (\"DOE\"), and may be used for any purpose whatsoever."
+ },
+ "format_page": {
+  "status": 200,
+  "fields_mentioned": {
+   "ev_pricing": true,
+   "ev_network": true,
+   "ev_connector_types": true,
+   "ev_level2_evse_num": true,
+   "ev_dc_fast_num": true,
+   "facility_type": true,
+   "date_last_confirmed": true,
+   "updated_at": true,
+   "open_date": true,
+   "nps_unit_name": false,
+   "access_days_time": true,
+   "id": true
+  }
+ },
+ "historical_counts_xlsx": {
+  "status": 200,
+  "bytes": 170217,
+  "sheets": [
+   "About the Data",
+   "2025",
+   "2024",
+   "2023",
+   "2022",
+   "2021",
+   "2020",
+   "2019",
+   "2018",
+   "2017",
+   "2016",
+   "2015",
+   "2014",
+   "2013",
+   "2012",
+   "2011",
+   "2010",
+   "2009",
+   "2008",
+   "2007"
+  ],
+  "shared_strings_sample": [
+   "CNG",
+   "E85",
+   "LNG",
+   "Alabama",
+   "Alaska",
+   "Arizona",
+   "Arkansas",
+   "California",
+   "Colorado",
+   "Connecticut",
+   "Delaware",
+   "Florida"
+  ],
+  "sheet_2025_header": [
+   "State",
+   "Biodiesel",
+   "CNG",
+   "E85",
+   "Electrica",
+   "Hydrogenb",
+   "LNG",
+   "Propanec",
+   "Renewable Diesel",
+   "Totald"
+  ],
+  "sheet_2025_state_rows": 51,
+  "sheet_2025_total_row": [
+   "Total",
+   "1645",
+   "1385",
+   "5100",
+   "85,692 | 271,488",
+   "52 | 26 | 78",
+   "81",
+   "916 | 2,079 | 2,995",
+   "1493",
+   "284265"
+  ]
+ },
+ "api_last_month": {
+  "status": 0,
+  "body_head": "<urlopen error Tunnel connection failed: 502 Bad Gateway>"
+ }
+}

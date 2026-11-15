@@ -1,0 +1,23 @@
+{
+ "run_date": "2026-11-15",
+ "join": "Hong Kong CFS food alert whose 'Source of Information' names a member agency -> that agency's recall record (product, brand, hazard and date compared by hand)",
+ "cfs_alerts_parsed": 54,
+ "cfs_alerts_citing_a_member_agency": 3,
+ "resolved_to_member_record": 2,
+ "pairs": [
+  {"cfs": "2025_581", "cfs_date": "2025-02-03", "cfs_product": "Gerber Soothe 'N' Chew Teething Sticks (Strawberry Apple 90 g, Banana 90 g and 45 g), choking hazard",
+   "counterparts": [
+     {"member": "fda-recalls", "id": "F-0578-2025", "report_date": "2025-03-05", "product": "Gerber Snacks for Baby Soothe 'n' Chew TEETHING STICKS Strawberry Apple NET WT 3.2 OZ (90g)"},
+     {"member": "fda-recalls", "id": "F-0579-2025", "report_date": "2025-03-05", "product": "Gerber Snacks for Baby Soothe 'n' Chew TEETHING STICKS Banana NET WT 3.2 OZ (90g)"},
+     {"member": "ca-recalls-food-health-open-data", "id": "NID 76890", "last_updated": "2025-01-31", "title": "Gerber brand Soothe N Chew Teething Sticks recalled due to potential choking hazard"}],
+   "verdict": "correct: same brand, product line, sizes and hazard; CFS names both the FDA and Canadian notices"},
+  {"cfs": "2025_587", "cfs_date": "2025-04-08", "cfs_product": "Tony's Chocolonely Hollow Chocolate Egg (Milk Chocolate) 242 g, batch L3234D, metal fragments",
+   "counterparts": [{"member": "uk-fsa-food-alerts", "id": "FSA-PRIN-18-2025", "created": "2025-04-04", "title": "Tony's Chocolonely recalls two Large Hollow Easter Eggs because they may contain pieces of metal"}],
+   "verdict": "correct: same brand, product and hazard; CFS names the FSA notice"},
+  {"cfs": "2025_603", "cfs_date": "2025-08-25", "cfs_product": "Cocobella Coconut Yogurt (10 variants), source FSANZ",
+   "counterparts": [],
+   "verdict": "unresolved: the FSANZ recalls RSS no longer carries the notice and the FSANZ search page redirected (301); not checked"}
+ ],
+ "reviewed": {"correct": 2, "checked": 2},
+ "not_member_sources_cited": {"RASFF (European Commission)": 12, "USDA FSIS": 1, "Macao": 2, "Japan MHLW and Macao": 1, "Belgium AFSCA": 1, "Korea": 1}
+}

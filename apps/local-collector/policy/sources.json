@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "18ce8d21d70d52fd63fe261338deb30deb4d5e4b837de054205236b71c0c9e9f",
+  "registry_sha256": "a4b4fb8448f6ceb2cd871ad2f86b9ec7aeba2dd55c29f7a273653d8e5a739851",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -174,7 +174,7 @@
       ]
     },
     "food-and-health-recalls-global": {
-      "name": "Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ)",
+      "name": "Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ, FSAI, Hong Kong CFS)",
       "stage": "SCREENED",
       "sources": [
         "fda-recalls",
@@ -182,7 +182,8 @@
         "uk-fsa-food-alerts",
         "ca-recalls-food-health-open-data",
         "au-nz-fsanz-food-recalls",
-        "fsai-food-alerts"
+        "fsai-food-alerts",
+        "hk-cfs-food-alerts-datagovhk"
       ]
     },
     "public-procurement-notices": {
@@ -1610,15 +1611,15 @@
     },
     "electrical-afdc-ev-stations": {
       "name": "DOE/NREL AFDC EV charging stations (ev_pricing free text)",
-      "rights": "UNKNOWN",
-      "stage": "DISCOVERED",
-      "format": null,
-      "publisher": null,
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US DOE Alternative Fuels Data Center (National Laboratory of the Rockies)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "rights verdict is UNKNOWN",
-        "stage DISCOVERED is before PROTOTYPED"
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "electrical-dlc-qpl": {
@@ -6405,6 +6406,45 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "UPOV",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hk-cfs-food-alerts-datagovhk": {
+      "name": "Hong Kong Centre for Food Safety food and allergy alerts (DATA.GOV.HK dataset cfs-foodalert-foodalert)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Hong Kong Food and Environmental Hygiene Department (Centre for Food Safety)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "de-lebensmittelwarnung-portal": {
+      "name": "Germany lebensmittelwarnung.de food and product warnings (BVL and the Länder, RSS)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "German Federal Office of Consumer Protection and Food Safety (BVL) and the federal states",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "nz-mpi-food-recalls": {
+      "name": "New Zealand MPI recalled food products",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "New Zealand Ministry for Primary Industries",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
