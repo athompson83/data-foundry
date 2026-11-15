@@ -1,0 +1,88 @@
+{
+ "run_date": "2026-11-15",
+ "method": "Each pair inspected by hand. 'correct' means the Rijksoverheid culling row and the ADIS HPAI-poultry entry describe the same 2026 outbreak municipality in the same reporting period. ADIS PDFs list references and municipalities per country/disease block without pairing each reference to one municipality or date, so verdicts are at municipality-and-period level, not outbreak level.",
+ "adis_week_to_rijksoverheid": {
+  "reviewed": {
+   "correct": 2,
+   "checked": 2
+  },
+  "pairs": [
+   {
+    "adis_refs": [
+     "NL-HPAI(P)-2026-00024",
+     "NL-HPAI(P)-2026-00025"
+    ],
+    "adis_admins": [
+     "Harderwijk"
+    ],
+    "ro_date": "2026-11-11",
+    "ro_place": "Hierden",
+    "correct": true,
+    "note": "Rijksoverheid news 2026-11-11 says 'In Hierden (gemeente Harderwijk, provincie Gelderland)'; ADIS week 2026-11-05..11 lists NL-HPAI(P)-2026-00024/00025 in Harderwijk"
+   },
+   {
+    "adis_refs": [
+     "NL-HPAI(P)-2026-00024",
+     "NL-HPAI(P)-2026-00025"
+    ],
+    "adis_admins": [
+     "Harderwijk"
+    ],
+    "ro_date": "2026-11-09",
+    "ro_place": "Hierden",
+    "correct": true,
+    "note": "Rijksoverheid news 2026-11-11 says 'In Hierden (gemeente Harderwijk, provincie Gelderland)'; ADIS week 2026-11-05..11 lists NL-HPAI(P)-2026-00024/00025 in Harderwijk"
+   }
+  ]
+ },
+ "adis_year_admin_to_rijksoverheid": {
+  "reviewed": {
+   "correct": 6,
+   "checked": 6
+  },
+  "pairs": [
+   {
+    "ro_date": "2026-10-28",
+    "ro_place": "Grootegast (gemeente Westerkwartier, provincie Groningen)",
+    "adis_admin": "Grootegast",
+    "correct": true,
+    "note": "ADIS lists the pre-2019 municipality Grootegast once; the Rijksoverheid rows for Grootegast (2026-10-28) and Lutjegast (2026-10-26) both lie in it, so the outbreak-level pairing needs the ADIS outbreak detail"
+   },
+   {
+    "ro_date": "2026-03-07",
+    "ro_place": "Putten, Gelderland",
+    "adis_admin": "Putten",
+    "correct": true,
+    "note": "same municipality name, 2026, HPAI poultry"
+   },
+   {
+    "ro_date": "2026-03-04",
+    "ro_place": "Neede",
+    "adis_admin": "Neede",
+    "correct": true,
+    "note": "Neede is the former municipality (now Berkelland) that ADIS still uses"
+   },
+   {
+    "ro_date": "2026-02-24",
+    "ro_place": "Ede",
+    "adis_admin": "Ede",
+    "correct": true,
+    "note": "same municipality name, 2026, HPAI poultry"
+   },
+   {
+    "ro_date": "2026-01-14",
+    "ro_place": "Oisterwijk",
+    "adis_admin": "Oisterwijk",
+    "correct": true,
+    "note": "same municipality name, 2026, HPAI poultry"
+   },
+   {
+    "ro_date": "2026-01-14",
+    "ro_place": "Maasland",
+    "adis_admin": "Maasland",
+    "correct": true,
+    "note": "Maasland is the former municipality (now Midden-Delfland) that ADIS still uses"
+   }
+  ]
+ }
+}

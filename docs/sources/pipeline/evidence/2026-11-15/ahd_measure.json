@@ -1,0 +1,684 @@
+{
+ "run_date": "2026-11-15",
+ "terms": {
+  "gov_uk": {
+   "url": "https://www.gov.uk/help/terms-conditions",
+   "status": 200,
+   "ogl_footer_present": true
+  },
+  "european_commission": {
+   "url": "https://commission.europa.eu/legal-notice_en",
+   "status": 200,
+   "cc_by_present": true
+  },
+  "rijksoverheid": {
+   "url": "https://www.rijksoverheid.nl/service/copyright",
+   "status": 200,
+   "cc0_present": true
+  },
+  "woah": {
+   "url": "https://www.woah.org/en/terms-and-conditions/",
+   "status": 200,
+   "prohibition_present": true
+  },
+  "canada_ca": {
+   "url": "https://www.canada.ca/en/transparency/terms.html",
+   "status": 200,
+   "commercial_clause_present": true
+  }
+ },
+ "gov_uk_cases": {
+  "status": 200,
+  "total": 350,
+  "fetched": 350,
+  "by_disease_type": {
+   "bird-flu": 345,
+   "bluetongue": 5
+  },
+  "with_aiv_case_number_in_title": 338,
+  "newest_public_timestamp": "2026-11-13T20:35:11Z",
+  "opened_date_range": [
+   "2005-10-18",
+   "2026-11-12"
+  ],
+  "zone_restriction_counts": {
+   "in-force": 11,
+   "no-longer-in-force": 339
+  },
+  "virus_strains": [
+   "All",
+   "H5N1",
+   "H5N1 ",
+   "H5N5",
+   "N/A",
+   "Serotype 3"
+  ]
+ },
+ "gov_uk_case_samples": [
+  {
+   "link": "/animal-disease-cases-england/bird-flu-near-belford-north-northumberland-northumberland-aiv2026-slash-21",
+   "status": 200,
+   "aiv": "2026/21",
+   "body_chars": 950,
+   "body_mentions_zone_km": true,
+   "body_mentions_premises_type": true,
+   "body_cites_aiv": true,
+   "detail_keys": [
+    "attachments",
+    "body",
+    "change_history",
+    "headers",
+    "max_cache_time",
+    "metadata",
+    "temporary_update_type"
+   ]
+  },
+  {
+   "link": "/animal-disease-cases-england/bird-flu-near-dereham-breckland-norfolk-aiv2026-slash-28",
+   "status": 200,
+   "aiv": "2026/28",
+   "body_chars": 608,
+   "body_mentions_zone_km": true,
+   "body_mentions_premises_type": true,
+   "body_cites_aiv": true,
+   "detail_keys": [
+    "attachments",
+    "body",
+    "change_history",
+    "headers",
+    "max_cache_time",
+    "metadata",
+    "temporary_update_type"
+   ]
+  },
+  {
+   "link": "/animal-disease-cases-england/bird-flu-near-market-rasen-west-lindsay-lincolnshire-aiv2026-slash-27",
+   "status": 200,
+   "aiv": "2026/27",
+   "body_chars": 560,
+   "body_mentions_zone_km": true,
+   "body_mentions_premises_type": true,
+   "body_cites_aiv": true,
+   "detail_keys": [
+    "attachments",
+    "body",
+    "change_history",
+    "headers",
+    "max_cache_time",
+    "metadata",
+    "temporary_update_type"
+   ]
+  },
+  {
+   "link": "/animal-disease-cases-england/bird-flu-near-dersingham-kings-lynn-and-west-norfolk-norfolk-aiv-2026-slash-26",
+   "status": 200,
+   "aiv": "2026/26",
+   "body_chars": 478,
+   "body_mentions_zone_km": false,
+   "body_mentions_premises_type": true,
+   "body_cites_aiv": true,
+   "detail_keys": [
+    "attachments",
+    "body",
+    "change_history",
+    "headers",
+    "max_cache_time",
+    "metadata",
+    "temporary_update_type"
+   ]
+  },
+  {
+   "link": "/animal-disease-cases-england/bird-flu-near-pocklington-east-riding-of-yorkshire-east-riding-of-yorkshire-aiv-2026-slash-25",
+   "status": 200,
+   "aiv": "2026/25",
+   "body_chars": 634,
+   "body_mentions_zone_km": true,
+   "body_mentions_premises_type": true,
+   "body_cites_aiv": true,
+   "detail_keys": [
+    "attachments",
+    "body",
+    "change_history",
+    "headers",
+    "max_cache_time",
+    "metadata",
+    "temporary_update_type"
+   ]
+  }
+ ],
+ "gov_uk_latest_situation": {
+  "status": 200,
+  "public_updated_at": "2026-11-13T20:44:01+00:00",
+  "aiv_numbers_cited": [
+   "2026/21",
+   "2026/26",
+   "2026/27",
+   "2026/28",
+   "2026/29"
+  ],
+  "links_to_gov_scot_case_pages": [
+   "https://www.gov.scot/publications/avian-flu-bird-flu-near-stromness-orkney-aiv-2026-29/",
+   "https://www.gov.scot/publications/avian-influenza-prevention-zone-all-scotland/",
+   "https://www.gov.scot/publications/avian-influenza-outbreaks/",
+   "https://www.gov.scot/publications/avian-influenza-bird-flu/pages/legislation/"
+  ]
+ },
+ "gov_scot_outbreaks": {
+  "status": 202,
+  "bytes": 0,
+  "note": "HTTP 202 with an empty body is a bot-challenge response; not bypassed"
+ },
+ "adis_current_year": {
+  "status": 200,
+  "bytes": 572721,
+  "pages": 164,
+  "reporting_period": [
+   "01/01/2026",
+   "11/11/2026"
+  ],
+  "outbreak_references": 15910,
+  "countries": 40,
+  "hpai_poultry_refs": 334,
+  "top_codes": [
+   [
+    "PL-ASF",
+    1868
+   ],
+   [
+    "DE-HPAI(NON-P)",
+    1604
+   ],
+   [
+    "IT-ASF",
+    1136
+   ],
+   [
+    "RS-ASF",
+    1086
+   ],
+   [
+    "LT-ASF",
+    869
+   ],
+   [
+    "LV-ASF",
+    773
+   ],
+   [
+    "DE-ASF",
+    753
+   ],
+   [
+    "HU-ASF",
+    695
+   ],
+   [
+    "RO-ASF",
+    648
+   ],
+   [
+    "IT-WNF",
+    509
+   ],
+   [
+    "FR-WNF",
+    460
+   ],
+   [
+    "BG-ASF",
+    414
+   ]
+  ]
+ },
+ "adis_nl_hpai_poultry_2026": {
+  "refs": [
+   "NL-HPAI(P)-2026-00001",
+   "NL-HPAI(P)-2026-00002",
+   "NL-HPAI(P)-2026-00003",
+   "NL-HPAI(P)-2026-00004",
+   "NL-HPAI(P)-2026-00005",
+   "NL-HPAI(P)-2026-00006",
+   "NL-HPAI(P)-2026-00007",
+   "NL-HPAI(P)-2026-00008",
+   "NL-HPAI(P)-2026-00009",
+   "NL-HPAI(P)-2026-00010",
+   "NL-HPAI(P)-2026-00011",
+   "NL-HPAI(P)-2026-00012",
+   "NL-HPAI(P)-2026-00013",
+   "NL-HPAI(P)-2026-00014",
+   "NL-HPAI(P)-2026-00015",
+   "NL-HPAI(P)-2026-00016",
+   "NL-HPAI(P)-2026-00017",
+   "NL-HPAI(P)-2026-00018",
+   "NL-HPAI(P)-2026-00021",
+   "NL-HPAI(P)-2026-00022",
+   "NL-HPAI(P)-2026-00023",
+   "NL-HPAI(P)-2026-00024",
+   "NL-HPAI(P)-2026-00025"
+  ],
+  "admin_divisions": [
+   "Almelo",
+   "Buren",
+   "Coevorden",
+   "Dongeradeel",
+   "Dronten",
+   "Ede",
+   "Eemsmond",
+   "Ferwerderadiel",
+   "Grootegast",
+   "Harderwijk",
+   "Hoogeveen",
+   "Maasland",
+   "Moerdijk",
+   "Neede",
+   "Noordoostpolder",
+   "Oisterwijk",
+   "Putten",
+   "Renswoude",
+   "Stadskanaal",
+   "Zeevang"
+  ]
+ },
+ "adis_weekly": {
+  "status": 200,
+  "bytes": 425955,
+  "pages": 13,
+  "period": [
+   "2026-11-05",
+   "2026-11-11"
+  ],
+  "outbreak_references": 234,
+  "hpai_poultry_blocks": [
+   {
+    "country": "Germany",
+    "refs": [
+     "DE-HPAI(P)-2026-00044",
+     "DE-HPAI(P)-2026-00045",
+     "DE-HPAI(P)-2026-00046"
+    ],
+    "admins": [
+     "Bad Bramstedt- Land",
+     "Krakow am See",
+     "Milower Land"
+    ]
+   },
+   {
+    "country": "Italy",
+    "refs": [
+     "IT-HPAI(P)-2026-00020"
+    ],
+    "admins": [
+     "Fiesso d' Artico"
+    ]
+   },
+   {
+    "country": "Netherlands",
+    "refs": [
+     "NL-HPAI(P)-2026-00024",
+     "NL-HPAI(P)-2026-00025"
+    ],
+    "admins": [
+     "Harderwijk"
+    ]
+   }
+  ]
+ },
+ "rijksoverheid_table": {
+  "status": 200,
+  "rows": 69,
+  "rows_2026": 25,
+  "date_range": [
+   "2022-07-31",
+   "2026-11-11"
+  ],
+  "rows_2026_list": [
+   {
+    "date": "2026-11-11",
+    "place": "Hierden",
+    "culled": "circa 9.500 eenden"
+   },
+   {
+    "date": "2026-11-09",
+    "place": "Hierden",
+    "culled": "70.000 dieren"
+   },
+   {
+    "date": "2026-10-28",
+    "place": "Grootegast (gemeente Westerkwartier, provincie Groningen)",
+    "culled": "circa 51.000 dieren"
+   },
+   {
+    "date": "2026-10-27",
+    "place": "Middelie (gemeente Edam-Volendam, provincie Noord-Holland)",
+    "culled": "circa 150 kippen"
+   },
+   {
+    "date": "2026-10-26",
+    "place": "Lutjegast (gemeente Westerkwartier, provincie Groningen)",
+    "culled": "45.000 dieren"
+   },
+   {
+    "date": "2026-07-17",
+    "place": "Woerdense Verlaat",
+    "culled": "circa 40 kippen en 110 watervogels"
+   },
+   {
+    "date": "2026-05-23",
+    "place": "Marrum",
+    "culled": "circa 80.000 dieren"
+   },
+   {
+    "date": "2026-05-14",
+    "place": "Biddinghuizen",
+    "culled": "55.000 hennen"
+   },
+   {
+    "date": "2026-03-21",
+    "place": "Geesbrug",
+    "culled": "circa 24.000 dieren"
+   },
+   {
+    "date": "2026-03-21",
+    "place": "Oudemolen",
+    "culled": "circa 14.000 dieren"
+   },
+   {
+    "date": "2026-03-07",
+    "place": "Putten, Gelderland",
+    "culled": "23.000 kippen"
+   },
+   {
+    "date": "2026-03-04",
+    "place": "Neede",
+    "culled": "97.450 hennen"
+   },
+   {
+    "date": "2026-03-02",
+    "place": "Lunteren",
+    "culled": "34.000 dieren"
+   },
+   {
+    "date": "2026-02-24",
+    "place": "Ede",
+    "culled": "23.000 leghennen"
+   },
+   {
+    "date": "2026-02-20",
+    "place": "Uithuizermeeden",
+    "culled": "39.000 dieren"
+   },
+   {
+    "date": "2026-02-18",
+    "place": "Aalsum",
+    "culled": "30.000 dieren"
+   },
+   {
+    "date": "2026-02-15",
+    "place": "Vlagtwedde",
+    "culled": "35.000 kippen"
+   },
+   {
+    "date": "2026-02-07",
+    "place": "Moergestel",
+    "culled": "38.000 kalkoenen"
+   },
+   {
+    "date": "2026-01-31",
+    "place": "Dalen",
+    "culled": "15.000 kippen"
+   },
+   {
+    "date": "2026-01-26",
+    "place": "Bornerbroek",
+    "culled": "70.000 dieren"
+   },
+   {
+    "date": "2026-01-25",
+    "place": "Kesteren",
+    "culled": "44.000 kippen"
+   },
+   {
+    "date": "2026-01-20",
+    "place": "Lottum",
+    "culled": "370 vogels"
+   },
+   {
+    "date": "2026-01-14",
+    "place": "Oisterwijk",
+    "culled": "24.000 kalkoenen"
+   },
+   {
+    "date": "2026-01-14",
+    "place": "Maasland",
+    "culled": "220 kippen"
+   },
+   {
+    "date": "2026-01-11",
+    "place": "Creil",
+    "culled": "43.000 dieren"
+   }
+  ]
+ },
+ "rijksoverheid_news_links": [
+  "/actueel/nieuws/2026/10/28/landelijke-ophok-en-afschermplicht-ingesteld-na-vogelgriepuitbraken",
+  "/actueel/nieuws/2026/11/11/vogelgriep-vastgesteld-in-hierden",
+  "/actueel/nieuws/2026/11/13/opnieuw-vogelgriep-vastgesteld-in-hierden",
+  "/actueel/nieuws/2026/11/15/vogelgriep-vastgesteld-in-oosterwolde-gelderland"
+ ],
+ "rijksoverheid_news_samples": [
+  {
+   "link": "/actueel/nieuws/2026/10/28/landelijke-ophok-en-afschermplicht-ingesteld-na-vogelgriepuitbraken",
+   "status": 200,
+   "mentions_gemeente": false,
+   "mentions_count_of_birds": false,
+   "mentions_zone_km": false
+  },
+  {
+   "link": "/actueel/nieuws/2026/11/11/vogelgriep-vastgesteld-in-hierden",
+   "status": 200,
+   "mentions_gemeente": true,
+   "mentions_count_of_birds": true,
+   "mentions_zone_km": true
+  },
+  {
+   "link": "/actueel/nieuws/2026/11/13/opnieuw-vogelgriep-vastgesteld-in-hierden",
+   "status": 200,
+   "mentions_gemeente": true,
+   "mentions_count_of_birds": true,
+   "mentions_zone_km": true
+  }
+ ],
+ "join_adis_week_to_rijksoverheid": {
+  "adis_nl_poultry_refs_in_week": 2,
+  "rijksoverheid_rows_in_week": 2,
+  "pairs": [
+   {
+    "adis_refs": [
+     "NL-HPAI(P)-2026-00024",
+     "NL-HPAI(P)-2026-00025"
+    ],
+    "adis_admins": [
+     "Harderwijk"
+    ],
+    "ro_date": "2026-11-11",
+    "ro_place": "Hierden"
+   },
+   {
+    "adis_refs": [
+     "NL-HPAI(P)-2026-00024",
+     "NL-HPAI(P)-2026-00025"
+    ],
+    "adis_admins": [
+     "Harderwijk"
+    ],
+    "ro_date": "2026-11-09",
+    "ro_place": "Hierden"
+   }
+  ]
+ },
+ "join_adis_year_admin_to_rijksoverheid": {
+  "matched": 6,
+  "total": 25,
+  "rows": [
+   {
+    "ro_date": "2026-11-11",
+    "ro_place": "Hierden",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-11-09",
+    "ro_place": "Hierden",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-10-28",
+    "ro_place": "Grootegast (gemeente Westerkwartier, provincie Groningen)",
+    "adis_admin": "Grootegast"
+   },
+   {
+    "ro_date": "2026-10-27",
+    "ro_place": "Middelie (gemeente Edam-Volendam, provincie Noord-Holland)",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-10-26",
+    "ro_place": "Lutjegast (gemeente Westerkwartier, provincie Groningen)",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-07-17",
+    "ro_place": "Woerdense Verlaat",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-05-23",
+    "ro_place": "Marrum",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-05-14",
+    "ro_place": "Biddinghuizen",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-03-21",
+    "ro_place": "Geesbrug",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-03-21",
+    "ro_place": "Oudemolen",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-03-07",
+    "ro_place": "Putten, Gelderland",
+    "adis_admin": "Putten"
+   },
+   {
+    "ro_date": "2026-03-04",
+    "ro_place": "Neede",
+    "adis_admin": "Neede"
+   },
+   {
+    "ro_date": "2026-03-02",
+    "ro_place": "Lunteren",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-02-24",
+    "ro_place": "Ede",
+    "adis_admin": "Ede"
+   },
+   {
+    "ro_date": "2026-02-20",
+    "ro_place": "Uithuizermeeden",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-02-18",
+    "ro_place": "Aalsum",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-02-15",
+    "ro_place": "Vlagtwedde",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-02-07",
+    "ro_place": "Moergestel",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-01-31",
+    "ro_place": "Dalen",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-01-26",
+    "ro_place": "Bornerbroek",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-01-25",
+    "ro_place": "Kesteren",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-01-20",
+    "ro_place": "Lottum",
+    "adis_admin": null
+   },
+   {
+    "ro_date": "2026-01-14",
+    "ro_place": "Oisterwijk",
+    "adis_admin": "Oisterwijk"
+   },
+   {
+    "ro_date": "2026-01-14",
+    "ro_place": "Maasland",
+    "adis_admin": "Maasland"
+   },
+   {
+    "ro_date": "2026-01-11",
+    "ro_place": "Creil",
+    "adis_admin": null
+   }
+  ]
+ },
+ "aphis_page": {
+  "status": 200,
+  "dashboard_iframes": [
+   "https://publicdashboards.dl.usda.gov/t/MRP_PUB/views/VS_Avian_HPAIConfirmedDetections2022/HPAI2022ConfirmedDetections"
+  ]
+ },
+ "aphis_view_csv": {
+  "status": 200,
+  "header": "Is Last Reporting Month,Month of Confirmed Diagnosis,Backyard Flocks",
+  "rows": 4,
+  "rows_sample": [
+   "False,August 2026,4",
+   "False,September 2026,7",
+   "False,October 2026,21",
+   "True,November 2026,7"
+  ],
+  "note": "The documented Tableau '.csv' view export returns only the dashboard's first worksheet (monthly backyard-flock counts); per-detection rows were not requested through the Tableau session API"
+ },
+ "cfia": {
+  "status": 200,
+  "final_url": "https://inspection.canada.ca/en/animal-health/terrestrial-animals/diseases/reportable/avian-influenza/latest-bird-flu-situation/status-province",
+  "terms_link": true,
+  "has_table": true
+ },
+ "nz_mpi": {
+  "status": 200,
+  "bytes": 212,
+  "bot_challenge": true
+ },
+ "woah_wahis": {
+  "status": 200,
+  "bytes": 90888,
+  "note": "app shell; API not called because the WOAH terms forbid data-mining tools and commercial use"
+ }
+}
