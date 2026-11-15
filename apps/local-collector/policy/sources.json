@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "a4b4fb8448f6ceb2cd871ad2f86b9ec7aeba2dd55c29f7a273653d8e5a739851",
+  "registry_sha256": "97b2fafbfff6abf493deee8dec81a2b960dcd2407f386c02ccc892b2c2a61920",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -726,6 +726,27 @@
         "pvp-usda-pod",
         "pvp-usda-cms-certificates",
         "pvp-grin-global-accessions"
+      ]
+    },
+    "occupational-exposure-limits": {
+      "name": "Occupational exposure limits by jurisdiction (US OSHA and NIOSH, UK HSE, EU, Australia) linked by CAS number",
+      "stage": "SCREENED",
+      "sources": [
+        "oel-us-osha-z-tables",
+        "oel-niosh-npg-limits",
+        "oel-uk-hse-eh40",
+        "oel-eu-ioelv-directives",
+        "oel-au-hcis-wel"
+      ]
+    },
+    "dangerous-goods-classifications": {
+      "name": "Dangerous goods classifications by UN number (US 49 CFR HMT, Canada TDG Schedule 1, NIOSH, NOAA CAMEO)",
+      "stage": "SCREENED",
+      "sources": [
+        "dg-us-49cfr-172-101-hmt",
+        "dg-ca-tdg-schedule-1",
+        "dg-niosh-npg-dot-ids",
+        "dg-noaa-cameo-chemicals"
       ]
     }
   },
@@ -6449,6 +6470,214 @@
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "oel-us-osha-z-tables": {
+      "name": "US OSHA permissible exposure limits, 29 CFR 1910.1000 Tables Z-1, Z-2 and Z-3 (GovInfo annual CFR XML)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Office of the Federal Register / GPO (GovInfo), OSHA regulation text",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "oel-niosh-npg-limits": {
+      "name": "NIOSH Pocket Guide to Chemical Hazards: REL, quoted OSHA PEL and IDLH per chemical (CDC HTML pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CDC NIOSH",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "oel-uk-hse-eh40": {
+      "name": "UK HSE EH40/2005 workplace exposure limits (PDF table, Great Britain)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Health and Safety Executive",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "oel-eu-ioelv-directives": {
+      "name": "EU indicative occupational exposure limit value directives (Publications Office Cellar XHTML)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "EU Publications Office (acts of the European Commission and Council)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "oel-au-hcis-wel": {
+      "name": "Safe Work Australia HCIS workplace exposure limits (public CAS search and chemical pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Safe Work Australia",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "oel-ontario-oel-page": {
+      "name": "Ontario Ministry of Labour current occupational exposure limits page (Regulation 833 table)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Government of Ontario (Ministry of Labour)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "oel-ontario-reg-833-elaws": {
+      "name": "Ontario Regulation 833 (Control of Exposure to Biological or Chemical Agents) on e-Laws",
+      "rights": "GREEN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "King's Printer for Ontario (e-Laws)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "oel-bc-worksafebc-table": {
+      "name": "WorkSafeBC table of exposure limits for chemical and biological substances (OHS Guideline Part 5)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "WorkSafeBC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "oel-ifa-gestis-ilv": {
+      "name": "IFA GESTIS International limit values for chemical agents (GESTIS-ILV)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Institute for Occupational Safety and Health of the German Social Accident Insurance (IFA)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "dg-us-49cfr-172-101-hmt": {
+      "name": "US 49 CFR 172.101 Hazardous Materials Table (GovInfo annual CFR XML)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Office of the Federal Register / GPO (GovInfo), PHMSA regulation text",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dg-ca-tdg-schedule-1": {
+      "name": "Canada Transportation of Dangerous Goods Regulations, Schedule 1 (Justice Laws XML, SOR/2001-286)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Department of Justice Canada (Justice Laws), Transport Canada regulation text",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dg-niosh-npg-dot-ids": {
+      "name": "NIOSH Pocket Guide 'DOT ID & Guide' field (UN/NA number and ERG guide cited in chemical pages)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CDC NIOSH",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dg-noaa-cameo-chemicals": {
+      "name": "NOAA CAMEO Chemicals UN/NA datasheets and chemical datasheets (ERG guide, HMT rows, response prose)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA Office of Response and Restoration (with US EPA)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dg-phmsa-interpretations": {
+      "name": "PHMSA hazardous materials letters of interpretation and special permits (phmsa.dot.gov)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "US DOT Pipeline and Hazardous Materials Safety Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "dg-unece-adr-dangerous-goods-list": {
+      "name": "UNECE ADR Table A / UN Model Regulations dangerous goods list (unece.org)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "UNECE",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "dg-ntc-adg-code": {
+      "name": "Australian Dangerous Goods Code (National Transport Commission)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "National Transport Commission (Australia)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
         "stage PARKED is before PROTOTYPED"
       ]
     }

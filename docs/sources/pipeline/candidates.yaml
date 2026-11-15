@@ -10129,6 +10129,267 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-15.md ]
     next_action: 'Parked 2026-11-15: the page answers 200 with a 212-byte Incapsula challenge script and no content, and /rss/food-recalls is 404. Reopen if MPI publishes the list on data.govt.nz or an open feed.'
+  - key: oel-us-osha-z-tables
+    name: "US OSHA permissible exposure limits, 29 CFR 1910.1000 Tables Z-1, Z-2 and Z-3 (GovInfo annual CFR XML)"
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: US Office of the Federal Register / GPO (GovInfo), OSHA regulation text
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.govinfo.gov/content/pkg/CFR-2024-title29-vol6/xml/CFR-2024-title29-vol6-sec1910-1000.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "The intent of the section is to place in the public domain all work of the United States Government, which is defined in 17 U.S.C. § 101 as work prepared by an officer or employee of the United States Government as part of the person's official duties."
+    conditions: [ 'The newest title 29 edition on GovInfo is 2024-07-01; the 2025 edition URL redirects to govinfo.gov/error. The PELs change rarely, but every value carries its CFR edition date.', 'Z-1 cells mix ppm, mg/m3 and ceiling "(C)" values and refer some rows to Table Z-2 or to substance-specific standards (1910.1001 to 1910.1053); keep the cross-reference instead of a value.' ]
+    next_action: 'Measured 2026-11-15: 2024-07-01 edition, 139,131 bytes. Table Z-1 has 610 rows, 417 with a CAS number (416 check-digit valid) and 90 with the skin designation; Table Z-2 has 21 rows and Table Z-3 28. Next: parse ppm, mg/m3, ceiling and skin into typed limits with units, and resolve Z-1 rows that point to Z-2 or a 1910.10xx standard.'
+
+  - key: oel-niosh-npg-limits
+    name: "NIOSH Pocket Guide to Chemical Hazards: REL, quoted OSHA PEL and IDLH per chemical (CDC HTML pages)"
+    category: workplace-safety
+    structuring: normalization
+    format: free-text
+    publisher: US CDC NIOSH
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cdc.gov/niosh/npg/npgdcas.html', 'https://www.cdc.gov/niosh/npg/npgd0004.html' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission."
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "The following requirements must be followed to utilize CDC’s public domain content: 1) Attribution to the agency that developed the material must be provided in your use of the materials."
+    conditions: [ 'Attribute NIOSH/CDC on every served value and state that use does not imply endorsement.', 'Static content: all 30 sampled pages say "Page last reviewed: October 30, 2019". Serve it as a reference layer and never present it as current.', 'Limits are prose ("TWA 250 ppm (590 mg/m3)", "Ca See Appendix A", "[skin]"); keep the verbatim string next to every parsed value. The registry already holds chemical-niosh-pocket-guide for the hazard-text fields of the same pages; this key covers only the limit fields.' ]
+    next_action: 'Measured 2026-11-15: the CAS index lists 629 rows, 626 distinct CAS numbers and 627 pages. 30/30 sampled pages answer 200 and carry NIOSH REL, OSHA PEL and IDLH text. On the 10 sampled pages whose CAS is in Z-1 with a ppm value on both sides, the NIOSH "OSHA PEL" TWA equals the Z-1 ppm in 9 (the 10th is a ceiling "(C)15"). Next: parse REL/PEL/IDLH into typed limits (TWA, ST, C, Ca, skin) for all 627 pages.'
+
+  - key: oel-uk-hse-eh40
+    name: "UK HSE EH40/2005 workplace exposure limits (PDF table, Great Britain)"
+    category: workplace-safety
+    structuring: normalization
+    format: free-text
+    publisher: UK Health and Safety Executive
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.hse.gov.uk/pubns/books/eh40.htm', 'https://www.hse.gov.uk/pubns/priced/eh40.pdf' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.hse.gov.uk/help/copyright.htm
+        quote: "You may re-use the Crown material featured on this website free of charge in any format or medium, under the terms of the Open Government Licence"
+      - url: https://www.hse.gov.uk/help/copyright.htm
+        quote: "The preferred acknowledgement is ‘Contains public sector information published by the Health and Safety Executive and licensed under the Open Government Licence’."
+    conditions: [ 'Carry the OGL acknowledgement; do not use the HSE logo.', 'The PDF is the January 2020 edition; the product page says HSE "will introduce a revised limit for 3" outstanding EU limits, so re-check the page for a new edition on every sync.' ]
+    next_action: 'Measured 2026-11-15: the PDF (679,929 bytes) parses with zlib alone into 6,398 text lines; 376 distinct CAS numbers (373 check-digit valid), each followed by TWA ppm, TWA mg/m3, STEL ppm and STEL mg/m3 cells; 53 Carc, 114 Sk and 33 Sen notations. Next: map the cell sequence to typed columns for all rows, including rows without a CAS number (dusts, groups) and footnoted STEL periods.'
+
+  - key: oel-eu-ioelv-directives
+    name: "EU indicative occupational exposure limit value directives (Publications Office Cellar XHTML)"
+    category: workplace-safety
+    structuring: normalization
+    format: free-text
+    publisher: EU Publications Office (acts of the European Commission and Council)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://publications.europa.eu/resource/celex/32017L0164', 'https://publications.europa.eu/resource/celex/32019L1831', 'https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32017L0164' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://op.europa.eu/en/web/about-us/legal-notices/publications-office-of-the-european-union-copyright
+        quote: "This means that you can reuse it provided you acknowledge the source and indicate any changes you have made."
+    conditions: [ 'The quoted notice covers the Publications Office website; the EUR-Lex legal notice answered an AWS WAF challenge (HTTP 202, empty body) and was not read. Attribute the source and mark changes.', 'Only the original acts were read; later directives delete or replace entries, so a value is published only after the amending chain (and the consolidated text) is applied.' ]
+    next_action: 'Measured 2026-11-15: Cellar returns XHTML for 5 of 6 directives (91/322/EEC 24 CAS numbers, 2006/15/EC 30, 2009/161/EU 18, (EU) 2017/164 30, (EU) 2019/1831 10; 2000/39/EC answers 404 on this route); 92 distinct check-digit-valid CAS numbers. EUR-Lex HTML answers an AWS WAF challenge. Next: fetch 2000/39/EC by its Cellar work URI, add the binding limits in 2004/37/EC and 98/24/EC, and apply the amendment chain.'
+
+  - key: oel-au-hcis-wel
+    name: "Safe Work Australia HCIS workplace exposure limits (public CAS search and chemical pages)"
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: Safe Work Australia
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://hcis.safeworkaustralia.gov.au/search/?q=67-64-1&filter=all', 'https://hcis.safeworkaustralia.gov.au/wel-reference/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://hcis.safeworkaustralia.gov.au/wel-reference/
+        quote: "© 2026 Safe Work Australia. All rights reserved."
+    conditions: [ 'The footer "Terms of Use" link goes to www.safeworkaustralia.gov.au/disclaimer, which did not answer from this egress (HTTP/2 stream reset and empty replies), so the terms are unread. Serve only the regulatory limit values with attribution until the disclaimer is read.', 'No bulk WEL file was found on HCIS; acquisition is one search plus one page per CAS number. WEL-only records (4/15 sampled) answer "Chemical not found" on their page, so their values come from the WEL document, not HCIS.' ]
+    next_action: 'Measured 2026-11-15: 15 EH40 CAS numbers searched; 15/15 searches answer 200 with one hit; 11/15 chemical pages show the same CAS number and a WEL TWA (acetone TWA 250 ppm, STEL 500 ppm; page "Last updated" 12 or 25 Aug 2026); 4/15 are WEL-only records not on the public register. Next: read the SWA disclaimer from another egress and find the WEL document download.'
+
+  - key: oel-ontario-oel-page
+    name: "Ontario Ministry of Labour current occupational exposure limits page (Regulation 833 table)"
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: Government of Ontario (Ministry of Labour)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.ontario.ca/page/current-occupational-exposure-limits-ontario-workplaces-under-regulation-833' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.ontario.ca/page/copyright-information
+        quote: "The materials may only be reproduced for commercial purposes under a licence from the King's Printer, with the exception of Government of Ontario legal materials (statutes, regulations and judicial decisions) and materials covered under the Open Government Licence – Ontario."
+    next_action: 'Measured 2026-11-15: HTTP 200, 300,848 bytes, 783 check-digit-valid CAS numbers in the table, page lastUpdatedDate 2025-06-26. Parked: a ministry page, not legal material, so commercial reproduction needs a King''s Printer licence. Use oel-ontario-reg-833-elaws instead.'
+
+  - key: oel-ontario-reg-833-elaws
+    name: "Ontario Regulation 833 (Control of Exposure to Biological or Chemical Agents) on e-Laws"
+    category: workplace-safety
+    structuring: normalization
+    format: free-text
+    publisher: King's Printer for Ontario (e-Laws)
+    stage: PARKED
+    rights: GREEN
+    sources: [ 'https://www.ontario.ca/laws/regulation/900833' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.ontario.ca/page/copyright-information
+        quote: "The King's Printer permits any person to reproduce the text and images contained in the statutes, regulations and judicial decisions without seeking permission and without charge."
+    conditions: [ 'Reproduce accurately, acknowledge Crown copyright in the stated form, and state that the copy is not an official version.' ]
+    next_action: 'Measured 2026-11-15: HTTP 200 but a 54,243-byte JavaScript shell with 0 CAS numbers in the HTML. Parked until a static or XML route to the regulation text (and its table of limits) is found.'
+
+  - key: oel-bc-worksafebc-table
+    name: "WorkSafeBC table of exposure limits for chemical and biological substances (OHS Guideline Part 5)"
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: WorkSafeBC
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.worksafebc.com/en/law-policy/occupational-health-safety/searchable-ohs-regulation/ohs-guidelines/guidelines-part-05' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.worksafebc.com/legal/terms-of-use
+        quote: "All commercial use (including non-personal and non-educational use) of the website content is strictly prohibited in the absence of prior written consent of WorkSafeBC, which consent may be unreasonably withheld, and subject to such terms and conditions as WorkSafeBC may stipulate."
+    next_action: 'Measured 2026-11-15: guideline Part 5 page HTTP 200, 877,568 bytes, 932 check-digit-valid CAS numbers. Parked: the terms forbid commercial use. Reopen only if the limits are found in the BC OHS Regulation text on a legislation site with open terms.'
+
+  - key: oel-ifa-gestis-ilv
+    name: "IFA GESTIS International limit values for chemical agents (GESTIS-ILV)"
+    category: workplace-safety
+    structuring: normalization
+    format: structured
+    publisher: Institute for Occupational Safety and Health of the German Social Accident Insurance (IFA)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.dguv.de/ifa/gestis/gestis-internationale-grenzwerte-fuer-chemische-substanzen-limit-values-for-chemical-agents/index-2.jsp' ]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    terms:
+      - url: https://www.dguv.de/ifa/gestis/gestis-internationale-grenzwerte-fuer-chemische-substanzen-limit-values-for-chemical-agents/general-terms-and-conditions-of-use/index-2.jsp
+        quote: "We expressly do not grant you any further rights. In particular, independent publication of the database is prohibited."
+      - url: https://www.dguv.de/ifa/gestis/gestis-internationale-grenzwerte-fuer-chemische-substanzen-limit-values-for-chemical-agents/general-terms-and-conditions-of-use/index-2.jsp
+        quote: "It is also prohibited to use automated IT applications that analyze technical functions of the database or retrieve, analyze, modify, enrich, aggregate, use to create texts or other content, or otherwise use or exploit the contents of the database."
+    next_action: 'Measured 2026-11-15: the index page states 34 lists from 28 countries, limits for 2312 substances, latest update August 2026. Rejected as a source (terms forbid publication and automated retrieval; no data was fetched). Use its country list only as a map of primary national sources to screen.'
+  - key: dg-us-49cfr-172-101-hmt
+    name: "US 49 CFR 172.101 Hazardous Materials Table (GovInfo annual CFR XML)"
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: US Office of the Federal Register / GPO (GovInfo), PHMSA regulation text
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.govinfo.gov/content/pkg/CFR-2025-title49-vol2/xml/CFR-2025-title49-vol2-sec172-101.xml' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "The intent of the section is to place in the public domain all work of the United States Government, which is defined in 17 U.S.C. § 101 as work prepared by an officer or employee of the United States Government as part of the person's official duties."
+    conditions: [ 'The annual edition (2025-10-01) lags PHMSA amendments by up to a year; the eCFR current text blocked this client on 2026-11-14. Every row carries its CFR edition date.', 'Rows without a name are packing-group continuations of the row above; "see" rows are cross-references, not entries.' ]
+    next_action: 'Measured 2026-11-15: 2025-10-01 edition, 2,212,474 bytes, one 14-column table. 2,480 entries carry an identification number: 2,369 distinct (2,324 UN, 44 NA, 1 ID); 2,098 entries list special provisions; 256 rows are "Forbidden". Next: type every column (symbols, class, PG, label codes, special provisions, packaging sections, quantity limits, vessel stowage) and fold continuation rows into their entry.'
+
+  - key: dg-ca-tdg-schedule-1
+    name: "Canada Transportation of Dangerous Goods Regulations, Schedule 1 (Justice Laws XML, SOR/2001-286)"
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Department of Justice Canada (Justice Laws), Transport Canada regulation text
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://laws-lois.justice.gc.ca/eng/XML/SOR-2001-286.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    terms:
+      - url: https://laws-lois.justice.gc.ca/eng/FAQ/
+        quote: "anyone may, without charge or request for permission, reproduce enactments and consolidations of enactments of the Government of Canada"
+    conditions: [ 'A reproduction must not be represented as an official version.' ]
+    next_action: 'Measured 2026-11-15: consolidated to 2026-07-21, last amended 2026-07-01, 3,617,008 bytes. Schedule 1 has 2,360 rows with a UN or NA number (2,336 distinct); 993 rows list special provisions; subsidiary classes are in parentheses ("3(8)"). Next: type columns 1 to 10 (class, PG, special provisions, explosive limit and limited quantity index, excepted quantity code, ERAP index, passenger carrying vehicle limits) and join Schedule 2 special-provision text.'
+
+  - key: dg-niosh-npg-dot-ids
+    name: "NIOSH Pocket Guide 'DOT ID & Guide' field (UN/NA number and ERG guide cited in chemical pages)"
+    category: transport-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US CDC NIOSH
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.cdc.gov/niosh/npg/npgdcas.html', 'https://www.cdc.gov/niosh/npg/npgd0001.html' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission."
+    conditions: [ 'Attribute NIOSH/CDC and state no endorsement.', 'Same pages as chemical-niosh-pocket-guide and oel-niosh-npg-limits; fetch once and archive once. The pages were last reviewed on 2019-10-30, so the ERG guide numbers predate ERG 2024.' ]
+    next_action: 'Measured 2026-11-15: 30 pages sampled from 647 linked in the CAS index; 30/30 answer 200; 23/30 carry a "DOT ID & Guide" value (UN/NA number plus ERG guide, for example "1089 129"); the other 7 have none. Next: extract the field from every page, including multi-number entries.'
+
+  - key: dg-noaa-cameo-chemicals
+    name: "NOAA CAMEO Chemicals UN/NA datasheets and chemical datasheets (ERG guide, HMT rows, response prose)"
+    category: transport-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: NOAA Office of Response and Restoration (with US EPA)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://cameochemicals.noaa.gov/unna/1090', 'https://cameochemicals.noaa.gov/chemical/2' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    conditions: [ 'Terms unread: the "terms and conditions" page linked from /about is under /help, which robots.txt disallows (as are /search, /my, /reactivity and /stats). Read the terms from a permitted route before serving any field.', 'Datasheets combine NOAA text with third-party data (NFPA 704 ratings, ERG, USCG CHRIS); serve only NOAA-authored fields and identifiers until each source is cleared.', 'Chemical datasheet IDs are sparse (13/44 probed IDs answer 200) and the UN-to-chemical lists sit under /search, so there is no permitted enumeration route yet.' ]
+    next_action: 'Measured 2026-11-15: 20/20 sampled UN/NA pages answer 200 and give an ERG response guide; 16/20 list at least one chemical datasheet. 13/44 probed chemical IDs answer 200; 13/13 have a General Description paragraph and 12/13 cite a UN/NA number. Next: read the CAMEO terms and find a permitted enumeration (a sitemap or bulk download) before more fetching.'
+
+  - key: dg-phmsa-interpretations
+    name: "PHMSA hazardous materials letters of interpretation and special permits (phmsa.dot.gov)"
+    category: transport-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US DOT Pipeline and Hazardous Materials Safety Administration
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.phmsa.dot.gov/regulations/title49/interp', 'https://www.phmsa.dot.gov/approvals-and-permits/hazmat/special-permits-search' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    conditions: [ 'Every phmsa.dot.gov path (including robots.txt) answered 403 Akamai "Access Denied" to this client; no terms were read.' ]
+    next_action: 'Measured 2026-11-15: interpretations and special-permits pages answer HTTP 403 (Akamai). Parked. Next: retry from Worker egress; look for the same letters on regulations.gov or GovInfo.'
+
+  - key: dg-unece-adr-dangerous-goods-list
+    name: "UNECE ADR Table A / UN Model Regulations dangerous goods list (unece.org)"
+    category: transport-safety
+    structuring: normalization
+    format: free-text
+    publisher: UNECE
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://unece.org/transport/dangerous-goods/adr-2025-files' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    conditions: [ 'unece.org answered 403 to this client; its terms page returned the Cloudflare "Sorry, you have been blocked" page, so no terms were read.' ]
+    next_action: 'Measured 2026-11-15: ADR 2025 files page and terms page HTTP 403 (Cloudflare block). Parked. Next: retry from Worker egress and read the UN publications terms before any fetch of Table A.'
+
+  - key: dg-ntc-adg-code
+    name: "Australian Dangerous Goods Code (National Transport Commission)"
+    category: transport-safety
+    structuring: normalization
+    format: free-text
+    publisher: National Transport Commission (Australia)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.ntc.gov.au/codes-and-guidelines/australian-dangerous-goods-code' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    conditions: [ 'ntc.gov.au closed the connection without a response (HTTP/2 stream reset from curl); no terms were read.' ]
+    next_action: 'Measured 2026-11-15: no response from ntc.gov.au. Parked. Next: retry from Worker egress; the ADG Code is a PDF whose dangerous goods list would be a free-text member.'
 
 datasets:
   - key: home-product-recalls-global
@@ -13337,3 +13598,81 @@ datasets:
     scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
     evidence: [ docs/sources/pipeline/research-2026-11-14.md, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.py, docs/sources/pipeline/evidence/2026-11-14/pvp_measure.json ]
     next_action: 'Pull all 147 crop kinds from the POD API once and count the register; OCR 10 certificates; find a non-US member that is not RED (CPVO open data or a PLUTO bulk route) to make the dataset cross-jurisdiction.'
+  - key: occupational-exposure-limits
+    name: "Occupational exposure limits by jurisdiction (US OSHA and NIOSH, UK HSE, EU, Australia) linked by CAS number"
+    category: workplace-safety
+    entity: "occupational exposure limit: one limit for one substance in one jurisdiction or authority (TWA, STEL, ceiling or IDLH), with units, notations (skin, carcinogen, sensitiser), legal status and source edition"
+    stage: SCREENED
+    description: "One record per substance per jurisdiction's limit, keyed by CAS number. OSHA Z tables give the US legal PELs (417 Z-1 rows with CAS), NIOSH gives the recommended RELs, IDLH and quoted PELs in prose pages (626 CAS), HSE EH40 gives the Great Britain WELs from a PDF (376 CAS), the EU directives give the indicative OELVs (92 CAS in 5 acts) and Safe Work Australia HCIS gives the Australian WELs per chemical page. The CAS number names the same substance in each list, so rows link automatically at the substance level; group entries (dusts, 'compounds, as X') carry no CAS and are only reviewed candidates. Values are never merged across jurisdictions: the same CAS has different limits (OSHA 1000 ppm vs EH40 10 ppm for CAS 75-43-4)."
+    sources: [ oel-us-osha-z-tables, oel-niosh-npg-limits, oel-uk-hse-eh40, oel-eu-ioelv-directives, oel-au-hcis-wel ]
+    join_keys:
+      - key: CAS number (exact; OSHA Table Z-1 CAS column equals the NIOSH Pocket Guide CAS index entry)
+        between: [ oel-us-osha-z-tables, oel-niosh-npg-limits ]
+        measured: "390/417 Z-1 CAS numbers are in the NIOSH CAS index; on sampled NIOSH pages the quoted OSHA PEL TWA equals the Z-1 ppm in 9/10 pairs with ppm on both sides"
+        mode: declared
+      - key: CAS number (exact; EH40 table CAS equals the OSHA Table Z-1 CAS column)
+        between: [ oel-uk-hse-eh40, oel-us-osha-z-tables ]
+        measured: "237/373 check-digit-valid EH40 CAS numbers are in Z-1"
+        mode: declared
+      - key: CAS number (exact; EH40 table CAS equals the NIOSH Pocket Guide CAS index entry)
+        between: [ oel-uk-hse-eh40, oel-niosh-npg-limits ]
+        measured: "309/373 check-digit-valid EH40 CAS numbers are in the NIOSH index"
+        mode: declared
+      - key: CAS number (exact; EU directive annex CAS equals the EH40 table CAS)
+        between: [ oel-eu-ioelv-directives, oel-uk-hse-eh40 ]
+        measured: "87/92 CAS numbers in the five EU directives read are in EH40 (69/92 are in OSHA Z-1)"
+        mode: declared
+      - key: CAS number (exact; HCIS search by EH40 CAS opens a chemical page whose CAS field is equal)
+        between: [ oel-au-hcis-wel, oel-uk-hse-eh40 ]
+        measured: "11/15 sampled EH40 CAS numbers open an HCIS chemical page with the same CAS number and a WEL TWA; the other 4 are WEL-only records not on the public register"
+        mode: declared
+    taxonomy:
+      - "jurisdiction: US (OSHA legal PEL) | US (NIOSH recommended REL, IDLH) | GB (HSE WEL) | EU (indicative OELV) | AU (SWA WEL)"
+      - "limit_type: TWA 8 h | TWA 10 h | STEL 15 min | ceiling | peak | IDLH"
+      - "unit: ppm | mg/m3 | f/mL | mppcf"
+      - "notation: skin | carcinogen | sensitiser"
+      - "entry_kind: single substance (CAS) | group or dust fraction (no CAS)"
+    agent_questions:
+      - "What are the OSHA PEL, NIOSH REL, UK WEL, EU IOELV and Australian WEL for CAS 67-64-1, with units and notations?"
+      - "Which substances have a UK or EU limit stricter than the US OSHA PEL by more than ten times?"
+      - "Which substances carry a skin notation in one jurisdiction but not in another?"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/oel_measure.py, docs/sources/pipeline/evidence/2026-11-15/oel_measure.json ]
+    next_action: 'Parse every member into typed limits (value, unit, type, notation, edition date) with the verbatim cell kept; fetch 2000/39/EC from Cellar and apply the EU amendment chain; read the Safe Work Australia disclaimer; screen more national lists (Quebec RSST, Cal/OSHA Table AC-1, New Zealand WES, Japan, Singapore) whose terms allow reuse.'
+  - key: dangerous-goods-classifications
+    name: "Dangerous goods classifications by UN number (US 49 CFR HMT, Canada TDG Schedule 1, NIOSH, NOAA CAMEO)"
+    category: transport-safety
+    entity: "dangerous goods entry: one UN (or NA) number entry with proper shipping name, class and subsidiary classes, packing group, special provisions and quantity limits in each jurisdiction, plus the chemicals and ERG response guide that cite it"
+    stage: SCREENED
+    description: "One record per UN number entry per jurisdiction. The US Hazardous Materials Table (2,324 UN numbers, 44 NA) and Canada's TDG Schedule 1 (2,336 UN numbers) give class, packing group, special provisions and quantity limits; NIOSH Pocket Guide pages and NOAA CAMEO chemical datasheets cite UN/NA numbers and ERG guides in prose, which link chemicals (CAS) to their transport entry. The UN number names the same dangerous goods entry in each source, so it links automatically at the entry level, but one UN number can hold several US rows (packing groups, variants), so rows are matched within a UN number on packing group and are never merged across jurisdictions. Shipping names differ in form (US mixed case and 'or' alternates; Canada upper case and ';or'), so they are compared only for review."
+    sources: [ dg-us-49cfr-172-101-hmt, dg-ca-tdg-schedule-1, dg-niosh-npg-dot-ids, dg-noaa-cameo-chemicals ]
+    join_keys:
+      - key: UN number (exact; HMT identification number column equals TDG Schedule 1 column 1)
+        between: [ dg-us-49cfr-172-101-hmt, dg-ca-tdg-schedule-1 ]
+        measured: "2323/2324 US UN numbers are in TDG Schedule 1 (2323/2336 the other way; only UN3002 is US-only); the primary class agrees for 2310/2323"
+        mode: declared
+      - key: UN number (exact; NIOSH Pocket Guide "DOT ID & Guide" field cites an HMT identification number)
+        between: [ dg-niosh-npg-dot-ids, dg-us-49cfr-172-101-hmt ]
+        measured: "23/23 sampled NIOSH pages with a DOT ID cite a number present in the US HMT (23/23 also in TDG Schedule 1)"
+        mode: declared
+      - key: UN number (exact; CAMEO chemical datasheet UN/NA field cites an HMT identification number)
+        between: [ dg-noaa-cameo-chemicals, dg-us-49cfr-172-101-hmt ]
+        measured: "12/12 sampled CAMEO chemical datasheets with a UN/NA number cite a number present in the US HMT"
+        mode: declared
+      - key: UN number (exact; NIOSH DOT ID opens the CAMEO UN/NA datasheet), ERG guide compared
+        between: [ dg-niosh-npg-dot-ids, dg-noaa-cameo-chemicals ]
+        measured: "10/10 NIOSH UN numbers open a CAMEO UN/NA datasheet; the ERG guide is equal in 9/10 (NIOSH 131P vs CAMEO 131 for UN1991)"
+        mode: declared
+    taxonomy:
+      - "jurisdiction: US (49 CFR 172.101) | CA (TDG Schedule 1)"
+      - "hazard_class: 1.1-1.6 with compatibility group | 2.1-2.3 | 3 | 4.1-4.3 | 5.1-5.2 | 6.1-6.2 | 7 | 8 | 9, plus subsidiary classes"
+      - "packing_group: I | II | III | none"
+      - "id_kind: UN | NA (US only) | ID (US only)"
+      - "status: permitted | forbidden"
+    agent_questions:
+      - "What are the class, packing group, special provisions and quantity limits for UN1090 in the US and in Canada?"
+      - "Which UN numbers are regulated in Canada but absent from the US table, or have a different primary class?"
+      - "What UN number and ERG guide apply to CAS 75-05-8, and is it forbidden on passenger aircraft?"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/dg_measure.py, docs/sources/pipeline/evidence/2026-11-15/dg_measure.json ]
+    next_action: 'Type all HMT and TDG columns and match rows within a UN number on packing group; get the current 49 CFR text (eCFR) from Worker egress; read the CAMEO terms via a permitted route; retry PHMSA, UNECE and NTC from Worker egress for an international (ADR or UN Model Regulations) member.'
