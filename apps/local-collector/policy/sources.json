@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "f35a1f42011df9a31e01aa9b5ff63f11afce9fd220104806ec190c4fe83c741a",
+  "registry_sha256": "702417269b3b093e0e5ff5ae410f2875a3a5115bd6f05624c082d80a1a5d81a2",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -767,6 +767,16 @@
         "ahd-eu-adis-outbreak-reports",
         "ahd-rijksoverheid-hpai-culls",
         "ahd-gov-uk-animal-disease-cases"
+      ]
+    },
+    "geographical-indications": {
+      "name": "Geographical indications (EU eAmbrosia, UK GI schemes, WIPO Lisbon register, New Zealand register)",
+      "stage": "SCREENED",
+      "sources": [
+        "gi-eu-eambrosia-register",
+        "gi-wipo-lisbon-express",
+        "gi-uk-defra-protected-names",
+        "gi-nz-iponz-register"
       ]
     }
   },
@@ -6906,6 +6916,253 @@
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "gi-eu-eambrosia-register": {
+      "name": "EU eAmbrosia register of geographical indications (PDO/PGI/GI for food, wine, spirit drinks) via the eAmbrosia API",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission DG AGRI (eAmbrosia)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gi-uk-defra-protected-names": {
+      "name": "UK GI schemes register (Defra protected food, drink, wine and spirit names on GOV.UK)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Defra (GOV.UK)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gi-wipo-lisbon-express": {
+      "name": "WIPO Lisbon Express (international register of appellations of origin and GIs, Lisbon Agreement and Geneva Act)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "World Intellectual Property Organization (WIPO)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gi-nz-iponz-register": {
+      "name": "New Zealand geographical indications register (IPONZ xlsx export)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Intellectual Property Office of New Zealand (MBIE)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gi-ch-blw-geodata-layers": {
+      "name": "Swiss BLW register of designations of origin (GUB/AOP) and GIs (GGA/IGP) as geo.admin.ch map layers",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Swiss Federal Office for Agriculture (BLW)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "gi-wipo-global-brand-db-gi": {
+      "name": "WIPO Global Brand Database, appellations of origin / GI view",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "World Intellectual Property Organization (WIPO)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "gi-wine-australia-eu-register": {
+      "name": "Wine Australia Register of Protected GIs and Other Terms (with its EU GI register PDF)",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Wine Australia",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "gi-in-ipindia-registry": {
+      "name": "India Geographical Indications Registry (IP India GIR public search)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Office of the Controller General of Patents, Designs and Trade Marks (IP India)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-tc-detention-list": {
+      "name": "Transport Canada port state control detention list (yearly lists and per-IMO detention history)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Transport Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-uk-mca-detention-notices": {
+      "name": "UK MCA monthly 'Foreign flagged ships detained in the UK' notices under the Paris MOU (GOV.UK press releases)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Maritime and Coastguard Agency (GOV.UK)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "psc-med-mou-thetis-current": {
+      "name": "Mediterranean MoU current detentions (EMSA THETIS-Med public portal JSON)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Mediterranean MoU on Port State Control (hosted by EMSA THETIS-Med)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "psc-paris-mou-thetis-current": {
+      "name": "Paris MoU current detentions (EMSA THETIS public portal JSON)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Paris MoU on Port State Control (hosted by EMSA THETIS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-tokyo-mou-apcis-detentions": {
+      "name": "Tokyo MOU APCIS monthly detention list (Asia-Pacific)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Tokyo MOU Secretariat (APCIS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-uscg-detentions": {
+      "name": "USCG port state control detention list and PSIX",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Coast Guard",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-amsa-detentions": {
+      "name": "AMSA (Australia) detained ships list and detention reports",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Australian Maritime Safety Authority",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-iomou-detentions": {
+      "name": "Indian Ocean MoU detention list (IOCIS)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Indian Ocean MoU on Port State Control",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-bsmou-detentions": {
+      "name": "Black Sea MoU detention list (BSIS)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Black Sea MoU on Port State Control",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-caribbean-mou-detentions": {
+      "name": "Caribbean MoU inspection and detention data",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Caribbean MoU on Port State Control",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "psc-equasis": {
+      "name": "Equasis ship safety information (PSC inspections and detentions across MoUs)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Equasis",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
         "stage PARKED is before PROTOTYPED"
       ]
     }

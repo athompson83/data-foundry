@@ -1265,6 +1265,256 @@
    ]
   }
  ],
+ "join_lisbon_cited_eu_file_number": {
+  "lisbon_records_citing_eu_file_number": 243,
+  "cited_number_exists_in_eambrosia": 243,
+  "of_which_same_normalised_name": 236,
+  "by_origin": {
+   "EU": 243
+  }
+ },
+ "join_lisbon_cited_eu_file_number_sample": [
+  {
+   "lisbon_no": "1156",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Queso de Murcia al vino"
+   ],
+   "cited_eu_file_number": "PDO-ES-0204",
+   "eu_gi": "EUGI00000013513",
+   "eu_names": [
+    "Queso de Murcia al vino"
+   ]
+  },
+  {
+   "lisbon_no": "1157",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Queso Manchego"
+   ],
+   "cited_eu_file_number": "PDO-ES-0087",
+   "eu_gi": "EUGI00000012963",
+   "eu_names": [
+    "Queso Manchego"
+   ]
+  },
+  {
+   "lisbon_no": "1158",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Chinchón"
+   ],
+   "cited_eu_file_number": "PGI-ES-02017",
+   "eu_gi": "EUGI00000014222",
+   "eu_names": [
+    "Chinchón"
+   ]
+  },
+  {
+   "lisbon_no": "1159",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Gin de Mahón"
+   ],
+   "cited_eu_file_number": "PGI-ES-01953",
+   "eu_gi": "EUGI00000014194",
+   "eu_names": [
+    "Gin de Mahón"
+   ]
+  },
+  {
+   "lisbon_no": "1160",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Brandy de Jerez"
+   ],
+   "cited_eu_file_number": "PGI-ES-01944",
+   "eu_gi": "EUGI00000014158",
+   "eu_names": [
+    "Brandy de Jerez"
+   ]
+  },
+  {
+   "lisbon_no": "1161",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Brandy del Penedés"
+   ],
+   "cited_eu_file_number": "PGI-ES-01946",
+   "eu_gi": "EUGI00000014160",
+   "eu_names": [
+    "Brandy del Penedés"
+   ]
+  },
+  {
+   "lisbon_no": "1162",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Castilla y León"
+   ],
+   "cited_eu_file_number": "PGI-ES-A0948",
+   "eu_gi": "EUGI00000006824",
+   "eu_names": [
+    "Castilla y León"
+   ]
+  },
+  {
+   "lisbon_no": "1163",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Castilla"
+   ],
+   "cited_eu_file_number": "PGI-ES-A0059",
+   "eu_gi": "EUGI00000007661",
+   "eu_names": [
+    "Castilla"
+   ]
+  },
+  {
+   "lisbon_no": "1164",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Montilla-Moriles"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1479",
+   "eu_gi": "EUGI00000007201",
+   "eu_names": [
+    "Montilla-Moriles"
+   ]
+  },
+  {
+   "lisbon_no": "1165",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Yecla"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0606",
+   "eu_gi": "EUGI00000006159",
+   "eu_names": [
+    "Yecla"
+   ]
+  },
+  {
+   "lisbon_no": "1166",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Vinos de Madrid"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1525",
+   "eu_gi": "EUGI00000006981",
+   "eu_names": [
+    "Vinos de Madrid"
+   ]
+  },
+  {
+   "lisbon_no": "1167",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Valencia"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0872",
+   "eu_gi": "EUGI00000006603",
+   "eu_names": [
+    "Valencia"
+   ]
+  },
+  {
+   "lisbon_no": "1168",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Toro"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0886",
+   "eu_gi": "EUGI00000006149",
+   "eu_names": [
+    "Toro"
+   ]
+  },
+  {
+   "lisbon_no": "1169",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Utiel-Requena"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0874",
+   "eu_gi": "EUGI00000006601",
+   "eu_names": [
+    "Utiel-Requena"
+   ]
+  },
+  {
+   "lisbon_no": "1170",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Valdeorras"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1132",
+   "eu_gi": "EUGI00000006903",
+   "eu_names": [
+    "Valdeorras"
+   ]
+  },
+  {
+   "lisbon_no": "1171",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Valdepeñas"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0051",
+   "eu_gi": "EUGI00000007650",
+   "eu_names": [
+    "Valdepeñas"
+   ]
+  },
+  {
+   "lisbon_no": "1172",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Somontano"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0534",
+   "eu_gi": "EUGI00000005662",
+   "eu_names": [
+    "Somontano"
+   ]
+  },
+  {
+   "lisbon_no": "1173",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Terra Alta"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1556",
+   "eu_gi": "EUGI00000007321",
+   "eu_names": [
+    "Terra Alta"
+   ]
+  },
+  {
+   "lisbon_no": "1174",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Ribera del Júcar"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0049",
+   "eu_gi": "EUGI00000007648",
+   "eu_names": [
+    "Ribera del Júcar"
+   ]
+  },
+  {
+   "lisbon_no": "1175",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Rioja"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0117",
+   "eu_gi": "EUGI00000003061",
+   "eu_names": [
+    "Rioja"
+   ]
+  }
+ ],
  "nz_export": {
   "status": 200,
   "content_type": "application/csv; name=\"export-gi-register.xlsx\"",

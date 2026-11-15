@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-11-15: daily dataset scout (round 25)
+
+- Health: both LIVE recall datasets synced 2026-11-15 at about 12:18Z. Newest records match openFDA (2026-11-04; the known 2/2/1 total gap), CPSC (2026-11-12) and Health Canada (2026-11-13; 5,238 = 5,238). No regression.
+- Added 5 data types at SCREENED: `occupational-exposure-limits` (declared CAS joins, e.g. OSHA Z-1 to NIOSH 390/417), `dangerous-goods-classifications` (declared UN number, US HMT to Canada TDG 2,323/2,324), `geographical-indications` (declared EU file number, Lisbon to eAmbrosia 243/243), `food-composition-reference` (declared NDB number, CNF to USDA SR Legacy 4,615/4,798) and `animal-disease-outbreaks` (candidate ADIS to Rijksoverheid, hand check 2/2). Screened and not added: `port-state-detentions` (Paris MoU, Tokyo MOU and Transport Canada terms forbid commercial redistribution; the remaining members have no confirmed join). 54 new candidates. `UN number`, `IMO number` and `EU file number` added to the declared-join allow-list.
+- Widening: `hk-cfs-food-alerts-datagovhk` added to `food-and-health-recalls-global`, under the DATA.GOV.HK commercial-reuse terms, not the restrictive CFS site notice. Hand-checked links: 2/2 correct, to FDA F-0578/F-0579-2025, Health Canada NID 76890 and FSA-PRIN-18-2025. lebensmittelwarnung.de is PARKED RED (its terms forbid commercial use) and NZ MPI is PARKED (Incapsula). No raw-capture gap. The two known HC structuring gaps remain open.
+- Stage advance: `electrical-afdc-ev-stations` DISCOVERED → SCREENED (85,692 electric stations at the end of 2025; terms: "may be used for any purpose whatsoever").
+- Blocker: PR #88 still needs the owner to merge it. Until it merges, no dataset can reach EVIDENCED, because the archive workflow runs from `main`.
+- Verification: `npx vitest run tooling/test/source-pipeline.test.ts` 4,772 passed (with `repository-policy.test.ts`). Nothing deployed.
+
 ## Current session — 2026-11-14: daily dataset scout (round 24)
 
 - Health: both LIVE recall datasets synced 2026-11-14 at about 12:18Z. Newest records match openFDA (2026-11-04), CPSC (2026-11-12) and Health Canada (2026-11-10; 5,237 = 5,237). No regression.

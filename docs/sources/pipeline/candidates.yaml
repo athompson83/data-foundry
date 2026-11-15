@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-14
+updated: 2026-11-15
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -10632,6 +10632,283 @@ candidates:
     scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json ]
     next_action: 'Measured 2026-11-15: answers with an Incapsula bot-challenge iframe (212 bytes); not bypassed. Terms not read. Next: none until a documented feed or open-data release is found.'
+  - key: gi-eu-eambrosia-register
+    name: "EU eAmbrosia register of geographical indications (PDO/PGI/GI for food, wine, spirit drinks) via the eAmbrosia API"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG AGRI (eAmbrosia)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://webgate.ec.europa.eu/eambrosia-api/api/geographical-indications', 'https://ec.europa.eu/agriculture/eambrosia/geographical-indications-register/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json, docs/sources/pipeline/evidence/2026-11-15/gi_handcheck.json ]
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "Unless otherwise indicated (e.g. in individual copyright notices), content owned by the EU on this website is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) licence . This means that reuse is allowed, provided appropriate credit is given and changes are indicated."
+    conditions:
+      - "Credit the European Commission (eAmbrosia) and indicate changes, per CC BY 4.0. The eAmbrosia page footer links this Commission legal notice; the API on webgate.ec.europa.eu has no separate notice."
+      - "Product specifications and single documents are applicant (producer group / member state) documents: extract facts, do not republish the PDFs."
+      - "Control-authority and recognised-producer entries carry addresses, emails and phones (144 entries with email or phone): never store or serve contact fields."
+    next_action: 'Measured 2026-11-15: API v2.5.8, 3,935 GIs (Food 1,980, Wine 1,682, Spirit drink 273; PDO 2,045, PGI 1,890; REGISTERED 3,737, APPLIED 137, PUBLISHED 29, CANCELLED 20, REJECTED 12; 358 third-country), newest modification 2026-11-13; every record has an EU file number (e.g. PGI-IN-0659), 3,930 a CN code, 2,614 a specification attachment (sample is a 3.5 MB PDF), 1,280 amendments. Incremental pulls via modifiedOnFrom/modifiedOnTo. Next: pull all specification PDFs to R2 and measure text-layer coverage and deterministic extraction of area, production method and labelling rules.'
+  - key: gi-uk-defra-protected-names
+    name: "UK GI schemes register (Defra protected food, drink, wine and spirit names on GOV.UK)"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: Defra (GOV.UK)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=protected_food_drink_name&count=1000', 'https://www.gov.uk/api/content/protected-food-drink-names/scotch-whisky', 'https://www.gov.uk/protected-food-drink-names' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json, docs/sources/pipeline/evidence/2026-11-15/gi_handcheck.json ]
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "You can reproduce content published on GOV.UK under the OGL as long as you follow the licence’s conditions."
+    conditions:
+      - "Attribute Defra/GOV.UK under the Open Government Licence; product specification PDFs may be applicant documents, so extract facts and link the PDF rather than republishing it."
+      - "The UK register carries no EU file number; links to the EU register are reviewed name candidates (see the dataset join)."
+    next_action: 'Measured 2026-11-15: search API returns 5,498 entries with typed metadata (registered name, status, protection type, register, class, country of origin, application, registration and EU registration dates, reason for protection); 3,365 carry an EU registration date; newest 2026-09-11 (English Whisky approved, registration 2026-10-01). Content API pages link product specification and decision-notice PDFs (3/4 samples) and change-history notes; EU-agreement entries often say the specification is not yet available. Next: count specification PDFs across all 5,498 and pull them to R2.'
+  - key: gi-wipo-lisbon-express
+    name: "WIPO Lisbon Express (international register of appellations of origin and GIs, Lisbon Agreement and Geneva Act)"
+    category: trade
+    structuring: identifier-extraction
+    format: free-text
+    publisher: World Intellectual Property Organization (WIPO)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://lisbon-express.wipo.int/api/v1/search?offset=0&limit=500&keywords=*&searchType=ANY&sortBy=key', 'https://lisbon-express.wipo.int/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json ]
+    terms:
+      - url: https://www.wipo.int/en/web/terms-of-use
+        quote: "Except for some content published under more restrictive terms, new WIPO online publications and other online content are issued under an Attribution 4.0 International CC license (CC BY 4.0) . This allows anyone to reproduce, distribute, adapt, translate and publicly perform content published online under WIPO’s name, without explicit permission, provided that such use is accompanied by an acknowledgement that WIPO is the source, and clearly indicates if changes are made to the original content."
+    conditions:
+      - "Acknowledge WIPO as the source and mark changes (CC BY 4.0); the licence covers 'new' online content, so confirm it covers the register database before bulk redistribution."
+      - "The beneficiaries field is labelled 'Natural Person or Legal Entity': serve organisation beneficiaries only and withhold natural persons."
+      - "Notification, refusal and current-information PDFs are notified documents: extract facts, link the PDFs."
+    next_action: 'Measured 2026-11-15: JSON search API (no key), 1,461 records (AO 1,376, GI 85), import last updated 2026-11-09, newest publication 2026-07-15; origin FR 565, EU 272, IT 175, IR 98, CZ 79. Prose fields: geographical area 1,390, legal basis 1,389 (243 EU-party records cite the EU file number), beneficiaries; 833 records have refusals by other parties with dates and grounds, 1,202 a current-information PDF. Next: parse refusal/withdrawal events per contracting party and extract EU file numbers and national legal acts from all legal-basis texts.'
+  - key: gi-nz-iponz-register
+    name: "New Zealand geographical indications register (IPONZ xlsx export)"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: Intellectual Property Office of New Zealand (MBIE)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.iponz.govt.nz/get-ip/geographical-indications/register/downloadExport', 'https://www.iponz.govt.nz/get-ip/geographical-indications/register/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json, docs/sources/pipeline/evidence/2026-11-15/gi_handcheck.json ]
+    terms:
+      - url: https://www.iponz.govt.nz/about-iponz/copyright/
+        quote: "The information provided on the Intellectual Property Office of New Zealand website, excluding the intellectual property registers, may be reproduced for personal or in house use free of charge without further permission, subject to the following conditions:"
+    conditions:
+      - "The copyright page excludes the registers from its personal/in-house grant and states no licence for them; serve only non-copyrightable register facts (name, IP number, type, status, dates, country) with attribution, and re-read the terms before bulk redistribution."
+      - "The terms-of-use page applies to the registers ('Our intellectual property (IP) registers for ... geographical indications'); its no-commercial-distribution clause was read only for social-media material."
+    next_action: 'Measured 2026-11-15: xlsx export of 2,003 GIs (Registered by treaty 1,974 under the EU FTA part, NZ 19 wine regions, Foreign 6, Enduring 3; Wine 1,603, Spirits 234, Other 163), 22 typed columns including IP number, status, filed/registered/renewal dates and countries; newest Last Modified 2026-08-25. Next: read the per-GI pages for NZ-registered GIs (conditions, boundaries) and confirm the register terms.'
+  - key: gi-ch-blw-geodata-layers
+    name: "Swiss BLW register of designations of origin (GUB/AOP) and GIs (GGA/IGP) as geo.admin.ch map layers"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: Swiss Federal Office for Agriculture (BLW)
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://api3.geo.admin.ch/rest/services/api/MapServer/ch.blw.ursprungsbezeichnungen-kaese', 'https://ckan.opendata.swiss/api/3/action/package_search?q=Ursprungsbezeichnungen' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 2, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json ]
+    conditions: [ 'opendata.swiss lists the layers under terms_by (open use, source must be credited); that terms page was not read.' ]
+    next_action: 'Parked 2026-11-15: the only machine-readable Swiss GI source found is five BLW map layers (cheese 39 features / 31 names, meat 10, plant 1, spirits 1, confectionery), metadata dated 2009-2011, attributes are only the name in DE/FR/IT and an object code: no status, dates or specification. The BLW register page URL tried returned 404. Reopen when BLW publishes the register as a list or the Swiss-EU agreement annex is found in machine-readable form.'
+  - key: gi-wipo-global-brand-db-gi
+    name: "WIPO Global Brand Database, appellations of origin / GI view"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: World Intellectual Property Organization (WIPO)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://branddb.wipo.int/branddb/en/?type=ao' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json ]
+    next_action: 'Parked 2026-11-15 (RED: the page serves an ALTCHA proof-of-work challenge before content). Lisbon Express covers the WIPO GI register without a challenge.'
+  - key: gi-wine-australia-eu-register
+    name: "Wine Australia Register of Protected GIs and Other Terms (with its EU GI register PDF)"
+    category: trade
+    structuring: normalization
+    format: free-text
+    publisher: Wine Australia
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://www.wineaustralia.com/labelling/register-of-protected-gis-and-other-terms' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 3, freshness: 1, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json ]
+    conditions: [ 'Terms not read. The page HTML includes an ALTCHA script although it returned 200 with content to this client.' ]
+    next_action: 'Parked 2026-11-15: the page returned 200 and links one register PDF, "Register of EU Geographical Indications Updated 18 Jan 2019", so the EU part is stale; the Australian GI list is HTML on the page and was not parsed. Reopen to parse the Australian wine GIs (a free-text register) once the ALTCHA script is confirmed not to gate content.'
+  - key: gi-in-ipindia-registry
+    name: "India Geographical Indications Registry (IP India GIR public search)"
+    category: trade
+    structuring: normalization
+    format: free-text
+    publisher: Office of the Controller General of Patents, Designs and Trade Marks (IP India)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://search.ipindia.gov.in/GIRPublic/Application/Status' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json ]
+    next_action: 'Parked 2026-11-15: search.ipindia.gov.in/GIRPublic returned 404, ipindiaservices.gov.in reset the connection and ipindia.gov.in/registered-gls.htm returned 404. Reopen with the current GIR URL; Indian GIs registered in the EU (e.g. Darjeeling, PGI-IN-0659) are already in eAmbrosia.'
+  - key: psc-tc-detention-list
+    name: "Transport Canada port state control detention list (yearly lists and per-IMO detention history)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Transport Canada
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://wwwapps.tc.gc.ca/Saf-Sec-Sur/4/PSCQ-SRPSC/eng/detentions/search-results?Year=2026', 'https://wwwapps.tc.gc.ca/Saf-Sec-Sur/4/PSCQ-SRPSC/eng/detentions/details/9600592' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    terms:
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    next_action: 'Parked 2026-11-15: the canada.ca terms expressly forbid reproduction for commercial redistribution without written permission (RED under the pipeline gate, as for CFIA). Measured 2026-11-15: GET search-results by year (25 per page, no form token needed): 2024 61, 2025 72, 2026 59 detentions (all parsed), newest 2026-11-06; 2026 ports Vancouver 17, Trois-Rivieres 6, Montreal 5; per-IMO detail pages list each Canadian detention of the ship with release date, days detained and office (IMO 9216597 shows a 2015 detention), and the year selector reaches back to 1999, and 3/5 sampled 2026 detentions list deficiencies. Next: reopen only if Transport Canada publishes the list on open.canada.ca under the OGL-Canada.'
+  - key: psc-uk-mca-detention-notices
+    name: "UK MCA monthly 'Foreign flagged ships detained in the UK' notices under the Paris MOU (GOV.UK press releases)"
+    category: maritime
+    structuring: event-extraction
+    format: free-text
+    publisher: Maritime and Coastguard Agency (GOV.UK)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_organisations=maritime-and-coastguard-agency&filter_format=press_release&count=1000', 'https://www.gov.uk/api/content/government/news/foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 1, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "You can reproduce content published on GOV.UK under the OGL as long as you follow the licence’s conditions."
+    conditions:
+      - "Attribute the MCA under the Open Government Licence."
+      - "The notices name operating companies (organisations); do not store natural-person names if any appear."
+    next_action: 'Measured 2026-11-15: 11 monthly detention notices indexed in the GOV.UK search API (2023-10-12 to 2024-08-08, none since), 103 detention blocks parsed: 92 with IMO number, 72 with parsed date and port of detention, 103 with deficiency code rows (code, defective item, nature of defect, ground for detention, release or still-detained note); median 751 characters of prose per detention. Next: find where the MCA publishes detentions after 2024-08 (older notices before 2023-10 are not in the search index) or park as historical.'
+  - key: psc-med-mou-thetis-current
+    name: "Mediterranean MoU current detentions (EMSA THETIS-Med public portal JSON)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Mediterranean MoU on Port State Control (hosted by EMSA THETIS-Med)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://portal.emsa.europa.eu/o/portlet-thetismed-public/rest/detention/getCurrentDetentions.json', 'https://portal.emsa.europa.eu/web/thetis-med/current-detentions' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    terms:
+      - url: https://www.emsa.europa.eu/disclaimer.html
+        quote: "Reproduction is authorised, provided the source is acknowledged, save where otherwise stated."
+    conditions:
+      - "Acknowledge EMSA / Med MoU. The Paris MoU states otherwise for its own THETIS data (see psc-paris-mou-thetis-current); no Med MoU statement was found on medmou.org, so confirm before redistribution."
+      - "Current list only: a ship leaves the list on release, so snapshots must be taken daily to build history."
+    next_action: 'Measured 2026-11-15: 6 ships currently detained (Turkiye 4, Lebanon 1, Albania 1), detention dates 2024-01-15 to 2026-11-12, fields IMO, name, ship type, flag, port, reporting authority; no deficiencies in this endpoint. The same portal exposes getPublicInspections/getInspectionDetail. Next: measure the public inspection search for history and deficiencies.'
+  - key: psc-paris-mou-thetis-current
+    name: "Paris MoU current detentions (EMSA THETIS public portal JSON)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Paris MoU on Port State Control (hosted by EMSA THETIS)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://portal.emsa.europa.eu/o/portlet-public/rest/detention/getCurrentDetentions.json', 'https://parismou.org/detentions/' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 4, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    terms:
+      - url: https://parismou.org/detentions/
+        quote: "No part of the information contained in this website may be stored in a retrieval system, or transmitted in any form, or by any means without prior authorisation in writing from the owners of the data."
+    next_action: 'Parked 2026-11-15 (RED: the Paris MoU detentions page forbids storing or transmitting the data without written authorisation). Measured: 56 ships currently detained (Italy 9, UK 7, Romania 7, Greece 6), newest 2026-11-15. Reopen only with written authorisation from the Paris MoU.'
+  - key: psc-tokyo-mou-apcis-detentions
+    name: "Tokyo MOU APCIS monthly detention list (Asia-Pacific)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Tokyo MOU Secretariat (APCIS)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://apcis.tmou.org/isss/public_apcis.php?Mode=DetList', 'https://www.tokyo-mou.org/inspections-detentions/psc-database/' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    terms:
+      - url: https://www.tokyo-mou.org/inspections-detentions/psc-database/
+        quote: "The data obtained from this site should not be used for any commercial purposes, reproduced in any other sites or any publications without prior permission by the Tokyo MOU."
+    next_action: 'Parked 2026-11-15 (RED: the PSC database page forbids commercial use and reproduction without permission). Measured: monthly list by POST form, no CAPTCHA; 2026-09 140 and 2026-10 119 detentions, all with coded deficiencies; 3 of 5 Canadian-port rows match a Transport Canada 2026 detention on IMO number and date. Reopen only with Tokyo MOU permission.'
+  - key: psc-uscg-detentions
+    name: "USCG port state control detention list and PSIX"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: US Coast Guard
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.dco.uscg.mil/Our-Organization/Assistant-Commandant-for-Prevention-Policy-CG-5P/Inspections-Compliance-CG-5PC-/Commercial-Vessel-Compliance/Foreign-Offshore-Compliance-Division/PortStateControl/', 'https://cgmix.uscg.mil/PSIX/PSIXSearch.aspx' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    next_action: 'Parked 2026-11-15: dco.uscg.mil returned 403 "Access Denied" (edge block) to this client; cgmix PSIX search returned 200 but is a per-vessel ASP.NET form with no detention list. Retry the detention list from Worker egress; US federal work, so rights are expected to be GREEN once read.'
+  - key: psc-amsa-detentions
+    name: "AMSA (Australia) detained ships list and detention reports"
+    category: maritime
+    structuring: event-extraction
+    format: free-text
+    publisher: Australian Maritime Safety Authority
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.amsa.gov.au/vessels-operators/port-state-control/detained-ships' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    next_action: 'Parked 2026-11-15: www.amsa.gov.au reset the connection twice and then returned a CloudFront 403 "The request could not be satisfied". Retry from Worker egress; Australian detentions also appear in the Tokyo MOU list, which is RED.'
+  - key: psc-iomou-detentions
+    name: "Indian Ocean MoU detention list (IOCIS)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Indian Ocean MoU on Port State Control
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.iomou.org/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    next_action: 'Parked 2026-11-15: www.iomou.org and iomou.org returned 403 "Service unavailable" to this client. Retry from Worker egress.'
+  - key: psc-bsmou-detentions
+    name: "Black Sea MoU detention list (BSIS)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Black Sea MoU on Port State Control
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.bsmou.org/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    next_action: 'Parked 2026-11-15: www.bsmou.org reset the connection and www.bsis-bsmou.org failed with a proxy 502. Retry from Worker egress.'
+  - key: psc-caribbean-mou-detentions
+    name: "Caribbean MoU inspection and detention data"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Caribbean MoU on Port State Control
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.caribbeanmou.org/content/inspection-detention-data' ]
+    scores: { agent_demand: 2, rights_clarity: 1, acquisition_ease: 2, structuring_value: 2, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    next_action: 'Parked 2026-11-15: the page returned 200 with one current detention (IMO, ship type, detaining authority, date blank); the Detentions and Inspections tabs load separately and were not measured; terms not read. Reopen to measure the history tabs and the "Bulk Data Availability" page.'
+  - key: psc-equasis
+    name: "Equasis ship safety information (PSC inspections and detentions across MoUs)"
+    category: maritime
+    structuring: event-extraction
+    format: structured
+    publisher: Equasis
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.equasis.org/EquasisWeb/public/HomePage' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
+    next_action: 'Parked 2026-11-15 (RED: ship and inspection data require a registered login; the public home page presents the login form). Not reopened.'
 
 datasets:
   - key: home-product-recalls-global
@@ -13983,3 +14260,41 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
     evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.py, docs/sources/pipeline/evidence/2026-11-15/ahd_measure.json, docs/sources/pipeline/evidence/2026-11-15/ahd_handcheck.json ]
     next_action: 'Find an ADIS per-outbreak export with confirmation dates so the NL join can pair single outbreaks; add a CBS place-name to municipality gazetteer; retry gov.scot from Worker egress for a declared AIV case-number join with GOV.UK; look for a documented USDA APHIS per-detection download.'
+  - key: geographical-indications
+    name: "Geographical indications (EU eAmbrosia, UK GI schemes, WIPO Lisbon register, New Zealand register)"
+    category: trade
+    entity: "protected food, wine or spirit name (PDO/PGI/GI/appellation of origin) with scheme, status, product class, origin country, application/registration/cancellation dates, protecting jurisdictions and its product specification"
+    stage: SCREENED
+    description: "One record per protected name, keyed by the EU file number where one exists. eAmbrosia gives the EU register (3,935 GIs, every one with an EU file number and most with a specification PDF); the UK GI schemes register on GOV.UK gives 5,498 UK-protected names with typed dates, 3,365 of them with an EU registration date; WIPO Lisbon Express gives 1,461 international registrations whose prose legal-basis text cites the EU file number for the EU's Geneva Act entries and whose refusal events say where a name is not protected; IPONZ gives 2,003 New Zealand registrations, 1,974 by treaty. The cited EU file number links Lisbon to the EU register; UK and New Zealand entries link by reviewed name candidates."
+    sources: [ gi-eu-eambrosia-register, gi-wipo-lisbon-express, gi-uk-defra-protected-names, gi-nz-iponz-register ]
+    join_keys:
+      - key: EU file number cited in the Lisbon legal-basis text (e.g. "PDO-ES-0087") equals eAmbrosia registration fileNumber
+        between: [ gi-wipo-lisbon-express, gi-eu-eambrosia-register ]
+        measured: "243/243 Lisbon records citing an EU file number (all EU-party Geneva Act records) resolve to an eAmbrosia record; 236/243 also have the same normalised name"
+        mode: declared
+      - key: registered name (accent-folded, language versions split on ' / ') plus equal EU registration date
+        between: [ gi-uk-defra-protected-names, gi-eu-eambrosia-register ]
+        measured: "3,060/3,365 UK entries with an EU registration date match an eAmbrosia name; 3,054 of them also have the same EU registration date; 20/20 hand-checked pairs are the same GI"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: GI name (accent-folded) plus same origin country
+        between: [ gi-nz-iponz-register, gi-eu-eambrosia-register ]
+        measured: "1,712/1,967 New Zealand entries with an EU primary country match an eAmbrosia name in that country; 20/20 hand-checked pairs are the same GI"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: appellation name plus same origin country (Lisbon records of individual member states)
+        between: [ gi-wipo-lisbon-express, gi-eu-eambrosia-register ]
+        measured: "564/1,461 Lisbon records match an eAmbrosia name in the same origin country (946 records are from EU states); not hand-checked"
+        mode: candidate
+    taxonomy:
+      - "scheme: PDO | PGI | GI (spirits) | appellation of origin (Lisbon) | GI (Geneva Act) | treaty-registered (NZ)"
+      - "product_type: food (EU product class / CN code) | wine | spirit drink | aromatised wine"
+      - "status: applied | published | registered | cancelled | rejected | withdrawn"
+      - "protecting jurisdiction: EU | UK | NZ | Lisbon/Geneva parties, with refusals per party"
+    agent_questions:
+      - "Is 'Manchego' protected, under which scheme, since when, and in which jurisdictions (EU, UK, New Zealand, Lisbon parties), and where was protection refused?"
+      - "Which EU GIs for cheese were registered or amended in the last 12 months, and what does the specification require?"
+      - "Given an EU file number, what are the UK, New Zealand and WIPO records for the same name?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json, docs/sources/pipeline/evidence/2026-11-15/gi_handcheck.json ]
+    next_action: 'Archive the four registers and the eAmbrosia specification PDFs to R2; measure text-layer coverage of the specifications and parse geographical area and production rules; hand-check the Lisbon name/country candidates; find a non-EU national register that cites the EU file number (e.g. Japan, China agreement lists).'
