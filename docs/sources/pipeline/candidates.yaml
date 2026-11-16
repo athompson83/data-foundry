@@ -5701,59 +5701,6 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-10-03/legislation-bills-and-acts/results.json ]
     next_action: Parked - the open OData API answers (13,744 Acts, originatingBillUri to ParlInfo) but the copyright page is a script-rendered shell with no readable terms from this egress. Reopen once licence text is fetched verbatim.
 
-  - key: maritime-uk-maib-reports
-    name: UK MAIB marine accident investigation reports (gov.uk content API)
-    category: transport-safety
-    structuring: event-extraction
-    format: free-text
-    publisher: UK Marine Accident Investigation Branch
-    stage: SCREENED
-    rights: AMBER
-    sources: [ 'https://www.gov.uk/api/search.json?filter_format=maib_report', 'https://www.gov.uk/maib-reports' ]
-    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
-    terms:
-      - {
-          url: 'https://www.gov.uk/help/terms-conditions',
-          quote: 'Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt.'
-        }
-    conditions:
-      - Attribute 'Contains public sector information licensed under the Open Government Licence v3.0'.
-      - Exclude personal data and third-party images or material inside the report PDFs (OGL exemptions).
-      - Do not suggest endorsement by the MAIB.
-    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
-    next_action: Fetch all 1,104 content-API records and their PDFs into R2, extract the IMO number from the vessel-particulars table (22 of 60 sampled PDFs have one; fishing and recreational craft have none), and extract cause and injury text.
-
-  - key: maritime-ntsb-marine-investigation-reports
-    name: US NTSB marine investigation report PDFs (MIR series)
-    category: transport-safety
-    structuring: event-extraction
-    format: free-text
-    publisher: US National Transportation Safety Board
-    stage: SCREENED
-    rights: GREEN
-    sources: [ 'https://www.ntsb.gov/investigations/AccidentReports/Pages/Reports.aspx', 'https://www.ntsb.gov/investigations/AccidentReports/Reports/MIR2404.pdf' ]
-    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
-    terms:
-      - {
-          url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx',
-          quote: 'By publishing its reports and recommendations and opening public dockets, the NTSB has placed the contents prepared by its staff in the public domain.'
-        }
-    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
-    next_action: Enumerate MIR{yy}{nn}.pdf by GET (HEAD returns 200 for non-PDFs), extract IMO, vessel, casualty type and probable cause from the 22 sampled reports' layout, and exclude identified third-party copyrighted figures.
-
-  - key: maritime-ca-tsb-marine-occurrences
-    name: Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)
-    category: transport-safety
-    structuring: normalization
-    format: structured
-    publisher: Transportation Safety Board of Canada
-    stage: PARKED
-    rights: UNKNOWN
-    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/MARSISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv', 'https://open.canada.ca/data/api/action/package_show?id=ad8d1b73-df09-4521-9bdb-61c529328218' ]
-    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
-    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
-    next_action: Parked - CSV and report pages answer 403 Forbidden from this egress (a 403 is not permission). The CKAN record names the Open Government Licence - Canada and monthly updates; re-test from another egress and read the data dictionary for an IMO column.
-
   - key: maritime-au-atsb-marine-investigations
     name: Australian Transport Safety Bureau marine occurrence investigations
     category: transport-safety
@@ -5784,24 +5731,6 @@ candidates:
         }
     evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
     next_action: Parked - the published copyright notice requires prior consent for reuse and names no open licence; the WordPress API is reachable (36 English M-series marine reports 2013-2024) if a written permission or licence is found.
-
-  - key: maritime-de-bsu-investigation-reports
-    name: German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports
-    category: transport-safety
-    structuring: event-extraction
-    format: free-text
-    publisher: German Federal Bureau of Maritime Casualty Investigation
-    stage: PARKED
-    rights: UNKNOWN
-    sources: [ 'https://www.bsu-bund.de/EN/Publications/Unfallberichte/Unfallberichte_node.html' ]
-    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
-    terms:
-      - {
-          url: 'https://www.bsu-bund.de/EN/Service/Termsandconditions/Terms_and_conditions_node.html',
-          quote: 'Image copyright for the pictures used on this website is clarified. If you feel your rights are being violated please contact the BSU.'
-        }
-    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
-    next_action: Parked - the terms page gives picture credits only and no reuse licence for report text. The report list (per-year tables, English PDFs, some joint with MAIB) is reachable; make a rights determination, then test BSU-to-MAIB joint cases on IMO.
 
   - key: fda-device-510k-pma-clearances
     name: FDA device 510(k) clearances and PMA approvals (openFDA endpoints, 510(k) summary PDFs, product classification)
@@ -11410,6 +11339,121 @@ candidates:
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 2, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json ]
     next_action: 'Parked 2026-11-16 (re-screen of the existing key, replacing the 2026-09-17 entry): registry.faa.gov/database/ReleasableAircraft.zip, the faa.gov download page and faa.gov/av-info/download_SDR all answer HTTP 403 "Access Denied" from AkamaiGHost to our declared user agent (same as 2026-10-01). A bot block is not permission and was not bypassed. Reopen from an egress Akamai serves; then measure MASTER rows, MODE S CODE HEX coverage, SDRS N-number resolution, and the Mode S overlap with CCAR (the US block A00000-AFFFFF and Canadian block C00000-C3FFFF are disjoint, so overlap means re-registration history, not collisions). Registrant names of individuals: count only.'
+  # REPLACES the existing entry with the same key (reopened 2026-11-16).
+  - key: maritime-uk-maib-reports
+    name: "UK MAIB marine accident investigation reports (GOV.UK search and content API, report PDFs)"
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Marine Accident Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=maib_report&count=1000', 'https://www.gov.uk/api/content/maib-reports/foundering-of-the-fishing-vessel-argos-georgia-with-the-loss-of-13-lives', 'https://www.gov.uk/maib-reports' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.py, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json, docs/sources/pipeline/evidence/2026-11-16/mai_handcheck.json ]
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "Most content on GOV.UK is subject to Crown copyright protection and is published under the Open Government Licence ( OGL ), which also sets out which content is exempt."
+    conditions:
+      - "Attribute 'Contains public sector information licensed under the Open Government Licence v3.0'; do not suggest MAIB endorsement."
+      - "Exclude third-party photographs and material credited to others inside the PDFs (OGL exemptions); extract facts, link the PDF."
+      - "Reports name crew roles and sometimes people: serve vessels, organisations, dates and findings only, never natural-person names."
+    next_action: 'Measured 2026-11-16: 1,106 reports (investigation report 724, preliminary examination 286, safety bulletin 65, overseas report 15, Red Ensign Group 12, discontinued 4), every one with date_of_occurrence and vessel_type (merchant >=100 GT 635, fishing 356, merchant <100 GT 101, recreational 157); newest published 2026-10-15, 15-29 a year. Of the 15 newest merchant reports, 10 have a PDF and 9 of those print a check-digit-valid IMO number; 11/15 bodies carry recommendations (median 2,631 characters). 15 overseas-report pages link the foreign board''s report (14 hosts, one of them the BSU). Next: archive all PDFs to R2 and extract IMO, casualty type, findings and recommendation text.'
+  # REPLACES the existing entry with the same key (reopened 2026-11-16).
+  - key: maritime-ntsb-marine-investigation-reports
+    name: "US NTSB marine investigation reports (ntsb.gov Reports list API, MIR/MAB/MAR report PDFs)"
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: GREEN
+    sources: [ "https://www.ntsb.gov/investigations/AccidentReports/_api/web/Lists/Reports/items?%24top=500&%24filter=Mode%20eq%20%27Marine%27", 'https://www.ntsb.gov/investigations/AccidentReports/Pages/Reports.aspx?mode=Marine', 'https://www.ntsb.gov/investigations/AccidentReports/Reports/MIR2404.pdf' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.py, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json, docs/sources/pipeline/evidence/2026-11-16/mai_handcheck.json ]
+    terms:
+      - url: https://www.ntsb.gov/about/Pages/Website-Policies.aspx
+        quote: "By publishing its reports and recommendations and opening public dockets, the NTSB has placed the contents prepared by its staff in the public domain."
+    conditions:
+      - "Exclude third-party copyrighted photographs and figures inside the reports (the same policy page says the user must clear them with the copyright holders)."
+      - "Credit 'Courtesy: National Transportation Safety Board' (requested, not required)."
+    next_action: 'Measured 2026-11-16: the SharePoint list API behind the Reports page (no key) returns 567 marine reports (MAB 288, MIR 179, MAR 90, other 10) adopted 1974-07-22 to 2026-10-30, 561 with an NTSB case number (e.g. DCA25FM009), 482 with an accident date, all 567 with a PDF; 35 to 47 a year since 2024, list modified 2026-11-12. 8 of the 15 newest MIR PDFs print a check-digit-valid IMO number (the rest are US towing, fishing and small passenger vessels). CAROL moved to my.ntsb.gov behind sign-in, so the list API is the index. Next: archive all 567 PDFs and extract the vessel-particulars table (IMO, flag, type) and probable cause.'
+  - key: mai-no-nsia-marine-reports
+    name: "Norwegian Safety Investigation Authority (NSIA) marine investigation reports with typed facts tables"
+    category: transport-safety
+    structuring: event-extraction
+    format: structured
+    publisher: Norwegian Safety Investigation Authority (Statens havarikommisjon)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://nsia.no/Marine/Published-reports', 'https://nsia.no/Marine/Published-reports/2023-01' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.py, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json, docs/sources/pipeline/evidence/2026-11-16/mai_handcheck.json ]
+    conditions:
+      - "No reuse terms are published on nsia.no or havarikommisjonen.no (About, privacy pages read): AMBER under ADR-0018; credit the NSIA, link each report and keep its date."
+      - "Investigations do not apportion civil or criminal blame: present findings as safety findings, never as liability."
+      - "Personal-injury reports describe individuals: serve vessel, IMO number, date, category and recommendations only."
+    next_action: 'Measured 2026-11-16: 130 English marine reports (published 2020-09-24 to 2026-04-29 on the current site; report numbers back to 2009), each with a typed facts table: occurrence date 130, vessel name, accident category (personal injury 57, foundering 22, capsize 12, grounding 12, collision 10), vessel type, register, area; 66 carry a check-digit-valid IMO number (65 distinct), 4 an invalid one; 127 a report PDF. Next: read the PDFs for findings and recommendations, and the Norwegian-language archive for older reports.'
+  # REPLACES the existing PARKED entry with the same key (reopened 2026-11-16: silent terms are AMBER under ADR-0018).
+  - key: maritime-de-bsu-investigation-reports
+    name: "German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports (per-year tables, English PDFs)"
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: German Federal Bureau of Maritime Casualty Investigation (BSU)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.bsu-bund.de/EN/Publications/Unfallberichte/Unfallberichte_node.html', 'https://www.bsu-bund.de/EN/Publications/Unfallberichte/_functions/unfallberichte_table_2020.html?nn=223962' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.py, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json, docs/sources/pipeline/evidence/2026-11-16/mai_handcheck.json ]
+    terms:
+      - url: https://www.bsu-bund.de/EN/Service/Termsandconditions/Terms_and_conditions_node.html
+        quote: "Image copyright for the pictures used on this website is clarified. If you feel your rights are being violated please contact the BSU."
+    conditions:
+      - "The terms page covers picture credits only and is silent on reuse of report text: AMBER under ADR-0018; credit the BSU and link each report."
+      - "Do not republish photographs or third-party figures from the PDFs; extract facts."
+      - "Reports hosted for other boards (MAIB interim and final reports on Polesie/Verity) belong to that board: attribute them to MAIB."
+    next_action: 'Measured 2026-11-16: 325 report rows in 24 per-year tables (issued 2003-01-01 to 2026-09-24, 8 to 16 a year since 2022), 323 with a PDF, 315 with a BSU case number (267 distinct), 317 descriptions naming the vessel in capitals and 282 stating the occurrence date in prose; 3 rows host MAIB documents. Both PDFs read for the Polesie/Verity collision print IMO 9229178 and 9488097. Next: archive the PDFs, measure IMO coverage across all 323, and extract findings and recommendations.'
+  # REPLACES the existing PARKED entry with the same key (re-probed 2026-11-16).
+  - key: maritime-ca-tsb-marine-occurrences
+    name: Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/MARSISdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv', 'https://open.canada.ca/data/api/action/package_show?id=ad8d1b73-df09-4521-9bdb-61c529328218' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 1, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/research-2026-10-03.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json ]
+    next_action: 'Parked (re-probed 2026-11-16): the CKAN record answers (Open Government Licence - Canada, monthly, 14 resources: occurrence, vessel, equipment, injuries, data dictionary) but every resource is on www.tsb.gc.ca, whose Azure Application Gateway answers 403 to all requests from this egress, including the data dictionary. Re-test from another egress; the vessel table is the expected IMO source for NTSB/MAIB joins.'
+  - key: mai-bs-bma-investigation-reports
+    name: "Bahamas Maritime Authority published marine safety investigation reports"
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: The Bahamas Maritime Authority
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.bahamasmaritime.com/published-investigation-reports/', 'https://www.bahamasmaritime.com/wp-json/wp/v2/media?mime_type=application/pdf&search=report' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json ]
+    terms:
+      - url: https://www.bahamasmaritime.com/information/legal-notice/
+        quote: "The information, documents, logos and graphics published on this site are subject to copyright and as such may not be copied or retransmitted in any form unless expressly permitted by The Bahamas Maritime Authority."
+    next_action: 'Parked 2026-11-16 (RED: the legal notice forbids copying or retransmission without express permission). Measured: open page and WordPress media API (136 PDF media items matching "report"), 37 report PDFs linked on the published-reports page with occurrence and publication dates, several shared with MAIB (Polesie/Verity, Pride of Hull) and NSIA (Crete Cement, IMO 9037161). Reopen only with written BMA permission.'
+  - key: mai-imo-gisis-marine-casualties
+    name: "IMO GISIS Marine Casualties and Incidents module (flag-state casualty reports by IMO number)"
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: International Maritime Organization
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://gisis.imo.org/Public/MCI/Default.aspx' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json ]
+    next_action: 'Parked 2026-11-16 (RED: gated access): the public module redirects to webaccounts.imo.org WebLogin; nothing behind the login was read. It would be the cross-board IMO index if IMO ever offers an open export.'
 
 datasets:
   - key: home-product-recalls-global
@@ -14997,3 +15041,45 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json, docs/sources/pipeline/evidence/2026-11-16/acreg_pairs.json, docs/sources/pipeline/evidence/2026-11-16/acreg_handcheck.json ]
     next_action: 'Add "aircraft registration mark" and "ICAO 24-bit address" to the declared-identifier allow-list; archive CCAR, CASA and IAA snapshots to R2 to build mark date ranges; reach the FAA MASTER file (403 today) to resolve SDRS and NTSB N-numbers and measure Mode S overlap; try UK G-INFO (CONNECT 502 today) to resolve the 10,133 AAIB G- marks.'
+  - key: marine-accident-investigations
+    name: "Marine accident investigations (UK MAIB, US NTSB, Norway NSIA, Germany BSU)"
+    category: transport-safety
+    entity: "one marine casualty investigation: vessel(s) by IMO number, occurrence date and place, casualty type, investigating board and case or report number, findings and safety recommendations"
+    stage: SCREENED
+    description: "One record per casualty investigation, keyed by the board's case or report number and linked to vessels by IMO number. MAIB gives 1,106 UK reports with typed occurrence date, vessel type and report type, and PDFs whose vessel-particulars table prints the IMO number for most merchant ships; NTSB gives 567 marine reports from its Reports list API with case numbers and accident dates, IMO numbers in the PDFs; NSIA gives 130 Norwegian reports with a typed facts table (IMO number on 66, casualty category, register, area); BSU gives 325 German report rows with case numbers and prose descriptions. Boards investigate different fleets, so cross-board links are few: one MAIB overseas-report page cites the BSU report by its case-numbered PDF, and the Polesie/Verity collision is printed with the same IMO numbers by MAIB and BSU."
+    sources: [ maritime-uk-maib-reports, maritime-ntsb-marine-investigation-reports, mai-no-nsia-marine-reports, maritime-de-bsu-investigation-reports ]
+    join_keys:
+      - key: cited BSU case number (the MAIB overseas-report page links the BSU report PDF whose file carries the case number) equals a BSU table row
+        between: [ maritime-uk-maib-reports, maritime-de-bsu-investigation-reports ]
+        measured: "1/1 MAIB pages citing a BSU report resolve to a BSU table row (case 117 of 2011, OOCL Finland and Tyumen-2 collision); 15 MAIB overseas-report pages cite reports of 14 foreign boards, only one of them BSU"
+        mode: declared
+      - key: IMO number printed in both report PDFs (vessel-particulars tables)
+        between: [ maritime-de-bsu-investigation-reports, maritime-uk-maib-reports ]
+        measured: "2/2 same-event BSU-MAIB pairs whose PDFs were both read share both IMO numbers (9229178 Polesie, 9488097 Verity; one casualty, two BSU rows); across all PDFs read, 2 IMO numbers appear at two publishers"
+        mode: declared
+      - key: vessel name plus occurrence date within 3 days (BSU description capitals, MAIB title and date_of_occurrence)
+        between: [ maritime-de-bsu-investigation-reports, maritime-uk-maib-reports ]
+        measured: "3/30 BSU-MAIB vessel-name pairs fall within 3 days of each other (2 casualties); 3 of 3 hand-checked are the same casualty, the other 27 are different vessels years apart"
+        mode: candidate
+        reviewed: { correct: 3, checked: 3 }
+      - key: vessel name plus occurrence date within 3 days (NTSB title, MAIB title)
+        between: [ maritime-ntsb-marine-investigation-reports, maritime-uk-maib-reports ]
+        measured: "1/23 NTSB-MAIB vessel-name pairs share the occurrence date (Queen Elizabeth 2 grounding, 1992-08-07, NTSB MAR-93-01); hand-checked as the same casualty"
+        mode: candidate
+        reviewed: { correct: 1, checked: 1 }
+      - key: IMO number in the NSIA facts table found in MAIB, NTSB or BSU report PDFs
+        between: [ mai-no-nsia-marine-reports, maritime-uk-maib-reports ]
+        measured: "0/65 NSIA IMO numbers appear among the 10 MAIB, 8 NTSB and 4 BSU IMO numbers read this round; 13 NSIA vessel-name pairs with MAIB or NTSB titles are all different vessels"
+        mode: declared
+    taxonomy:
+      - "casualty type: collision | allision or contact | grounding | foundering or capsize | fire or explosion | flooding | personal injury or fatality | machinery failure | other"
+      - "vessel class: merchant >=100 GT | merchant <100 GT | fishing | passenger | towing | recreational"
+      - "report type: full investigation | brief or preliminary examination | interim | safety bulletin or recommendation | overseas or flag-state report"
+      - "investigating board and jurisdiction: MAIB (UK, Red Ensign Group) | NTSB (US) | NSIA (Norway) | BSU (Germany)"
+    agent_questions:
+      - "What is the casualty history of IMO 9229178 across national investigation boards, and what did each board find?"
+      - "Which investigations of enclosed-space or mooring-line fatalities since 2020 made safety recommendations, and to whom?"
+      - "Given a MAIB report, which other boards investigated the same casualty, and do their findings differ?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.py, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json, docs/sources/pipeline/evidence/2026-11-16/mai_handcheck.json ]
+    next_action: 'Archive all MAIB, NTSB (567) and BSU (323) report PDFs and NSIA facts pages to R2 and extract IMO numbers from every vessel-particulars table, then re-measure IMO overlap at full scale (the screening read only 10, 8 and 4 PDFs); add the boards MAIB pages cite (DMAIB, Dutch Safety Board, BEAmer, Irish MAIU, JTSB) and re-test TSB Canada MARSIS from another egress for the NTSB join.'
