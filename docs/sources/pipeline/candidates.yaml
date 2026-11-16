@@ -11009,6 +11009,107 @@ candidates:
       - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ngdc.mgg.hazards:G10147
         quote: "Cite as: National Geophysical Data Center / World Data Service (NGDC/WDS): NCEI/WDS Global Significant Volcanic Eruptions Database. NOAA National Centers for Environmental Information. doi:10.7289/V5JW8BSH [access date]"
     next_action: 'Measured 2026-11-16: 903 significant eruptions (newest 2026-05-07, 31 since 2020) with deaths, injuries, damage and houses-destroyed counts, VEI and tsunami/earthquake event links; 900/903 carry the GVP volcano number (volcanoLocationNewNum), 897 resolve to Volcanoes of the World across 276 volcanoes; 1,609 volcano locations, 1,437 with a GVP number, 1,409 resolve (1,407 within 25 km). The ISO record says "Access to this dataset is unrestricted." (US government work). Next: archive both endpoints and link eruption impact facts to GVP eruptions by volcano number plus start date.'
+  - key: dpat-us-fda-orange-book-patents
+    name: "FDA Orange Book patent and exclusivity data files (products.txt, patent.txt, exclusivity.txt)"
+    category: pharmaceuticals
+    structuring: obligation-timeline
+    format: structured
+    publisher: US Food and Drug Administration (CDER Orange Book)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.fda.gov/media/76860/download', 'https://www.accessdata.fda.gov/scripts/cder/ob/index.cfm' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json, docs/sources/pipeline/evidence/2026-11-16/dpat_handcheck.json ]
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    next_action: 'Measured 2026-11-16: zip 1,104,034 bytes, files dated 2026-11-13; products.txt 48,990 rows, patent.txt 22,599 rows (7,186 distinct patent numbers incl. 591 with a *PED pediatric suffix and 79 reissues RE*, 1,361 applications), exclusivity.txt 2,462 rows; 14,257 patent rows carry a use code, 3,624 a drug-substance flag, 9,853 a drug-product flag, 127 a delist request; newest patent submission 2026-11-12; expiries 2025-07-13 to 2046-01-13; 22,599/22,599 patent rows resolve to a products.txt application/product. Next: archive monthly snapshots to R2 and add the patent use-code definitions (free text) so the use code reads as a claimed method of use.'
+  - key: dpat-us-fda-purple-book-patent-list
+    name: "FDA Purple Book biological product patent list (BPPT section 351(k)(9)(A)(iii)) and monthly Purple Book data"
+    category: pharmaceuticals
+    structuring: obligation-timeline
+    format: structured
+    publisher: US Food and Drug Administration (Purple Book)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://purplebooksearch.fda.gov/index.cfm?event=patentlist', 'https://www.accessdata.fda.gov/drugsatfda_docs/PurpleBook/2026/purplebook-search-October-data-download.csv', 'https://purplebooksearch.fda.gov/downloads' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json ]
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    next_action: 'Measured 2026-11-16: patent list page is a static HTML table of 424 rows (359 distinct patents, 16 reference BLAs, 14 proper names, 423 with an expiry date); 0 of its patents also appear in the Orange Book; the October 2026 monthly CSV (487,133 bytes, 2,276 lines) carries BLA number, exclusivity expiry dates and a "Patent List Provided" column. All 14 proper names are also Health Canada register ingredients (name candidates, not hand-checked). Next: archive the page monthly and parse the BLA to proper-name to patent list; hand-check the proper-name links to Health Canada.'
+  - key: dpat-ca-hc-patent-register
+    name: "Health Canada Patent Register (Patented Medicines (NOC) Regulations) open-data export Patent.zip"
+    category: pharmaceuticals
+    structuring: obligation-timeline
+    format: structured
+    publisher: Health Canada (Office of Patented Medicines and Liaison)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pr-rdb.hc-sc.gc.ca/patent/Patent.zip', 'https://open.canada.ca/data/en/dataset/1674baf5-6822-4788-afb3-f8659531d7c0', 'https://pr-rdb.hc-sc.gc.ca/pr-rdb/search' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json, docs/sources/pipeline/evidence/2026-11-16/dpat_handcheck.json ]
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license;"
+    conditions:
+      - "Use the open-data export, which open.canada.ca lists under the Open Government Licence - Canada; acknowledge Health Canada and link the licence. The canada.ca web pages carry non-commercial reproduction terms, so do not republish page content."
+      - "The export carries named contacts for service and the signing officer (5,064 of 9,037 patent rows and 28,717 of 29,970 submission rows have a person name, plus titles, addresses and phones): never store or serve those columns; keep the patent, DIN, dates, category, submission and USE_OF_MI fields."
+      - "The export's EXPIRATION_DATE equals DATE_GRANTED on every row (9,037/9,037); derive expiry as filing date + 20 years (checked against the live register for 2952131: 2036-12-19) and take CSP numbers and expiry from the register pages, which the export omits."
+    next_action: 'Measured 2026-11-16: Patent.zip 4,286,023 bytes, files dated 2026-11-16 (daily); drugs 3,092 rows (3,047 DINs), patent rows 9,037 (2,996 distinct Canadian patent numbers), submissions 29,970 (4,775 removed; 23,959 with free-text use-of-medicinal-ingredient indications); newest date added 2026-11-13, 388 submissions added since 2026-10-01; 1,035 listed patents unexpired on derived expiry; 7,819/9,037 patent rows resolve to a drugs_e.txt DRUG_ID. Next: parse CSP numbers from register pages and fold in the Form IV PDF patent lists.'
+  - key: dpat-ca-cipo-patent-bulk-data
+    name: "CIPO Canadian patent bulk data (bibliographic, abstracts, claims and disclosure text) on open.canada.ca"
+    category: pharmaceuticals
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Canadian Intellectual Property Office (ISED)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://opic-cipo.ca/cipo/client_downloads/Patent_CSV_2024_10_11/PT_main_2000001_to_4000000_2024-10-11.zip', 'https://opic-cipo.ca/cipo/client_downloads/Patent_CSV_2024_10_11/PT_claim_2950001_to_3000000_2024-10-11.zip', 'https://open.canada.ca/data/en/dataset/fe1dfbb9-0fc3-42ca-b2a9-6ca4c05dbac9' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json ]
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose."
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license;"
+    conditions:
+      - "Acknowledge CIPO and link the Open Government Licence - Canada. Claims and disclosures are written by applicants: serve parsed facts and short claim excerpts as evidence, link the full CIPO record, and do not republish complete specifications."
+      - "The interested-party files name inventors and owners; do not load inventor names (natural persons). Owner organisation names only."
+      - "The newest bulk extract is 2024-10-11 (newest grant in PT_main 2024-06-25): patents granted later have no bulk record, so record freshness per patent and keep the Health Canada register as the listing truth."
+    next_action: 'Measured 2026-11-16: PT_main_2000001_to_4000000 zip 76,795,115 bytes, 1,190,073 patents, newest grant 2024-06-25; PT_claim_2950001_to_3000000 zip 71,108,024 bytes with claims for 49,279 patents (median 9,613 claim characters per register patent). Health Canada register patent numbers resolve 2,495/2,586 in that range (2,340/2,427 of those granted by 2024-06-25; misses are absent blocks such as 2137xxx) and 93/93 in the claims range; grant dates agree 2,318/2,495. Next: pull the remaining claim and abstract ranges for all 2,996 register patents to R2 and extract claim type (compound, formulation, use, process) deterministically.'
+  - key: dpat-ca-hc-drug-product-database
+    name: "Health Canada Drug Product Database (DPD) API, DIN lookups for patent-listed drugs"
+    category: pharmaceuticals
+    structuring: normalization
+    format: structured
+    publisher: Health Canada (Drug Product Database)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://health-products.canada.ca/api/drug/drugproduct/?din=02544040&lang=en&type=json', 'https://open.canada.ca/data/en/dataset/bf55e42a-63cb-4556-bfd8-44f26e5a36fe' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json ]
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "You are free to: Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose."
+    conditions:
+      - "Acknowledge Health Canada and link the Open Government Licence - Canada (open.canada.ca lists the DPD extracts under it); the API itself has no separate notice that was read."
+    next_action: 'Measured 2026-11-16: 37/40 sampled register DINs return a DPD product (35/37 same brand; the 3 misses, LOSEC 02238391, LAMICTAL 02240119 and LEVEMIR INNOLET 02271869, return an empty list, cause not checked); records carry drug_code, company and last_update_date (newest 2026-10-29 in the sample). Next: use the DPD all-files extract for status (marketed/cancelled) and company per DIN rather than per-DIN API calls.'
+  - key: dpat-us-uspto-patent-full-text
+    name: "USPTO patent full text (Open Data Portal API and bulk files, successor of PatentsView)"
+    category: pharmaceuticals
+    structuring: identifier-extraction
+    format: free-text
+    publisher: United States Patent and Trademark Office
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://api.uspto.gov/api/v1/patent/applications/search', 'https://data.uspto.gov/support/transition-guide/patentsview' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json ]
+    next_action: 'Measured 2026-11-16: api.uspto.gov answers 401 Unauthorized without an API key (keys are issued to registered accounts); data.uspto.gov is a single-page app behind an AWS WAF challenge script; PatentsView legacy API redirects to the ODP transition guide; PatentsView S3 bulk files answer 403; search.patentsview.org answers 502 from the proxy. Parked as access-gated, so the Orange Book US patent number could not be resolved to a USPTO record. Reopen when an ODP API key is provisioned for the scout or an ungated bulk text file is found.'
 
 datasets:
   - key: home-product-recalls-global
@@ -14408,3 +14509,41 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json, docs/sources/pipeline/evidence/2026-11-16/volc_handcheck.json ]
     next_action: 'Add "GVP volcano number" to the declared-identifier allow-list; read the GVP terms from an unchallenged route; confirm the weekly report has resumed (last issue 2026-10-15) or replace it with a reachable free-text member; archive WFS layers, HANS notices, VAAC texts and NCEI tables to R2; write the GeoNet alias table. Supersedes the 2026-10-18 PARKED hazard-volcanic-activity-reports screen, whose blocker (no GVP access) is resolved by the WFS.'
+  - key: drug-patent-listings
+    name: "Drug patent listings (FDA Orange Book and Purple Book, Health Canada Patent Register, CIPO patent text)"
+    category: pharmaceuticals
+    entity: "one patent listed against an approved drug product: patent number, jurisdiction, product (US application/product number or BLA; Canadian DIN), filing, grant and expiry dates, use code or indication, drug substance/product flags, certificate of supplementary protection, regulatory exclusivities, and the patent's claims text"
+    stage: SCREENED
+    description: "One record per (patent, listed product, jurisdiction). The FDA Orange Book gives 22,599 US patent listings (7,186 patents, 1,361 applications) with expiry, use codes and 2,462 exclusivities; the Purple Book adds 424 biologic patent listings for 16 reference BLAs; the Health Canada Patent Register export gives 9,037 Canadian listings (2,996 patents) against 3,047 DINs with free-text indications; CIPO bulk data adds bibliographic records and claims text for the Canadian patents; the Drug Product Database resolves the DIN. The Canadian patent number links the register to CIPO, the DIN links it to the DPD, and US and Canadian listings for the same drug link by reviewed brand-plus-ingredient candidates (never merging patents across jurisdictions). US claims text (USPTO) is parked: access is key-gated."
+    sources: [ dpat-us-fda-orange-book-patents, dpat-us-fda-purple-book-patent-list, dpat-ca-hc-patent-register, dpat-ca-cipo-patent-bulk-data, dpat-ca-hc-drug-product-database ]
+    join_keys:
+      - key: Canadian patent number in the Health Canada register equals the CIPO patent number
+        between: [ dpat-ca-hc-patent-register, dpat-ca-cipo-patent-bulk-data ]
+        measured: "2,495/2,586 register patents numbered 2,000,001-4,000,000 resolve to a CIPO PT_main record (2,340/2,427 of those granted by the bulk file's newest grant, 2024-06-25); grant dates agree 2,318/2,495; 93/93 register patents in 2,950,001-3,000,000 have CIPO claims text"
+        mode: declared
+      - key: Drug Identification Number (DIN) in the Health Canada register equals the Drug Product Database DIN
+        between: [ dpat-ca-hc-patent-register, dpat-ca-hc-drug-product-database ]
+        measured: "37/40 sampled register DINs return a DPD product; 35/37 have the same brand"
+        mode: declared
+      - key: Orange Book trade name equals Health Canada register brand name with an overlapping active moiety
+        between: [ dpat-us-fda-orange-book-patents, dpat-ca-hc-patent-register ]
+        measured: "390/1,408 Health Canada register brands with patents match an Orange Book brand with patents and the same active moiety (410 share the brand); 20/20 hand-checked pairs are the same drug"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: Purple Book proper name (suffix removed) equals a Health Canada register medicinal ingredient
+        between: [ dpat-us-fda-purple-book-patent-list, dpat-ca-hc-patent-register ]
+        measured: "14/14 Purple Book proper names appear as register ingredients (e.g. adalimumab, rituximab, denosumab); not hand-checked"
+        mode: candidate
+    taxonomy:
+      - "jurisdiction: US (Orange Book, small molecules) | US (Purple Book, biologics) | CA (Patent Register)"
+      - "patent claim type: drug substance | drug product (formulation) | method of use (use code / indication) | process"
+      - "listing status: listed | delist requested | removed | expired (derived from filing + 20 years where the source omits expiry)"
+      - "protection: patent | certificate of supplementary protection | regulatory exclusivity (NCE, ODE, pediatric, new indication, biologic reference)"
+    agent_questions:
+      - "When do the last patents and exclusivities on Xarelto expire in the US and in Canada, and what does each patent claim?"
+      - "Which Orange Book patents on a drug claim the substance itself versus a method of use, and which use codes block a generic label?"
+      - "Which Canadian listed patents for a DIN expire in the next 12 months, and is a supplementary protection certificate extending them?"
+      - "For a biologic such as adalimumab, which patents did the sponsor list to biosimilar applicants, and when do they expire?"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json, docs/sources/pipeline/evidence/2026-11-16/dpat_handcheck.json ]
+    next_action: 'Archive the Orange Book zip, Purple Book patent list, Health Canada Patent.zip and the CIPO main and claims ranges covering all 2,996 register patents to R2; add the Orange Book patent use-code definitions; hand-check the Purple Book proper-name candidates; reopen dpat-us-uspto-patent-full-text when a USPTO Open Data Portal key is provisioned so the Orange Book US patent number can be resolved to claims text.'

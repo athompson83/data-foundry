@@ -1,0 +1,1811 @@
+{
+ "run_date": "2026-11-16",
+ "requests": 50,
+ "fda_orange_book": {
+  "status": 200,
+  "bytes": 1104034,
+  "files": {
+   "patent.txt": {
+    "bytes": 1250294,
+    "modified": "2026-11-13"
+   },
+   "products.txt": {
+    "bytes": 7532408,
+    "modified": "2026-11-13"
+   },
+   "exclusivity.txt": {
+    "bytes": 79161,
+    "modified": "2026-11-13"
+   }
+  },
+  "products_rows": 48990,
+  "products_columns": [
+   "Ingredient",
+   "DF;Route",
+   "Trade_Name",
+   "Applicant",
+   "Strength",
+   "Appl_Type",
+   "Appl_No",
+   "Product_No",
+   "TE_Code",
+   "Approval_Date",
+   "RLD",
+   "RS",
+   "Type",
+   "Applicant_Full_Name"
+  ],
+  "patent_rows": 22599,
+  "patent_columns": [
+   "Appl_Type",
+   "Appl_No",
+   "Product_No",
+   "Patent_No",
+   "Patent_Expire_Date_Text",
+   "Drug_Substance_Flag",
+   "Drug_Product_Flag",
+   "Patent_Use_Code",
+   "Delist_Flag",
+   "Submission_Date"
+  ],
+  "exclusivity_rows": 2462,
+  "exclusivity_columns": [
+   "Appl_Type",
+   "Appl_No",
+   "Product_No",
+   "Exclusivity_Code",
+   "Exclusivity_Date"
+  ],
+  "distinct_patent_numbers": 7186,
+  "patent_number_forms": {
+   "digits": 6516,
+   "9999999*PED": 360,
+   "99999999*PED": 231,
+   "RE99999": 66,
+   "RE99999*PED": 13
+  },
+  "distinct_applications_with_patents": 1361,
+  "rows_with_use_code": 14257,
+  "rows_drug_substance_flag": 3624,
+  "rows_drug_product_flag": 9853,
+  "rows_delist_requested": 127,
+  "newest_patent_submission_date": "2026-11-12",
+  "patent_expiry_range": [
+   "2025-07-13",
+   "2046-01-13"
+  ],
+  "exclusivity_codes_top": [
+   [
+    "ODE-n",
+    615
+   ],
+   [
+    "NCE",
+    449
+   ],
+   [
+    "PED",
+    347
+   ],
+   [
+    "I-n",
+    246
+   ],
+   [
+    "M-n",
+    198
+   ],
+   [
+    "NPP",
+    178
+   ],
+   [
+    "NP",
+    136
+   ],
+   [
+    "ODE*",
+    95
+   ]
+  ],
+  "patent_rows_resolving_to_products_txt": "22599/22599",
+  "sample_patent_rows": [
+   {
+    "Appl_Type": "N",
+    "Appl_No": "020610",
+    "Product_No": "001",
+    "Patent_No": "7625884",
+    "Patent_Expire_Date_Text": "Aug 24, 2026",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "U-141",
+    "Delist_Flag": "",
+    "Submission_Date": ""
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "210563",
+    "Product_No": "001",
+    "Patent_No": "8563563",
+    "Patent_Expire_Date_Text": "Apr 26, 2027",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "U-1946",
+    "Delist_Flag": "",
+    "Submission_Date": "Mar 6, 2018"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "209862",
+    "Product_No": "001",
+    "Patent_No": "10220158",
+    "Patent_Expire_Date_Text": "Mar 20, 2035",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-2500",
+    "Delist_Flag": "",
+    "Submission_Date": "Mar 27, 2019"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "208341",
+    "Product_No": "001",
+    "Patent_No": "8940718",
+    "Patent_Expire_Date_Text": "Nov 16, 2032",
+    "Drug_Substance_Flag": "Y",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-1470",
+    "Delist_Flag": "",
+    "Submission_Date": "Jul 15, 2016"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "216873",
+    "Product_No": "002",
+    "Patent_No": "9809559",
+    "Patent_Expire_Date_Text": "Jun 11, 2035",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "U-1201",
+    "Delist_Flag": "",
+    "Submission_Date": "Oct 4, 2023"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "215431",
+    "Product_No": "001",
+    "Patent_No": "10512692",
+    "Patent_Expire_Date_Text": "Apr 11, 2036",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "U-1719",
+    "Delist_Flag": "",
+    "Submission_Date": "Feb 27, 2025"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "215430",
+    "Product_No": "001",
+    "Patent_No": "11752144",
+    "Patent_Expire_Date_Text": "Feb 23, 2043",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "U-3419",
+    "Delist_Flag": "",
+    "Submission_Date": "Sep 14, 2023"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "218139",
+    "Product_No": "001",
+    "Patent_No": "12427108",
+    "Patent_Expire_Date_Text": "Feb 1, 2041",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-3991",
+    "Delist_Flag": "",
+    "Submission_Date": "Oct 3, 2025"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "213072",
+    "Product_No": "002",
+    "Patent_No": "9763885",
+    "Patent_Expire_Date_Text": "May 1, 2033",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-3095",
+    "Delist_Flag": "",
+    "Submission_Date": "Mar 29, 2021"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "208558",
+    "Product_No": "001",
+    "Patent_No": "8143241",
+    "Patent_Expire_Date_Text": "Aug 12, 2027",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "U-3695",
+    "Delist_Flag": "",
+    "Submission_Date": "Sep 15, 2017"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "214801",
+    "Product_No": "001",
+    "Patent_No": "9108973",
+    "Patent_Expire_Date_Text": "Feb 13, 2033",
+    "Drug_Substance_Flag": "Y",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-3456",
+    "Delist_Flag": "",
+    "Submission_Date": "Oct 24, 2022"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "210933",
+    "Product_No": "001",
+    "Patent_No": "12115246",
+    "Patent_Expire_Date_Text": "May 3, 2033",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-2985",
+    "Delist_Flag": "",
+    "Submission_Date": "Nov 8, 2024"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "217180",
+    "Product_No": "005",
+    "Patent_No": "11896717",
+    "Patent_Expire_Date_Text": "Nov 14, 2033",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "U-3230",
+    "Delist_Flag": "",
+    "Submission_Date": "May 28, 2026"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "213953",
+    "Product_No": "001",
+    "Patent_No": "10576090",
+    "Patent_Expire_Date_Text": "Dec 31, 2030",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": "Aug 26, 2022"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "213983",
+    "Product_No": "001",
+    "Patent_No": "9242986",
+    "Patent_Expire_Date_Text": "Dec 8, 2029",
+    "Drug_Substance_Flag": "Y",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": "Jun 19, 2020"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "216158",
+    "Product_No": "002",
+    "Patent_No": "12558317",
+    "Patent_Expire_Date_Text": "Oct 29, 2039",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": "Mar 24, 2026"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "205004",
+    "Product_No": "001",
+    "Patent_No": "8962572",
+    "Patent_Expire_Date_Text": "Nov 3, 2032",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": "Nov 21, 2017"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "213593",
+    "Product_No": "001",
+    "Patent_No": "12042539",
+    "Patent_Expire_Date_Text": "Jul 16, 2039",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "Y",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": "Aug 2, 2024"
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "022068",
+    "Product_No": "001",
+    "Patent_No": "8415363*PED",
+    "Patent_Expire_Date_Text": "Jan 18, 2027",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": ""
+   },
+   {
+    "Appl_Type": "N",
+    "Appl_No": "206073",
+    "Product_No": "001",
+    "Patent_No": "7579449*PED",
+    "Patent_Expire_Date_Text": "Feb 1, 2029",
+    "Drug_Substance_Flag": "",
+    "Drug_Product_Flag": "",
+    "Patent_Use_Code": "",
+    "Delist_Flag": "",
+    "Submission_Date": ""
+   }
+  ]
+ },
+ "fda_purple_book": {
+  "status": 200,
+  "rows": 424,
+  "distinct_patents": 359,
+  "distinct_blas": 16,
+  "distinct_proper_names": 14,
+  "rows_with_expiry": 423,
+  "patent_number_all_digits": 416,
+  "sample": [
+   {
+    "bla": "103705",
+    "applicant": "Genentech, Inc.",
+    "proprietary_name": "Rituxan",
+    "proper_name": "rituximab",
+    "patent_number": "8512983",
+    "expiry": "2031-01-04"
+   },
+   {
+    "bla": "125057",
+    "applicant": "AbbVie Inc.",
+    "proprietary_name": "Humira",
+    "proper_name": "adalimumab",
+    "patent_number": "8986693",
+    "expiry": "2025-04-11"
+   },
+   {
+    "bla": "125057",
+    "applicant": "AbbVie Inc.",
+    "proprietary_name": "Humira",
+    "proper_name": "adalimumab",
+    "patent_number": "9181572",
+    "expiry": "2033-03-14"
+   },
+   {
+    "bla": "125104",
+    "applicant": "Biogen Inc.",
+    "proprietary_name": "Tysabri",
+    "proper_name": "natalizumab",
+    "patent_number": "11280794",
+    "expiry": "2034-05-27"
+   },
+   {
+    "bla": "125276",
+    "applicant": "Genentech, Inc.",
+    "proprietary_name": "Actemra",
+    "proper_name": "tocilizumab",
+    "patent_number": "10017732",
+    "expiry": "2034-12-25"
+   },
+   {
+    "bla": "125289",
+    "applicant": "Janssen Biotech, Inc.",
+    "proprietary_name": "Simponi",
+    "proper_name": "golimumab",
+    "patent_number": "10500348",
+    "expiry": "2031-11-20"
+   },
+   {
+    "bla": "125320",
+    "applicant": "Amgen Inc.",
+    "proprietary_name": "Prolia and Xgeva",
+    "proper_name": "denosumab",
+    "patent_number": "11192919",
+    "expiry": "2035-11-13"
+   },
+   {
+    "bla": "125387",
+    "applicant": "Regeneron Pharmaceuticals, Inc.",
+    "proprietary_name": "Eylea",
+    "proper_name": "aflibercept",
+    "patent_number": "12268730",
+    "expiry": "2032-01-11"
+   },
+   {
+    "bla": "125387",
+    "applicant": "Regeneron Pharmaceuticals, Inc.",
+    "proprietary_name": "Eylea",
+    "proper_name": "aflibercept",
+    "patent_number": "D906102",
+    "expiry": "2035-12-29"
+   },
+   {
+    "bla": "125409",
+    "applicant": "Genentech, Inc.",
+    "proprietary_name": "Perjeta",
+    "proper_name": "pertuzumab",
+    "patent_number": "11999791",
+    "expiry": "2028-07-08"
+   }
+  ],
+  "patents_also_in_orange_book": 0,
+  "monthly_csv_october_2026": {
+   "status": 200,
+   "bytes": 487133,
+   "lines": 2276,
+   "title": "Purple Book Monthly Historical Data Changes Report - October 2026",
+   "has_patent_list_provided_column": true
+  }
+ },
+ "hc_patent_register": {
+  "status": 200,
+  "bytes": 4286023,
+  "files": {
+   "drugs_e.txt": {
+    "bytes": 410140,
+    "modified": "2026-11-16"
+   },
+   "drugs_f.txt": {
+    "bytes": 299284,
+    "modified": "2026-11-16"
+   },
+   "patent_service_e.txt": {
+    "bytes": 1529718,
+    "modified": "2026-11-16"
+   },
+   "patent_service_f.txt": {
+    "bytes": 1544153,
+    "modified": "2026-11-16"
+   },
+   "submission_certif_e.txt": {
+    "bytes": 19477462,
+    "modified": "2026-11-16"
+   },
+   "submission_certif_f.txt": {
+    "bytes": 19346176,
+    "modified": "2026-11-16"
+   }
+  },
+  "drugs_rows": 3092,
+  "drugs_columns": [
+   "DRUG_ID",
+   "MEDICINAL_INGREDIENT_E",
+   "BRAND_NAME_E",
+   "ROUTE_OF_ADMINISTRATION_E",
+   "STRENGTH_PER_UNIT_E",
+   "HUMAN_OR_VET_E",
+   "THERAPEUTIC_CLASS",
+   "DOSAGE_FORM_E",
+   "DIN"
+  ],
+  "patent_rows": 9037,
+  "patent_columns_kept": [
+   "DRUG_ID",
+   "FORM_ID",
+   "PATENT_NUMBER",
+   "CATEGORY",
+   "FILING_DATE",
+   "DATE_GRANTED",
+   "EXPIRATION_DATE",
+   "SERVICE_COMPANY_NAME_E"
+  ],
+  "patent_columns_personal_never_written": [
+   "FIRST_NAME",
+   "LAST_NAME",
+   "POSITION_TITLE",
+   "ADDRESS",
+   "CITY_NAME_E",
+   "PROVINCE_NAME_E",
+   "POSTAL_CODE"
+  ],
+  "patent_rows_with_person_name": 5064,
+  "submission_rows": 29970,
+  "submission_columns_personal_never_written": [
+   "FIRST_NAME",
+   "LAST_NAME",
+   "ADDRESS",
+   "POSITION_TITLE",
+   "PHONE_NUMBER",
+   "FAX_NUMBER"
+  ],
+  "submission_rows_with_person_name": 28717,
+  "submission_rows_with_use_of_mi_text": 23959,
+  "submission_rows_removed": 4775,
+  "distinct_patent_numbers": 2996,
+  "patent_number_all_digits": 2995,
+  "drugs_with_din": 3092,
+  "distinct_dins": 3047,
+  "newest_date_added": "2026-11-13",
+  "submissions_added_since_2026_10_01": 388,
+  "rows_expiration_equals_grant_date": "9037/9037",
+  "derived_expiry_range_filing_plus_20y": [
+   "2009-10-16",
+   "2042-05-16"
+  ],
+  "patents_unexpired_on_run_date_derived": 1035,
+  "web_check_2952131": {
+   "status": 200,
+   "web": [
+    "2952131",
+    "2023-12-05",
+    "2036-12-19",
+    "2016-12-19"
+   ],
+   "csp": null,
+   "export_expiration": "12/05/2023",
+   "derived": "2036-12-19"
+  },
+  "patent_rows_resolving_to_drugs_txt": "7819/9037",
+  "sample_patent_rows": [
+   {
+    "DRUG_ID": "1725",
+    "FORM_ID": "3538",
+    "PATENT_NUMBER": "2382549",
+    "CATEGORY": "C",
+    "FILING_DATE": "08/30/2000",
+    "DATE_GRANTED": "03/15/2005",
+    "EXPIRATION_DATE": "03/15/2005",
+    "SERVICE_COMPANY_NAME_E": "Valeant Canada LP / Valeant Canada S.E.C."
+   },
+   {
+    "DRUG_ID": "2218",
+    "FORM_ID": "4928",
+    "PATENT_NUMBER": "2188835",
+    "CATEGORY": "C",
+    "FILING_DATE": "02/26/1996",
+    "DATE_GRANTED": "08/08/2006",
+    "EXPIRATION_DATE": "08/08/2006",
+    "SERVICE_COMPANY_NAME_E": "Gowling Lafleur Henderson LLP"
+   },
+   {
+    "DRUG_ID": "912",
+    "FORM_ID": "1466",
+    "PATENT_NUMBER": "2168829",
+    "CATEGORY": "C",
+    "FILING_DATE": "02/05/1996",
+    "DATE_GRANTED": "12/16/1997",
+    "EXPIRATION_DATE": "12/16/1997",
+    "SERVICE_COMPANY_NAME_E": "GlaxoSmithKline Inc."
+   },
+   {
+    "DRUG_ID": "1807",
+    "FORM_ID": "5283",
+    "PATENT_NUMBER": "2352818",
+    "CATEGORY": "C",
+    "FILING_DATE": "12/10/1999",
+    "DATE_GRANTED": "04/14/2009",
+    "EXPIRATION_DATE": "04/14/2009",
+    "SERVICE_COMPANY_NAME_E": "Blake Cassels & Graydon LLP"
+   },
+   {
+    "DRUG_ID": "2008",
+    "FORM_ID": "4308",
+    "PATENT_NUMBER": "2246162",
+    "CATEGORY": "C",
+    "FILING_DATE": "01/21/1997",
+    "DATE_GRANTED": "04/04/2000",
+    "EXPIRATION_DATE": "04/04/2000",
+    "SERVICE_COMPANY_NAME_E": "Merck Canada Inc."
+   },
+   {
+    "DRUG_ID": "2401",
+    "FORM_ID": "5253",
+    "PATENT_NUMBER": "2469343",
+    "CATEGORY": "C",
+    "FILING_DATE": "12/12/2002",
+    "DATE_GRANTED": "05/13/2008",
+    "EXPIRATION_DATE": "05/13/2008",
+    "SERVICE_COMPANY_NAME_E": "Blake Cassels & Graydon LLP"
+   },
+   {
+    "DRUG_ID": "2898",
+    "FORM_ID": "6668",
+    "PATENT_NUMBER": "1191843",
+    "CATEGORY": "",
+    "FILING_DATE": "",
+    "DATE_GRANTED": "",
+    "EXPIRATION_DATE": "",
+    "SERVICE_COMPANY_NAME_E": ""
+   },
+   {
+    "DRUG_ID": "3715",
+    "FORM_ID": "7491",
+    "PATENT_NUMBER": "1297023",
+    "CATEGORY": "",
+    "FILING_DATE": "",
+    "DATE_GRANTED": "",
+    "EXPIRATION_DATE": "",
+    "SERVICE_COMPANY_NAME_E": ""
+   },
+   {
+    "DRUG_ID": "3316",
+    "FORM_ID": "7089",
+    "PATENT_NUMBER": "1246457",
+    "CATEGORY": "",
+    "FILING_DATE": "",
+    "DATE_GRANTED": "",
+    "EXPIRATION_DATE": "",
+    "SERVICE_COMPANY_NAME_E": ""
+   },
+   {
+    "DRUG_ID": "3366",
+    "FORM_ID": "7139",
+    "PATENT_NUMBER": "1253865",
+    "CATEGORY": "",
+    "FILING_DATE": "",
+    "DATE_GRANTED": "",
+    "EXPIRATION_DATE": "",
+    "SERVICE_COMPANY_NAME_E": ""
+   },
+   {
+    "DRUG_ID": "3705",
+    "FORM_ID": "7481",
+    "PATENT_NUMBER": "1296634",
+    "CATEGORY": "",
+    "FILING_DATE": "",
+    "DATE_GRANTED": "",
+    "EXPIRATION_DATE": "",
+    "SERVICE_COMPANY_NAME_E": ""
+   },
+   {
+    "DRUG_ID": "2609",
+    "FORM_ID": "5830",
+    "PATENT_NUMBER": "1340902",
+    "CATEGORY": "C",
+    "FILING_DATE": "02/14/1986",
+    "DATE_GRANTED": "02/22/2000",
+    "EXPIRATION_DATE": "02/22/2000",
+    "SERVICE_COMPANY_NAME_E": "Gowling Lafleur  Henderson LLP"
+   },
+   {
+    "DRUG_ID": "4433",
+    "FORM_ID": "8683",
+    "PATENT_NUMBER": "2514948",
+    "CATEGORY": "C",
+    "FILING_DATE": "02/16/2004",
+    "DATE_GRANTED": "04/02/2013",
+    "EXPIRATION_DATE": "04/02/2013",
+    "SERVICE_COMPANY_NAME_E": "AbbVie Corporation"
+   },
+   {
+    "DRUG_ID": "4434",
+    "FORM_ID": "9249",
+    "PATENT_NUMBER": "2779711",
+    "CATEGORY": "C",
+    "FILING_DATE": "11/08/2010",
+    "DATE_GRANTED": "11/01/2016",
+    "EXPIRATION_DATE": "11/01/2016",
+    "SERVICE_COMPANY_NAME_E": "AbbVie Corporation"
+   },
+   {
+    "DRUG_ID": "4575",
+    "FORM_ID": "9681",
+    "PATENT_NUMBER": "2767811",
+    "CATEGORY": "C",
+    "FILING_DATE": "07/07/2010",
+    "DATE_GRANTED": "11/07/2017",
+    "EXPIRATION_DATE": "11/07/2017",
+    "SERVICE_COMPANY_NAME_E": "Belmore Neidrauer LLP"
+   },
+   {
+    "DRUG_ID": "4980",
+    "FORM_ID": "10257",
+    "PATENT_NUMBER": "2715465",
+    "CATEGORY": "C",
+    "FILING_DATE": "02/26/2009",
+    "DATE_GRANTED": "03/21/2017",
+    "EXPIRATION_DATE": "03/21/2017",
+    "SERVICE_COMPANY_NAME_E": "Novo Nordisk Canada Inc."
+   },
+   {
+    "DRUG_ID": "5131",
+    "FORM_ID": "10712",
+    "PATENT_NUMBER": "2711798",
+    "CATEGORY": "C",
+    "FILING_DATE": "01/28/2009",
+    "DATE_GRANTED": "05/06/2014",
+    "EXPIRATION_DATE": "05/06/2014",
+    "SERVICE_COMPANY_NAME_E": "Gowling WLG (Canada) LLP"
+   },
+   {
+    "DRUG_ID": "5134",
+    "FORM_ID": "10747",
+    "PATENT_NUMBER": "2948561",
+    "CATEGORY": "C",
+    "FILING_DATE": "05/11/2015",
+    "DATE_GRANTED": "10/22/2019",
+    "EXPIRATION_DATE": "10/22/2019",
+    "SERVICE_COMPANY_NAME_E": "Gowling WLG (Canada) LLP"
+   },
+   {
+    "DRUG_ID": "5533",
+    "FORM_ID": "11799",
+    "PATENT_NUMBER": "2742821",
+    "CATEGORY": "C",
+    "FILING_DATE": "11/12/2008",
+    "DATE_GRANTED": "10/23/2018",
+    "EXPIRATION_DATE": "10/23/2018",
+    "SERVICE_COMPANY_NAME_E": "Smart & Biggar LLP"
+   },
+   {
+    "DRUG_ID": "5599",
+    "FORM_ID": "11987",
+    "PATENT_NUMBER": "2712783",
+    "CATEGORY": "A",
+    "FILING_DATE": "01/15/2009",
+    "DATE_GRANTED": "03/19/2013",
+    "EXPIRATION_DATE": "03/19/2013",
+    "SERVICE_COMPANY_NAME_E": "Merck Canada Inc."
+   }
+  ]
+ },
+ "din_to_dpd": {
+  "measured": "37/40",
+  "same_brand_name": "35/37",
+  "sample": [
+   {
+    "din": "00103624",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 149,
+    "register_brand": "TYLAN 10 PREMIX",
+    "dpd_brand": "TYLAN 10",
+    "dpd_last_update": "2025-03-22"
+   },
+   {
+    "din": "02123282",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 16879,
+    "register_brand": "COVERSYL",
+    "dpd_brand": "COVERSYL",
+    "dpd_last_update": "2026-09-24"
+   },
+   {
+    "din": "02217422",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 43212,
+    "register_brand": "MEPRON",
+    "dpd_brand": "MEPRON",
+    "dpd_last_update": "2026-06-26"
+   },
+   {
+    "din": "02231457",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 50773,
+    "register_brand": "MAVIK",
+    "dpd_brand": "MAVIK",
+    "dpd_last_update": "2026-08-06"
+   },
+   {
+    "din": "02238391",
+    "status": 200,
+    "dpd_records": 0,
+    "dpd_drug_code": null,
+    "register_brand": "LOSEC",
+    "dpd_brand": null,
+    "dpd_last_update": null
+   },
+   {
+    "din": "02240119",
+    "status": 200,
+    "dpd_records": 0,
+    "dpd_drug_code": null,
+    "register_brand": "LAMICTAL",
+    "dpd_brand": null,
+    "dpd_last_update": null
+   },
+   {
+    "din": "02241927",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 65597,
+    "register_brand": "RITUXAN",
+    "dpd_brand": "RITUXAN",
+    "dpd_last_update": "2026-06-19"
+   },
+   {
+    "din": "02243763",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 67698,
+    "register_brand": "COMTAN",
+    "dpd_brand": "COMTAN",
+    "dpd_last_update": "2025-03-22"
+   },
+   {
+    "din": "02245913",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 70033,
+    "register_brand": "KINERET",
+    "dpd_brand": "KINERET",
+    "dpd_last_update": "2026-08-20"
+   },
+   {
+    "din": "02247725",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 72003,
+    "register_brand": "FUZEON",
+    "dpd_brand": "FUZEON",
+    "dpd_last_update": "2026-08-12"
+   },
+   {
+    "din": "02249472",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 73430,
+    "register_brand": "PREVACID FASTAB",
+    "dpd_brand": "PREVACID FASTAB",
+    "dpd_last_update": "2026-06-17"
+   },
+   {
+    "din": "02262800",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 74816,
+    "register_brand": "STRATTERA",
+    "dpd_brand": "STRATTERA",
+    "dpd_last_update": "2025-03-22"
+   },
+   {
+    "din": "02271869",
+    "status": 200,
+    "dpd_records": 0,
+    "dpd_drug_code": null,
+    "register_brand": "LEVEMIR INNOLET",
+    "dpd_brand": null,
+    "dpd_last_update": null
+   },
+   {
+    "din": "02285533",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 77104,
+    "register_brand": "KALETRA",
+    "dpd_brand": "KALETRA",
+    "dpd_last_update": "2026-08-13"
+   },
+   {
+    "din": "02299216",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 78460,
+    "register_brand": "RALIVIA",
+    "dpd_brand": "RALIVIA",
+    "dpd_last_update": "2026-05-26"
+   },
+   {
+    "din": "02308983",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 79459,
+    "register_brand": "NEVANAC",
+    "dpd_brand": "NEVANAC",
+    "dpd_last_update": "2025-03-22"
+   },
+   {
+    "din": "02323273",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 80876,
+    "register_brand": "METVIX",
+    "dpd_brand": "METVIX",
+    "dpd_last_update": "2026-08-14"
+   },
+   {
+    "din": "02337940",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 82359,
+    "register_brand": "ARCOSYL",
+    "dpd_brand": "ARCOSYL",
+    "dpd_last_update": "2026-06-23"
+   },
+   {
+    "din": "02354209",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 83940,
+    "register_brand": "INVEGA SUSTENNA",
+    "dpd_brand": "INVEGA SUSTENNA",
+    "dpd_last_update": "2026-08-04"
+   },
+   {
+    "din": "02369613",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 85454,
+    "register_brand": "BANZEL",
+    "dpd_brand": "BANZEL",
+    "dpd_last_update": "2026-06-15"
+   },
+   {
+    "din": "02379910",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 86577,
+    "register_brand": "FAMPYRA",
+    "dpd_brand": "FAMPYRA",
+    "dpd_last_update": "2026-04-02"
+   },
+   {
+    "din": "02397757",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 88268,
+    "register_brand": "EDARBYCLOR",
+    "dpd_brand": "EDARBYCLOR",
+    "dpd_last_update": "2026-06-25"
+   },
+   {
+    "din": "02411172",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 89580,
+    "register_brand": "VITEKTA",
+    "dpd_brand": "VITEKTA",
+    "dpd_last_update": "2026-06-16"
+   },
+   {
+    "din": "02420384",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 90498,
+    "register_brand": "JUXTAPID",
+    "dpd_brand": "JUXTAPID",
+    "dpd_last_update": "2025-03-22"
+   },
+   {
+    "din": "02434407",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 91874,
+    "register_brand": "IMBRUVICA",
+    "dpd_brand": "IMBRUVICA",
+    "dpd_last_update": "2026-06-23"
+   },
+   {
+    "din": "02444623",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 92970,
+    "register_brand": "STRENSIQ",
+    "dpd_brand": "STRENSIQ",
+    "dpd_last_update": "2026-08-06"
+   },
+   {
+    "din": "02451638",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 93796,
+    "register_brand": "KOVALTRY (SUPPLIED WITH BIO-SET)",
+    "dpd_brand": "KOVALTRY",
+    "dpd_last_update": "2026-09-16"
+   },
+   {
+    "din": "02456613",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 94361,
+    "register_brand": "SYNJARDY",
+    "dpd_brand": "SYNJARDY",
+    "dpd_last_update": "2026-10-29"
+   },
+   {
+    "din": "02461749",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 94950,
+    "register_brand": "REXULTI",
+    "dpd_brand": "REXULTI",
+    "dpd_last_update": "2026-06-19"
+   },
+   {
+    "din": "02469758",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 95860,
+    "register_brand": "TREMFYA",
+    "dpd_brand": "TREMFYA",
+    "dpd_last_update": "2026-09-17"
+   },
+   {
+    "din": "02478978",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 96969,
+    "register_brand": "FLULAVAL TETRA",
+    "dpd_brand": "FLULAVAL TETRA",
+    "dpd_last_update": "2026-08-14"
+   },
+   {
+    "din": "02485877",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 97609,
+    "register_brand": "ENVARSUS PA",
+    "dpd_brand": "ENVARSUS PA",
+    "dpd_last_update": "2026-04-02"
+   },
+   {
+    "din": "02495244",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 98517,
+    "register_brand": "VASCEPA",
+    "dpd_brand": "VASCEPA",
+    "dpd_last_update": "2025-07-05"
+   },
+   {
+    "din": "02505568",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 99493,
+    "register_brand": "REBLOZYL",
+    "dpd_brand": "REBLOZYL",
+    "dpd_last_update": "2026-08-07"
+   },
+   {
+    "din": "02518627",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 100793,
+    "register_brand": "MINJUVI",
+    "dpd_brand": "MINJUVI",
+    "dpd_last_update": "2026-08-12"
+   },
+   {
+    "din": "02527618",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 101666,
+    "register_brand": "VABYSMO",
+    "dpd_brand": "VABYSMO",
+    "dpd_last_update": "2026-08-12"
+   },
+   {
+    "din": "02537818",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 102657,
+    "register_brand": "ONAKTA",
+    "dpd_brand": "ONAKTA",
+    "dpd_last_update": "2025-03-22"
+   },
+   {
+    "din": "02545004",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 103362,
+    "register_brand": "EYLEA HD",
+    "dpd_brand": "EYLEA HD",
+    "dpd_last_update": "2026-10-28"
+   },
+   {
+    "din": "02555077",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 104387,
+    "register_brand": "TALZENNA",
+    "dpd_brand": "TALZENNA",
+    "dpd_last_update": "2026-03-11"
+   },
+   {
+    "din": "02563665",
+    "status": 200,
+    "dpd_records": 1,
+    "dpd_drug_code": 106643,
+    "register_brand": "NEMLUVIO",
+    "dpd_brand": "NEMLUVIO",
+    "dpd_last_update": "2026-08-26"
+   }
+  ]
+ },
+ "cipo_patent_data": {
+  "main_status": 200,
+  "main_zip_bytes": 76795115,
+  "main_columns": [
+   "Patent Number",
+   "Filing Date",
+   "Grant Date",
+   "Application Status Code",
+   "Application Type Code",
+   "Application/Patent Title English",
+   "Application/Patent Title French",
+   "Bibliographic File Extract Date",
+   "Country of Publication Code",
+   "Document Kind Type",
+   "Examination Request Date",
+   "Filing Country Code",
+   "Language of Filing Code",
+   "License For Sale Indicator",
+   "PCT Application Number",
+   "PCT Publication Number",
+   "PCT Publication Date",
+   "Parent Application Number",
+   "PCT Article 22-39 fulfilled Date",
+   "PCT Section 371 Date",
+   "PCT Publication Country Code",
+   "Publication Kind Type",
+   "Printed as Amended Country Code"
+  ],
+  "main_rows": 1190073,
+  "main_newest_grant_date": "2024-06-25",
+  "main_newest_extract_date": "2024-07-01",
+  "hc_patents_in_range_2000001_4000000": 2586,
+  "hc_patent_to_cipo_main": "2495/2586",
+  "hc_patents_granted_on_or_before_newest_cipo_grant": 2427,
+  "hc_patent_to_cipo_main_granted_before_snapshot": "2340/2427",
+  "grant_date_agrees": "2318/2495",
+  "unmatched_sample": [
+   {
+    "patent": "2137237",
+    "hc_grant": "2004-10-26"
+   },
+   {
+    "patent": "2139358",
+    "hc_grant": "2001-02-13"
+   },
+   {
+    "patent": "2139468",
+    "hc_grant": "2007-08-21"
+   },
+   {
+    "patent": "2139515",
+    "hc_grant": "2008-12-23"
+   },
+   {
+    "patent": "2139653",
+    "hc_grant": "2001-07-10"
+   },
+   {
+    "patent": "2139725",
+    "hc_grant": "2005-01-04"
+   },
+   {
+    "patent": "2140929",
+    "hc_grant": "2006-09-12"
+   },
+   {
+    "patent": "2141572",
+    "hc_grant": "2001-02-06"
+   },
+   {
+    "patent": "2141953",
+    "hc_grant": "2008-04-08"
+   },
+   {
+    "patent": "2142320",
+    "hc_grant": "2001-10-09"
+   },
+   {
+    "patent": "2142530",
+    "hc_grant": "2006-12-05"
+   },
+   {
+    "patent": "2142848",
+    "hc_grant": "1999-11-16"
+   },
+   {
+    "patent": "2143263",
+    "hc_grant": "2002-01-08"
+   },
+   {
+    "patent": "2143845",
+    "hc_grant": "2003-11-18"
+   },
+   {
+    "patent": "2143849",
+    "hc_grant": "2000-04-25"
+   }
+  ],
+  "matched_sample": [
+   {
+    "patent": "2000553",
+    "grant": "2001-12-04",
+    "status": "EX",
+    "title_en": "PROCESS FOR THE PREPARATION OF 7-SUBSTITUTED-HEPT-6-ENOIC AND -HEPTANOIC ACIDS AND DERIVATIVES AND INTERMEDIATES THEREOF",
+    "hc_grant": null
+   },
+   {
+    "patent": "2102782",
+    "grant": "2003-09-16",
+    "status": "EX",
+    "title_en": "2-FLUORO-2-SUBSTITUTED ADENINYL ARABINOSIDES AS ANTI-CANCER AGENTS",
+    "hc_grant": "2003-09-16"
+   },
+   {
+    "patent": "2206233",
+    "grant": "2000-06-06",
+    "status": "EX",
+    "title_en": "COMBINATION DOSAGE FORM COMPRISING CETIRIZINE AND PSEUDOEPHEDRINE",
+    "hc_grant": "2000-06-06"
+   },
+   {
+    "patent": "2282360",
+    "grant": "2004-11-09",
+    "status": "EX",
+    "title_en": "PREPARATION OF POWDER AGGLOMERATES",
+    "hc_grant": "2004-11-09"
+   },
+   {
+    "patent": "2347099",
+    "grant": "2014-08-05",
+    "status": "EX",
+    "title_en": "ADJUVANT SYSTEMS COMPRISING AN IMMUNOSTIMULANT ADSORBED TO A METALLIC SALT PARTICLE AND VACCINES THEREOF",
+    "hc_grant": "2014-08-05"
+   },
+   {
+    "patent": "2414063",
+    "grant": "2008-06-17",
+    "status": "EX",
+    "title_en": "HIGHLY CONCENTRATED STABLE MELOXICAM SOLUTIONS",
+    "hc_grant": "2008-06-17"
+   },
+   {
+    "patent": "2478515",
+    "grant": "2010-09-28",
+    "status": "EX",
+    "title_en": "PHARMACEUTICAL PREPARATION CONTAINING OXYCODONE AND NALOXONE",
+    "hc_grant": "2010-09-28"
+   },
+   {
+    "patent": "2537103",
+    "grant": "2010-01-19",
+    "status": "LA",
+    "title_en": "ONCE DAILY DOSAGE FORMS OF TROSPIUM",
+    "hc_grant": "2010-01-19"
+   },
+   {
+    "patent": "2600638",
+    "grant": "2015-10-27",
+    "status": "GR",
+    "title_en": "COMPOSITION COMPRISING EMODEPSIDE AND PRAZIQUANTEL OR EPSIPRANTEL",
+    "hc_grant": "2015-10-27"
+   },
+   {
+    "patent": "2666170",
+    "grant": "2016-05-24",
+    "status": "GR",
+    "title_en": "4-4-({4-CHLORO-3-(TRIFLUOROMETHYL)PHENYLCARBAMOYL}AMINO)-3-FLUOROPHENOXY-N-METHYLPYRIDINE-2-CARBOXAMIDE MONOHYDRATE",
+    "hc_grant": "2016-05-24"
+   },
+   {
+    "patent": "2717605",
+    "grant": "2012-05-15",
+    "status": "GR",
+    "title_en": "LOW VISCOSITY, HIGHLY FLOCCULATED TRIAMCINOLONE ACETONIDE SUSPENSIONS FOR INTRAVITREAL INJECTION",
+    "hc_grant": "2012-05-15"
+   },
+   {
+    "patent": "2781431",
+    "grant": "2017-10-31",
+    "status": "GR",
+    "title_en": "CRYSTALLINE FORMS OF 3-(2,6-DICHLORO-3,5-DIMETHOXY-PHENYL)-1-{6-4-(4-ETHYL-PIPERAZIN-1-YL)-PHENYLAMINO-PYRIMIDIN-4-YL}-1-METHYL-UREA AND SALTS THEREOF",
+    "hc_grant": "2017-10-31"
+   },
+   {
+    "patent": "2849169",
+    "grant": "2019-07-02",
+    "status": "GR",
+    "title_en": "PYRAZOLE CARBOXAMIDES AS JANUS KINASE INHIBITORS",
+    "hc_grant": "2019-07-02"
+   },
+   {
+    "patent": "2923352",
+    "grant": "2022-05-03",
+    "status": "GR",
+    "title_en": "STABLE ADENOVIRUS FORMULATIONS",
+    "hc_grant": "2022-05-03"
+   },
+   {
+    "patent": "2994579",
+    "grant": "2023-07-11",
+    "status": "GR",
+    "title_en": "CHIMERIC ANTIGEN RECEPTORS BASED ON SINGLE-DOMAIN ANTIBODIES AND METHODS OF USE THEREOF",
+    "hc_grant": "2023-07-11"
+   }
+  ],
+  "claim_status": 200,
+  "claim_zip_bytes": 71108024,
+  "claim_file_patents": 49279,
+  "hc_patents_in_range_2950001_3000000": 93,
+  "hc_patent_to_cipo_claims": "93/93",
+  "claims_text_chars_median": 9613,
+  "claim_1_starts_sample": [
+   {
+    "patent": "2950307",
+    "claim_1_start": "A compound of Formula II:, which is crystalline and is characterized by an x-ray powder diffraction , (XRPD) pattern having , peaks at about 5.5°, 16.1°, and 23"
+   },
+   {
+    "patent": "2951599",
+    "claim_1_start": "A T cell activating bispecific antigen binding molecule comprising , (a) a first Fab molecule which specifically binds to a first antigen, (b) a second Fab mole"
+   },
+   {
+    "patent": "2951883",
+    "claim_1_start": "A compound selected from the group consisting of:, N-(cyanomethyl)-4-(2-(4-morpholinophenylamino)pyrimidin-4-yl)benzamide , dihydrochloride monohydrate Form II,"
+   },
+   {
+    "patent": "2952131",
+    "claim_1_start": "A mutant of a wild-type RSV F protein, which mutant comprises a F1 , polypeptide and , a F2 polypeptide, wherein the mutant comprises amino acid mutations relat"
+   },
+   {
+    "patent": "2952488",
+    "claim_1_start": "An injectable composition comprising:, a) a compound having formula:, wherein E is hydrogen, a straight- or branched-chain C1 to C20 alkyl group, or , a detecta"
+   },
+   {
+    "patent": "2952858",
+    "claim_1_start": "Cannabidiol (CBD) for use in the treatment of seizures in epilepsy, wherein the , epilepsy is in subjects diagnosed with: Lennox-Gastaut Syndrome; Myoclonic , A"
+   },
+   {
+    "patent": "2955304",
+    "claim_1_start": "A human proprotein convertase subtilisin/kexin type 9 (PCSK9) inhibitor, wherein said, PCSK9 inhibitor is an antibody or antigen-binding fragment thereof which"
+   },
+   {
+    "patent": "2955557",
+    "claim_1_start": "A process for manufacturing an aqueous composition with a pH of 6.3-7.3 , comprising , ibuprofen and paracetamol in combination, comprising the steps of:, a) pr"
+   },
+   {
+    "patent": "2957266",
+    "claim_1_start": "A composition, comprising particles of a single crystalline form of a , compound , represented by Structural Formula I:, wherein the single crystalline form is"
+   },
+   {
+    "patent": "2958666",
+    "claim_1_start": "Form I of 6-((6,7-dimethoxyquinazolin-4-yl)oxy)-N,2-dimethylbenzofuran-3-, carboxamide which is a crystalline form, wherein the X-ray powder diffractogram of th"
+   }
+  ]
+ },
+ "us_ca_brand_candidate": {
+  "orange_book_brands_with_patents": 1326,
+  "hc_register_brands_with_patents": 1408,
+  "brands_in_both": 410,
+  "brands_in_both_with_same_active_moiety": 390,
+  "measured": "390/1408 Health Canada register brands match an Orange Book brand with the same active moiety",
+  "handcheck_pairs": [
+   {
+    "brand": "ABILIFY",
+    "us_appl": "N021713",
+    "us_ingredient": "ARIPIPRAZOLE",
+    "us_applicant": "OTSUKA PHARMACEUTICAL DEVELOPMENT AND COMMERCIALIZATION INC",
+    "ca_din": "02322374",
+    "ca_ingredient": "Aripiprazole",
+    "moiety_overlap": true,
+    "us_patents": 1,
+    "us_last_expiry": "2027-03-02",
+    "ca_patents": 10,
+    "ca_last_expiry_derived": "2024-05-19"
+   },
+   {
+    "brand": "AMVUTTRA",
+    "us_appl": "N215515",
+    "us_ingredient": "VUTRISIRAN SODIUM",
+    "us_applicant": "ALNYLAM PHARMACEUTICALS INC",
+    "ca_din": "02542420",
+    "ca_ingredient": "VUTRISIRAN SODIUM",
+    "moiety_overlap": true,
+    "us_patents": 13,
+    "us_last_expiry": "2036-07-28",
+    "ca_patents": 3,
+    "ca_last_expiry_derived": "2036-07-28"
+   },
+   {
+    "brand": "BIJUVA",
+    "us_appl": "N210132",
+    "us_ingredient": "ESTRADIOL; PROGESTERONE",
+    "us_applicant": "MAYNE PHARMA LLC",
+    "ca_din": "02505215",
+    "ca_ingredient": "ESTRADIOL HEMIHYDRATE / PROGESTERONE",
+    "moiety_overlap": true,
+    "us_patents": 24,
+    "us_last_expiry": "2032-11-21",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2032-11-21"
+   },
+   {
+    "brand": "CLEVIPREX",
+    "us_appl": "N022156",
+    "us_ingredient": "CLEVIDIPINE",
+    "us_applicant": "CHIESI USA INC",
+    "ca_din": "02366223",
+    "ca_ingredient": "Clevidipine",
+    "moiety_overlap": true,
+    "us_patents": 3,
+    "us_last_expiry": "2031-10-10",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2014-11-03"
+   },
+   {
+    "brand": "DOJOLVI",
+    "us_appl": "N213687",
+    "us_ingredient": "TRIHEPTANOIN",
+    "us_applicant": "ULTRAGENYX PHARMACEUTICAL INC",
+    "ca_din": "02512556",
+    "ca_ingredient": "TRIHEPTANOIN",
+    "moiety_overlap": true,
+    "us_patents": 4,
+    "us_last_expiry": "2034-11-14",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2034-11-14"
+   },
+   {
+    "brand": "EVOTAZ",
+    "us_appl": "N206353",
+    "us_ingredient": "ATAZANAVIR SULFATE; COBICISTAT",
+    "us_applicant": "BRISTOL MYERS SQUIBB CO",
+    "ca_din": "02446731",
+    "ca_ingredient": "ATAZANAVIR SULFATE / COBICISTAT",
+    "moiety_overlap": true,
+    "us_patents": 2,
+    "us_last_expiry": "2032-10-06",
+    "ca_patents": 4,
+    "ca_last_expiry_derived": "2029-05-01"
+   },
+   {
+    "brand": "IBRANCE",
+    "us_appl": "N207103",
+    "us_ingredient": "PALBOCICLIB",
+    "us_applicant": "PFIZER INC",
+    "ca_din": "02453150",
+    "ca_ingredient": "PALBOCICLIB",
+    "moiety_overlap": true,
+    "us_patents": 4,
+    "us_last_expiry": "2034-08-08",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2034-02-08"
+   },
+   {
+    "brand": "INVOKANA",
+    "us_appl": "N204042",
+    "us_ingredient": "CANAGLIFLOZIN",
+    "us_applicant": "JANSSEN PHARMACEUTICALS INC",
+    "ca_din": "02425483",
+    "ca_ingredient": "CANAGLIFLOZIN",
+    "moiety_overlap": true,
+    "us_patents": 6,
+    "us_last_expiry": "2029-08-26",
+    "ca_patents": 5,
+    "ca_last_expiry_derived": "2031-05-11"
+   },
+   {
+    "brand": "KALYDECO",
+    "us_appl": "N207925",
+    "us_ingredient": "IVACAFTOR",
+    "us_applicant": "VERTEX PHARMACEUTICALS INC",
+    "ca_din": "02397412",
+    "ca_ingredient": "IVACAFTOR",
+    "moiety_overlap": true,
+    "us_patents": 28,
+    "us_last_expiry": "2033-08-27",
+    "ca_patents": 4,
+    "ca_last_expiry_derived": "2033-02-27"
+   },
+   {
+    "brand": "LOKELMA",
+    "us_appl": "N207078",
+    "us_ingredient": "SODIUM ZIRCONIUM CYCLOSILICATE",
+    "us_applicant": "ASTRAZENECA PHARMACEUTICALS LP",
+    "ca_din": "02490714",
+    "ca_ingredient": "SODIUM ZIRCONIUM CYCLOSILICATE",
+    "moiety_overlap": true,
+    "us_patents": 14,
+    "us_last_expiry": "2035-10-14",
+    "ca_patents": 4,
+    "ca_last_expiry_derived": "2036-10-10"
+   },
+   {
+    "brand": "NAROPIN",
+    "us_appl": "N020533",
+    "us_ingredient": "ROPIVACAINE HYDROCHLORIDE",
+    "us_applicant": "FRESENIUS KABI USA LLC",
+    "ca_din": "02229415",
+    "ca_ingredient": "Ropivacaine Hydrochloride",
+    "moiety_overlap": true,
+    "us_patents": 1,
+    "us_last_expiry": "2026-11-28",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2014-05-26"
+   },
+   {
+    "brand": "OLUX E",
+    "us_appl": "N022013",
+    "us_ingredient": "CLOBETASOL PROPIONATE",
+    "us_applicant": "QUAGEN PHARMACEUTICALS LLC",
+    "ca_din": "02344408",
+    "ca_ingredient": "Clobetasol Propionate",
+    "moiety_overlap": true,
+    "us_patents": 1,
+    "us_last_expiry": "2028-11-05",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2025-08-31"
+   },
+   {
+    "brand": "PICATO",
+    "us_appl": "N202833",
+    "us_ingredient": "INGENOL MEBUTATE",
+    "us_applicant": "LEO LABORATORIES LTD",
+    "ca_din": "02400995",
+    "ca_ingredient": "Ingenol Mebutate",
+    "moiety_overlap": true,
+    "us_patents": 12,
+    "us_last_expiry": "2033-05-15",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2026-12-18"
+   },
+   {
+    "brand": "RECARBRIO",
+    "us_appl": "N212819",
+    "us_ingredient": "CILASTATIN SODIUM; IMIPENEM; RELEBACTAM",
+    "us_applicant": "MERCK SHARP AND DOHME CORP A SUB OF MERCK AND CO INC",
+    "ca_din": "02565323",
+    "ca_ingredient": "IMIPENEM / CILASTATIN SODIUM / RELEBACTAM",
+    "moiety_overlap": true,
+    "us_patents": 1,
+    "us_last_expiry": "2033-03-21",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2029-01-15"
+   },
+   {
+    "brand": "SIGNIFOR",
+    "us_appl": "N200677",
+    "us_ingredient": "PASIREOTIDE DIASPARTATE",
+    "us_applicant": "RECORDATI RARE DISEASES INC",
+    "ca_din": "02413299",
+    "ca_ingredient": "Pasireotide Diaspartate",
+    "moiety_overlap": true,
+    "us_patents": 1,
+    "us_last_expiry": "2026-12-14",
+    "ca_patents": 3,
+    "ca_last_expiry_derived": "2024-06-23"
+   },
+   {
+    "brand": "SUNLENCA",
+    "us_appl": "N215973",
+    "us_ingredient": "LENACAPAVIR SODIUM",
+    "us_applicant": "GILEAD SCIENCES INC",
+    "ca_din": "02532476",
+    "ca_ingredient": "LENACAPAVIR SODIUM",
+    "moiety_overlap": true,
+    "us_patents": 6,
+    "us_last_expiry": "2041-08-28",
+    "ca_patents": 4,
+    "ca_last_expiry_derived": "2039-07-15"
+   },
+   {
+    "brand": "TORISEL",
+    "us_appl": "N022088",
+    "us_ingredient": "TEMSIROLIMUS",
+    "us_applicant": "PF PRISM CV",
+    "ca_din": "02304104",
+    "ca_ingredient": "Temsirolimus",
+    "moiety_overlap": true,
+    "us_patents": 4,
+    "us_last_expiry": "2032-11-10",
+    "ca_patents": 3,
+    "ca_last_expiry_derived": "2023-07-25"
+   },
+   {
+    "brand": "UBRELVY",
+    "us_appl": "N211765",
+    "us_ingredient": "UBROGEPANT",
+    "us_applicant": "ABBVIE INC",
+    "ca_din": "02532530",
+    "ca_ingredient": "UBROGEPANT",
+    "moiety_overlap": true,
+    "us_patents": 16,
+    "us_last_expiry": "2041-12-22",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2031-11-10"
+   },
+   {
+    "brand": "VIRAMUNE XR",
+    "us_appl": "N201152",
+    "us_ingredient": "NEVIRAPINE",
+    "us_applicant": "BOEHRINGER INGELHEIM PHARMACEUTICALS INC",
+    "ca_din": "02367289",
+    "ca_ingredient": "Nevirapine",
+    "moiety_overlap": true,
+    "us_patents": 1,
+    "us_last_expiry": "2029-03-12",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2028-06-04"
+   },
+   {
+    "brand": "XARELTO",
+    "us_appl": "N022406",
+    "us_ingredient": "RIVAROXABAN",
+    "us_applicant": "JANSSEN PHARMACEUTICALS INC",
+    "ca_din": "02316986",
+    "ca_ingredient": "Rivaroxaban",
+    "moiety_overlap": true,
+    "us_patents": 2,
+    "us_last_expiry": "2034-08-17",
+    "ca_patents": 6,
+    "ca_last_expiry_derived": "2038-02-02"
+   }
+  ],
+  "moiety_mismatch_sample": [
+   {
+    "brand": "BYDUREON",
+    "us_appl": "N022200",
+    "us_ingredient": "EXENATIDE SYNTHETIC",
+    "us_applicant": "ASTRAZENECA AB",
+    "ca_din": "02448610",
+    "ca_ingredient": "EXENATIDE",
+    "moiety_overlap": false,
+    "us_patents": 12,
+    "us_last_expiry": "2028-09-21",
+    "ca_patents": 5,
+    "ca_last_expiry_derived": "2026-08-18"
+   },
+   {
+    "brand": "BYDUREON BCISE",
+    "us_appl": "N209210",
+    "us_ingredient": "EXENATIDE SYNTHETIC",
+    "us_applicant": "ASTRAZENECA AB",
+    "ca_din": "02483203",
+    "ca_ingredient": "EXENATIDE",
+    "moiety_overlap": false,
+    "us_patents": 14,
+    "us_last_expiry": "2031-04-04",
+    "ca_patents": 3,
+    "ca_last_expiry_derived": "2029-09-04"
+   },
+   {
+    "brand": "CABOMETYX",
+    "us_appl": "N208692",
+    "us_ingredient": "CABOZANTINIB S-MALATE",
+    "us_applicant": "EXELIXIS INC",
+    "ca_din": "02480824",
+    "ca_ingredient": "CABOZANTINIB MALATE",
+    "moiety_overlap": false,
+    "us_patents": 10,
+    "us_last_expiry": "2033-07-09",
+    "ca_patents": 4,
+    "ca_last_expiry_derived": "2032-05-02"
+   },
+   {
+    "brand": "EDARBI",
+    "us_appl": "N200796",
+    "us_ingredient": "AZILSARTAN KAMEDOXOMIL",
+    "us_applicant": "AZURITY PHARMACEUTICALS INC",
+    "ca_din": "02381389",
+    "ca_ingredient": "Azilsartan Medoxomil",
+    "moiety_overlap": false,
+    "us_patents": 1,
+    "us_last_expiry": "2028-03-26",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2028-03-26"
+   },
+   {
+    "brand": "ENTRESTO",
+    "us_appl": "N207620",
+    "us_ingredient": "SACUBITRIL; VALSARTAN",
+    "us_applicant": "NOVARTIS PHARMACEUTICALS CORP",
+    "ca_din": "02446928",
+    "ca_ingredient": "SACUBITRIL VALSARTAN SODIUM HYDRATE COMPLEX",
+    "moiety_overlap": false,
+    "us_patents": 8,
+    "us_last_expiry": "2036-05-09",
+    "ca_patents": 3,
+    "ca_last_expiry_derived": "2028-11-04"
+   },
+   {
+    "brand": "FOSRENOL",
+    "us_appl": "N204734",
+    "us_ingredient": "LANTHANUM CARBONATE",
+    "us_applicant": "TAKEDA PHARMACEUTICALS USA INC",
+    "ca_din": "02287145",
+    "ca_ingredient": "Lanthanum Carbonate Hydrate",
+    "moiety_overlap": false,
+    "us_patents": 2,
+    "us_last_expiry": "2030-12-01",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2024-08-26"
+   },
+   {
+    "brand": "ILLUCCIX",
+    "us_appl": "N214032",
+    "us_ingredient": "GALLIUM GA-68 GOZETOTIDE",
+    "us_applicant": "TELIX PHARMACEUTICALS US INC",
+    "ca_din": "02531836",
+    "ca_ingredient": "GALLIUM (68Ga) GOZETOTIDE",
+    "moiety_overlap": false,
+    "us_patents": 1,
+    "us_last_expiry": "2035-07-28",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2035-07-28"
+   },
+   {
+    "brand": "LOCAMETZ",
+    "us_appl": "N215841",
+    "us_ingredient": "GALLIUM GA-68 GOZETOTIDE",
+    "us_applicant": "NOVARTIS PHARMACEUTICALS CORP",
+    "ca_din": "02537117",
+    "ca_ingredient": "GALLIUM (68Ga) GOZETOTIDE",
+    "moiety_overlap": false,
+    "us_patents": 2,
+    "us_last_expiry": "2036-03-09",
+    "ca_patents": 1,
+    "ca_last_expiry_derived": "2036-03-09"
+   },
+   {
+    "brand": "MEKINIST",
+    "us_appl": "N217513",
+    "us_ingredient": "TRAMETINIB DIMETHYL SULFOXIDE",
+    "us_applicant": "NOVARTIS PHARMACEUTICALS CORP",
+    "ca_din": "02409623",
+    "ca_ingredient": "Trametinib",
+    "moiety_overlap": false,
+    "us_patents": 4,
+    "us_last_expiry": "2031-04-15",
+    "ca_patents": 3,
+    "ca_last_expiry_derived": "2033-08-30"
+   },
+   {
+    "brand": "NETSPOT",
+    "us_appl": "N208547",
+    "us_ingredient": "GALLIUM DOTATATE GA-68",
+    "us_applicant": "NOVARTIS PHARMACEUTICALS CORP",
+    "ca_din": "02490005",
+    "ca_ingredient": "OXODOTREOTIDE",
+    "moiety_overlap": false,
+    "us_patents": 1,
+    "us_last_expiry": "2032-08-10",
+    "ca_patents": 2,
+    "ca_last_expiry_derived": "2032-08-10"
+   }
+  ]
+ },
+ "purple_book_to_hc_candidate": {
+  "purple_book_proper_names": 14,
+  "also_hc_register_ingredient": 14,
+  "examples": [
+   "adalimumab",
+   "aflibercept",
+   "bevacizumab",
+   "denosumab",
+   "golimumab",
+   "natalizumab",
+   "omalizumab",
+   "pegfilgrastim",
+   "pertuzumab",
+   "ranibizumab",
+   "rituximab",
+   "tocilizumab",
+   "trastuzumab",
+   "ustekinumab"
+  ]
+ },
+ "uspto_probes": {
+  "https://api.uspto.gov/api/v1/patent/applications/search?q=patentNumber:7625884": {
+   "status": 401,
+   "body_start": "{\"message\":\"Unauthorized\"}"
+  },
+  "https://s3.amazonaws.com/data.patentsview.org/download/g_patent.tsv.zip": {
+   "status": 403,
+   "body_start": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Error><Code>AccessDenied</Code><Message>"
+  },
+  "https://search.patentsview.org/api/v1/patent/?q=%7B%22patent_id%22:%227625884%22%7D": {
+   "status": 0,
+   "body_start": "<urlopen error Tunnel connection failed: 502 Bad Gateway>"
+  }
+ }
+}
