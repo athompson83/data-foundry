@@ -1,5 +1,14 @@
 # Progress
 
+## Current session — 2026-11-16: daily dataset scout (round 26)
+
+- Health: both LIVE recall datasets synced 2026-11-16 at about 12:18Z. Newest records match openFDA (2026-11-04; the known 2/2/1 total gap), CPSC (2026-11-12) and Health Canada (2026-11-13; 5,238 = 5,238). No regression.
+- Added 7 data types at SCREENED: `volcanic-activity`, `drug-patent-listings`, `contaminated-sites`, `nuclear-power-reactors`, `aircraft-registrations`, `marine-accident-investigations`, `pesticide-residue-limits`. Four reopen earlier parked screens because the blocking source now answers or a second independent publisher was found. Five declared-identifier phrases added to the allow-list; undated aircraft-mark joins kept as review candidates because marks are reissued.
+- Widening: UK MHRA drug and device alerts (`widen-uk-mhra-drug-device-alerts`, 1,467 alerts, OGL) added to `food-and-health-recalls-global`; candidate links to openFDA: field safety notices 12/20 and medicines/device alerts 1/6 on hand check. Singapore HSA and Irish HPRA PARKED (RED terms). Capture check: no raw-capture gap; the two known HC structuring gaps remain open.
+- Stage advance: `clinical-trial-eligibility` EVIDENCED → RIGHTS_DETERMINED (rights record 2026-11-16; terms unchanged since 2023-01-31).
+- Blocker: PR #88 still needs the owner to merge it; until then the archive workflow (main only) cannot preserve the staged snapshots, so nothing reaches EVIDENCED on new evidence.
+- Verification: `npx vitest run tooling/test/source-pipeline.test.ts` 5,106 passed. Nothing deployed.
+
 ## Current session — 2026-11-15: daily dataset scout (round 25)
 
 - Health: both LIVE recall datasets synced 2026-11-15 at about 12:18Z. Newest records match openFDA (2026-11-04; the known 2/2/1 total gap), CPSC (2026-11-12) and Health Canada (2026-11-13; 5,238 = 5,238). No regression.

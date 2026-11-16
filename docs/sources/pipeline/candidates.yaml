@@ -11454,6 +11454,90 @@ candidates:
     scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json ]
     next_action: 'Parked 2026-11-16 (RED: gated access): the public module redirects to webaccounts.imo.org WebLogin; nothing behind the login was read. It would be the cross-board IMO index if IMO ever offers an open export.'
+  - key: mrl-eu-pesticides-database-mrls
+    name: "EU Pesticides Database maximum residue levels (Regulation (EC) No 396/2005 MRL XML publications and active-substance register, DG SANTE)"
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG SANTE (EU Pesticides Database)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ec.europa.eu/food/plant/pesticides/eu-pesticides-database/backend/api/mrl/download', 'https://ec.europa.eu/food/plant/pesticides/eu-pesticides-database/backend/api/mrl/download/link?filename=Publication1.xml', 'https://ec.europa.eu/food/plant/pesticides/eu-pesticides-database/backend/api/active_substance/search', 'https://data.europa.eu/data/datasets/pesticides' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.py, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json, docs/sources/pipeline/evidence/2026-11-16/mrl_handcheck.json ]
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "This means that reuse is allowed, provided appropriate credit is given and changes are indicated."
+    conditions:
+      - "Credit the European Commission (EU Pesticides Database) and indicate changes, per CC BY 4.0 (Commission legal notice linked from the database footer; data.europa.eu lists every distribution of the pesticides dataset as CC_BY_4_0)."
+      - "The MRL XML carries no CAS number (the active-substance details carry an ECHA EC InfoCard id, e.g. 100.018.969 for chlorpyrifos); link to other jurisdictions by reviewed substance-name candidates or an external CAS crosswalk, never automatically."
+      - "Keep the EU residue definition text per row: it often differs from other jurisdictions (e.g. clethodim is the sum of sethoxydim and clethodim), so limits compare only with the definition shown."
+    next_action: 'Measured 2026-11-16: the backend API lists 8 MRL XML publications (modified 05-14/11/2026); they hold 684 pesticide residue definitions and 252,464 product x residue MRL rows over 381 Annex I product codes, citing 193 regulations, with per-row application dates (newest 2026-11-05) and 6,269 rows carrying MRL footnote text; the active-substance search returns 1,485 substances (421 approved, 980 not approved, 84 pending). The datalake API v3 (api.datalake.sante.service.ec.europa.eu) returned HTTP 500 to every query; v2 returns 410. Supersedes the parked pesticide-eu-pesticides-database route. Next: archive all 8 XMLs daily to R2 and diff application dates to build the change history.'
+  - key: mrl-us-ecfr-40cfr180
+    name: "US EPA pesticide tolerances, 40 CFR part 180 (eCFR versioner API: one section per pesticide with residue definition prose and commodity/ppm tables)"
+    category: food-safety
+    structuring: normalization
+    format: free-text
+    publisher: US EPA Office of Pesticide Programs (40 CFR part 180, published in the eCFR by the Office of the Federal Register)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ecfr.gov/api/versioner/v1/full/2026-11-12/title-40.xml?part=180', 'https://www.ecfr.gov/api/versioner/v1/versions/title-40.json?part=180', 'https://www.ecfr.gov/current/title-40/chapter-I/subchapter-E/part-180' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.py, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json, docs/sources/pipeline/evidence/2026-11-16/mrl_handcheck.json ]
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
+    next_action: 'Measured 2026-11-16: the full-XML endpoint (gzip required, else HTTP 406) returns part 180 as of 2026-11-12: 758 sections, 428 of them pesticide tolerance sections with 15,482 commodity/ppm table rows (180.342 chlorpyrifos: 82 rows, apple 0.01 ppm) and 311 exemption sections; 40 tables carry an expiration/revocation date column; each section ends with Federal Register citations (the legal basis). The versions endpoint lists 2,505 content versions back to 2016-12-29, newest amendment 2026-10-30. Only 7 tolerance sections cite a CAS number in the text (29 sections incl. the inert-ingredient exemption tables, 2,120 distinct CAS numbers). Next: parse residue-definition prose per section, build the point-in-time history from versions, and add Federal Register tolerance rules as the change-notice feed.'
+  - key: mrl-ca-hc-pmra-mrl
+    name: "Health Canada PMRA maximum residue limits for pesticides (MRL extract CSV with legal basis, plus the active-ingredient extract with CAS numbers)"
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: Health Canada Pest Management Regulatory Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pest-control.canada.ca/pesticide-registry-api/api/extract/mrl', 'https://pest-control.canada.ca/pesticide-registry-api/api/extract/ingredient', 'https://open.canada.ca/data/en/dataset/e10b0d6e-04ac-4014-a64a-666c3874bbe0' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.py, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json, docs/sources/pipeline/evidence/2026-11-16/mrl_handcheck.json ]
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+    conditions:
+      - "Open Government Licence - Canada: include the attribution statement and do not suggest official status or endorsement by Health Canada."
+      - "The MRL extract has no CAS column: CAS comes from the PMRA ingredient extract by the same publisher (299/339 MRL chemicals found in the ingredient list by name); keep that within-publisher crosswalk reviewable."
+      - "Extracts are Windows-1252 CSV; decode explicitly."
+    next_action: 'Measured 2026-11-16: the MRL extract returned 25,473 rows (Chemical Common Name, Food Commodity, MRL Value (ppm), Comments, Established Via) for 339 chemicals; 23,606 rows carry a dated legal basis (MRL Database / EMRL / PMRL consultation number), newest 2026-09-10; chlorpyrifos on apples is 0.01 ppm (Canada Gazette II, prior to 16 June 2008). The ingredient extract lists 1,332 active ingredients, 986 with a CAS number. Next: ingest both nightly, keep the Established Via citation as the legal basis, and diff for change dates.'
+  - key: mrl-au-fsanz-schedule20
+    name: "Australia New Zealand Food Standards Code Schedule 20 maximum residue limits (Federal Register of Legislation compilation, docx/PDF)"
+    category: food-safety
+    structuring: normalization
+    format: free-text
+    publisher: Food Standards Australia New Zealand (Schedule 20, varied by APVMA instruments; Federal Register of Legislation)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.legislation.gov.au/F2015L00468/latest/text', 'https://api.prod.legislation.gov.au/v1/versions?$filter=titleId%20eq%20%27F2015L00468%27', "https://api.prod.legislation.gov.au/v1/documents/find(titleid='F2015L00468',asatspecification='Latest',type='Primary',format='Word',uniqueTypeNumber=0,volumeNumber=0,rectificationVersionNumber=0)" ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.py, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json, docs/sources/pipeline/evidence/2026-11-16/mrl_handcheck.json ]
+    conditions:
+      - "Terms unread: the Federal Register of Legislation copyright page is script-rendered and the fetched HTML and API content had no licence wording; read and quote the licence before RIGHTS_DETERMINED."
+      - "Keep the T (temporary) and * (at or about the limit of determination) prefixes as typed flags, not as part of the number."
+      - "Commodity groups (e.g. 'Pome fruits [except Persimmon, Japanese]') must map to commodities through the Schedule 22 classes, with the exceptions kept."
+    next_action: 'Measured 2026-11-16: the OData API reports compilation 93 (F2026C01020, in force from 2026-10-06, registered 2026-10-15, last amended by F2026L01345) and 83 Schedule 20 titles including variation instruments; the Word compilation (715,036 bytes) parses to 542 agvet chemicals with permitted-residue definitions and 8,367 commodity/MRL rows, 1,063 of them temporary (T). Chlorpyrifos on pome fruits is T0.5 mg/kg. Next: read the site licence, archive every compilation version to R2, and diff compilations for change dates.'
+  - key: mrl-codex-pesticide-residues
+    name: "Codex Alimentarius pesticide residues in food and feed database (CXLs, codex.fao.org)"
+    category: food-safety
+    structuring: normalization
+    format: structured
+    publisher: FAO/WHO Codex Alimentarius Commission
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://codex.fao.org/codex-texts/codex-online-databases/pesticides-residues/pesticide-index' ]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 3, structuring_value: 4, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json ]
+    terms:
+      - url: https://www.fao.org/contact-us/terms/en/
+        quote: "may be copied, printed and downloaded for private study, research and teaching purposes, and for use in non-commercial products or services"
+    next_action: 'PARKED (RED): measured 2026-11-16, the pesticide index lists 240 pesticides with Codex numbers and per-pesticide HTML tables (boscalid: commodity, MRL mg/kg, adoption year, symbols, notes; no CAS number), but the FAO terms that govern codex.fao.org limit web content to non-commercial use. Ask FAO/Codex for commercial reuse terms or find the CXL list in a licensed publication before using it.'
 
 datasets:
   - key: home-product-recalls-global
@@ -15083,3 +15167,42 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 4 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mai_measure.py, docs/sources/pipeline/evidence/2026-11-16/mai_measure.json, docs/sources/pipeline/evidence/2026-11-16/mai_handcheck.json ]
     next_action: 'Archive all MAIB, NTSB (567) and BSU (323) report PDFs and NSIA facts pages to R2 and extract IMO numbers from every vessel-particulars table, then re-measure IMO overlap at full scale (the screening read only 10, 8 and 4 PDFs); add the boards MAIB pages cite (DMAIB, Dutch Safety Board, BEAmer, Irish MAIU, JTSB) and re-test TSB Canada MARSIS from another egress for the NTSB join.'
+  - key: pesticide-residue-limits
+    name: "Pesticide maximum residue limits and tolerances (EU, US 40 CFR 180, Health Canada, FSANZ Schedule 20)"
+    category: food-safety
+    entity: "maximum residue limit (MRL / tolerance): pesticide active substance (CAS number where published) x commodity x jurisdiction -> limit in mg/kg (ppm), residue definition, legal basis citation, effective/application date and expiry"
+    stage: SCREENED
+    description: "One record per substance x commodity x jurisdiction limit. The EU Pesticides Database XML gives 252,464 product x residue MRL rows (684 residue definitions, 381 product codes) with application dates and regulation citations; 40 CFR part 180 in the eCFR gives 428 tolerance sections with 15,482 commodity/ppm rows, residue-definition prose and Federal Register citations; Health Canada gives 25,473 MRL rows for 339 chemicals with the legal basis of each; FSANZ Schedule 20 gives 542 agvet chemicals and 8,367 limits. The EU and Health Canada MRL files carry no CAS number, so substances link by a declared CAS number only where the US text cites one, and otherwise by reviewed substance-name candidates; 179 substances appear in all four."
+    sources: [ mrl-eu-pesticides-database-mrls, mrl-us-ecfr-40cfr180, mrl-ca-hc-pmra-mrl, mrl-au-fsanz-schedule20 ]
+    join_keys:
+      - key: CAS number cited in the 40 CFR 180 section text equals the PMRA active-ingredient CAS number
+        between: [ mrl-us-ecfr-40cfr180, mrl-ca-hc-pmra-mrl ]
+        measured: "5/7 tolerance sections that cite a CAS number resolve to a PMRA active ingredient that has Health Canada MRLs (diazinon, sethoxydim, spinosad, cloquintocet-mexyl, isoxadifen-ethyl); across all part 180 sections, including the inert-ingredient exemption tables, 112 of 2,120 cited CAS numbers are PMRA ingredients (15 of 29 sections)"
+        mode: declared
+      - key: normalised active-substance name (40 CFR 180 section heading vs EU residue definition)
+        between: [ mrl-us-ecfr-40cfr180, mrl-eu-pesticides-database-mrls ]
+        measured: "261/428 eCFR tolerance chemicals match an EU residue definition name; 20/20 hand-checked pairs are the same active substance (residue definitions can differ)"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: normalised agvet chemical name (FSANZ Schedule 20 vs EU residue definition)
+        between: [ mrl-au-fsanz-schedule20, mrl-eu-pesticides-database-mrls ]
+        measured: "300/541 FSANZ agvet chemicals match an EU residue definition name; 20/20 hand-checked pairs are the same active substance"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: normalised chemical common name (Health Canada MRL vs EU residue definition)
+        between: [ mrl-ca-hc-pmra-mrl, mrl-eu-pesticides-database-mrls ]
+        measured: "240/339 Health Canada MRL chemicals match an EU residue definition name; 20/20 hand-checked pairs are the same active substance"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - "jurisdiction: EU | US | CA | AU/NZ (Codex parked)"
+      - "limit type: permanent | temporary (FSANZ T, EU temporary MRL) | at limit of determination (* / LOQ) | exemption from tolerance (US 180.9xx-180.1xxx)"
+      - "commodity: EU Annex I product code (e.g. 0130010 apples) as the reference classification, with US crop groups (180.41), Codex/FSANZ commodity groups mapped to it"
+      - "substance status: EU approved | not approved | pending; Canadian re-evaluation status"
+    agent_questions:
+      - "What is the residue limit for chlorpyrifos on apples in the US, EU, Canada and Australia, and when did each change? (measured: US 0.01 ppm; EU 0.01* mg/kg applying from 2020-11-13; Canada 0.01 ppm; FSANZ pome fruits T0.5 mg/kg)"
+      - "Which of my export commodities exceed the EU MRL if they meet the US tolerance for this active substance?"
+      - "Which MRLs for this substance were lowered or revoked in the last 12 months, and under which regulation or Federal Register rule?"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.py, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json, docs/sources/pipeline/evidence/2026-11-16/mrl_handcheck.json ]
+    next_action: 'Archive the four sources to R2 daily; build a reviewed substance crosswalk (EU pest_res_id, CFR section, PMRA ingredient with CAS, FSANZ agvet chemical) seeded from the declared CAS links and the name candidates; map commodities to EU Annex I product codes; read the Federal Register of Legislation licence; ask FAO/Codex about commercial reuse; screen the GB MRL statutory register (HSE) and Japan positive list as further members.'

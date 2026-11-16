@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "73cddb1bb59a1cbbb46059b47ae09afc08f60197446450f67b25f1bc9ee96b91",
+  "registry_sha256": "1cf29b22986034de961cec2eb6b559376514b57319121f9184d7762b8f7c98ef",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -174,7 +174,7 @@
       ]
     },
     "food-and-health-recalls-global": {
-      "name": "Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ, FSAI, Hong Kong CFS)",
+      "name": "Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, UK MHRA, FSANZ, FSAI, Hong Kong CFS)",
       "stage": "SCREENED",
       "sources": [
         "fda-recalls",
@@ -183,7 +183,8 @@
         "ca-recalls-food-health-open-data",
         "au-nz-fsanz-food-recalls",
         "fsai-food-alerts",
-        "hk-cfs-food-alerts-datagovhk"
+        "hk-cfs-food-alerts-datagovhk",
+        "widen-uk-mhra-drug-device-alerts"
       ]
     },
     "public-procurement-notices": {
@@ -769,6 +770,85 @@
         "gi-uk-defra-protected-names",
         "gi-nz-iponz-register"
       ]
+    },
+    "volcanic-activity": {
+      "name": "Volcanic activity (Smithsonian GVP volcanoes, USGS alert levels and notices, GeoNet alert levels, Tokyo VAAC advisories, Smithsonian/USGS weekly reports, NOAA significant eruptions)",
+      "stage": "SCREENED",
+      "sources": [
+        "volc-si-gvp-votw",
+        "volc-usgs-hans",
+        "volc-noaa-ncei-significant-eruptions",
+        "volc-jma-tokyo-vaac",
+        "volc-si-weekly-activity-report",
+        "volc-geonet-val"
+      ]
+    },
+    "drug-patent-listings": {
+      "name": "Drug patent listings (FDA Orange Book and Purple Book, Health Canada Patent Register, CIPO patent text)",
+      "stage": "SCREENED",
+      "sources": [
+        "dpat-us-fda-orange-book-patents",
+        "dpat-us-fda-purple-book-patent-list",
+        "dpat-ca-hc-patent-register",
+        "dpat-ca-cipo-patent-bulk-data",
+        "dpat-ca-hc-drug-product-database"
+      ]
+    },
+    "contaminated-sites": {
+      "name": "Contaminated and remediation sites (US EPA SEMS/NPL, Federal Register NPL notices, NY/CT/NJ state registries, Canada FCSI)",
+      "stage": "SCREENED",
+      "sources": [
+        "csite-us-epa-sems-envirofacts",
+        "csite-us-epa-npl-status-arcgis",
+        "csite-us-federal-register-npl-notices",
+        "csite-ny-dec-remediation-sites",
+        "csite-ct-deep-contaminated-sites",
+        "csite-nj-dep-known-contaminated-sites",
+        "csite-ca-tbs-fcsi"
+      ]
+    },
+    "nuclear-power-reactors": {
+      "name": "Nuclear power reactor units (NRC unit list, daily power status and event reports; IAEA PRIS; EIA-860 nuclear generators)",
+      "stage": "SCREENED",
+      "sources": [
+        "nuc-nrc-power-reactor-units",
+        "nuc-nrc-power-reactor-status",
+        "nuclear-nrc-event-notification-reports",
+        "nuc-iaea-pris-reactors",
+        "power-eia-860-generators"
+      ]
+    },
+    "aircraft-registrations": {
+      "name": "Aircraft registrations (Canada CCAR, Australia CASA, Ireland IAA registers, linked to AAIB, CADORS and FAA SDRS reports)",
+      "stage": "SCREENED",
+      "sources": [
+        "acreg-ca-ccar-register",
+        "acreg-au-casa-register",
+        "acreg-ie-iaa-register",
+        "aviation-uk-aaib-reports",
+        "aviation-ca-cadors-occurrences",
+        "acreg-us-faa-sdrs"
+      ]
+    },
+    "marine-accident-investigations": {
+      "name": "Marine accident investigations (UK MAIB, US NTSB, Norway NSIA, Germany BSU)",
+      "stage": "SCREENED",
+      "sources": [
+        "maritime-uk-maib-reports",
+        "maritime-ntsb-marine-investigation-reports",
+        "mai-no-nsia-marine-reports",
+        "maritime-de-bsu-investigation-reports"
+      ]
+    },
+    "pesticide-residue-limits": {
+      "name": "Pesticide maximum residue limits and tolerances (EU, US 40 CFR 180, Health Canada, FSANZ Schedule 20)",
+      "stage": "SCREENED",
+      "sources": [
+        "mrl-eu-pesticides-database-mrls",
+        "mrl-us-ecfr-40cfr180",
+        "mrl-ca-hc-pmra-mrl",
+        "mrl-au-fsanz-schedule20"
+      ]
     }
   },
   "sources": {
@@ -823,14 +903,13 @@
     "clinical-trial-eligibility": {
       "name": "ClinicalTrials.gov structured eligibility criteria",
       "rights": "AMBER",
-      "stage": "EVIDENCED",
+      "stage": "RIGHTS_DETERMINED",
       "format": "free-text",
       "publisher": "US National Library of Medicine",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage EVIDENCED is before PROTOTYPED"
+        "stage RIGHTS_DETERMINED is before PROTOTYPED"
       ]
     },
     "federal-register-obligations": {
@@ -882,19 +961,6 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage PARKED is before PROTOTYPED"
-      ]
-    },
-    "faa-aircraft-registry": {
-      "name": "FAA aircraft registry by N-number",
-      "rights": "UNKNOWN",
-      "stage": "SCREENED",
-      "format": null,
-      "publisher": null,
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "rights verdict is UNKNOWN",
-        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "us-tariff-duty-stack": {
@@ -3324,45 +3390,6 @@
         "stage PARKED is before PROTOTYPED"
       ]
     },
-    "maritime-uk-maib-reports": {
-      "name": "UK MAIB marine accident investigation reports (gov.uk content API)",
-      "rights": "AMBER",
-      "stage": "SCREENED",
-      "format": "free-text",
-      "publisher": "UK Marine Accident Investigation Branch",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage SCREENED is before PROTOTYPED"
-      ]
-    },
-    "maritime-ntsb-marine-investigation-reports": {
-      "name": "US NTSB marine investigation report PDFs (MIR series)",
-      "rights": "GREEN",
-      "stage": "SCREENED",
-      "format": "free-text",
-      "publisher": "US National Transportation Safety Board",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage SCREENED is before PROTOTYPED"
-      ]
-    },
-    "maritime-ca-tsb-marine-occurrences": {
-      "name": "Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)",
-      "rights": "UNKNOWN",
-      "stage": "PARKED",
-      "format": "structured",
-      "publisher": "Transportation Safety Board of Canada",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
-      ]
-    },
     "maritime-au-atsb-marine-investigations": {
       "name": "Australian Transport Safety Bureau marine occurrence investigations",
       "rights": "UNKNOWN",
@@ -3382,19 +3409,6 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "Safety Investigation Authority Finland",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
-      ]
-    },
-    "maritime-de-bsu-investigation-reports": {
-      "name": "German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports",
-      "rights": "UNKNOWN",
-      "stage": "PARKED",
-      "format": "free-text",
-      "publisher": "German Federal Bureau of Maritime Casualty Investigation",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
@@ -4401,38 +4415,12 @@
         "stage SCREENED is before PROTOTYPED"
       ]
     },
-    "power-eia-860-generators": {
-      "name": "EIA Form EIA-860 annual electric generator report (plants, generators, owners)",
-      "rights": "GREEN",
-      "stage": "SCREENED",
-      "format": "structured",
-      "publisher": "US Energy Information Administration",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage SCREENED is before PROTOTYPED"
-      ]
-    },
     "power-epa-egrid-plants": {
       "name": "EPA eGRID plant file (emissions and generation by plant, keyed by ORIS code)",
       "rights": "AMBER",
       "stage": "SCREENED",
       "format": "structured",
       "publisher": "US EPA",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage SCREENED is before PROTOTYPED"
-      ]
-    },
-    "nuclear-nrc-event-notification-reports": {
-      "name": "NRC Event Notification Reports (daily operations-center reports with free-text event narratives)",
-      "rights": "GREEN",
-      "stage": "SCREENED",
-      "format": "free-text",
-      "publisher": "US Nuclear Regulatory Commission",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
@@ -5460,19 +5448,6 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "City councils of Seattle, Boston, Phoenix and Pittsburgh",
-      "acquisition": "blocked",
-      "tasks": [],
-      "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage PARKED is before PROTOTYPED"
-      ]
-    },
-    "contaminated-sites-registries": {
-      "name": "Contaminated site registries (Canada Federal Contaminated Sites Inventory, US EPA SEMS/Superfund)",
-      "rights": "AMBER",
-      "stage": "PARKED",
-      "format": "free-text",
-      "publisher": "Treasury Board of Canada Secretariat; US EPA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
@@ -7150,6 +7125,604 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "Equasis",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "volc-si-gvp-votw": {
+      "name": "Smithsonian Global Volcanism Program Volcanoes of the World (Holocene and Pleistocene volcano lists and Holocene eruptions via the GVP GeoServer WFS)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Smithsonian Institution Global Volcanism Program",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "volc-si-weekly-activity-report": {
+      "name": "Smithsonian / USGS Weekly Volcanic Activity Report (RSS, one free-text report per volcano per week)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Smithsonian Institution Global Volcanism Program (cooperative project with the USGS Volcano Hazards Program)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "volc-usgs-hans": {
+      "name": "USGS Volcano Hazards Program HANS public API (US volcano list, monitored volcano alert levels and colour codes, free-text notices)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Geological Survey Volcano Hazards Program",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "volc-geonet-val": {
+      "name": "GeoNet New Zealand volcanic alert levels (VAL API, one record per NZ volcano)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Earth Sciences New Zealand (GeoNet)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "volc-jma-tokyo-vaac": {
+      "name": "Tokyo VAAC (Japan Meteorological Agency) volcanic ash advisories (ICAO text advisories citing the GVP volcano number)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Japan Meteorological Agency (Tokyo Volcanic Ash Advisory Center)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "volc-noaa-ncei-significant-eruptions": {
+      "name": "NOAA NCEI/WDS Global Significant Volcanic Eruptions Database and volcano locations (hazel hazard-service API)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NOAA National Centers for Environmental Information",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dpat-us-fda-orange-book-patents": {
+      "name": "FDA Orange Book patent and exclusivity data files (products.txt, patent.txt, exclusivity.txt)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration (CDER Orange Book)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dpat-us-fda-purple-book-patent-list": {
+      "name": "FDA Purple Book biological product patent list (BPPT section 351(k)(9)(A)(iii)) and monthly Purple Book data",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Food and Drug Administration (Purple Book)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dpat-ca-hc-patent-register": {
+      "name": "Health Canada Patent Register (Patented Medicines (NOC) Regulations) open-data export Patent.zip",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Health Canada (Office of Patented Medicines and Liaison)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dpat-ca-cipo-patent-bulk-data": {
+      "name": "CIPO Canadian patent bulk data (bibliographic, abstracts, claims and disclosure text) on open.canada.ca",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Canadian Intellectual Property Office (ISED)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dpat-ca-hc-drug-product-database": {
+      "name": "Health Canada Drug Product Database (DPD) API, DIN lookups for patent-listed drugs",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Health Canada (Drug Product Database)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dpat-us-uspto-patent-full-text": {
+      "name": "USPTO patent full text (Open Data Portal API and bulk files, successor of PatentsView)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "United States Patent and Trademark Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "widen-uk-mhra-drug-device-alerts": {
+      "name": "UK MHRA drug and device alerts on GOV.UK (medicines recalls and defect notifications class 1-4, device safety information, National Patient Safety Alerts, weekly Field Safety Notice lists)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "MHRA (GOV.UK)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "widen-sg-hsa-health-product-recalls": {
+      "name": "Singapore Health Sciences Authority (HSA) health product recalls and safety alerts",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Health Sciences Authority (Singapore)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "widen-ie-hpra-safety-notices": {
+      "name": "Ireland Health Products Regulatory Authority (HPRA) safety notices (medicine and device recalls, field safety notices)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Health Products Regulatory Authority (Ireland)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "contaminated-sites-registries": {
+      "name": "Contaminated site registries (Canada Federal Contaminated Sites Inventory, US EPA SEMS/Superfund), superseded by the csite-* members",
+      "rights": "AMBER",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Treasury Board of Canada Secretariat; US EPA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "csite-us-epa-sems-envirofacts": {
+      "name": "US EPA Superfund Enterprise Management System (SEMS) sites and Record of Decision contaminants via Envirofacts",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Environmental Protection Agency (Envirofacts / SEMS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-us-epa-npl-status-arcgis": {
+      "name": "US EPA Superfund National Priorities List (NPL) sites with status information (EPA ArcGIS feature service)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Environmental Protection Agency (Office of Land and Emergency Management, EPA GeoPlatform)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-us-federal-register-npl-notices": {
+      "name": "Federal Register NPL proposal, final listing, intent-to-delete and deletion notices (federalregister.gov API)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Office of the Federal Register (NARA) and US GPO",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-ny-dec-remediation-sites": {
+      "name": "New York DEC Environmental Remediation Sites (State Superfund, Brownfield Cleanup, ERP, VCP, RCRA; data.ny.gov)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "New York State Department of Environmental Conservation",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-ct-deep-contaminated-sites": {
+      "name": "Connecticut DEEP List of Contaminated or Potentially Contaminated Sites (REACT cases, data.ct.gov)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Connecticut Department of Energy and Environmental Protection (Remediation Division)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-nj-dep-known-contaminated-sites": {
+      "name": "New Jersey DEP Known Contaminated Sites List (KCSNJ, NJDEP Site Remediation Program ArcGIS layer)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "New Jersey Department of Environmental Protection (Site Remediation Program)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-ca-tbs-fcsi": {
+      "name": "Canada Federal Contaminated Sites Inventory (FCSI, Treasury Board Secretariat XML export)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Treasury Board of Canada Secretariat",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "csite-ca-dtsc-envirostor": {
+      "name": "California DTSC EnviroStor cleanup sites (data download)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "California Department of Toxic Substances Control",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "nuc-nrc-power-reactor-units": {
+      "name": "NRC List of Power Reactor Units with the reactors-operating dataset and facility-finder unit pages (docket, licence, type, operator, licence expiry)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Nuclear Regulatory Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "nuc-nrc-power-reactor-status": {
+      "name": "NRC Power Reactor Status Report (daily percent power for every US power reactor unit, 365-day text file)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Nuclear Regulatory Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "nuc-iaea-pris-reactors": {
+      "name": "IAEA PRIS Power Reactor Information System (every power reactor worldwide: type, status, capacity, operator, owner, key dates, lifetime factors)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "International Atomic Energy Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "nuclear-nrc-event-notification-reports": {
+      "name": "NRC Event Notification Reports (daily operations-center reports with free-text event narratives)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Nuclear Regulatory Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "power-eia-860-generators": {
+      "name": "EIA Form EIA-860 annual electric generator report (plants, generators, owners)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Energy Information Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "acreg-ca-ccar-register": {
+      "name": "Canadian Civil Aircraft Register (Transport Canada CCAR download, with Mode S 24-bit address)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Transport Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "acreg-au-casa-register": {
+      "name": "Australian civil aircraft register (CASA acrftreg.csv daily download)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Civil Aviation Safety Authority (Australia)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "acreg-ie-iaa-register": {
+      "name": "Irish civil aircraft register (IAA monthly 'all registered aircraft' xlsx)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Irish Aviation Authority",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "acreg-us-faa-sdrs": {
+      "name": "FAA Service Difficulty Reporting System (SDRS public query: defect reports by N-number with free-text problem descriptions)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Federal Aviation Administration (Flight Standards)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "faa-aircraft-registry": {
+      "name": "FAA Releasable Aircraft Database (MASTER with MODE S CODE HEX, ACFTREF, DEREG)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Federal Aviation Administration (Aircraft Registry)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "maritime-uk-maib-reports": {
+      "name": "UK MAIB marine accident investigation reports (GOV.UK search and content API, report PDFs)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Marine Accident Investigation Branch",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "maritime-ntsb-marine-investigation-reports": {
+      "name": "US NTSB marine investigation reports (ntsb.gov Reports list API, MIR/MAB/MAR report PDFs)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Transportation Safety Board",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mai-no-nsia-marine-reports": {
+      "name": "Norwegian Safety Investigation Authority (NSIA) marine investigation reports with typed facts tables",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Norwegian Safety Investigation Authority (Statens havarikommisjon)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "maritime-de-bsu-investigation-reports": {
+      "name": "German Federal Bureau of Maritime Casualty Investigation (BSU) investigation reports (per-year tables, English PDFs)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "German Federal Bureau of Maritime Casualty Investigation (BSU)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "maritime-ca-tsb-marine-occurrences": {
+      "name": "Transportation Safety Board of Canada MARSIS marine occurrence data (open.canada.ca)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Transportation Safety Board of Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "mai-bs-bma-investigation-reports": {
+      "name": "Bahamas Maritime Authority published marine safety investigation reports",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "The Bahamas Maritime Authority",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "mai-imo-gisis-marine-casualties": {
+      "name": "IMO GISIS Marine Casualties and Incidents module (flag-state casualty reports by IMO number)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "International Maritime Organization",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "mrl-eu-pesticides-database-mrls": {
+      "name": "EU Pesticides Database maximum residue levels (Regulation (EC) No 396/2005 MRL XML publications and active-substance register, DG SANTE)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission DG SANTE (EU Pesticides Database)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mrl-us-ecfr-40cfr180": {
+      "name": "US EPA pesticide tolerances, 40 CFR part 180 (eCFR versioner API: one section per pesticide with residue definition prose and commodity/ppm tables)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US EPA Office of Pesticide Programs (40 CFR part 180, published in the eCFR by the Office of the Federal Register)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mrl-ca-hc-pmra-mrl": {
+      "name": "Health Canada PMRA maximum residue limits for pesticides (MRL extract CSV with legal basis, plus the active-ingredient extract with CAS numbers)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Health Canada Pest Management Regulatory Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mrl-au-fsanz-schedule20": {
+      "name": "Australia New Zealand Food Standards Code Schedule 20 maximum residue limits (Federal Register of Legislation compilation, docx/PDF)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Food Standards Australia New Zealand (Schedule 20, varied by APVMA instruments; Federal Register of Legislation)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mrl-codex-pesticide-residues": {
+      "name": "Codex Alimentarius pesticide residues in food and feed database (CXLs, codex.fao.org)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "FAO/WHO Codex Alimentarius Commission",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
