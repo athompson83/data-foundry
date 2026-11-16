@@ -15137,9 +15137,9 @@ datasets:
         between: [ maritime-uk-maib-reports, maritime-de-bsu-investigation-reports ]
         measured: "1/1 MAIB pages citing a BSU report resolve to a BSU table row (case 117 of 2011, OOCL Finland and Tyumen-2 collision); 15 MAIB overseas-report pages cite reports of 14 foreign boards, only one of them BSU"
         mode: declared
-      - key: IMO number printed in both report PDFs (vessel-particulars tables)
+      - key: IMO number printed in both report PDFs (vessel-particulars tables) AND occurrence dates within 3 days; an IMO number identifies the vessel, not the casualty, so an IMO match without the date constraint is never an automatic link
         between: [ maritime-de-bsu-investigation-reports, maritime-uk-maib-reports ]
-        measured: "2/2 same-event BSU-MAIB pairs whose PDFs were both read share both IMO numbers (9229178 Polesie, 9488097 Verity; one casualty, two BSU rows); across all PDFs read, 2 IMO numbers appear at two publishers"
+        measured: "2/2 BSU-MAIB pairs already restricted to occurrence dates within 3 days, whose PDFs were both read, share both IMO numbers (9229178 Polesie, 9488097 Verity; one casualty, two BSU rows); across all PDFs read, 2 IMO numbers appear at two publishers"
         mode: declared
       - key: vessel name plus occurrence date within 3 days (BSU description capitals, MAIB title and date_of_occurrence)
         between: [ maritime-de-bsu-investigation-reports, maritime-uk-maib-reports ]
@@ -15151,10 +15151,10 @@ datasets:
         measured: "1/23 NTSB-MAIB vessel-name pairs share the occurrence date (Queen Elizabeth 2 grounding, 1992-08-07, NTSB MAR-93-01); hand-checked as the same casualty"
         mode: candidate
         reviewed: { correct: 1, checked: 1 }
-      - key: IMO number in the NSIA facts table found in MAIB, NTSB or BSU report PDFs
+      - key: IMO number in the NSIA facts table found in MAIB, NTSB or BSU report PDFs (vessel only, no casualty-date constraint, so a review candidate)
         between: [ mai-no-nsia-marine-reports, maritime-uk-maib-reports ]
         measured: "0/65 NSIA IMO numbers appear among the 10 MAIB, 8 NTSB and 4 BSU IMO numbers read this round; 13 NSIA vessel-name pairs with MAIB or NTSB titles are all different vessels"
-        mode: declared
+        mode: candidate
     taxonomy:
       - "casualty type: collision | allision or contact | grounding | foundering or capsize | fire or explosion | flooding | personal injury or fatality | machinery failure | other"
       - "vessel class: merchant >=100 GT | merchant <100 GT | fishing | passenger | towing | recreational"
