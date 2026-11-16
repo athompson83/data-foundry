@@ -7560,29 +7560,6 @@ candidates:
       (drug-label-facts is the label endpoint; shortages-fda-drug and fda-drug-shortages-openfda are shortages). Archive the
       full snapshot (openFDA offers a download bundle) in R2 before EVIDENCED.
 
-  - key: power-eia-860-generators
-    name: EIA Form EIA-860 annual electric generator report (plants, generators, owners)
-    category: energy
-    structuring: normalization
-    format: structured
-    publisher: US Energy Information Administration
-    stage: SCREENED
-    rights: GREEN
-    sources:
-      - https://www.eia.gov/electricity/data/eia860/
-      - https://www.eia.gov/electricity/data/eia860/xls/eia8602025.zip
-    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
-    terms:
-      - url: https://www.eia.gov/about/copyrights_reuse.php
-        quote: 'U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website or that you receive through our email distribution service.'
-    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json ]
-    next_action: >-
-      Screened 2026-10-17: the 2025 final release (released 2026-09-10, next release June 2027) downloads without a key from
-      xls/eia8602025.zip; the plant sheet has 17,349 plants (Plant Code, name, state, county, lat/lon, NERC region, balancing authority,
-      FERC cogeneration, small-power-producer and exempt-wholesale-generator docket numbers) and the operable generator sheet 27,919 generators,
-      56 of the plants nuclear. There is no NRC docket column. Use the acknowledgment the EIA page asks for ("Source: U.S. Energy Information
-      Administration"), archive the zip in R2 and add it to tooling/snapshots/plans.json.
-
   - key: power-epa-egrid-plants
     name: EPA eGRID plant file (emissions and generation by plant, keyed by ORIS code)
     category: energy
@@ -7607,33 +7584,6 @@ candidates:
       Screened 2026-10-17: the 2023 file has 12,612 plants keyed by ORISPL (the EIA plant code) with operator, balancing authority, fuel,
       nameplate capacity, generation and emission rates. Read the eGRID page terms, write the rights record, archive the xlsx in R2, and look for
       the newer eGRID release when EPA publishes it.
-
-  - key: nuclear-nrc-event-notification-reports
-    name: NRC Event Notification Reports (daily operations-center reports with free-text event narratives)
-    category: energy
-    structuring: event-extraction
-    format: free-text
-    publisher: US Nuclear Regulatory Commission
-    stage: SCREENED
-    rights: GREEN
-    sources:
-      - https://www.nrc.gov/reading-rm/doc-collections/event-status/event/2026/
-    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
-    terms:
-      - url: https://www.nrc.gov/about-nrc/site-disclaimer
-        quote: "NRC's website constitutes a U.S. Government Work under federal copyright law and as such, it is not subject to copyright. It is freely available for non-exclusive rights in publication or reproduction for any purpose, in any form, and there are no restrictions on use."
-    conditions:
-      - 'Credit is requested by NRC ("NRC would appreciate the courtesy of credit"); credit the NRC as the source.'
-      - 'Exclude the names of the NRC officers and notifying individuals ("NRC Notified By", "HQ OPS Officer", "Person (Organization)") from published records; keep the raw page in R2.'
-      - 'Only the "Power Reactor" blocks relate to power plants; the daily reports mostly cover Agreement State and other materials events (112 of 189 events in the sample), which belong to a different entity type.'
-      - 'The power-reactor block carries Facility, Unit, State, RX Type, event time and 10 CFR section but no Docket field, so the docket number cannot be the join key to a plant record.'
-    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json ]
-    next_action: >-
-      Screened 2026-10-17: the 2026 index answers 200 and lists 200 daily pages (one HTML page per day, event narrative under "Event Text"); a sample
-      of 60 evenly spaced days gave 189 events, 42 of them power-reactor events at 26 distinct facilities. Fetch the full archive politely
-      (one page per day, back to the first year offered), parse the event blocks into typed events (10 CFR section, unit, scram code, power level,
-      cause text), and archive each daily page in R2. Resolve the NRC facility name to the EIA plant code through the reviewed crosswalk.
-      Research and test reactors and fuel facilities have no EIA plant record.
 
   - key: radio-fcc-eas-equipment-grants
     name: US FCC Equipment Authorization System grants (FCC ID, frequency, power, grant conditions, exhibits)
@@ -11286,6 +11236,114 @@ candidates:
     scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
     next_action: 'Parked 2026-11-16 (RED: the data download page answers 403 with a Cloudflare "Just a moment" JavaScript challenge; not bypassed). Terms not read. Reopen if DTSC publishes EnviroStor on the California open data portal or an unchallenged endpoint.'
+  - key: nuc-nrc-power-reactor-units
+    name: "NRC List of Power Reactor Units with the reactors-operating dataset and facility-finder unit pages (docket, licence, type, operator, licence expiry)"
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: US Nuclear Regulatory Commission
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.nrc.gov/facilities-safety/operating-reactors/list-power-reactor-units', 'https://www.nrc.gov/sites/default/files/doc_library/cdn/legacy/reading-rm/doc-collections/datasets/reactors-operating.xlsx', 'https://www.nrc.gov/facilities-safety/facility-finder/reactors/ano1' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json, docs/sources/pipeline/evidence/2026-11-16/nuc_pairs.json, docs/sources/pipeline/evidence/2026-11-16/nuc_handcheck.json ]
+    terms:
+      - url: https://www.nrc.gov/about-nrc/site-disclaimer
+        quote: "NRC's website constitutes a U.S. Government Work under federal copyright law and as such, it is not subject to copyright. It is freely available for non-exclusive rights in publication or reproduction for any purpose, in any form, and there are no restrictions on use."
+    conditions:
+      - "Credit the NRC as the source (the disclaimer says NRC would appreciate the courtesy of credit); photos and graphics on unit pages may be third-party copyright and are not republished."
+      - "Unit pages carry NRC project-manager names and contact details: never store or serve them."
+      - "The xlsx is a 2022 snapshot (Year of Update 2022 for all 93 rows); take licence expiry and MWt from the current facility-finder page and keep the xlsx only for history (licensing dates, capacity factors 2003 to 2022)."
+    next_action: 'Measured 2026-11-16: the HTML list (old /reactors/operating/ URL redirects) gives 93 operating units (62 PWR, 31 BWR), 93 distinct NRC docket numbers (e.g. 05000313), licence number, type, operator (29 distinct) and region; it omits Vogtle 3 and 4, which the status report, PRIS and EIA-860 carry. Its location is distance from a reference city, whose state differs from the plant state for 6 units (e.g. Catawba: Charlotte, NC), so the plant state comes from the xlsx. The reactors-operating.xlsx (47 KB) has 93 rows, 91 of them on the current list, with 51 fields including licence dates, licence expiry, licensed MWt, MWe, NSSS vendor and capacity factors; Year of Update is 2022. 20/20 sampled facility-finder pages answered 200 with the same docket; 14 show a licence expiry (equal to the xlsx for all 14) and 2 a different licensed MWt. Next: fetch all unit pages, parse expiry, MWt, renewal status and add Vogtle 3/4 from the new-reactor pages; archive in R2.'
+  - key: nuc-nrc-power-reactor-status
+    name: "NRC Power Reactor Status Report (daily percent power for every US power reactor unit, 365-day text file)"
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: US Nuclear Regulatory Commission
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/power-reactor-status-reports/PowerReactorStatusForLast365Days.txt' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json ]
+    terms:
+      - url: https://www.nrc.gov/about-nrc/site-disclaimer
+        quote: "NRC's website constitutes a U.S. Government Work under federal copyright law and as such, it is not subject to copyright. It is freely available for non-exclusive rights in publication or reproduction for any purpose, in any form, and there are no restrictions on use."
+    conditions:
+      - "Credit the NRC as the source."
+      - "The file carries only a unit name, so each row is resolved to an NRC docket number through the unit list; Vogtle 3 and 4 have no row on that list and are mapped from the new-reactor pages."
+    next_action: 'Measured 2026-11-16: the pipe-delimited file (old /reading-rm/ URL redirects; 1.31 MB) has 34,485 rows (ReportDt|Unit|Power) for 95 units over 363 report days, 2025-11-16 to 2026-11-13 (363 report days in 365; newest 3 days before the run); on the newest day 77 units were at 100 percent and 14 at 0. Unit names equal the NRC list name for 89/95 units, and 93/95 with site token plus unit number (Harris 1, LaSalle 1/2, River Bend Station 1 spelled differently; Vogtle 3/4 not on the list). Next: pull it daily to R2 so the archive grows past 365 days, and back-fill older years from the NRC yearly status files if they are still published.'
+  - key: nuc-iaea-pris-reactors
+    name: "IAEA PRIS Power Reactor Information System (every power reactor worldwide: type, status, capacity, operator, owner, key dates, lifetime factors)"
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: International Atomic Energy Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pris-stats.iaea.org/reactor/reactors-by-code/US', 'https://pris-stats.iaea.org/country/countries/', 'https://pris-stats.iaea.org/reactor/reactor-by-id/652' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json, docs/sources/pipeline/evidence/2026-11-16/nuc_pairs.json, docs/sources/pipeline/evidence/2026-11-16/nuc_handcheck.json ]
+    terms:
+      - url: https://nucleus.iaea.org/Pages/Others/Disclaimer.aspx
+        quote: "Content may be adapted, translated, copied, printed and downloaded for private study, research and teaching purposes, and for use in commercial and non-commercial products or services, provided that appropriate acknowledgement of the IAEA as the source is given and that the IAEA's endorsement of users' views, products or services is not stated or implied in any way."
+    conditions:
+      - "Acknowledge the IAEA (PRIS) as the source on every served record and never state or imply IAEA endorsement."
+      - "The same notice says specific restrictions may apply to specific materials and that third-party copyright material needs the holder's permission: do not republish the reactor photographs (defaultImageName) or PRIS publications; serve facts only."
+      - "The JSON endpoints are the undocumented backend of the public PRIS Analytics app (pris.iaea.org now redirects to pris-stats.iaea.org): fetch politely, detect schema changes, and fall back to the IAEA annual Nuclear Power Reactors in the World publication if they move."
+    next_action: 'Measured 2026-11-16: no login or key; 38 countries, 739 reactors (419 Operational, 76 Under Construction, 220 Permanent Shutdown, 21 Suspended Operation, 3 Decommissioning Completed); US 135 (94 operational), CN 61, FR 57 operational. Each record has a PRIS id, unit and site name, type, model, thermal/gross/net MWe, construction, criticality, grid, commercial and shutdown dates, operator, owner, NSSS and turbine supplier; 69 carry an alternate name. The per-reactor detail adds lifetime availability/load factors (reportYear 2025 on ANO-1; empty on another sampled id). Unit name and unit number match 92/93 NRC units (20/20 hand-checked); commercial date equals the NRC xlsx for 90/91. No NRC docket or EIA plant code in PRIS. Next: fetch every reactor detail, archive to R2, and join non-US regulators (CNSC, ONR) by name.'
+  - key: nuclear-nrc-event-notification-reports
+    name: NRC Event Notification Reports (daily operations-center reports with free-text event narratives)
+    category: energy
+    structuring: event-extraction
+    format: free-text
+    publisher: US Nuclear Regulatory Commission
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026
+      - https://www.nrc.gov/reading-rm/doc-collections/event-status/event/2026/
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 3, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    terms:
+      - url: https://www.nrc.gov/about-nrc/site-disclaimer
+        quote: "NRC's website constitutes a U.S. Government Work under federal copyright law and as such, it is not subject to copyright. It is freely available for non-exclusive rights in publication or reproduction for any purpose, in any form, and there are no restrictions on use."
+    conditions:
+      - 'Credit is requested by NRC ("NRC would appreciate the courtesy of credit"); credit the NRC as the source.'
+      - 'Exclude the names of the NRC officers and notifying individuals ("NRC Notified By", "HQ OPS Officer", "Person (Organization)") from published records; keep the raw page in R2.'
+      - 'Only the "Power Reactor" blocks relate to power reactors; the daily reports mostly cover Agreement State and other materials events (83 of 103 events in the 2026-11-16 sample), which belong to a different entity type.'
+      - 'The power-reactor block carries Facility, Unit, State, RX Type, event time, 10 CFR section and per-unit SCRAM code and power, but no Docket field (0 of 20 sampled), so each event links to its unit by facility, state and unit number, resolved to the NRC docket number through the unit list.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json, docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json, docs/sources/pipeline/evidence/2026-11-16/nuc_pairs.json ]
+    next_action: >-
+      Measured 2026-11-16: the index moved to /documents-reports/.../event-notification-reports/2026 (the old URL redirects) and lists 221 daily pages,
+      2026-01-02 to 2026-11-16; 32 evenly spaced days gave 103 events, 20 of them power-reactor events at 17 facilities (median narrative 1,351
+      characters; 10 CFR 26.719 fitness-for-duty 6, 50.72(b)(2)(iv)(B) 6, 50.73(a)(1) 4; SCRAM code N 12, M/R 5, A/R 3). Facility, state and unit
+      number resolve to exactly one NRC unit for 22/24 unit mentions (Vogtle 3/4 is not on the NRC list). Fetch the full archive politely back to the
+      first year offered, parse event blocks into typed events per docket, and archive each daily page in R2. Member of both power-plant-registry and nuclear-power-reactors.
+  - key: power-eia-860-generators
+    name: EIA Form EIA-860 annual electric generator report (plants, generators, owners)
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: US Energy Information Administration
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.eia.gov/electricity/data/eia860/
+      - https://www.eia.gov/electricity/data/eia860/xls/eia8602025.zip
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    terms:
+      - url: https://www.eia.gov/about/copyrights_reuse.php
+        quote: 'U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website or that you receive through our email distribution service.'
+    evidence: [ docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.py, docs/sources/pipeline/evidence/2026-10-17/power-plant-registry/join.json, docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json, docs/sources/pipeline/evidence/2026-11-16/nuc_pairs.json, docs/sources/pipeline/evidence/2026-11-16/nuc_handcheck.json ]
+    next_action: >-
+      Screened 2026-10-17: the 2025 final release (released 2026-09-10, next release June 2027) downloads without a key from
+      xls/eia8602025.zip; the plant sheet has 17,349 plants (Plant Code, name, state, county, lat/lon, NERC region, balancing authority,
+      FERC cogeneration, small-power-producer and exempt-wholesale-generator docket numbers) and the operable generator sheet 27,919 generators,
+      56 of the plants nuclear. There is no NRC docket column. Measured 2026-11-16: the zip answered 200 as application/x-zip-compressed
+      (23.6 MB), with 96 operable nuclear generators at 56 plants (94 OP, 1 OA, 1 OS); 93/93 NRC operating units resolve to exactly one EIA plant
+      code and generator ID by site name, plant state and unit number (20/20 hand-checked); the 3 unmatched generators are Vogtle 3 and 4 and
+      Crane Clean Energy Center 1, none on the NRC operating list. Use the acknowledgment the EIA page asks for ("Source: U.S. Energy Information
+      Administration"), archive the zip in R2 and add it to tooling/snapshots/plans.json.
 
 datasets:
   - key: home-product-recalls-global
@@ -14781,3 +14839,42 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json, docs/sources/pipeline/evidence/2026-11-16/csite_handcheck.json ]
     next_action: 'Add "EPA site ID" to the declared-identifier allow-list; archive SEMS, the NPL layer, the three state registries and FCSI to R2; extract site, place and action from the 1,469 Federal Register NPL documents; look for a state or federal (FRS) cross-walk that carries EPA site IDs for state programme numbers; read the OPEN-NY and NJDEP terms; add a Canadian provincial registry so FCSI joins something.'
+  - key: nuclear-power-reactors
+    name: "Nuclear power reactor units (NRC unit list, daily power status and event reports; IAEA PRIS; EIA-860 nuclear generators)"
+    category: energy
+    entity: "nuclear power reactor unit, keyed by NRC docket number for US units and PRIS id worldwide, with type, vendor, thermal and electrical capacity, operator and owner, licence number, licence issue and expiry dates, status, daily percent power, reported events and its EIA plant code and generator ID"
+    stage: SCREENED
+    description: "One record per power reactor unit. The NRC unit list gives 93 operating US units with docket number, licence, type, operator and region, and the NRC reactors-operating dataset and unit pages add licence dates and expiry; the NRC Power Reactor Status Report gives daily percent power for 95 units over the last 365 days; the NRC Event Notification Reports give free-text event narratives with facility, unit, 10 CFR section and SCRAM code. IAEA PRIS gives 739 reactors in 38 countries with type, capacity, operator, owner and key dates. EIA-860 gives the EIA plant code and generator ID for 96 nuclear generators, which links each unit to the power-plant-registry dataset. No source carries another publisher's identifier: the cross-publisher links are reviewed site-name, state and unit-number candidates, each hand-checked 20/20."
+    sources: [ nuc-nrc-power-reactor-units, nuc-nrc-power-reactor-status, nuclear-nrc-event-notification-reports, nuc-iaea-pris-reactors, power-eia-860-generators ]
+    join_keys:
+      - key: NRC unit site name plus unit number against PRIS unit name (operational or suspended US reactors)
+        between: [ nuc-nrc-power-reactor-units, nuc-iaea-pris-reactors ]
+        measured: "92/93 NRC operating units match exactly one PRIS reactor (Palisades unmatched; Vogtle 3/4 in PRIS are not on the NRC list); commercial operation date equal for 90/91 with an NRC xlsx row, licensed MWt equal for 77/91 (the xlsx is 2022 data); 20/20 hand-checked pairs are the same unit"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: NRC unit site name, plant state and unit number against EIA-860 nuclear plant name, state and generator ID
+        between: [ nuc-nrc-power-reactor-units, power-eia-860-generators ]
+        measured: "93/93 NRC operating units match exactly one EIA-860 2025 nuclear generator (93 distinct plant code and generator ID pairs; 3 of 96 EIA nuclear generators unmatched: Vogtle 3, Vogtle 4, Crane Clean Energy Center 1); EIA operating year equals NRC commercial operation year for 85; 20/20 hand-checked pairs are the same unit"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: NRC status unit name against the NRC unit list name
+        between: [ nuc-nrc-power-reactor-status, nuc-nrc-power-reactor-units ]
+        measured: "89/95 status units equal a unit-list name exactly; 93/95 with site token plus unit number (Vogtle 3 and 4 are not on the unit list)"
+        mode: candidate
+      - key: NRC event facility, state and unit number against the NRC unit list
+        between: [ nuclear-nrc-event-notification-reports, nuc-nrc-power-reactor-units ]
+        measured: "22/24 unit mentions in 20 power-reactor events (32 sampled days of 2026) resolve to exactly one NRC unit and its docket; the 2 misses are Vogtle 3/4"
+        mode: candidate
+    taxonomy:
+      - "reactor type: PWR | BWR | PHWR | LWGR | GCR | FBR | HTGR (PRIS type code), with NSSS vendor and model"
+      - "status: operational | suspended operation | under construction | permanent shutdown | decommissioning completed (PRIS), and NRC licence state (original, renewed, subsequent renewed)"
+      - "daily operating state: percent power from the NRC status report (0 = shut down or refuelling)"
+      - "event class: 10 CFR 50.72 / 50.73 / 26.719 section, emergency class, SCRAM code (N, M/R, A/R)"
+    agent_questions:
+      - "What power level was reactor X at today and over the last year, and when was it last shut down?"
+      - "When does reactor X's operating licence expire, has it been renewed, and who operates and owns it?"
+      - "What events has reactor X reported to the NRC this year, under which 10 CFR section, and did any involve a SCRAM?"
+      - "Given an EIA plant code, which reactor units and NRC docket numbers sit behind it, and what is their PRIS record?"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json, docs/sources/pipeline/evidence/2026-11-16/nuc_pairs.json, docs/sources/pipeline/evidence/2026-11-16/nuc_handcheck.json ]
+    next_action: 'Archive the NRC list, unit pages, status file (daily), event pages, PRIS records and the EIA-860 zip to R2; publish a reviewed NRC docket number to EIA plant code and PRIS id crosswalk (93 rows) so later loads link by identifier; add Vogtle 3/4 from the NRC new-reactor pages; add non-US regulators (CNSC Canada, ONR UK) joined to PRIS; look for any source that cites the NRC docket number next to another publisher identifier (a declared join would need "NRC docket number" in the allow-list).'
