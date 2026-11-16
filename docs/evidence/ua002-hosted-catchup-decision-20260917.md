@@ -188,6 +188,8 @@ ALTER TABLE public.automation_runs ENABLE ROW LEVEL SECURITY;
 Both are single statements, reversible, and safe precisely because the
 dependency count is zero. The decision belongs to whoever owns that workload.
 
+> **Update 2026-09-29 — executed.** After Supabase's CRITICAL alert, the owner authorised the containment above. It was applied as provider migration `contain_public_automation_runs`. Verification: RLS is on, `anon` and `authenticated` hold no privileges, `service_role` still reads the 5 rows, and `rls_disabled_in_public` now has 0 findings. See `PROGRESS.md` (2026-09-29).
+
 The six `rise_*` tables are a different application again. Five have RLS
 enabled; three of those have no policies, which is deny-all rather than
 exposure. None is Data Foundry's.
