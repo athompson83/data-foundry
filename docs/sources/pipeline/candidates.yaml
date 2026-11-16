@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-15
+updated: 2026-11-16
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -10910,6 +10910,105 @@ candidates:
     scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/psc_measure.py, docs/sources/pipeline/evidence/2026-11-15/psc_measure.json ]
     next_action: 'Parked 2026-11-15 (RED: ship and inspection data require a registered login; the public home page presents the login form). Not reopened.'
+  - key: volc-si-gvp-votw
+    name: "Smithsonian Global Volcanism Program Volcanoes of the World (Holocene and Pleistocene volcano lists and Holocene eruptions via the GVP GeoServer WFS)"
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: Smithsonian Institution Global Volcanism Program
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://webservices.volcano.si.edu/geoserver/GVP-VOTW/ows?service=WFS&request=GetFeature&typeName=GVP-VOTW:Smithsonian_VOTW_Holocene_Volcanoes&outputFormat=application/json', 'https://webservices.volcano.si.edu/geoserver/GVP-VOTW/ows?service=WFS&request=GetCapabilities' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json ]
+    conditions:
+      - "The GVP terms page (volcano.si.edu/gvp_terms.cfm) and si.edu/termsofuse answered a Cloudflare managed challenge (403) on 2026-11-16 and were not read; the WFS capabilities declare AccessConstraints NONE and Fees NONE. Read the GVP terms from an unchallenged route before RIGHTS_DETERMINED; until then treat as silent terms: attribute the Smithsonian Global Volcanism Program, Volcanoes of the World, with version and access date."
+      - "Primary_Photo_Link / photo credit fields point at third-party photographs: never cache or republish images (AGENTS.md rule 9); serve the link only if the rights record allows it."
+      - "Geological_Summary is authored prose: serve extracted facts and a link, and decide republication of the full text in the rights record."
+    next_action: 'Measured 2026-11-16: WFS reachable without challenge (volcano.si.edu HTML pages are behind a Cloudflare challenge); Holocene layer 1,214 volcanoes (88 countries, 66 with Last_Eruption_Year >= 2025, all with a Geological_Summary), Pleistocene layer 1,452, 2,666 distinct GVP volcano numbers; Holocene eruptions layer 11,089 eruptions with Volcano_Number, Eruption_Number, start/end date parts with uncertainty and VEI. Next: archive the three layers to R2, read the GVP terms from an unchallenged route, and use Volcano_Number as the dataset spine.'
+  - key: volc-si-weekly-activity-report
+    name: "Smithsonian / USGS Weekly Volcanic Activity Report (RSS, one free-text report per volcano per week)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Smithsonian Institution Global Volcanism Program (cooperative project with the USGS Volcano Hazards Program)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://volcano.si.edu/news/WeeklyVolcanoRSS.xml' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json ]
+    conditions:
+      - "Terms unread (Cloudflare challenge on the GVP terms page, 2026-11-16); the channel declares copyright Smithsonian Institution. Treat as silent terms: attribute the Smithsonian/USGS Weekly Volcanic Activity Report and each report's named source agency, extract dated facts (alert level, plume height, event dates) and link the report rather than republishing the prose until the rights record decides otherwise."
+      - "The channel carries GVP staff contact addresses (managingEditor/webMaster): never store or serve them."
+    next_action: 'Measured 2026-11-16: RSS reachable (36,709 bytes, 27 items: 23 Continuing, 4 New Eruptive Activity), but the newest channel pubDate is Thu 15 Oct 2026 although the feed says it is updated every Thursday, and reports_weekly.cfm answers a Cloudflare challenge: about 4 weekly issues missing. Every item guid carries #vn_<GVP volcano number> (27/27 resolve to Volcanoes of the World, 26/27 same name); 27/27 have a Source: line naming the reporting agency, 22/27 mention an alert level or aviation colour code, median 118 words. Next: poll weekly for 4 weeks to confirm cadence has resumed (else PARK as stale), then measure deterministic extraction of alert level, plume height and date spans.'
+  - key: volc-usgs-hans
+    name: "USGS Volcano Hazards Program HANS public API (US volcano list, monitored volcano alert levels and colour codes, free-text notices)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: structured
+    publisher: US Geological Survey Volcano Hazards Program
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://volcanoes.usgs.gov/hans-public/api/volcano/getUSVolcanoes', 'https://volcanoes.usgs.gov/hans-public/api/volcano/getMonitoredVolcanoes', 'https://volcanoes.usgs.gov/hans-public/api/volcano/getElevatedVolcanoes', 'https://volcanoes.usgs.gov/hans-public/api/notice/getNewestOrRecent' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json ]
+    terms:
+      - url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+        quote: "USGS-authored or produced data and information are considered to be in the U.S. Public Domain."
+    next_action: 'Measured 2026-11-16: 170 US volcanoes (AVO 95, CVO 21, NMI 19, YVO 14, CalVO 12, HVO 9), every one with a vnum; 69 monitored with alert levels (66 NORMAL, 2 ADVISORY, 1 WATCH), newest notice 2026-11-15 18:49 UTC; 3 elevated (Great Sitkin WATCH/ORANGE, Kilauea and Ahyi Seamount ADVISORY/YELLOW); notices are HTML prose (541-1,097 words) that cite "VNUM #<number>" for every volcano discussed (4/4 cited numbers resolve to GVP); getNewestOrRecent lists 95 notices. Observatory contact emails are in the list response: drop them. Next: archive the list and a month of notices; parse alert level, colour code and per-volcano sections from notice HTML.'
+  - key: volc-geonet-val
+    name: "GeoNet New Zealand volcanic alert levels (VAL API, one record per NZ volcano)"
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: Earth Sciences New Zealand (GeoNet)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.geonet.org.nz/volcano/val' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json, docs/sources/pipeline/evidence/2026-11-16/volc_handcheck.json ]
+    terms:
+      - url: https://www.geonet.org.nz/disclaimer
+        quote: "GeoNet content is copyright Earth Sciences New Zealand and is licensed under a Creative Commons Attribution 3.0 New Zealand License"
+    conditions:
+      - "Attribute GeoNet / Earth Sciences New Zealand under CC BY 3.0 NZ and indicate changes."
+      - "GeoNet volcano ids are slugs, not GVP volcano numbers: links to GVP are reviewed name candidates, and regional alert areas (Northland, Kermadec Islands) map to several GVP volcanoes."
+    next_action: 'Measured 2026-11-16: GeoJSON, 12 volcanoes with level (10 at 0, Ruapehu 1, White Island 2), acc colour, activity and hazards text; no GVP number. 8/12 match a GVP New Zealand volcano by name (8/9 proposed pairs hand-checked correct); Ngauruhoe, Taranaki Maunga, Kermadec Islands and Northland need a reviewed alias table. Next: write the 12-row alias table to GVP numbers, and poll to capture level changes as dated events.'
+  - key: volc-jma-tokyo-vaac
+    name: "Tokyo VAAC (Japan Meteorological Agency) volcanic ash advisories (ICAO text advisories citing the GVP volcano number)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Japan Meteorological Agency (Tokyo Volcanic Ash Advisory Center)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.data.jma.go.jp/vaac/data/vaac_list.html' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json ]
+    terms:
+      - url: https://www.jma.go.jp/jma/en/copyright.html
+        quote: "Information made available on the Japan Meteorological Agency website (hereinafter referred to as “Content”) may be used in accordance with the terms and conditions of use stipulated in Public Data License (Version 1.0), unless otherwise indicated by a specific rights notice."
+      - url: https://www.jma.go.jp/jma/en/copyright.html
+        quote: "The Terms of Use are compatible with the Creative Commons Attribution License 4.0 (hereinafter referred to as the CC License)."
+    conditions:
+      - "Cite 'Source: Japan Meteorological Agency website (URL)' and state when content is edited, without presenting edited data as created by the Government of Japan."
+      - "The JMA terms flag restrictions under the Meteorological Service Act (Article 17 forecasting licence, Article 23 warnings): serve advisories as dated historical records attributed to the Tokyo VAAC, never as our own forecast or warning, and say they are not for operational aviation use."
+    next_action: 'Measured 2026-11-16: the list page links 178 advisories dated 2026-10-01 to 2026-11-16 for 7 distinct volcanoes; each filename and body ("VOLCANO: <NAME> <number>") carries the GVP volcano number: 7/7 fetched advisories cite it, equal to the filename and resolving to Volcanoes of the World (e.g. SAKURAJIMA (AIRA CALDERA) 282080 -> GVP Aira); bodies give observation time, info source, flight-level plume and forecast polygons. Next: archive the list and texts daily, parse DTG, ERUPTION DETAILS and plume FL, and look for the other VAACs (Washington VAAC host returned a proxy 502).'
+  - key: volc-noaa-ncei-significant-eruptions
+    name: "NOAA NCEI/WDS Global Significant Volcanic Eruptions Database and volcano locations (hazel hazard-service API)"
+    category: natural-hazards
+    structuring: normalization
+    format: structured
+    publisher: NOAA National Centers for Environmental Information
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ngdc.noaa.gov/hazel/hazard-service/api/v1/volcanoes?page=1', 'https://www.ngdc.noaa.gov/hazel/hazard-service/api/v1/volcanolocs?page=1', 'https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ngdc.mgg.hazards:G10147' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json ]
+    terms:
+      - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.ngdc.mgg.hazards:G10147
+        quote: "Cite as: National Geophysical Data Center / World Data Service (NGDC/WDS): NCEI/WDS Global Significant Volcanic Eruptions Database. NOAA National Centers for Environmental Information. doi:10.7289/V5JW8BSH [access date]"
+    next_action: 'Measured 2026-11-16: 903 significant eruptions (newest 2026-05-07, 31 since 2020) with deaths, injuries, damage and houses-destroyed counts, VEI and tsunami/earthquake event links; 900/903 carry the GVP volcano number (volcanoLocationNewNum), 897 resolve to Volcanoes of the World across 276 volcanoes; 1,609 volcano locations, 1,437 with a GVP number, 1,409 resolve (1,407 within 25 km). The ISO record says "Access to this dataset is unrestricted." (US government work). Next: archive both endpoints and link eruption impact facts to GVP eruptions by volcano number plus start date.'
 
 datasets:
   - key: home-product-recalls-global
@@ -14269,3 +14368,43 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-15.md, docs/sources/pipeline/evidence/2026-11-15/gi_measure.py, docs/sources/pipeline/evidence/2026-11-15/gi_measure.json, docs/sources/pipeline/evidence/2026-11-15/gi_handcheck.json ]
     next_action: 'Archive the four registers and the eAmbrosia specification PDFs to R2; measure text-layer coverage of the specifications and parse geographical area and production rules; hand-check the Lisbon name/country candidates; find a non-EU national register that cites the EU file number (e.g. Japan, China agreement lists).'
+  - key: volcanic-activity
+    name: "Volcanic activity (Smithsonian GVP volcanoes, USGS alert levels and notices, GeoNet alert levels, Tokyo VAAC advisories, Smithsonian/USGS weekly reports, NOAA significant eruptions)"
+    category: natural-hazards
+    entity: "volcano (keyed by the GVP volcano number) with its current alert level and aviation colour code per responsible agency, dated activity reports and ash advisories structured into events, and its eruption history with impacts"
+    stage: SCREENED
+    description: "One record per volcano keyed by the Smithsonian GVP volcano number. GVP Volcanoes of the World (WFS) gives 2,666 volcano numbers and 11,089 Holocene eruptions; USGS HANS gives alert levels and colour codes for 69 monitored US volcanoes and prose notices citing VNUM; GeoNet gives the 12 New Zealand alert levels; the Tokyo VAAC gives ICAO ash advisories citing the GVP number; the Smithsonian/USGS weekly report gives one free-text report per active volcano with the GVP number in its guid; NOAA NCEI gives 903 significant eruptions with impacts. Every member except GeoNet declares the GVP number, so linking is deterministic; GeoNet links through a reviewed 12-row alias table."
+    sources: [ volc-si-gvp-votw, volc-usgs-hans, volc-noaa-ncei-significant-eruptions, volc-jma-tokyo-vaac, volc-si-weekly-activity-report, volc-geonet-val ]
+    join_keys:
+      - key: GVP volcano number (USGS HANS vnum) equals GVP Volcano_Number
+        between: [ volc-usgs-hans, volc-si-gvp-votw ]
+        measured: "165/170 USGS volcanoes resolve to a GVP record (163 within 25 km); the 5 unresolved carry vnum 0, 999999 or a number in neither GVP layer; 4/4 VNUM numbers cited in the elevated-volcano notices resolve"
+        mode: declared
+      - key: GVP volcano number (NCEI volcanoLocationNewNum) equals GVP Volcano_Number
+        between: [ volc-noaa-ncei-significant-eruptions, volc-si-gvp-votw ]
+        measured: "897/903 NCEI significant eruptions resolve to a GVP record (900 carry the number), across 276 volcanoes; 1,409/1,609 NCEI volcano locations resolve (1,437 carry the number, 1,407 within 25 km)"
+        mode: declared
+      - key: GVP volcano number cited in the Tokyo VAAC advisory VOLCANO line equals GVP Volcano_Number
+        between: [ volc-jma-tokyo-vaac, volc-si-gvp-votw ]
+        measured: "7/7 fetched advisories cite a GVP volcano number equal to the filename number and resolving to GVP; 178/178 listed advisories (7 volcanoes, 2026-10-01 to 2026-11-16) carry a resolving number in the filename"
+        mode: declared
+      - key: GVP volcano number in the weekly report guid (#vn_) equals GVP Volcano_Number
+        between: [ volc-si-weekly-activity-report, volc-si-gvp-votw ]
+        measured: "27/27 weekly report items resolve to a GVP record (26/27 same name); 2/3 USGS elevated volcanoes and 5/7 VAAC volcanoes appear in the (2026-10-15) weekly report"
+        mode: declared
+      - key: GeoNet volcano title (accent-folded, '/'-split) equals a GVP volcano name in New Zealand
+        between: [ volc-geonet-val, volc-si-gvp-votw ]
+        measured: "8/12 GeoNet volcanoes match a GVP New Zealand volcano name (9 proposed pairs); the other 4 need a reviewed alias (Ngauruhoe -> Tongariro, Taranaki Maunga -> Taranaki, Kermadec Islands -> Raoul Island group, Northland -> several fields)"
+        mode: candidate
+        reviewed: { correct: 8, checked: 9 }
+    taxonomy:
+      - "alert scheme: USGS volcano alert level (NORMAL | ADVISORY | WATCH | WARNING) | aviation colour code (GREEN | YELLOW | ORANGE | RED) | NZ volcanic alert level 0-5 | national level from the weekly report source agency"
+      - "event type: new eruptive activity | continuing eruptive activity | ash advisory | alert-level change | significant eruption (fatalities, damage, VEI >= 6, tsunami, earthquake)"
+      - "volcano: GVP primary volcano type, landform, tectonic setting, epoch (Holocene | Pleistocene), country, region"
+    agent_questions:
+      - "Is volcano X (GVP number or name) erupting now, what are its current alert level and aviation colour code, and which agency set them when?"
+      - "Which volcanoes had ash advisories or new eruptive activity in the last 7 days, with plume heights and source agencies?"
+      - "What are the recorded eruptions of volcano X, and which caused deaths, damage or a tsunami?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/volc_measure.py, docs/sources/pipeline/evidence/2026-11-16/volc_measure.json, docs/sources/pipeline/evidence/2026-11-16/volc_handcheck.json ]
+    next_action: 'Add "GVP volcano number" to the declared-identifier allow-list; read the GVP terms from an unchallenged route; confirm the weekly report has resumed (last issue 2026-10-15) or replace it with a reachable free-text member; archive WFS layers, HANS notices, VAAC texts and NCEI tables to R2; write the GeoNet alias table. Supersedes the 2026-10-18 PARKED hazard-volcanic-activity-reports screen, whose blocker (no GVP access) is resolved by the WFS.'
