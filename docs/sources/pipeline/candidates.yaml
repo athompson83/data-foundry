@@ -306,27 +306,6 @@ candidates:
       VulnCheck and CIRCL serve agents well. Reopen for a version-range normalization product only on demand
       evidence.
 
-  - key: faa-aircraft-registry
-    name: FAA aircraft registry by N-number
-    category: transport
-    structuring: normalization
-    stage: SCREENED
-    rights: UNKNOWN
-    sources: [ https://registry.faa.gov/database/ReleasableAircraft.zip ]
-    scores:
-      {
-        agent_demand: 4,
-        rights_clarity: 3,
-        acquisition_ease: 4,
-        structuring_value: 2,
-        freshness: 4,
-        low_onboarding_cost: 4,
-        poor_existing_access: 4
-      }
-    evidence: [ docs/commercial-validation/deterministic-candidate-screen-20260917.md ]
-    next_action: Already structured (little parsing value) but lacks an official JSON API; revisit as a fast
-      convenience dataset.
-
   - key: us-tariff-duty-stack
     name: US HTS duty stack with Chapter 99 remedies
     category: trade
@@ -11344,6 +11323,93 @@ candidates:
       code and generator ID by site name, plant state and unit number (20/20 hand-checked); the 3 unmatched generators are Vogtle 3 and 4 and
       Crane Clean Energy Center 1, none on the NRC operating list. Use the acknowledgment the EIA page asks for ("Source: U.S. Energy Information
       Administration"), archive the zip in R2 and add it to tooling/snapshots/plans.json.
+  - key: acreg-ca-ccar-register
+    name: "Canadian Civil Aircraft Register (Transport Canada CCAR download, with Mode S 24-bit address)"
+    category: aviation
+    structuring: normalization
+    format: structured
+    publisher: Transport Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://wwwapps.tc.gc.ca/Saf-Sec-Sur/2/CCARCS-RIACC/download/ccarcsdb.zip', 'https://wwwapps.tc.gc.ca/Saf-Sec-Sur/2/CCARCS-RIACC/DDZip.aspx?lang=eng' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json, docs/sources/pipeline/evidence/2026-11-16/acreg_pairs.json, docs/sources/pipeline/evidence/2026-11-16/acreg_handcheck.json ]
+    terms:
+      - url: https://wwwapps.tc.gc.ca/Saf-Sec-Sur/2/CCARCS-RIACC/DDZip.aspx?lang=eng
+        quote: "Subject to this Agreement, Canada hereby grants you a royalty-free, non-exclusive, world-wide, non-assignable licence to use, reproduce, extract, modify, translate, further develop and distribute the data made available through the GC Open Data Portal, and to manufacture and licence Value-Added Products, and to sublicence any or all of such rights, PROVIDED:"
+      - url: https://wwwapps.tc.gc.ca/Saf-Sec-Sur/2/CCARCS-RIACC/DDZip.aspx?lang=eng
+        quote: "You shall include and maintain on all reproductions of the data made available through the GC Open Data Portal, produced pursuant to section 3 above, the following notice: Reproduced and distributed with the permission of the Government of Canada."
+      - url: https://wwwapps.tc.gc.ca/Saf-Sec-Sur/2/CCARCS-RIACC/DDZip.aspx?lang=eng
+        quote: "you shall not merge or link the data made available through the GC Open Data Portal with any product or database for the purpose of identifying an individual, family or household"
+    conditions:
+      - "Carry the notice 'Reproduced and distributed with the permission of the Government of Canada.' on reproductions and the Value-Added Product notice (no endorsement) where the data is inside our product."
+      - "Clause 3.1(c): every distribution or sublicence must be evidenced by a written agreement consistent with the licence, so API/bulk customer terms must flow these conditions down."
+      - "carsownr.txt holds owner names and addresses (24,724 of 38,520 owner rows are type Individual): never store or serve owner fields; serve owner type counts only, and never link the register to identify an individual (clause 3.1(d))."
+      - "Amateur-built aircraft carry the builder's name in the make field: treat make as personal data unless it matches a known manufacturer."
+    next_action: 'Measured 2026-11-16: zip 4,511,881 bytes (Last-Modified 2026-11-13, newest MODIFIED_DATE 2026-11-13, so updated at least weekly); 34,917 aircraft (Registered 33,577, Cancelled 1,338, Expired 2), Aeroplane 30,595, Helicopter 2,951; every record has a serial number, 22,054 a type certificate, 34,849 a manufacture date, and all 34,917 a valid 24-bit Mode S address inside the Canadian block C00000-C3FFFF, distinct across the 33,577 registered aircraft. Marks are reissued: 24 AAIB-cited C- marks resolve but only 2 are the same airframe. Next: archive weekly snapshots to R2 so mark history (mark, serial, date range) can be reconstructed, then build the time-qualified mark index.'
+  - key: acreg-au-casa-register
+    name: "Australian civil aircraft register (CASA acrftreg.csv daily download)"
+    category: aviation
+    structuring: normalization
+    format: structured
+    publisher: Civil Aviation Safety Authority (Australia)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://services.casa.gov.au/CSV/acrftreg.csv' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json, docs/sources/pipeline/evidence/2026-11-16/acreg_pairs.json, docs/sources/pipeline/evidence/2026-11-16/acreg_handcheck.json ]
+    conditions:
+      - "Terms unread: www.casa.gov.au (including the copyright page) gave HTTP/2 stream errors, empty replies and timeouts from this egress; only services.casa.gov.au answered. Read the CASA copyright notice before EVIDENCED and record attribution wording."
+      - "Every row carries registration-holder and registered-operator names and addresses (16,698 holders): never store or serve these fields; serve holder counts only."
+      - "416 rows name an IDERA authorised party (Cape Town Convention): treat as a legal-party field, organisation names only, never natural persons."
+    next_action: 'Measured 2026-11-16: CSV 7,010,415 bytes (Last-Modified 2026-11-15), 16,698 aircraft (Full Registration 16,694, Suspended 4), newest first registration 2026-11-14 (daily file); every row has serial, ICAO type designator, year of manufacture and first-registration date; no Mode S / 24-bit address column. AAIB reports cite 5 VH- marks: 3 resolve, 2 with the register entry predating the occurrence; CADORS foreign VH- marks resolve 11/15. Next: read the CASA copyright terms from another route, archive daily snapshots to R2 to keep mark history.'
+  - key: acreg-ie-iaa-register
+    name: "Irish civil aircraft register (IAA monthly 'all registered aircraft' xlsx)"
+    category: aviation
+    structuring: normalization
+    format: structured
+    publisher: Irish Aviation Authority
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.iaa.ie/general-aviation/aircraft-registration-leasing/current-aircraft-register-and-monthly-changes', 'https://www.iaa.ie/docs/default-source/publications/aircraft-registration/all-registered---september---2025---adjusted.xlsx?sfvrsn=cf3fe6_3' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json, docs/sources/pipeline/evidence/2026-11-16/acreg_pairs.json, docs/sources/pipeline/evidence/2026-11-16/acreg_handcheck.json ]
+    terms:
+      - url: https://www.iaa.ie/home/footer-tools/disclaimer
+        quote: "the Authority, its servants or agents, give no guarantees, undertakings or warranties concerning the accuracy, completeness or up to date nature of the information provided"
+    conditions:
+      - "The IAA disclaimer is silent on reuse (no licence found): presumed usable under ADR-0018 with attribution to the Irish Aviation Authority and a stated snapshot date."
+      - "Registered Owner and Address are populated on 1,469 rows and include private individuals: never store or serve them; 'Aircraft Charge Lodged' (13 rows) is a security-interest flag, serve as a boolean only."
+      - "The newest file is dated 30 September 2025 (14 months old on 2026-11-16): present it as a dated snapshot, never as current status."
+    next_action: 'Measured 2026-11-16: the register page lists 20 monthly xlsx files, newest "All Registered Aircraft as at 30 September 2025 - Total 1469" (158,928 bytes); 1,470 rows with mark, producer, model, category, registration date, MTOW, year, serial and engine; no Mode S column. AAIB cites 120 EI- marks; 26 resolve (15 of the 26 cited for occurrences since 2015), all 26 with a register date on or before the occurrence; 20/20 hand-checked pairs are the same airframe. CADORS foreign EI- marks resolve 82/161. Next: ask whether IAA still publishes monthly files (none since Sept 2025) and find an IAA register API or newer export.'
+  - key: acreg-us-faa-sdrs
+    name: "FAA Service Difficulty Reporting System (SDRS public query: defect reports by N-number with free-text problem descriptions)"
+    category: aviation
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US Federal Aviation Administration (Flight Standards)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://sdrs.faa.gov/Query.aspx', 'https://sdrs.faa.gov/' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 2, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json ]
+    conditions:
+      - "Terms unread: the bulk SDR download page (www.faa.gov/av-info/download_SDR) is Akamai 403 from this egress and sdrs.faa.gov shows no reuse terms. FAA records are US Government work; confirm and quote the FAA notice before EVIDENCED."
+      - "Acquisition is an ASP.NET postback form (viewstate ~170 KB per request): keep windows small and sequential, or use the bulk download once reachable."
+      - "Submitter and operator designators are organisations; problem descriptions are mechanic narratives that may name people: extract parts, ATA/JASC and conditions, do not republish free text verbatim without a personal-name scrub."
+    next_action: 'Measured 2026-11-16: one 3-day window (difficulty date 2026-10-01..03) returned 473 reports (a naive extrapolation is ~57,000 a year), 472 with an N-number in US N-number grammar (1 placeholder "12345"), 268 distinct aircraft, 464 with an operator designator; 10/10 detail pages carry a free-text problem description (median 293 chars) and aircraft make, model, serial, total hours and cycles. N-numbers cannot be resolved here because the FAA MASTER file is 403. Next: reach the FAA bulk SDR download and the releasable aircraft file, then measure N-number -> MASTER resolution and serial agreement.'
+  - key: faa-aircraft-registry
+    name: "FAA Releasable Aircraft Database (MASTER with MODE S CODE HEX, ACFTREF, DEREG)"
+    category: aviation
+    structuring: normalization
+    format: structured
+    publisher: US Federal Aviation Administration (Aircraft Registry)
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://registry.faa.gov/database/ReleasableAircraft.zip', 'https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/releasable_aircraft_download' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 2, structuring_value: 2, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json ]
+    next_action: 'Parked 2026-11-16 (re-screen of the existing key, replacing the 2026-09-17 entry): registry.faa.gov/database/ReleasableAircraft.zip, the faa.gov download page and faa.gov/av-info/download_SDR all answer HTTP 403 "Access Denied" from AkamaiGHost to our declared user agent (same as 2026-10-01). A bot block is not permission and was not bypassed. Reopen from an egress Akamai serves; then measure MASTER rows, MODE S CODE HEX coverage, SDRS N-number resolution, and the Mode S overlap with CCAR (the US block A00000-AFFFFF and Canadian block C00000-C3FFFF are disjoint, so overlap means re-registration history, not collisions). Registrant names of individuals: count only.'
 
 datasets:
   - key: home-product-recalls-global
@@ -14878,3 +14944,56 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.py, docs/sources/pipeline/evidence/2026-11-16/nuc_measure.json, docs/sources/pipeline/evidence/2026-11-16/nuc_pairs.json, docs/sources/pipeline/evidence/2026-11-16/nuc_handcheck.json ]
     next_action: 'Archive the NRC list, unit pages, status file (daily), event pages, PRIS records and the EIA-860 zip to R2; publish a reviewed NRC docket number to EIA plant code and PRIS id crosswalk (93 rows) so later loads link by identifier; add Vogtle 3/4 from the NRC new-reactor pages; add non-US regulators (CNSC Canada, ONR UK) joined to PRIS; look for any source that cites the NRC docket number next to another publisher identifier (a declared join would need "NRC docket number" in the allow-list).'
+  - key: aircraft-registrations
+    name: "Aircraft registrations (Canada CCAR, Australia CASA, Ireland IAA registers, linked to AAIB, CADORS and FAA SDRS reports)"
+    category: aviation
+    entity: "one registered civil aircraft: registration mark valid over a date range, ICAO 24-bit (Mode S) address where published, manufacturer, model, serial number, year of manufacture, category, registrant type (never registrant names), status and registration/airworthiness dates, with the safety and defect reports that cite it"
+    stage: SCREENED
+    description: "One record per airframe registration period, keyed by state of registry + registration mark + effective date, with the manufacturer serial number as the airframe anchor. Transport Canada's CCAR gives 34,917 Canadian aircraft, every one with a 24-bit Mode S address in the Canadian block; CASA gives 16,698 Australian aircraft daily with ICAO type designators; the IAA gives 1,470 Irish aircraft (snapshot 30 September 2025). Free-text and occurrence members cite the mark: 11,126 of 11,368 UK AAIB reports name a registration (120 EI-, 32 C-, 5 VH-), Transport Canada CADORS has 332,905 aircraft rows (139,612 with a Canadian mark, 10,419 N-, 161 EI-, 15 VH- foreign marks), and FAA SDRS defect reports carry an N-number, serial and narrative. Marks are reissued, so a mark links only together with a date: untimed lookups of AAIB C- marks hit the right airframe 2 times in 24."
+    sources: [ acreg-ca-ccar-register, acreg-au-casa-register, acreg-ie-iaa-register, aviation-uk-aaib-reports, aviation-ca-cadors-occurrences, acreg-us-faa-sdrs ]
+    join_keys:
+      - key: aircraft registration mark valid on the occurrence date (AAIB registration facet equals an IAA mark whose registration date is on or before the occurrence)
+        between: [ aviation-uk-aaib-reports, acreg-ie-iaa-register ]
+        measured: "26/120 AAIB-cited EI- marks resolve to the September 2025 IAA register (15/26 for occurrences since 2015); 26/26 resolved marks were registered on or before the occurrence; 20/20 hand-checked pairs are the same airframe"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: registration mark plus register model agreeing with the AAIB aircraft type (time-qualified)
+        between: [ aviation-uk-aaib-reports, acreg-ie-iaa-register ]
+        measured: "25/26 resolved EI- pairs agree on type automatically (the 26th, a Lindstrand LBL 90A balloon, agrees by hand); 20/20 hand-checked pairs are the same airframe"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: aircraft registration mark valid on the occurrence date (AAIB VH- registration to CASA register)
+        between: [ aviation-uk-aaib-reports, acreg-au-casa-register ]
+        measured: "3/5 AAIB-cited VH- marks resolve; 2/3 registered on or before the occurrence (VH-ZND 787-9, VH-OQD A380, both same type); the third (VH-HPH) is a reissued mark"
+        mode: declared
+      - key: registration mark lookup without a date (AAIB C- registration to CCAR mark)
+        between: [ aviation-uk-aaib-reports, acreg-ca-ccar-register ]
+        measured: "24/32 AAIB-cited C- marks resolve to a CCAR mark, but only 1 is registered before the occurrence and 2/24 hand-checked are the same airframe (marks reissued after cancellation): marks must carry a date range"
+        mode: candidate
+        reviewed: { correct: 2, checked: 24 }
+      - key: aircraft registration mark (CADORS foreignaircraftregistration EI- to the IAA register)
+        between: [ aviation-ca-cadors-occurrences, acreg-ie-iaa-register ]
+        measured: "82/161 CADORS foreign EI- marks resolve to the IAA register (not date-checked: the aircraft table carries only the CADORS number year); undated, so a review candidate only: marks are reissued (see the AAIB C- to CCAR row)"
+        mode: candidate
+      - key: aircraft registration mark (CADORS foreignaircraftregistration VH- to the CASA register)
+        between: [ aviation-ca-cadors-occurrences, acreg-au-casa-register ]
+        measured: "11/15 CADORS foreign VH- marks resolve to the CASA register (not date-checked); undated, so a review candidate only: marks are reissued (see the AAIB C- to CCAR row)"
+        mode: candidate
+      - key: aircraft registration mark (CADORS aircraftregistration to CCAR, same publisher)
+        between: [ aviation-ca-cadors-occurrences, acreg-ca-ccar-register ]
+        measured: "119,211/139,612 CADORS aircraft rows with a Canadian mark resolve to a current CCAR mark (9,636 distinct marks); same publisher, so this is not the independence proof; undated, so a review candidate only: marks are reissued (see the AAIB C- to CCAR row)"
+        mode: candidate
+    taxonomy:
+      - "state of registry: CA | AU | IE | US (pending FAA MASTER) | UK (pending G-INFO)"
+      - "aircraft category: aeroplane | helicopter | glider | balloon | gyroplane | microlight/annex I"
+      - "registration status: registered | cancelled | expired | suspended"
+      - "airworthiness basis: standard C of A | special C of A (amateur-built, owner-maintenance, restricted, limited) | flight permit"
+      - "registrant type: individual | entity | manufacturer (counts only, never names)"
+      - "report link type: accident/serious incident (AAIB) | occurrence (CADORS) | service difficulty (SDRS)"
+    agent_questions:
+      - "Given ICAO 24-bit address C0000A or tail C-GHKX, what aircraft is it (make, model, serial, year), is it currently registered, and since when?"
+      - "Which safety and defect reports cite EI-ENL, and was the aircraft registered under that mark on the occurrence date?"
+      - "Has this serial number moved between registers (e.g. Canada to Australia), and under which marks and dates?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.py, docs/sources/pipeline/evidence/2026-11-16/acreg_measure.json, docs/sources/pipeline/evidence/2026-11-16/acreg_pairs.json, docs/sources/pipeline/evidence/2026-11-16/acreg_handcheck.json ]
+    next_action: 'Add "aircraft registration mark" and "ICAO 24-bit address" to the declared-identifier allow-list; archive CCAR, CASA and IAA snapshots to R2 to build mark date ranges; reach the FAA MASTER file (403 today) to resolve SDRS and NTSB N-numbers and measure Mode S overlap; try UK G-INFO (CONNECT 502 today) to resolve the 10,133 AAIB G- marks.'

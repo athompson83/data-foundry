@@ -1,0 +1,477 @@
+{
+ "run_date": "2026-11-16",
+ "requests": 36,
+ "faa_probe": {
+  "https://registry.faa.gov/database/ReleasableAircraft.zip": {
+   "status": 403,
+   "server": "AkamaiGHost",
+   "akamai_access_denied": true
+  },
+  "https://www.faa.gov/licenses_certificates/aircraft_certification/aircraft_registry/releasable_aircraft_download": {
+   "status": 403,
+   "server": "AkamaiGHost",
+   "akamai_access_denied": true
+  },
+  "https://www.faa.gov/av-info/download_SDR": {
+   "status": 403,
+   "server": "AkamaiGHost",
+   "akamai_access_denied": true
+  }
+ },
+ "ccar": {
+  "status": 200,
+  "bytes": 4511881,
+  "last_modified": "Fri, 13 Nov 2026 16:43:26 GMT",
+  "files": {
+   "carslayout.txt": 69162,
+   "carscurr.txt": 25264693,
+   "carsownr.txt": 12279364
+  },
+  "records": 34917,
+  "by_status": {
+   "Registered": 33577,
+   "Registration Cancelled": 1338,
+   "Registration Expired": 2
+  },
+  "by_category": {
+   "Aeroplane": 30595,
+   "Helicopter": 2951,
+   "Glider": 671,
+   "Balloon": 503,
+   "Gyroplane": 197
+  },
+  "by_flight_authority": {
+   "Certificate of Airworthiness": 20853,
+   "": 8529,
+   "Special Certificate of Airworthiness Amateur Built": 4175,
+   "Special C of A - Owner-maintenance": 800,
+   "Special Certificate of Airworthiness - Restricted": 327,
+   "Special Certificate of Airworthiness - Limited": 180,
+   "Flight Permit Specific Purpose - Experimental": 30,
+   "N/F": 23
+  },
+  "newest_modified_date": "2026-11-13",
+  "with_serial": 34917,
+  "with_type_certificate": 22054,
+  "with_manufacture_date": 34849,
+  "mode_s_valid_24bit": 34917,
+  "mode_s_in_canada_block_C00000_C3FFFF": 34917,
+  "mode_s_registered": 33577,
+  "mode_s_registered_distinct": 33577,
+  "mode_s_examples": [
+   {
+    "mark": "CF-AAC",
+    "icao24": "C00003",
+    "make": "Piper",
+    "model": "PA-28-235"
+   },
+   {
+    "mark": "CF-AAJ",
+    "icao24": "C0000A",
+    "make": "Dehavilland",
+    "model": "DH60M"
+   },
+   {
+    "mark": "CF-AAM",
+    "icao24": "C0000D",
+    "make": "Fokker",
+    "model": "SUPER UNIVERSAL"
+   }
+  ],
+  "owner_rows": 38520,
+  "owner_type_counts": {
+   "Individual": 24724,
+   "Entity": 13796
+  }
+ },
+ "casa": {
+  "status": 200,
+  "bytes": 7010415,
+  "last_modified": "Sun, 15 Nov 2026 21:14:35 GMT",
+  "records": 16698,
+  "fields": [
+   "Mark",
+   "Manu",
+   "Type",
+   "Model",
+   "Serial",
+   "MTOW",
+   "engnum",
+   "Engmanu",
+   "Engtype",
+   "Engmodel",
+   "Fueltype",
+   "regType",
+   "regholdname",
+   "regholdadd1",
+   "regholdadd2",
+   "regholdSuburb",
+   "regholdState",
+   "regholdPostcode",
+   "regholdCountry",
+   "regholdCommdate",
+   "regopName",
+   "regopadd1",
+   "regopadd2",
+   "regopSuburb",
+   "regopState",
+   "regopPostcode",
+   "regopCountry",
+   "regopCommdate",
+   "Datefirstreg",
+   "gear",
+   "Airframe",
+   "CoAcata",
+   "CoAcatb",
+   "CoAcatc",
+   "Propmanu",
+   "Propmodel",
+   "Typecert",
+   "Countrymanu",
+   "Yearmanu",
+   "Regexpirydate",
+   "suspendstatus",
+   "suspenddate",
+   "ICAOtypedesig",
+   "IDERA_Authorised_Party"
+  ],
+  "has_mode_s_field": false,
+  "by_reg_type": {
+   "Full Registration": 16694,
+   "SUSPENDED": 4
+  },
+  "suspended": {
+   "": 16694,
+   "Suspended": 4
+  },
+  "with_icao_type_designator": 16698,
+  "with_serial": 16698,
+  "newest_holder_commencement": "2026-11-14",
+  "newest_first_registration": "2026-11-14",
+  "with_registration_holder": 16698,
+  "with_IDERA_authorised_party": 416
+ },
+ "iaa": {
+  "page_status": 200,
+  "xlsx_links_on_page": 20,
+  "newest_link": "https://www.iaa.ie/docs/default-source/publications/aircraft-registration/all-registered---september---2025---adjusted.xlsx?sfvrsn=cf3fe6_3",
+  "status": 200,
+  "bytes": 158928,
+  "sheet_title": "All Registered Aircraft as at 30 September 2025 - Total 1469",
+  "columns": [
+   "Registration Mark",
+   "Aircraft producer",
+   "Aircraft Model",
+   "Category",
+   "Registration date",
+   "MTOW (KGs)",
+   "Year of Manufacture",
+   "Aircraft Serial Number",
+   "Engine Manufacturer",
+   "Engine Model",
+   "No. of Engines",
+   "Registered Owner",
+   "Address",
+   "Aircraft Charge Lodged",
+   ""
+  ],
+  "records": 1470,
+  "by_category": {
+   "LAND AEROPLANE": 1037,
+   "ANNEX I 1(E) / 450 KG": 183,
+   "ANNEX I 1(C) / HOMEBUILD LAND AEROPLANE": 64,
+   "ROTORCRAFT": 59,
+   "ANNEX I 1(E) / POWERED PARAGLIDER": 41,
+   "SAILPLANE": 26,
+   "GYROCOPTER": 19,
+   "ANNEX I 1(E) / HOMEBUILD 450 KG": 19
+  },
+  "newest_registration_date": "2025-09-30",
+  "with_registered_owner": 1469,
+  "with_charge_lodged": 13,
+  "has_mode_s_field": false
+ },
+ "aaib": {
+  "total": 11368,
+  "fetched": 11368,
+  "newest_published": "2026-11-12T10:03:46Z",
+  "newest_occurrence": "2026-06-04",
+  "by_report_type": {
+   "['correspondence-investigation']": 5109,
+   "['pre-1997-monthly-report']": 4371,
+   "['field-investigation']": 1420,
+   "['formal-report']": 338,
+   "['special-bulletin']": 96,
+   "['annual-safety-report']": 26,
+   "['foreign-report']": 5,
+   "None": 1
+  },
+  "reports_with_registration_mark": 11126,
+  "marks_cited": 11332,
+  "marks_by_prefix": {
+   "G-": 10133,
+   "N": 398,
+   "EI-": 120,
+   "D-": 101,
+   "VP-": 47,
+   "F-": 46,
+   "C-": 32,
+   "OO-": 26,
+   "SE-": 24,
+   "PH-": 22,
+   "EC-": 21,
+   "HA-": 19,
+   "TF-": 18,
+   "OY-": 15,
+   "LY-": 14,
+   "OE-": 14,
+   "HB-": 14,
+   "CS-": 12,
+   "9H-": 11,
+   "I-": 11,
+   "TC-": 11,
+   "ZS-": 8,
+   "M-": 8,
+   "LN-": 8,
+   "9M-": 8
+  },
+  "join_to_registers": {
+   "iaa": {
+    "cited": 120,
+    "resolved": 26,
+    "cited_occurrence_2015_on": 26,
+    "resolved_occurrence_2015_on": 15,
+    "registered_on_or_before_occurrence": 26,
+    "registered_after_occurrence": 0,
+    "type_agrees": 25
+   },
+   "casa": {
+    "cited": 5,
+    "resolved": 3,
+    "cited_occurrence_2015_on": 1,
+    "resolved_occurrence_2015_on": 1,
+    "registered_on_or_before_occurrence": 2,
+    "registered_after_occurrence": 1,
+    "type_agrees": 2
+   },
+   "ccar": {
+    "cited": 32,
+    "resolved": 24,
+    "cited_occurrence_2015_on": 3,
+    "resolved_occurrence_2015_on": 2,
+    "registered_on_or_before_occurrence": 1,
+    "registered_after_occurrence": 23,
+    "type_agrees": 2
+   }
+  }
+ },
+ "cadors": {
+  "status": 200,
+  "last_modified": "Mon, 16 Nov 2026 12:54:18 GMT",
+  "aircraft_rows": 332905,
+  "with_canadian_mark": 139612,
+  "canadian_mark_resolves_to_ccar": 119211,
+  "distinct_ccar_marks_cited": 9636,
+  "rows_by_year_newest": [
+   [
+    "2022",
+    12569
+   ],
+   [
+    "2023",
+    15326
+   ],
+   [
+    "2024",
+    16823
+   ],
+   [
+    "2025",
+    19694
+   ],
+   [
+    "2026",
+    11567
+   ]
+  ],
+  "foreign_registration_by_prefix": {
+   "N": 10419,
+   "A6?": 774,
+   "A7?": 570,
+   "DA?": 500,
+   "FG?": 283,
+   "PH?": 241,
+   "GV?": 224,
+   "TC?": 206,
+   "TF?": 203,
+   "XA?": 197,
+   "VT?": 192,
+   "EI?": 145,
+   "G-": 124,
+   "B1?": 117,
+   "CS?": 113
+  },
+  "foreign_vh_resolves_to_casa": "11/15",
+  "foreign_ei_resolves_to_iaa": "82/161"
+ },
+ "mode_s_cross_country": {
+  "registers_publishing_icao24": [
+   "ccar"
+  ],
+  "note": "Only CCAR publishes the 24-bit address among the reachable registers; FAA MASTER (MODE S CODE HEX) is 403 from this egress, so no cross-country overlap is measurable."
+ },
+ "sdrs": {
+  "query_page_status": 200,
+  "window": "2026-10-01..2026-10-03 (difficulty date)",
+  "records_in_window": 473,
+  "rows_parsed": 473,
+  "with_registration": 472,
+  "registration_matches_us_n_grammar": 472,
+  "placeholder_12345_or_0": 1,
+  "distinct_registrations": 268,
+  "with_operator_designator": 464,
+  "examples": [
+   {
+    "control": "SWIA2026100177641",
+    "operator": "SWIA",
+    "date": "10/1/2026",
+    "n_number": "822SK",
+    "make": "CNDAIR",
+    "model": "CL6002D24",
+    "jasc": "5210"
+   },
+   {
+    "control": "2026FA0000842",
+    "operator": "",
+    "date": "10/2/2026",
+    "n_number": "876RM",
+    "make": "CIRRUS",
+    "model": "SR22",
+    "jasc": "3240"
+   },
+   {
+    "control": "2026FA0000805",
+    "operator": "",
+    "date": "10/1/2026",
+    "n_number": "12345",
+    "make": "PIPER",
+    "model": "PA46350P",
+    "jasc": "5510"
+   },
+   {
+    "control": "2026FA0000806",
+    "operator": "",
+    "date": "10/1/2026",
+    "n_number": "5352R",
+    "make": "CESSNA",
+    "model": "172F",
+    "jasc": "2730"
+   },
+   {
+    "control": "2026FA0000804",
+    "operator": "",
+    "date": "10/1/2026",
+    "n_number": "37CL",
+    "make": "CIRRUS",
+    "model": "SR22T",
+    "jasc": "2700"
+   }
+  ],
+  "details_fetched": 10,
+  "details_with_problem_text": 10,
+  "details_median_problem_chars": 293,
+  "details_with_aircraft_serial": 10,
+  "details": [
+   {
+    "status": 200,
+    "control_number": "SWIA2026100177641",
+    "problem_description_chars": 188,
+    "aircraft_make_model_serial_hours_cycles": "CNDAIR CL6002D24 15203 40705 29292"
+   },
+   {
+    "status": 200,
+    "control_number": "2026FA0000842",
+    "problem_description_chars": 289,
+    "aircraft_make_model_serial_hours_cycles": "CIRRUS SR22 1075 2153 1100"
+   },
+   {
+    "status": 200,
+    "control_number": "2026FA0000805",
+    "problem_description_chars": 256,
+    "aircraft_make_model_serial_hours_cycles": "PIPER PA46350P 123456"
+   },
+   {
+    "status": 200,
+    "control_number": "2026FA0000806",
+    "problem_description_chars": 1082,
+    "aircraft_make_model_serial_hours_cycles": "CESSNA 172F 17252882"
+   },
+   {
+    "status": 200,
+    "control_number": "2026FA0000804",
+    "problem_description_chars": 328,
+    "aircraft_make_model_serial_hours_cycles": "CIRRUS SR22T 8745 500 500"
+   },
+   {
+    "status": 200,
+    "control_number": "DALA2026100105449",
+    "problem_description_chars": 140,
+    "aircraft_make_model_serial_hours_cycles": "BOEING 717200 55037 63392 46048"
+   },
+   {
+    "status": 200,
+    "control_number": "FDEA202610011461",
+    "problem_description_chars": 504,
+    "aircraft_make_model_serial_hours_cycles": "DOUG MD11F 48553 99692 21374"
+   },
+   {
+    "status": 200,
+    "control_number": "FDEA202610011462",
+    "problem_description_chars": 532,
+    "aircraft_make_model_serial_hours_cycles": "DOUG MD11F 48553 99692 21374"
+   },
+   {
+    "status": 200,
+    "control_number": "FDEA202610011464",
+    "problem_description_chars": 269,
+    "aircraft_make_model_serial_hours_cycles": "BOEING 767300 67538 2157 1068"
+   },
+   {
+    "status": 200,
+    "control_number": "FDEA202610011465",
+    "problem_description_chars": 293,
+    "aircraft_make_model_serial_hours_cycles": "BOEING 757222 24995 79346 31837"
+   }
+  ]
+ },
+ "terms": {
+  "ccar": {
+   "url": "https://wwwapps.tc.gc.ca/Saf-Sec-Sur/2/CCARCS-RIACC/DDZip.aspx?lang=eng",
+   "status": 200,
+   "quotes_found": {
+    "Canada hereby grants you a royalty-free, non-exclusive, worl": true,
+    "Reproduced and distributed with the permission of the Govern": true,
+    "you shall not merge or link the data made available through ": true
+   }
+  },
+  "govuk": {
+   "url": "https://www.gov.uk/help/terms-conditions",
+   "status": 200,
+   "quotes_found": {
+    "You can reproduce content published on GOV.UK under the OGL ": true
+   }
+  },
+  "iaa": {
+   "url": "https://www.iaa.ie/home/footer-tools/disclaimer",
+   "status": 200,
+   "quotes_found": {
+    "give no guarantees, undertakings or warranties concerning th": true
+   }
+  },
+  "casa_copyright": {
+   "url": "https://www.casa.gov.au/about-us/standard-page/copyright",
+   "status": 0,
+   "quotes_found": {}
+  }
+ }
+}
