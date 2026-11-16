@@ -9003,20 +9003,6 @@ candidates:
     next_action: >-
       Parked 2026-11-02: four city endpoints answer with no key and have matters modified within 3 days (newest 2026-10-30 to 2026-11-02), with titles of median 102 to 308 characters; New York answers 403 and Chicago and Austin return a server configuration error. Parked because no identifier links the cities (matter numbers are city-local) so the only cross-source link would be title similarity (rule 7), and no published terms for the Legistar API or the city feeds were read. Reopen with a state-bill citation extracted from titles and a terms record per city.
 
-  - key: contaminated-sites-registries
-    name: "Contaminated site registries (Canada Federal Contaminated Sites Inventory, US EPA SEMS/Superfund)"
-    category: environment
-    structuring: normalization
-    format: free-text
-    publisher: Treasury Board of Canada Secretariat; US EPA
-    stage: PARKED
-    rights: AMBER
-    sources: [ 'https://open.canada.ca/data/dataset/1d42f7b9-1549-40aa-8ac6-0e0302ff2902', 'https://data.epa.gov/efservice' ]
-    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 2, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
-    evidence: [ docs/sources/pipeline/research-2026-11-02.md ]
-    next_action: >-
-      Parked 2026-11-02: the open.canada.ca record for the Federal Contaminated Sites Inventory lists an XML zip (OGL, licence ca-ogl-lgo), but its host map-carte.tbs-sct.gc.ca fails TLS verification from this egress (incomplete certificate chain; verification was not bypassed). The EPA Envirofacts SEMS_ACTIVE_SITES table answers 404 and the old enviro.epa.gov path 301s. Reopen when the Canadian chain is fixed or served from another host, and a working EPA SEMS endpoint is found.
-
   - key: caselaw-eu-echr-hudoc
     name: "European Court of Human Rights judgments (HUDOC): judgment text with ECLI, application number, articles and importance"
     category: legal
@@ -11161,6 +11147,145 @@ candidates:
       - url: https://www.hpra.ie/terms-of-use
         quote: "You agree not to reproduce, duplicate, copy, republish, redistribute, transmit, alter, edit, re-sell, engage in any large scale collecting or harvesting of data (whether by automated or manual means) for commercial means, or otherwise exploit any part of our website in contravention of the provisions of these terms without the express written permission of the HPRA."
     next_action: 'Parked 2026-11-16: the safety-notices page (HTTP 200) lists notices client-side from a JSON endpoint (safety-notices/safetynotices?$select=id,title,date,urlname...), but HPRA terms forbid republishing or large-scale harvesting for commercial means without written permission; no records were collected. Reopen only with HPRA written permission.'
+  - key: contaminated-sites-registries
+    name: "Contaminated site registries (Canada Federal Contaminated Sites Inventory, US EPA SEMS/Superfund), superseded by the csite-* members"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Treasury Board of Canada Secretariat; US EPA
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/dataset/1d42f7b9-1549-40aa-8ac6-0e0302ff2902', 'https://data.epa.gov/efservice' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 2, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-02.md, docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
+    next_action: 'Reopened and superseded 2026-11-16: both blockers recorded on 2026-11-02 are gone. The FCSI zip on map-carte.tbs-sct.gc.ca now downloads with TLS verified (200, 8,023,249 bytes) and Envirofacts SEMS answers under its current table names (sems.envirofacts_site, sems.envirofacts_contaminants; SEMS_ACTIVE_SITES is still 404). The combined entry is split into one feed per publisher (csite-us-epa-sems-envirofacts, csite-ca-tbs-fcsi and the other csite-* members of the contaminated-sites dataset). Keep this entry PARKED as history.'
+  - key: csite-us-epa-sems-envirofacts
+    name: "US EPA Superfund Enterprise Management System (SEMS) sites and Record of Decision contaminants via Envirofacts"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: US Environmental Protection Agency (Envirofacts / SEMS)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://data.epa.gov/efservice/sems.envirofacts_site/1:10000/JSON', 'https://data.epa.gov/efservice/sems.envirofacts_contaminants/1:10000/JSON' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "Unless otherwise specified, geospatial data produced by the EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+    conditions:
+      - "US federal government work (17 U.S.C. 105). The same disclaimer page has a 'Copyright Status' paragraph saying 'these documents' may be used for non-commercial purposes: serve SEMS record facts, link (do not republish) EPA site documents and contractor reports."
+      - "Credit US EPA SEMS/Envirofacts as the source and keep EPA site ID and SEMS site_id on every record."
+    next_action: 'Measured 2026-11-16: sems.envirofacts_site returns 55,727 sites (55,727 unique EPA site IDs, 17,824 with lat/lon), NPL status: not on NPL 53,237, final 1,337, deleted 466, part of an NPL site 533, removed from proposed 101, proposed 37; 40,838 archived; newest non-NPL status date 2026-10-28. sems.envirofacts_contaminants returns 72,569 Record of Decision / ROD amendment / ESD contaminant rows for 1,722 sites (all 1,722 site_ids resolve), by medium (groundwater 27,593, soil 24,253, sediment 7,053). Next: archive both tables to R2 and find the Envirofacts tables for operable units, actions and milestones.'
+  - key: csite-us-epa-npl-status-arcgis
+    name: "US EPA Superfund National Priorities List (NPL) sites with status information (EPA ArcGIS feature service)"
+    category: environment
+    structuring: event-extraction
+    format: structured
+    publisher: US Environmental Protection Agency (Office of Land and Emergency Management, EPA GeoPlatform)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://services.arcgis.com/cJ9YHowT8TU7DUyn/arcgis/rest/services/Superfund_National_Priorities_List_(NPL)_Sites_with_Status_Information/FeatureServer/0' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "Unless otherwise specified, geospatial data produced by the EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105."
+    conditions:
+      - "Public-domain geospatial data; the linked listing narratives and progress profiles are EPA documents: extract milestones and link them rather than republishing PDFs."
+    next_action: 'Measured 2026-11-16: 1,840 NPL sites (NPL 1,337, deleted 466, proposed 37; 119 with a partial deletion), every one with an EPA site ID and SEMS ID; milestones proposed 1,840 (newest 2024-09-05), listed 1,798 (newest 2026-03-13), construction complete 1,250 (newest 2026-09-23), NOID 464, deleted 467 (newest 2026-08-20); data last edited 2026-09-30. Cited notice links: proposed 1,836, final 1,798, NOID 462, deletion 466 (1,610 point at govinfo FR PDFs, the rest at semspub.epa.gov scans); 1,839 site listing narrative PDFs. Next: pull the narrative PDFs to R2 and measure text-layer coverage for contaminants and pathways.'
+  - key: csite-us-federal-register-npl-notices
+    name: "Federal Register NPL proposal, final listing, intent-to-delete and deletion notices (federalregister.gov API)"
+    category: environment
+    structuring: event-extraction
+    format: free-text
+    publisher: Office of the Federal Register (NARA) and US GPO
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=%22National+Priorities+List%22&conditions%5Bagencies%5D%5B%5D=environmental-protection-agency', 'https://www.federalregister.gov/api/v1/documents/96-18839.json' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
+    conditions:
+      - "Federal Register documents are US government works; cite the FR document number and publication date for every extracted event."
+    next_action: 'Measured 2026-11-16: 1,469 EPA documents match "National Priorities List" (newest 2026-10-29); the newest 100 are 45 proposed rules, 38 rules, 17 notices, 64 of them about deletions, abstracts mean 857 characters, 25/100 name a "Superfund Site" in the abstract and 1/100 carries an EPA site ID, so sites must be extracted from prose. Of 1,610 FR notice URLs cited by the EPA NPL layer, 1,331 resolve to a federalregister.gov document (812 distinct documents queried), 1,330 with the same publication date. Next: pull full text of the 1,469 documents and measure deterministic extraction of site, city/state and action (propose, list, NOID, delete, partial delete).'
+  - key: csite-ny-dec-remediation-sites
+    name: "New York DEC Environmental Remediation Sites (State Superfund, Brownfield Cleanup, ERP, VCP, RCRA; data.ny.gov)"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: New York State Department of Environmental Conservation
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.ny.gov/resource/c6ci-rzpg.json', 'https://data.ny.gov/api/views/c6ci-rzpg.json' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json, docs/sources/pipeline/evidence/2026-11-16/csite_handcheck.json ]
+    conditions:
+      - "The OPEN-NY Terms of Use are a PDF (data.ny.gov dataset 77gx-ii52) and were not read; the dataset metadata states no licence. Re-read before bulk redistribution; attribute NYS DEC."
+      - "Owner, operator and disposal name/address columns include natural persons: never store or serve them; serve site, program, class, contaminants, controls and project dates only."
+      - "The registry carries no EPA site ID (0 of 6,071 sites); links to EPA are reviewed name candidates."
+    next_action: 'Measured 2026-11-16: 237,982 rows (one per operable unit, control and contaminant) for 6,071 sites (HW 2,911, BCP 1,867, VCP 729, ERP 366, RCRA 187); site classes 02 426, 04 486, A 947, C 1,717, N 2,169, P 250; 3,003 sites list contaminants (lead, TCE, PCE, benzo(a)pyrene, mercury, arsenic top); rows updated 2026-11-16 (daily). No EPA site ID column. Next: archive to R2 and map the site class codes and control types to the dataset taxonomy.'
+  - key: csite-ct-deep-contaminated-sites
+    name: "Connecticut DEEP List of Contaminated or Potentially Contaminated Sites (REACT cases, data.ct.gov)"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Connecticut Department of Energy and Environmental Protection (Remediation Division)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.ct.gov/resource/xcxg-6jqp.json', 'https://data.ct.gov/api/views/xcxg-6jqp.json' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json, docs/sources/pipeline/evidence/2026-11-16/csite_handcheck.json ]
+    conditions:
+      - "Dataset metadata licence is 'Public Domain'; no data.ct.gov terms page was read. Attribute CT DEEP."
+      - "Case names and addresses include residential releases (e.g. home heating-oil cases): serve the case at town/site-ID level and withhold residential street addresses."
+    next_action: 'Measured 2026-11-16: 35,604 cases at 20,689 REACT site IDs (LUST 19,984, property transfer forms 8,334, PCB 3,775, SEH 1,292, RCRA corrective action 243, state remediation 194, Federal Remediation CERCLA Superfund-NPL 24 + general 7); status open 20,044, resolved 14,543, resolved with LTS 930; rows updated 2026-11-12. No EPA site ID (0 of 35,604). Next: archive to R2 and read the REACT case pages for cleanup stage dates.'
+  - key: csite-nj-dep-known-contaminated-sites
+    name: "New Jersey DEP Known Contaminated Sites List (KCSNJ, NJDEP Site Remediation Program ArcGIS layer)"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: New Jersey Department of Environmental Protection (Site Remediation Program)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://mapsdep.nj.gov/arcgis/rest/services/Features/Environmental_NJEMS/MapServer/0' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json, docs/sources/pipeline/evidence/2026-11-16/csite_handcheck.json ]
+    conditions:
+      - "Terms not read: the layer's copyright text is only 'NJDEP, Site Remediation Program (SRP)'. Find the NJGIN/NJDEP data-use statement before bulk redistribution; attribute NJDEP SRP."
+      - "Some PI names are property names of private individuals (e.g. '<surname> PROPERTY'): serve by PI number and municipality, review names before publishing."
+    next_action: 'Measured 2026-11-16: 12,608 known contaminated sites (Active 7,657, Active - Post Rem 4,404, Active - UHOT 497, Pending 50) with remedial level, CEA, deed notice and engineering-control status and dates; 122 carry an NPL status (Final 115, Subsite 7) but none carries an EPA site ID; data load 2026-11-12 (daily). Next: archive the layer to R2 and read the NJDEP data-use terms.'
+  - key: csite-ca-tbs-fcsi
+    name: "Canada Federal Contaminated Sites Inventory (FCSI, Treasury Board Secretariat XML export)"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Treasury Board of Canada Secretariat
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://map-carte.tbs-sct.gc.ca/fcsi-rscf/oddo/fcsi-rscf.zip', 'https://open.canada.ca/data/dataset/1d42f7b9-1549-40aa-8ac6-0e0302ff2902' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+    conditions:
+      - "Open Government Licence - Canada (open.canada.ca record licence ca-ogl-lgo): include the attribution statement 'Contains information licensed under the Open Government Licence - Canada' and credit TBS FCSI."
+    next_action: 'Measured 2026-11-16: the zip now downloads with TLS verified (8,023,249 bytes, 287 MB XML): 24,433 federal sites from 32 reporting organisations (Closed 19,456, Active 3,961, Suspected 1,016; high priority 1,790), newest LastModified 2026-11-10; 12,872 list contaminant groups by medium (metals 7,609, PHCs 6,517, PAHs 5,076), 16,438 a federal real property number, bilingual status descriptions, yearly expenditure and remediation amounts. Links to no US source. Next: join the property number to the Directory of Federal Real Property and add a provincial registry (BC Environmental Remediation Sites answered on maps.gov.bc.ca).'
+  - key: csite-ca-dtsc-envirostor
+    name: "California DTSC EnviroStor cleanup sites (data download)"
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: California Department of Toxic Substances Control
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.envirostor.dtsc.ca.gov/public/data_download' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json ]
+    next_action: 'Parked 2026-11-16 (RED: the data download page answers 403 with a Cloudflare "Just a moment" JavaScript challenge; not bypassed). Terms not read. Reopen if DTSC publishes EnviroStor on the California open data portal or an unchallenged endpoint.'
 
 datasets:
   - key: home-product-recalls-global
@@ -14613,3 +14738,46 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json, docs/sources/pipeline/evidence/2026-11-16/dpat_handcheck.json ]
     next_action: 'Archive the Orange Book zip, Purple Book patent list, Health Canada Patent.zip and the CIPO main and claims ranges covering all 2,996 register patents to R2; add the Orange Book patent use-code definitions; hand-check the Purple Book proper-name candidates; reopen dpat-us-uspto-patent-full-text when a USPTO Open Data Portal key is provisioned so the Orange Book US patent number can be resolved to claims text.'
+  - key: contaminated-sites
+    name: "Contaminated and remediation sites (US EPA SEMS/NPL, Federal Register NPL notices, NY/CT/NJ state registries, Canada FCSI)"
+    category: environment
+    entity: "one contaminated or remediation site (EPA site ID / state program number / federal site identifier) with location, programme, NPL or state status, contaminants by medium, remedy and milestone dates (proposed, listed, construction complete, intent to delete, deleted)"
+    stage: SCREENED
+    description: "One record per contaminated site, keyed by the EPA site ID where one exists. EPA SEMS (Envirofacts) gives 55,727 CERCLA sites with NPL status and 72,569 Record of Decision contaminant rows; the EPA NPL layer gives 1,840 NPL sites with listing, construction-complete and deletion milestones and the Federal Register notice URL for each milestone; the Federal Register API gives the free-text proposal, listing and deletion notices (1,469 EPA NPL documents); New York DEC (6,071 sites), Connecticut DEEP (35,604 cases) and New Jersey DEP (12,608 known contaminated sites) give the state registries with contaminants, controls and status; Canada's FCSI gives 24,433 federal sites. The EPA site ID links the NPL layer to SEMS and the cited FR notice URL links milestones to the notices; no state registry measured carries an EPA site ID, so state-to-EPA links are reviewed name-and-municipality candidates."
+    sources: [ csite-us-epa-sems-envirofacts, csite-us-epa-npl-status-arcgis, csite-us-federal-register-npl-notices, csite-ny-dec-remediation-sites, csite-ct-deep-contaminated-sites, csite-nj-dep-known-contaminated-sites, csite-ca-tbs-fcsi ]
+    join_keys:
+      - key: cited Federal Register notice URL in the NPL layer (govinfo FR document number for proposal, final listing, NOID and deletion) resolves to the federalregister.gov document
+        between: [ csite-us-epa-npl-status-arcgis, csite-us-federal-register-npl-notices ]
+        measured: "1,331/1,610 cited govinfo FR notice URLs resolve to a federalregister.gov document (812 distinct documents), 1,330 with the same publication date and an EPA agency; by milestone: proposed 363, final 359, NOID 304, deletion 305"
+        mode: declared
+      - key: EPA site ID (Site_EPA_ID) equals SEMS epa_id
+        between: [ csite-us-epa-npl-status-arcgis, csite-us-epa-sems-envirofacts ]
+        measured: "1,840/1,840 NPL sites resolve to a SEMS site; 1,840 also have the same SEMS site ID and agreeing deleted/not-deleted status (same publisher, so not the independence proof)"
+        mode: declared
+      - key: site name (normalised) plus same municipality within New York
+        between: [ csite-ny-dec-remediation-sites, csite-us-epa-sems-envirofacts ]
+        measured: "708/6,071 NY DEC sites match a SEMS site in the same NY locality (61 of SEMS's 122 final or deleted NY NPL sites); 0/6,071 carry an EPA site ID; 19/20 hand-checked pairs are the same site"
+        mode: candidate
+        reviewed: { correct: 19, checked: 20 }
+      - key: case name (normalised, OU suffix dropped) plus same town for CT Federal Remediation cases
+        between: [ csite-ct-deep-contaminated-sites, csite-us-epa-sems-envirofacts ]
+        measured: "20/31 CT Federal Remediation (CERCLA NPL and general) cases match a SEMS CT site in the same town; 0/35,604 CT cases carry an EPA site ID; 20/20 hand-checked pairs are the same site"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: PI name (normalised) plus same municipality for KCSNJ records with an NPL status
+        between: [ csite-nj-dep-known-contaminated-sites, csite-us-epa-sems-envirofacts ]
+        measured: "74/122 KCSNJ records with an NPL status match a SEMS NJ site in the same municipality; 0/122 carry an EPA site ID; 19/20 hand-checked pairs are the same site (1 matched a related non-NPL EPA record)"
+        mode: candidate
+        reviewed: { correct: 19, checked: 20 }
+    taxonomy:
+      - "programme: CERCLA NPL (final | proposed | deleted | partially deleted) | CERCLA non-NPL | RCRA corrective action | state superfund | brownfield cleanup | voluntary cleanup | LUST/petroleum | federal property (FCSI)"
+      - "status: suspected | active/open | remedy in place / construction complete | long-term stewardship or controls | closed/resolved | deleted"
+      - "contaminant: EPA preferred contaminant name, grouped (metals, chlorinated solvents, PAHs, petroleum hydrocarbons, PCBs, PFAS, other) by medium (groundwater, soil, sediment, surface water, soil gas)"
+      - "milestone: proposed | listed | ROD/remedy selected | construction complete | notice of intent to delete | deleted (each with date and cited notice)"
+    agent_questions:
+      - "Is this address or parcel on, or within 1 km of, a federal or state contamination register, and what is the cleanup status?"
+      - "Given an EPA site ID, what contaminants and media were found, what remedy was selected, and when was the site listed, completed and deleted (with the Federal Register notice for each)?"
+      - "Which NPL sites in New Jersey were deleted or partially deleted in the last five years, and are they still on the state known-contaminated-sites list?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/csite_measure.py, docs/sources/pipeline/evidence/2026-11-16/csite_measure.json, docs/sources/pipeline/evidence/2026-11-16/csite_handcheck.json ]
+    next_action: 'Add "EPA site ID" to the declared-identifier allow-list; archive SEMS, the NPL layer, the three state registries and FCSI to R2; extract site, place and action from the 1,469 Federal Register NPL documents; look for a state or federal (FRS) cross-walk that carries EPA site IDs for state programme numbers; read the OPEN-NY and NJDEP terms; add a Canadian provincial registry so FCSI joins something.'

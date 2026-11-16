@@ -1,0 +1,374 @@
+{
+ "ct_case_program_top": {
+  "LUST": 19984,
+  "PCB Cleanup Log - General": 693,
+  "PCB Inspection": 3082,
+  "Property Transfer - Form I": 2038,
+  "Property Transfer - Form III": 5570,
+  "Release-Based": 582,
+  "Significant Environmental Hazard (SEH)": 1292,
+  "Voluntary X": 662
+ },
+ "ct_case_status": {
+  "Active": 22,
+  "Escalated": 9,
+  "Open": 20044,
+  "Pending": 3,
+  "Resolved": 14543,
+  "Resolved with LTS": 930,
+  "Withdrawn": 53
+ },
+ "ct_cases": 35604,
+ "ct_epa_id_anywhere": 0,
+ "ct_license": "Public Domain",
+ "ct_rows_updated_epoch": 1794499330,
+ "ct_sites": 20689,
+ "envirostor_probe": {
+  "bytes": 5580,
+  "cloudflare_challenge": true,
+  "status": 403
+ },
+ "fcsi": {
+  "classification": {
+   "": 12663,
+   "High Priority for Action": 1790,
+   "Insufficient Information": 573,
+   "Low Priority for Action": 2653,
+   "Medium Priority for Action": 3593,
+   "Not a Priority for Action": 3161
+  },
+  "newest_last_modified": "2026-11-10T14:38:00",
+  "reporting_orgs": 32,
+  "sites": 24433,
+  "status": {
+   "Active": 3961,
+   "Closed": 19456,
+   "Suspected": 1016
+  },
+  "top_contaminants": {
+   "BTEXs (benzene, toluene, ethylbenzene, and xylene)": 1142,
+   "Metal, metalloid, and organometallic": 7609,
+   "Other Physical/Chemical (pH, temperature, dissolved solids, turbidity, etc.)": 489,
+   "Other organics": 641,
+   "PAHs (polycyclic aromatic hydrocarbon)": 5076,
+   "PHCs (petroleum hydrocarbons)": 6517
+  },
+  "with_contaminants": 12872,
+  "with_property_number": 16438
+ },
+ "fcsi_zip": {
+  "bytes": 8023249,
+  "status": 200
+ },
+ "fr_newest_publication": "2026-10-29",
+ "fr_npl_documents_epa": 1469,
+ "fr_sample_abstract_epa_id": 1,
+ "fr_sample_abstract_mean_chars": 857,
+ "fr_sample_deletion_notices": 64,
+ "fr_sample_types": {
+  "Notice": 17,
+  "Proposed Rule": 45,
+  "Rule": 38
+ },
+ "fr_sample_with_site_in_abstract": 25,
+ "join_ct_federal_remediation_name_town_to_sems": {
+  "matched": 20,
+  "total": 31
+ },
+ "join_nj_kcs_npl_name_munic_to_sems": {
+  "matched": 74,
+  "total": 122
+ },
+ "join_npl_epa_id_to_sems": {
+  "deleted_status_agrees": 1840,
+  "matched": 1840,
+  "sems_id_agrees": 1840,
+  "total": 1840
+ },
+ "join_npl_fr_notice_url_to_federalregister": {
+  "by_field_resolved": {
+   "Deletion_FR_Notice": 305,
+   "Final_FR_Notice": 359,
+   "NOID_FR_Notice": 304,
+   "Proposed_FR_Notice": 363
+  },
+  "citations_since_1994": 1610,
+  "distinct_documents": 812,
+  "epa_agency": 1330,
+  "resolved": 1331,
+  "same_publication_date": 1330,
+  "site_named_in_title_or_abstract": 555
+ },
+ "join_npl_fr_samples": [
+  {
+   "date": "1996-05-13",
+   "doc": "96-11757",
+   "epa_id": "AKD004904215",
+   "field": "NOID_FR_Notice",
+   "fr_title": "National Oil and Hazardous Substances Pollution Contingency Plan; National Priorities List"
+  },
+  {
+   "date": "1996-07-26",
+   "doc": "96-18839",
+   "epa_id": "AKD004904215",
+   "field": "Deletion_FR_Notice",
+   "fr_title": "National Oil and Hazardous Substances Contingency Plan; National Priorities List Update"
+  },
+  {
+   "date": "2002-08-14",
+   "doc": "02-20351",
+   "epa_id": "AKD980978787",
+   "field": "NOID_FR_Notice",
+   "fr_title": "National Oil and Hazardous Substances Pollution Contingency Plan; National Priorities List"
+  },
+  {
+   "date": "2002-09-30",
+   "doc": "02-24640",
+   "epa_id": "AKD980978787",
+   "field": "Deletion_FR_Notice",
+   "fr_title": "National Oil and Hazardous Substances Pollution Contingency Plan; National Priorities List Update"
+  },
+  {
+   "date": "2010-03-04",
+   "doc": "2010-4304",
+   "epa_id": "AK0001897602",
+   "field": "Final_FR_Notice",
+   "fr_title": "National Priorities List, Final Rule No. 49"
+  },
+  {
+   "date": "1999-01-19",
+   "doc": "99-1021",
+   "epa_id": "ALD981868466",
+   "field": "Proposed_FR_Notice",
+   "fr_title": "National Priorities List for Uncontrolled Hazardous Waste Sites, Proposed Rule No. 27"
+  },
+  {
+   "date": "1999-05-10",
+   "doc": "99-11705",
+   "epa_id": "ALD981868466",
+   "field": "Final_FR_Notice",
+   "fr_title": "National Priorities List for Uncontrolled Hazardous Waste Sites"
+  },
+  {
+   "date": "2000-08-24",
+   "doc": "00-21524",
+   "epa_id": "ALD004022448",
+   "field": "Proposed_FR_Notice",
+   "fr_title": "National Priorities List for Uncontrolled Hazardous Waste Sites; Proposed Rule"
+  },
+  {
+   "date": "2012-09-18",
+   "doc": "2012-22851",
+   "epa_id": "ALD004022448",
+   "field": "Final_FR_Notice",
+   "fr_title": "National Priorities List, Final Rule No. 55"
+  },
+  {
+   "date": "2014-09-22",
+   "doc": "2014-22423",
+   "epa_id": "ALN000410750",
+   "field": "Proposed_FR_Notice",
+   "fr_title": "National Priorities List, Proposed Rule No. 61"
+  },
+  {
+   "date": "2003-07-28",
+   "doc": "03-19006",
+   "epa_id": "ARD035662469",
+   "field": "NOID_FR_Notice",
+   "fr_title": "National Oil and Hazardous Substances Contingency Plan; National Priorities List"
+  },
+  {
+   "date": "2003-11-06",
+   "doc": "03-27849",
+   "epa_id": "ARD035662469",
+   "field": "Deletion_FR_Notice",
+   "fr_title": "National Oil and Hazardous Substances Pollution Contingency Plan; National Priorities List Update"
+  }
+ ],
+ "join_ny_dec_name_city_to_sems": {
+  "matched": 708,
+  "matched_npl_final_or_deleted": 61,
+  "sems_ny_npl_final_or_deleted": 122,
+  "total": 6071
+ },
+ "nj_dataload_newest_ms": 1794459600000,
+ "nj_epa_id_anywhere": 0,
+ "nj_kcs_count": 12608,
+ "nj_kcs_status": {
+  "Active": 7657,
+  "Active - Post Rem": 4404,
+  "Active - UHOT": 497,
+  "Pending": 50
+ },
+ "nj_kcs_with_npl_status": 122,
+ "nj_npl_status_values": {
+  "Final": 115,
+  "Subsite": 7
+ },
+ "npl_construction_completion_date": {
+  "newest": "2026-09-23",
+  "present": 1250
+ },
+ "npl_deletion_date": {
+  "newest": "2026-08-20",
+  "present": 467
+ },
+ "npl_deletion_fr_notice_links": 466,
+ "npl_final_fr_notice_links": 1798,
+ "npl_fr_citations_govinfo": {
+  "by_field": {
+   "Deletion_FR_Notice": 370,
+   "Final_FR_Notice": 437,
+   "NOID_FR_Notice": 359,
+   "Proposed_FR_Notice": 444
+  },
+  "since_1994": 1610,
+  "total": 1610
+ },
+ "npl_fr_link_hosts_other": {
+  "semspub.epa.gov": 2771,
+  "www.govinfo.gov": 181
+ },
+ "npl_layer": {
+  "data_last_edit_ms": 1790791925866,
+  "name": "Superfund_National_Priorities_List_(NPL)_Sites_with_Status_Information",
+  "status": 200
+ },
+ "npl_listing_date": {
+  "newest": "2026-03-13",
+  "present": 1798
+ },
+ "npl_noid_date": {
+  "newest": "2026-03-04",
+  "present": 464
+ },
+ "npl_noid_fr_notice_links": 462,
+ "npl_partial_deletion": {
+  "<a href=\"https://www.epa.gov/superfund/partially-deleted-national-priorities-list-npl-sites-site-name\" target=\"_blank\">Yes</a>": 119,
+  "No": 1721
+ },
+ "npl_proposed_date": {
+  "newest": "2024-09-05",
+  "present": 1840
+ },
+ "npl_proposed_fr_notice_links": 1836,
+ "npl_site_listing_narrative_links": 1839,
+ "npl_site_progress_profile_links": 1840,
+ "npl_sites": 1840,
+ "npl_status": {
+  "Deleted NPL Site": 466,
+  "NPL Site": 1337,
+  "Proposed NPL Site": 37
+ },
+ "ny_epa_id_in_name_or_number": 0,
+ "ny_program_type": {
+  "BCP": 1867,
+  "DWC": 2,
+  "ERP": 366,
+  "HW": 2911,
+  "RCRA": 187,
+  "SP": 9,
+  "VCP": 729
+ },
+ "ny_rows": 237982,
+ "ny_rows_updated_epoch": 1794829608,
+ "ny_siteclass": {
+  "02": 426,
+  "03": 40,
+  "04": 486,
+  "A": 947,
+  "C": 1717,
+  "N": 2169,
+  "P": 250,
+  "PR": 36
+ },
+ "ny_sites": 6071,
+ "ny_sites_with_contaminants": 3003,
+ "ny_top_contaminants": {
+  "None": 112495,
+  "arsenic": 4374,
+  "benzo(a)pyrene": 4922,
+  "benzo(b)fluoranthene": 4088,
+  "lead": 6482,
+  "mercury": 4410,
+  "tetrachloroethene (PCE)": 5494,
+  "trichloroethene (TCE)": 6048
+ },
+ "requests": 50,
+ "run_date": "2026-11-16",
+ "sems_archived": 40838,
+ "sems_contaminant_action": {
+  "Explanation of Significant Differences": 2509,
+  "ROD Amendment": 3572,
+  "Record of Decision": 66488
+ },
+ "sems_contaminant_media": {
+  "Debris": 842,
+  "Groundwater": 27593,
+  "Leachate": 1322,
+  "Liquid Waste": 727,
+  "Sediment": 7053,
+  "Sludge": 1434,
+  "Soil": 24253,
+  "Soil Gas": 622,
+  "Solid Waste": 2461,
+  "Surface Water": 4129
+ },
+ "sems_contaminant_rows": 72569,
+ "sems_contaminant_rows_complete": true,
+ "sems_contaminant_site_ids_resolve": "1722/1722",
+ "sems_contaminant_top": {
+  "ARSENIC": 2898,
+  "BENZENE": 1805,
+  "CADMIUM": 1633,
+  "CHLOROETHENE (VINYL CHLORIDE)": 1371,
+  "CHROMIUM": 1715,
+  "LEAD": 2750,
+  "MANGANESE": 1393,
+  "TETRACHLOROETHENE": 1857,
+  "TRICHLOROETHENE": 2344,
+  "ZINC": 1475
+ },
+ "sems_epa_id_unique": 55727,
+ "sems_fields": [
+  "archived_date",
+  "archived_ind",
+  "city_name",
+  "congressional_district_code",
+  "county_name",
+  "epa_id",
+  "federal_facility_ind",
+  "fips_code",
+  "fk_ref_region_code",
+  "fk_ref_state_code",
+  "name",
+  "non_npl_status_code",
+  "non_npl_status_date",
+  "non_npl_status_name",
+  "npl_status_code",
+  "npl_status_name",
+  "primary_latitude_decimal_val",
+  "primary_longitude_decimal_val",
+  "saa_agreement_site_ind",
+  "site_id",
+  "street_addr_txt",
+  "supplemental_addr_txt",
+  "zip_code"
+ ],
+ "sems_newest_archived_date": "2026-09-15 00:00:00",
+ "sems_newest_non_npl_status_date": "2026-10-28 00:00:00",
+ "sems_npl_status": {
+  "Currently on the Final NPL": 1337,
+  "Deleted from the Final NPL": 466,
+  "Not on the NPL": 53237,
+  "Pre-proposal Site": 8,
+  "Proposed for NPL": 37,
+  "Removed from Proposed NPL": 101,
+  "Site is Part of NPL Site": 533,
+  "Withdrawn from the Final NPL": 8
+ },
+ "sems_sites": 55727,
+ "sems_sites_with_contaminants": 1722,
+ "sems_with_epa_id": 55727,
+ "sems_with_latlon": 17824
+}
