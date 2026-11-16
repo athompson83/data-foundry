@@ -11110,6 +11110,57 @@ candidates:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 1, structuring_value: 5, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.py, docs/sources/pipeline/evidence/2026-11-16/dpat_measure.json ]
     next_action: 'Measured 2026-11-16: api.uspto.gov answers 401 Unauthorized without an API key (keys are issued to registered accounts); data.uspto.gov is a single-page app behind an AWS WAF challenge script; PatentsView legacy API redirects to the ODP transition guide; PatentsView S3 bulk files answer 403; search.patentsview.org answers 502 from the proxy. Parked as access-gated, so the Orange Book US patent number could not be resolved to a USPTO record. Reopen when an ODP API key is provisioned for the scout or an ungated bulk text file is found.'
+  - key: widen-uk-mhra-drug-device-alerts
+    name: "UK MHRA drug and device alerts on GOV.UK (medicines recalls and defect notifications class 1-4, device safety information, National Patient Safety Alerts, weekly Field Safety Notice lists)"
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: MHRA (GOV.UK)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=medical_safety_alert&count=1000', 'https://www.gov.uk/api/content/drug-device-alerts/class-3-medicines-recall-aspire-pharma-limited-tropicamide-1-percent-eye-drops-solution-in-single-dose-containers-20-x-0-dot-5ml-el-26-a-slash-47', 'https://www.gov.uk/drug-device-alerts' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/widen_measure.py, docs/sources/pipeline/evidence/2026-11-16/widen_measure.json, docs/sources/pipeline/evidence/2026-11-16/widen_handcheck.json ]
+    terms:
+      - url: https://www.gov.uk/help/terms-conditions
+        quote: "You can reproduce content published on GOV.UK under the OGL as long as you follow the licence’s conditions."
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: "exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application."
+    conditions:
+      - "Open Government Licence v3.0: attribute MHRA (GOV.UK) and link the licence; the OGL excludes third-party rights."
+      - "Alert bodies carry company medical-information emails and phone numbers (880 contact lines in 197 alerts): never store or serve contact fields."
+      - "FSN documents are manufacturer files on the third-party host mhra-gov.filecamp.com: serve only the GOV.UK list metadata (manufacturer, device, model, MHRA reference) until those documents' rights are determined. This candidate covers the whole drug-device-alerts collection, including the FSN lists screened as mhra-device-field-safety-notices."
+    next_action: 'Measured 2026-11-16: GOV.UK search API returns 1,467 alerts (format medical_safety_alert), issued 2003-10-22 to 2026-11-12 (newest Class 4 Medicines Defect Notification EL(26)A/48), about 120-135 a year since 2019: 625 weekly FSN lists, 206 device safety information, 598 medicines recall notifications (class 2 recall 170, class 3 recall 69, class 1 recall 1, class 4 defect notification/information 198, company-led recall 42, other/older 115), 18 National Patient Safety Alerts, 20 safety round-ups. 374 titles carry an EL(yy)A/n reference, 51 a DSI/yyyy/n reference. Content API for the 197 medicines/DSI/NatPSA alerts since 2024: batch table 163, PL/PLGB number 144, SNOMED code 148, check-digit-valid GTIN 86 (153 GTINs), DMRC reference 83, marketing authorisation holder 95. 27 FSN lists of 2026-01..06 hold 277 entries (265 with an MHRA reference 2026/nnn/nnn/601/nnn). Next: archive all 1,467 content items to R2, parse batch tables, PL, SNOMED and GTIN into the recall taxonomy (MHRA class 1-4 mapped to I-III plus defect notice).'
+  - key: widen-sg-hsa-health-product-recalls
+    name: "Singapore Health Sciences Authority (HSA) health product recalls and safety alerts"
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Health Sciences Authority (Singapore)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.hsa.gov.sg/announcements', 'https://www.hsa.gov.sg/terms-of-use/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/widen_measure.py, docs/sources/pipeline/evidence/2026-11-16/widen_measure.json ]
+    terms:
+      - url: https://www.hsa.gov.sg/terms-of-use/
+        quote: "In particular, the reproduction or use of information or material from this Website for commercial purposes, or to advertise or promote the sale of any product or service, is prohibited."
+    next_action: 'Parked 2026-11-16: HSA terms of use (last updated 13 March 2026) prohibit commercial reproduction or use of website material without written permission; no records were collected. Reopen only with HSA written permission or an openly licensed feed (e.g. on data.gov.sg).'
+  - key: widen-ie-hpra-safety-notices
+    name: "Ireland Health Products Regulatory Authority (HPRA) safety notices (medicine and device recalls, field safety notices)"
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Health Products Regulatory Authority (Ireland)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.hpra.ie/safety-information/safety-notices', 'https://www.hpra.ie/terms-of-use' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/widen_measure.py, docs/sources/pipeline/evidence/2026-11-16/widen_measure.json ]
+    terms:
+      - url: https://www.hpra.ie/terms-of-use
+        quote: "You agree not to reproduce, duplicate, copy, republish, redistribute, transmit, alter, edit, re-sell, engage in any large scale collecting or harvesting of data (whether by automated or manual means) for commercial means, or otherwise exploit any part of our website in contravention of the provisions of these terms without the express written permission of the HPRA."
+    next_action: 'Parked 2026-11-16: the safety-notices page (HTTP 200) lists notices client-side from a JSON endpoint (safety-notices/safetynotices?$select=id,title,date,urlname...), but HPRA terms forbid republishing or large-scale harvesting for commercial means without written permission; no records were collected. Reopen only with HPRA written permission.'
 
 datasets:
   - key: home-product-recalls-global
@@ -12029,7 +12080,7 @@ datasets:
     next_action: Add NDC|RxCUI to the declared-key regex, archive the openFDA, EMA and NLM inputs in R2, and decide ATC redistribution before advancing to EVIDENCED.
 
   - key: food-and-health-recalls-global
-    name: Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ, FSAI, Hong Kong CFS)
+    name: Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, UK MHRA, FSANZ, FSAI, Hong Kong CFS)
     category: product-safety
     entity: recall_notice (one agency notice for a food, drug, device or health product) with affected products (lot, GTIN/UPC, NDC, establishment) and the recalling firm
     stage: SCREENED
@@ -12042,6 +12093,7 @@ datasets:
       - au-nz-fsanz-food-recalls
       - fsai-food-alerts
       - hk-cfs-food-alerts-datagovhk
+      - widen-uk-mhra-drug-device-alerts
     join_keys:
       - key: agency cited in the CFS Source of Information field, then product, hazard and date compared by hand (Hong Kong CFS alert vs FDA enforcement report)
         between:
@@ -12098,11 +12150,25 @@ datasets:
         measured: '0/7 distinct FSA notices with a candidate pair were the same recall event on hand check; no FDA number or GTIN in any of 1,359 FSA items'
         mode: candidate
         reviewed: { correct: 0, checked: 7 }
+      - key: recalling firm name + product tokens, FDA recall initiation within -120 to +120 days of the weekly list (MHRA Field Safety Notice entry vs openFDA device enforcement report)
+        between:
+          - widen-uk-mhra-drug-device-alerts
+          - fda-recalls
+        measured: '154/277 FSN entries in the 27 MHRA weekly lists of 2026-01 to 2026-06 have a candidate openFDA device enforcement report (11,399 device rows since 2023); 12/20 random pairs are the same recall event on hand check (same manufacturer, device and model, FSN and FDA initiation dates aligned), 4 uncertain (same model, no MHRA hazard text), 4 wrong (evidence/2026-11-16/widen_handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 12, checked: 20 }
+      - key: recalling firm name + product tokens, FDA recall initiation within -365 to +180 days (MHRA medicines recall or device safety alert vs openFDA drug or device enforcement report)
+        between:
+          - widen-uk-mhra-drug-device-alerts
+          - fda-recalls
+        measured: '6/197 MHRA alerts since 2024 (166 medicines, 31 device/NatPSA) have a candidate pair against 3,412 drug and 11,399 device rows since 2023; 1/6 is the same recall event (EL(25)A/28 Kimmtrak potency recall, batch series 3D009AA expiry 31/03/2026, matches D-0614-2025); 0/153 check-digit-valid MHRA GTINs from 86 alerts appear in openFDA code_info or product text; no alert cites an FDA or Health Canada notice (evidence/2026-11-16/widen_handcheck.json)'
+        mode: candidate
+        reviewed: { correct: 1, checked: 6 }
     taxonomy:
-      - 'agency: FDA | HC-CFIA | HC | FSA | FSANZ | FSAI | CFS-HK; jurisdiction: US | CA | UK | AU-NZ | IE | HK'
+      - 'agency: FDA | HC-CFIA | HC | FSA | FSANZ | FSAI | CFS-HK | MHRA; jurisdiction: US | CA | UK | AU-NZ | IE | HK'
       - 'product_class: food | drug | device | natural-health-product | veterinary | biologic'
       - 'hazard: undeclared-allergen | pathogen | foreign-material | chemical-contaminant | labelling | cgmp-deviation | mislabelled | other'
-      - 'severity: FDA Class I-III | CFIA Class 1-3 | Health Canada Type I-III, kept verbatim and mapped to I | II | III'
+      - 'severity: FDA Class I-III | CFIA Class 1-3 | Health Canada Type I-III | MHRA Class 1-3 recall (Class 4 is a defect notice, not a recall), kept verbatim and mapped to I | II | III'
       - 'allergen and pathogen: FSA allergen and pathogenRisk values verbatim, others extracted from the reason text'
     agent_questions:
       - Is this UPC, lot or NDC under a recall in the US, Canada, the UK or Australia, and what is the hazard and class?
