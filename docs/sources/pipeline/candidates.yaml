@@ -138,7 +138,7 @@ candidates:
     structuring: eligibility-criteria
     format: free-text
     publisher: US National Library of Medicine
-    stage: EVIDENCED
+    stage: RIGHTS_DETERMINED
     rights: AMBER
     sources:
       [
@@ -161,7 +161,7 @@ candidates:
       - url: https://clinicaltrials.gov/about-site/terms-conditions
         quote: "You shall not assert any proprietary rights to any portion of the database, or represent the database
           or any part thereof to anyone as other than a United States Government database."
-    evidence: [ docs/sources/pipeline/research-2026-09-27.md ]
+    evidence: [ docs/sources/pipeline/research-2026-09-27.md, docs/sources/clinical-trial-eligibility-rights-record-20261116.md ]
     conditions:
       - Attribute ClinicalTrials.gov; show the source processing date and our modifications.
       - Keep data current (daily delta sync).
@@ -170,9 +170,10 @@ candidates:
       - Acquire via the documented bulk download and API only (robots.txt disallows /api/ for crawlers).
       - Present as a screening aid, not medical advice.
     next_action: >-
-      Write the ADR-0013 rights record that satisfies every condition, then prototype the inclusion/exclusion
-      splitter and typed extractors (age, ECOG, labs, infections, pregnancy, prior therapy) over all 65,044
-      recruiting studies.
+      Rights record written 2026-11-16 (AMBER; terms re-read live, unchanged since 2023-01-31; API v2.0.5 reports
+      612,025 studies, 65,010 recruiting). Next: add the bulk download to tooling/snapshots/plans.json, archive it
+      to R2, then prototype the inclusion/exclusion splitter and typed extractors (age, ECOG, labs, infections,
+      pregnancy, prior therapy) over all recruiting studies with golden tests and coverage.json.
 
   - key: federal-register-obligations
     name: Federal Register + eCFR regulatory obligation timelines
