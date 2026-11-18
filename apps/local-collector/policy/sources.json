@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "bd8e786cda18157cb9bbc6230118e30e27eeb58ca9426b31f51e3268f2eda508",
+  "registry_sha256": "bf30f7be9903847b2a240c51cd4aba5b3bbd71d8e8cfa1dbe4dcc0e29bed96d6",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -879,6 +879,15 @@
         "neo-mpc-nea-orbits",
         "neo-neodys-risk-list",
         "neo-jpl-cneos-news"
+      ]
+    },
+    "security-certified-products": {
+      "name": "Security-certified IT products and cryptographic modules (FIPS 140 CMVP validations, Common Criteria portal certificates, NIAP Product Compliant List)",
+      "stage": "SCREENED",
+      "sources": [
+        "seccert-nist-cmvp-validated-modules",
+        "seccert-cc-portal-certified-products",
+        "seccert-niap-product-compliant-list"
       ]
     }
   },
@@ -7974,6 +7983,84 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "NASA (api.nasa.gov open API portal)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "seccert-nist-cmvp-validated-modules": {
+      "name": "NIST CMVP validated cryptographic modules (FIPS 140-2 / 140-3 certificates: search tables, certificate pages with caveat prose, Security Policy PDFs)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NIST Cryptographic Module Validation Program (with the Canadian Centre for Cyber Security)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "seccert-cc-portal-certified-products": {
+      "name": "Common Criteria portal certified and archived products (CSV: scheme, EAL / protection profile, certification and archive dates, certification report and Security Target PDFs)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Common Criteria Recognition Arrangement (commoncriteriaportal.org)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "seccert-niap-product-compliant-list": {
+      "name": "NIAP Product Compliant List (US Common Criteria scheme: certified, archived and in-evaluation products with VID, lab, protection profiles; open JSON list)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "National Information Assurance Partnership (NIAP CCEVS, US National Security Agency)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "seccert-ca-cccs-certified-products": {
+      "name": "Canadian Centre for Cyber Security Common Criteria certified products list (HTML table)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Canadian Centre for Cyber Security (Communications Security Establishment)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "seccert-es-ccn-certified-products": {
+      "name": "Spain CCN Organismo de Certificacion certified products catalogue (Common Criteria and LINCE)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Centro Criptologico Nacional (Spain), Organismo de Certificacion",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "seccert-fr-anssi-certified-products": {
+      "name": "France ANSSI certified products (cyber.gouv.fr produits certifies)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "Agence nationale de la securite des systemes d'information (ANSSI)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [

@@ -11848,6 +11848,99 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 1 }
     evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json ]
     next_action: 'PARKED (RED, access-gated): measured 2026-11-18, the browse endpoint returned HTTP 403 without an API key and the scout does not use keys or demo keys. It republishes JPL data that neo-jpl-ssd-cneos-apis already takes keyless from the origin, so there is no reason to reopen it.'
+  - key: seccert-nist-cmvp-validated-modules
+    name: "NIST CMVP validated cryptographic modules (FIPS 140-2 / 140-3 certificates: search tables, certificate pages with caveat prose, Security Policy PDFs)"
+    category: cybersecurity
+    structuring: normalization
+    format: free-text
+    publisher: NIST Cryptographic Module Validation Program (with the Canadian Centre for Cyber Security)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0', 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0', 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0', 'https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/5495', 'https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp5495.pdf' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    terms:
+      - url: https://www.nist.gov/oism/copyrights
+        quote: "With the exception of material marked as copyrighted, information presented on NIST sites are considered public information and may be distributed or copied."
+    conditions:
+      - "Security Policy PDFs are written by the module vendors and may be marked as copyrighted (2 of 3 checked carry a non-proprietary / reproduction statement): extract facts and link to the NIST copy, do not republish the PDF until each marking is read."
+      - "Certificate pages list vendor contact persons with e-mail and phone (20/20 sampled pages): never store or publish those fields."
+      - "There is no CSV or JSON export: the three status searches return the whole list as one HTML table each (Historical is 3.7 MB) and details need one request per certificate; keep to a polite crawl and credit NIST CMVP as requested by the NIST notice."
+    next_action: 'Measured 2026-11-18: the Active, Historical and Revoked searches return 758, 4,823 and 25 rows (5,606 rows, 5,584 distinct certificate numbers from 1 to 5592; 113 rows have no vendor yet), 1,198 distinct vendors, 3,124 hardware and 2,097 software modules, validation dates from 1995-10-12 to 2026-11-17 (477 first validated in 2026). On 20 sampled certificate pages the standard, overall level, validation-history lab and Security Policy PDF link were present on 20/20 and caveat prose on 18/20; 3 Security Policy PDFs fetched (HTTP 200) and their text inflated with zlib. Next: crawl all certificate pages once (sunset date, level, lab, algorithms, caveat), archive Security Policy PDFs to R2, then diff the three lists daily.'
+  - key: seccert-cc-portal-certified-products
+    name: "Common Criteria portal certified and archived products (CSV: scheme, EAL / protection profile, certification and archive dates, certification report and Security Target PDFs)"
+    category: cybersecurity
+    structuring: identifier-extraction
+    format: structured
+    publisher: Common Criteria Recognition Arrangement (commoncriteriaportal.org)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.commoncriteriaportal.org/products/certified_products.csv', 'https://www.commoncriteriaportal.org/products/certified_products-archived.csv', 'https://www.commoncriteriaportal.org/index.cfm', 'https://www.commoncriteriaportal.org/sitemap/index.cfm', 'https://www.commoncriteriaportal.org/files/epfiles/st_vid10570-st.pdf' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    conditions:
+      - "Terms silent: the home page and the 32-link sitemap name no terms, copyright or legal page, so this is free public data under ADR-0018; attribute the Common Criteria portal and the issuing national scheme, and re-read for terms before RIGHTS_DETERMINED."
+      - "Security Targets and certification reports are vendor and scheme documents: extract identifiers and facts (cited CMVP certificate numbers, TOE version, certificate id) and link to the PDF, do not republish it."
+      - "The CSV has no certificate-id column and a few malformed rows (4 of 2,079 and 2 of 6,459 rows have a broken scheme field); the scheme certificate id must be read from the report file reference or the PDF, and maintenance updates repeat the product row."
+    next_action: 'Measured 2026-11-18: certified_products.csv has 2,079 rows (newest certification 2026-11-17; FR 514, DE 348, NL 332, US 209, CA 153) and the archived CSV 6,459 rows (oldest 1997-08-01); 8,532 well-formed rows are 6,714 distinct products from 1,183 manufacturers, every one with a Security Target and certification report URL, 6,828 with an EAL and 4,840 with a protection profile. 60 sampled US/CA Security Target PDFs all downloaded (HTTP 200) and 59 yielded text with a stdlib zlib inflater. Next: archive both CSVs daily and every report / Security Target PDF once to R2, parse the scheme certificate id and cited CMVP certificate numbers from the PDFs.'
+  - key: seccert-niap-product-compliant-list
+    name: "NIAP Product Compliant List (US Common Criteria scheme: certified, archived and in-evaluation products with VID, lab, protection profiles; open JSON list)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: National Information Assurance Partnership (NIAP CCEVS, US National Security Agency)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.niap-ccevs.org/api/project/product/pcl_products_all/', 'https://www.niap-ccevs.org/api/project/product/get_pcl_counts/', 'https://www.niap-ccevs.org/products', 'https://www.niap-ccevs.org/robots.txt' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    conditions:
+      - "Terms unread: niap-ccevs.org is a JavaScript application whose HTML shell has no terms text (51 visible characters); it is a US government site with open access and a robots.txt that disallows nothing, so it is treated as free public data under ADR-0018 until a notice is read."
+      - "The JSON list is the endpoint the public product pages load (no key, no login) but it is not a documented API: confirm it stays open, keep to one list request per day, and fall back to the Common Criteria portal US rows if it closes."
+      - "Use the list endpoint only: the per-product detail endpoint returns a vendor contact person with e-mail and phone, which must never be stored or published."
+    next_action: 'Measured 2026-11-18: pcl_products_all returned 1,773 rows (265 Certified, 1,474 Archived, 34 In Progress, matching get_pcl_counts); 1,457 are US evaluations with integer VIDs and 316 are mirrored from the Common Criteria portal; certification dates 2000-10-01 to 2026-11-09; 1,771 rows carry the evaluation lab and 1,772 a protection profile; 346 vendors. Next: fetch the list daily, keep the in-evaluation rows as a pipeline signal, and read the site notice in a browser session to settle rights.'
+  - key: seccert-ca-cccs-certified-products
+    name: "Canadian Centre for Cyber Security Common Criteria certified products list (HTML table)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: Canadian Centre for Cyber Security (Communications Security Establishment)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.cyber.gc.ca/en/tools-services/common-criteria/certified-products' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    terms:
+      - url: https://www.canada.ca/en/transparency/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    next_action: 'PARKED (RED): measured 2026-11-18, the page (HTTP 200) holds one table of 128 product rows (product, vendor, conformance claim, certificate date; newest 2026-10-09) and links the Government of Canada terms, which forbid commercial redistribution without written permission. The same Canadian certificates are in the Common Criteria portal CSV (scheme CA). Reopen only with written permission or an Open Government Licence release of the list.'
+  - key: seccert-es-ccn-certified-products
+    name: "Spain CCN Organismo de Certificacion certified products catalogue (Common Criteria and LINCE)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: Centro Criptologico Nacional (Spain), Organismo de Certificacion
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://oc.ccn.cni.es/en/certified-products/certified-products' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    terms:
+      - url: https://oc.ccn.cni.es/en/legal-advice
+        quote: "is totally prohibited unless previous written authorization from the CCN is provided."
+    next_action: 'PARKED (RED): measured 2026-11-18, the catalogue page answers HTTP 200 with a certification-date table, but the legal notice prohibits reproduction and distribution of the site contents without written authorisation from the CCN. Spanish Common Criteria certificates remain available through the Common Criteria portal CSV (scheme ES). Reopen with written authorisation.'
+  - key: seccert-fr-anssi-certified-products
+    name: "France ANSSI certified products (cyber.gouv.fr produits certifies)"
+    category: cybersecurity
+    structuring: normalization
+    format: free-text
+    publisher: Agence nationale de la securite des systemes d'information (ANSSI)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://cyber.gouv.fr/produits-certifies' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    next_action: 'PARKED (RED, access-gated): measured 2026-11-18, cyber.gouv.fr/produits-certifies returned a 212-byte Incapsula bot-challenge page (HTTP 200, no content) to the scout user agent, so nothing was read and the challenge was not bypassed. French certificates remain available through the Common Criteria portal CSV (scheme FR, 514 current rows). Reopen if ANSSI publishes the list as open data or the page stops challenging.'
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -15642,3 +15735,36 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.py, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json, docs/sources/pipeline/evidence/2026-11-18/neo_handcheck.json ]
     next_action: 'Add "MPC designation" to the declared-join allow-list; read and quote the JPL/Caltech reuse policy (www.jpl.nasa.gov returned 403 to the scout) and ask the MPC and the NEODyS consortium for reuse terms; archive sbdb_query, cad, sentry, NEA.txt and the NEODyS list daily to R2 and diff them into discovery, close-approach and risk-change events; screen the NASA Planetary Defense blog, IAWN notices and PDS NEOWISE diameters as further members; ask ESA and the MPC for written permission before touching the NEOCC lists or MPEC text.'
+  - key: security-certified-products
+    name: "Security-certified IT products and cryptographic modules (FIPS 140 CMVP validations, Common Criteria portal certificates, NIAP Product Compliant List)"
+    category: cybersecurity
+    entity: "security certification of an IT product or cryptographic module: vendor, product and version, standard and level (FIPS 140-2 / 140-3 overall level, Common Criteria EAL or protection profile), certificate number (CMVP certificate, NIAP VID, scheme certificate id), validation / certification date, sunset or archive date, evaluation lab, and the Security Policy / Security Target document"
+    stage: SCREENED
+    description: "One record per certificate. NIST CMVP lists 5,584 FIPS 140 module certificates (758 active, 4,823 historical, 25 revoked; newest validation 2026-11-17) with level, lab, caveat prose and a Security Policy PDF on each certificate page; the Common Criteria portal CSVs give 8,532 certificate rows (6,714 distinct products, 18 schemes in the current file, newest 2026-11-17) with EAL / protection profile and links to the certification report and Security Target; the NIAP Product Compliant List gives 1,773 US-scheme products (265 certified, 1,474 archived, 34 in evaluation) with VID, lab and protection profiles. US Common Criteria rows link to NIAP by the VID in the report file reference, and Common Criteria Security Targets cite the CMVP certificate numbers of the cryptographic modules they embed, which links a certified product to its FIPS 140 validation."
+    sources: [ seccert-nist-cmvp-validated-modules, seccert-cc-portal-certified-products, seccert-niap-product-compliant-list ]
+    join_keys:
+      - key: "FIPS 140 CMVP certificate number cited in the Common Criteria Security Target text equals the CMVP certificate number"
+        between: [ seccert-cc-portal-certified-products, seccert-nist-cmvp-validated-modules ]
+        measured: "11/60 randomly sampled US and Canadian scheme Security Target PDFs cite a FIPS 140 certificate number that exists in the CMVP list (16 of 16 cited numbers resolve; 19 of the 60 mention FIPS 140 at all; 59 of 60 PDFs yielded text)"
+        mode: declared
+      - key: "NIAP VID carried in the Common Criteria portal certification report URL (st_vid<n>-vr.pdf) equals the NIAP Product Compliant List product id"
+        between: [ seccert-cc-portal-certified-products, seccert-niap-product-compliant-list ]
+        measured: "1,282/1,289 distinct US-scheme portal products with a VID in the report or Security Target URL resolve to a NIAP product id (180/182 current, 1,102/1,107 archived); 1,183 of the matched pairs carry the same certification date; 1,258 of 1,423 NIAP US certified or archived products are found in the portal"
+        mode: declared
+      - key: normalised vendor and product name tokens (CMVP module vs Common Criteria portal product)
+        between: [ seccert-nist-cmvp-validated-modules, seccert-cc-portal-certified-products ]
+        measured: "443/5,471 CMVP modules match a portal product of the same normalised vendor on product tokens (3,529 modules have a vendor that is also a portal manufacturer); 11/20 hand-checked pairs are the same product or product line, the 9 wrong ones are a different release or hardware generation"
+        mode: candidate
+        reviewed: { correct: 11, checked: 20 }
+    taxonomy:
+      - "standard: FIPS 140-2 | FIPS 140-3 | Common Criteria (EAL1-EAL7, augmented) | Common Criteria protection-profile conformance (NIAP, collaborative PPs)"
+      - "certificate status: active / certified | historical / archived | revoked | in evaluation (NIAP)"
+      - "product category: Common Criteria portal category (e.g. Network and Network-Related Devices and Systems, Operating Systems, ICs and Smart Cards) and CMVP module type (hardware, software, firmware, hybrid)"
+      - "issuing scheme: CMVP (US/Canada) | Common Criteria national scheme by two-letter code (FR, DE, NL, US, CA, JP, ES, ...)"
+    agent_questions:
+      - "Is this product version FIPS 140-3 validated or Common Criteria certified today, under which certificate number, and when does the certificate sunset or archive?"
+      - "Which FIPS 140 validated cryptographic module does this Common Criteria certified product rely on, and is that module certificate still active or now historical?"
+      - "Which vendors gained or lost an active certification in the last 30 days, and which products are in NIAP evaluation now?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
+    next_action: 'Crawl every CMVP certificate page and archive Security Policy PDFs and Common Criteria Security Targets / certification reports to R2; extract cited CMVP certificate numbers from all Security Targets (the screening sampled 60 of 1,848 US/CA documents) and the scheme certificate ids from the reports; make the vendor and product candidate join version-aware before any review queue; read the NIAP site notice and re-check the Common Criteria portal for terms; ask CCCS, CCN and ANSSI about open reuse of their national lists; screen BSI, JISEC and the EUCC certificate list as further members.'
