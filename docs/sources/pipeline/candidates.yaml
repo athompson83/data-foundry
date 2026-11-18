@@ -11941,6 +11941,185 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
     next_action: 'PARKED (RED, access-gated): measured 2026-11-18, cyber.gouv.fr/produits-certifies returned a 212-byte Incapsula bot-challenge page (HTTP 200, no content) to the scout user agent, so nothing was read and the challenge was not bypassed. French certificates remain available through the Common Criteria portal CSV (scheme FR, 514 current rows). Reopen if ANSSI publishes the list as open data or the page stops challenging.'
+  - key: debar-idb-sanctioned-firms
+    name: "IDB Group sanctioned firms (IDB Open Data: Dataset of Sanctioned firms and individuals, with the cross-debarment origin of each entry)"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Inter-American Development Bank (Sanctions Office, IDB Open Data)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.iadb.org/api/3/action/package_show?id=dataset-of-sanctioned-firms-and-individuals', 'https://data.iadb.org/api/3/action/datastore_search?resource_id=cd0bd9ac-18c6-44bc-8592-9be468c2efd9&limit=5000', 'https://data.iadb.org/dataset/dataset-of-sanctioned-firms-and-individuals' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://data.iadb.org/dataset/dataset-of-sanctioned-firms-and-individuals
+        quote: "License Creative Commons Attribution 4.0 International"
+      - url: https://creativecommons.org/licenses/by/4.0/deed.en
+        quote: "Share — copy and redistribute the material in any medium or format for any purpose, even commercially."
+    conditions:
+      - "CC BY 4.0: credit the Inter-American Development Bank (dataset DOI 10.60966/7pfpgt0f), link the licence and indicate changes."
+      - "Publish firms and organisations only: drop every row whose Entity is Individual (277 of 1,350 rows on 2026-11-18) and any Firm row whose title carries no legal-form word (a sole trader can be listed under a personal name)."
+      - "Cross-debarment rows (Source = WBG, ADB, EBRD or AfDB cross debarment; 955 of 1,073 firm rows) restate another bank decision: show them as IDB recognition of that decision with the originating institution, not as that institution own list, whose website terms forbid commercial reuse."
+      - "The Country column can hold the project country rather than the firm country (Nationality holds the firm country); keep both and never use Country alone to locate a firm."
+    next_action: 'Measured 2026-11-18: the CKAN datastore returns 1,350 rows (1,073 firms, 277 individuals counted and not written) with Entity, Nationality, Country, From, To, Prohibited Practice, Source and the IDB sanction type; firm rows by origin are WBG cross debarment 485, ADB 316, EBRD 120, IDB 118, AfDB 34; sanctions run from 2007-03-23 to 2026-10-30 (449 firm rows open-ended) and the resource was last modified 2026-11-18. No row cites a decision or case number; 4 firm titles cite a registration number. Next: archive the datastore dump daily to R2, diff it for additions and releases, and parse aliases (f/k/a, parentheticals) and the registration numbers out of the title.'
+  - key: debar-br-cgu-ceis
+    name: "Brazil CEIS register of ineligible and suspended companies (Cadastro de Empresas Inidoneas e Suspensas, daily CSV; CNEP as companion file)"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Controladoria-Geral da Uniao (Portal da Transparencia, Brazil)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://portaldatransparencia.gov.br/download-de-dados/ceis', 'https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/ceis/20261117_CEIS.zip', 'https://portaldatransparencia.gov.br/download-de-dados/cnep', 'https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/cnep/20261117_CNEP.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    conditions:
+      - "Terms unread: the download listing and the daily files answer without login or key, but the portal terms page (termos-de-uso) returned HTTP 405 with an AWS WAF human-verification page; rights rest on free public access (ADR-0018) until the terms or the dados.gov.br licence record is read and quoted, before RIGHTS_DETERMINED."
+      - "Publish legal persons only: keep rows with TIPO DE PESSOA = J (14,588 of 23,669 on 2026-11-17), drop natural persons (9,070 rows with a CPF) and blank rows (11), and drop J rows whose registered name carries no legal-form word (2,186 rows, mostly sole traders registered under a personal name)."
+      - "Fetch only the documented daily file from dadosabertos-download.cgu.gov.br; never work around the WAF challenge on other portal pages."
+      - "The CSV is Latin-1 with semicolon separators and dd/mm/yyyy dates; decode explicitly. One company can hold several sanctions: the key is CODIGO DA SANCAO, the CNPJ identifies the firm."
+    next_action: 'Measured 2026-11-18: the listing page names the 2026-11-17 file; it holds 23,669 sanction rows, 14,588 on legal persons (9,671 distinct CNPJ) from 2,388 sanctioning bodies (federal 5,224, municipal 5,115, state 4,105 rows), with sanction category, start and end dates, legal basis, process number on every row and a free-text observation on 9,364; newest sanction start 2026-11-17. The CNEP companion file (Lei Anticorrupcao penalties) holds 1,848 rows, 1,808 on legal persons. Next: read the portal terms from an unchallenged route, archive both files daily to R2, and map the sanction categories and legal bases to the dataset taxonomy.'
+  - key: debar-eu-edes-exclusions
+    name: "EU Early Detection and Exclusion System (EDES): public list of economic operators excluded from EU-budget contracts and grants"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG Budget (EDES)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ec.europa.eu/edes/api/cases/paginatedList', 'https://ec.europa.eu/edes/index', 'https://commission.europa.eu/legal-notice_en' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 3, structuring_value: 2, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://commission.europa.eu/legal-notice_en
+        quote: "This means that reuse is allowed, provided appropriate credit is given and changes are indicated."
+    conditions:
+      - "Credit the European Commission (EDES) and indicate changes, per the Commission reuse notice (CC BY 4.0); the EDES application carries no licence text of its own."
+      - "The payload has no firm or individual flag: publish an entry only when the operator is clearly a legal person, otherwise withhold the entry."
+      - "The JSON comes from the endpoint the public page itself calls (POST, no key, not a documented API): keep requests to one per day and stop if a login or agreement step appears."
+      - "An entry is public only for the publication period the Commission sets: remove entries that leave the list rather than keeping them as current."
+    next_action: 'Measured 2026-11-18: one POST to the public case list returned 5 published cases (all type EXCLUSION, countries JO, IT, MK, KE, IT) with grounds under the Financial Regulation (fraud, grave professional misconduct), from and to dates (newest start 2026-06-21), a free-text comment and a financial-penalty amount. None of the 5 operator names matches an IDB-listed firm. Next: archive the list daily and keep the removal dates, since the list is short and entries are time-limited.'
+  - key: debar-uk-drs-debarment-list
+    name: "UK debarment list under the Procurement Act 2023 (Debarment Review Service, PDF)"
+    category: procurement
+    structuring: normalization
+    format: free-text
+    publisher: UK Cabinet Office (Debarment Review Service)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/guidance/debarment-review-service-drs', 'https://assets.publishing.service.gov.uk/media/69cbc2028017673ffec0f329/2025-11-17_OFFICIAL-_Debarment_List_V1.0.pdf', 'https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 3, structuring_value: 3, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: "exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application."
+    conditions:
+      - "Open Government Licence v3.0: acknowledge the source with the attribution statement and do not suggest official status."
+      - "The list is empty: not a dataset member until it holds an entry. Each entry will cite a DRS report (prose), which is the free-text part to extract."
+    next_action: 'Measured 2026-11-18: the Debarment Review Service guidance page links one PDF (effective 2025-11-17, next review 2026-11-17); its text states the list will remain blank until a ministerial decision adds a supplier, and nothing follows the column headers (name, PPON, company number, exclusion ground, mandatory or discretionary, expected end date, link to DRS report): 0 entries. Next: poll the guidance page for a new PDF; when the first entry appears, add this source to procurement-debarments and link it by Companies House company number.'
+  - key: debar-ca-pspc-ineligible-suppliers
+    name: "Canada PSPC ineligible and suspended suppliers under the Ineligibility and Suspension Policy"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Public Services and Procurement Canada (Office of Supplier Integrity and Compliance)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.canada.ca/en/public-services-procurement/services/standards-oversight/supplier-integrity-compliance/ineligible-suspended-suppliers.html', 'https://www.canada.ca/en/public-services-procurement/terms.html' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.canada.ca/en/public-services-procurement/terms.html
+        quote: "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator."
+    next_action: 'PARKED (RED): measured 2026-11-18, the page lists 14 suppliers (12 ineligible, 2 suspended) with address, status, start and end dates (page dated 2026-11-16), but the PSPC terms forbid commercial redistribution without written permission, and the list is not published as an Open Government Licence dataset (open.canada.ca search returned only a service-standard indicator). Ask PSPC for permission or for an open.canada.ca release.'
+  - key: debar-adb-published-sanctions
+    name: "Asian Development Bank published sanctions list (ADB Debarment and Suspension Register)"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Asian Development Bank (Office of Anticorruption and Integrity)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://sanctions.adb.org/', 'https://apim.adb.org/sanctions/lists/v1/published-list?size=100&offset=0', 'https://www.adb.org/terms-use' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 3, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.adb.org/terms-use
+        quote: "Users are restricted from reselling, redistributing or creating derivative works for commercial purposes without the express, written consent of ADB."
+    next_action: 'PARKED (RED): measured 2026-11-18, the register published-list endpoint answers without login (declares 1,722 items; paging returned 1,517 rows because pages come back short of 100, and the row set shifts between runs): 1,212 firms and 305 individuals (counted, not written), with sanction type, nationality, effective and lapse dates and grounds that name the cross-debarment origin (WBG 539, ADB 424, EBRD 119, IDB 102, AfDB 28 firm rows); newest sanction 2026-11-09. The adb.org terms forbid commercial redistribution. 938 of 1,073 IDB firm rows match an ADB firm by normalised name, all with the same declared origin (20/20 on hand check). Ask ADB for written consent before any use; the legacy lnadbg4.adb.org view no longer answers.'
+  - key: debar-aiib-debarment-list
+    name: "Asian Infrastructure Investment Bank debarment list (AIIB and cross-debarred entities)"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: Asian Infrastructure Investment Bank
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.aiib.org/en/about-aiib/who-we-are/debarment-list/index.html', 'https://www.aiib.org/en/about-aiib/who-we-are/debarment-list/_common/js/debarment-list.js', 'https://www.aiib.org/en/general/copyright/index.html' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 2, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.aiib.org/en/general/copyright/index.html
+        quote: "Users are restricted from making any derivative work or commercial use thereof, including without limitation reselling, redistributing or creating derivative work for commercial purposes without the prior written consent of the AIIB."
+    next_action: 'PARKED (RED): measured 2026-11-18, the page data file holds 1,465 rows (firms and individuals, no flag) with economy, address, debarring institution (WBG 732, ADB 408, IDB 155, EBRD 128, AfDB 37, AIIB 5), prohibited practice, from and to dates; newest addition 2026-10-08. The AIIB copyright notice forbids commercial use. 736 of 1,052 distinct IDB firm names appear in it, all with the same debarring institution. Ask AIIB for consent before any use.'
+  - key: debar-eib-exclusion-decisions
+    name: "European Investment Bank exclusion decisions and public statements"
+    category: procurement
+    structuring: normalization
+    format: free-text
+    publisher: European Investment Bank (Exclusion Committee)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.eib.org/en/about/accountability/anti-fraud/exclusion/index', 'https://www.eib.org/en/terms-of-use.htm' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 3, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.eib.org/en/terms-of-use.htm
+        quote: "You may not modify, publish, transmit, display, participate in the transfer or sale, create derivative works, or in any way commercially exploit the content of this website without the express prior written permission of EIB"
+    next_action: 'PARKED (RED): measured 2026-11-18, the exclusion page lists 10 decisions (name, country of incorporation, nature of decision, validity dates, type of proceedings) and links 2 press statements, but the EIB terms of use forbid commercial exploitation of site content without written permission. Ask EIB for permission; this would be the natural free-text member.'
+  - key: debar-ebrd-ineligible-entities
+    name: "EBRD list of ineligible entities (EBRD sanctions system)"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: European Bank for Reconstruction and Development
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.ebrd.com/home/who-we-are/strategies-governance-compliance/ebrd-sanctions-system/ineligible-entities.html', 'https://www.ebrd.com/home/terms-and-conditions.html' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 2, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.ebrd.com/home/terms-and-conditions.html
+        quote: "for your personal, non-commercial use, without any right to resell, redistribute or create derivative works therefrom"
+    next_action: 'PARKED (RED): measured 2026-11-18, the page answers 200 and states it was last updated on 23/10/2026; the entity cards are rendered by script and were not parsed, because the EBRD terms limit site materials to personal, non-commercial use with no right to redistribute. EBRD-originated debarments are visible through the IDB open dataset (120 firm rows labelled EBRD cross debarment). Ask EBRD for permission before any direct use.'
+  - key: debar-worldbank-debarred-firms
+    name: "World Bank listing of ineligible firms and individuals (debarred firms), and Sanctions Board decisions"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: World Bank Group (Office of Suspension and Debarment, Sanctions Board)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.worldbank.org/en/projects-operations/procurement/debarred-firms', 'https://www.worldbank.org/en/about/unit/sanctions-system/sanctions-board/decisions', 'https://www.worldbank.org/ext/en/legal/terms-conditions' ]
+    scores: { agent_demand: 5, rights_clarity: 1, acquisition_ease: 2, structuring_value: 4, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    terms:
+      - url: https://www.worldbank.org/ext/en/legal/terms-conditions
+        quote: "you may not make any derivative work or commercial use, including without limitation reselling them, charging to access them, charging to redistribute them, or charging for derivative works based on them, without the prior written consent of the relevant member institution(s)."
+    next_action: 'PARKED (RED): measured 2026-11-18, the debarred-firms page loads its table from apigwext.worldbank.org with a subscription key embedded in the page script; the endpoint answers 401 without it, and the embedded key was not used (key wall), so the list was not acquired. The Sanctions Board decisions page lists no decision in its HTML (loaded by script). The site terms forbid commercial use of materials other than Data Catalog datasets, and the Data Catalog search answered 429 on every probe, so a CC BY listing could not be confirmed. World Bank debarments are visible through the IDB open dataset (485 firm rows labelled WBG cross debarment). Next: check the Data Catalog for a licensed listing of ineligible firms, or ask the Bank for consent.'
+  - key: debar-afdb-debarred-entities
+    name: "African Development Bank debarred and cross-debarred entities"
+    category: procurement
+    structuring: normalization
+    format: structured
+    publisher: African Development Bank Group
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedures' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
+    next_action: 'PARKED (RED, access-gated): measured 2026-11-18, the debarment page returned HTTP 403 with a Cloudflare challenge page, so neither the list nor the site terms could be read. AfDB-originated debarments are visible through the IDB open dataset (34 firm rows labelled AfDB cross debarment). Reopen if the page answers without a challenge.'
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)

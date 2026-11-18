@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "bf30f7be9903847b2a240c51cd4aba5b3bbd71d8e8cfa1dbe4dcc0e29bed96d6",
+  "registry_sha256": "ee71f1ed09e0fc419dc714e67c5cd9bb770ea3e74b7135f99ed837fa462f4b74",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -8061,6 +8061,149 @@
       "stage": "PARKED",
       "format": "free-text",
       "publisher": "Agence nationale de la securite des systemes d'information (ANSSI)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-idb-sanctioned-firms": {
+      "name": "IDB Group sanctioned firms (IDB Open Data: Dataset of Sanctioned firms and individuals, with the cross-debarment origin of each entry)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Inter-American Development Bank (Sanctions Office, IDB Open Data)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "debar-br-cgu-ceis": {
+      "name": "Brazil CEIS register of ineligible and suspended companies (Cadastro de Empresas Inidoneas e Suspensas, daily CSV; CNEP as companion file)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Controladoria-Geral da Uniao (Portal da Transparencia, Brazil)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "debar-eu-edes-exclusions": {
+      "name": "EU Early Detection and Exclusion System (EDES): public list of economic operators excluded from EU-budget contracts and grants",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "European Commission DG Budget (EDES)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "debar-uk-drs-debarment-list": {
+      "name": "UK debarment list under the Procurement Act 2023 (Debarment Review Service, PDF)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "UK Cabinet Office (Debarment Review Service)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "debar-ca-pspc-ineligible-suppliers": {
+      "name": "Canada PSPC ineligible and suspended suppliers under the Ineligibility and Suspension Policy",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Public Services and Procurement Canada (Office of Supplier Integrity and Compliance)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-adb-published-sanctions": {
+      "name": "Asian Development Bank published sanctions list (ADB Debarment and Suspension Register)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Asian Development Bank (Office of Anticorruption and Integrity)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-aiib-debarment-list": {
+      "name": "Asian Infrastructure Investment Bank debarment list (AIIB and cross-debarred entities)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Asian Infrastructure Investment Bank",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-eib-exclusion-decisions": {
+      "name": "European Investment Bank exclusion decisions and public statements",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "European Investment Bank (Exclusion Committee)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-ebrd-ineligible-entities": {
+      "name": "EBRD list of ineligible entities (EBRD sanctions system)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "European Bank for Reconstruction and Development",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-worldbank-debarred-firms": {
+      "name": "World Bank listing of ineligible firms and individuals (debarred firms), and Sanctions Board decisions",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "World Bank Group (Office of Suspension and Debarment, Sanctions Board)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "debar-afdb-debarred-entities": {
+      "name": "African Development Bank debarred and cross-debarred entities",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "African Development Bank Group",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
