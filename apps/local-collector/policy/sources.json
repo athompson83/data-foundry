@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "8f1f63837f3661d681f90623b39cdfb0ccdd2e2a05e5e47a2ec4b2bf5cb3a111",
+  "registry_sha256": "bd8e786cda18157cb9bbc6230118e30e27eeb58ca9426b31f51e3268f2eda508",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -860,6 +860,25 @@
         "webf-w3c-browser-specs",
         "webf-mdn-content-prose",
         "webf-chrome-platform-status"
+      ]
+    },
+    "seaports": {
+      "name": "Seaports and harbours (NGA World Port Index, NOAA Coast Pilot, USACE ports and docks)",
+      "stage": "SCREENED",
+      "sources": [
+        "port-nga-world-port-index",
+        "port-noaa-coast-pilot",
+        "port-usace-ports-docks"
+      ]
+    },
+    "near-earth-objects": {
+      "name": "Near-Earth objects: orbit class, size, close approaches and impact risk (JPL SBDB/CNEOS, MPC NEA orbits, NEODyS risk list, CNEOS news)",
+      "stage": "SCREENED",
+      "sources": [
+        "neo-jpl-ssd-cneos-apis",
+        "neo-mpc-nea-orbits",
+        "neo-neodys-risk-list",
+        "neo-jpl-cneos-news"
       ]
     }
   },
@@ -7817,6 +7836,149 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "port-nga-world-port-index": {
+      "name": "NGA World Port Index (Pub 150): one row per port with location, harbour type and size, depths, maximum vessel size, pilotage, restrictions, facilities and services",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US National Geospatial-Intelligence Agency",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "port-unece-unlocode": {
+      "name": "UNECE UN/LOCODE code list (United Nations Code for Trade and Transport Locations; pre-release zip with CSV parts, unlocode.unece.org)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "United Nations Economic Commission for Europe (UN/CEFACT)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "port-noaa-coast-pilot": {
+      "name": "NOAA United States Coast Pilot (10 volumes, chapter XML: prose port, harbour, channel, anchorage and pilotage descriptions with GNIS-tagged places)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA Office of Coast Survey",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "port-usace-ports-docks": {
+      "name": "USACE Principal Ports, Port and Port Statistical Area polygons and Navigation Facilities (docks) with USACE port codes and UN/LOCODE location codes",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Army Corps of Engineers (Institute for Water Resources, Navigation and Civil Works Decision Support Center)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "neo-jpl-ssd-cneos-apis": {
+      "name": "NASA/JPL Small-Body Database, close-approach and Sentry impact-risk APIs for near-Earth objects (ssd-api.jpl.nasa.gov: sbdb_query, cad, sentry)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NASA Jet Propulsion Laboratory (Solar System Dynamics group and Center for Near Earth Object Studies, operated by Caltech)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "neo-mpc-nea-orbits": {
+      "name": "IAU Minor Planet Center near-Earth asteroid orbit file (MPCORB extract NEA.txt: designation, H, orbital elements, orbit type, observation arc)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "IAU Minor Planet Center (Smithsonian Astrophysical Observatory)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "neo-neodys-risk-list": {
+      "name": "NEODyS-2 near-Earth asteroid impact risk list (University of Pisa / SpaceDyS independent impact monitoring)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NEODyS consortium (University of Pisa Celestial Mechanics Group and SpaceDyS srl)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "neo-jpl-cneos-news": {
+      "name": "JPL Center for Near Earth Object Studies news archive (prose stories on close approaches, impact-risk changes and discoveries that cite the designation)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NASA/JPL Center for Near Earth Object Studies (CNEOS news archive)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "neo-mpc-mpecs": {
+      "name": "IAU Minor Planet Center Minor Planet Electronic Circulars (MPECs: discovery and observation circulars)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "free-text",
+      "publisher": "IAU Minor Planet Center (Smithsonian Astrophysical Observatory)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "neo-esa-neocc": {
+      "name": "ESA Near-Earth Objects Coordination Centre risk list, close approaches and PSDB download files (neo.ssa.esa.int)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "European Space Agency (NEO Coordination Centre, Planetary Defence Office)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "neo-nasa-neows-api": {
+      "name": "NASA NeoWs near-Earth object web service (api.nasa.gov, a keyed REST view of JPL data)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "NASA (api.nasa.gov open API portal)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },

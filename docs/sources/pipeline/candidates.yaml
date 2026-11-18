@@ -11659,6 +11659,195 @@ candidates:
       - "The `web_feature` field is hand-entered: 24 of 2,058 values did not resolve (issue URLs, BCD keys, free strings), so accept only values that equal a web-features id and send the rest to review."
       - "Each response starts with an anti-XSSI line that must be stripped; page at 100 entries with a pause between requests."
     next_action: 'Measured 2026-11-18: the API returned all 3,600 entries in 36 pages of 100 (newest update 2026-11-18); all 3,600 have summary prose and 2,986 a specification link; the web_feature field is a web-features id in 2,058 entries, "Missing feature" in 161 and empty or null in 1,381. Next: read the site terms, and extract Chrome shipping milestones and intent stages per web-features id as the forward-looking (not yet shipped) signal.'
+  - key: port-nga-world-port-index
+    name: "NGA World Port Index (Pub 150): one row per port with location, harbour type and size, depths, maximum vessel size, pilotage, restrictions, facilities and services"
+    category: maritime
+    structuring: normalization
+    format: structured
+    publisher: US National Geospatial-Intelligence Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://msi.nga.mil/api/publications/world-port-index?output=json', 'https://services7.arcgis.com/xuAg12SDp2ow0Fb8/arcgis/rest/services/UpdatedPub150/FeatureServer/0', 'https://www.arcgis.com/sharing/rest/content/items/b4043522b2ea443489505d9d3cc02ac4?f=json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/port_measure.py, docs/sources/pipeline/evidence/2026-11-18/port_measure.json, docs/sources/pipeline/evidence/2026-11-18/port_handcheck.json ]
+    terms:
+      - url: https://www.arcgis.com/sharing/rest/content/items/b4043522b2ea443489505d9d3cc02ac4?f=json
+        quote: "No copyright claimed under Title 17 U.S.C."
+    conditions:
+      - "The publisher's own host was down on 2026-11-18 (msi.nga.mil answered HTTP 503 with an 'MSI IS CURRENTLY UNDER MAINTENANCE' page for the WPI API, the WPI page and the commercial-use page); rows were read from the Esri Living Atlas copy (item says 'The data was initially downloaded in May 2026'). Re-acquire from msi.nga.mil and compare before EVIDENCED; do not treat the Esri copy as the canonical artifact."
+      - "NGA's 'Commercial Use Warning' page (msi.nga.mil/commercial-use, linked from the licence text) could not be read (503); read and quote it before RIGHTS_DETERMINED."
+      - "The item says the data is in part crowd sourced and that not every field is available for each port; keep empty and 'Unknown' values as unknown, never as 'No'."
+    next_action: 'Measured 2026-11-18 on the Esri copy (layer data last edited 2026-06-05): 3,804 port rows, 110 fields, 3,803 distinct World Port Index numbers, 195 countries (666 United States); 3,340 rows carry a well-formed UN/LOCODE (5 more are unparsable); channel depth populated on 3,172 rows, anchorage depth 3,304, cargo pier depth 3,161, maximum vessel draft 896, maximum vessel length 810; pilotage compulsory Yes 2,518 / No 443 / Unknown 843; every row cites its sailing-directions publication (779 rows a U.S. Coast Pilot volume, 2,948 an NGA Sailing Directions Pub., 74 an Admiralty volume). Next: when msi.nga.mil is back, fetch the monthly Pub 150 file from the API, archive it to R2, diff it against this copy, and read the commercial-use page.'
+  - key: port-unece-unlocode
+    name: "UNECE UN/LOCODE code list (United Nations Code for Trade and Transport Locations; pre-release zip with CSV parts, unlocode.unece.org)"
+    category: maritime
+    structuring: normalization
+    format: structured
+    publisher: United Nations Economic Commission for Europe (UN/CEFACT)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://unlocode.unece.org/downloads/unlocode-latest.zip', 'https://unlocode.unece.org/publications/', 'https://unlocode.unece.org/terms' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/port_measure.py, docs/sources/pipeline/evidence/2026-11-18/port_measure.json, docs/sources/pipeline/evidence/2026-11-18/port_handcheck.json ]
+    terms:
+      - url: https://unlocode.unece.org/publications/
+        quote: "All UN/CEFACT standards are free to use under CC By 4.0 license"
+      - url: https://unlocode.unece.org/terms
+        quote: "The United Nations grants permission to Users to visit the Site and to download and copy the information, documents and materials (collectively, “Materials”) from the Site for the User’s personal, non-commercial use, without any right to resell or redistribute them or to compile or create derivative works therefrom"
+    conditions:
+      - "UNECE's own pages conflict: the footer of the download page says UN/CEFACT standards (it lists LOCODE) are free to use under CC BY 4.0, while the site Terms and Conditions grant only personal, non-commercial use with no right to redistribute. Get written confirmation from UNECE that CC BY 4.0 covers the code list before RIGHTS_DETERMINED; if it does not, this source is RED and must be parked."
+      - "Until that is settled, use the code only as a join key that NGA and USACE rows already carry; do not publish UNECE-only attributes (names, function string, coordinates, remarks)."
+      - "If CC BY 4.0 is confirmed: credit UNECE and indicate changes."
+      - "unece.org and service.unece.org answered HTTP 403 with a 'Just a moment...' challenge page; only unlocode.unece.org (no challenge) was used. The file is the continuously updated pre-release, not the official biannual release (latest official: January 2025)."
+    next_action: 'PARKED 2026-11-18 (RED): the site Terms and Conditions grant only personal, non-commercial use with no right to resell or redistribute, which is an express prohibition; the CC BY 4.0 footer on the download page conflicts with it and does not override it. Reopen only on written UNECE confirmation that CC BY 4.0 covers the code list. Measured 2026-11-18: unlocode-latest.zip (13,257,712 bytes, files dated 2026-11-05; the publications page says last updated November 5, 2026) holds three CSV parts with 116,476 location entries, 116,330 distinct codes in 249 countries; 17,571 codes carry the port function (position 1 = 1), 94,489 have coordinates (11,871 of the port codes), 39 are marked for removal, newest entry date 2610 (YYMM). Next: ask UNECE which licence covers the code list, then archive each pre-release and the official releases to R2 and diff them.'
+  - key: port-noaa-coast-pilot
+    name: "NOAA United States Coast Pilot (10 volumes, chapter XML: prose port, harbour, channel, anchorage and pilotage descriptions with GNIS-tagged places)"
+    category: maritime
+    structuring: identifier-extraction
+    format: free-text
+    publisher: NOAA Office of Coast Survey
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://nauticalcharts.noaa.gov/publications/coast-pilot/index.html', 'https://nauticalcharts.noaa.gov/publications/coast-pilot/files/CP1.xml', 'https://nauticalcharts.noaa.gov/publications/coast-pilot/files/cp1/CPB1_C05_WEB.xml', 'https://nauticalcharts.noaa.gov/data/data-licensing.html' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/port_measure.py, docs/sources/pipeline/evidence/2026-11-18/port_measure.json, docs/sources/pipeline/evidence/2026-11-18/port_handcheck.json ]
+    terms:
+      - url: https://nauticalcharts.noaa.gov/data/data-licensing.html
+        quote: "All data acquired by Coast Survey is formally dedicated to the public domain via the Creative Commons Zero 1.0 Universal Public Domain Dedication (CC0-1.0), which removes all copyright from the data so that it may be used by anyone, for any purpose."
+      - url: https://nauticalcharts.noaa.gov/publications/coast-pilot/index.html
+        quote: "All Coast Pilot books are available to download free of charge."
+    next_action: 'Measured 2026-11-18: 10 book index files and 121 chapter XML files fetched (no failures): 68,210 numbered paragraphs, 18,311,647 characters of prose, 15,183 GNIS-tagged place mentions (15,173 with coordinates, 14,776 distinct GNIS ids), 7,791 paragraphs open with a tagged place; editions 44th to 59th (Coast Pilot 10 is the 7th), newest weekly update listed 2026-11-15. The licensing sentence quoted is about Coast Survey data in general; the Coast Pilot page itself only says the books are free to download and warns that incomplete reproductions are sold commercially, and United States Coast Pilot is a registered mark, so do not use the name as a product title. Port headings such as "Montauk Harbor" and "Barbers Point Harbor" are plain paragraph headers without a GNIS tag. Next: segment each chapter into port sections from the paragraph headers (not only the tagged places), extract depths, pilotage, anchorage and wharf facts with the paragraph number as evidence, and archive every weekly edition to R2.'
+  - key: port-usace-ports-docks
+    name: "USACE Principal Ports, Port and Port Statistical Area polygons and Navigation Facilities (docks) with USACE port codes and UN/LOCODE location codes"
+    category: maritime
+    structuring: normalization
+    format: structured
+    publisher: US Army Corps of Engineers (Institute for Water Resources, Navigation and Civil Works Decision Support Center)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Principal_Ports/FeatureServer/0', 'https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Port_Statistical_Area/FeatureServer/0', 'https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Docks/FeatureServer/0', 'https://www.arcgis.com/sharing/rest/content/items/16d570a7aa054943aabf52b0032a3b57?f=json' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/port_measure.py, docs/sources/pipeline/evidence/2026-11-18/port_measure.json, docs/sources/pipeline/evidence/2026-11-18/port_handcheck.json ]
+    terms:
+      - url: https://www.arcgis.com/sharing/rest/content/items/16d570a7aa054943aabf52b0032a3b57?f=json
+        quote: "This data set is publicly available without any use restrictions; however, this data set was developed for use at a national scale and may not be appropriate for use in local scale mapping."
+    next_action: 'Measured 2026-11-18: Principal Ports has 150 ports for CY 2023 (86 coastal, 42 internal, 22 Great Lakes; rank, USACE port code, tonnage), the Port layer 370 polygons and the Port Statistical Area layer 7 (all 150 principal port codes are in them), and Navigation Facilities 20,563 rows (data last edited 2026-09-30; 9,479 docks, 8,841 milepoints) of which 16,768 carry a three-character UN/LOCODE location code, 11,269 a USACE port code (335 distinct, all in the port polygons), 6,646 a maximum depth and 6,929 a remarks text (1,277,047 characters). The OPERATORS and OWNERS columns were not requested because they can name natural persons: screen them before any publication. Next: archive the three layers to R2, key each port on the USACE port code, and use the dock rows to attach berth depths and UN/LOCODE codes to ports.'
+  - key: neo-jpl-ssd-cneos-apis
+    name: "NASA/JPL Small-Body Database, close-approach and Sentry impact-risk APIs for near-Earth objects (ssd-api.jpl.nasa.gov: sbdb_query, cad, sentry)"
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: NASA Jet Propulsion Laboratory (Solar System Dynamics group and Center for Near Earth Object Studies, operated by Caltech)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ssd-api.jpl.nasa.gov/sbdb_query.api?fields=spkid,pdes,name,full_name,kind,neo,pha,class,H,diameter,albedo,moid,first_obs,last_obs&sb-group=neo', 'https://ssd-api.jpl.nasa.gov/cad.api?date-min=1900-01-01&date-max=2200-01-01&dist-max=0.05', 'https://ssd-api.jpl.nasa.gov/sentry.api', 'https://ssd-api.jpl.nasa.gov/sentry.api?removed=1', 'https://ssd-api.jpl.nasa.gov/doc/' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.py, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json, docs/sources/pipeline/evidence/2026-11-18/neo_handcheck.json ]
+    terms:
+      - url: https://ssd-api.jpl.nasa.gov/doc/
+        quote: "You agree to limit requests to those reasonably necessary for your application or use case."
+      - url: https://ssd-api.jpl.nasa.gov/doc/
+        quote: "You agree to submit only one API request at a time (no simultaneous requests)."
+    conditions:
+      - "Reuse terms unread: the SSD API fair-use policy governs request behaviour only and says nothing about reuse, and the JPL image-use and notices pages it links (www.jpl.nasa.gov) returned HTTP 403 to the scout; JPL is operated by Caltech, so do not assume US-government-work status. Read and quote the JPL/Caltech policy before RIGHTS_DETERMINED (usable meanwhile only under the ADR-0018 presumption)."
+      - "Follow the SSD API fair-use policy: one request at a time, cache results, back off on errors, send an application User-Agent with contact details, and do not embed the API in a web page."
+      - "Check the signature version field on every response (measured: sbdb_query 1.0, cad 1.5, sentry 2.0); formats can change without notice."
+      - "Impact probabilities and Palermo/Torino values are JPL's assessment at retrieval time: store the retrieval timestamp and keep removed objects (sentry.api?removed=1) as history, never as current risk."
+    next_action: 'Measured 2026-11-18: sbdb_query returns 43,338 near-Earth objects (43,129 asteroids, 209 comets; 4,036 numbered; 2,552 potentially hazardous; orbit classes APO 24,548 / AMO 15,029 / ATE 3,513 / IEO 39 plus 209 comets; 1,266 with a diameter, 1,209 with an albedo; newest first observation 2026-11-16, 288 first observed this month and 2,482 this year). cad returns 52,530 Earth close approaches within 0.05 au for 1900-2200 over 20,354 objects (all resolve to the NEO list; 149 this month; 1,769 inside one lunar distance). sentry lists 2,252 objects with possible impacts (none above Torino 0; 6 with cumulative Palermo above -3) and 3,600 removed objects back to 2002, 15 removed this month, newest 2026-11-18. Next: read the JPL/Caltech reuse policy, then archive the three responses daily to R2 and diff them into discovery, removal and risk-change events.'
+  - key: neo-mpc-nea-orbits
+    name: "IAU Minor Planet Center near-Earth asteroid orbit file (MPCORB extract NEA.txt: designation, H, orbital elements, orbit type, observation arc)"
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: IAU Minor Planet Center (Smithsonian Astrophysical Observatory)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.minorplanetcenter.net/iau/MPCORB/NEA.txt', 'https://www.minorplanetcenter.net/iau/MPCORB.html', 'https://www.minorplanetcenter.net/' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.py, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json, docs/sources/pipeline/evidence/2026-11-18/neo_handcheck.json ]
+    conditions:
+      - "No licence or reuse wording was found on the MPC home page or the MPCORB page (presumed usable under ADR-0018), but every Minor Planet Electronic Circular carries a no-electronic-redistribution notice and the MPCORB page says the orbits were published in those circulars: get the MPC's position on reuse of the orbit files before RIGHTS_DETERMINED."
+      - "Use only the orbit file; do not ingest or republish MPEC text (parked as neo-mpc-mpecs)."
+      - "NEA.txt is fixed-width MPCORB format: take the designation from the readable field (columns 167-194), the orbit type and PHA bit from the hex flags (columns 162-165); the MPC orbit-type boundaries differ from JPL's classes (40,705 of 43,097 matched objects have the same class), so keep each publisher's class as its own attribute."
+      - "The site banner said the MPC was in preparation mode (2026-09-28); re-check file locations before building."
+    next_action: 'Measured 2026-11-18: NEA.txt (8,763,713 bytes) holds 43,171 near-Earth asteroids (3,874 numbered, 184 named; Apollo 22,241 / Amor 17,349 / Aten 3,495 / Atira 83; 2,537 flagged potentially hazardous; all with H), newest last-observation date 2026-11-17 and 1,034 objects observed this month; the home page tally reads 43,309 NEOs discovered all time, 2,531 this year, 294 this month. Next: ask the MPC about reuse of the orbit files, archive NEA.txt daily to R2 and diff for new designations, numberings and namings.'
+  - key: neo-neodys-risk-list
+    name: "NEODyS-2 near-Earth asteroid impact risk list (University of Pisa / SpaceDyS independent impact monitoring)"
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: NEODyS consortium (University of Pisa Celestial Mechanics Group and SpaceDyS srl)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://newton.spacedys.com/neodys/index.php?pc=4.1', 'https://newton.spacedys.com/neodys/index.php?pc=7.0', 'https://newton.spacedys.com/neodys/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.py, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json, docs/sources/pipeline/evidence/2026-11-18/neo_handcheck.json ]
+    conditions:
+      - "Terms silent: the NEODyS home and Info & Credits pages carry no licence or reuse wording (presumed usable under ADR-0018); ask the consortium for reuse terms and credit NEODyS before RIGHTS_DETERMINED."
+      - "The risk list is an HTML table (no documented API): parse defensively and keep the page's own last-updated timestamp."
+      - "Risk values are NEODyS's assessment, not JPL's: publish them side by side with the publisher named, never merged into one number (measured: Palermo maxima agree within 1.0 for 1,795 of 2,059 shared objects)."
+    next_action: 'Measured 2026-11-18: the risk list page (last updated 2026-11-18 12:36:26 UTC) states and parses to 2,382 near-Earth asteroids with H, maximum Palermo and Torino values and an observability status (Small 1,660 / Possible recovery 509 / Lost 173 / Observable 25 / Past impact 13 / Special 2). Next: ask for reuse terms, fetch the per-object impactor tables for the virtual-impactor dates, archive daily and diff against JPL Sentry.'
+  - key: neo-jpl-cneos-news
+    name: "JPL Center for Near Earth Object Studies news archive (prose stories on close approaches, impact-risk changes and discoveries that cite the designation)"
+    category: space
+    structuring: event-extraction
+    format: free-text
+    publisher: NASA/JPL Center for Near Earth Object Studies (CNEOS news archive)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://cneos.jpl.nasa.gov/news/news.json', 'https://cneos.jpl.nasa.gov/news/news210.html', 'https://cneos.jpl.nasa.gov/news/' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.py, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json, docs/sources/pipeline/evidence/2026-11-18/neo_handcheck.json ]
+    conditions:
+      - "Reuse terms unread: the CNEOS footer links only the JPL privacy and image-use pages (www.jpl.nasa.gov), which returned HTTP 403 to the scout; read and quote the JPL/Caltech policy before RIGHTS_DETERMINED, and until then publish extracted facts with a link, not story text or images."
+      - "Only the 61 stories hosted on cneos.jpl.nasa.gov are in scope; the other listed stories link out to NASA, JPL, ESA and other sites with their own terms."
+      - "Stories carry bylines and quote scientists: extract object facts only and never store or publish the names of people."
+      - "Object names in prose are review candidates only (hand-check 15/20; Aten and Apollo also mean orbit classes or missions, YORP an effect); link automatically only on a cited designation or number."
+    next_action: 'Measured 2026-11-18: news.json lists 213 stories from 1998-11-05 to 2026-07-16 (3 in 2026, 3 in 2025); 61 are hosted on CNEOS (1998-12-14 to 2025-01-31), all fetched: median 2,714 characters (442 words), 208,349 characters in total; 47 cite at least one provisional designation or numbered object, 48 distinct designations in all. Next: read the JPL/Caltech policy, extract dated facts per designation (close-approach distance, size estimate, impact-probability change), and screen the NASA Planetary Defense blog and IAWN notices as further free-text members.'
+  - key: neo-mpc-mpecs
+    name: "IAU Minor Planet Center Minor Planet Electronic Circulars (MPECs: discovery and observation circulars)"
+    category: space
+    structuring: identifier-extraction
+    format: free-text
+    publisher: IAU Minor Planet Center (Smithsonian Astrophysical Observatory)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://www.minorplanetcenter.net/mpec/RecentMPECs.html', 'https://www.minorplanetcenter.net/mpec/K26/K26W33.html' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json ]
+    terms:
+      - url: https://www.minorplanetcenter.net/mpec/K26/K26W33.html
+        quote: "The following Minor Planet Electronic Circular may be linked-to from your own Web pages, but must not otherwise be redistributed electronically."
+    next_action: 'PARKED (RED): measured 2026-11-18, the recent-circulars page lists 100 MPECs for 2026-11-12 to 2026-11-18 (up to 23 a day; 93 headed by a single provisional designation, 6 daily orbit updates), a random 20 had a median of 4,501 characters (3,288 to 3,269,617), all 20 carried the notice that a circular must not be redistributed electronically, and 17 had an observer-credit section naming people. 93 of the 93 heading designations are in the JPL NEO list and 84 in NEA.txt. Reopen only with written MPC permission to redistribute circular content; linking to a circular by its URL stays allowed.'
+  - key: neo-esa-neocc
+    name: "ESA Near-Earth Objects Coordination Centre risk list, close approaches and PSDB download files (neo.ssa.esa.int)"
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: European Space Agency (NEO Coordination Centre, Planetary Defence Office)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://neo.ssa.esa.int/PSDB-portlet/download?file=esa_risk_list', 'https://neo.ssa.esa.int/PSDB-portlet/download?file=esa_upcoming_close_app', 'https://neo.ssa.esa.int/computer-access', 'https://neo.ssa.esa.int/terms-conditions', 'https://www.esa.int/Services/Terms_and_conditions' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json ]
+    terms:
+      - url: https://www.esa.int/Services/Terms_and_conditions
+        quote: "The contents of the ESA website are intended for the personal and non-commercial use of its users."
+      - url: https://www.esa.int/Services/Terms_and_conditions
+        quote: "ESA does not grant the right to resell or redistribute any information, documents, images or material from its website or to compile or create derivative works from material on its website."
+    next_action: 'PARKED (RED): measured 2026-11-18, the keyless download endpoints answer (risk list 2,213 rows plus 2 special, updated 2026-11-18 08:19 UTC; 185 upcoming and 204 recent close approaches; allneo.lst 43,132 objects), and 1,983 of the 2,215 ESA risk objects are also on JPL Sentry (1,919 on all three of JPL, ESA and NEODyS; 2,213 resolve in NEA.txt), but the NEOCC terms page adopts the ESA general terms, which limit the site to personal non-commercial use and grant no right to resell or redistribute. Reopen only with written ESA authorisation for commercial redistribution of NEOCC data.'
+  - key: neo-nasa-neows-api
+    name: "NASA NeoWs near-Earth object web service (api.nasa.gov, a keyed REST view of JPL data)"
+    category: space
+    structuring: normalization
+    format: structured
+    publisher: NASA (api.nasa.gov open API portal)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://api.nasa.gov/neo/rest/v1/neo/browse' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json ]
+    next_action: 'PARKED (RED, access-gated): measured 2026-11-18, the browse endpoint returned HTTP 403 without an API key and the scout does not use keys or demo keys. It republishes JPL data that neo-jpl-ssd-cneos-apis already takes keyless from the origin, so there is no reason to reopen it.'
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -15377,3 +15566,79 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
     next_action: 'Add the allow-list phrases `BCD compat key`, `caniuse feature id`, `web-features feature id` and `cited specification URL` to the declared-join test; archive each web-features, BCD and caniuse release and the browser-specs index to R2; build the per-feature record keyed by web-features id with BCD and caniuse support side by side and a disagreement flag; review the 22 title candidates for unclaimed caniuse ids; read the chromestatus.com terms; fix the share-alike field design for MDN prose in the rights record; screen WHATWG specification text (CC BY 4.0), web-platform-tests results (wpt.fyi) and Firefox and WebKit standards positions as further members.'
+  - key: seaports
+    name: "Seaports and harbours (NGA World Port Index, NOAA Coast Pilot, USACE ports and docks)"
+    category: maritime
+    entity: "seaport or harbour: World Port Index number and UN/LOCODE, position, harbour type and size, channel/anchorage/pier depths, maximum vessel size, pilotage and entrance restrictions, facilities and services, with the prose sailing/entry directions that describe it"
+    stage: SCREENED
+    description: "One record per port. The NGA World Port Index gives 3,804 ports in 195 countries with 110 fields (depths, maximum vessel size, pilotage, restrictions, facilities) and a UN/LOCODE on 3,340 rows; the NOAA Coast Pilot gives 18,311,647 characters of prose in 68,210 paragraphs over 10 volumes with 14,776 GNIS-tagged places; USACE gives 150 principal US ports with tonnage, 377 port polygons and 20,563 navigation facility rows with berth depths. The UN/LOCODE links WPI rows to the code list and to USACE docks; Coast Pilot prose attaches to WPI United States ports by a reviewed place match (WPI rows also cite their Coast Pilot volume: all 405 matched ports sit in the cited volume). The WPI rows were read from an Esri copy because msi.nga.mil was under maintenance, and the UNECE licence is unsettled, so UNECE-only attributes stay unpublished until it is confirmed."
+    sources: [ port-nga-world-port-index, port-noaa-coast-pilot, port-usace-ports-docks ]
+    join_keys:
+      - key: UN/LOCODE carried by both a USACE navigation facility row and a World Port Index row
+        between: [ port-usace-ports-docks, port-nga-world-port-index ]
+        measured: "5,464/16,768 USACE facility rows carry a code that a WPI row also cites (323 of 1,550 distinct codes); through those rows 185 USACE port codes, 90 of the 150 principal ports, reach a WPI port (both members are served from arcgis.com hosts in this screening)"
+        mode: declared
+      - key: normalised port name and coordinates within 25 km (WPI United States port vs Coast Pilot GNIS-tagged place)
+        between: [ port-nga-world-port-index, port-noaa-coast-pilot ]
+        measured: "405/666 WPI United States ports match a Coast Pilot GNIS-tagged place of the same normalised name within 25 km (29 more share a name but lie farther away); all 405 are in the Coast Pilot volume the WPI row cites; 18/20 hand-checked pairs describe the same port (2 wrong: a neighbouring cape, and a different basin of the same town)"
+        mode: candidate
+        reviewed: { correct: 18, checked: 20 }
+    taxonomy:
+      - "harbour size (WPI): Large | Medium | Small | Very Small"
+      - "harbour type (WPI): Coastal (Natural) | Coastal (Breakwater) | Coastal (Tide Gates) | River (Natural) | River (Basins) | River (Tide Gates) | Canal or Lake | Open Roadstead | Typhoon Harbor"
+      - "USACE port type: Coastal | Internal | Great Lakes"
+      - "pilotage (WPI): compulsory | available | local assistance | advisable, each Yes | No | Unknown"
+    agent_questions:
+      - "What is the channel depth, maximum vessel draft and pilotage requirement at this port, and what do the sailing directions say about entering it? (measured: WPI Houston, index number 9240, US HOU: Large harbour, channel depth 14 m, pilotage compulsory; cited publication U.S. Coast Pilot 5)"
+      - "Which ports within 200 km of this position can take a vessel of this length and draft and have a container facility?"
+      - "Which UN/LOCODE and World Port Index number identify this port, and which USACE port code and docks belong to it?"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/port_measure.py, docs/sources/pipeline/evidence/2026-11-18/port_measure.json, docs/sources/pipeline/evidence/2026-11-18/port_handcheck.json ]
+    next_action: 'Add the phrase UN/LOCODE to the declared-identifier allow-list; re-fetch Pub 150 from msi.nga.mil when the maintenance ends and read its commercial-use page; port-unece-unlocode is PARKED RED (site terms grant personal, non-commercial use only), so the UNECE code list is not a member: the dataset links through the codes NGA and USACE rows already carry and the reviewed Coast Pilot matches; ask UNECE whether CC BY 4.0 covers the code list; segment Coast Pilot chapters by port header and review the place matches before publication; screen NGA Sailing Directions (Enroute) PDFs, which 2,948 WPI rows cite, as the free-text member for non-US ports, and the Eurostat/GISCO port list and Marine Regions as further members (both reachable, not measured).'
+  - key: near-earth-objects
+    name: "Near-Earth objects: orbit class, size, close approaches and impact risk (JPL SBDB/CNEOS, MPC NEA orbits, NEODyS risk list, CNEOS news)"
+    category: space
+    entity: "near-Earth object (asteroid or comet with perihelion under 1.3 au), identified by its MPC designation (permanent number, else provisional designation such as 2024 YR4): orbit class, absolute magnitude and size, Earth close approaches, impact-risk assessment per monitoring system, discovery/first-observation date"
+    stage: SCREENED
+    description: "One record per near-Earth object. JPL's sbdb_query gives 43,338 NEOs (43,129 asteroids, 209 comets) with class, H, diameter where known and first/last observation; cad gives 52,530 Earth close approaches within 0.05 au for 1900-2200; Sentry gives 2,252 objects with possible impacts plus 3,600 removed ones. The MPC NEA.txt orbit file gives 43,171 near-Earth asteroids with its own orbit type and PHA flag. NEODyS gives an independent risk list of 2,382 asteroids. CNEOS news stories (61 hosted, 1998-2025) are the free-text member and cite designations in prose. Everything links on the MPC designation; the two risk lists overlap on 2,059 objects and disagree on the rest, which is the comparison an agent cannot get from one publisher. MPECs and the ESA NEOCC lists were measured but are parked RED on their terms."
+    sources: [ neo-jpl-ssd-cneos-apis, neo-mpc-nea-orbits, neo-neodys-risk-list, neo-jpl-cneos-news ]
+    join_keys:
+      - key: MPC designation (permanent number, else provisional designation) of the JPL near-Earth asteroid equals the MPC NEA.txt designation
+        between: [ neo-jpl-ssd-cneos-apis, neo-mpc-nea-orbits ]
+        measured: "43,097/43,129 JPL near-Earth asteroids are in NEA.txt under the same designation (32 are not; 6 of a sample of 10 of those carry 2026 designations such as 2026 WN); 43,097 of 43,171 NEA.txt rows are in the JPL NEO list; H agrees within 0.5 mag for 42,955 of 43,088 compared, the PHA flag for 43,033 and the orbit class for 40,705"
+        mode: declared
+      - key: MPC designation on the JPL Sentry risk list equals the MPC NEA.txt designation
+        between: [ neo-jpl-ssd-cneos-apis (Sentry), neo-mpc-nea-orbits ]
+        measured: "2,250/2,252 Sentry objects resolve to an NEA.txt row (H within 0.5 mag for 2,233)"
+        mode: declared
+      - key: MPC designation shared by the JPL Sentry and NEODyS risk lists
+        between: [ neo-jpl-ssd-cneos-apis (Sentry), neo-neodys-risk-list ]
+        measured: "2,059/2,252 Sentry objects are also on the NEODyS risk list (193 Sentry-only, 323 NEODyS-only, 2,575 in the union); H within 0.5 mag for 2,055 of 2,059 and maximum Palermo value within 1.0 for 1,795"
+        mode: declared
+      - key: MPC designation on the NEODyS risk list equals the MPC NEA.txt designation
+        between: [ neo-neodys-risk-list, neo-mpc-nea-orbits ]
+        measured: "2,381/2,382 NEODyS risk objects resolve to an NEA.txt row (2,380 to the JPL NEO list)"
+        mode: declared
+      - key: MPC designation cited in the CNEOS news story text equals the MPC NEA.txt designation
+        between: [ neo-jpl-cneos-news, neo-mpc-nea-orbits ]
+        measured: "40/48 distinct designations cited in the 61 CNEOS-hosted stories resolve to an NEA.txt row (38 stories); 3 more resolve through the provisional designation JPL lists for a numbered object (2004 MN4 = 99942 Apophis); the other 5 (1999 NR, 2010 KQ, 2013 UQ4, 2013 US10, 2015 JO25) are in neither NEO list"
+        mode: declared
+      - key: object name mentioned in the CNEOS news story text vs the MPC NEA.txt object name
+        between: [ neo-jpl-cneos-news, neo-mpc-nea-orbits ]
+        measured: "21/61 CNEOS-hosted stories mention one of the 176 NEA.txt object names of four or more letters (31 story-object pairs, 17 distinct names); 15/20 hand-checked pairs refer to that asteroid (the 5 wrong: Aten twice as the orbit class, Apollo as the missions, YORP as the effect, one given name of a person); all 14 pairs with the number cited or an object word before the name were correct"
+        mode: candidate
+        reviewed: { correct: 15, checked: 20 }
+    taxonomy:
+      - "object kind: asteroid | comet; numbered | unnumbered (JPL kind an / au / cn / cu)"
+      - "orbit class: Atira (IEO) | Aten | Apollo | Amor | near-Earth comet classes (JFc, HTC, ETc), kept per publisher because JPL and MPC boundaries differ"
+      - "hazard status: potentially hazardous asteroid flag (JPL, MPC) | on a risk list (JPL Sentry, NEODyS) | removed from the risk list (with date)"
+      - "risk scale: impact probability, Palermo scale (maximum, cumulative), Torino scale, per monitoring system and retrieval time"
+      - "event: first observation | close approach (date, distance, velocity) | risk-list entry or removal | news story"
+    agent_questions:
+      - "Is asteroid 2024 YR4 on any impact risk list today, what is its orbit class and size, and when was it last observed? (measured: JPL class APO, H 23.93, first observed 2024-12-25, last observed 2026-02-26; MPC type Apollo, H 23.93; on neither the Sentry nor the NEODyS list on 2026-11-18; cited in a CNEOS story)"
+      - "Which objects do JPL Sentry and NEODyS both list, and which does only one of them list? (measured: 2,059 on both, 193 Sentry-only, 323 NEODyS-only)"
+      - "Which near-Earth objects pass within one lunar distance of Earth this month, and how large are they? (measured: 149 approaches within 0.05 au in November 2026; 1,769 approaches inside one lunar distance between 1900 and 2200)"
+      - "Which objects were removed from the Sentry risk list in the last 30 days? (measured: 15 removed in November 2026, newest 2026-11-18)"
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/neo_measure.py, docs/sources/pipeline/evidence/2026-11-18/neo_measure.json, docs/sources/pipeline/evidence/2026-11-18/neo_handcheck.json ]
+    next_action: 'Add "MPC designation" to the declared-join allow-list; read and quote the JPL/Caltech reuse policy (www.jpl.nasa.gov returned 403 to the scout) and ask the MPC and the NEODyS consortium for reuse terms; archive sbdb_query, cad, sentry, NEA.txt and the NEODyS list daily to R2 and diff them into discovery, close-approach and risk-change events; screen the NASA Planetary Defense blog, IAWN notices and PDS NEOWISE diameters as further members; ask ESA and the MPC for written permission before touching the NEOCC lists or MPEC text.'
