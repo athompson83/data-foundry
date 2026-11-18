@@ -1,0 +1,1792 @@
+{
+ "run_date": "2026-11-18",
+ "cache_used": false,
+ "web_features": {
+  "url": "https://unpkg.com/web-features/data.json",
+  "status": 200,
+  "bytes": 4926218,
+  "top_level_keys": [
+   "browsers",
+   "features",
+   "groups",
+   "snapshots"
+  ],
+  "entries": 1240,
+  "kinds": {
+   "feature": 1228,
+   "moved": 10,
+   "split": 2
+  },
+  "features": 1228,
+  "groups": 106,
+  "snapshots": 11,
+  "browsers": [
+   "chrome",
+   "chrome_android",
+   "edge",
+   "firefox",
+   "firefox_android",
+   "safari",
+   "safari_ios"
+  ],
+  "baseline_status": {
+   "high": 655,
+   "low": 123,
+   "False": 450
+  },
+  "newest_baseline_low_date": "2026-10-27",
+  "with_description": 1228,
+  "with_spec": 1228,
+  "with_compat_features": 1208,
+  "with_caniuse": 339,
+  "with_group": 972,
+  "sample": {
+   "grid": {
+    "name": "Grid",
+    "baseline": "high",
+    "baseline_low_date": "2017-10-17",
+    "support": {
+     "chrome": "57",
+     "chrome_android": "57",
+     "edge": "16",
+     "firefox": "52",
+     "firefox_android": "52",
+     "safari": "10.1",
+     "safari_ios": "10.3"
+    },
+    "spec": [
+     "https://drafts.csswg.org/css-grid-3/"
+    ],
+    "caniuse": [
+     "css-grid"
+    ],
+    "compat_features": 83
+   },
+   "has": {
+    "name": ":has()",
+    "baseline": "high",
+    "baseline_low_date": "2023-12-19",
+    "support": {
+     "chrome": "105",
+     "chrome_android": "105",
+     "edge": "105",
+     "firefox": "121",
+     "firefox_android": "121",
+     "safari": "15.4",
+     "safari_ios": "15.4"
+    },
+    "spec": [
+     "https://drafts.csswg.org/selectors-4/#relational"
+    ],
+    "caniuse": [
+     "css-has"
+    ],
+    "compat_features": 1
+   },
+   "view-transitions": {
+    "name": "View transitions",
+    "baseline": "low",
+    "baseline_low_date": "2025-10-14",
+    "support": {
+     "chrome": "111",
+     "chrome_android": "111",
+     "edge": "111",
+     "firefox": "144",
+     "firefox_android": "144",
+     "safari": "18",
+     "safari_ios": "18"
+    },
+    "spec": [
+     "https://drafts.csswg.org/css-view-transitions-1/"
+    ],
+    "caniuse": [
+     "view-transitions"
+    ],
+    "compat_features": 27
+   }
+  },
+  "npm": {
+   "status": 200,
+   "latest": "3.46.0",
+   "license": "Apache-2.0",
+   "stable_releases": 152,
+   "newest_stable": [
+    {
+     "version": "3.46.0",
+     "published": "2026-11-12"
+    },
+    {
+     "version": "3.45.0",
+     "published": "2026-11-02"
+    },
+    {
+     "version": "3.44.0",
+     "published": "2026-10-22"
+    },
+    {
+     "version": "3.43.0",
+     "published": "2026-10-15"
+    },
+    {
+     "version": "3.42.0",
+     "published": "2026-10-09"
+    }
+   ],
+   "stable_releases_last_365_days": 47
+  },
+  "licence": {
+   "url": "https://unpkg.com/web-features/LICENSE.txt",
+   "status": 200,
+   "quote": "each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Work and such Derivative Works in Source or Object form.",
+   "quote_found": true
+  }
+ },
+ "bcd": {
+  "url": "https://github.com/mdn/browser-compat-data/releases/latest/download/data.json",
+  "status": 200,
+  "bytes": 20621633,
+  "meta": {
+   "timestamp": "2026-11-12T14:10:29.391Z",
+   "version": "8.1.9"
+  },
+  "compat_keys": 20968,
+  "by_top_level": {
+   "api": 10325,
+   "css": 4317,
+   "html": 845,
+   "http": 421,
+   "javascript": 1402,
+   "manifests": 38,
+   "mathml": 137,
+   "mediatypes": 17,
+   "svg": 471,
+   "webassembly": 342,
+   "webdriver": 550,
+   "webextensions": 2103
+  },
+  "browsers": 17,
+  "with_mdn_url": 12621,
+  "with_spec_url": 17625,
+  "with_web_features_tag": 16124,
+  "web_features_snapshot_tags": 770,
+  "status_flags": {
+   "deprecated": 1182,
+   "experimental": 2918,
+   "standard_track": 17638
+  },
+  "mdn_bcd_api": {
+   "url": "https://bcd.developer.mozilla.org/bcd/api/v0/current/css.properties.grid.json",
+   "status": 200,
+   "meta": {
+    "timestamp": "2026-11-18T00:02:32.666Z",
+    "version": "8.1.9"
+   },
+   "same_support_as_release_asset": false
+  },
+  "npm": {
+   "status": 200,
+   "latest": "8.1.9",
+   "license": "CC0-1.0",
+   "stable_releases": 419,
+   "newest_stable": [
+    {
+     "version": "8.1.9",
+     "published": "2026-11-12"
+    },
+    {
+     "version": "8.1.8",
+     "published": "2026-11-02"
+    },
+    {
+     "version": "8.1.7",
+     "published": "2026-10-22"
+    },
+    {
+     "version": "8.1.6",
+     "published": "2026-10-15"
+    },
+    {
+     "version": "8.1.5",
+     "published": "2026-10-08"
+    }
+   ],
+   "stable_releases_last_365_days": 52
+  },
+  "licence": {
+   "url": "https://raw.githubusercontent.com/mdn/browser-compat-data/main/LICENSE",
+   "status": 200,
+   "quote": "Affirmer hereby overtly, fully, permanently, irrevocably and unconditionally waives, abandons, and surrenders all of Affirmer's Copyright and Related Rights and associated claims and causes of action",
+   "quote_found": true
+  }
+ },
+ "caniuse": {
+  "url": "https://raw.githubusercontent.com/Fyrd/caniuse/main/fulldata-json/data-2.0.json",
+  "status": 200,
+  "bytes": 4878616,
+  "features": 554,
+  "agents": 19,
+  "updated": "2026-11-11",
+  "spec_status": {
+   "other": 79,
+   "ls": 126,
+   "cr": 94,
+   "wd": 127,
+   "rec": 66,
+   "unoff": 62
+  },
+  "with_spec": 554,
+  "with_description": 554,
+  "with_notes": 192,
+  "with_numbered_notes": 375,
+  "caniuse_com_data_json": {
+   "status": 200,
+   "features": 554,
+   "updated": "2026-11-18",
+   "same_ids_as_repo": true
+  },
+  "licence": {
+   "url": "https://raw.githubusercontent.com/Fyrd/caniuse/main/README.md",
+   "status": 200,
+   "quote": "The data in this repo is available for use under a CC BY 4.0 license (https://creativecommons.org/licenses/by/4.0/). For attribution just mention somewhere that the source is caniuse.com.",
+   "quote_found": true,
+   "licence_file_url": "https://raw.githubusercontent.com/Fyrd/caniuse/main/LICENSE",
+   "licence_file_status": 200,
+   "licence_file_is_cc_by_4": true
+  }
+ },
+ "browser_specs": {
+  "url": "https://w3c.github.io/browser-specs/index.json",
+  "status": 200,
+  "bytes": 1068210,
+  "specifications": 833,
+  "series": 739,
+  "organizations": {
+   "W3C": 612,
+   "Khronos Group": 61,
+   "Ecma International": 57,
+   "IETF": 55,
+   "WHATWG": 27,
+   "Alliance for Open Media": 7,
+   "W3C/OGC": 7,
+   "FIDO Alliance": 3
+  },
+  "standing": {
+   "good": 757,
+   "discontinued": 69,
+   "pending": 7
+  },
+  "with_release": 432,
+  "with_tests": 402,
+  "known_urls": 2122,
+  "npm": {
+   "status": 200,
+   "latest": "5.3.0",
+   "license": "CC0-1.0",
+   "stable_releases": 286,
+   "newest_stable": [
+    {
+     "version": "5.3.0",
+     "published": "2026-06-19"
+    },
+    {
+     "version": "5.2.0",
+     "published": "2026-06-11"
+    },
+    {
+     "version": "5.1.0",
+     "published": "2026-06-01"
+    },
+    {
+     "version": "5.0.0",
+     "published": "2026-05-31"
+    },
+    {
+     "version": "4.77.0",
+     "published": "2026-05-20"
+    }
+   ],
+   "stable_releases_last_365_days": 22
+  },
+  "licence": {
+   "url": "https://raw.githubusercontent.com/w3c/browser-specs/main/LICENSE.md",
+   "status": 200,
+   "quote": "Additionally, the list of technical Web specifications (the [index.json](index.json) file) is published under the terms of the [CC0 license](#cc0-license).",
+   "quote_found": true
+  }
+ },
+ "mdn_content": {
+  "sitemap": {
+   "url": "https://developer.mozilla.org/sitemaps/en-us/sitemap.xml.gz",
+   "urls": 14890,
+   "under_docs_web": 12355,
+   "newest_lastmod": "2026-11-17"
+  },
+  "bcd_keys_declared_by_web_features_with_mdn_url": 10878,
+  "sampled_pages": 40,
+  "pages_200": 40,
+  "newest_modified_in_sample": "2026-11-10",
+  "median_prose_chars": 1084,
+  "min_prose_chars": 257,
+  "pages": [
+   {
+    "bcd_key": "svg.global_attributes.text-decoration",
+    "web_features_ids": [
+     "svg"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/SVG/Reference/Attribute/text-decoration/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/SVG/Reference/Attribute/text-decoration",
+    "page": "text-decoration",
+    "modified": "2025-10-30",
+    "browserCompat": [
+     "svg.global_attributes.text-decoration"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "svg",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1269,
+    "summary": "The text-decoration attribute defines whether text is decorated with an underline, overline and/or strike-through. It is a shorthand for the text-decoration-lin",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.LanguageModel",
+    "web_features_ids": [
+     "languagemodel"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/LanguageModel/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/LanguageModel",
+    "page": "LanguageModel",
+    "modified": "2026-11-10",
+    "browserCompat": [
+     "api.LanguageModel"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "languagemodel",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 3023,
+    "summary": "The LanguageModel interface of the Prompt API represents a session with a browser-provided language model. It exposes static methods for creating sessions and c",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.SVGSVGElement.getCurrentTime",
+    "web_features_ids": [
+     "svg"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/SVGSVGElement/getCurrentTime/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/SVGSVGElement/getCurrentTime",
+    "page": "SVGSVGElement: getCurrentTime() method",
+    "modified": "2025-02-02",
+    "browserCompat": [
+     "api.SVGSVGElement.getCurrentTime"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "svg",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1015,
+    "summary": "The getCurrentTime() method of the SVGSVGElement interface returns the current time in seconds relative to the start time for the current SVG document fragment.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.DOMParser",
+    "web_features_ids": [
+     "domparser"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/DOMParser/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/DOMParser",
+    "page": "DOMParser",
+    "modified": "2025-10-13",
+    "browserCompat": [
+     "api.DOMParser"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "domparser",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1237,
+    "summary": "The DOMParser interface provides the ability to parse XML or HTML source code from a string into a DOM Document.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.CSSScale.z",
+    "web_features_ids": [
+     "css-typed-om"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/CSSScale/z/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/CSSScale/z",
+    "page": "CSSScale: z property",
+    "modified": "2026-08-04",
+    "browserCompat": [
+     "api.CSSScale.z"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "css-typed-om",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 445,
+    "summary": "The z property of the CSSScale interface represents the z-component of the translating vector.\nA positive value moves the element towards the viewer, and a nega",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.BaseAudioContext.destination",
+    "web_features_ids": [
+     "web-audio"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/BaseAudioContext/destination/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/BaseAudioContext/destination",
+    "page": "BaseAudioContext: destination property",
+    "modified": "2026-09-29",
+    "browserCompat": [
+     "api.BaseAudioContext.destination"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "web-audio",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 693,
+    "summary": "The destination read-only property of the BaseAudioContext interface returns an AudioDestinationNode representing the final destination of all audio in the cont",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.MouseEvent.shiftKey",
+    "web_features_ids": [
+     "mouse-events"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/MouseEvent/shiftKey/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/MouseEvent/shiftKey",
+    "page": "MouseEvent: shiftKey property",
+    "modified": "2026-02-13",
+    "browserCompat": [
+     "api.MouseEvent.shiftKey"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "mouse-events",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 607,
+    "summary": "The MouseEvent.shiftKey read-only property is a boolean value that indicates whether the shift key was pressed or not when a given mouse event occurs.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.TextTrackList.length",
+    "web_features_ids": [
+     "text-tracks"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/TextTrackList/length/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/TextTrackList/length",
+    "page": "TextTrackList: length property",
+    "modified": "2023-04-08",
+    "browserCompat": [
+     "api.TextTrackList.length"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "text-tracks",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 823,
+    "summary": "The read-only TextTrackList\nproperty length returns the number of entries in the\nTextTrackList, each of which is a TextTrack representing\none track in the media",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.SVGAnimatedLength",
+    "web_features_ids": [
+     "smil-svg-animations"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/SVGAnimatedLength/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/SVGAnimatedLength",
+    "page": "SVGAnimatedLength",
+    "modified": "2025-03-18",
+    "browserCompat": [
+     "api.SVGAnimatedLength"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "smil-svg-animations",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 546,
+    "summary": "The SVGAnimatedLength interface represents attributes of type <length> which can be animated.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "css.properties.margin-right",
+    "web_features_ids": [
+     "margin"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin-right/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/CSS/Reference/Properties/margin-right",
+    "page": "margin-right CSS property",
+    "modified": "2026-09-16",
+    "browserCompat": [
+     "css.properties.margin-right"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "margin",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 4506,
+    "summary": "The margin-right CSS property sets the margin area on the right side of an element. A positive value places it farther from its neighbors, while a negative valu",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.WebGLBuffer",
+    "web_features_ids": [
+     "webgl"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/WebGLBuffer/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/WebGLBuffer",
+    "page": "WebGLBuffer",
+    "modified": "2024-09-28",
+    "browserCompat": [
+     "api.WebGLBuffer"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "webgl",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 888,
+    "summary": "The WebGLBuffer interface is part of the WebGL API and represents an opaque buffer object storing data such as vertices or colors.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.HTMLLinkElement.relList",
+    "web_features_ids": [
+     "link"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/HTMLLinkElement/relList/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/HTMLLinkElement/relList",
+    "page": "HTMLLinkElement: relList property",
+    "modified": "2025-11-25",
+    "browserCompat": [
+     "api.HTMLLinkElement.relList"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "link",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1009,
+    "summary": "The read-only relList property of the HTMLLinkElement returns a live DOMTokenList object containing the set of link types indicating the relationship between th",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.MediaRecorder.stop",
+    "web_features_ids": [
+     "mediastream-recording"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/MediaRecorder/stop/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/MediaRecorder/stop",
+    "page": "MediaRecorder: stop() method",
+    "modified": "2024-02-08",
+    "browserCompat": [
+     "api.MediaRecorder.stop"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "mediastream-recording",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1027,
+    "summary": "The stop() method of the MediaRecorder interface is\nused to stop media capture.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.Animation.persist",
+    "web_features_ids": [
+     "web-animations"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/Animation/persist/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/Animation/persist",
+    "page": "Animation: persist() method",
+    "modified": "2023-07-07",
+    "browserCompat": [
+     "api.Animation.persist"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "web-animations",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 3475,
+    "summary": "The persist() method of the Web Animations API's Animation interface explicitly persists an animation, preventing it from being automatically removed when it is",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.NavigateEvent.scroll",
+    "web_features_ids": [
+     "navigation"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/NavigateEvent/scroll/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/NavigateEvent/scroll",
+    "page": "NavigateEvent: scroll() method",
+    "modified": "2026-08-27",
+    "browserCompat": [
+     "api.NavigateEvent.scroll"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "navigation",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1489,
+    "summary": "The scroll() method of the\nNavigateEvent interface can be called to manually trigger the browser-driven scrolling behavior that occurs in response to the naviga",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "html.elements.textarea.placeholder",
+    "web_features_ids": [
+     "textarea"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/HTML/Reference/Attributes/placeholder/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/HTML/Reference/Attributes/placeholder",
+    "page": "placeholder HTML attribute",
+    "modified": "2026-10-14",
+    "browserCompat": [
+     "html.elements.input.placeholder",
+     "html.elements.textarea.placeholder"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": null,
+    "baseline_feature_id_is_declaring_feature": false,
+    "baseline_feature_id_in_web_features": false,
+    "prose_chars": 2657,
+    "summary": "The placeholder attribute defines the text displayed in a form control when the control has no value. The placeholder text should provide a brief hint to the us",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.CanvasRenderingContext2D.fillStyle",
+    "web_features_ids": [
+     "canvas-2d"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/fillStyle/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/CanvasRenderingContext2D/fillStyle",
+    "page": "CanvasRenderingContext2D: fillStyle property",
+    "modified": "2026-08-12",
+    "browserCompat": [
+     "api.CanvasRenderingContext2D.fillStyle"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "canvas-2d",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1864,
+    "summary": "The\nCanvasRenderingContext2D.fillStyle\nproperty of the Canvas 2D API specifies the\ncolor, gradient, or pattern to use inside shapes. The default style is black.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.StorageAccessHandle.caches",
+    "web_features_ids": [
+     "non-cookie-storage-access"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/StorageAccessHandle/caches/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/StorageAccessHandle/caches",
+    "page": "StorageAccessHandle: caches property",
+    "modified": "2026-08-22",
+    "browserCompat": [
+     "api.StorageAccessHandle.caches"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "non-cookie-storage-access",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 565,
+    "summary": "The caches property of the StorageAccessHandle interface returns an unpartitioned CacheStorage object if access was granted, and throws a SecurityError DOMExcep",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.AudioBufferSourceNode.buffer",
+    "web_features_ids": [
+     "web-audio"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/AudioBufferSourceNode/buffer/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/AudioBufferSourceNode/buffer",
+    "page": "AudioBufferSourceNode: buffer property",
+    "modified": "2026-02-17",
+    "browserCompat": [
+     "api.AudioBufferSourceNode.buffer"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "web-audio",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1392,
+    "summary": "The buffer property of the AudioBufferSourceNode interface provides the ability to play back audio using an AudioBuffer as the source of the sound data.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.MIDIOutput.clear",
+    "web_features_ids": [
+     "web-midi"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/MIDIOutput/clear/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/MIDIOutput/clear",
+    "page": "MIDIOutput: clear() method",
+    "modified": "2023-04-07",
+    "browserCompat": [
+     "api.MIDIOutput.clear"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "web-midi",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 257,
+    "summary": "The clear() method of the MIDIOutput interface clears the queue of messages being sent to the output device.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.PressureRecord.source",
+    "web_features_ids": [
+     "compute-pressure"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/PressureRecord/source/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/PressureRecord/source",
+    "page": "PressureRecord: source property",
+    "modified": "2024-10-04",
+    "browserCompat": [
+     "api.PressureRecord.source"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "compute-pressure",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1539,
+    "summary": "The read-only source property is a string indicating the origin source from which the record is coming.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.SerialPort.getInfo",
+    "web_features_ids": [
+     "serial"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/SerialPort/getInfo/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/SerialPort/getInfo",
+    "page": "SerialPort: getInfo() method",
+    "modified": "2026-05-19",
+    "browserCompat": [
+     "api.SerialPort.getInfo"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "serial",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1714,
+    "summary": "The getInfo() method of the SerialPort interface returns an object containing identifying information for the device available via the port.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.Element.ariaDescribedByElements",
+    "web_features_ids": [
+     "aria-attribute-reflection"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/Element/ariaDescribedByElements/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/Element/ariaDescribedByElements",
+    "page": "Element: ariaDescribedByElements property",
+    "modified": "2026-09-04",
+    "browserCompat": [
+     "api.Element.ariaDescribedByElements"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "aria-attribute-reflection",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 3414,
+    "summary": "The ariaDescribedByElements property of the Element interface is an array containing the element (or elements) that provide an accessible description for the el",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "javascript.builtins.Date.getUTCHours",
+    "web_features_ids": [
+     "date"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date/getUTCHours/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getUTCHours",
+    "page": "Date.prototype.getUTCHours()",
+    "modified": "2025-07-10",
+    "browserCompat": [
+     "javascript.builtins.Date.getUTCHours"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "date",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 720,
+    "summary": "The getUTCHours() method of Date instances returns the hours for this date according to universal time.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "css.selectors.view-transition-new",
+    "web_features_ids": [
+     "view-transitions"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/CSS/Reference/Selectors/::view-transition-new/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/CSS/Reference/Selectors/::view-transition-new",
+    "page": "::view-transition-new() CSS pseudo-element",
+    "modified": "2026-04-17",
+    "browserCompat": [
+     "css.selectors.view-transition-new"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "view-transitions",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 2698,
+    "summary": "The ::view-transition-new() CSS pseudo-element represents the \"new\" view state of a view transition — a snapshot live representation of the state after the tran",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.MIDIOutputMap",
+    "web_features_ids": [
+     "web-midi"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/MIDIOutputMap/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/MIDIOutputMap",
+    "page": "MIDIOutputMap",
+    "modified": "2024-02-05",
+    "browserCompat": [
+     "api.MIDIOutputMap"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "web-midi",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 413,
+    "summary": "The MIDIOutputMap read-only interface of the Web MIDI API provides the set of MIDI output ports that are currently available.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.URLPattern.protocol",
+    "web_features_ids": [
+     "urlpattern"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/URLPattern/protocol/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/URLPattern/protocol",
+    "page": "URLPattern: protocol property",
+    "modified": "2025-08-22",
+    "browserCompat": [
+     "api.URLPattern.protocol"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "urlpattern",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 748,
+    "summary": "The protocol read-only property of the URLPattern interface is a string containing the pattern used to match the protocol part of a URL.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.HTMLAnchorElement.relList",
+    "web_features_ids": [
+     "a"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/HTMLAnchorElement/relList/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/HTMLAnchorElement/relList",
+    "page": "HTMLAnchorElement: relList property",
+    "modified": "2026-10-21",
+    "browserCompat": [
+     "api.HTMLAnchorElement.relList"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "a",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1084,
+    "summary": "The read-only relList property of the HTMLAnchorElement returns a live DOMTokenList object containing the set of link types indicating the relationship between ",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.MediaKeySystemAccess",
+    "web_features_ids": [
+     "encrypted-media-extensions"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/MediaKeySystemAccess/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/MediaKeySystemAccess",
+    "page": "MediaKeySystemAccess",
+    "modified": "2024-06-17",
+    "browserCompat": [
+     "api.MediaKeySystemAccess"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "encrypted-media-extensions",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 680,
+    "summary": "The MediaKeySystemAccess interface of the Encrypted Media Extensions API provides access to a Key System for decryption and/or a content protection provider. Yo",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "javascript.builtins.Map.entries",
+    "web_features_ids": [
+     "map"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Map/entries/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/entries",
+    "page": "Map.prototype.entries()",
+    "modified": "2025-07-20",
+    "browserCompat": [
+     "javascript.builtins.Map.entries"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "map",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 778,
+    "summary": "The entries() method of Map instances returns a new map iterator object that contains the [key, value] pairs for each element in this map in insertion order.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.NavigationPrecommitController",
+    "web_features_ids": [
+     "navigation-precommit-handlers"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/NavigationPrecommitController/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/NavigationPrecommitController",
+    "page": "NavigationPrecommitController",
+    "modified": "2026-08-27",
+    "browserCompat": [
+     "api.NavigationPrecommitController"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "navigation-precommit-handlers",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 3964,
+    "summary": "The NavigationPrecommitController interface of the Navigation API is passed as an argument to a navigation precommit handler callback.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.Element.touchend_event",
+    "web_features_ids": [
+     "touch-events"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/Element/touchend_event/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/Element/touchend_event",
+    "page": "Element: touchend event",
+    "modified": "2026-10-26",
+    "browserCompat": [
+     "api.Element.touchend_event"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "touch-events",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 504,
+    "summary": "The touchend event fires when one or more touch points are removed from the touch surface. Remember that it is possible to get a touchcancel event instead.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "css.properties.margin",
+    "web_features_ids": [
+     "margin"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/CSS/Reference/Properties/margin/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/CSS/Reference/Properties/margin",
+    "page": "margin CSS property",
+    "modified": "2026-09-16",
+    "browserCompat": [
+     "css.properties.margin"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "margin",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 5650,
+    "summary": "The margin CSS shorthand property sets the margin area on all four sides of an element.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.WebGLRenderingContext.enable",
+    "web_features_ids": [
+     "webgl"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/WebGLRenderingContext/enable/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/WebGLRenderingContext/enable",
+    "page": "WebGLRenderingContext: enable() method",
+    "modified": "2025-06-23",
+    "browserCompat": [
+     "api.WebGLRenderingContext.enable"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "webgl",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 1836,
+    "summary": "The WebGLRenderingContext.enable() method of the WebGL API enables specific WebGL capabilities\nfor this context.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.MediaQueryListEvent.MediaQueryListEvent",
+    "web_features_ids": [
+     "matchmedia"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/MediaQueryListEvent/MediaQueryListEvent/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/MediaQueryListEvent/MediaQueryListEvent",
+    "page": "MediaQueryListEvent: MediaQueryListEvent() constructor",
+    "modified": "2025-11-07",
+    "browserCompat": [
+     "api.MediaQueryListEvent.MediaQueryListEvent"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "matchmedia",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 860,
+    "summary": "The MediaQueryListEvent() constructor creates a new MediaQueryListEvent object.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.Cache.put",
+    "web_features_ids": [
+     "service-workers"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/Cache/put/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/Cache/put",
+    "page": "Cache: put() method",
+    "modified": "2025-06-24",
+    "browserCompat": [
+     "api.Cache.put"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "service-workers",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 2281,
+    "summary": "The put() method of the\nCache interface allows key/value pairs to be added to the current\nCache object.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.XRViewport.y",
+    "web_features_ids": [
+     "webxr-device"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/XRViewport/y/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/XRViewport/y",
+    "page": "XRViewport: y property",
+    "modified": "2025-02-05",
+    "browserCompat": [
+     "api.XRViewport.y"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "webxr-device",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 816,
+    "summary": "The read-only XRViewport interface's\ny property indicates the offset from the bottom edge of\nthe destination surface (typically a XRWebGLLayer) to the bottom ed",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.HTMLTableElement.insertRow",
+    "web_features_ids": [
+     "table"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/HTMLTableElement/insertRow/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/HTMLTableElement/insertRow",
+    "page": "HTMLTableElement: insertRow() method",
+    "modified": "2026-08-19",
+    "browserCompat": [
+     "api.HTMLTableElement.insertRow"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "table",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 2271,
+    "summary": "The insertRow() method of the HTMLTableElement interface creates a <tr> element, inserts it at the specified position in the rows collection, and returns it. If",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "http.methods.POST",
+    "web_features_ids": [
+     "http11"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/HTTP/Reference/Methods/POST/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/HTTP/Reference/Methods/POST",
+    "page": "POST request method",
+    "modified": "2025-07-04",
+    "browserCompat": [
+     "http.methods.POST"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "http11",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 3738,
+    "summary": "The POST HTTP method sends data to the server. The type of the body of the request is indicated by the Content-Type header.",
+    "has_specifications_section": true
+   },
+   {
+    "bcd_key": "api.PannerNode.coneOuterAngle",
+    "web_features_ids": [
+     "web-audio"
+    ],
+    "url": "https://developer.mozilla.org/docs/Web/API/PannerNode/coneOuterAngle/index.json",
+    "status": 200,
+    "mdn_url": "/en-US/docs/Web/API/PannerNode/coneOuterAngle",
+    "page": "PannerNode: coneOuterAngle property",
+    "modified": "2024-07-25",
+    "browserCompat": [
+     "api.PannerNode.coneOuterAngle"
+    ],
+    "key_in_browserCompat": true,
+    "baseline_feature_id": "web-audio",
+    "baseline_feature_id_is_declaring_feature": true,
+    "baseline_feature_id_in_web_features": true,
+    "prose_chars": 528,
+    "summary": "The coneOuterAngle property of the PannerNode interface is a double value describing the angle, in degrees, of a cone outside of which the volume will be reduce",
+    "has_specifications_section": true
+   }
+  ],
+  "licence": {
+   "url": "https://raw.githubusercontent.com/mdn/content/main/LICENSE.md",
+   "status": 200,
+   "quote": "All prose content is available under ([CC-BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/)).",
+   "quote_found": true,
+   "site_url": "https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Attrib_copyright_license",
+   "site_status": 200,
+   "site_quote": "Unless otherwise indicated, the content is available under the terms of the Creative Commons Attribution-ShareAlike license (CC-BY-SA), v2.5 or any later version.",
+   "site_quote_found": true
+  }
+ },
+ "chromestatus": {
+  "url": "https://chromestatus.com/api/v0/features?num=100&start=N",
+  "pages": {
+   "requested": 36,
+   "non_200": []
+  },
+  "features": 3600,
+  "total_count": 3600,
+  "web_feature_field": {
+   "Missing feature": 161,
+   "<id>": 2058,
+   "null": 1331,
+   "": 50
+  },
+  "entries_with_a_web_features_id": 2058,
+  "newest_updated": "2026-11-18",
+  "entries_with_summary_prose": 3600,
+  "entries_with_spec_link": 2986,
+  "entries_with_personal_email_fields_counted_not_written": 3600,
+  "robots_txt": {
+   "status": 200,
+   "body": "User-agent: *\nDisallow: /admin/\nDisallow: /data/\n\nSitemap: https://chromestatus.com/sitemap.txt\n"
+  },
+  "site_html": {
+   "url": "https://chromestatus.com/roadmap",
+   "status": 200,
+   "bytes": 3710,
+   "mentions_terms": false,
+   "note": "single-page app shell; no terms or licence wording in the served HTML"
+  },
+  "sample": [
+   {
+    "chromestatus_id": 6461631328419840,
+    "web_feature": "service-workers",
+    "entry": "Cache API",
+    "web_features_entry": "Service workers"
+   },
+   {
+    "chromestatus_id": 5765569655603200,
+    "web_feature": "pointer-events-api",
+    "entry": "PointerEvent.getPredictedEvents()",
+    "web_features_entry": "Pointer Events"
+   },
+   {
+    "chromestatus_id": 5178789386256384,
+    "web_feature": "svg",
+    "entry": "Support width and height as presentation attributes on nested <svg> elements",
+    "web_features_entry": "SVG"
+   },
+   {
+    "chromestatus_id": 5764191470223360,
+    "web_feature": "font-variant-caps",
+    "entry": "font-variant-caps",
+    "web_features_entry": "font-variant-caps"
+   },
+   {
+    "chromestatus_id": 5213032857731072,
+    "web_feature": "object-view-box",
+    "entry": "CSS object-view-box",
+    "web_features_entry": "object-view-box"
+   },
+   {
+    "chromestatus_id": 5754107776204800,
+    "web_feature": "web-audio",
+    "entry": "WebAudio: Biquad filters run at a-rate",
+    "web_features_entry": "Web Audio"
+   },
+   {
+    "chromestatus_id": 5193188445257728,
+    "web_feature": "ic",
+    "entry": "CSS 'ic' Length Unit",
+    "web_features_entry": "ic unit"
+   },
+   {
+    "chromestatus_id": 5511036157296640,
+    "web_feature": "payment-request",
+    "entry": "HTMLIFrameElement.allowpaymentrequest",
+    "web_features_entry": "Payment request"
+   },
+   {
+    "chromestatus_id": 5766218384408576,
+    "web_feature": "presentation-api",
+    "entry": "Deprecate and remove Presentation API on insecure contexts",
+    "web_features_entry": "Presentation API"
+   },
+   {
+    "chromestatus_id": 5116073827893248,
+    "web_feature": "webrtc-encoded-transform",
+    "entry": "WebRTC encoded transform -  Modify Metadata functions",
+    "web_features_entry": "WebRTC encoded transform"
+   }
+  ]
+ },
+ "webstatus_dev": {
+  "url": "https://api.webstatus.dev/v1/features?page_size=5",
+  "status": 200,
+  "total": 1228,
+  "fields": [
+   "baseline",
+   "browser_implementations",
+   "feature_id",
+   "name",
+   "spec",
+   "system_managed_saved_search_id",
+   "usage"
+  ],
+  "ids_in_web_features": 5,
+  "ids_returned": 5
+ },
+ "not_reachable_from_this_session": {
+  "https://api.github.com/repos/web-platform-dx/web-features/releases/latest": 403,
+  "https://github.com/mdn/browser-compat-data/releases/latest": 403
+ },
+ "joins": {
+  "bcd_compat_key": {
+   "declared_pairs": 16034,
+   "distinct_keys_declared": 15980,
+   "resolved_in_bcd": 15980,
+   "unresolved_sample": [],
+   "features_with_keys": 1208,
+   "features_with_every_key_resolved": 1208,
+   "bcd_keys_total": 20968,
+   "bcd_keys_claimed_by_a_feature": 15980,
+   "reverse_bcd_tag": {
+    "tagged_keys": 16124,
+    "tag_pairs": 16132,
+    "tag_resolves_to_feature": 16132,
+    "unresolved_tag_ids": [],
+    "unresolved_tags_that_are_moved_or_split_entries": 0,
+    "feature_lists_the_same_key": 15946
+   },
+   "web_features_version": "3.46.0",
+   "bcd_version": "8.1.9"
+  },
+  "caniuse_feature_id": {
+   "declared_pairs": 353,
+   "distinct_ids_declared": 353,
+   "resolved_in_caniuse": 353,
+   "unresolved": [],
+   "features_with_caniuse": 339,
+   "caniuse_features_total": 554,
+   "caniuse_features_claimed": 353,
+   "caniuse_ids_claimed_by_more_than_one_feature": 0
+  },
+  "specification_url": {
+   "web_features": {
+    "distinct_urls": 494,
+    "resolved": 460,
+    "distinct_specs_hit": 398,
+    "unresolved_hosts": {
+     "github.com": 24,
+     "www.w3.org": 4,
+     "wicg.github.io": 2,
+     "immersive-web.github.io": 1,
+     "jpeg.org": 1,
+     "open-ui.org": 1,
+     "w3c.github.io": 1
+    },
+    "unresolved_sample": [
+     "https://github.com/microsoftedge/msedgeexplainers/blob/main/documentsubtitle/explainer.md",
+     "https://github.com/microsoftedge/msedgeexplainers/blob/main/opaquerange/explainer.md",
+     "https://github.com/tc39/proposal-import-attributes/tree/abca60286360b47f9a6be25a28f489c2cb157beb",
+     "https://github.com/tc39/proposal-regexp-legacy-features",
+     "https://github.com/w3c/manifest/pull/1175",
+     "https://github.com/webassembly/exception-handling/blob/main/proposals/exception-handling/exceptions.md",
+     "https://github.com/webassembly/exception-handling/blob/main/proposals/exception-handling/legacy/exceptions.md",
+     "https://github.com/webassembly/js-string-builtins/blob/main/proposals/js-string-builtins/overview.md",
+     "https://github.com/webassembly/multi-memory/blob/main/proposals/multi-memory/overview.md",
+     "https://github.com/webassembly/relaxed-simd/blob/main/proposals/relaxed-simd/overview.md"
+    ],
+    "features_with_spec": 1228,
+    "features_with_every_spec_resolved": 1195
+   },
+   "caniuse": {
+    "distinct_urls": 344,
+    "resolved": 215,
+    "distinct_specs_hit": 161,
+    "unresolved_hosts": {
+     "www.w3.org": 55,
+     "tools.ietf.org": 11,
+     "w3c.github.io": 9,
+     "wicg.github.io": 8,
+     "github.com": 4,
+     "www.itu.int": 3,
+     "developer.apple.com": 2,
+     "drafts.fxtf.org": 2
+    },
+    "unresolved_sample": [
+     "https://asmjs.org/spec/latest",
+     "https://datatracker.ietf.org/doc/rfc9114",
+     "https://developer.apple.com/fonts/truetype-reference-manual",
+     "https://developer.apple.com/library/archive/documentation/appleapplications/reference/safaricssref/articles/standardcssproperties.html",
+     "https://developer.mozilla.org/en-us/docs/web/api/element/scrollintoviewifneeded",
+     "https://developers.google.com/speed/webp",
+     "https://docs.google.com/viewer?a=v&pid=forums&srcid=mdiwotgxndmwmtgymjkzmti2odcbmdq2mzu5ndu2mda0mtg5nde1mtkbtdzmaenosg9bz0fkataumqebdji",
+     "https://docs.microsoft.com/en-us/typography/opentype/spec/colr",
+     "https://drafts.fxtf.org/filter-effects-2",
+     "https://drafts.fxtf.org/geometry"
+    ],
+    "features_with_spec": 554,
+    "features_resolved": 355
+   },
+   "bcd": {
+    "distinct_urls": 620,
+    "resolved": 608,
+    "distinct_specs_hit": 465,
+    "unresolved_hosts": {
+     "github.com": 5,
+     "developers.google.com": 2,
+     "jpeg.org": 1,
+     "wicg.github.io": 1,
+     "www.adobe.com": 1,
+     "www.iso.org": 1,
+     "www.w3.org": 1
+    },
+    "unresolved_sample": [
+     "https://developers.google.com/speed/webp/docs/riff_container",
+     "https://developers.google.com/speed/webp/docs/webp_lossless_bitstream_specification",
+     "https://github.com/tc39/proposal-error-capturestacktrace?tab=readme-ov-file",
+     "https://github.com/tc39/proposal-regexp-legacy-features",
+     "https://github.com/webassembly/compact-import-section/blob/main/proposals/compact-import-section/overview.md",
+     "https://github.com/webassembly/threads/blob/main/proposals/threads/overview.md",
+     "https://github.com/webassembly/wide-arithmetic/blob/main/proposals/wide-arithmetic/overview.md",
+     "https://jpeg.org/jpeg",
+     "https://wicg.github.io/controls-list",
+     "https://www.adobe.com/devnet-apps/photoshop/fileformatashtml"
+    ]
+   }
+  },
+  "mdn_page": {
+   "sampled": 40,
+   "page_fetched": 40,
+   "page_browserCompat_contains_the_key": 40,
+   "page_carries_a_baseline_feature_id": 39,
+   "baseline_feature_id_resolves_in_web_features": 39,
+   "baseline_feature_id_is_the_declaring_feature": 39
+  },
+  "chromestatus_web_feature": {
+   "entries_total": 3600,
+   "entries_with_id": 2058,
+   "resolved_to_feature": 2031,
+   "resolved_to_moved_or_split_entry": 3,
+   "unresolved": 24,
+   "unresolved_ids_sample": [
+    "3755",
+    "4217",
+    "CSSPseudoElement",
+    "Font-face-set",
+    "LanguageModel",
+    "None",
+    "SanitizerAPI",
+    "accentcolor",
+    "api.KeyframeEffect.iterationComposite",
+    "bytes-modules",
+    "css.properties.text-indent.hanging",
+    "https://github.com/web-platform-dx/web-features/issues/4203",
+    "https://github.com/web-platform-dx/web-features/issues/4282",
+    "https://github.com/web-platform-dx/web-features/issues/4292",
+    "kDRAFT_CrashReportStorageAPIInitialize"
+   ],
+   "distinct_features_hit": 729,
+   "features_total": 1228,
+   "spec_link_to_browser_specs": {
+    "distinct_urls": 1493,
+    "resolved": 580,
+    "distinct_specs_hit": 387,
+    "unresolved_hosts": {
+     "github.com": 482,
+     "wicg.github.io": 48,
+     "dev.w3.org": 40,
+     "tools.ietf.org": 38,
+     "www.w3.org": 34,
+     "w3c.github.io": 32,
+     "tc39.github.io": 24,
+     "dvcs.w3.org": 20
+    },
+    "unresolved_sample": [
+     "https:// https://github.com/tc39/ecma262/pull/1506/files, https://github.com/tc39/proposal-promise-allsettled/pull/40/files",
+     "https://alvestrand.github.io/mediacapture-transform",
+     "https://alvestrand.github.io/webrtc-framelog",
+     "https://amarjotgill.github.io/origin-bound-cookies/draft-amarjotgill-origin-bound-cookies-protocol.html",
+     "https://aomedia.org/av1-bitstream-and-decoding-process-specification",
+     "https://aomediacodec.github.io/iamf/latest-approved.html",
+     "https://arai-a.github.io/ecma262-compare/?pr=2417",
+     "https://arai-a.github.io/ecma262-compare/?pr=3492",
+     "https://arxiv.org/pdf/1908.03565.pdf",
+     "https://asmjs.org/spec/latest"
+    ]
+   }
+  },
+  "caniuse_title_candidate": {
+   "caniuse_features": 554,
+   "title_matches_a_feature": 182,
+   "pairs": 192,
+   "pairs_equal_to_a_declared_link": 157,
+   "pairs_where_caniuse_id_is_declared_for_another_feature": 13,
+   "pairs_with_no_declared_link_for_that_caniuse_id": 22,
+   "caniuse_features_not_claimed_by_any_feature": 201,
+   "handcheck_pairs": [
+    {
+     "caniuse_id": "canvas",
+     "caniuse_title": "Canvas (basic support)",
+     "caniuse_description": "Method of generating fast, dynamic graphics using JavaScript.",
+     "caniuse_spec": "https://html.spec.whatwg.org/multipage/scripting.html#the-canvas-element",
+     "caniuse_first_chrome": "4",
+     "web_features_id": "canvas",
+     "web_features_entry": "<canvas>",
+     "web_features_description": "The <canvas> HTML element is a space to draw graphics in, using the 2D canvas API, WebGL, or WebGPU.",
+     "web_features_spec": [
+      "https://html.spec.whatwg.org/multipage/canvas.html#canvas"
+     ],
+     "web_features_chrome": "1",
+     "declared_link_exists": false
+    },
+    {
+     "caniuse_id": "channel-messaging",
+     "caniuse_title": "Channel messaging",
+     "caniuse_description": "Method for having two-way communication between browsing contexts (using MessageChannel)",
+     "caniuse_spec": "https://html.spec.whatwg.org/multipage/comms.html#channel-messaging",
+     "caniuse_first_chrome": "4",
+     "web_features_id": "channel-messaging",
+     "web_features_entry": "Channel messaging",
+     "web_features_description": "Channel messaging communicates one-to-one between browsing contexts on the same origin, such as between <iframe> elements or two documents using a shared worker.",
+     "web_features_spec": [
+      "https://html.spec.whatwg.org/multipage/web-messaging.html#channel-messaging"
+     ],
+     "web_features_chrome": "4",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "webnfc",
+     "caniuse_title": "Web NFC",
+     "caniuse_description": "This API allows a website to communicate with NFC tags through a device's NFC reader.",
+     "caniuse_spec": "https://w3c.github.io/web-nfc/",
+     "caniuse_first_chrome": null,
+     "web_features_id": "web-nfc",
+     "web_features_entry": "Web NFC",
+     "web_features_description": "The NDEFReader API reads and writes messages to near-field communication (NFC) tags.",
+     "web_features_spec": [
+      "https://w3c-cg.github.io/web-nfc/"
+     ],
+     "web_features_chrome": null,
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "css-text-orientation",
+     "caniuse_title": "CSS text-orientation",
+     "caniuse_description": "The CSS `text-orientation` property specifies the orientation of text within a line. Current values only have an effect in vertical typographic modes (defined with the `writing-mode` property)",
+     "caniuse_spec": "https://w3c.github.io/csswg-drafts/css-writing-modes-3/#text-orientation",
+     "caniuse_first_chrome": "48",
+     "web_features_id": "text-orientation",
+     "web_features_entry": "text-orientation",
+     "web_features_description": "The text-orientation CSS property sets the how text is typeset within a line when the writing mode is vertical.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-writing-modes-4/#text-orientation"
+     ],
+     "web_features_chrome": "48",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "dialog",
+     "caniuse_title": "Dialog element",
+     "caniuse_description": "Method of easily creating custom dialog boxes to display to the user with modal or non-modal options. Also includes a `::backdrop` pseudo-element for behind the element.",
+     "caniuse_spec": "https://html.spec.whatwg.org/multipage/forms.html#the-dialog-element",
+     "caniuse_first_chrome": "37",
+     "web_features_id": "dialog",
+     "web_features_entry": "<dialog>",
+     "web_features_description": "The <dialog> HTML element represents a modal or non-modal dialog box, such as a confirmation prompt or a subwindow used to enter data.",
+     "web_features_spec": [
+      "https://html.spec.whatwg.org/multipage/interactive-elements.html#the-dialog-element"
+     ],
+     "web_features_chrome": "37",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "serviceworkers",
+     "caniuse_title": "Service Workers",
+     "caniuse_description": "Method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.",
+     "caniuse_spec": "https://w3c.github.io/ServiceWorker/",
+     "caniuse_first_chrome": "45",
+     "web_features_id": "service-workers",
+     "web_features_entry": "Service workers",
+     "web_features_description": "The service worker of a website is a script that runs in its own thread and which acts as local proxy that intercepts network requests from the website. Use a service worker to implement advanced caching strategies, offl",
+     "web_features_spec": [
+      "https://w3c.github.io/ServiceWorker/"
+     ],
+     "web_features_chrome": "45",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "viewport-unit-variants",
+     "caniuse_title": "Small, Large, and Dynamic viewport units",
+     "caniuse_description": "Viewport units similar to `vw` and `vh` that are based on shown or hidden browser UI states to address shortcomings of the original units. Currently defined as the `sv*` units (`svb`, `svh`, `svi`, `svmax`, `svmin`, `svw",
+     "caniuse_spec": "https://www.w3.org/TR/css-values-4/#viewport-variants",
+     "caniuse_first_chrome": "108",
+     "web_features_id": "viewport-unit-variants",
+     "web_features_entry": "Small, large, and dynamic viewport units",
+     "web_features_description": "The sv*, lv*, and dv* CSS viewport units are relative to the smallest, largest, and current (dynamic) viewport size. They are used to size elements in relation to the viewport's dimensions.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-values-4/#viewport-variants",
+      "https://drafts.csswg.org/css-values-4/#viewport-relative-lengths"
+     ],
+     "web_features_chrome": "108",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "font-feature",
+     "caniuse_title": "CSS font-feature-settings",
+     "caniuse_description": "Method of applying advanced typographic and language-specific font features to supported OpenType fonts.",
+     "caniuse_spec": "https://w3.org/TR/css3-fonts/#font-rend-props",
+     "caniuse_first_chrome": "21",
+     "web_features_id": "font-feature-settings",
+     "web_features_entry": "font-feature-settings",
+     "web_features_description": "The font-feature-settings CSS property sets low-level OpenType feature tags for a font. When possible, use font-variant instead.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-fonts-4/#font-feature-settings-prop"
+     ],
+     "web_features_chrome": "48",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "touch",
+     "caniuse_title": "Touch events",
+     "caniuse_description": "Method of registering when, where and how the interface is touched, for devices with a touch screen. These DOM events are similar to mousedown, mousemove, etc.",
+     "caniuse_spec": "https://www.w3.org/TR/touch-events/",
+     "caniuse_first_chrome": "22",
+     "web_features_id": "touch-events",
+     "web_features_entry": "Touch events",
+     "web_features_description": "Touch events touchstart, touchmove, touchend, and touchcancel fire when users interact with a touch-sensitive surface, such as a screen or drawing tablet. These events are similar to mouse events.",
+     "web_features_spec": [
+      "https://w3c.github.io/touch-events/"
+     ],
+     "web_features_chrome": "22",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "vibration",
+     "caniuse_title": "Vibration API",
+     "caniuse_description": "Method to access the vibration mechanism of the hosting device.",
+     "caniuse_spec": "https://www.w3.org/TR/vibration/",
+     "caniuse_first_chrome": "30",
+     "web_features_id": "vibration",
+     "web_features_entry": "Vibration",
+     "web_features_description": "The navigator.vibrate() method makes a tactile alert, if the device is equipped with a haptic motor.",
+     "web_features_spec": [
+      "https://w3c.github.io/vibration/"
+     ],
+     "web_features_chrome": "32",
+     "declared_link_exists": false
+    },
+    {
+     "caniuse_id": "css-element-function",
+     "caniuse_title": "CSS element() function",
+     "caniuse_description": "This function renders a live image generated from an arbitrary HTML element",
+     "caniuse_spec": "https://www.w3.org/TR/css4-images/#element-notation",
+     "caniuse_first_chrome": null,
+     "web_features_id": "function",
+     "web_features_entry": "@function",
+     "web_features_description": "The @function CSS at-rule defines a custom function that takes CSS values or custom properties as arguments, and returns a CSS value. It can be based on conditional logic such as by using the @media at-rule.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-mixins-1/#function-rule"
+     ],
+     "web_features_chrome": "139",
+     "declared_link_exists": false
+    },
+    {
+     "caniuse_id": "font-variant-numeric",
+     "caniuse_title": "CSS font-variant-numeric",
+     "caniuse_description": "CSS property that provides different ways of displaying numbers, fractions, and ordinal markers.",
+     "caniuse_spec": "https://w3c.github.io/csswg-drafts/css-fonts-3/#propdef-font-variant-numeric",
+     "caniuse_first_chrome": "52",
+     "web_features_id": "font-variant-numeric",
+     "web_features_entry": "font-variant-numeric",
+     "web_features_description": "The font-variant-numeric CSS property sets how numeric characters are displayed. For example, you can align columns of numbers or use zeroes that have a slash.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-fonts-4/#font-variant-numeric-prop"
+     ],
+     "web_features_chrome": "52",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "wordwrap",
+     "caniuse_title": "CSS3 Overflow-wrap",
+     "caniuse_description": "Allows lines to be broken within words if an otherwise unbreakable string is too long to fit. Currently mostly supported using the `word-wrap` property.",
+     "caniuse_spec": "https://www.w3.org/TR/css3-text/#overflow-wrap",
+     "caniuse_first_chrome": "23",
+     "web_features_id": "overflow-wrap",
+     "web_features_entry": "overflow-wrap",
+     "web_features_description": "The overflow-wrap CSS property breaks a line of text onto multiple lines inside the targeted element in an otherwise unbreakable place to prevent overflow. The legacy property is word-wrap.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-text-4/#overflow-wrap-property"
+     ],
+     "web_features_chrome": "23",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "css-supports-api",
+     "caniuse_title": "CSS.supports() API",
+     "caniuse_description": "The CSS.supports() static method returns a Boolean value indicating if the browser supports a given CSS feature, or not.",
+     "caniuse_spec": "https://w3c.github.io/csswg-drafts/css-conditional/#the-css-interface",
+     "caniuse_first_chrome": "61",
+     "web_features_id": "supports",
+     "web_features_entry": "@supports",
+     "web_features_description": "The @supports at-rule applies styles based on a browser's support for CSS features, such as a CSS property and value. Also known as feature queries.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-conditional-3/#at-supports"
+     ],
+     "web_features_chrome": "28",
+     "declared_link_exists": false
+    },
+    {
+     "caniuse_id": "web-serial",
+     "caniuse_title": "Web Serial API",
+     "caniuse_description": "Allows communication with devices via a serial interface.",
+     "caniuse_spec": "https://wicg.github.io/serial/",
+     "caniuse_first_chrome": "89",
+     "web_features_id": "serial",
+     "web_features_entry": "Web serial",
+     "web_features_description": "The navigator.serial API communicates with devices over serial ports, such as microcontrollers.",
+     "web_features_spec": [
+      "https://serial.spec.whatwg.org/"
+     ],
+     "web_features_chrome": "89",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "declarative-shadow-dom",
+     "caniuse_title": "Declarative Shadow DOM",
+     "caniuse_description": "Proposal to allow rendering elements with shadow dom (aka web components) using server-side rendering.",
+     "caniuse_spec": "https://html.spec.whatwg.org/multipage/scripting.html#attr-template-shadowrootmode",
+     "caniuse_first_chrome": "111",
+     "web_features_id": "declarative-shadow-dom",
+     "web_features_entry": "Declarative shadow DOM",
+     "web_features_description": "The shadowrootmode attribute on <template> creates a shadow root without the use of JavaScript. It is a declarative alternative to the attachShadow() method.",
+     "web_features_spec": [
+      "https://html.spec.whatwg.org/multipage/scripting.html#attr-template-shadowrootmode"
+     ],
+     "web_features_chrome": "111",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "svg-filters",
+     "caniuse_title": "SVG filters",
+     "caniuse_description": "Method of using Photoshop-like effects on SVG objects including blurring and color manipulation.",
+     "caniuse_spec": "https://www.w3.org/TR/SVG11/filters.html",
+     "caniuse_first_chrome": "8",
+     "web_features_id": "svg-filters",
+     "web_features_entry": "SVG filters",
+     "web_features_description": "The <filter> SVG element applies custom effects such as color manipulation, blurring, or morphing to SVG elements.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/filter-effects-1/"
+     ],
+     "web_features_chrome": "5",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "css-boxdecorationbreak",
+     "caniuse_title": "CSS box-decoration-break",
+     "caniuse_description": "Controls whether the box's margins, borders, padding, and other decorations wrap the broken edges of the box fragments (when the box is split by a break (page/column/region/line).",
+     "caniuse_spec": "https://www.w3.org/TR/css3-break/#break-decoration",
+     "caniuse_first_chrome": "130",
+     "web_features_id": "box-decoration-break",
+     "web_features_entry": "box-decoration-break",
+     "web_features_description": "The box-decoration-break CSS property sets whether box decorations, such as borders or backgrounds, of an element divided across a page, column, or region wraps each fragment or splits across the break.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-break-4/#break-decoration"
+     ],
+     "web_features_chrome": "130",
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "webvr",
+     "caniuse_title": "WebVR API",
+     "caniuse_description": "API for accessing virtual reality (VR) devices, including sensors and head-mounted displays. Replaced by the [WebXR Device API](/webxr).",
+     "caniuse_spec": "https://w3c.github.io/webvr/",
+     "caniuse_first_chrome": null,
+     "web_features_id": "webvr",
+     "web_features_entry": "WebVR",
+     "web_features_description": "The navigator.getVRDisplays() API represents virtual reality (VR) devices, including sensors and head-mounted displays.",
+     "web_features_spec": [
+      "https://immersive-web.github.io/webvr/spec/1.1/"
+     ],
+     "web_features_chrome": null,
+     "declared_link_exists": true
+    },
+    {
+     "caniuse_id": "css-letter-spacing",
+     "caniuse_title": "letter-spacing CSS property",
+     "caniuse_description": "Controls spacing between characters of text (i.e. \"tracking\" in typographical terms). Not to be confused with kerning.",
+     "caniuse_spec": "https://www.w3.org/TR/CSS2/text.html#propdef-letter-spacing",
+     "caniuse_first_chrome": "30",
+     "web_features_id": "letter-spacing",
+     "web_features_entry": "letter-spacing",
+     "web_features_description": "The letter-spacing CSS property controls the amount of space between each letter in an element or block of text.",
+     "web_features_spec": [
+      "https://drafts.csswg.org/css-text-4/#letter-spacing-property"
+     ],
+     "web_features_chrome": "1",
+     "declared_link_exists": true
+    }
+   ]
+  }
+ },
+ "http_non_200": {
+  "https://api.github.com/repos/web-platform-dx/web-features/releases/latest": 403,
+  "https://github.com/mdn/browser-compat-data/releases/latest": 403
+ },
+ "requests": 98
+}

@@ -11552,6 +11552,113 @@ candidates:
         quote: "may be copied, printed and downloaded for private study, research and teaching purposes, and for use in non-commercial products or services"
     next_action: 'PARKED (RED): measured 2026-11-16, the pesticide index lists 240 pesticides with Codex numbers and per-pesticide HTML tables (boscalid: commodity, MRL mg/kg, adoption year, symbols, notes; no CAS number), but the FAO terms that govern codex.fao.org limit web content to non-commercial use. Ask FAO/Codex for commercial reuse terms or find the CXL list in a licensed publication before using it.'
 
+  - key: webf-webdx-web-features
+    name: "web-features: the WebDX Community Group catalogue of web platform features with Baseline status, per-browser first-supporting versions, specification links and declared BCD and caniuse ids (data.json)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: W3C WebDX Community Group (web-platform-dx/web-features)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://unpkg.com/web-features/data.json', 'https://unpkg.com/web-features/LICENSE.txt', 'https://registry.npmjs.org/web-features' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    terms:
+      - url: https://unpkg.com/web-features/LICENSE.txt
+        quote: "each Contributor hereby grants to You a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare Derivative Works of, publicly display, publicly perform, sublicense, and distribute the Work and such Derivative Works in Source or Object form."
+    conditions:
+      - "Apache License 2.0: give recipients a copy of the licence, keep the copyright and attribution notices, and state that the data was changed where it was."
+      - "Follow `moved` and `split` entries (10 and 2 measured) to their targets instead of serving them as features."
+      - "Baseline dates and support versions are derived by web-features from BCD; keep the BCD version next to each release so the two stay reproducible."
+    next_action: 'Measured 2026-11-18: data.json (web-features 3.46.0, published 2026-11-12; 47 stable npm releases in the last 365 days) holds 1,240 entries: 1,228 features (655 Baseline widely available, 123 newly available, 450 limited availability), 10 moved and 2 split, in 106 groups with 11 snapshots; every feature has a description and a specification URL, 1,208 list BCD compat keys (16,034 declared pairs) and 339 list caniuse ids (353 pairs). The GitHub API and release HTML pages return 403 from this session (repository access not enabled), so release dates come from the npm registry. Next: archive each release to R2 and diff Baseline status between releases for the change history.'
+  - key: webf-mdn-browser-compat-data
+    name: "MDN browser-compat-data (BCD): per-feature browser support by version for web APIs, CSS, HTML, HTTP, JavaScript, SVG, WebAssembly, WebDriver and WebExtensions (release data.json)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: MDN browser-compat-data project (Mozilla and Open Web Docs)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://github.com/mdn/browser-compat-data/releases/latest/download/data.json', 'https://bcd.developer.mozilla.org/bcd/api/v0/current/css.properties.grid.json' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/mdn/browser-compat-data/main/LICENSE
+        quote: "Affirmer hereby overtly, fully, permanently, irrevocably and unconditionally waives, abandons, and surrenders all of Affirmer's Copyright and Related Rights and associated claims and causes of action"
+    next_action: 'Measured 2026-11-18: the release asset (version 8.1.9, built 2026-11-12; 52 stable npm releases in the last 365 days) holds 20,968 compat keys (api 10,325; css 4,317; webextensions 2,103; javascript 1,402; html 845; webdriver 550; svg 471; http 421; webassembly 342; mathml 137; manifests 38; mediatypes 17) over 17 browsers; 12,621 keys name an MDN page, 17,625 a specification URL and 16,124 carry a `web-features:<id>` tag. The per-key API on bcd.developer.mozilla.org answered 200 for css.properties.grid with a 2026-11-18 build timestamp. Next: archive each release to R2, flatten support statements (version_added, flags, partial implementation, notes) into typed rows and keep release-to-release diffs.'
+  - key: webf-caniuse-support-tables
+    name: "caniuse support tables (data-2.0.json: feature descriptions, specification status, per-browser-version support with notes and usage share)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: caniuse.com project (Fyrd/caniuse repository)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/Fyrd/caniuse/main/fulldata-json/data-2.0.json', 'https://caniuse.com/data.json', 'https://raw.githubusercontent.com/Fyrd/caniuse/main/README.md' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/Fyrd/caniuse/main/README.md
+        quote: "The data in this repo is available for use under a CC BY 4.0 license (https://creativecommons.org/licenses/by/4.0/). For attribution just mention somewhere that the source is caniuse.com."
+    conditions:
+      - "CC BY 4.0: credit caniuse.com as the source on every surface that serves its support data or notes, and indicate changes."
+      - "The LICENSE file carries a personal copyright line; attribute to caniuse.com as the README asks and keep the individual out of published fields."
+      - "Support codes carry flags (partial, prefixed, behind a flag, numbered notes); keep them as typed flags and keep the note text with its number."
+    next_action: 'Measured 2026-11-18: data-2.0.json in the repository (updated 2026-11-11) holds 554 features over 19 browser agents, all with a description and a specification URL (status: 127 working draft, 126 living standard, 94 candidate recommendation, 79 other, 66 recommendation, 62 unofficial), 375 with numbered notes; caniuse.com/data.json answered 200 with the same 554 ids and an update stamp of 2026-11-18. Next: archive daily, parse the support codes into typed rows and reconcile each feature with BCD through the web-features link.'
+  - key: webf-w3c-browser-specs
+    name: "W3C browser-specs: curated index of web browser specifications (index.json: URL, shortname, series, organisation, standing, release and nightly versions)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: World Wide Web Consortium
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://w3c.github.io/browser-specs/index.json' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/w3c/browser-specs/main/LICENSE.md
+        quote: "Additionally, the list of technical Web specifications (the [index.json](index.json) file) is published under the terms of the [CC0 license](#cc0-license)."
+    next_action: 'Measured 2026-11-18: index.json holds 833 specifications in 739 series (W3C 612, Khronos Group 61, Ecma International 57, IETF 55, WHATWG 27), standing good 757 / discontinued 69 / pending 7, 432 with a published release version and 402 with a test suite reference; 2,122 distinct URLs (canonical, nightly, release, alternate and multipage) identify them. The newest stable npm release is 5.3.0 (2026-06-19); the date of the w3c.github.io copy was not measured. This is a different feed from the existing standards-w3c-specifications candidate (api.w3.org), which was not re-probed. Next: archive daily, and use it as the specification dimension (organisation, standing, maturity) for every feature.'
+  - key: webf-mdn-content-prose
+    name: "MDN Web Docs reference pages (prose descriptions, syntax, examples and notes per web feature, with the page's BCD compat keys and Baseline feature id)"
+    category: software
+    structuring: identifier-extraction
+    format: free-text
+    publisher: MDN Web Docs (Mozilla)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/grid/index.json', 'https://developer.mozilla.org/sitemaps/en-us/sitemap.xml.gz', 'https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Attrib_copyright_license' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/mdn/content/main/LICENSE.md
+        quote: "All prose content is available under ([CC-BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/))."
+      - url: https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Attrib_copyright_license
+        quote: "Unless otherwise indicated, the content is available under the terms of the Creative Commons Attribution-ShareAlike license (CC-BY-SA), v2.5 or any later version."
+    conditions:
+      - "CC BY-SA 2.5: attribute MDN contributors with a link to the page, and license any adapted prose under the same or a later CC BY-SA version. Serve MDN-derived text only in a separately labelled field or export under CC BY-SA, never blended into fields offered under our own terms; until that separation is built, publish the page URL, modified date and declared ids only."
+      - "Facts extracted from the prose (a flag, a version, a limitation) must cite the page and section they came from."
+      - "Code samples are CC0 and logos or trademarks are excluded from the licence; keep those three classes apart."
+      - "Fetch at a polite rate from developer.mozilla.org or take the mdn/content repository archive; do not crawl all 12,355 pages per day."
+    next_action: 'Measured 2026-11-18: the en-US sitemap lists 14,890 URLs, 12,355 under /docs/Web/ (newest lastmod 2026-11-17); 10,878 BCD keys that web-features declares name an MDN page. Of 40 seeded sample pages fetched as <page>/index.json, 40 answered 200 with prose (median 1,084 characters, minimum 257), 40 list the sampled BCD key in `browserCompat` and 39 carry a Baseline feature id equal to the web-features feature that declares the key (newest page modification in the sample 2026-11-10). Next: measure prose extraction (limitations, secure-context and permission requirements, deprecation notes) on a larger sample and decide the share-alike field design in the rights record.'
+  - key: webf-chrome-platform-status
+    name: "Chrome Platform Status feature entries (chromestatus.com API: summary and motivation prose, shipping milestones, specification link, declared web-features id)"
+    category: software
+    structuring: event-extraction
+    format: structured
+    publisher: Google Chrome (Chrome Platform Status, chromestatus.com)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://chromestatus.com/api/v0/features?num=100&start=0', 'https://chromestatus.com/robots.txt', 'https://chromestatus.com/roadmap' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    conditions:
+      - "Terms unread: chromestatus.com serves a script-rendered application shell with no terms or licence wording in the HTML (ADR-0018 free public access: no login, key or CAPTCHA; robots.txt disallows only /admin/ and /data/). Read and quote the site terms before RIGHTS_DETERMINED."
+      - "Every entry carries e-mail address fields (creator, updater, owners, editors, cc, spec mentors; 3,600 of 3,600 entries measured): exclude all of them and any natural-person field from storage and publication."
+      - "The `web_feature` field is hand-entered: 24 of 2,058 values did not resolve (issue URLs, BCD keys, free strings), so accept only values that equal a web-features id and send the rest to review."
+      - "Each response starts with an anti-XSSI line that must be stripped; page at 100 entries with a pause between requests."
+    next_action: 'Measured 2026-11-18: the API returned all 3,600 entries in 36 pages of 100 (newest update 2026-11-18); all 3,600 have summary prose and 2,986 a specification link; the web_feature field is a web-features id in 2,058 entries, "Missing feature" in 161 and empty or null in 1,381. Next: read the site terms, and extract Chrome shipping milestones and intent stages per web-features id as the forward-looking (not yet shipped) signal.'
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -15219,3 +15326,54 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 4, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
     evidence: [ docs/sources/pipeline/research-2026-11-16.md, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.py, docs/sources/pipeline/evidence/2026-11-16/mrl_measure.json, docs/sources/pipeline/evidence/2026-11-16/mrl_handcheck.json ]
     next_action: 'Archive the four sources to R2 daily; build a reviewed substance crosswalk (EU pest_res_id, CFR section, PMRA ingredient with CAS, FSANZ agvet chemical) seeded from the declared CAS links and the name candidates; map commodities to EU Annex I product codes; read the Federal Register of Legislation licence; ask FAO/Codex about commercial reuse; screen the GB MRL statutory register (HSE) and Japan positive list as further members.'
+  - key: web-platform-features
+    name: "Web platform features: Baseline status, browser support by version, specifications and documentation (web-features, MDN BCD, caniuse, W3C browser-specs, MDN prose, Chrome Platform Status)"
+    category: software
+    entity: "web platform feature (CSS property, JavaScript or web API, HTML element, HTTP header ...): web-features id -> Baseline status and dates, first supporting version per browser, BCD compat keys with per-browser support statements, caniuse support table, specification (organisation, standing, maturity), MDN prose description and Chrome shipping status"
+    stage: SCREENED
+    description: "One record per web platform feature. web-features gives 1,228 features with Baseline status (655 widely available, 123 newly available, 450 limited) and declares its counterparts by id: 15,980 BCD compat keys (all 15,980 resolve among BCD's 20,968 keys) and 353 caniuse ids (all 353 resolve among caniuse's 554 features). Its specification URLs resolve to W3C browser-specs entries (460 of 494), MDN reference pages carry the same BCD keys and the feature id next to their prose, and 2,031 Chrome Platform Status entries name a web-features id. The composite adds what no single member holds: support detail from BCD and caniuse side by side, specification standing, prose caveats and Chrome's not-yet-shipped pipeline, per feature, with the release each fact came from."
+    sources: [ webf-webdx-web-features, webf-mdn-browser-compat-data, webf-caniuse-support-tables, webf-w3c-browser-specs, webf-mdn-content-prose, webf-chrome-platform-status ]
+    join_keys:
+      - key: BCD compat key listed in a web-features compat_features array is a compat node in BCD
+        between: [ webf-webdx-web-features, webf-mdn-browser-compat-data ]
+        measured: "15,980/15,980 distinct BCD compat keys declared by web-features 3.46.0 resolve in BCD 8.1.9 (16,034 declared pairs; all 1,208 features that list keys resolve fully; 15,980 of BCD's 20,968 keys are claimed). In the other direction 16,132/16,132 `web-features:<id>` tags on BCD keys name a web-features feature, and 15,946 of those pairs are listed by that feature"
+        mode: declared
+      - key: caniuse feature id listed in a web-features caniuse array is a key of the caniuse data
+        between: [ webf-webdx-web-features, webf-caniuse-support-tables ]
+        measured: "353/353 distinct caniuse ids declared by 339 web-features features resolve in caniuse data-2.0.json; they cover 353 of caniuse's 554 features, and no caniuse id is claimed by two features"
+        mode: declared
+      - key: cited specification URL of a web-features feature (fragment dropped) is a specification in browser-specs
+        between: [ webf-webdx-web-features, webf-w3c-browser-specs ]
+        measured: "460/494 distinct specification URLs cited by web-features resolve to a browser-specs entry (398 distinct specifications; 1,195 of 1,228 features have every URL resolved; 24 of the 34 misses are github.com proposal or explainer documents)"
+        mode: declared
+      - key: cited specification URL of a caniuse feature (fragment dropped) is a specification in browser-specs
+        between: [ webf-caniuse-support-tables, webf-w3c-browser-specs ]
+        measured: "215/344 distinct specification URLs cited by caniuse resolve to a browser-specs entry (355 of 554 features; 55 of the 129 misses are older www.w3.org URLs)"
+        mode: declared
+      - key: BCD compat key in an MDN page browserCompat list is a key the web-features feature declares
+        between: [ webf-mdn-content-prose, webf-webdx-web-features ]
+        measured: "40/40 sampled MDN pages (seeded sample of the 10,878 web-features-declared BCD keys that name an MDN page) list the sampled BCD key; 39/40 also carry a Baseline feature id equal to the declaring web-features feature"
+        mode: declared
+      - key: web-features feature id in the Chrome Platform Status web_feature field is a web-features feature
+        between: [ webf-chrome-platform-status, webf-webdx-web-features ]
+        measured: "2,031/2,058 Chrome Platform Status entries that carry a web-features id resolve to a current feature (3 more point at moved or split entries, 24 do not resolve); 729 of the 1,228 features are named by at least one entry; 1,542 of the 3,600 entries carry no id"
+        mode: declared
+      - key: normalised caniuse title vs web-features name
+        between: [ webf-caniuse-support-tables, webf-webdx-web-features ]
+        measured: "182/554 caniuse features match a web-features name after normalisation (192 pairs: 157 equal a declared link, 13 contradict one, 22 concern caniuse ids with no declared link); 18/20 hand-checked pairs are the same feature"
+        mode: candidate
+        reviewed: { correct: 18, checked: 20 }
+    taxonomy:
+      - "Baseline status: widely available (high) | newly available (low) | limited availability, with the low and high dates"
+      - "feature kind from the BCD tree: api | css | html | http | javascript | svg | mathml | webassembly | webdriver | webextensions | manifests | mediatypes"
+      - "web-features group (106 groups, e.g. grid, forms) and snapshot (e.g. an ECMAScript edition)"
+      - "specification: organisation (W3C | WHATWG | Ecma International | IETF | Khronos Group ...) x standing (good | pending | discontinued) x caniuse status (rec | cr | wd | ls | unoff | other)"
+      - "support statement flags: partial implementation | prefixed | behind a flag | deprecated | experimental | standard track"
+    agent_questions:
+      - "Is CSS :has() safe to use without a fallback, since when is it Baseline, and which browser shipped it last? (measured: Baseline widely available, newly available from 2023-12-19; Chrome 105, Safari 15.4, Firefox 121)"
+      - "Which features became Baseline newly available in the last 90 days, and which Chrome Platform Status entries are about to change that list?"
+      - "For this BCD key or caniuse id, which web-features feature, specification and MDN page describe it, and do BCD and caniuse agree on the first supporting version?"
+      - "Which features defined in a discontinued or pending specification are still shipped by at least one browser?"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/webf_measure.py, docs/sources/pipeline/evidence/2026-11-18/webf_measure.json, docs/sources/pipeline/evidence/2026-11-18/webf_handcheck.json ]
+    next_action: 'Add the allow-list phrases `BCD compat key`, `caniuse feature id`, `web-features feature id` and `cited specification URL` to the declared-join test; archive each web-features, BCD and caniuse release and the browser-specs index to R2; build the per-feature record keyed by web-features id with BCD and caniuse support side by side and a disagreement flag; review the 22 title candidates for unclaimed caniuse ids; read the chromestatus.com terms; fix the share-alike field design for MDN prose in the rights record; screen WHATWG specification text (CC BY 4.0), web-platform-tests results (wpt.fyi) and Firefox and WebKit standards positions as further members.'

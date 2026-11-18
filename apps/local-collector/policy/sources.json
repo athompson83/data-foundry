@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "9bafe9e5f4c34f0f720d13f99e6cb651bc4162d90f7e5d8cb0c0a0f2a89d6200",
+  "registry_sha256": "8f1f63837f3661d681f90623b39cdfb0ccdd2e2a05e5e47a2ec4b2bf5cb3a111",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -849,6 +849,18 @@
         "mrl-ca-hc-pmra-mrl",
         "mrl-au-fsanz-schedule20"
       ]
+    },
+    "web-platform-features": {
+      "name": "Web platform features: Baseline status, browser support by version, specifications and documentation (web-features, MDN BCD, caniuse, W3C browser-specs, MDN prose, Chrome Platform Status)",
+      "stage": "SCREENED",
+      "sources": [
+        "webf-webdx-web-features",
+        "webf-mdn-browser-compat-data",
+        "webf-caniuse-support-tables",
+        "webf-w3c-browser-specs",
+        "webf-mdn-content-prose",
+        "webf-chrome-platform-status"
+      ]
     }
   },
   "sources": {
@@ -927,14 +939,13 @@
     "drug-label-facts": {
       "name": "Drug label facts (boxed warnings, contraindications, pregnancy/lactation)",
       "rights": "AMBER",
-      "stage": "EVIDENCED",
+      "stage": "RIGHTS_DETERMINED",
       "format": null,
       "publisher": null,
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "no ADR-0013 rights record in the registry evidence",
-        "stage EVIDENCED is before PROTOTYPED"
+        "stage RIGHTS_DETERMINED is before PROTOTYPED"
       ]
     },
     "sec-8k-events": {
@@ -7728,6 +7739,84 @@
       "blocked_because": [
         "rights verdict is RED",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "webf-webdx-web-features": {
+      "name": "web-features: the WebDX Community Group catalogue of web platform features with Baseline status, per-browser first-supporting versions, specification links and declared BCD and caniuse ids (data.json)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "W3C WebDX Community Group (web-platform-dx/web-features)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "webf-mdn-browser-compat-data": {
+      "name": "MDN browser-compat-data (BCD): per-feature browser support by version for web APIs, CSS, HTML, HTTP, JavaScript, SVG, WebAssembly, WebDriver and WebExtensions (release data.json)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "MDN browser-compat-data project (Mozilla and Open Web Docs)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "webf-caniuse-support-tables": {
+      "name": "caniuse support tables (data-2.0.json: feature descriptions, specification status, per-browser-version support with notes and usage share)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "caniuse.com project (Fyrd/caniuse repository)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "webf-w3c-browser-specs": {
+      "name": "W3C browser-specs: curated index of web browser specifications (index.json: URL, shortname, series, organisation, standing, release and nightly versions)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "World Wide Web Consortium",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "webf-mdn-content-prose": {
+      "name": "MDN Web Docs reference pages (prose descriptions, syntax, examples and notes per web feature, with the page's BCD compat keys and Baseline feature id)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "MDN Web Docs (Mozilla)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "webf-chrome-platform-status": {
+      "name": "Chrome Platform Status feature entries (chromestatus.com API: summary and motivation prose, shipping milestones, specification link, declared web-features id)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Google Chrome (Chrome Platform Status, chromestatus.com)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },
