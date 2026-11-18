@@ -219,7 +219,7 @@ candidates:
     name: Drug label facts (boxed warnings, contraindications, pregnancy/lactation)
     category: health
     structuring: identifier-extraction
-    stage: EVIDENCED
+    stage: RIGHTS_DETERMINED
     rights: AMBER
     sources: [ https://api.fda.gov/drug/label.json, https://dailymed.nlm.nih.gov/dailymed/services/v2/ ]
     scores:
@@ -239,14 +239,27 @@ candidates:
       - url: https://www.nlm.nih.gov/web_policies.html
         quote: "Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the
           U.S. copyright laws) requires the written permission of the copyright holders."
-    evidence: [ docs/sources/pipeline/research-2026-09-27.md ]
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27.md,
+        docs/sources/drug-label-facts-rights-record-20261118.md,
+        docs/sources/pipeline/evidence/2026-11-18/druglabel_rights.py,
+        docs/sources/pipeline/evidence/2026-11-18/druglabel_rights.json
+      ]
     conditions:
       - Sell structured facts with short evidence spans and a DailyMed set_id link; no bulk verbatim label
         text.
       - Exclude medication guides and patient package inserts (14 of 100 labels carry sponsor copyright
         notices).
       - Not for clinical decisions.
-    next_action: After clinical trials; start with a narrow boxed-warning + contraindication + pregnancy/lactation MVP.
+    next_action: >-
+      Rights record written 2026-11-18 (AMBER; openFDA terms and NLM web policies re-read live, quotes unchanged;
+      264,879 labels, 37,490 prescription, last_updated 2026-11-17; 14 of the 100 newest prescription labels carry a
+      sponsor copyright notice, 0 of them inside a section the product extracts). Next: archive the openFDA bulk
+      label files (14 partitions, about 1,788 MB zipped, export 2026-11-17) to R2. One tarball of that size is beyond
+      what the Archive source snapshot workflow has been run with, so the plan needs one object per partition
+      before it is added to tooling/snapshots/plans.json. Then prototype the boxed-warning, contraindication and
+      pregnancy/lactation extractors over all prescription labels with golden tests and coverage.json.
 
   - key: sec-8k-events
     name: SEC 8-K item-level corporate events
