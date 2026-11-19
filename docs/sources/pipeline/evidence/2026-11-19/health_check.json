@@ -1,0 +1,120 @@
+{
+ "cpsc_source": {
+  "distinct_recall_ids": 10089,
+  "newest_recall_date": "2026-11-12",
+  "oldest_recall_date": "1973-06-08",
+  "recalls_since_2026_11_01": 19,
+  "rows": 10089
+ },
+ "fda_ours": {
+  "categories": [
+   {
+    "category": "device",
+    "latest_report": "2026-11-11",
+    "recalls": 40534
+   },
+   {
+    "category": "drug",
+    "latest_report": "2026-11-11",
+    "recalls": 18164
+   },
+   {
+    "category": "food",
+    "latest_report": "2026-11-11",
+    "recalls": 29607
+   }
+  ],
+  "last_successful_sync": "2026-11-19T12:17:58.144Z",
+  "source_sync": {
+   "device": {
+    "last_successful_sync": "2026-11-19T12:17:58.144Z",
+    "status": "SUCCEEDED"
+   },
+   "drug": {
+    "last_successful_sync": "2026-11-19T12:17:54.057Z",
+    "status": "SUCCEEDED"
+   },
+   "food": {
+    "last_successful_sync": "2026-11-19T12:17:52.232Z",
+    "status": "SUCCEEDED"
+   }
+  }
+ },
+ "hc_source": {
+  "by_organization": {
+   "CFIA": 5351,
+   "Communications and Public Affairs Branch": 1814,
+   "Consumer product safety": 5238,
+   "Controlled substances and cannabis": 103,
+   "Drugs and health products": 1950,
+   "HC": 62,
+   "Marketed health products": 1162,
+   "Medical devices": 8730,
+   "TC": 9988
+  },
+  "consumer_product_newest_last_updated": "2026-11-13",
+  "consumer_product_rows": 5238,
+  "field_names": [
+   "Archived",
+   "Category",
+   "Issue",
+   "Last updated",
+   "NID",
+   "Organization",
+   "Product",
+   "Recall class",
+   "Title",
+   "URL",
+   "What you should do"
+  ],
+  "rows": 34398
+ },
+ "openfda": {
+  "device": {
+   "last_updated": "2026-11-11",
+   "newest_report_date": "20261111",
+   "total": 40535
+  },
+  "drug": {
+   "last_updated": "2026-11-11",
+   "newest_report_date": "20261111",
+   "total": 18166
+  },
+  "food": {
+   "last_updated": "2026-11-11",
+   "newest_report_date": "20261111",
+   "total": 29609
+  }
+ },
+ "product_ours": {
+  "agencies": [
+   {
+    "agency": "CPSC",
+    "latest": "2026-11-12",
+    "notices": 10089
+   },
+   {
+    "agency": "HC",
+    "latest": "2026-11-13",
+    "notices": 5238
+   }
+  ],
+  "declared_cross_agency_links": 351,
+  "last_successful_sync": {
+   "CPSC": "2026-11-19T12:17:59.222Z",
+   "HC": "2026-11-19T12:18:01.996Z"
+  },
+  "source_sync": {
+   "CPSC": {
+    "status": "SUCCEEDED",
+    "window_from": "2026-10-20"
+   },
+   "HC": {
+    "status": "SUCCEEDED",
+    "window_from": "full"
+   }
+  }
+ },
+ "requests": 7,
+ "run_date": "2026-11-19"
+}
