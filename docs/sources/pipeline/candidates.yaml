@@ -115,7 +115,9 @@ candidates:
     name: USDA FSIS meat, poultry and egg recalls
     category: product-safety
     structuring: identifier-extraction
-    stage: DISCOVERED
+    format: structured
+    publisher: USDA Food Safety and Inspection Service
+    stage: PARKED
     rights: UNKNOWN
     sources: [ https://www.fsis.usda.gov/fsis/api/recall/v/1 ]
     scores:
@@ -128,9 +130,14 @@ candidates:
         low_onboarding_cost: 4,
         poor_existing_access: 3
       }
-    evidence: [ docs/sources/pipeline/research-2026-09-27.md ]
-    next_action: Akamai 403 from this egress for the API, the RSS feed and foodsafety.gov; retry from Cloudflare
-      Worker egress.
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27.md,
+        docs/sources/pipeline/research-2026-11-20.md,
+        docs/sources/pipeline/evidence/2026-11-20/adv_measure.py,
+        docs/sources/pipeline/evidence/2026-11-20/adv_measure.json
+      ]
+    next_action: 'PARKED (unreachable; duplicate of us-fsis-recall-api-2026, which is the same API and is parked for the same reason): re-tested 2026-11-20 with the declared User-Agent, the recall API, /recalls, /policy and /robots.txt all answered HTTP 403 Akamai "Access Denied", so nothing could be counted and the terms are still unread (third failed screening after 2026-09-27 and 2026-10-03). Not a forward advance. Reopen one of the two keys, not both, when www.fsis.usda.gov answers from a Cloudflare Worker egress.'
 
   - key: clinical-trial-eligibility
     name: ClinicalTrials.gov structured eligibility criteria
@@ -2178,16 +2185,18 @@ candidates:
     name: Open Charge Map EV charging locations and pricing
     category: home-services
     structuring: normalization
-    stage: DISCOVERED
+    format: structured
+    publisher: Open Charge Map (community project; re-publishes third-party data providers under their own licences)
+    stage: SCREENED
     rights: AMBER
-    sources: [ "https://api.openchargemap.io/v3/poi" ]
+    sources: [ "https://api.openchargemap.io/v3/poi", "https://raw.githubusercontent.com/openchargemap/ocm-data/master/poi.json.gz", "https://raw.githubusercontent.com/openchargemap/ocm-export/main/data/referencedata.json", "https://raw.githubusercontent.com/openchargemap/ocm-export/main/README.md" ]
     scores:
       {
         agent_demand: 3,
         rights_clarity: 2,
-        acquisition_ease: 3,
+        acquisition_ease: 2,
         structuring_value: 4,
-        freshness: 4,
+        freshness: 2,
         low_onboarding_cost: 3,
         poor_existing_access: 2
       }
@@ -2198,17 +2207,25 @@ candidates:
       - url: https://openchargemap.org/about/terms
         quote: "Data imported from 3rd party Data Providers is copyright the original Data Provider in each case and
           is not provided under the same terms as the user-contributed data detailed above."
+      - url: https://openchargemap.org/about/terms
+        quote: "Use of our API or data in an application or service requires that the appropriate Data Provider attribution (including license terms) be provided in a way which is visible the end user."
     conditions:
       - Keep only CC BY 4.0 records or providers whose licence permits commercial redistribution; show
         per-provider attribution visible to end users.
       - Strip contributor/user identities.
+      - "Exclude the Oplaadpalen.nl records (9,503 in the 2021 snapshot; licence CC BY-NC-SA 3.0, non-commercial) and every provider with no open-data licence recorded (CarStations.com 2,858, CHAdeMO.com 1,269, ESB eCars 347, Place To Plug 282); treat 'Public Data redistributed by agreement' (Mobie.pt 183) and 'General public data' (ICAEN 65) as unlicensed until their own terms are read."
+      - "Acquire only by keyless routes (the GitHub exports); the API returns HTTP 403 without a key and the scout does not use keys. The keyless poi.json.gz snapshot is frozen at 2021-08-13 and deprecated, so nothing may be published as current from it."
+      - "Never store or publish UserComments or MediaItems (they carry contributor user names; 7,375 POIs have comments, counted only)."
+      - "The reference data in the 2021 snapshot repository labels provider 1 CC BY-SA 4.0 while the terms page and the current export say CC BY 4.0: confirm which applies to older contributions before RIGHTS_DETERMINED."
     evidence:
       [
         docs/sources/pipeline/research-2026-09-27-service-trades.md,
-        docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical
+        docs/sources/pipeline/evidence/2026-09-27-service-trades/electrical,
+        docs/sources/pipeline/research-2026-11-20.md,
+        docs/sources/pipeline/evidence/2026-11-20/adv_measure.py,
+        docs/sources/pipeline/evidence/2026-11-20/adv_measure.json
       ]
-    next_action: Register a free API key; measure record count by DataProvider licence and the free-text UsageCost
-      parse rate.
+    next_action: 'Screened 2026-11-20 without a key: the API answers HTTP 403 ("You must specify an API key"), but the keyless GitHub snapshot poi.json.gz (30,334,160 bytes) holds 133,026 charging locations in 117 countries (US 35,303, DE 25,348, GB 16,808) from 14 data providers: 65,565 Open Charge Map contributors (CC BY 4.0), 28,688 afdc.energy.gov, 11,007 Bundesnetzagentur, 9,503 Oplaadpalen.nl (CC BY-NC-SA, excluded), 5,999 data.gouv.fr, 5,392 UK NCR; 118,519 locations sit under a licence that permits commercial reuse. Free text: UsageCost is filled in 40,227 (26,226 with a digit, 11,922 with a free-of-charge word, median 17 characters) and GeneralComments in 29,991. The snapshot is stale: newest DateCreated and status update 2021-08-13, and its README says exports moved to openchargemap/ocm-export (one file per POI; its referencedata.json lists 49 providers and 968 operators), whose file listing and tarball returned HTTP 403 to this session (GitHub repository access, not a publisher gate), so the current count and cadence were not measured. Next: clone ocm-export from an egress that can reach github.com, re-count by provider licence and measure commit cadence, then measure overlap with electrical-afdc-ev-stations on the AFDC station id carried in DataProvidersReference.'
 
   - key: electrical-osm-power
     name: OpenStreetMap power infrastructure (substations, plants, lines)
@@ -3671,7 +3688,7 @@ candidates:
       {
         agent_demand: 4,
         rights_clarity: 5,
-        acquisition_ease: 2,
+        acquisition_ease: 1,
         structuring_value: 4,
         freshness: 5,
         low_onboarding_cost: 3,
@@ -3689,9 +3706,15 @@ candidates:
           facts only.,
         No implied DOL affiliation or endorsement.
       ]
-    evidence: *id004
-    next_action: Register a free DOL API key (owner blocker - an account is required), then measure licence to
-      establishment linkage on name + address.
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-09-27-composites.md,
+        docs/sources/pipeline/evidence/2026-09-27-composites/contractors,
+        docs/sources/pipeline/research-2026-11-20.md,
+        docs/sources/pipeline/evidence/2026-11-20/adv_measure.py,
+        docs/sources/pipeline/evidence/2026-11-20/adv_measure.json
+      ]
+    next_action: 'Stays DISCOVERED: re-tested 2026-11-20 and no keyless route answered, so no record could be counted. apiprod.dol.gov returns HTTP 401 without a key; the former bulk catalogue (enforcedata.dol.gov/views/data_catalogs.php) and the daily zip path on enfxfr.dol.gov both redirect to the script-rendered data.dol.gov portal (9,768-byte shell, no file); www.osha.gov (establishment search and robots.txt) answers HTTP 403 "Request blocked". The DOL copyright page was re-read and the public-domain sentence is unchanged. Owner blocker, unchanged: a free DOL Open Data Portal API key (an account is required). With it, measure inspections and violations for NAICS 2381-2382 and the licence-to-establishment linkage on name and address.'
   - key: contractors-sam-entities
     name: SAM.gov public entity registrations for trade contractors
     category: home-services

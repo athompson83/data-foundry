@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "a7632db8b3313503740a731e0651a0b070c7ea9082126ffd2b3da8d6395336b1",
+  "registry_sha256": "211d367cf5c9ae7b8e8eb5c78fa84564ceb4965858149b94463ad1e9b1e2accb",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -939,14 +939,14 @@
     "fsis-recalls": {
       "name": "USDA FSIS meat, poultry and egg recalls",
       "rights": "UNKNOWN",
-      "stage": "DISCOVERED",
-      "format": null,
-      "publisher": null,
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "USDA Food Safety and Inspection Service",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "rights verdict is UNKNOWN",
-        "stage DISCOVERED is before PROTOTYPED"
+        "stage PARKED is before PROTOTYPED"
       ]
     },
     "clinical-trial-eligibility": {
@@ -1729,14 +1729,14 @@
     "electrical-open-charge-map": {
       "name": "Open Charge Map EV charging locations and pricing",
       "rights": "AMBER",
-      "stage": "DISCOVERED",
-      "format": null,
-      "publisher": null,
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Open Charge Map (community project; re-publishes third-party data providers under their own licences)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
-        "stage DISCOVERED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "electrical-osm-power": {
