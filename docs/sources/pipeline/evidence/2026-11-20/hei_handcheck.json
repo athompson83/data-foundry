@@ -1,0 +1,192 @@
+{
+ "run_date": "2026-11-20",
+ "join": "normalised institution name and state, IPEDS HD2024 <-> ROR (US, type education), single matches that Wikidata does not already bridge",
+ "population": "43 single name+state matches with no Wikidata IPEDS-ROR bridge",
+ "sample": "20 drawn with random.Random(20261120) in hei_measure.py",
+ "method": "compared name, city and web domain of both records by hand; same institution = correct",
+ "checked": 20,
+ "correct": 20,
+ "withdrawn_ror_records_among_correct": 3,
+ "pairs": [
+  {
+   "unitid": "476799",
+   "ipeds_name": "Unitek College",
+   "ror_id": "03q832b05",
+   "ror_name": "Unitek College",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same college (same web domain; ROR lists the Fremont campus city)"
+  },
+  {
+   "unitid": "494010",
+   "ipeds_name": "Ponce Health Sciences University-St Louis",
+   "ror_id": "0056bae70",
+   "ror_name": "Ponce Health Sciences University, St. Louis",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same branch campus (ROR lists the parent's domain)"
+  },
+  {
+   "unitid": "487649",
+   "ipeds_name": "California Institute of Advanced Management",
+   "ror_id": "01xaca322",
+   "ror_name": "California Institute of Advanced Management",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "443076",
+   "ipeds_name": "Hood Theological Seminary",
+   "ror_id": "024fwqd79",
+   "ror_name": "Hood Theological Seminary",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "226107",
+   "ipeds_name": "Lamar State College-Orange",
+   "ror_id": "037tfve16",
+   "ror_name": "Lamar State College–Orange",
+   "ror_status": "withdrawn",
+   "verdict": "correct",
+   "note": "same institution; the ROR record is withdrawn"
+  },
+  {
+   "unitid": "203526",
+   "ipeds_name": "Kent State University at Geauga",
+   "ror_id": "005d5fb76",
+   "ror_name": "Kent State University Geauga",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "186399",
+   "ipeds_name": "Rutgers University-Newark",
+   "ror_id": "011vh9z64",
+   "ror_name": "Rutgers University–Newark",
+   "ror_status": "withdrawn",
+   "verdict": "correct",
+   "note": "same institution; the ROR record is withdrawn"
+  },
+  {
+   "unitid": "460543",
+   "ipeds_name": "Universal Technical Institute-Dallas Fort Worth",
+   "ror_id": "00f6qhc93",
+   "ror_name": "Universal Technical Institute Dallas-Fort Worth",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "177995",
+   "ipeds_name": "Metropolitan Community College-Kansas City",
+   "ror_id": "02bdat184",
+   "ror_name": "Metropolitan Community College - Kansas City",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "475237",
+   "ipeds_name": "The University of America",
+   "ror_id": "03s0c9350",
+   "ror_name": "University of America",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same institution (same web domain; neighbouring cities)"
+  },
+  {
+   "unitid": "492689",
+   "ipeds_name": "Texas Tech University Health Sciences Center-El Paso",
+   "ror_id": "052r2q311",
+   "ror_name": "Texas Tech University Health Sciences Center El Paso",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same institution (ROR lists the newer domain)"
+  },
+  {
+   "unitid": "485403",
+   "ipeds_name": "High Tech High Graduate School of Education",
+   "ror_id": "03jt0v447",
+   "ror_name": "High Tech High Graduate School of Education",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "199175",
+   "ipeds_name": "University of North Carolina System",
+   "ror_id": "0566a8c54",
+   "ror_name": "University of North Carolina System",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same organisation: a system office, not a campus"
+  },
+  {
+   "unitid": "488721",
+   "ipeds_name": "NationsUniversity",
+   "ror_id": "01n7ngw29",
+   "ror_name": "NationsUniversity",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "500139",
+   "ipeds_name": "Purdue University - Indianapolis",
+   "ror_id": "0482ksk80",
+   "ror_name": "Purdue University in Indianapolis",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "204006",
+   "ipeds_name": "Miami University-Hamilton",
+   "ror_id": "038tk1e03",
+   "ror_name": "Miami University Hamilton",
+   "ror_status": "withdrawn",
+   "verdict": "correct",
+   "note": "same institution; the ROR record is withdrawn"
+  },
+  {
+   "unitid": "199494",
+   "ipeds_name": "Rowan-Cabarrus Community College",
+   "ror_id": "01wm9rt41",
+   "ror_name": "Rowan-Cabarrus Community College",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same college (same web domain; ROR lists the Concord campus city)"
+  },
+  {
+   "unitid": "199467",
+   "ipeds_name": "Roanoke-Chowan Community College",
+   "ror_id": "030gep771",
+   "ror_name": "Roanoke-Chowan Community College",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "176770",
+   "ipeds_name": "Cox College",
+   "ror_id": "04p5ezw03",
+   "ror_name": "Cox College",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same name, city and web domain"
+  },
+  {
+   "unitid": "496627",
+   "ipeds_name": "California Northstate University",
+   "ror_id": "03h0d2228",
+   "ror_name": "California Northstate University",
+   "ror_status": "active",
+   "verdict": "correct",
+   "note": "same institution (ROR lists a sub-domain)"
+  }
+ ]
+}

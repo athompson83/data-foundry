@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "1ac67e5f1dee5ac4659029de549688685b0cedda901877c6b241c5566e2f2d03",
+  "registry_sha256": "d791dd6bfc2e25a237ac364bc4d892dd977151009f815bfd2ebb3c932d8a96b9",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -941,6 +941,18 @@
         "lei-uk-companies-house-basic-company-data",
         "lei-sec-edgar-company-registry",
         "lei-sec-edgar-10k-business-descriptions"
+      ]
+    },
+    "higher-education-institutions": {
+      "name": "Higher-education institutions: identifiers, sector, accreditation and registration status (IPEDS, College Scorecard, ROR, Wikidata identifier bridge, OfS Register)",
+      "stage": "SCREENED",
+      "sources": [
+        "hei-nces-ipeds-directory",
+        "hei-nces-ipeds-mission-statements",
+        "hei-ed-college-scorecard",
+        "hei-ror-registry",
+        "hei-wikidata-institution-identifiers",
+        "hei-uk-ofs-register"
       ]
     }
   },
@@ -8613,6 +8625,84 @@
       "blocked_because": [
         "rights verdict is RED",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hei-nces-ipeds-directory": {
+      "name": "NCES IPEDS institution directory and institutional characteristics (HD and IC complete data files: UNITID, OPEID, EIN, UEI, sector, level, control, Carnegie classes, location)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US National Center for Education Statistics (IPEDS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hei-nces-ipeds-mission-statements": {
+      "name": "NCES IPEDS institutional mission statements (free-text statement or its URL, table ICyyyymission in the IPEDS Access database)",
+      "rights": "AMBER",
+      "stage": "DISCOVERED",
+      "format": "free-text",
+      "publisher": "US National Center for Education Statistics (IPEDS)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage DISCOVERED is before PROTOTYPED"
+      ]
+    },
+    "hei-ed-college-scorecard": {
+      "name": "US Department of Education College Scorecard institution-level file (UNITID, OPEID, accrediting agency, 3,379 outcome and cost columns)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Department of Education (College Scorecard)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hei-ror-registry": {
+      "name": "Research Organization Registry data dump (ROR ids, names, aliases, locations, relationships, ISNI / Wikidata / Funder ID / GRID cross-references)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Research Organization Registry (ROR; California Digital Library, Crossref and DataCite)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hei-wikidata-institution-identifiers": {
+      "name": "Wikidata identifier statements for education institutions (P1771 IPEDS ID, P6782 ROR ID, P4971 UK Provider Reference Number)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Wikidata (Wikimedia Foundation)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hei-uk-ofs-register": {
+      "name": "Office for Students Register of English higher education providers (UKPRN, registration category, degree awarding powers, university title, specific conditions, deregistrations and penalties)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Office for Students (England)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },

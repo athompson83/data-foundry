@@ -12607,6 +12607,104 @@ candidates:
       - url: https://opencorporates.com/terms-of-use-2/
         quote: "We offer free access to our company data through this website to the general public (for personal use only and not for the benefit of a corporation or company)"
     next_action: 'PARKED (RED): terms read 2026-11-20; the API needs a key, free website access is for personal use only, and free keys are share-alike while commercial or proprietary use needs a paid non-share-alike key. No data was requested. Reopen only under a paid licence; the national registers it aggregates are taken from their publishers instead.'
+  - key: hei-nces-ipeds-directory
+    name: "NCES IPEDS institution directory and institutional characteristics (HD and IC complete data files: UNITID, OPEID, EIN, UEI, sector, level, control, Carnegie classes, location)"
+    category: education
+    structuring: normalization
+    format: structured
+    publisher: US National Center for Education Statistics (IPEDS)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://nces.ed.gov/ipeds/datacenter/data/HD2024.zip', 'https://nces.ed.gov/ipeds/datacenter/data/IC2024.zip', 'https://nces.ed.gov/ipeds/datacenter/DataFiles.aspx?year=2024&surveyNumber=-1' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    conditions:
+      - "Terms unread: www.ed.gov/notices and www2.ed.gov/notices/copyright answered HTTP 403 to the scout and the IPEDS pages fetched carry no reuse wording (presumed usable under ADR-0018; the files are a federal statistical release). Read and quote the Department of Education / NCES notice before RIGHTS_DETERMINED."
+      - "Never store or publish the chief administrator fields (CHFNM, CHFTITLE): they name natural persons. The general telephone number is an institution contact and is not needed."
+      - "Attribute NCES IPEDS with the collection year and release status (provisional or final); a provisional file is replaced by a final one, so keep the vintage on every fact."
+      - "UNITID identifies a reporting unit: branch campuses, system offices and closed units have their own rows, so publish the unit type and the active flag rather than calling every row a university."
+    next_action: 'Measured 2026-11-20: HD2024.zip (1,088,372 bytes, file dated 2025-09-21) holds 6,072 institutions with 72 fields: 1,980 public, 1,813 private not-for-profit, 2,257 private for-profit; 2,851 four-year, 1,499 two-year, 1,700 less than two-year; 5,994 active, 4,090 degree-granting; 6,034 with an OPEID, 5,994 with an EIN, 5,537 with a UEI, 6,001 with a web address, all with coordinates. IC2024 has 5,963 rows, all in HD. The data-file page lists 10 final and 11 provisional 2024 files. Next: read the NCES/ED reuse notice, archive HD and IC for every year back to 1980 to R2, and build the UNITID history (NEWID, DEATHYR, CLOSEDAT).'
+  - key: hei-nces-ipeds-mission-statements
+    name: "NCES IPEDS institutional mission statements (free-text statement or its URL, table ICyyyymission in the IPEDS Access database)"
+    category: education
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US National Center for Education Statistics (IPEDS)
+    stage: DISCOVERED
+    rights: AMBER
+    sources: [ 'https://nces.ed.gov/ipeds/tablefiles/zipfiles/IPEDS_2023-24_Final.zip', 'https://nces.ed.gov/ipeds/tablefiles/zipfiles/IPEDS_2024-25_Provisional.zip', 'https://nces.ed.gov/ipeds/use-the-data/download-access-database' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 4, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    conditions:
+      - "Not yet screened: the text sits only inside a Microsoft Access database (IPEDS202324.accdb, 1,002,446,848 bytes unzipped) and the scout session had no Access reader, so row counts and text coverage are not measured."
+      - "Mission statements are written by each institution and reported to NCES: treat the text as third-party prose (short evidence spans and a link, no bulk verbatim republication) until the NCES/ED reuse notice has been read."
+    next_action: 'Seen 2026-11-20: IPEDS_2023-24_Final.zip (94,499,516 bytes, last modified 2026-03-02) and IPEDS_2024-25_Provisional.zip (67,487,516 bytes) answer 200; the table documentation workbook names table IC2023mission with a mission statement field (entered text is limited to 2,000 characters) and a mission statement URL field. Next: read the table with an Access reader (mdbtools) in CI, measure how many of the 6,072 units carry text or a URL and the text length, then move to SCREENED.'
+  - key: hei-ed-college-scorecard
+    name: "US Department of Education College Scorecard institution-level file (UNITID, OPEID, accrediting agency, 3,379 outcome and cost columns)"
+    category: education
+    structuring: normalization
+    format: structured
+    publisher: US Department of Education (College Scorecard)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://collegescorecard.ed.gov/data/', 'https://ed-public-download.scorecard.network/downloads/Most-Recent-Cohorts-Institution_11022026.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    conditions:
+      - "Terms unread: the data page carries no licence wording and the Department of Education notices pages answered HTTP 403 (presumed usable under ADR-0018). Read and quote the notice before RIGHTS_DETERMINED."
+      - "Use the bulk zip only: the Scorecard API needs an api.data.gov key, which the scout does not use."
+      - "The download file name carries its release date (Most-Recent-Cohorts-Institution_11022026.zip): read the current link from the data page on every run, never hard-code it."
+      - "Outcome columns contain privacy-suppressed values; keep the suppression code as published and never impute."
+    next_action: 'Measured 2026-11-20: the data page says the data was last updated November 2, 2026; the institution zip (24,209,950 bytes) holds 6,272 rows and 3,379 columns; 6,108 rows name an accrediting agency (39 distinct), 4,953 are main campuses. Next: read the reuse notice, select the identity, accreditation, cost and outcome columns worth serving, and archive the all-years zip (536 MB, 1996-97 to 2025-26) to R2 per file.'
+  - key: hei-ror-registry
+    name: "Research Organization Registry data dump (ROR ids, names, aliases, locations, relationships, ISNI / Wikidata / Funder ID / GRID cross-references)"
+    category: education
+    structuring: normalization
+    format: structured
+    publisher: Research Organization Registry (ROR; California Digital Library, Crossref and DataCite)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://zenodo.org/api/records?communities=ror-data&sort=mostrecent&size=1', 'https://ror.readme.io/docs/data-dump', 'https://api.ror.org/v2/organizations' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    terms:
+      - url: https://ror.readme.io/docs/data-dump
+        quote: "All ROR IDs and metadata in the data dump are provided under the Creative Commons CC0 1.0 Universal Public Domain Dedication"
+    next_action: 'Measured 2026-11-20: the newest Zenodo release is v2.16 of 2026-11-19 (zip 40,861,154 bytes, licence cc-zero): 152,297 records (148,516 active, 2,333 inactive, 1,448 withdrawn) in 232 countries; 32,295 of type education (4,679 in the United States, 622 in the United Kingdom); 65,141 carry a Wikidata id, 61,161 an ISNI, 146,082 a website. ROR carries no IPEDS or UKPRN field, so national identifiers reach it only through Wikidata or a reviewed name match. Next: archive each release to R2 and diff for status changes (withdrawn and merged records keep their successor relationship).'
+  - key: hei-wikidata-institution-identifiers
+    name: "Wikidata identifier statements for education institutions (P1771 IPEDS ID, P6782 ROR ID, P4971 UK Provider Reference Number)"
+    category: education
+    structuring: identifier-extraction
+    format: structured
+    publisher: Wikidata (Wikimedia Foundation)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://query.wikidata.org/sparql', 'https://www.wikidata.org/wiki/Wikidata:Licensing' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 3, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    terms:
+      - url: https://www.wikidata.org/wiki/Wikidata:Licensing
+        quote: "All structured data (i.e. the main, Property, Lexeme, and EntitySchema namespaces) is released into the public domain under Creative Commons Zero"
+    next_action: 'Measured 2026-11-20: 3,860 items carry an IPEDS ID (3,856 distinct values, 2 items with more than one), 3,226 of them also a ROR ID; 27,433 items carry a UKPRN, 349 of them also a ROR ID. The query service was limiting clients to one request a minute during an outage (HTTP 429 seen), so take the identifier statements from the weekly entity dump instead of SPARQL. Wikidata is community-edited: an identifier pair is published only when the cited id resolves on both sides (2,979 of 3,226 pairs did), and each pair keeps the item id as its provenance.'
+  - key: hei-uk-ofs-register
+    name: "Office for Students Register of English higher education providers (UKPRN, registration category, degree awarding powers, university title, specific conditions, deregistrations and penalties)"
+    category: education
+    structuring: normalization
+    format: structured
+    publisher: Office for Students (England)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://register-api.officeforstudents.org.uk/api/Download', 'https://www.officeforstudents.org.uk/for-providers/regulatory-resources/the-ofs-register/', 'https://www.officeforstudents.org.uk/copyright/' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    terms:
+      - url: https://www.officeforstudents.org.uk/copyright/
+        quote: "All content owned by the OfS is available for re-use under the terms of the Open Government Licence (OGL)."
+    conditions:
+      - "Open Government Licence: attribute the Office for Students and link the licence; content marked as owned by someone else is outside the grant."
+      - "Do not store or publish the provider e-mail address column; the contact address is an organisation address and is not needed either."
+      - "England only: providers in Scotland, Wales and Northern Ireland are regulated elsewhere and need their own members."
+    next_action: 'Measured 2026-11-20: the register download (xlsx, 365,040 bytes, 6 sheets, 73 columns) lists 425 registered providers, each with a UKPRN: 342 Approved (fee cap) and 83 Approved; 104 with research degree awarding powers, 47 taught, 256 none; 122 with university title; 20 providers carry specific-condition text (25 cells, 3,186 characters). Other sheets: 343 deregistrations under s.22, 3 under s.18, 26 monetary penalties, 26 conditions no longer in force, 2 suspensions. Next: archive the workbook daily to R2 and diff it into registration, condition and penalty events; add UKRLP for provider status and the Scottish, Welsh and Northern Irish lists.'
 
 datasets:
   - key: home-product-recalls-global
@@ -16632,3 +16730,47 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/lei_measure.py, docs/sources/pipeline/evidence/2026-11-20/lei_measure.json, docs/sources/pipeline/evidence/2026-11-20/lei_handcheck.json ]
     next_action: 'Add "SEC CIK" to the declared-join allow-list; read the Companies House Crown copyright statement and the rest of the GLEIF terms; measure the registeredAs join on the whole golden copy against the whole snapshot (not a 600-record sample) and against a second national register; look for a declared LEI to CIK link in XBRL dei facts before relying on names; measure Item 1 section recovery on 200 filings; screen Companies House accounts, SIRENE (France), KVK and the German Handelsregister as further members.'
+  - key: higher-education-institutions
+    name: "Higher-education institutions: identifiers, sector, accreditation and registration status (IPEDS, College Scorecard, ROR, Wikidata identifier bridge, OfS Register)"
+    category: education
+    entity: "higher-education institution or reporting unit (university, college, branch campus, system office), identified by its national identifier (IPEDS UNITID and OPEID in the United States, UKPRN in England) and its ROR id: name, location, control and level, accrediting agency, registration category and degree awarding powers, active or closed status, mission statement"
+    stage: SCREENED
+    description: "One record per institution. IPEDS HD2024 gives 6,072 US reporting units with UNITID, OPEID, EIN, UEI, control, level and location; College Scorecard adds the accrediting agency and outcome columns for 6,272 rows; the Office for Students Register gives 425 English providers with UKPRN, registration category, degree awarding powers and specific conditions; ROR gives 152,297 research organisations worldwide (32,295 of type education) under CC0. ROR carries no national identifier, so the link between a national record and a ROR record is the pair of identifier statements on one Wikidata item: 2,979 IPEDS UNITID to ROR id pairs resolve on both sides, and 230 OfS UKPRNs reach a ROR record the same way. Institution name plus state only proposes further pairs for review. The IPEDS mission statement table is the free-text member and is not yet read (Access database only)."
+    sources: [ hei-nces-ipeds-directory, hei-nces-ipeds-mission-statements, hei-ed-college-scorecard, hei-ror-registry, hei-wikidata-institution-identifiers, hei-uk-ofs-register ]
+    join_keys:
+      - key: IPEDS UNITID cited on the Wikidata item (P1771) equals the IPEDS HD UNITID
+        between: [ hei-wikidata-institution-identifiers, hei-nces-ipeds-directory ]
+        measured: "3,392/3,856 distinct IPEDS ids on Wikidata items resolve to an HD2024 row (464 do not; why was not investigated); 3,392 of the 6,072 HD2024 units are named by a Wikidata item"
+        mode: declared
+      - key: ROR id cited on the Wikidata item (P6782) equals the ROR registry record id
+        between: [ hei-wikidata-institution-identifiers, hei-ror-registry ]
+        measured: "3,226/3,226 ROR ids cited on items that also carry an IPEDS id resolve in the v2.16 dump (3,158 active, 49 inactive, 19 withdrawn); 2,979 UNITID and ROR id pairs resolve on both sides (2,978 units, 2,979 ROR records, 1 unit with two ROR records): same state for 2,930, same web domain for 2,761; in the other direction 3,063 of the 3,091 Wikidata ids that ROR records for those items are cited back by the item"
+        mode: declared
+      - key: UKPRN cited on the Wikidata item (P4971) equals the Office for Students Register UKPRN
+        between: [ hei-wikidata-institution-identifiers, hei-uk-ofs-register ]
+        measured: "282/425 registered providers are named by a Wikidata item through their UKPRN; 230 of them reach a ROR record through the same item"
+        mode: declared
+      - key: IPEDS UNITID in the College Scorecard institution file equals the IPEDS HD UNITID
+        between: [ hei-ed-college-scorecard, hei-nces-ipeds-directory ]
+        measured: "5,729/6,272 Scorecard rows resolve to an HD2024 row (the unresolved ids sampled are 8-digit branch-campus ids); 5,702 of the matched rows carry the same 8-digit OPEID and 5,725 the same state; both files come from the Department of Education, so this join does not count as independent"
+        mode: declared
+      - key: normalised institution name and state (IPEDS HD vs ROR records of type education in the United States)
+        between: [ hei-nces-ipeds-directory, hei-ror-registry ]
+        measured: "2,517/6,072 HD2024 units match exactly one ROR record on normalised name and state (19 more match several); 2,468 equal the Wikidata bridge, 6 contradict it and 43 have no bridge; 20/20 hand-checked pairs from those 43 are the same institution (3 of them point at a withdrawn ROR record)"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - "control: public | private not-for-profit | private for-profit (IPEDS CONTROL)"
+      - "level: four or more years | at least two but less than four years | less than two years (IPEDS ICLEVEL); degree-granting or not"
+      - "unit type: main campus | branch campus | system or administrative office; active | closed (with year)"
+      - "recognition: accrediting agency (College Scorecard) | OfS registration category (Approved, Approved (fee cap)) | degree awarding powers (research, taught, bachelor's, foundation) | university title"
+      - "regulatory event (OfS): specific condition imposed | condition no longer in force | monetary penalty | suspension | deregistration"
+      - "record status (ROR): active | inactive | withdrawn"
+    agent_questions:
+      - "What are the IPEDS UNITID, OPEID and ROR id of this institution, and is the unit active? (measured: 2,979 UNITID and ROR id pairs resolve on both sides)"
+      - "Is this English provider on the OfS Register, in which category, with which degree awarding powers, and does it have a specific condition or penalty? (measured: 425 providers, 20 with specific-condition text, 26 penalty rows)"
+      - "Which accrediting agency does College Scorecard record for this institution, and is it public, non-profit or for-profit?"
+      - "Which ROR records for US institutions have no IPEDS counterpart on Wikidata, and which name-and-state matches should be reviewed? (measured: 43 single matches without a bridge, 20 of 20 checked were correct)"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    next_action: 'Add "IPEDS UNITID", "ROR id" and "UKPRN" to the declared-join allow-list; read the IPEDS mission table with an Access reader and measure its text coverage (the free-text member is still DISCOVERED); read and quote the NCES / Department of Education reuse notice (www.ed.gov answered 403); take the Wikidata identifier statements from the entity dump rather than SPARQL; screen DAPIP accreditation actions (ope.ed.gov is a script-rendered application, not measured), UKRLP, HESA and the Scottish, Welsh and Northern Irish provider lists as further members.'
