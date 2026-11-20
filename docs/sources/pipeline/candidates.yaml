@@ -12197,6 +12197,107 @@ candidates:
       - "The LDML specification text (UTS #35) in the same repository is not under this licence and may not be redistributed: take only the XML data files."
       - "The main branch was read; pin a tagged CLDR release before building (cldr-json core reported 49.0.0)."
     next_action: 'Measured 2026-11-20 (main branch): bcp47/timezone.xml has 469 tz types (18 deprecated, 451 with aliases, 601 distinct alias identifiers); windowsZones.xml 505 mapZone rows for 142 Windows zone names over 445 distinct tz identifiers; metaZones.xml 419 time zones with metazone history across 155 metazones. CLDR keeps its own canonical identifier: 329 of 451 are tzdb Zones and 121 are tzdb Links (for example Asia/Calcutta, America/Buenos_Aires). Next: pin a release tag, record the CLDR canonical id, short BCP 47 id, Windows zone and metazone periods per tzdb identifier, and diff per CLDR release.'
+  - key: eol-endoflife-date-api
+    name: "endoflife.date product lifecycle API (release cycles with release, end-of-active-support and end-of-life dates, LTS flag, latest patch, purl / CPE identifiers)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: endoflife.date contributors (community project)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://endoflife.date/api/v1/products/full', 'https://endoflife.date/api/v1/products/python', 'https://endoflife.date/docs/api/v1/' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/endoflife-date/endoflife.date/master/LICENSE
+        quote: "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software."
+    conditions:
+      - "MIT licence: keep the copyright notice (Copyright 2020 endoflife.date contributors) and the permission notice with every copy or substantial portion of the data, and attribute endoflife.date."
+      - "The data is a community compilation of each vendor's own announcements: publish each date with endoflife.date named as its source and, where a first-party member exists, the vendor's own date beside it, never merged into one value (measured: end-of-life month equal for 107 of 123 matched cycles)."
+      - "Use the documented API (one full-dump request a day is enough; robots.txt allows all paths); product icons are third-party marks and are not cached or republished."
+    next_action: 'Measured 2026-11-20: api/v1/products/full (3,061,004 bytes, schema 1.2.1, generated 2026-11-20T08:42Z) lists 489 products and 9,438 release cycles (server-app 176, framework 74, os 68, app 62, lang 34, database 27, service 25, device 21, standard 2); all cycles have a release date, 8,149 an end-of-life date, 2,569 an end-of-active-support date, 673 are LTS, 2,156 are maintained; 7,013 name a latest patch (710 patched in the last 30 days, newest 2026-11-20); 941 cycles were released in 2026; 210 products carry a purl and 292 a CPE; 409 link the vendor release policy. Next: archive the full dump daily to R2 and diff it into lifecycle events; follow each releasePolicy link to add first-party members.'
+  - key: eol-python-release-cycle-json
+    name: "Python release cycle file (peps.python.org/api/release-cycle.json: branch status, first release, end of life and release-schedule PEP per CPython feature version)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: Python Software Foundation (CPython core team, peps.python.org)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://peps.python.org/api/release-cycle.json', 'https://peps.python.org/api/peps.json' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    conditions:
+      - "No licence statement accompanies the JSON file itself (presumed usable under ADR-0018; the PEP documents it summarises are public domain or CC0): confirm the file's licence in the python/peps repository before RIGHTS_DETERMINED and attribute python.org."
+      - "The release_manager field and the PEP author fields name natural persons: never store or publish them."
+      - "end_of_life is a month (YYYY-MM) for supported branches: keep the publisher's precision, do not invent a day."
+    next_action: 'Measured 2026-11-20: release-cycle.json (3,616 bytes) lists 19 branches, 2.6 to 3.16 (1 feature, 2 bugfix, 3 security, 13 end-of-life), each with a release-schedule PEP number; first releases run from 2008-10-01 to 2027-10-06 (planned). peps.json lists 749 PEPs, 27 with topic release. Next: confirm the licence of the file, archive it daily and diff status changes.'
+  - key: eol-python-release-schedule-peps
+    name: "Python release-schedule PEPs (prose schedules: alpha, beta, final and bugfix dates, end of bugfix and security support per feature version)"
+    category: software
+    structuring: event-extraction
+    format: free-text
+    publisher: Python Software Foundation (PEP editors, peps.python.org)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://peps.python.org/pep-0790/', 'https://peps.python.org/api/peps.json', 'https://raw.githubusercontent.com/python/peps/main/peps/pep-0790.rst' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/python/peps/main/peps/pep-0790.rst
+        quote: "This document is placed in the public domain or under the CC0-1.0-Universal license, whichever is more permissive."
+    conditions:
+      - "The notice was found on 25 of the 27 release-topic PEP pages: read the two pages without it before publishing text from them."
+      - "Every schedule PEP names the release manager and installer builders: extract dated schedule facts only and never store or publish the names of people."
+    next_action: 'Measured 2026-11-20: all 27 release-topic PEP pages fetched from peps.python.org (196,232 characters; median 3,544, 1,713 to 84,048); 26 declare a Python-Version; 15 contain ISO dates and 18 contain end-of-support wording; 25 carry the public-domain / CC0 notice. Next: extract per-version milestone dates (beta 1, release candidate, final, last bugfix release, end of security support) with the sentence as evidence, and compare them with release-cycle.json.'
+  - key: eol-nodejs-release-schedule
+    name: "Node.js Release working group schedule.json (start, LTS start, maintenance start and end-of-life date and codename per release line)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: OpenJS Foundation (Node.js Release working group)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/nodejs/Release/main/schedule.json', 'https://raw.githubusercontent.com/nodejs/Release/main/README.md' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    conditions:
+      - "Terms silent: the nodejs/Release repository has no LICENSE, LICENSE.md or package.json at its root (all HTTP 404) and its README does not mention a licence (presumed usable under ADR-0018); find or ask for the licence before RIGHTS_DETERMINED and attribute the Node.js project."
+      - "Node.js is a trademark of the OpenJS Foundation: use the name only to identify the release line, with no logo."
+    next_action: 'Measured 2026-11-20: schedule.json (3,254 bytes) lists 27 release lines, v0.8 to a line starting 2027-04-22; 13 have an LTS date, 12 a codename, 4 end after today. Next: settle the licence, archive the file daily and diff it; screen the nodejs.org release announcements as a free-text member.'
+  - key: eol-debian-distro-info-data
+    name: "Debian distro-info-data (ubuntu.csv and debian.csv: version, codename, series, created, release, EOL, server / LTS / ESM / ELTS end dates)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: Debian project (distro-info-data maintainers)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://salsa.debian.org/debian/distro-info-data/-/raw/main/ubuntu.csv', 'https://salsa.debian.org/debian/distro-info-data/-/raw/main/debian.csv', 'https://salsa.debian.org/debian/distro-info-data/-/raw/main/debian/copyright' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    terms:
+      - url: https://salsa.debian.org/debian/distro-info-data/-/raw/main/debian/copyright
+        quote: "Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies."
+    conditions:
+      - "ISC licence: keep the copyright notice and the permission notice with every copy; the copyright lines name the two maintainers, so reproduce the notice in the attribution file only, not in dataset records."
+      - "Keep each end date in its own column (eol, eol-server, eol-lts, eol-esm, eol-elts, eol-legacy): measured against endoflife.date, the Debian end-of-life month agrees for only 4 of 15 matched releases because the two sources pick different columns."
+    next_action: 'Measured 2026-11-20: ubuntu.csv has 46 releases (4.10 to one releasing 2027-04-22; all with an EOL, 5 ending after today) and debian.csv 22 (18 with an EOL); the package changelog shows 80 uploads, 8 in 2026, newest 2026.10.12-1. Next: archive both CSVs on each upload and map each end-date column to a named support phase.'
+  - key: eol-kubernetes-release-schedule
+    name: "Kubernetes release schedule and end-of-life data files (kubernetes/website data/releases schedule.yaml and eol.yaml)"
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: The Kubernetes Authors (Kubernetes SIG Release, CNCF)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/kubernetes/website/main/data/releases/schedule.yaml', 'https://raw.githubusercontent.com/kubernetes/website/main/data/releases/eol.yaml', 'https://raw.githubusercontent.com/kubernetes/website/main/LICENSE' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    conditions:
+      - "The repository LICENSE is the Creative Commons Attribution 4.0 International text (first line read; the body was not quoted): attribute The Kubernetes Authors, link the licence and state that the data was restructured."
+      - "Only the 4 active minor releases carry a release date in schedule.yaml; eol.yaml gives the end-of-life date and final patch only, so release dates for older minors need another member."
+    next_action: 'Measured 2026-11-20: schedule.yaml and eol.yaml (7,663 bytes together) list 36 minor releases; 4 have a release date (newest 2026-08-26), 3 end after today; each active release lists planned patch releases with cherry-pick deadlines. Next: quote the CC BY 4.0 grant in the rights record, archive both files daily and diff them into patch and end-of-life events.'
 
 datasets:
   - key: home-product-recalls-global
@@ -16071,3 +16172,48 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/tz_measure.py, docs/sources/pipeline/evidence/2026-11-20/tz_measure.json, docs/sources/pipeline/evidence/2026-11-20/tz_handcheck.json ]
     next_action: 'Archive every tzdb release tarball (249 listed) and tagged CLDR release to R2; compile each tzdb release to transition tables and diff them into per-zone change events tied to the NEWS section that explains them; extract effective dates and offsets from NEWS prose with golden tests; screen the tz-announce archive and government legal-time notices (not measured this round) as independent free-text members, since today the only free-text member shares its publisher with tzdb.'
+  - key: software-release-lifecycles
+    name: "Software release lifecycles: release, support and end-of-life dates per release cycle (endoflife.date, Python, Node.js, Debian/Ubuntu, Kubernetes first-party schedules)"
+    category: software
+    entity: "release cycle of a software product (a supported version line such as Python 3.12, Node.js 22, Ubuntu 24.04 or Kubernetes 1.36): release date, end of active or bugfix support, end of security support / end of life, LTS flag and dates, extended-support dates, latest patch release, and the publisher's schedule document"
+    stage: SCREENED
+    description: "One record per release cycle, with each date attributed to the source that states it. endoflife.date compiles 9,438 cycles of 489 products with purl and CPE identifiers. First-party schedule files give the vendor's own dates: Python release-cycle.json (19 branches), Node.js schedule.json (27 lines), Debian distro-info-data (46 Ubuntu and 22 Debian releases with separate standard, server, LTS, ESM and ELTS end dates) and the Kubernetes schedule and EOL files (36 minors). The Python release-schedule PEPs (27 pages of prose) are the free-text member. endoflife.date cites the schedule PEP of every Python cycle, which links it to the Python members by PEP number; other products link on the product and version string as reviewed candidates. Where the compiled and first-party dates differ, both are shown."
+    sources: [ eol-endoflife-date-api, eol-python-release-cycle-json, eol-python-release-schedule-peps, eol-nodejs-release-schedule, eol-debian-distro-info-data, eol-kubernetes-release-schedule ]
+    join_keys:
+      - key: release-schedule PEP number cited by the endoflife.date Python cycle equals the PEP number Python's release-cycle.json gives for the same branch
+        between: [ eol-endoflife-date-api, eol-python-release-cycle-json ]
+        measured: "18/18 Python cycles present in both carry the same PEP number (all 23 endoflife.date Python cycles cite a PEP; 5 cycles, 2.1 to 2.5, are not in release-cycle.json and branch 3.16 is not yet on endoflife.date); first-release date equal for 18 of 18 and end-of-life month for 18 of 18"
+        mode: declared
+      - key: release-schedule PEP number cited by the endoflife.date Python cycle resolves to the PEP document whose Python-Version is that cycle
+        between: [ eol-endoflife-date-api, eol-python-release-schedule-peps ]
+        measured: "23/23 cited PEP numbers are release-topic PEPs in peps.json whose Python-Version lists the cycle; the fetched page of all 23 mentions that Python version"
+        mode: declared
+      - key: product and release cycle version string (endoflife.date cycle vs Node.js schedule.json line)
+        between: [ eol-endoflife-date-api, eol-nodejs-release-schedule ]
+        measured: "23/27 Node.js release lines match an endoflife.date nodejs cycle; start date equal for 20 of 23, end-of-life day equal for 22 of 23; 8/8 hand-checked pairs are the same release line"
+        mode: candidate
+        reviewed: { correct: 8, checked: 8 }
+      - key: product and release version string (endoflife.date cycle vs distro-info-data ubuntu.csv and debian.csv rows)
+        between: [ eol-endoflife-date-api, eol-debian-distro-info-data ]
+        measured: "60/68 distro-info-data releases match an endoflife.date cycle (Ubuntu 45 of 46, Debian 15 of 22); release date equal for 57 of 60; end-of-life month equal for 44 of 45 Ubuntu and 4 of 15 Debian releases (the sources report different support phases); 7/7 hand-checked pairs are the same release"
+        mode: candidate
+        reviewed: { correct: 7, checked: 7 }
+      - key: product and minor release version string (endoflife.date cycle vs Kubernetes schedule.yaml / eol.yaml)
+        between: [ eol-endoflife-date-api, eol-kubernetes-release-schedule ]
+        measured: "22/36 Kubernetes minor releases match an endoflife.date kubernetes cycle (all 22 endoflife.date cycles); end-of-life day equal for 16 of 22 and month for 18; release date equal for 4 of the 4 that have one; 3/3 hand-checked pairs are the same minor release"
+        mode: candidate
+        reviewed: { correct: 3, checked: 3 }
+    taxonomy:
+      - "product category (endoflife.date): server-app | framework | os | app | lang | database | service | device | standard"
+      - "support phase: pre-release / feature | active or bugfix support | maintenance or security-only | extended (LTS, ESM, ELTS, commercial) | end of life"
+      - "date kind: release | LTS start | end of active support | end of security support (EOL) | end of extended support | latest patch release, each with its stated precision (day or month) and source"
+      - "source kind: first-party schedule file | first-party prose schedule | community compilation"
+      - "product identifiers: package URL (purl) | CPE | repology project"
+    agent_questions:
+      - "Is Python 3.12 still receiving security fixes, until when, and which document says so? (measured: release-cycle.json status security, end of life 2028-10; endoflife.date 2028-10-31; schedule PEP 693)"
+      - "Which release cycles in my stack reach end of life in the next 90 days, according to the vendor's own schedule and to endoflife.date?"
+      - "Where do the vendor schedule and endoflife.date disagree on an end-of-life date? (measured: end-of-life month differs for 16 of 123 matched cycles, mostly Debian, where the sources report different support phases)"
+      - "When does Ubuntu 26.04 LTS leave standard support and when does ESM end? (measured: distro-info-data eol 2031-05-29)"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
+    next_action: 'Add "PEP number" to the declared-join allow-list; settle the licences of the Node.js schedule file and Python release-cycle.json; follow the 409 endoflife.date releasePolicy links to add first-party schedule members (PHP, Go, Ruby, PostgreSQL, Django, .NET, Java distributions) and vendor lifecycle prose as further free-text members; map every end-date column to a named support phase; archive each member daily to R2 and diff into lifecycle events (cycle added, date changed, phase reached).'

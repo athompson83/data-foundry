@@ -1,0 +1,229 @@
+{
+ "join": "product and release cycle version string (endoflife.date cycle vs the product's own schedule file)",
+ "seed": 20261120,
+ "method": "20 pairs drawn with random.sample (seed 20261120) from the 123 version-string matches in eol_measure.json; a pair is correct when both rows describe the same release line of the same product (same product, same version series, release dates equal or within the differences noted)",
+ "checked": 20,
+ "correct": 20,
+ "pairs": [
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "6",
+   "publisher_key": "v6",
+   "endoflife_release": "2016-04-26",
+   "publisher_release": "2016-04-26",
+   "endoflife_eol": "2019-04-30",
+   "publisher_eol": "2019-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "python",
+   "endoflife_cycle": "3.6",
+   "publisher_key": "3.6",
+   "endoflife_release": "2016-12-23",
+   "publisher_release": "2016-12-23",
+   "endoflife_eol": "2021-12-23",
+   "publisher_eol": "2021-12-23",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "python",
+   "endoflife_cycle": "3.12",
+   "publisher_key": "3.12",
+   "endoflife_release": "2023-10-02",
+   "publisher_release": "2023-10-02",
+   "endoflife_eol": "2028-10-31",
+   "publisher_eol": "2028-10",
+   "verdict": "correct",
+   "note": "same cycle; Python gives the end-of-life month only (2028-10)"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "22",
+   "publisher_key": "v22",
+   "endoflife_release": "2024-04-24",
+   "publisher_release": "2024-04-24",
+   "endoflife_eol": "2027-04-30",
+   "publisher_eol": "2027-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "10",
+   "publisher_key": "v10",
+   "endoflife_release": "2018-04-24",
+   "publisher_release": "2018-04-24",
+   "endoflife_eol": "2021-04-30",
+   "publisher_eol": "2021-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "ubuntu",
+   "endoflife_cycle": "17.04",
+   "publisher_key": "17.04",
+   "endoflife_release": "2017-04-13",
+   "publisher_release": "2017-04-13",
+   "endoflife_eol": "2018-01-13",
+   "publisher_eol": "2018-01-13",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "kubernetes",
+   "endoflife_cycle": "1.28",
+   "publisher_key": "1.28",
+   "endoflife_release": "2023-08-15",
+   "publisher_release": null,
+   "endoflife_eol": "2024-10-28",
+   "publisher_eol": "2024-10-22",
+   "verdict": "correct",
+   "note": "same cycle; eol.yaml gives 2024-10-22, endoflife.date 2024-10-28"
+  },
+  {
+   "product": "ubuntu",
+   "endoflife_cycle": "16.10",
+   "publisher_key": "16.10",
+   "endoflife_release": "2016-10-13",
+   "publisher_release": "2016-10-13",
+   "endoflife_eol": "2017-07-20",
+   "publisher_eol": "2017-07-20",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "kubernetes",
+   "endoflife_cycle": "1.18",
+   "publisher_key": "1.18",
+   "endoflife_release": "2020-03-25",
+   "publisher_release": null,
+   "endoflife_eol": "2021-06-18",
+   "publisher_eol": "2021-06-18",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "26",
+   "publisher_key": "v26",
+   "endoflife_release": "2026-05-05",
+   "publisher_release": "2026-05-05",
+   "endoflife_eol": "2029-04-30",
+   "publisher_eol": "2029-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "debian",
+   "endoflife_cycle": "8",
+   "publisher_key": "8",
+   "endoflife_release": "2015-04-25",
+   "publisher_release": "2015-04-26",
+   "endoflife_eol": "2020-06-30",
+   "publisher_eol": "2018-06-17",
+   "verdict": "correct",
+   "note": "same cycle (Debian 8 jessie); release date differs by one day and endoflife.date gives the LTS end 2020-06-30 where debian.csv eol is 2018-06-17 (its eol-lts column was not compared)"
+  },
+  {
+   "product": "ubuntu",
+   "endoflife_cycle": "7.10",
+   "publisher_key": "7.10",
+   "endoflife_release": "2007-10-18",
+   "publisher_release": "2007-10-18",
+   "endoflife_eol": "2009-04-18",
+   "publisher_eol": "2009-04-18",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "ubuntu",
+   "endoflife_cycle": "9.10",
+   "publisher_key": "9.10",
+   "endoflife_release": "2009-10-29",
+   "publisher_release": "2009-10-29",
+   "endoflife_eol": "2011-04-30",
+   "publisher_eol": "2011-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "4",
+   "publisher_key": "v4",
+   "endoflife_release": "2015-09-09",
+   "publisher_release": "2015-09-08",
+   "endoflife_eol": "2018-04-30",
+   "publisher_eol": "2018-04-30",
+   "verdict": "correct",
+   "note": "same cycle; start date differs by one day"
+  },
+  {
+   "product": "ubuntu",
+   "endoflife_cycle": "26.04",
+   "publisher_key": "26.04 LTS",
+   "endoflife_release": "2026-04-23",
+   "publisher_release": "2026-04-23",
+   "endoflife_eol": "2031-05-29",
+   "publisher_eol": "2031-05-29",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "kubernetes",
+   "endoflife_cycle": "1.17",
+   "publisher_key": "1.17",
+   "endoflife_release": "2019-12-07",
+   "publisher_release": null,
+   "endoflife_eol": "2020-12-25",
+   "publisher_eol": "2021-01-13",
+   "verdict": "correct",
+   "note": "same cycle; eol.yaml gives 2021-01-13, endoflife.date 2020-12-25"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "12",
+   "publisher_key": "v12",
+   "endoflife_release": "2019-04-23",
+   "publisher_release": "2019-04-23",
+   "endoflife_eol": "2022-04-30",
+   "publisher_eol": "2022-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "ubuntu",
+   "endoflife_cycle": "5.10",
+   "publisher_key": "5.10",
+   "endoflife_release": "2005-10-12",
+   "publisher_release": "2005-10-12",
+   "endoflife_eol": "2007-04-13",
+   "publisher_eol": "2007-04-13",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "9",
+   "publisher_key": "v9",
+   "endoflife_release": "2017-10-31",
+   "publisher_release": "2017-10-01",
+   "endoflife_eol": "2018-06-30",
+   "publisher_eol": "2018-06-30",
+   "verdict": "correct",
+   "note": "same cycle; start date differs by 30 days (2017-10-01 vs 2017-10-31)"
+  },
+  {
+   "product": "nodejs",
+   "endoflife_cycle": "20",
+   "publisher_key": "v20",
+   "endoflife_release": "2023-04-18",
+   "publisher_release": "2023-04-18",
+   "endoflife_eol": "2026-04-30",
+   "publisher_eol": "2026-04-30",
+   "verdict": "correct",
+   "note": "same cycle; dates agree"
+  }
+ ]
+}

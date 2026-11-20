@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "211d367cf5c9ae7b8e8eb5c78fa84564ceb4965858149b94463ad1e9b1e2accb",
+  "registry_sha256": "325475f6eb13d2f135cce64ef22c7614ef911845e5ef0c79225a0c37757bcd31",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -897,6 +897,18 @@
         "tz-iana-tzdb",
         "tz-iana-tzdb-news-commentary",
         "tz-unicode-cldr-timezones"
+      ]
+    },
+    "software-release-lifecycles": {
+      "name": "Software release lifecycles: release, support and end-of-life dates per release cycle (endoflife.date, Python, Node.js, Debian/Ubuntu, Kubernetes first-party schedules)",
+      "stage": "SCREENED",
+      "sources": [
+        "eol-endoflife-date-api",
+        "eol-python-release-cycle-json",
+        "eol-python-release-schedule-peps",
+        "eol-nodejs-release-schedule",
+        "eol-debian-distro-info-data",
+        "eol-kubernetes-release-schedule"
       ]
     }
   },
@@ -8252,6 +8264,84 @@
       "stage": "SCREENED",
       "format": "structured",
       "publisher": "Unicode Consortium (CLDR project)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eol-endoflife-date-api": {
+      "name": "endoflife.date product lifecycle API (release cycles with release, end-of-active-support and end-of-life dates, LTS flag, latest patch, purl / CPE identifiers)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "endoflife.date contributors (community project)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eol-python-release-cycle-json": {
+      "name": "Python release cycle file (peps.python.org/api/release-cycle.json: branch status, first release, end of life and release-schedule PEP per CPython feature version)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Python Software Foundation (CPython core team, peps.python.org)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eol-python-release-schedule-peps": {
+      "name": "Python release-schedule PEPs (prose schedules: alpha, beta, final and bugfix dates, end of bugfix and security support per feature version)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Python Software Foundation (PEP editors, peps.python.org)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eol-nodejs-release-schedule": {
+      "name": "Node.js Release working group schedule.json (start, LTS start, maintenance start and end-of-life date and codename per release line)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "OpenJS Foundation (Node.js Release working group)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eol-debian-distro-info-data": {
+      "name": "Debian distro-info-data (ubuntu.csv and debian.csv: version, codename, series, created, release, EOL, server / LTS / ESM / ELTS end dates)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Debian project (distro-info-data maintainers)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "eol-kubernetes-release-schedule": {
+      "name": "Kubernetes release schedule and end-of-life data files (kubernetes/website data/releases schedule.yaml and eol.yaml)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "The Kubernetes Authors (Kubernetes SIG Release, CNCF)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
