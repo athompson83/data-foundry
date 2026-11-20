@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "ee71f1ed09e0fc419dc714e67c5cd9bb770ea3e74b7135f99ed837fa462f4b74",
+  "registry_sha256": "a7632db8b3313503740a731e0651a0b070c7ea9082126ffd2b3da8d6395336b1",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -888,6 +888,15 @@
         "seccert-nist-cmvp-validated-modules",
         "seccert-cc-portal-certified-products",
         "seccert-niap-product-compliant-list"
+      ]
+    },
+    "time-zone-rules": {
+      "name": "Time zone rules and identifiers (IANA tz database, tzdb NEWS and commentary, Unicode CLDR mappings)",
+      "stage": "SCREENED",
+      "sources": [
+        "tz-iana-tzdb",
+        "tz-iana-tzdb-news-commentary",
+        "tz-unicode-cldr-timezones"
       ]
     }
   },
@@ -8209,6 +8218,45 @@
       "blocked_because": [
         "rights verdict is RED",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "tz-iana-tzdb": {
+      "name": "IANA Time Zone Database (tzdb): zones, links, daylight-saving rule lines and country tables (tzdata.zi, zone1970.tab, zone.tab, backward)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "IANA (Internet Assigned Numbers Authority, operated by ICANN; tz database coordinators)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tz-iana-tzdb-news-commentary": {
+      "name": "IANA tz database NEWS file and source-file commentary (dated prose on rule changes, per release and per zone)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "IANA (Internet Assigned Numbers Authority, operated by ICANN; tz database coordinators)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tz-unicode-cldr-timezones": {
+      "name": "Unicode CLDR time zone data (BCP 47 tz ids and aliases, Windows zone mapping, metazone history)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Unicode Consortium (CLDR project)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },
