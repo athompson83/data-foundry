@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "325475f6eb13d2f135cce64ef22c7614ef911845e5ef0c79225a0c37757bcd31",
+  "registry_sha256": "1c31c5898e146a1d7f761d58e73ce2994602d31c739896c287262c517ae49c2f",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -909,6 +909,16 @@
         "eol-nodejs-release-schedule",
         "eol-debian-distro-info-data",
         "eol-kubernetes-release-schedule"
+      ]
+    },
+    "vaccine-products": {
+      "name": "Vaccine products: CVX/MVX codes, NDCs, US licensure and label facts (CDC IIS code sets, FDA NDC directory, FDA licensed list and Purple Book, DailyMed labelling)",
+      "stage": "SCREENED",
+      "sources": [
+        "vax-cdc-iis-code-sets",
+        "vax-fda-ndc-directory-vaccines",
+        "vax-fda-licensed-vaccines-purple-book",
+        "vax-dailymed-vaccine-spl"
       ]
     }
   },
@@ -8347,6 +8357,71 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vax-cdc-iis-code-sets": {
+      "name": "CDC IIS vaccine code sets (CVX vaccine codes, MVX manufacturer codes, product trade names mapped to CVX/MVX, NDC unit-of-sale and unit-of-use crosswalks)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US CDC",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vax-fda-ndc-directory-vaccines": {
+      "name": "openFDA NDC directory restricted to product type VACCINE (products, packages, BLA application numbers, SPL ids)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vax-fda-licensed-vaccines-purple-book": {
+      "name": "FDA 'Vaccines Licensed for Use in the United States' list and the Purple Book monthly data download (BLA number, proper and proprietary names, licensure status and dates)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vax-dailymed-vaccine-spl": {
+      "name": "DailyMed vaccine labelling (SPL documents for vaccine NDCs: indications, dosage and schedule, contraindications, storage prose)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Library of Medicine (DailyMed)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "vax-who-prequalified-vaccines": {
+      "name": "WHO list of prequalified vaccines (commercial name, vaccine type, presentation, manufacturer, responsible NRA, prequalification date)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "World Health Organization (Prequalification of Medical Products)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },

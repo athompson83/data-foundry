@@ -12298,6 +12298,88 @@ candidates:
       - "The repository LICENSE is the Creative Commons Attribution 4.0 International text (first line read; the body was not quoted): attribute The Kubernetes Authors, link the licence and state that the data was restructured."
       - "Only the 4 active minor releases carry a release date in schedule.yaml; eol.yaml gives the end-of-life date and final patch only, so release dates for older minors need another member."
     next_action: 'Measured 2026-11-20: schedule.yaml and eol.yaml (7,663 bytes together) list 36 minor releases; 4 have a release date (newest 2026-08-26), 3 end after today; each active release lists planned patch releases with cherry-pick deadlines. Next: quote the CC BY 4.0 grant in the rights record, archive both files daily and diff them into patch and end-of-life events.'
+  - key: vax-cdc-iis-code-sets
+    name: "CDC IIS vaccine code sets (CVX vaccine codes, MVX manufacturer codes, product trade names mapped to CVX/MVX, NDC unit-of-sale and unit-of-use crosswalks)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US CDC
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/cvx.txt', 'https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/mvx.txt', 'https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/TRADENAME.txt', 'https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/NDC/NDC_Unit_sale.txt', 'https://www2.cdc.gov/vaccines/iis/iisstandards/downloads/NDC/NDC_Unit_use.txt', 'https://www2.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=cvx' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.py, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json, docs/sources/pipeline/evidence/2026-11-20/vax_handcheck.json ]
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission."
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "Attribution to the agency that developed the material must be provided in your use of the materials."
+    next_action: 'Measured 2026-11-20: cvx.txt 290 codes (115 Active, 118 Inactive, 39 Non-US, 18 Never Active; 30 flagged non-vaccine; newest update 2026-09-10); mvx.txt 89 manufacturer codes (36 Active; newest 2026-04-14); TRADENAME.txt 225 rows / 190 distinct trade names (125 Active rows; all 225 CVX and 213 MVX values resolve; newest 2026-08-12); NDC unit-of-sale 584 rows / 581 distinct NDCs (151 rows without an end date, 220 with a GTIN) and unit-of-use 533 rows / 529 NDCs, every row carrying a CVX that resolves (newest 2026-09-17). Next: attribute CDC, archive the five pipe-delimited files to R2 on each change and diff them into code-added / status-changed events; also take the VIS, CPT-to-CVX and vaccine-group tables on the same page (not measured).'
+  - key: vax-fda-ndc-directory-vaccines
+    name: "openFDA NDC directory restricted to product type VACCINE (products, packages, BLA application numbers, SPL ids)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US FDA
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.fda.gov/drug/ndc.json?search=product_type:VACCINE&limit=1000', 'https://open.fda.gov/terms/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.py, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json, docs/sources/pipeline/evidence/2026-11-20/vax_handcheck.json ]
+    terms:
+      - url: https://open.fda.gov/terms/
+        quote: "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication."
+    next_action: 'Measured 2026-11-20: 161 vaccine products (last_updated 2026-11-19) from 31 labelers, 83 trade-name bases, 74 BLA application numbers (135 BLA products, 23 drug-for-further-processing, 2 export only, 1 unapproved), 195 package NDCs and 362 NDCs once inner packages named in the packaging description are included; all 161 carry an spl_id. The openFDA drug label endpoint holds no vaccine labelling (product types are OTC, prescription, plasma derivative and cellular therapy only; the VACCINE query returns 404), so label prose comes from DailyMed (vax-dailymed-vaccine-spl), not from drug-labeling-openfda / drug-label-facts. Next: pull the weekly NDC bulk file instead of the API, keep relabeller rows (e.g. labeler A-S Medication Solutions) apart from the licence holder.'
+  - key: vax-fda-licensed-vaccines-purple-book
+    name: "FDA 'Vaccines Licensed for Use in the United States' list and the Purple Book monthly data download (BLA number, proper and proprietary names, licensure status and dates)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US FDA
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.fda.gov/vaccines-blood-biologics/vaccines/vaccines-licensed-use-united-states', 'https://purplebooksearch.fda.gov/downloads', 'https://www.accessdata.fda.gov/drugsatfda_docs/PurpleBook/2026/purplebook-search-October-data-download.csv', 'https://www.fda.gov/about-fda/about-website/website-policies' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.py, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json, docs/sources/pipeline/evidence/2026-11-20/vax_handcheck.json ]
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    next_action: 'Measured 2026-11-20: the licensed-vaccines page (content current as of 2026-10-08) parses to 96 product rows, 92 distinct trade names (7 rows with no trade name) and 99 links to product pages; the Purple Book download page lists 81 monthly CSVs, the newest (October 2026, 487,133 bytes) holding 2,256 product rows (CBER 1,054, CDER 1,202; 2,018 licensed, 235 voluntarily revoked, 3 revoked) over 865 BLA numbers plus 15 change rows. All 74 BLA numbers on openFDA vaccine NDC products are in the Purple Book (same publisher, so not an independent join). The Purple Book has no vaccine flag: select vaccine BLAs through the NDC directory. Next: follow each product page for the approval letters and package-insert PDFs (not fetched), and archive each monthly CSV.'
+  - key: vax-dailymed-vaccine-spl
+    name: "DailyMed vaccine labelling (SPL documents for vaccine NDCs: indications, dosage and schedule, contraindications, storage prose)"
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US National Library of Medicine (DailyMed)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json', 'https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/0280849d-5c78-4a9d-8941-4eab429f6bd8.xml', 'https://www.nlm.nih.gov/web_policies.html' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.py, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json, docs/sources/pipeline/evidence/2026-11-20/vax_handcheck.json ]
+    terms:
+      - url: https://www.nlm.nih.gov/web_policies.html
+        quote: "Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the U.S. copyright laws) requires the written permission of the copyright holders."
+    conditions:
+      - "Label text is written by the licence holder: publish extracted facts with a one-sentence evidence span and a DailyMed link, never verbatim sections or label images (same design as drug-label-facts-rights-record-20261118.md)."
+      - "Scope is vaccine SPL documents only, reached by NDC from the CDC crosswalk or the openFDA vaccine NDC list; the general drug labels stay with drug-labeling-dailymed and drug-label-facts."
+      - "Not medical advice: repeat the disclaimer and link the current label; show the SPL version and published date."
+      - "The lookup needs the NDC in the segment form FDA assigned (58160-823-11), not zero-padded to 5-4-2 (0 of 20 padded codes resolved)."
+    next_action: 'Measured 2026-11-20: 20 of 20 seeded CDC unit-of-sale NDCs without an end date resolve to a DailyMed SPL (19 distinct set ids), all 20 SPL XML documents fetched (HTTP 200), prose length median 39,063 characters (24,766 to 122,614), and each document cites the looked-up NDC; the doctype filter 53406-6 returns 0 documents, so there is no vaccine listing and documents are reached by NDC only (database published 2026-11-19). Next: resolve all 149 live unit-of-sale NDCs, measure section coverage (indications, dosage and administration, contraindications, storage and handling) and sponsor copyright notices per section before EVIDENCED.'
+  - key: vax-who-prequalified-vaccines
+    name: "WHO list of prequalified vaccines (commercial name, vaccine type, presentation, manufacturer, responsible NRA, prequalification date)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: World Health Organization (Prequalification of Medical Products)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://extranet.who.int/prequal/vaccines/prequalified-vaccines', 'https://www.who.int/about/policies/publishing/copyright' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json ]
+    terms:
+      - url: https://www.who.int/about/policies/publishing/copyright
+        quote: "Permission is required for commercial uses and licensing of WHO materials, such as using the material in the context of a commercial activity."
+    next_action: 'PARKED (RED): measured 2026-11-20, the keyless CSV export answers (287 rows, 170 distinct commercial names, 51 manufacturers, 56 vaccine types, newest prequalification 2026-11-02; 11 of the 170 names equal a CDC active trade name), but WHO requires permission for commercial uses of its materials. Reopen only with written WHO permission for commercial redistribution of the prequalification list.'
 
 datasets:
   - key: home-product-recalls-global
@@ -16217,3 +16299,42 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
     evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/eol_measure.py, docs/sources/pipeline/evidence/2026-11-20/eol_measure.json, docs/sources/pipeline/evidence/2026-11-20/eol_handcheck.json ]
     next_action: 'Add "PEP number" to the declared-join allow-list; settle the licences of the Node.js schedule file and Python release-cycle.json; follow the 409 endoflife.date releasePolicy links to add first-party schedule members (PHP, Go, Ruby, PostgreSQL, Django, .NET, Java distributions) and vendor lifecycle prose as further free-text members; map every end-date column to a named support phase; archive each member daily to R2 and diff into lifecycle events (cycle added, date changed, phase reached).'
+  - key: vaccine-products
+    name: "Vaccine products: CVX/MVX codes, NDCs, US licensure and label facts (CDC IIS code sets, FDA NDC directory, FDA licensed list and Purple Book, DailyMed labelling)"
+    category: health
+    entity: "vaccine product (one marketed vaccine presentation): trade name, licence holder / manufacturer with MVX code, CVX vaccine code and antigen description, NDC unit-of-sale and unit-of-use codes with GTIN, BLA number and licensure status and dates, and the label prose (indications, schedule, contraindications, storage)"
+    stage: SCREENED
+    description: "One record per vaccine product and package. CDC's IIS code sets give 290 CVX codes (115 active), 89 MVX manufacturer codes, 190 trade names mapped to CVX and MVX, and NDC crosswalks of 581 unit-of-sale and 529 unit-of-use codes, each with a CVX. The openFDA NDC directory lists 161 vaccine products (195 package NDCs, 74 BLA numbers) with SPL ids; FDA's licensed-vaccines page lists 96 products with 92 trade names and the Purple Book gives BLA licensure status and dates. DailyMed holds the label text, reached by NDC. The NDC is the declared link between CDC, FDA and DailyMed (144 of 149 live CDC unit-of-sale NDCs are in the FDA directory); trade names only propose links. WHO's prequalified list is measured but parked RED (commercial use needs WHO permission); Health Canada's DPD and the EMA register were not measured this round."
+    sources: [ vax-cdc-iis-code-sets, vax-fda-ndc-directory-vaccines, vax-fda-licensed-vaccines-purple-book, vax-dailymed-vaccine-spl ]
+    join_keys:
+      - key: NDC package code in the CDC unit-of-sale crosswalk equals an NDC package code in the openFDA vaccine NDC directory
+        between: [ vax-cdc-iis-code-sets, vax-fda-ndc-directory-vaccines ]
+        measured: "144/149 CDC unit-of-sale NDCs without an end date are in the openFDA vaccine NDC list (147/581 over all rows, since ended NDCs leave the directory); unit-of-use 124/129 live (126/529 all), matched against inner-package NDCs in the packaging description; 144 of the 195 openFDA package NDCs are in a CDC crosswalk (the rest include relabeller and export-only packages)"
+        mode: declared
+      - key: NDC package code in the CDC unit-of-sale crosswalk resolves to a DailyMed SPL document
+        between: [ vax-cdc-iis-code-sets, vax-dailymed-vaccine-spl ]
+        measured: "20/20 seeded live CDC unit-of-sale NDCs resolve to a DailyMed SPL (19 distinct set ids); all 20 documents cite the NDC in their text; 0/20 resolve when the code is zero-padded to 5-4-2"
+        mode: declared
+      - key: normalised trade name (CDC active product trade name vs FDA licensed-vaccines list trade name)
+        between: [ vax-cdc-iis-code-sets, vax-fda-licensed-vaccines-purple-book ]
+        measured: "58/113 distinct CDC active trade names equal an FDA list trade name after normalisation (92 FDA trade names); the 55 misses are mostly CDC names with a formulation suffix, non-US COVID-19 vaccines and monoclonal antibodies; 20/20 hand-checked matches are the same product"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: normalised trade name (CDC active product trade name vs openFDA NDC directory trade-name base)
+        between: [ vax-cdc-iis-code-sets, vax-fda-ndc-directory-vaccines ]
+        measured: "53/113 distinct CDC active trade names equal one of the 83 openFDA vaccine trade-name bases (not hand-checked)"
+        mode: candidate
+    taxonomy:
+      - "vaccine code status (CDC CVX): Active | Inactive | Non-US | Never Active; non-vaccine flag (immune globulins, antibodies)"
+      - "disease target / vaccine group from the CVX description (influenza, COVID-19, RSV, pneumococcal, meningococcal, hepatitis, DTaP family, ...)"
+      - "package level: unit of sale (carton) | unit of use (vial, syringe), each with NDC and GTIN where given"
+      - "licensure (Purple Book): Licensed | Voluntarily Revoked | Revoked, with BLA number, licence type and approval date"
+      - "marketing category (NDC directory): BLA | drug for further processing | export only | unapproved"
+    agent_questions:
+      - "Which CVX and MVX codes go with this vaccine NDC or trade name, and is that code still active? (measured: all 584 unit-of-sale rows carry a resolving CVX)"
+      - "Is this vaccine NDC still marketed, who holds the BLA, and when was it licensed? (measured: 144 of 149 live CDC NDCs are in the FDA directory; 74 of 74 BLA numbers are in the Purple Book)"
+      - "What does the current label say about the dosing schedule, contraindications and storage for this presentation, with the label version and date?"
+      - "Which vaccine codes, trade names or NDCs were added or inactivated since a given date? (measured: newest CDC updates CVX 2026-09-10, trade names 2026-08-12, NDC 2026-09-17)"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.py, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json, docs/sources/pipeline/evidence/2026-11-20/vax_handcheck.json ]
+    next_action: 'Resolve every live CDC NDC to its DailyMed SPL and measure section coverage and sponsor copyright notices; make the trade-name candidate formulation-aware (CDC suffixes, one FDA trade name covering several CVX codes) before any review queue; screen Health Canada DPD schedule D products and the EMA register as further jurisdictions (not measured this round) and CDC VIS / CPT-to-CVX tables; ask WHO for permission before using the prequalified list.'

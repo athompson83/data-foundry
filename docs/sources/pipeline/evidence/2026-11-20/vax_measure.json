@@ -1,0 +1,754 @@
+{
+ "cdc_cvx": {
+  "by_status": {
+   "Active": 115,
+   "Inactive": 118,
+   "Never Active": 18,
+   "Non-US": 39
+  },
+  "bytes": 55005,
+  "distinct_codes": 290,
+  "newest_update": "2026/09/10",
+  "non_vaccine_true": 30,
+  "rows": 290,
+  "status": 200,
+  "with_notes": 166
+ },
+ "cdc_mvx": {
+  "by_status": {
+   "Active": 36,
+   "Inactive": 53
+  },
+  "bytes": 7688,
+  "newest_update": "2026/04/14",
+  "rows": 89,
+  "status": 200
+ },
+ "cdc_ndc": {
+  "unit_of_sale": {
+   "bytes": 153224,
+   "cvx_resolving": 584,
+   "distinct_cvx": 128,
+   "distinct_ndc11": 581,
+   "newest_update": "2026-09-17",
+   "no_end_date": 151,
+   "rows": 584,
+   "status": 200,
+   "with_gtin": 220
+  },
+  "unit_of_use": {
+   "bytes": 141775,
+   "cvx_resolving": 533,
+   "distinct_ndc11": 529,
+   "newest_update": "2026-09-17",
+   "no_end_date": 133,
+   "rows": 533,
+   "status": 200
+  }
+ },
+ "cdc_tradename": {
+  "by_product_status": {
+   "Active": 125,
+   "Inactive": 100
+  },
+  "bytes": 28227,
+  "cvx_resolving": 225,
+  "distinct_names": 190,
+  "mvx_resolving": 213,
+  "newest_update": "2026/08/12",
+  "rows": 225,
+  "status": 200
+ },
+ "dailymed_doctype_filter": {
+  "db_published_date": "Nov 19, 2026 09:06:04PM EST",
+  "status": 200,
+  "total_elements": 0
+ },
+ "dailymed_sample": {
+  "distinct_setids": 19,
+  "ndc_cited_in_label": 20,
+  "prose_chars_max": 122614,
+  "prose_chars_median": 39063,
+  "prose_chars_min": 24766,
+  "records": [
+   {
+    "cdc_ndc11": "58160082311",
+    "cites_ndc_in_text": true,
+    "cvx": "187",
+    "ndc_native": "58160-823-11",
+    "prose_chars": 66022,
+    "published": "Sep 07, 2026",
+    "section_codes": 23,
+    "setid": "0280849d-5c78-4a9d-8941-4eab429f6bd8",
+    "spl_version": 24,
+    "status": 200,
+    "xml_bytes": 296554,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "71665000102",
+    "cites_ndc_in_text": true,
+    "cvx": "318",
+    "ndc_native": "71665-001-02",
+    "prose_chars": 36597,
+    "published": "Oct 26, 2026",
+    "section_codes": 27,
+    "setid": "d4f29180-7c76-40ac-9341-cf62702c4090",
+    "spl_version": 10,
+    "status": 200,
+    "xml_bytes": 124543,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "50632002402",
+    "cites_ndc_in_text": true,
+    "cvx": "206",
+    "ndc_native": "50632-024-02",
+    "prose_chars": 41321,
+    "published": "Dec 31, 2025",
+    "section_codes": 1,
+    "setid": "b115e2e7-c24d-4306-b26c-8696ac61c9f7",
+    "spl_version": 1,
+    "status": 200,
+    "xml_bytes": 146592,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "49281064515",
+    "cites_ndc_in_text": true,
+    "cvx": "141",
+    "ndc_native": "49281-645-15",
+    "prose_chars": 57298,
+    "published": "Jul 06, 2026",
+    "section_codes": 28,
+    "setid": "5fe0ce14-bc11-4b43-b002-7efdca0d3003",
+    "spl_version": 13,
+    "status": 200,
+    "xml_bytes": 215290,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "49281002650",
+    "cites_ndc_in_text": true,
+    "cvx": "313",
+    "ndc_native": "49281-026-50",
+    "prose_chars": 122614,
+    "published": "Sep 04, 2026",
+    "section_codes": 26,
+    "setid": "9afb20dd-54ee-475a-98f3-5bfcf9546faf",
+    "spl_version": 1,
+    "status": 200,
+    "xml_bytes": 287292,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "00006507301",
+    "cites_ndc_in_text": true,
+    "cvx": "332",
+    "ndc_native": "0006-5073-01",
+    "prose_chars": 34307,
+    "published": "Nov 05, 2026",
+    "section_codes": 30,
+    "setid": "c9004a92-40e8-4cdb-b22d-d07929f8fc3b",
+    "spl_version": 5,
+    "status": 200,
+    "xml_bytes": 90718,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "58160081252",
+    "cites_ndc_in_text": true,
+    "cvx": "130",
+    "ndc_native": "58160-812-52",
+    "prose_chars": 29281,
+    "published": "May 21, 2026",
+    "section_codes": 20,
+    "setid": "6b5f89e9-1292-4f13-5590-44c874bf299c",
+    "spl_version": 32,
+    "status": 200,
+    "xml_bytes": 107440,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "00006484100",
+    "cites_ndc_in_text": true,
+    "cvx": "52",
+    "ndc_native": "0006-4841-00",
+    "prose_chars": 65530,
+    "published": "Nov 02, 2026",
+    "section_codes": 26,
+    "setid": "89191ae9-7f2b-4206-8397-bf7fce3436ac",
+    "spl_version": 29,
+    "status": 200,
+    "xml_bytes": 208816,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "58160081605",
+    "cites_ndc_in_text": true,
+    "cvx": "48",
+    "ndc_native": "58160-816-05",
+    "prose_chars": 36497,
+    "published": "Nov 04, 2026",
+    "section_codes": 22,
+    "setid": "745ff8df-1618-4b76-9aa1-6f42752c0dda",
+    "spl_version": 24,
+    "status": 200,
+    "xml_bytes": 215994,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "00006499541",
+    "cites_ndc_in_text": true,
+    "cvx": "43",
+    "ndc_native": "0006-4995-41",
+    "prose_chars": 39063,
+    "published": "Nov 02, 2026",
+    "section_codes": 24,
+    "setid": "b5bd99e4-569d-48d5-ba75-16e69f8c409a",
+    "spl_version": 33,
+    "status": 200,
+    "xml_bytes": 127654,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "00006499200",
+    "cites_ndc_in_text": true,
+    "cvx": "44",
+    "ndc_native": "0006-4992-00",
+    "prose_chars": 39063,
+    "published": "Nov 02, 2026",
+    "section_codes": 24,
+    "setid": "b5bd99e4-569d-48d5-ba75-16e69f8c409a",
+    "spl_version": 33,
+    "status": 200,
+    "xml_bytes": 127654,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "49281086010",
+    "cites_ndc_in_text": true,
+    "cvx": "10",
+    "ndc_native": "49281-860-10",
+    "prose_chars": 35845,
+    "published": "Jun 12, 2026",
+    "section_codes": 21,
+    "setid": "34a647f5-8728-451b-b918-94c8acd15974",
+    "spl_version": 15,
+    "status": 200,
+    "xml_bytes": 102093,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "49281012665",
+    "cites_ndc_in_text": true,
+    "cvx": "135",
+    "ndc_native": "49281-126-65",
+    "prose_chars": 27759,
+    "published": "Jul 06, 2026",
+    "section_codes": 27,
+    "setid": "de0e2089-f781-4d47-99f5-c2a1b7b0f1eb",
+    "spl_version": 7,
+    "status": 200,
+    "xml_bytes": 81855,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "58160084811",
+    "cites_ndc_in_text": true,
+    "cvx": "303",
+    "ndc_native": "58160-848-11",
+    "prose_chars": 74222,
+    "published": "Aug 10, 2026",
+    "section_codes": 25,
+    "setid": "1e50f275-002e-413f-a840-66ee3cb3740c",
+    "spl_version": 13,
+    "status": 200,
+    "xml_bytes": 303121,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "50632001602",
+    "cites_ndc_in_text": true,
+    "cvx": "25",
+    "ndc_native": "50632-016-02",
+    "prose_chars": 24766,
+    "published": "Feb 17, 2025",
+    "section_codes": 14,
+    "setid": "09d800e3-427e-4973-9261-61592d662bbd",
+    "spl_version": 2,
+    "status": 200,
+    "xml_bytes": 58149,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "50090206200",
+    "cites_ndc_in_text": true,
+    "cvx": "113",
+    "ndc_native": "50090-2062-0",
+    "prose_chars": 32103,
+    "published": "Jun 23, 2023",
+    "section_codes": 25,
+    "setid": "db0c7f7c-7624-477d-ab7c-310a903c7025",
+    "spl_version": 14,
+    "status": 200,
+    "xml_bytes": 113757,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "00069041102",
+    "cites_ndc_in_text": true,
+    "cvx": "224",
+    "ndc_native": "0069-0411-02",
+    "prose_chars": 26433,
+    "published": "Mar 18, 2026",
+    "section_codes": 27,
+    "setid": "da102644-62a9-41c2-8a91-6fc19a03e6f1",
+    "spl_version": 7,
+    "status": 200,
+    "xml_bytes": 179379,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "80777034562",
+    "cites_ndc_in_text": true,
+    "cvx": "326",
+    "ndc_native": "80777-345-62",
+    "prose_chars": 43074,
+    "published": "Aug 11, 2026",
+    "section_codes": 23,
+    "setid": "e5c837e7-41e8-496a-9c85-6b0453b35948",
+    "spl_version": 6,
+    "status": 200,
+    "xml_bytes": 164710,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "49281072610",
+    "cites_ndc_in_text": true,
+    "cvx": "155",
+    "ndc_native": "49281-726-10",
+    "prose_chars": 46813,
+    "published": "Jul 06, 2026",
+    "section_codes": 25,
+    "setid": "0c3cd915-babe-49c0-8aac-bf0247a17f3e",
+    "spl_version": 9,
+    "status": 200,
+    "xml_bytes": 145342,
+    "xml_status": 200
+   },
+   {
+    "cdc_ndc11": "00006437902",
+    "cites_ndc_in_text": true,
+    "cvx": "116",
+    "ndc_native": "0006-4379-02",
+    "prose_chars": 50798,
+    "published": "Jun 01, 2026",
+    "section_codes": 4,
+    "setid": "aaf3b24e-85fd-43ee-b657-2ee4df312ec3",
+    "spl_version": 48,
+    "status": 200,
+    "xml_bytes": 181411,
+    "xml_status": 200
+   }
+  ],
+  "resolved_to_spl": [
+   20,
+   20
+  ],
+  "sampled_cdc_live_sale_ndcs": 20
+ },
+ "fda_licensed_list": {
+  "bytes": 61161,
+  "content_current_as_of": "10/08/2026",
+  "distinct_trade_names": 92,
+  "package_insert_or_product_links": 99,
+  "rows": 96,
+  "rows_without_trade_name": 7,
+  "status": 200
+ },
+ "fda_purple_book": {
+  "by_center": {
+   "CBER": 1054,
+   "CDER": 1202
+  },
+  "by_licensure": {
+   "Licensed": 2018,
+   "Revoked": 3,
+   "Voluntarily Revoked": 235
+  },
+  "bytes": 487133,
+  "change_rows": 15,
+  "distinct_bla_numbers": 865,
+  "download_page_links": 81,
+  "newest_file": "https://www.accessdata.fda.gov/drugsatfda_docs/PurpleBook/2026/purplebook-search-October-data-download.csv",
+  "product_rows": 2256,
+  "status": 200,
+  "title": "Purple Book Monthly Historical Data Changes Report - October 2026"
+ },
+ "join_bla_openfda_purple_book_same_publisher": [
+  74,
+  74
+ ],
+ "join_ndc_cdc_openfda": {
+  "cdc_unit_of_sale_all": [
+   147,
+   581
+  ],
+  "cdc_unit_of_sale_no_end_date": [
+   144,
+   149
+  ],
+  "cdc_unit_of_use_all": [
+   126,
+   529
+  ],
+  "cdc_unit_of_use_no_end_date": [
+   124,
+   129
+  ],
+  "openfda_package_ndc_in_cdc_sale_or_use": [
+   144,
+   195
+  ],
+  "unmatched_live_sale_examples": [
+   "00006507301",
+   "00006507302",
+   "42515000301",
+   "49281057415",
+   "49281057515"
+  ],
+  "unmatched_openfda_examples": [
+   "00006417588",
+   "00006430900",
+   "49281031515",
+   "49281091205",
+   "49281091210",
+   "50024010001",
+   "50024030001",
+   "50024031110",
+   "50090107900",
+   "50090122301"
+  ]
+ },
+ "join_trade_name_cdc_fda_list": {
+  "cdc_active_distinct_names": 113,
+  "cdc_only_examples": [
+   "Adenovirus types 4 and 7",
+   "Afluria quadrivalent, preservative free",
+   "Afluria quadrivalent, preservative free, pediatric",
+   "Afluria quadrivalent, with preservative",
+   "Afluria trivalent, preservative free",
+   "Afluria trivalent, with preservative",
+   "BEYFORTUS",
+   "CONVIDECIA (CanSino Biologics) COVID-19 Vaccine",
+   "COVAXIN (Bharat) COVID-19 Vaccine",
+   "Coronavac (Sinovac) COVID-19 Vaccine",
+   "Covifenz",
+   "ENFLONSIA",
+   "ENGERIX B-PEDS",
+   "ENGERIX-B-ADULT",
+   "ERVEBO (Ebola Zaire Vaccine, Live)",
+   "FLUZONE High-Dose Quadrivalent Southern Hemisphere",
+   "FLUZONE High-Dose Trivalent Southern Hemisphere",
+   "FLUZONE Quadrivalent Southern Hemisphere",
+   "FLUZONE Quadrivalent Southern Hemisphere, Pediatric",
+   "FLUZONE Trivalent Southern Hemisphere",
+   "FluMist trivalent",
+   "FluMist trivalent (self/caregiver administered)",
+   "Fluad trivalent, preservative free",
+   "Fluarix quadrivalent, preservative free",
+   "Fluarix trivalent, preservative free"
+  ],
+  "fda_distinct_trade_names": 92,
+  "fda_only_examples": [
+   "AREPANRIX",
+   "AUDENZ",
+   "Afluria",
+   "Afluria Quadrivalent",
+   "Afluria Quadrivalent Southern Hemisphere",
+   "Afluria Southern Hemisphere",
+   "Agriflu",
+   "BCG Vaccine",
+   "Cervarix",
+   "ERVEBO",
+   "Engerix-B",
+   "FluLaval",
+   "FluMist",
+   "Fluad",
+   "Fluarix",
+   "Fluarix Quadrivalent",
+   "Flublok",
+   "Flublok Quadrivalent",
+   "Flucelvax",
+   "Flucelvax Quadrivalent",
+   "Flulaval Quadrivalent",
+   "Fluvirin",
+   "Fluzone",
+   "Fluzone High-Dose and Fluzone Intradermal",
+   "Gardasil"
+  ],
+  "matched": [
+   58,
+   113
+  ]
+ },
+ "join_trade_name_cdc_openfda_ndc": [
+  53,
+  113
+ ],
+ "openfda_label_product_types": {
+  "counts": {
+   "CELLULAR THERAPY": 17,
+   "HUMAN OTC DRUG": 49674,
+   "HUMAN PRESCRIPTION DRUG": 37498,
+   "PLASMA DERIVATIVE": 90
+  },
+  "last_updated": "2026-11-20",
+  "status": 200
+ },
+ "openfda_label_vaccine_query": {
+  "body": "No matches found!",
+  "status": 404
+ },
+ "openfda_ndc_vaccines": {
+  "distinct_application_numbers": 74,
+  "distinct_brand_bases": 83,
+  "distinct_labelers": 31,
+  "distinct_ndc_incl_inner_packages": 362,
+  "distinct_package_ndc": 195,
+  "fetched": 161,
+  "last_updated": "2026-11-19",
+  "marketing_category": {
+   "BLA": 135,
+   "DRUG FOR FURTHER PROCESSING": 23,
+   "EXPORT ONLY": 2,
+   "UNAPPROVED DRUG OTHER": 1
+  },
+  "status": 200,
+  "total": 161,
+  "with_spl_id": 161
+ },
+ "requests": 58,
+ "run_date": "2026-11-20",
+ "terms": {
+  "https://open.fda.gov/terms/": {
+   "bytes": 130897,
+   "quotes_found_verbatim": {
+    "Some data on openFDA may not be public domain, such as copie": true,
+    "Unless otherwise noted, the content, data, documentation, co": true
+   },
+   "sha256": "b11f712bfb11d03319675fc04e6948133a83c57aa2913b7f18d3677d0209f723",
+   "status": 200
+  },
+  "https://www.cdc.gov/other/agencymaterials.html": {
+   "bytes": 84067,
+   "quotes_found_verbatim": {
+    "Attribution to the agency that developed the material must b": true,
+    "Most of the information on the CDC and ATSDR websites is not": true
+   },
+   "sha256": "ce4947eeeef60392ec42e43ee160d0ca628d9296717cdc3539820c95a4020f23",
+   "status": 200
+  },
+  "https://www.fda.gov/about-fda/about-website/website-policies": {
+   "bytes": 45582,
+   "quotes_found_verbatim": {
+    "They are in the public domain and may be republished, reprin": true
+   },
+   "sha256": "005968cda5cb261ed7dfe3229f5193425a7fdc12967ff187797fdf2f869bb27c",
+   "status": 200
+  },
+  "https://www.nlm.nih.gov/web_policies.html": {
+   "bytes": 43526,
+   "quotes_found_verbatim": {
+    "Transmission or reproduction of copyrighted items (beyond th": true
+   },
+   "sha256": "c8b7026b5c3fcfd1b0cb88755077f6a99a5f2159eecd42b0e7d1a5ad9b30ec55",
+   "status": 200
+  },
+  "https://www.who.int/about/policies/publishing/copyright": {
+   "bytes": 105847,
+   "quotes_found_verbatim": {
+    "Permission is required for commercial uses and licensing of ": true
+   },
+   "sha256": "81397ae23a362a8529c2d319368a304bd6e6490451b9868c51d0c391a7ea79f6",
+   "status": 200
+  }
+ },
+ "trade_name_handcheck_sample": [
+  {
+   "cdc_cvx": "334",
+   "cdc_cvx_short": "COVID-19, mRNA, LNP-S, PF, 10 mcg/0.2 mL",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "mNEXSPIKE",
+   "fda_product_name": "COVID-19 Vaccine, mRNA",
+   "fda_trade_name": "MNEXSPIKE"
+  },
+  {
+   "cdc_cvx": "216",
+   "cdc_cvx_short": "Pneumococcal conjugate PCV20, polysaccharide CRM197 conjugate, adjuvant, PF",
+   "cdc_manufacturer": "Pfizer, Inc",
+   "cdc_trade_name": "PREVNAR 20",
+   "fda_product_name": "Pneumococcal 20-valent Conjugate Vaccine",
+   "fda_trade_name": "Prevnar 20"
+  },
+  {
+   "cdc_cvx": "316",
+   "cdc_cvx_short": "Meningococcal polysaccharide (MenACWY-TT conjugate), (MenB), PF",
+   "cdc_manufacturer": "Pfizer, Inc",
+   "cdc_trade_name": "PENBRAYA",
+   "fda_product_name": "Meningococcal Groups A, B, C, W, and Y Vaccine",
+   "fda_trade_name": "PENBRAYA"
+  },
+  {
+   "cdc_cvx": "203",
+   "cdc_cvx_short": "meningococcal conjugate quadrivalent, MenACWY-TT (MCV4)",
+   "cdc_manufacturer": "Sanofi Pasteur",
+   "cdc_trade_name": "MenQuadfi",
+   "fda_product_name": "Meningococcal (Groups A, C, Y, W) Conjugate Vaccine",
+   "fda_trade_name": "MenQuadfi"
+  },
+  {
+   "cdc_cvx": "48",
+   "cdc_cvx_short": "Hib (PRP-T)",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "HIBERIX",
+   "fda_product_name": "Haemophilus b Conjugate Vaccine (Tetanus Toxoid Conjugate)",
+   "fda_trade_name": "Hiberix"
+  },
+  {
+   "cdc_cvx": "09",
+   "cdc_cvx_short": "Td (adult), 2 Lf tetanus toxoid, preservative free, adsorbed",
+   "cdc_manufacturer": "Massachusetts Biologic Laboratories",
+   "cdc_trade_name": "TDVAX",
+   "fda_product_name": "Tetanus & Diphtheria Toxoids, Adsorbed",
+   "fda_trade_name": "TDVAX"
+  },
+  {
+   "cdc_cvx": "205",
+   "cdc_cvx_short": "Influenza, adjuvanted, quadrivalent, PF",
+   "cdc_manufacturer": "Seqirus",
+   "cdc_trade_name": "FLUAD Quadrivalent",
+   "fda_product_name": "Influenza Vaccine, Adjuvanted",
+   "fda_trade_name": "Fluad Quadrivalent"
+  },
+  {
+   "cdc_cvx": "311",
+   "cdc_cvx_short": "COVID-19, mRNA, LNP-S, PF, 25 mcg/0.25 mL",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "SPIKEVAX",
+   "fda_product_name": "COVID-19 Vaccine, mRNA",
+   "fda_trade_name": "SPIKEVAX"
+  },
+  {
+   "cdc_cvx": "327",
+   "cdc_cvx_short": "Pneumococcal conjugate PCV21, polysaccharide CRM197 conjugate, PF",
+   "cdc_manufacturer": "Merck and Co., Inc.",
+   "cdc_trade_name": "CAPVAXIVE",
+   "fda_product_name": "Pneumococcal 21-valent Conjugate Vaccine",
+   "fda_trade_name": "CAPVAXIVE"
+  },
+  {
+   "cdc_cvx": "338",
+   "cdc_cvx_short": "Influenza, mRNA, trivalent, PF",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "mFLUSIVA",
+   "fda_product_name": "Influenza Vaccine, mRNA",
+   "fda_trade_name": "MFLUSIVA"
+  },
+  {
+   "cdc_cvx": "24",
+   "cdc_cvx_short": "Anthrax, pre-exposure prophylaxis, post-exposure prophylaxis",
+   "cdc_manufacturer": "Emergent BioSolutions",
+   "cdc_trade_name": "BIOTHRAX",
+   "fda_product_name": "Anthrax Vaccine Adsorbed",
+   "fda_trade_name": "Biothrax"
+  },
+  {
+   "cdc_cvx": "03",
+   "cdc_cvx_short": "MMR",
+   "cdc_manufacturer": "Merck and Co., Inc.",
+   "cdc_trade_name": "M-M-R II",
+   "fda_product_name": "Measles, Mumps, and Rubella Virus Vaccine, Live",
+   "fda_trade_name": "M-M-R II"
+  },
+  {
+   "cdc_cvx": "162",
+   "cdc_cvx_short": "meningococcal B, recombinant",
+   "cdc_manufacturer": "Pfizer, Inc",
+   "cdc_trade_name": "Trumenba",
+   "fda_product_name": "Meningococcal Group B Vaccine",
+   "fda_trade_name": "TRUMENBA"
+  },
+  {
+   "cdc_cvx": "104",
+   "cdc_cvx_short": "Hep A-Hep B",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "TWINRIX",
+   "fda_product_name": "Hepatitis A Inactivated and Hepatitis B (Recombinant) Vaccine",
+   "fda_trade_name": "Twinrix"
+  },
+  {
+   "cdc_cvx": "20",
+   "cdc_cvx_short": "DTaP",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "INFANRIX",
+   "fda_product_name": "Diphtheria & Tetanus Toxoids & Acellular Pertussis Vaccine Adsorbed",
+   "fda_trade_name": "Infanrix"
+  },
+  {
+   "cdc_cvx": "101",
+   "cdc_cvx_short": "typhoid, ViCPs",
+   "cdc_manufacturer": "Sanofi Pasteur",
+   "cdc_trade_name": "TYPHIM VI",
+   "fda_product_name": "Typhoid Vi Polysaccharide Vaccine",
+   "fda_trade_name": "TYPHIM Vi"
+  },
+  {
+   "cdc_cvx": "326",
+   "cdc_cvx_short": "RSV, mRNA, injectable, PF",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "mRESVIA",
+   "fda_product_name": "Respiratory Syncytial Virus Vaccine",
+   "fda_trade_name": "MRESVIA"
+  },
+  {
+   "cdc_cvx": "130",
+   "cdc_cvx_short": "DTaP-IPV",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "KINRIX",
+   "fda_product_name": "Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus Vaccine",
+   "fda_trade_name": "KINRIX"
+  },
+  {
+   "cdc_cvx": "134",
+   "cdc_cvx_short": "Japanese Encephalitis IM",
+   "cdc_manufacturer": "Valneva",
+   "cdc_trade_name": "Ixiaro",
+   "fda_product_name": "Japanese Encephalitis Virus Vaccine, Inactivated, Adsorbed",
+   "fda_trade_name": "Ixiaro"
+  },
+  {
+   "cdc_cvx": "318",
+   "cdc_cvx_short": "Anthrax, post-exposure prophylaxis",
+   "cdc_manufacturer": "Emergent BioSolutions",
+   "cdc_trade_name": "CYFENDUS",
+   "fda_product_name": "Anthrax Vaccine Adsorbed, Adjuvanted",
+   "fda_trade_name": "CYFENDUS"
+  }
+ ],
+ "user_agent": "data-foundry-scout/1.0 (data@mail.proviciency.com)",
+ "who_prequalified": {
+  "bytes": 48212,
+  "distinct_commercial_names": 170,
+  "distinct_manufacturers": 51,
+  "distinct_vaccine_types": 56,
+  "names_also_cdc_active_trade_names": [
+   11,
+   170
+  ],
+  "newest_prequalification": "2026-11-02",
+  "rows": 287,
+  "status": 200
+ }
+}
