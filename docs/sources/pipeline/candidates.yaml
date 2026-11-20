@@ -12513,6 +12513,100 @@ candidates:
       - url: https://nagerholidays.com/legal/termsofservice
         quote: "It is not allowed to use the holiday information to publish or operate your own holiday portal."
     next_action: 'PARKED (RED): the terms of service (last updated 2023-09-15) allow the Web API for private or non-profit projects only, require sponsorship for commercial use and forbid operating a holiday portal with the data; robots.txt disallows /api/v. Two probe requests made before the terms were read (the 2026 GB list, 14 rows, and the country list, 204 entries) were not kept or used in any measurement. Reopen only with a written commercial arrangement.'
+  - key: lei-gleif-lei-records
+    name: "GLEIF Global LEI Index (LEI records, relationship records and reporting exceptions: API and daily golden-copy files)"
+    category: corporate
+    structuring: normalization
+    format: structured
+    publisher: Global Legal Entity Identifier Foundation (GLEIF)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.gleif.org/api/v1/lei-records', 'https://goldencopy.gleif.org/api/v2/golden-copies/publishes/latest', 'https://api.gleif.org/api/v1/registration-authorities', 'https://www.gleif.org/en/meta/lei-data-terms-of-use' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/lei_measure.py, docs/sources/pipeline/evidence/2026-11-20/lei_measure.json, docs/sources/pipeline/evidence/2026-11-20/lei_handcheck.json ]
+    terms:
+      - url: https://www.gleif.org/en/meta/lei-data-terms-of-use
+        quote: "The data available through the Access Service are provided under the CC0 licence, see CC0 1.0 Universal (CC0 1.0)"
+    conditions:
+      - "Exclude entity category SOLE_PROPRIETOR (133,943 records on 2026-11-20): those LEIs identify natural persons acting in a business capacity."
+      - "Keep the registration status with every record: 1,223,129 of 3,501,010 records are LAPSED (reference data no longer renewed) and must never be shown as current."
+    next_action: 'Measured 2026-11-20: golden copy published 2026-11-20 08:00 UTC with 3,501,010 LEI records (entity status ACTIVE 3,231,888 / INACTIVE 259,982; registration ISSUED 2,008,042 / LAPSED 1,223,129 / RETIRED 260,349; categories GENERAL 3,101,581, FUND 256,413, SOLE_PROPRIETOR 133,943), 493,595 relationship records and 6,494,186 reporting exceptions; jurisdictions IN 415,826, DE 407,062, US 365,915, IT 263,847, GB 235,467; 1,138 registration authorities; full files daily plus IntraDay, LastDay, LastWeek and LastMonth deltas (CSV zip 510,794,361 bytes). Next: take the daily golden-copy CSV and deltas into R2, read the remaining sections of the terms of use before RIGHTS_DETERMINED, and measure the registeredAs join against further national registers (Handelsregister, SIRENE, KVK).'
+  - key: lei-uk-companies-house-basic-company-data
+    name: "UK Companies House Free Company Data Product (monthly snapshot of basic data for every live company)"
+    category: corporate
+    structuring: normalization
+    format: structured
+    publisher: UK Companies House
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://download.companieshouse.gov.uk/en_output.html', 'https://www.gov.uk/guidance/companies-house-data-products' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/lei_measure.py, docs/sources/pipeline/evidence/2026-11-20/lei_measure.json, docs/sources/pipeline/evidence/2026-11-20/lei_handcheck.json ]
+    terms:
+      - url: https://www.gov.uk/guidance/companies-house-data-products
+        quote: "We impose no rules or requirements on how the information on the public register is used, and we’re not responsible for your use of the company data."
+      - url: https://download.companieshouse.gov.uk/en_output.html
+        quote: "This snapshot is provided free of charge and will not be supported."
+    conditions:
+      - "The download page carries no licence text; the gov.uk guidance says no rules are imposed on use but leaves data-protection and copyright compliance to the user. Read the Companies House public task and Crown copyright statement before RIGHTS_DETERMINED."
+      - "The file holds company-level fields only (55 columns: number, status, category, dates, SIC text, registered office, previous names); a company called after a person and a registered office at a home address are still possible, so publish company-level facts only and never officer or PSC data (not in this product)."
+      - "Live companies only and a monthly snapshot (compiled to the end of the previous month): dissolved companies are absent, so absence from the file is not evidence that a number is invalid."
+      - "Bulk download only; the Companies House API needs a key and is not used."
+    next_action: 'Measured 2026-11-20: snapshot BasicCompanyDataAsOneFile-2026-11-01.zip (494,554,856 bytes, CSV 2,814,210,743 bytes, also offered in 7 parts; page last updated 01/11/2026) holds 5,711,779 rows and as many distinct company numbers, 55 columns; status Active 5,179,256, Active - Proposal to Strike off 417,325, Liquidation 107,871; Private Limited Company 5,283,363; 5,479,953 rows with SIC text, 533,181 with a previous name; newest incorporation date 2026-10-31. Next: read the Crown copyright and public task statement, archive each monthly snapshot to R2 and diff snapshots into incorporation, status-change and rename events.'
+  - key: lei-sec-edgar-company-registry
+    name: "SEC EDGAR filer registry (company_tickers.json and data.sec.gov submissions: CIK, conformed name, SIC, state of incorporation, former names)"
+    category: corporate
+    structuring: normalization
+    format: structured
+    publisher: US Securities and Exchange Commission
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.sec.gov/files/company_tickers.json', 'https://data.sec.gov/submissions/CIK0000320193.json', 'https://www.sec.gov/os/accessing-edgar-data', 'https://www.sec.gov/about/privacy-information' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/lei_measure.py, docs/sources/pipeline/evidence/2026-11-20/lei_measure.json, docs/sources/pipeline/evidence/2026-11-20/lei_handcheck.json ]
+    terms:
+      - url: https://www.sec.gov/about/privacy-information
+        quote: "Information presented on sec.gov is considered public information and may be copied or further distributed by users of the web site without the SEC’s permission."
+    conditions:
+      - "Declared User-Agent with contact and at most 10 requests a second (SEC fair-access policy); no SEC seal or logo, cite the SEC as the source."
+      - "Submissions JSON carries phone numbers and, for individual filers, natural persons: ingest only entities with entityType operating, investment or other that are companies, and drop phone fields."
+    next_action: 'Measured 2026-11-20: company_tickers.json lists 10,398 ticker rows for 7,993 distinct CIKs; in a seeded sample of 60 submissions records 60 carry an EIN flag, 54 a state of incorporation, 50 a SIC code, 43 a 10-K among recent filings, 0 a populated lei field and 0 a populated description field (newest filing date in the sample 2026-11-20). Next: take the nightly submissions.zip bulk file instead of per-CIK requests, and search XBRL dei:LegalEntityIdentifier facts for a declared LEI link.'
+  - key: lei-sec-edgar-10k-business-descriptions
+    name: "SEC EDGAR annual reports, Item 1 Business prose (Form 10-K primary documents)"
+    category: corporate
+    structuring: event-extraction
+    format: free-text
+    publisher: US Securities and Exchange Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.sec.gov/Archives/edgar/data/', 'https://www.sec.gov/about/privacy-information' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 5, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/lei_measure.py, docs/sources/pipeline/evidence/2026-11-20/lei_measure.json, docs/sources/pipeline/evidence/2026-11-20/lei_handcheck.json ]
+    terms:
+      - url: https://www.sec.gov/about/privacy-information
+        quote: "Information presented on sec.gov is considered public information and may be copied or further distributed by users of the web site without the SEC’s permission."
+    conditions:
+      - "The text is written by the filer, not the SEC: publish extracted facts (lines of business, segments, subsidiaries, employee counts) with a short evidence span and the filing URL, never bulk verbatim sections."
+      - "Declared User-Agent with contact and at most 10 requests a second; no SEC seal or logo."
+      - "Item 1 names executives in some filings: extract company facts only and store no names of people."
+    next_action: 'Measured 2026-11-20: the newest 10-K primary document of 15 sampled filers was fetched (15 of 15 answered; 10,152 to 667,162 characters of text); a regular expression for the Item 1 Business heading up to Item 1A or Item 2 found a section of 1,000 characters or more in 11 (median 69,451 characters), and failed on 4 (heading styled differently, or the report incorporates the section by reference). Next: use the inline-XBRL and heading structure rather than a regular expression, measure section recovery over 200 filings, and screen Companies House accounts and strategic reports as a second free-text member.'
+  - key: lei-opencorporates-api
+    name: "OpenCorporates company data (website and API)"
+    category: corporate
+    structuring: normalization
+    format: structured
+    publisher: OpenCorporates Ltd
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://opencorporates.com/terms-of-use-2/' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 1, structuring_value: 2, freshness: 4, low_onboarding_cost: 2, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md ]
+    terms:
+      - url: https://opencorporates.com/terms-of-use-2/
+        quote: "The OpenCorporates API may be used only with an API key."
+      - url: https://opencorporates.com/terms-of-use-2/
+        quote: "We offer free access to our company data through this website to the general public (for personal use only and not for the benefit of a corporation or company)"
+    next_action: 'PARKED (RED): terms read 2026-11-20; the API needs a key, free website access is for personal use only, and free keys are share-alike while commercial or proprietary use needs a paid non-share-alike key. No data was requested. Reopen only under a paid licence; the national registers it aggregates are taken from their publishers instead.'
 
 datasets:
   - key: home-product-recalls-global
@@ -16502,3 +16596,39 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 1 }
     evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
     next_action: 'Screen further legal-basis text (Executive Order 11582, The Gazette proclamations, Code du travail L3133-1, the Australian state Holidays Acts) and government lists for Canada, New Zealand and Ireland (the Canada Revenue Agency and Employment New Zealand pages answered 200 and list dated holidays; citizensinformation.ie answered 403); compare the vacanza library output with the government lists in an isolated job; archive each list to R2 on every change, since the UK and US files are rolling windows; existing free access is good, so the product is the legal-basis and substitute-day record, not the date list.'
+  - key: legal-entity-registry
+    name: "Legal entity registry: LEI, national company number and SEC filer identity with business descriptions (GLEIF, Companies House, SEC EDGAR)"
+    category: corporate
+    entity: "registered legal entity (company, fund or other non-natural-person body), identified by its LEI, national register number (Companies House company number) and SEC CIK: legal name and former names, legal form, status, jurisdiction, registered address, parent relationships, industry code and prose business description"
+    stage: SCREENED
+    description: "One record per legal entity. GLEIF publishes 3,501,010 LEI records daily under CC0 (2,008,042 with an issued registration, 493,595 parent-relationship records), each naming the business register that validated it and the number it holds there. The Companies House free data product lists 5,711,779 live UK companies monthly with status, category, SIC text and previous names. SEC EDGAR lists 7,993 CIKs with tickers, with SIC, state of incorporation and former names in the submissions records; Item 1 of the annual report is the free-text member. GLEIF's registeredAs value under registration authority RA000585 is the Companies House company number, so UK LEIs link to the register automatically (595 of 600 sampled); SEC filers carry no LEI in the submissions records (0 of 60), so SEC to GLEIF links are reviewed name candidates. Sole-proprietor LEIs and all officer data are excluded."
+    sources: [ lei-gleif-lei-records, lei-uk-companies-house-basic-company-data, lei-sec-edgar-company-registry, lei-sec-edgar-10k-business-descriptions ]
+    join_keys:
+      - key: "Companies House company number held as the GLEIF registeredAs value under registration authority RA000585 equals the company number in the Companies House snapshot"
+        between: [ lei-gleif-lei-records, lei-uk-companies-house-basic-company-data ]
+        measured: "595/600 sampled GLEIF records registered at RA000585 resolve to a row of the 2026-11-01 snapshot (595 of 598 with entity status ACTIVE, 0 of 2 INACTIVE; the snapshot lists live companies only); 590 of the 595 also carry the same normalised legal name; Companies House status of the resolved rows: Active 590, Active - Proposal to Strike off 3, Liquidation 2. The sample is 3 seeded pages of 200 from the first 10,000 of 114,390 such records, not a draw from all of them."
+        mode: declared
+      - key: "SEC CIK in the EDGAR archive path of the annual report equals the CIK of the submissions record"
+        between: [ lei-sec-edgar-10k-business-descriptions, lei-sec-edgar-company-registry ]
+        measured: "15/15 sampled 10-K primary documents were fetched from the archive path built from the filer's CIK and accession number (same publisher, so this join does not count towards independence)"
+        mode: declared
+      - key: "normalised legal name (SEC EDGAR conformed name vs GLEIF legal name)"
+        between: [ lei-sec-edgar-company-registry, lei-gleif-lei-records ]
+        measured: "28/60 sampled SEC filers have a GLEIF record with the same normalised legal name (one candidate each); 18/20 hand-checked pairs are the same entity by state of incorporation or business city, 2 not confirmed (one name-only match, one American depositary receipt filer record)"
+        mode: candidate
+        reviewed: { correct: 18, checked: 20 }
+    taxonomy:
+      - "entity category: general company | fund | branch | government entity | international organisation (GLEIF category; sole proprietors excluded)"
+      - "legal form: ISO 20275 entity legal form code (GLEIF) | Companies House company category (private limited, PLC, LLP, limited partnership, CIC, overseas entity, ...)"
+      - "status: register status (active, proposal to strike off, liquidation, administration, dissolved) kept apart from LEI registration status (issued, lapsed, retired, merged, annulled)"
+      - "identifier scheme: LEI | national register number with its GLEIF registration authority code | SEC CIK | ticker"
+      - "industry: UK SIC 2007 text (Companies House) | SEC SIC code"
+      - "relationship: direct parent | ultimate parent | reporting exception (GLEIF level 2)"
+    agent_questions:
+      - "What is the LEI of UK company number 00445790, is the LEI registration current, and what is the company's status on the register? (measured: one GLEIF record, registered and validated at RA000585, registration status ISSUED)"
+      - "Which legal entity is behind this SEC filer, in which jurisdiction is it incorporated, and who is its ultimate parent?"
+      - "Which UK companies with an LEI went into liquidation or a strike-off proposal since last month's snapshot? (measured in the sample: 3 strike-off proposals and 2 liquidations among 595 linked companies)"
+      - "Is this counterparty's LEI lapsed, and does the name on the register still match the LEI record? (measured: 1,223,129 lapsed registrations; 5 of 595 linked UK records differ in normalised name)"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/lei_measure.py, docs/sources/pipeline/evidence/2026-11-20/lei_measure.json, docs/sources/pipeline/evidence/2026-11-20/lei_handcheck.json ]
+    next_action: 'Add "SEC CIK" to the declared-join allow-list; read the Companies House Crown copyright statement and the rest of the GLEIF terms; measure the registeredAs join on the whole golden copy against the whole snapshot (not a 600-record sample) and against a second national register; look for a declared LEI to CIK link in XBRL dei facts before relying on names; measure Item 1 section recovery on 200 filings; screen Companies House accounts, SIRENE (France), KVK and the German Handelsregister as further members.'

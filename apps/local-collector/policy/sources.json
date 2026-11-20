@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "14f2bac86cd6ef915b6f032227d1a27b12f282f7a5c45324028477a88ea3fe08",
+  "registry_sha256": "1ac67e5f1dee5ac4659029de549688685b0cedda901877c6b241c5566e2f2d03",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -931,6 +931,16 @@
         "hol-us-gpo-usc-5-6103",
         "hol-fr-etalab-jours-feries",
         "hol-au-pmc-public-holidays"
+      ]
+    },
+    "legal-entity-registry": {
+      "name": "Legal entity registry: LEI, national company number and SEC filer identity with business descriptions (GLEIF, Companies House, SEC EDGAR)",
+      "stage": "SCREENED",
+      "sources": [
+        "lei-gleif-lei-records",
+        "lei-uk-companies-house-basic-company-data",
+        "lei-sec-edgar-company-registry",
+        "lei-sec-edgar-10k-business-descriptions"
       ]
     }
   },
@@ -8533,6 +8543,71 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "Nager.Date (nager.at)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "lei-gleif-lei-records": {
+      "name": "GLEIF Global LEI Index (LEI records, relationship records and reporting exceptions: API and daily golden-copy files)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Global Legal Entity Identifier Foundation (GLEIF)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "lei-uk-companies-house-basic-company-data": {
+      "name": "UK Companies House Free Company Data Product (monthly snapshot of basic data for every live company)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "UK Companies House",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "lei-sec-edgar-company-registry": {
+      "name": "SEC EDGAR filer registry (company_tickers.json and data.sec.gov submissions: CIK, conformed name, SIC, state of incorporation, former names)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Securities and Exchange Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "lei-sec-edgar-10k-business-descriptions": {
+      "name": "SEC EDGAR annual reports, Item 1 Business prose (Form 10-K primary documents)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Securities and Exchange Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "lei-opencorporates-api": {
+      "name": "OpenCorporates company data (website and API)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "OpenCorporates Ltd",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
