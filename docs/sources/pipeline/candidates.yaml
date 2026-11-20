@@ -12120,6 +12120,61 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/debar_measure.py, docs/sources/pipeline/evidence/2026-11-18/debar_measure.json, docs/sources/pipeline/evidence/2026-11-18/debar_handcheck.json ]
     next_action: 'PARKED (RED, access-gated): measured 2026-11-18, the debarment page returned HTTP 403 with a Cloudflare challenge page, so neither the list nor the site terms could be read. AfDB-originated debarments are visible through the IDB open dataset (34 firm rows labelled AfDB cross debarment). Reopen if the page answers without a challenge.'
+  - key: tz-iana-tzdb
+    name: "IANA Time Zone Database (tzdb): zones, links, daylight-saving rule lines and country tables (tzdata.zi, zone1970.tab, zone.tab, backward)"
+    category: reference
+    structuring: normalization
+    format: structured
+    publisher: IANA (Internet Assigned Numbers Authority, operated by ICANN; tz database coordinators)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://data.iana.org/time-zones/tzdb/tzdata.zi', 'https://data.iana.org/time-zones/tzdb/zone1970.tab', 'https://data.iana.org/time-zones/tzdb/zone.tab', 'https://data.iana.org/time-zones/tzdb/version', 'https://data.iana.org/time-zones/releases/', 'https://data.iana.org/time-zones/tzdb/LICENSE' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/tz_measure.py, docs/sources/pipeline/evidence/2026-11-20/tz_measure.json, docs/sources/pipeline/evidence/2026-11-20/tz_handcheck.json ]
+    terms:
+      - url: https://data.iana.org/time-zones/tzdb/LICENSE
+        quote: "Unless specified below, all files in the tz code and data (including this LICENSE file) are in the public domain."
+    next_action: 'Measured 2026-11-20: version 2026f (released 2026-10-27); tzdata.zi holds 345 Zones and 253 Links (598 identifiers, every Link target a Zone), 131 named rule sets in 1,974 rule lines; zone1970.tab 312 rows over 247 country codes (34 rows shared by several countries); zone.tab 418 rows (106 are Links); the release directory lists 249 data releases from 1996l to 2026f (6 in 2026, 3 in 2025, 2 in 2024). Next: archive every release tarball to R2, compile each release to explicit transition tables, and diff releases into dated per-zone change events.'
+  - key: tz-iana-tzdb-news-commentary
+    name: "IANA tz database NEWS file and source-file commentary (dated prose on rule changes, per release and per zone)"
+    category: reference
+    structuring: event-extraction
+    format: free-text
+    publisher: IANA (Internet Assigned Numbers Authority, operated by ICANN; tz database coordinators)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.iana.org/time-zones/tzdb/NEWS', 'https://data.iana.org/time-zones/tzdata-latest.tar.gz', 'https://data.iana.org/time-zones/tzdb/LICENSE' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/tz_measure.py, docs/sources/pipeline/evidence/2026-11-20/tz_measure.json, docs/sources/pipeline/evidence/2026-11-20/tz_handcheck.json ]
+    terms:
+      - url: https://data.iana.org/time-zones/tzdb/LICENSE
+        quote: "Unless specified below, all files in the tz code and data (including this LICENSE file) are in the public domain."
+    conditions:
+      - "The files are public domain, but the source commentary quotes third-party e-mails and news reports (1,277 attributed 'From' lines measured): publish extracted facts (zone, date, old and new offset or rule) with a release and file reference, not the quoted third-party passages."
+      - "NEWS and the commentary thank and quote contributors by name: never store or publish the names of people."
+      - "A place word in prose only proposes a zone (hand-check 13/16); link automatically only on a cited tz identifier."
+    next_action: 'Measured 2026-11-20: NEWS is 264,231 bytes with 314 release blocks from 1992-04-25 to 2026f (2026-10-27); 39 releases have a "Changes to future timestamps" section and 34 a "Changes to past timestamps" section; 68 releases cite at least one tz identifier (323 of 327 distinct cited identifiers resolve to a tzdb Zone or Link). The 2026f data tarball (483,310 bytes, 32 files) carries 14,381 comment lines (726,469 characters) across the regional source files. Next: extract dated change events (zone, effective date, offsets before and after, prediction vs enacted) from the NEWS sections and tie each to the tzdata.zi diff of that release; screen the tz-announce archive (answered 200, not parsed) and government legal-time notices as further free-text members.'
+  - key: tz-unicode-cldr-timezones
+    name: "Unicode CLDR time zone data (BCP 47 tz ids and aliases, Windows zone mapping, metazone history)"
+    category: reference
+    structuring: normalization
+    format: structured
+    publisher: Unicode Consortium (CLDR project)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/unicode-org/cldr/main/common/bcp47/timezone.xml', 'https://raw.githubusercontent.com/unicode-org/cldr/main/common/supplemental/windowsZones.xml', 'https://raw.githubusercontent.com/unicode-org/cldr/main/common/supplemental/metaZones.xml', 'https://raw.githubusercontent.com/unicode-org/cldr/main/LICENSE' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/tz_measure.py, docs/sources/pipeline/evidence/2026-11-20/tz_measure.json, docs/sources/pipeline/evidence/2026-11-20/tz_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/unicode-org/cldr/main/LICENSE
+        quote: "Permission is hereby granted, free of charge, to any person obtaining a copy of data files and any associated documentation (the \"Data Files\") or software and any associated documentation (the \"Software\") to deal in the Data Files or Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, and/or sell copies of the Data Files or Software"
+    conditions:
+      - "Unicode License V3: the copyright and permission notice must appear with all copies of the data files or in the associated documentation; carry it in the dataset documentation and bulk manifests."
+      - "Do not use the Unicode name to promote the product without prior written authorisation (licence clause)."
+      - "The LDML specification text (UTS #35) in the same repository is not under this licence and may not be redistributed: take only the XML data files."
+      - "The main branch was read; pin a tagged CLDR release before building (cldr-json core reported 49.0.0)."
+    next_action: 'Measured 2026-11-20 (main branch): bcp47/timezone.xml has 469 tz types (18 deprecated, 451 with aliases, 601 distinct alias identifiers); windowsZones.xml 505 mapZone rows for 142 Windows zone names over 445 distinct tz identifiers; metaZones.xml 419 time zones with metazone history across 155 metazones. CLDR keeps its own canonical identifier: 329 of 451 are tzdb Zones and 121 are tzdb Links (for example Asia/Calcutta, America/Buenos_Aires). Next: pin a release tag, record the CLDR canonical id, short BCP 47 id, Windows zone and metazone periods per tzdb identifier, and diff per CLDR release.'
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -15947,3 +16002,49 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-18.md, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.py, docs/sources/pipeline/evidence/2026-11-18/seccert_measure.json, docs/sources/pipeline/evidence/2026-11-18/seccert_handcheck.json ]
     next_action: 'Crawl every CMVP certificate page and archive Security Policy PDFs and Common Criteria Security Targets / certification reports to R2; extract cited CMVP certificate numbers from all Security Targets (the screening sampled 60 of 1,848 US/CA documents) and the scheme certificate ids from the reports; make the vendor and product candidate join version-aware before any review queue; read the NIAP site notice and re-check the Common Criteria portal for terms; ask CCCS, CCN and ANSSI about open reuse of their national lists; screen BSI, JISEC and the EUCC certificate list as further members.'
+  - key: time-zone-rules
+    name: "Time zone rules and identifiers (IANA tz database, tzdb NEWS and commentary, Unicode CLDR mappings)"
+    category: reference
+    entity: "time zone, identified by its IANA tz identifier (for example America/New_York): UTC offset and daylight-saving rule history, country mapping, aliases and links, CLDR canonical id, BCP 47 short id, Windows zone and metazone, and the dated rule changes announced in release prose"
+    stage: SCREENED
+    description: "One record per IANA time zone identifier. tzdb 2026f gives 345 Zones and 253 Links with 1,974 rule lines and the country tables; the NEWS file (314 release blocks since 1992) and the source commentary (14,381 comment lines) are the free-text member and explain each change in prose; Unicode CLDR adds the BCP 47 short ids and aliases (601 identifiers), the Windows zone mapping (142 Windows zones) and metazone history (419 zones). Everything links on the IANA identifier: all 598 tzdb identifiers are known to CLDR, and CLDR's canonical choice differs from tzdb's for 121 identifiers, which only the joined record shows."
+    sources: [ tz-iana-tzdb, tz-iana-tzdb-news-commentary, tz-unicode-cldr-timezones ]
+    join_keys:
+      - key: IANA time zone identifier listed as a CLDR BCP 47 alias equals a tzdb Zone or Link identifier
+        between: [ tz-unicode-cldr-timezones, tz-iana-tzdb ]
+        measured: "598/601 distinct CLDR alias identifiers resolve to a tzdb 2026f Zone (345) or Link (253); the 3 others are Etc/Unknown, US/Pacific-New and Canada/East-Saskatchewan; all 598 tzdb identifiers are covered by a CLDR alias"
+        mode: declared
+      - key: IANA time zone identifier in the CLDR Windows zone mapping equals a tzdb Zone or Link identifier
+        between: [ tz-unicode-cldr-timezones (windowsZones), tz-iana-tzdb ]
+        measured: "445/445 distinct identifiers in 505 mapZone rows resolve (324 to a Zone, 121 to a Link)"
+        mode: declared
+      - key: IANA time zone identifier with a CLDR metazone history equals a tzdb Zone or Link identifier
+        between: [ tz-unicode-cldr-timezones (metaZones), tz-iana-tzdb ]
+        measured: "419/419 resolve (298 to a Zone, 121 to a Link); 298 of the 345 tzdb Zones have a metazone history"
+        mode: declared
+      - key: IANA time zone identifier cited in the tzdb NEWS text equals a CLDR BCP 47 alias
+        between: [ tz-iana-tzdb-news-commentary, tz-unicode-cldr-timezones ]
+        measured: "323/323 distinct identifiers cited in NEWS that resolve in tzdb are also CLDR aliases (327 cited in all; 68 of 314 releases cite at least one)"
+        mode: declared
+      - key: IANA time zone identifier cited in the tzdb NEWS text equals a tzdb Zone or Link identifier
+        between: [ tz-iana-tzdb-news-commentary, tz-iana-tzdb ]
+        measured: "323/327 distinct cited identifiers resolve (the 4 others: America/Honolulu, America/New_York/Bronx, Australia/Macquarie, Etc/Unknown); same publisher, so this join does not count as independent"
+        mode: declared
+      - key: place name in a NEWS release summary vs the city part of a tzdb Zone identifier
+        between: [ tz-iana-tzdb-news-commentary, tz-iana-tzdb ]
+        measured: "11/45 releases with a Briefly summary contain the city word of a Zone (16 release-zone pairs); 13/16 hand-checked pairs report a change to that zone (wrong: Chihuahua state border area, Moscow as reference time, EST5EDT as a POSIX setting)"
+        mode: candidate
+        reviewed: { correct: 13, checked: 16 }
+    taxonomy:
+      - "identifier status: tzdb Zone | tzdb Link (backward-compatibility or merged) | CLDR canonical | CLDR deprecated | not in tzdb"
+      - "area: America | Asia | Europe | Pacific | Etc | Africa | Australia | Antarctica | Atlantic | Indian | legacy ids without an area"
+      - "change type: future timestamps (enacted or predicted) | past timestamps (historical correction) | new zone | rename | link or merge"
+      - "mapping: ISO 3166 country (zone1970.tab) | Windows zone and territory | CLDR metazone and period | BCP 47 short id"
+    agent_questions:
+      - "Which tzdb release changed the rules for this zone, on what effective date, and was it an enacted change or a prediction? (measured: 2026f, released 2026-10-27, records that Cuba will not fall back on 2026-11-01)"
+      - "What is the canonical identifier for Asia/Calcutta in tzdb and in CLDR, and which Windows zone maps to it? (measured: CLDR's canonical id is a tzdb Link for 121 identifiers)"
+      - "Which identifiers changed status (new Zone, renamed, turned into a Link) in the last two years of releases?"
+      - "Which countries share one zone record, and which zones does a country span? (measured: 34 of 312 zone1970.tab rows cover several countries)"
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/tz_measure.py, docs/sources/pipeline/evidence/2026-11-20/tz_measure.json, docs/sources/pipeline/evidence/2026-11-20/tz_handcheck.json ]
+    next_action: 'Archive every tzdb release tarball (249 listed) and tagged CLDR release to R2; compile each tzdb release to transition tables and diff them into per-zone change events tied to the NEWS section that explains them; extract effective dates and offsets from NEWS prose with golden tests; screen the tz-announce archive and government legal-time notices (not measured this round) as independent free-text members, since today the only free-text member shares its publisher with tzdb.'

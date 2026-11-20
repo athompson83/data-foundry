@@ -1,0 +1,119 @@
+{
+ "method": "Candidate join: the city part of a tzdb Zone identifier (5+ letters) appears as a word in the 'Briefly' summary of a NEWS release. All 16 pairs the script found were read against the summary text (fewer than 20 exist); correct = the summary reports a change to that zone.",
+ "checked": 16,
+ "correct": 13,
+ "pairs": [
+  {
+   "date": "2018-12-23",
+   "release": "2018h",
+   "zone": "Asia/Qyzylorda",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2020-10-06",
+   "release": "2020b",
+   "zone": "Antarctica/Macquarie",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2020-12-22",
+   "release": "2020e",
+   "zone": "Europe/Volgograd",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2021-09-24",
+   "release": "2021b",
+   "zone": "Pacific/Kanton",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2022-11-29",
+   "release": "2022g",
+   "zone": "America/Chihuahua",
+   "verdict": "wrong",
+   "note": "the summary concerns the northern edge of Chihuahua state (other zones), not the America/Chihuahua zone"
+  },
+  {
+   "date": "2023-03-22",
+   "release": "2023a",
+   "zone": "America/Edmonton",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2023-12-21",
+   "release": "2023d",
+   "zone": "Antarctica/Casey",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2019-03-25",
+   "release": "2019a",
+   "zone": "America/Metlakatla",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2023-12-21",
+   "release": "2023d",
+   "zone": "Antarctica/Vostok",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2020-10-06",
+   "release": "2020b",
+   "zone": "Antarctica/Casey",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2020-12-22",
+   "release": "2020e",
+   "zone": "Europe/Moscow",
+   "verdict": "wrong",
+   "note": "Moscow is only the reference time Volgograd switches to; the Moscow zone did not change"
+  },
+  {
+   "date": "2022-10-28",
+   "release": "2022f",
+   "zone": "America/Chihuahua",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2018-12-23",
+   "release": "2018h",
+   "zone": "Asia/Qostanay",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2026-09-11",
+   "release": "2026d",
+   "zone": "EST5EDT",
+   "verdict": "wrong",
+   "note": "the summary cites the POSIX TZ setting string, not a change to the EST5EDT zone"
+  },
+  {
+   "date": "2019-09-11",
+   "release": "2019c",
+   "zone": "Pacific/Norfolk",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  },
+  {
+   "date": "2018-12-23",
+   "release": "2018h",
+   "zone": "America/Metlakatla",
+   "verdict": "correct",
+   "note": "the release summary reports a change to this zone (or its creation, renaming or link)"
+  }
+ ]
+}

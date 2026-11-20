@@ -1,0 +1,743 @@
+{
+ "cldr": {
+  "bcp47_deprecated_types": 18,
+  "bcp47_distinct_alias_ids": 601,
+  "bcp47_types_with_alias": 451,
+  "bcp47_tz_types": 469,
+  "cldr_json_core_version": "49.0.0",
+  "license_bytes": 3193,
+  "license_sha256": "65eb33419e22a297550a811b5b535f5e532f9a7e0114b516c0ea18afd53c3804",
+  "metazone_mapzone_rows": 283,
+  "metazone_timezones": 419,
+  "metazones": 155,
+  "windows_distinct_tz_ids": 445,
+  "windows_file_declared_versions": {
+   "otherVersion": "7e11800",
+   "typeVersion": "2021a"
+  },
+  "windows_mapzone_rows": 505,
+  "windows_zone_names": 142
+ },
+ "iana": {
+  "by_area": {
+   "(no area)": 5,
+   "Africa": 19,
+   "America": 121,
+   "Antarctica": 8,
+   "Asia": 74,
+   "Atlantic": 8,
+   "Australia": 11,
+   "Etc": 28,
+   "Europe": 38,
+   "Indian": 3,
+   "Pacific": 30
+  },
+  "data_releases_listed": 249,
+  "identifiers": 598,
+  "license_bytes": 252,
+  "license_sha256": "0613408568889f5739e5ae252b722a2659c02002839ad970a63dc5e9174b27cf",
+  "link_targets_resolving_to_a_zone": 253,
+  "links": 253,
+  "named_rule_sets": 131,
+  "oldest_and_newest_listed": [
+   "1996l",
+   "2026f"
+  ],
+  "rule_lines": 1974,
+  "version": "2026f",
+  "zone1970_country_codes": 247,
+  "zone1970_ids_resolving": 312,
+  "zone1970_rows": 312,
+  "zone1970_rows_with_several_countries": 34,
+  "zone_tab_ids_resolving": 418,
+  "zone_tab_ids_that_are_links": 106,
+  "zone_tab_rows": 418,
+  "zones": 345
+ },
+ "iana_news": {
+  "all_releases": {
+   "distinct_ids_cited": 327,
+   "distinct_ids_resolving": 323,
+   "unresolved_examples": [
+    "America/Honolulu",
+    "America/New_York/Bronx",
+    "Australia/Macquarie",
+    "Etc/Unknown"
+   ],
+   "with_a_resolving_id": 68
+  },
+  "bytes": 264231,
+  "median_characters_per_release_block": 178,
+  "newest": [
+   "2026f",
+   "2026-10-27"
+  ],
+  "newest_40": [
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 2441,
+    "date": "2026-10-27",
+    "ids_cited": 1,
+    "ids_resolving": 1,
+    "release": "2026f"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 1774,
+    "date": "2026-09-29",
+    "ids_cited": 1,
+    "ids_resolving": 1,
+    "release": "2026e"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 3718,
+    "date": "2026-09-11",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2026d"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 3231,
+    "date": "2026-07-08",
+    "ids_cited": 1,
+    "ids_resolving": 1,
+    "release": "2026c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 3212,
+    "date": "2026-04-22",
+    "ids_cited": 5,
+    "ids_resolving": 5,
+    "release": "2026b"
+   },
+   {
+    "changes_future": false,
+    "changes_past": false,
+    "characters": 4328,
+    "date": "2026-03-01",
+    "ids_cited": 3,
+    "ids_resolving": 3,
+    "release": "2026a"
+   },
+   {
+    "changes_future": false,
+    "changes_past": true,
+    "characters": 6464,
+    "date": "2025-12-10",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2025c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 861,
+    "date": "2025-03-22",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2025b"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 3427,
+    "date": "2025-01-15",
+    "ids_cited": 1,
+    "ids_resolving": 0,
+    "release": "2025a"
+   },
+   {
+    "changes_future": false,
+    "changes_past": true,
+    "characters": 5523,
+    "date": "2024-09-04",
+    "ids_cited": 23,
+    "ids_resolving": 23,
+    "release": "2024b"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 2909,
+    "date": "2024-02-01",
+    "ids_cited": 4,
+    "ids_resolving": 4,
+    "release": "2024a"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 4087,
+    "date": "2023-12-21",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2023d"
+   },
+   {
+    "changes_future": false,
+    "changes_past": false,
+    "characters": 193,
+    "date": "2023-03-28",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2023c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 208,
+    "date": "2023-03-23",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2023b"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 4345,
+    "date": "2023-03-22",
+    "ids_cited": 5,
+    "ids_resolving": 5,
+    "release": "2023a"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 3551,
+    "date": "2022-11-29",
+    "ids_cited": 5,
+    "ids_resolving": 5,
+    "release": "2022g"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 4679,
+    "date": "2022-10-28",
+    "ids_cited": 7,
+    "ids_resolving": 7,
+    "release": "2022f"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 684,
+    "date": "2022-10-11",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2022e"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 715,
+    "date": "2022-09-23",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2022d"
+   },
+   {
+    "changes_future": false,
+    "changes_past": false,
+    "characters": 792,
+    "date": "2022-08-15",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2022c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 4859,
+    "date": "2022-08-10",
+    "ids_cited": 34,
+    "ids_resolving": 34,
+    "release": "2022b"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 2551,
+    "date": "2022-03-15",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2022a"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 173,
+    "date": "2021-10-21",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2021e"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 560,
+    "date": "2021-10-15",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2021d"
+   },
+   {
+    "changes_future": false,
+    "changes_past": false,
+    "characters": 1180,
+    "date": "2021-10-01",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2021c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 10861,
+    "date": "2021-09-24",
+    "ids_cited": 16,
+    "ids_resolving": 16,
+    "release": "2021b"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 174,
+    "date": "2021-01-24",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2021a"
+   },
+   {
+    "changes_future": false,
+    "changes_past": false,
+    "characters": 210,
+    "date": "2020-12-29",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2020f"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 1908,
+    "date": "2020-12-22",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2020e"
+   },
+   {
+    "changes_future": false,
+    "changes_past": false,
+    "characters": 710,
+    "date": "2020-10-21",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2020d"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 619,
+    "date": "2020-10-16",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2020c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 2882,
+    "date": "2020-10-06",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2020b"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 3678,
+    "date": "2020-04-23",
+    "ids_cited": 6,
+    "ids_resolving": 6,
+    "release": "2020a"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 2870,
+    "date": "2019-09-11",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2019c"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 4216,
+    "date": "2019-07-01",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2019b"
+   },
+   {
+    "changes_future": false,
+    "changes_past": true,
+    "characters": 1799,
+    "date": "2019-03-25",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2019a"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 325,
+    "date": "2018-12-30",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2018i"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 3486,
+    "date": "2018-12-23",
+    "ids_cited": 9,
+    "ids_resolving": 9,
+    "release": "2018h"
+   },
+   {
+    "changes_future": true,
+    "changes_past": false,
+    "characters": 1200,
+    "date": "2018-10-26",
+    "ids_cited": 0,
+    "ids_resolving": 0,
+    "release": "2018g"
+   },
+   {
+    "changes_future": true,
+    "changes_past": true,
+    "characters": 5927,
+    "date": "2018-10-18",
+    "ids_cited": 2,
+    "ids_resolving": 2,
+    "release": "2018f"
+   }
+  ],
+  "newest_40_releases": {
+   "distinct_ids_cited": 122,
+   "distinct_ids_resolving": 121,
+   "unresolved": [
+    "Etc/Unknown"
+   ],
+   "with_a_resolving_id": 26
+  },
+  "oldest": [
+   "92",
+   "1992-04-25"
+  ],
+  "releases": 314,
+  "releases_per_year_since_2016": {
+   "2016": 10,
+   "2017": 3,
+   "2018": 9,
+   "2019": 3,
+   "2020": 6,
+   "2021": 5,
+   "2022": 7,
+   "2023": 4,
+   "2024": 2,
+   "2025": 3,
+   "2026": 6
+  },
+  "releases_with_future_timestamp_changes": 39,
+  "releases_with_past_timestamp_changes": 34
+ },
+ "iana_tarball": {
+  "attributed_from_lines_total": 1277,
+  "bytes": 483310,
+  "comment_characters_total": 726469,
+  "comment_lines_total": 14381,
+  "files": 32,
+  "sha256": "01b4a91cec5167ed48c11e8ab78f2048cead78ce94b0cafcad0ae8c5a3044d3d",
+  "source_files": {
+   "africa": {
+    "comment_characters": 46891,
+    "comment_lines": 956,
+    "from_lines": 107,
+    "lines": 1333
+   },
+   "antarctica": {
+    "comment_characters": 12539,
+    "comment_lines": 287,
+    "from_lines": 17,
+    "lines": 362
+   },
+   "asia": {
+    "comment_characters": 158497,
+    "comment_lines": 3129,
+    "from_lines": 255,
+    "lines": 4250
+   },
+   "australasia": {
+    "comment_characters": 84460,
+    "comment_lines": 1661,
+    "from_lines": 167,
+    "lines": 2237
+   },
+   "backward": {
+    "comment_characters": 4016,
+    "comment_lines": 82,
+    "from_lines": 2,
+    "lines": 375
+   },
+   "backzone": {
+    "comment_characters": 48884,
+    "comment_lines": 1025,
+    "from_lines": 75,
+    "lines": 1809
+   },
+   "etcetera": {
+    "comment_characters": 2405,
+    "comment_lines": 45,
+    "from_lines": 0,
+    "lines": 84
+   },
+   "europe": {
+    "comment_characters": 144355,
+    "comment_lines": 2890,
+    "from_lines": 258,
+    "lines": 4212
+   },
+   "factory": {
+    "comment_characters": 947,
+    "comment_lines": 17,
+    "from_lines": 0,
+    "lines": 22
+   },
+   "northamerica": {
+    "comment_characters": 148485,
+    "comment_lines": 2850,
+    "from_lines": 241,
+    "lines": 4019
+   },
+   "southamerica": {
+    "comment_characters": 74990,
+    "comment_lines": 1439,
+    "from_lines": 155,
+    "lines": 2112
+   }
+  },
+  "version_file": "2026f"
+ },
+ "joins": {
+  "bcp47_alias_id_to_tzdb": {
+   "matched": 598,
+   "to_link": 253,
+   "to_zone": 345,
+   "total": 601,
+   "unresolved": [
+    "Canada/East-Saskatchewan",
+    "Etc/Unknown",
+    "US/Pacific-New"
+   ]
+  },
+  "cldr_canonical_is_tzdb_zone": {
+   "cldr_canonical_is_tzdb_link": [
+    "Africa/Accra",
+    "Africa/Addis_Ababa",
+    "Africa/Asmera",
+    "Africa/Bamako",
+    "Africa/Bangui",
+    "Africa/Banjul",
+    "Africa/Blantyre",
+    "Africa/Brazzaville",
+    "Africa/Bujumbura",
+    "Africa/Conakry",
+    "Africa/Dakar",
+    "Africa/Dar_es_Salaam",
+    "Africa/Djibouti",
+    "Africa/Douala",
+    "Africa/Freetown",
+    "Africa/Gaborone",
+    "Africa/Harare",
+    "Africa/Kampala",
+    "Africa/Kigali",
+    "Africa/Kinshasa",
+    "Africa/Libreville",
+    "Africa/Lome",
+    "Africa/Luanda",
+    "Africa/Lubumbashi",
+    "Africa/Lusaka",
+    "Africa/Malabo",
+    "Africa/Maseru",
+    "Africa/Mbabane",
+    "Africa/Mogadishu",
+    "Africa/Niamey",
+    "Africa/Nouakchott",
+    "Africa/Ouagadougou",
+    "Africa/Porto-Novo",
+    "America/Anguilla",
+    "America/Antigua",
+    "America/Aruba",
+    "America/Blanc-Sablon",
+    "America/Buenos_Aires",
+    "America/Catamarca",
+    "America/Cayman",
+    "America/Coral_Harbour",
+    "America/Cordoba",
+    "America/Creston",
+    "America/Curacao",
+    "America/Dominica",
+    "America/Godthab",
+    "America/Grenada",
+    "America/Guadeloupe",
+    "America/Indianapolis",
+    "America/Jujuy",
+    "America/Kralendijk",
+    "America/Louisville",
+    "America/Lower_Princes",
+    "America/Marigot",
+    "America/Mendoza",
+    "America/Montserrat",
+    "America/Nassau",
+    "America/Port_of_Spain",
+    "America/St_Barthelemy",
+    "America/St_Kitts"
+   ],
+   "count_link": 121,
+   "matched": 329,
+   "total": 451
+  },
+  "metazone_mapzone_to_tzdb": {
+   "matched": 280,
+   "total": 280
+  },
+  "metazone_timezone_to_tzdb": {
+   "matched": 419,
+   "to_link": 121,
+   "to_zone": 298,
+   "total": 419,
+   "unresolved": []
+  },
+  "news_cited_id_to_cldr_alias": {
+   "matched": 323,
+   "total": 323
+  },
+  "tzdb_ids_covered_by_cldr_alias": {
+   "matched": 598,
+   "total": 598,
+   "tzdb_only_examples": []
+  },
+  "tzdb_zones_with_a_metazone_history": {
+   "matched": 298,
+   "total": 345
+  },
+  "windows_tz_id_to_tzdb": {
+   "matched": 445,
+   "to_link": 121,
+   "to_zone": 324,
+   "total": 445,
+   "unresolved": []
+  }
+ },
+ "news_briefly_city_name_candidates": {
+  "pairs": 16,
+  "releases": 11,
+  "releases_with_briefly": 45,
+  "seeded_sample_20": [
+   {
+    "date": "2018-12-23",
+    "release": "2018h",
+    "zone": "Asia/Qyzylorda"
+   },
+   {
+    "date": "2020-10-06",
+    "release": "2020b",
+    "zone": "Antarctica/Macquarie"
+   },
+   {
+    "date": "2020-12-22",
+    "release": "2020e",
+    "zone": "Europe/Volgograd"
+   },
+   {
+    "date": "2021-09-24",
+    "release": "2021b",
+    "zone": "Pacific/Kanton"
+   },
+   {
+    "date": "2022-11-29",
+    "release": "2022g",
+    "zone": "America/Chihuahua"
+   },
+   {
+    "date": "2023-03-22",
+    "release": "2023a",
+    "zone": "America/Edmonton"
+   },
+   {
+    "date": "2023-12-21",
+    "release": "2023d",
+    "zone": "Antarctica/Casey"
+   },
+   {
+    "date": "2019-03-25",
+    "release": "2019a",
+    "zone": "America/Metlakatla"
+   },
+   {
+    "date": "2023-12-21",
+    "release": "2023d",
+    "zone": "Antarctica/Vostok"
+   },
+   {
+    "date": "2020-10-06",
+    "release": "2020b",
+    "zone": "Antarctica/Casey"
+   },
+   {
+    "date": "2020-12-22",
+    "release": "2020e",
+    "zone": "Europe/Moscow"
+   },
+   {
+    "date": "2022-10-28",
+    "release": "2022f",
+    "zone": "America/Chihuahua"
+   },
+   {
+    "date": "2018-12-23",
+    "release": "2018h",
+    "zone": "Asia/Qostanay"
+   },
+   {
+    "date": "2026-09-11",
+    "release": "2026d",
+    "zone": "EST5EDT"
+   },
+   {
+    "date": "2019-09-11",
+    "release": "2019c",
+    "zone": "Pacific/Norfolk"
+   },
+   {
+    "date": "2018-12-23",
+    "release": "2018h",
+    "zone": "America/Metlakatla"
+   }
+  ]
+ },
+ "requests": 13,
+ "run_date": "2026-11-20"
+}
