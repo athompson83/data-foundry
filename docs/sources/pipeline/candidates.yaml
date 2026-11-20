@@ -12380,6 +12380,139 @@ candidates:
       - url: https://www.who.int/about/policies/publishing/copyright
         quote: "Permission is required for commercial uses and licensing of WHO materials, such as using the material in the context of a commercial activity."
     next_action: 'PARKED (RED): measured 2026-11-20, the keyless CSV export answers (287 rows, 170 distinct commercial names, 51 manufacturers, 56 vaccine types, newest prequalification 2026-11-02; 11 of the 170 names equal a CDC active trade name), but WHO requires permission for commercial uses of its materials. Reopen only with written WHO permission for commercial redistribution of the prequalification list.'
+  - key: hol-uk-gov-bank-holidays
+    name: "GOV.UK bank holidays JSON (England and Wales, Scotland, Northern Ireland: date, title, substitute-day notes)"
+    category: calendar
+    structuring: normalization
+    format: structured
+    publisher: UK Government Digital Service (GOV.UK)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/bank-holidays.json', 'https://www.gov.uk/bank-holidays' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    terms:
+      - url: https://www.gov.uk/bank-holidays
+        quote: "All content is available under the Open Government Licence v3.0, except where otherwise stated"
+    conditions:
+      - "Open Government Licence v3.0: acknowledge the source (GOV.UK, Crown copyright) and link the licence; do not suggest official status or endorsement."
+      - "The file is a rolling window (measured 2019-01-01 to 2028-12-26): archive every retrieved version in R2 so earlier years and later corrections (special bank holidays are added by proclamation) are kept."
+    next_action: 'Measured 2026-11-20: 280 events in 3 divisions (england-and-wales 83, scotland 94, northern-ireland 103), 2019-01-01 to 2028-12-26, 17 distinct titles, 43 events with a Substitute day note; fields title, date, notes, bunting. 149 of the 280 events fall on a date designated by a Schedule 1 item of the Banking and Financial Dealings Act 1971 for that division; the rest are common-law or proclaimed days. Next: archive the JSON daily to R2 and diff it; screen The Gazette royal proclamations as the legal basis of the proclaimed days.'
+  - key: hol-uk-legislation-bank-holidays-act
+    name: "Banking and Financial Dealings Act 1971, Schedule 1 (statutory bank holidays for England and Wales, Scotland and Northern Ireland, as rule text)"
+    category: calendar
+    structuring: obligation-timeline
+    format: free-text
+    publisher: The National Archives (legislation.gov.uk)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.legislation.gov.uk/ukpga/1971/80/schedule/1/data.xml', 'https://www.legislation.gov.uk/ukpga/1971/80/schedule/1' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    terms:
+      - url: https://www.legislation.gov.uk/ukpga/1971/80/schedule/1
+        quote: "All content is available under the Open Government Licence v3.0 except where otherwise stated"
+    conditions:
+      - "Open Government Licence v3.0: acknowledge legislation.gov.uk and link the licence."
+      - "The schedule covers only statutory bank holidays: Good Friday and Christmas Day in England, Wales and Northern Ireland are common-law holidays and New Year's Day, the early May day and special days are proclaimed, so a date with no schedule item is not an error (measured: 131 of 280 listed events have none)."
+      - "Cite the revised text with its version date; amendments (the St Andrew's Day insertion of 2007) change the rule set."
+    next_action: 'Measured 2026-11-20: the Schedule 1 XML (9,804 bytes; 1,716 characters of text) lists 5 items for England and Wales, 7 for Scotland and 6 for Northern Ireland; every one of the 18 items parsed into a date rule (fixed day with Sunday or weekend alternative, first or last Monday of a month, Easter Monday, Good Friday). Next: screen the proclamations in The Gazette and the Scottish and Northern Irish instruments as the basis of the 131 unmatched events.'
+  - key: hol-us-opm-federal-holidays
+    name: "US OPM federal holiday schedules (dated observances per year, with in-lieu-of days and Inauguration Day)"
+    category: calendar
+    structuring: normalization
+    format: structured
+    publisher: US Office of Personnel Management
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.opm.gov/policy-data-oversight/pay-leave/federal-holidays/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    next_action: 'Measured 2026-11-20: one HTML page (152,335 bytes) holds 20 yearly schedule tables, 2011 to 2030, 212 rows, 12 distinct holiday designations (the 11 of 5 U.S.C. 6103(a) plus Inauguration Day), 47 footnoted rows (in-lieu-of days and naming notes); an iCalendar link is present (not fetched). One row has a weekday that fits no adjacent year and was left undated. The page carries no licence wording; the status rests on 17 U.S.C. 105 (federal agency work). Next: fetch and compare the .ics file, read the OPM site notices, and add the executive orders that close federal offices on extra days (Federal Register) as dated one-off observances.'
+  - key: hol-us-gpo-usc-5-6103
+    name: "5 U.S.C. 6103, Holidays (statute text naming the legal public holidays and the Saturday in-lieu rule), GovInfo United States Code"
+    category: calendar
+    structuring: obligation-timeline
+    format: free-text
+    publisher: US Government Publishing Office (GovInfo, United States Code)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.govinfo.gov/link/uscode/5/6103?type=usc&year=mostrecent&link-type=html', 'https://www.govinfo.gov/about/policies' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
+    next_action: 'Measured 2026-11-20: the link service resolved to the 2024 edition (17,224 bytes; 11,541 characters of text); subsection (a) parsed into 11 holidays, each a fixed date or an nth-weekday rule; the text also carries the Saturday in-lieu rule and Inauguration Day. The Sunday rule is not in the section (it comes from Executive Order 11582) and was applied as a fixed rule in the measurement. Next: archive each annual edition, add Executive Order 11582 and the state holiday statutes as further free-text members.'
+  - key: hol-fr-etalab-jours-feries
+    name: "French public holidays (jours feries) API and files by zone, Etalab / data.gouv.fr"
+    category: calendar
+    structuring: normalization
+    format: structured
+    publisher: Etalab (French interministerial digital directorate, data.gouv.fr)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://calendrier.api.gouv.fr/jours-feries/metropole.json', 'https://calendrier.api.gouv.fr/jours-feries/alsace-moselle.json', 'https://www.data.gouv.fr/api/1/datasets/jours-feries-en-france/', 'https://etalab.github.io/jours-feries-france-data/csv/jours_feries_metropole.csv', 'https://raw.githubusercontent.com/etalab/licence-ouverte/master/open-licence.md' ]
+    scores: { agent_demand: 3, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/etalab/licence-ouverte/master/open-licence.md
+        quote: "To exploit it for commercial purposes, e.g., by combining it with other information, or by including it in his/her own product or application."
+    conditions:
+      - "Licence Ouverte 2.0 (data.gouv.fr licence id lov2): acknowledge the source (Etalab / data.gouv.fr) and the date of the most recent update."
+      - "The dates are computed by Etalab's open library from the rules of the Code du travail, not transcribed from a decree: label them as computed and keep the zone (metropole, alsace-moselle and the overseas zones differ)."
+    next_action: 'Measured 2026-11-20: metropole.json holds 285 days from 2006-01-01 to 2031-12-25 (11 a year, 11 distinct names) and alsace-moselle.json 337 days to 2031-12-26 (13 a year); the metropole CSV has 286 rows with columns date, annee, zone, nom_jour_ferie; the data.gouv.fr record gives licence lov2, 4 resources, last modified 2025-05-12. The other zones were not fetched and no second French publisher was measured (Legifrance was not probed). Next: fetch the remaining zones and screen Code du travail article L3133-1 as the free-text legal basis.'
+  - key: hol-au-pmc-public-holidays
+    name: "Australian public holidays machine-readable dataset (all states and territories, yearly CSV), data.gov.au"
+    category: calendar
+    structuring: normalization
+    format: structured
+    publisher: Australian Department of the Prime Minister and Cabinet (data.gov.au)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.gov.au/data/api/3/action/package_show?id=australian-holidays-machine-readable-dataset' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 1, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    conditions:
+      - "Creative Commons Attribution 3.0 Australia (CKAN licence id cc-by): attribute the Department of the Prime Minister and Cabinet and link the licence."
+      - "Stale: the newest resource covers 2025 and was last modified 2024-09-24, so 2026 dates must come from the state and territory pages the rows link to until the dataset is updated."
+      - "Column names and date formats vary between the yearly files; one row of the combined 2021-2025 file has no date."
+    next_action: 'Measured 2026-11-20: the CKAN record lists 12 CSV resources (2014-2015 to 2025; metadata modified 2026-01-16); the combined 2021-2025 file has 532 rows in 8 jurisdictions (nt 76, act 70, sa 70, vic 70, qld 68, nsw 65, wa 59, tas 54), dates 2021-01-01 to 2025-12-31, 449 rows with an Information sentence and a link to the state page. No join to another publisher was measured. Next: screen the eight state and territory holiday pages and their Holidays Acts for 2026 onwards.'
+  - key: hol-vacanza-holidays-library
+    name: "holidays (vacanza) open-source Python library: computed public holidays for countries and subdivisions (PyPI package)"
+    category: calendar
+    structuring: normalization
+    format: structured
+    publisher: Vacanza Team (open-source holidays library maintainers)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://pypi.org/pypi/holidays/json', 'https://raw.githubusercontent.com/vacanza/holidays/dev/LICENSE' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 2, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/vacanza/holidays/dev/LICENSE
+        quote: "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files"
+    conditions:
+      - "MIT licence: keep the copyright and permission notice with any copy or substantial portion."
+      - "The holiday rules are code, not a data file: dates exist only by executing the package, which the scout session did not do; run it only in an isolated build step with the wheel pinned by SHA-256, and treat its output as a secondary cross-check, never as the legal source."
+    next_action: 'Measured 2026-11-20 (PyPI metadata only): version 0.109 released 2026-11-17, licence MIT, 131 stable releases of which 24 in the last 365 days, wheel 1,744,125 bytes. The package was not downloaded or executed by the measurement, so no dates were compared. Next: in an isolated job, generate dates for GB, US, FR and AU and measure agreement with the government lists on jurisdiction and date.'
+  - key: hol-nager-date-api
+    name: "Nager.Date public holiday Web API (date.nager.at / nagerholidays.com)"
+    category: calendar
+    structuring: normalization
+    format: structured
+    publisher: Nager.Date (nager.at)
+    stage: PARKED
+    rights: RED
+    sources: [ 'https://nagerholidays.com/legal/termsofservice', 'https://nagerholidays.com/robots.txt' ]
+    scores: { agent_demand: 4, rights_clarity: 1, acquisition_ease: 4, structuring_value: 2, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json ]
+    terms:
+      - url: https://nagerholidays.com/legal/termsofservice
+        quote: "The Web API can be used for private or non-profit projects. For commercial purposes we require active sponsorship."
+      - url: https://nagerholidays.com/legal/termsofservice
+        quote: "It is not allowed to use the holiday information to publish or operate your own holiday portal."
+    next_action: 'PARKED (RED): the terms of service (last updated 2023-09-15) allow the Web API for private or non-profit projects only, require sponsorship for commercial use and forbid operating a holiday portal with the data; robots.txt disallows /api/v. Two probe requests made before the terms were read (the 2026 GB list, 14 rows, and the country list, 204 entries) were not kept or used in any measurement. Reopen only with a written commercial arrangement.'
 
 datasets:
   - key: home-product-recalls-global
@@ -16338,3 +16471,34 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/vax_measure.py, docs/sources/pipeline/evidence/2026-11-20/vax_measure.json, docs/sources/pipeline/evidence/2026-11-20/vax_handcheck.json ]
     next_action: 'Resolve every live CDC NDC to its DailyMed SPL and measure section coverage and sponsor copyright notices; make the trade-name candidate formulation-aware (CDC suffixes, one FDA trade name covering several CVX codes) before any review queue; screen Health Canada DPD schedule D products and the EMA register as further jurisdictions (not measured this round) and CDC VIS / CPT-to-CVX tables; ask WHO for permission before using the prequalified list.'
+  - key: public-holidays
+    name: "Public holidays: dated official observances with their legal basis (GOV.UK, UK statute, US OPM, 5 U.S.C. 6103, France, Australia)"
+    category: calendar
+    entity: "public holiday observance: one jurisdiction (country, and division, state or zone where holidays differ), one date, the holiday designation, whether it is a substitute or in-lieu-of day, and the legal basis (statute item, proclamation or common law) that makes it a holiday"
+    stage: SCREENED
+    description: "One record per jurisdiction and date. GOV.UK gives 280 bank-holiday events in 3 UK divisions for 2019 to 2028; OPM gives 212 dated US federal holiday rows for 2011 to 2030; Etalab gives 285 French days for 2006 to 2031 (337 for Alsace-Moselle); data.gov.au gives 532 rows for 8 Australian jurisdictions for 2021 to 2025. The free-text members are the statutes that create the holidays as rules: Schedule 1 of the Banking and Financial Dealings Act 1971 (18 items) and 5 U.S.C. 6103 (11 holidays plus the Saturday rule). Parsing each statute item into a date rule and evaluating it per year reproduces 209 of the 212 OPM rows and gives a legal basis to 149 of the 280 GOV.UK events; the remainder are proclaimed or common-law days, which is itself a fact agents cannot get from a date list. No publisher issues an identifier for a holiday, so every link is a reviewed rule-and-date match, never an automatic one."
+    sources: [ hol-uk-gov-bank-holidays, hol-uk-legislation-bank-holidays-act, hol-us-opm-federal-holidays, hol-us-gpo-usc-5-6103, hol-fr-etalab-jours-feries, hol-au-pmc-public-holidays ]
+    join_keys:
+      - key: holiday name in 5 U.S.C. 6103(a) equals the OPM designation and the statute rule (with the Saturday and Sunday in-lieu rules) evaluates to the OPM date
+        between: [ hol-us-gpo-usc-5-6103, hol-us-opm-federal-holidays ]
+        measured: "209/212 OPM rows for 2011-2030 match a statute holiday on both designation and computed date (unmatched: 2 Inauguration Day rows, which 6103(c) covers without a date rule, and 1 Christmas Day row whose printed weekday fits no adjacent year); hand-check 10/10 correct"
+        mode: candidate
+        reviewed: { correct: 10, checked: 10 }
+      - key: Schedule 1 item of the Banking and Financial Dealings Act 1971 whose rule evaluates to the GOV.UK event date in the same division (rule-and-date match, the event title is not used)
+        between: [ hol-uk-legislation-bank-holidays-act, hol-uk-gov-bank-holidays ]
+        measured: "149/280 GOV.UK events for 2019-2028 fall on a date a Schedule 1 item designates for that division (england-and-wales 38/83, scotland 63/94, northern-ireland 48/103); the 131 without one are New Year's Day 20, Good Friday 20, early May 21, Christmas Day 17, Boxing Day 17, spring bank holiday 12, Battle of the Boyne 10, 2nd January 4 and 10 special days; hand-check 10/10 correct"
+        mode: candidate
+        reviewed: { correct: 10, checked: 10 }
+    taxonomy:
+      - "jurisdiction: country | division, state, territory or zone (GB england-and-wales / scotland / northern-ireland; AU act, nsw, nt, qld, sa, tas, vic, wa; FR metropole, alsace-moselle, overseas zones; US federal)"
+      - "legal basis: statute rule (cited item) | proclamation or executive order | common law | computed by the publisher from the labour code"
+      - "observance type: actual day | substitute or in-lieu-of day | one-off special day"
+      - "rule form: fixed date | nth or last weekday of a month | Easter-relative | conditional alternative"
+    agent_questions:
+      - "Is 2027-12-27 a public holiday in Northern Ireland, and under which law? (measured: GOV.UK lists Christmas Day substitute days, and Schedule 1 paragraph 3 designates 27th December in a year in which 25th or 26th December is a Sunday)"
+      - "On which date is the US federal Christmas holiday observed in 2027, and why is it not 25 December? (measured: OPM lists Friday 2027-12-24, footnoted; 5 U.S.C. 6103(b)(1) moves a Saturday holiday to the Friday before)"
+      - "Which UK bank holidays in 2026 are statutory and which exist only by proclamation or common law?"
+      - "How many working days are there between two dates in France (metropole) versus Alsace-Moselle? (measured: 11 versus 13 public holidays in 2026)"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hol_measure.py, docs/sources/pipeline/evidence/2026-11-20/hol_measure.json, docs/sources/pipeline/evidence/2026-11-20/hol_handcheck.json ]
+    next_action: 'Screen further legal-basis text (Executive Order 11582, The Gazette proclamations, Code du travail L3133-1, the Australian state Holidays Acts) and government lists for Canada, New Zealand and Ireland (the Canada Revenue Agency and Employment New Zealand pages answered 200 and list dated holidays; citizensinformation.ie answered 403); compare the vacanza library output with the government lists in an isolated job; archive each list to R2 on every change, since the UK and US files are rolling windows; existing free access is good, so the product is the legal-basis and substitute-day record, not the date list.'

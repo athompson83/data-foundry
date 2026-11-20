@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "1c31c5898e146a1d7f761d58e73ce2994602d31c739896c287262c517ae49c2f",
+  "registry_sha256": "14f2bac86cd6ef915b6f032227d1a27b12f282f7a5c45324028477a88ea3fe08",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -919,6 +919,18 @@
         "vax-fda-ndc-directory-vaccines",
         "vax-fda-licensed-vaccines-purple-book",
         "vax-dailymed-vaccine-spl"
+      ]
+    },
+    "public-holidays": {
+      "name": "Public holidays: dated official observances with their legal basis (GOV.UK, UK statute, US OPM, 5 U.S.C. 6103, France, Australia)",
+      "stage": "SCREENED",
+      "sources": [
+        "hol-uk-gov-bank-holidays",
+        "hol-uk-legislation-bank-holidays-act",
+        "hol-us-opm-federal-holidays",
+        "hol-us-gpo-usc-5-6103",
+        "hol-fr-etalab-jours-feries",
+        "hol-au-pmc-public-holidays"
       ]
     }
   },
@@ -8417,6 +8429,110 @@
       "stage": "PARKED",
       "format": "structured",
       "publisher": "World Health Organization (Prequalification of Medical Products)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is RED",
+        "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "hol-uk-gov-bank-holidays": {
+      "name": "GOV.UK bank holidays JSON (England and Wales, Scotland, Northern Ireland: date, title, substitute-day notes)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "UK Government Digital Service (GOV.UK)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-uk-legislation-bank-holidays-act": {
+      "name": "Banking and Financial Dealings Act 1971, Schedule 1 (statutory bank holidays for England and Wales, Scotland and Northern Ireland, as rule text)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "The National Archives (legislation.gov.uk)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-us-opm-federal-holidays": {
+      "name": "US OPM federal holiday schedules (dated observances per year, with in-lieu-of days and Inauguration Day)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Office of Personnel Management",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-us-gpo-usc-5-6103": {
+      "name": "5 U.S.C. 6103, Holidays (statute text naming the legal public holidays and the Saturday in-lieu rule), GovInfo United States Code",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Government Publishing Office (GovInfo, United States Code)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-fr-etalab-jours-feries": {
+      "name": "French public holidays (jours feries) API and files by zone, Etalab / data.gouv.fr",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Etalab (French interministerial digital directorate, data.gouv.fr)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-au-pmc-public-holidays": {
+      "name": "Australian public holidays machine-readable dataset (all states and territories, yearly CSV), data.gov.au",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Australian Department of the Prime Minister and Cabinet (data.gov.au)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-vacanza-holidays-library": {
+      "name": "holidays (vacanza) open-source Python library: computed public holidays for countries and subdivisions (PyPI package)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Vacanza Team (open-source holidays library maintainers)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hol-nager-date-api": {
+      "name": "Nager.Date public holiday Web API (date.nager.at / nagerholidays.com)",
+      "rights": "RED",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "Nager.Date (nager.at)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
