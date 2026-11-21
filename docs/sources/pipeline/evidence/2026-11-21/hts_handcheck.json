@@ -1,0 +1,129 @@
+{
+ "checked_on": "2026-11-21",
+ "method": "The 20 shared HS6 codes drawn with seed 20261121 by hts_measure.py (hs6_handcheck_sample); the HTS and UK descriptions at the six-digit level were read side by side.",
+ "checked": 20,
+ "same_subheading": 20,
+ "note": "All 20 descriptions say the same thing apart from spelling (colors/colours), a trailing colon, a statistical suffix such as (224) and wording such as 'G.V.W. exceeding 20 metric tons' against 'Of a gross vehicle weight exceeding 20 tonnes'. The match holds at the six-digit subheading only: the 8- and 10-digit lines below it are national and are never linked.",
+ "pairs": [
+  {
+   "hs6": "845510",
+   "hts": "Tube mills",
+   "uk": "Tube mills",
+   "same": true
+  },
+  {
+   "hs6": "292029",
+   "hts": "Other",
+   "uk": "Other",
+   "same": true
+  },
+  {
+   "hs6": "441891",
+   "hts": "Of bamboo:",
+   "uk": "Of bamboo",
+   "same": true
+  },
+  {
+   "hs6": "570242",
+   "hts": "Of man-made textile materials:",
+   "uk": "Of man-made textile materials",
+   "same": true
+  },
+  {
+   "hs6": "900490",
+   "hts": "Other",
+   "uk": "Other",
+   "same": true
+  },
+  {
+   "hs6": "140490",
+   "hts": "Other:",
+   "uk": "Other",
+   "same": true
+  },
+  {
+   "hs6": "551221",
+   "hts": "Unbleached or bleached",
+   "uk": "Unbleached or bleached",
+   "same": true
+  },
+  {
+   "hs6": "110710",
+   "hts": "Not roasted",
+   "uk": "Not roasted",
+   "same": true
+  },
+  {
+   "hs6": "010690",
+   "hts": "Other",
+   "uk": "Other",
+   "same": true
+  },
+  {
+   "hs6": "292425",
+   "hts": "Alachlor (ISO)",
+   "uk": "Alachlor (ISO)",
+   "same": true
+  },
+  {
+   "hs6": "290719",
+   "hts": "Other:",
+   "uk": "Other",
+   "same": true
+  },
+  {
+   "hs6": "600642",
+   "hts": "Dyed",
+   "uk": "Dyed",
+   "same": true
+  },
+  {
+   "hs6": "580121",
+   "hts": "Uncut weft pile fabrics (224)",
+   "uk": "Uncut weft pile fabrics",
+   "same": true
+  },
+  {
+   "hs6": "291720",
+   "hts": "Cyclanic, cyclenic or cycloterpenic polycarboxylic acids, their anhydrides, halides, peroxides, peroxyacids and their derivatives",
+   "uk": "Cyclanic, cyclenic or cycloterpenic polycarboxylic acids, their anhydrides, halides, peroxides, peroxyacids and their derivatives",
+   "same": true
+  },
+  {
+   "hs6": "291242",
+   "hts": "Ethylvanillin (3-Ethoxy-4-hydroxybenzaldehyde)",
+   "uk": "Ethylvanillin (3-ethoxy-4-hydroxybenzaldehyde)",
+   "same": true
+  },
+  {
+   "hs6": "870443",
+   "hts": "G.V.W. exceeding 20 metric tons ",
+   "uk": "Of a gross vehicle weight exceeding 20|tonnes",
+   "same": true
+  },
+  {
+   "hs6": "610342",
+   "hts": "Of cotton:",
+   "uk": "Of cotton",
+   "same": true
+  },
+  {
+   "hs6": "640110",
+   "hts": "Footwear incorporating a protective metal toe-cap",
+   "uk": "Footwear incorporating a protective metal toecap",
+   "same": true
+  },
+  {
+   "hs6": "580131",
+   "hts": "Uncut weft pile fabrics (224)",
+   "uk": "Uncut weft pile fabrics",
+   "same": true
+  },
+  {
+   "hs6": "551693",
+   "hts": "Of yarns of different colors",
+   "uk": "Of yarns of different colours",
+   "same": true
+  }
+ ]
+}

@@ -1,0 +1,150 @@
+{
+ "checked_on": "2026-11-21",
+ "method": "20 Mondo terms with an ICD-10-CM cross-reference that resolves in the CDC FY2027 order file, drawn with seed 20261121 by icd_measure.py; the Mondo name and the ICD-10-CM long description were read side by side.",
+ "checked": 20,
+ "same_concept": 19,
+ "code_narrower_than_term": 1,
+ "note": "19 pairs name the same condition. One does not: Mondo 'otitis externa' cites H60.33 'Swimmer's ear', a narrower code. Mondo qualifies only part of its ICD-10-CM cross-references with a relation (665 equivalentTo, 66 narrower, 3 broader, 17 related of 2,177 rows), so a cross-reference is served as 'Mondo cites this code', with the qualifier when present, never as an equivalence.",
+ "pairs": [
+  {
+   "icd10cm": "C12",
+   "icd10cm_long_description": "Malignant neoplasm of pyriform sinus",
+   "mondo": "MONDO:0004733",
+   "mondo_name": "pyriform sinus cancer",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "K04.0",
+   "icd10cm_long_description": "Pulpitis",
+   "mondo": "MONDO:0006937",
+   "mondo_name": "pulpitis",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "N98.1",
+   "icd10cm_long_description": "Hyperstimulation of ovaries",
+   "mondo": "MONDO:0011972",
+   "mondo_name": "ovarian hyperstimulation syndrome",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "D53.0",
+   "icd10cm_long_description": "Protein deficiency anemia",
+   "mondo": "MONDO:0001638",
+   "mondo_name": "protein-deficiency anemia",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "H31.21",
+   "icd10cm_long_description": "Choroideremia",
+   "mondo": "MONDO:0010557",
+   "mondo_name": "choroideremia",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "Q60.6",
+   "icd10cm_long_description": "Potter's syndrome",
+   "mondo": "MONDO:0001558",
+   "mondo_name": "Potter sequence",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "D30.3",
+   "icd10cm_long_description": "Benign neoplasm of bladder",
+   "mondo": "MONDO:0000384",
+   "mondo_name": "bladder benign neoplasm",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "H60.33",
+   "icd10cm_long_description": "Swimmer's ear",
+   "mondo": "MONDO:0004795",
+   "mondo_name": "otitis externa",
+   "same_concept": false
+  },
+  {
+   "icd10cm": "C93",
+   "icd10cm_long_description": "Monocytic leukemia",
+   "mondo": "MONDO:0004600",
+   "mondo_name": "monocytic leukemia",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "Q75.0",
+   "icd10cm_long_description": "Craniosynostosis",
+   "mondo": "MONDO:0015469",
+   "mondo_name": "craniosynostosis",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "Q87.86",
+   "icd10cm_long_description": "Kleefstra syndrome",
+   "mondo": "MONDO:0012455",
+   "mondo_name": "Kleefstra syndrome",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "N84.0",
+   "icd10cm_long_description": "Polyp of corpus uteri",
+   "mondo": "MONDO:0004701",
+   "mondo_name": "uterine polyp",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "F01",
+   "icd10cm_long_description": "Vascular dementia",
+   "mondo": "MONDO:0004648",
+   "mondo_name": "vascular dementia",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "L13.0",
+   "icd10cm_long_description": "Dermatitis herpetiformis",
+   "mondo": "MONDO:0015614",
+   "mondo_name": "dermatitis herpetiformis",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "H20.82",
+   "icd10cm_long_description": "Vogt-Koyanagi syndrome",
+   "mondo": "MONDO:0018092",
+   "mondo_name": "Vogt-Koyanagi-Harada disease",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "M30.3",
+   "icd10cm_long_description": "Mucocutaneous lymph node syndrome [Kawasaki]",
+   "mondo": "MONDO:0012727",
+   "mondo_name": "Kawasaki disease",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "G90.5",
+   "icd10cm_long_description": "Complex regional pain syndrome I (CRPS I)",
+   "mondo": "MONDO:0011441",
+   "mondo_name": "complex regional pain syndrome type 1",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "Q21.0",
+   "icd10cm_long_description": "Ventricular septal defect",
+   "mondo": "MONDO:0002070",
+   "mondo_name": "ventricular septal defect",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "B50",
+   "icd10cm_long_description": "Plasmodium falciparum malaria",
+   "mondo": "MONDO:0005920",
+   "mondo_name": "Plasmodium falciparum malaria",
+   "same_concept": true
+  },
+  {
+   "icd10cm": "G96.191",
+   "icd10cm_long_description": "Perineural cyst",
+   "mondo": "MONDO:0019000",
+   "mondo_name": "perineural cyst",
+   "same_concept": true
+  }
+ ]
+}

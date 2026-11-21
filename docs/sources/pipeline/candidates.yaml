@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-16
+updated: 2026-11-21
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -2616,37 +2616,28 @@ candidates:
       Enumerate the 1,619 /recalls/ URLs from the sitemap; parse Product Identifiers and the supplier;
       low priority (0 of 31 sampled NZ recalls with models matched a CPSC recall; on 2026-10-11, 0 of 200 detail pages cite CPSC or Health Canada).
   - key: fr-rappelconso-v2
-    name: France RappelConso V2 product recalls with GTIN (DGCCRF, data.economie.gouv.fr)
+    name: "France RappelConso V2 product recalls (DGCCRF, data.economie.gouv.fr): food and non-food notices with GTINs, lots, recall reason and risk text, and Safety Gate case numbers"
     category: product-safety
     structuring: identifier-extraction
-    stage: PARKED
-    rights: RED
-    sources: [ 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces' ]
-    scores:
-      {
-        agent_demand: 3,
-        rights_clarity: 1,
-        acquisition_ease: 5,
-        structuring_value: 3,
-        freshness: 5,
-        low_onboarding_cost: 4,
-        poor_existing_access: 3
-      }
+    format: structured
+    publisher: French Ministry of Economy (DGCCRF)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces', 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/exports/json' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
     terms:
-      - {
-          url: 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces',
-          quote: '"license": "Licence Ouverte v2.0 (Etalab)", "license_url":
-            "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"'
-        }
-    evidence:
-      [
-        docs/sources/pipeline/research-2026-09-27-composites.md,
-        docs/sources/pipeline/evidence/2026-09-27-composites/recalls
-      ]
-    next_action: 'Parked only because the licence text could not be read today (etalab.gouv.fr and data.gouv.fr
-      reset the connection from this egress; the metadata declares Licence Ouverte 2.0). Re-read the licence;
-      if it is the standard Etalab 2.0 grant, move to SCREENED: 109 of 647 non-food home notices since 2023
-      carry a Safety Gate case number and 102 of those are found in the EU XML.'
+      - url: https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces
+        quote: '"license": "Licence Ouverte v2.0 (Etalab)", "license_url": "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf"'
+      - url: https://raw.githubusercontent.com/etalab/licence-ouverte/master/open-licence.md
+        quote: 'The "Grantor" grants the "Reuser" the free, non-exclusive right to "Reuse" the "Information" subject of this licence, for commercial or non-commercial purposes, worldwide and for an unlimited period, in accordance with the conditions stated below.'
+    conditions:
+      - "Licence Ouverte 2.0: name the source (DGCCRF, RappelConso) and the date of the most recent update on every record, with a link to the notice."
+      - "Do not cache or republish the product images (liens_vers_les_images, 17,348 notices) or the poster PDFs: they are supplied by the recalling business (AGENTS.md rule 9); link to them."
+      - "The contact number (numero_contact) is the recalling business's consumer line; serve it only as part of the notice, never as a separate contact list."
+      - "Text fields are French and lower-cased by the publisher; serve them as published with the language tag, and mark any translation as ours."
+      - "Keep the notice version (numero_version): 926 notices have been reissued, and a reissue replaces the earlier text."
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/widen_measure.py, docs/sources/pipeline/evidence/2026-11-21/widen_measure.json, docs/sources/pipeline/evidence/2026-11-21/widen_handcheck.json, docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/recalls ]
+    next_action: 'Reopened 2026-11-21 (parked 2026-09-27 only because the licence text could not be read; it was read today and grants commercial reuse with attribution). Measured: 19,294 notices from 2018-01-19 to 2026-11-20 (168 since 2026-11-01), 34 fields; food 14,110, vehicles 1,931, baby and child 1,205, home 519, electrical and tools 386, hygiene and beauty 359, clothing 328, other 303, sports 146, communications 7; 11,186 notices carry a check-digit-valid GTIN (14,356 distinct); 2,173 non-food notices are numbered with a Safety Gate case number and all 2,173 resolve to a Safety Gate alert. Next: add the export to tooling/snapshots/plans.json once the rights record exists; measure the food notices against uk-fsa-food-alerts and fda-recalls before adding this source to food-and-health-recalls-global; measure the 1,931 vehicle notices against vehicle-safety-recalls.'
   - key: oecd-globalrecalls-portal
     name: OECD GlobalRecalls portal (aggregated multi-country recalls)
     category: product-safety
@@ -3108,7 +3099,9 @@ candidates:
     name: IBHS FORTIFIED state incentives and standards pages (insurance discounts, grants, tax credits by state)
     category: home-services
     structuring: obligation-timeline
-    stage: DISCOVERED
+    format: free-text
+    publisher: Insurance Institute for Business & Home Safety (IBHS)
+    stage: SCREENED
     rights: AMBER
     sources: [ 'https://fortifiedhome.org/incentives/', 'https://fortifiedhome.org/technical-documents/' ]
     scores:
@@ -3141,10 +3134,8 @@ candidates:
         'Contains no product listings; use only as state incentive/standard context, not as approval
           evidence.'
       ]
-    evidence: *id003
-    next_action: Parse the incentives page into state -> incentive type (discount / grant / tax credit) ->
-      amount/limit with source sentence; cross-check against state programme pages (SC Safe Home, Louisiana
-      Fortify Homes) before use.
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/adv_measure.py, docs/sources/pipeline/evidence/2026-11-21/adv_measure.json, docs/sources/pipeline/research-2026-09-27-composites.md, docs/sources/pipeline/evidence/2026-09-27-composites/building-products ]
+    next_action: 'DISCOVERED -> SCREENED 2026-11-21. Measured: the incentives page (12,470 characters of text, last modified 2024-07-01 per its metadata) has 14 state sections (5,454 characters): 6 states with FORTIFIED-specific incentives (Alabama, Georgia, Mississippi, North Carolina, Oklahoma, South Carolina) and 8 where FORTIFIED qualifies for other incentives (Connecticut, Florida, Louisiana, Maryland, New Jersey, New York, Rhode Island, Texas); 10 sections label an incentive type (discount in 10, endorsement in 1, tax deduction in 1); 5 state a percentage or dollar figure; Alabama and North Carolina defer to a state page. The legal sentence allowing republication with attribution is unchanged and robots.txt asks for a 10 second crawl delay. The page is small and has not changed since 2024, so it is context for building-envelope-product-approvals, not a dataset of its own. Next: follow the state links (doi.sc.gov, ldi.louisiana.gov, revenue.louisiana.gov, georgiaunderwriting.com, floridadisaster.org) and cross-check each figure against the state programme page before use.'
   - key: building-products-wikidata-manufacturers
     name: Wikidata items for building-envelope manufacturers (parent organisation / alias only)
     category: home-services
@@ -8687,8 +8678,8 @@ candidates:
     rights: UNKNOWN
     sources: [ 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/records', 'https://rappel.conso.gouv.fr/' ]
     scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 2, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
-    evidence: [ docs/sources/pipeline/research-2026-10-31.md ]
-    next_action: 'PARKED 2026-10-31 as a member of home-product-recalls-global: three requests to data.economie.gouv.fr ended in a connection reset from this egress (the rappel.conso.gouv.fr portal itself answered 200, 88,661 bytes), so no count, field or terms was measured. Retry from Cloudflare Worker egress.'
+    evidence: [ docs/sources/pipeline/research-2026-10-31.md, docs/sources/pipeline/research-2026-11-21.md ]
+    next_action: 'PARKED as a duplicate (2026-11-21): the same dataset is registered as fr-rappelconso-v2, which was reopened and screened today when data.economie.gouv.fr answered from this egress (19,294 notices). This key was added on 2026-10-31 after three connection resets and never measured; all further work is recorded on fr-rappelconso-v2.'
 
   - key: assistance-grants-gov-opportunities
     name: Grants.gov funding opportunities (posted and forecasted notices of funding opportunity, free-text synopsis and eligibility)
@@ -12705,6 +12696,271 @@ candidates:
       - "Do not store or publish the provider e-mail address column; the contact address is an organisation address and is not needed either."
       - "England only: providers in Scotland, Wales and Northern Ireland are regulated elsewhere and need their own members."
     next_action: 'Measured 2026-11-20: the register download (xlsx, 365,040 bytes, 6 sheets, 73 columns) lists 425 registered providers, each with a UKPRN: 342 Approved (fee cap) and 83 Approved; 104 with research degree awarding powers, 47 taught, 256 none; 122 with university title; 20 providers carry specific-condition text (25 cells, 3,186 characters). Other sheets: 343 deregistrations under s.22, 3 under s.18, 26 monetary penalties, 26 conditions no longer in force, 2 suspensions. Next: archive the workbook daily to R2 and diff it into registration, condition and penalty events; add UKRLP for provider status and the Scottish, Welsh and Northern Irish lists.'
+  - key: tariff-usitc-hts
+    name: "USITC Harmonized Tariff Schedule of the United States (REST export: 8-digit rate lines, 10-digit statistical lines, general / special / column 2 rates, units, footnotes)"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: US International Trade Commission
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://hts.usitc.gov/reststop/exportList?from=0101&to=9999&format=JSON&styles=false', 'https://hts.usitc.gov/reststop/releaseList' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/hts_measure.py, docs/sources/pipeline/evidence/2026-11-21/hts_measure.json, docs/sources/pipeline/evidence/2026-11-21/hts_handcheck.json ]
+    conditions:
+      - "Terms unread: www.usitc.gov (harmonized_tariff_information and privacy_policy.htm) answered HTTP 403 to the scout and the hts.usitc.gov page carries no reuse wording (presumed usable under ADR-0018; the schedule is a federal publication). Read and quote the USITC notice before RIGHTS_DETERMINED."
+      - "Every rate is served with the HTS revision name and its release start date; a rate without its revision is not published (24 releases were listed for 2026 alone)."
+      - "A rate line is not the duty owed: chapter 99 additional duties, quotas and trade-remedy orders apply on top. Publish the footnotes that point to chapter 99 with the line and say so."
+      - "The export is not a classification ruling: never state that a product belongs to a line; link CBP rulings (customs-classification-rulings) for that."
+    next_action: 'Measured 2026-11-21: the current release is 2026HTSRev23 (dated 11/09/2026, in force 11/10/2026); 186 releases are listed (24 named 2026, 33 named 2025). The full export (12,642,109 bytes) holds 35,805 rows: 29,861 with an HTS number (961 four-digit, 2,093 six-digit, 6,858 eight-digit rate lines, 19,949 ten-digit statistical lines) and 5,944 unnumbered description rows; 5,690 of the 6,858 eight-digit lines carry a general rate (2,598 are Free), 4,888 a special rate; 4,645 rows carry footnotes (707 cite heading 9903); 3,615 rows sit in chapters 98 and 99. Next: read the USITC notice, add the release archive to tooling/snapshots/plans.json, and parse the rate grammar (ad valorem, specific, compound) and the special-programme codes.'
+  - key: tariff-uk-dbt-commodities-report
+    name: "UK goods nomenclature commodities report (Department for Business and Trade Data API: commodity code, suffix, description, validity dates, parent)"
+    category: trade
+    structuring: normalization
+    format: structured
+    publisher: UK Department for Business and Trade
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.api.trade.gov.uk/v1/datasets/uk-tariff-2021-01-01/versions/latest/tables/commodities-report/data?format=csv' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/hts_measure.py, docs/sources/pipeline/evidence/2026-11-21/hts_measure.json, docs/sources/pipeline/evidence/2026-11-21/hts_handcheck.json ]
+    conditions:
+      - "Terms unread: the Data API's licence statement was not fetched in this round (presumed usable under ADR-0018; UK government data is normally under the Open Government Licence). Read and quote it before RIGHTS_DETERMINED."
+      - "The report lists the nomenclature only (codes and descriptions), not duty rates or measures; do not present it as a tariff."
+      - "Keep the validity start and end dates on every code; a code with an end date is historical."
+    next_action: 'Measured 2026-11-21: 25,904 rows (3,397,401 bytes), 25,822 without an end date covering 22,327 distinct ten-digit codes; newest validity start 2026-11-18; 5,471 distinct six-digit subheadings in chapters 01 to 97. Next: read the licence statement, fetch the measures tables of the same dataset (duty rates, quotas) and archive each dated version.'
+  - key: tariff-uk-trade-tariff-chapter-notes
+    name: "UK Online Trade Tariff API: chapter notes, sections, chapters and headings (legal notes on what each chapter covers and excludes)"
+    category: trade
+    structuring: identifier-extraction
+    format: free-text
+    publisher: HM Revenue and Customs (UK Online Trade Tariff)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.trade-tariff.service.gov.uk/api/v2/chapters', 'https://www.trade-tariff.service.gov.uk/api/v2/sections' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/hts_measure.py, docs/sources/pipeline/evidence/2026-11-21/hts_measure.json, docs/sources/pipeline/evidence/2026-11-21/hts_handcheck.json ]
+    conditions:
+      - "Terms unread: the service's HTML pages (/terms and /find_commodity) answered HTTP 403 to the scout while the JSON API answered 200 (presumed usable under ADR-0018). Read and quote the licence before RIGHTS_DETERMINED."
+      - "Chapter notes reproduce the Harmonized System legal notes; publish extracted exclusions and heading references with a short evidence span and a link, not the full note text, until the World Customs Organization's position on the note text has been read."
+      - "One request at a time: 98 chapter requests cover every note."
+    next_action: 'Measured 2026-11-21: 21 sections, 98 chapters and 1,264 headings; 95 chapters carry a chapter note (332,674 characters, median 1,873); 81 notes cite at least one heading number (751 citations). Next: read the licence, resolve each cited heading to its code, and extract the "does not cover" exclusions as structured rows.'
+  - key: atk-mitre-attack-enterprise
+    name: "MITRE ATT&CK Enterprise matrix (techniques, sub-techniques, tactics, platforms, mitigations, groups, software; STIX bundle and the Excel workbook on attack.mitre.org)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: The MITRE Corporation
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://attack.mitre.org/docs/attack-excel-files/v20.1/enterprise-attack/enterprise-attack-v20.1.xlsx', 'https://attack.mitre.org/resources/legal-and-branding/terms-of-use/' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/atk_measure.py, docs/sources/pipeline/evidence/2026-11-21/atk_measure.json ]
+    terms:
+      - url: https://attack.mitre.org/resources/legal-and-branding/terms-of-use/
+        quote: "The MITRE Corporation (MITRE) hereby grants you a non-exclusive, royalty-free license to use ATT&CK® for research, development, and commercial purposes. Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy."
+    conditions:
+      - "Reproduce MITRE's copyright designation and the licence with every copy (API responses, pages and exports)."
+      - "Serve each technique with the ATT&CK version it was read from; revoked and deprecated techniques stay queryable with their status and successor, never silently dropped."
+      - "ATT&CK is a registered mark: no logo, and no suggestion that MITRE endorses the product."
+    next_action: 'Measured 2026-11-21: collection version 20.1 (modified 2026-11-05); the STIX bundle published by MITRE on GitHub (mitre-attack/attack-stix-data, 55,277,605 bytes) holds 26,699 objects: 867 attack patterns, of which 706 are live (227 techniques, 479 sub-techniques), 149 revoked and 12 deprecated; 15 tactics, 268 mitigations, 193 groups, 845 software entries, 57 campaigns; 1,477 mitigates and 706 detects relationships. The Excel workbook on attack.mitre.org lists the same 706 technique ids. Next: add the bundle to tooling/snapshots/plans.json and diff releases into added, revoked and renamed techniques.'
+  - key: atk-mitre-attack-procedure-examples
+    name: "MITRE ATT&CK technique descriptions and procedure examples (prose describing how each technique works and how named groups and software used it, with citations)"
+    category: cybersecurity
+    structuring: event-extraction
+    format: free-text
+    publisher: The MITRE Corporation
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://attack.mitre.org/techniques/T1055/011/', 'https://attack.mitre.org/resources/legal-and-branding/terms-of-use/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/atk_measure.py, docs/sources/pipeline/evidence/2026-11-21/atk_measure.json ]
+    terms:
+      - url: https://attack.mitre.org/resources/legal-and-branding/terms-of-use/
+        quote: "The MITRE Corporation (MITRE) hereby grants you a non-exclusive, royalty-free license to use ATT&CK® for research, development, and commercial purposes. Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy."
+    conditions:
+      - "Reproduce MITRE's copyright designation and the licence with every copy."
+      - "A procedure example is MITRE's summary of a cited third-party report: keep the citation with it and link the report; do not copy the report."
+      - "A procedure example attributes behaviour to a named group or software as reported by its source; serve it as 'ATT&CK records that source X reported', not as our own attribution."
+    next_action: 'Measured 2026-11-21: all 706 live techniques carry a description (992,871 characters, median 1,294); 17,636 procedure-example relationships point at live techniques, every one with text (3,627,320 characters), covering 619 of the 706. Next: extract from each example the actor or software, the technique and the cited report as structured rows, and measure how many citations carry a resolvable URL.'
+  - key: atk-red-canary-atomic-red-team
+    name: "Red Canary Atomic Red Team (executable test cases filed under ATT&CK technique ids: commands, platforms, prerequisites, cleanup)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: Red Canary
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/Indexes/index.yaml', 'https://www.atomicredteam.io/atomic-red-team/atomics/T1055.011', 'https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/LICENSE.txt' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/atk_measure.py, docs/sources/pipeline/evidence/2026-11-21/atk_measure.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/LICENSE.txt
+        quote: "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction"
+    conditions:
+      - "MIT licence: keep the copyright notice (Copyright (c) 2018 Red Canary, Inc.) and the permission notice with every copy."
+      - "The tests are attack commands. Serve them as an index (test name, technique id, platform, link to the upstream file); do not serve runnable command text through the API or pages until a separate safety review has decided how."
+      - "The index embeds a copy of each ATT&CK technique object; take technique facts from the MITRE member, not from this copy."
+    next_action: 'Measured 2026-11-21: the index (6,764,659 bytes) lists 697 technique ids, 353 of them with at least one test, and 1,915 distinct test GUIDs (at most 91 under one technique); platform mentions: windows 1,692, linux 520, macos 323, other platforms 123. Next: read the per-technique YAML files for input arguments and prerequisites, and record the commit date of each test for freshness.'
+  - key: rd-orphadata-nomenclature
+    name: "Orphadata Science product 1: Orphanet rare disease nomenclature and cross-references (ORPHAcode, type, synonyms, ICD-10, ICD-11, OMIM, UMLS, MeSH, MedDRA, GARD and MONDO mappings)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Orphanet (INSERM US14)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.orphadata.com/data/xml/en_product1.xml', 'https://www.orphadata.com/legal-notice/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/rd_measure.py, docs/sources/pipeline/evidence/2026-11-21/rd_measure.json, docs/sources/pipeline/evidence/2026-11-21/rd_handcheck.json ]
+    terms:
+      - url: https://www.orphadata.com/legal-notice/
+        quote: "Users may download the data made available on www.orphadata.com in the Orphadata Science section and use them as they wish (including use in other information systems) according to the Commons Attribution 4.0 International (CC BY 4.0) licence."
+    conditions:
+      - "CC BY 4.0: cite Orphadata with the file version and date as the legal notice's citation guidelines ask, and state that the data was changed (normalised and linked)."
+      - "Only the Orphadata Science files are under CC BY 4.0; the legal notice reserves the rest of the site, so nothing is taken from orpha.net pages."
+      - "Cross-references to OMIM, MedDRA and ICD carry codes only; no text is taken from those third-party terminologies."
+      - "Each mapping keeps its relation (exact, narrower, broader) and validation status; a narrower or broader mapping is never served as an equivalence."
+    next_action: 'Measured 2026-11-21: file dated 2026-06-23 (54,026,799 bytes, licence element CC-BY-4.0); 11,645 entries: 7,515 disorders, 2,673 groups of disorders, 1,457 subtypes; 1,888 carry an inactive, obsolete, deprecated or historical flag; 7,180 have synonyms (15,307); entries with a reference by source: UMLS 9,586, MONDO 8,875, ICD-10 7,673, ICD-11 6,553, OMIM 5,074, GARD 3,825, MeSH 3,209, MedDRA 1,794. Next: screen products 4 (phenotypes), 6 (genes) and 9 (epidemiology) and archive each release; the file is reissued about twice a year.'
+  - key: rd-orphadata-definitions
+    name: "Orphanet disease definitions (free-text definition of each rare disease, in Orphadata Science product 1)"
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Orphanet (INSERM US14)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.orphadata.com/data/xml/en_product1.xml', 'https://www.orphadata.com/legal-notice/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/rd_measure.py, docs/sources/pipeline/evidence/2026-11-21/rd_measure.json, docs/sources/pipeline/evidence/2026-11-21/rd_handcheck.json ]
+    terms:
+      - url: https://www.orphadata.com/legal-notice/
+        quote: "This means that you are free to copy, distribute, display and make commercial use of this data in all legislations, provided you give us cite the provenance (citation guidelines below). You must indicate if you have made changes to the data."
+    conditions:
+      - "CC BY 4.0: cite Orphadata with the file version and date on every definition and on every fact extracted from one."
+      - "A definition is reference text, not medical advice: serve it with that statement and never generate diagnostic or treatment guidance from it."
+      - "Extracted facts (inheritance wording, age of onset, named features) keep the sentence they came from as evidence."
+    next_action: 'Measured 2026-11-21: 6,898 of the 11,645 entries carry definition text (2,727,485 characters, median 383). Next: measure deterministic extraction of inheritance, onset and prevalence wording against the structured values in Orphadata product 9.'
+  - key: rd-mondo-disease-ontology
+    name: "Mondo Disease Ontology (disease terms with definitions and cross-references to Orphanet, OMIM, GARD, DOID, MeSH, NCIt, ICD-10-CM and others; rare-disease subsets)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Monarch Initiative (Mondo)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://purl.obolibrary.org/obo/mondo.obo', 'https://raw.githubusercontent.com/monarch-initiative/mondo/master/README.md' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/rd_measure.py, docs/sources/pipeline/evidence/2026-11-21/rd_measure.json, docs/sources/pipeline/evidence/2026-11-21/rd_handcheck.json, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json, docs/sources/pipeline/evidence/2026-11-21/icd_handcheck.json ]
+    terms:
+      - url: https://raw.githubusercontent.com/monarch-initiative/mondo/master/README.md
+        quote: '[CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/)'
+    conditions:
+      - "CC BY 4.0: attribute Mondo with the release version on every term and cross-reference."
+      - "The licence line in the README is short (it names CC-BY 4.0 and links the deed); read the repository LICENSE file and the Mondo citation guidance in full before RIGHTS_DETERMINED."
+      - "A cross-reference is served with Mondo's own qualifier (equivalentTo, broader, narrower, related) and its source; an unqualified cross-reference is 'Mondo cites this code', never an equivalence."
+      - "Cross-references into OMIM, SNOMED CT (SCTID), MedDRA and UMLS are identifiers of licensed terminologies: serve the identifier only, no text from them."
+    next_action: 'Measured 2026-11-21: release 2026-11-03 (53,442,278 bytes); 36,094 terms, 32,137 live and 3,957 obsolete; 19,545 live terms have a definition (4,022,263 characters); live terms by cross-reference: MEDGEN and UMLS 21,650, GARD 15,889, DOID 11,761, OMIM 9,806, Orphanet 9,054 (8,354 marked equivalent), SCTID 8,888, MESH 8,002, NCIT 7,331; 2,152 cite an ICD-10-CM code; the rare subset has 16,478 terms. Next: read the LICENSE file, archive each monthly release and diff obsoletions and merges (replaced_by).'
+  - key: gene-hgnc-complete-set
+    name: "HGNC complete gene set (approved human gene symbols and names, locus type, previous and alias symbols, Entrez, Ensembl, UniProt, OMIM and MANE Select cross-references)"
+    category: genomics
+    structuring: normalization
+    format: structured
+    publisher: HUGO Gene Nomenclature Committee (HGNC)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt', 'https://www.genenames.org/about/license/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/gene_measure.py, docs/sources/pipeline/evidence/2026-11-21/gene_measure.json, docs/sources/pipeline/evidence/2026-11-21/gene_handcheck.json ]
+    terms:
+      - url: https://www.genenames.org/about/license/
+        quote: "all data is released under the Creative Commons Public Domain (CC0) License"
+    next_action: 'Measured 2026-11-21: 45,395 approved records in 53 columns (17,007,798 bytes): 19,299 protein-coding genes, 14,697 pseudogenes, 10,395 non-coding RNA, 1,004 other; 44,542 carry an Entrez id, 42,736 an Ensembl id, 20,289 a UniProt id, 17,577 an OMIM id, 19,316 a MANE Select transcript, 12,718 a previous symbol; newest record change 2026-11-13; 120 symbol changes and 493 approvals are dated 2026. Next: fetch the withdrawn-symbol file (the complete set holds approved records only), archive monthly, and build the symbol-change history.'
+  - key: gene-ncbi-gene-info
+    name: "NCBI Gene gene_info for Homo sapiens (GeneID, symbol, synonyms, type of gene, map location, HGNC / Ensembl / MIM cross-references)"
+    category: genomics
+    structuring: normalization
+    format: structured
+    publisher: US National Center for Biotechnology Information (NLM)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz', 'https://www.ncbi.nlm.nih.gov/home/about/policies/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/gene_measure.py, docs/sources/pipeline/evidence/2026-11-21/gene_measure.json, docs/sources/pipeline/evidence/2026-11-21/gene_handcheck.json ]
+    terms:
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: "Information that is created by or for the US government on this site is within the public domain. Public domain information on the National Library of Medicine (NLM) Web pages may be freely distributed and copied. However, it is requested that in any subsequent use of this work, NLM be given appropriate acknowledgment."
+    next_action: 'Measured 2026-11-21: 194,011 human rows (5,175,808 bytes compressed): 128,261 biological regions, 22,806 ncRNA, 20,575 protein-coding, 17,512 pseudogenes; 45,408 cite an HGNC id, 38,515 an Ensembl id, 19,090 a MIM number; newest modification date 2026-11-20 (the file is rebuilt daily). The policies page also says the site holds material contributed by others; gene_info columns are NCBI-assigned or cited identifiers. Next: add gene_history (discontinued and replaced GeneIDs) and gene2refseq, and archive weekly.'
+  - key: gene-ncbi-gene-summaries
+    name: "NCBI Gene summaries (free-text functional summary of each gene: RefSeq-written, with a smaller share from the Alliance of Genome Resources and OMIM)"
+    category: genomics
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US National Center for Biotechnology Information (NLM)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_summary.gz', 'https://www.ncbi.nlm.nih.gov/home/about/policies/' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/gene_measure.py, docs/sources/pipeline/evidence/2026-11-21/gene_measure.json, docs/sources/pipeline/evidence/2026-11-21/gene_handcheck.json ]
+    terms:
+      - url: https://www.ncbi.nlm.nih.gov/home/about/policies/
+        quote: "Information that is created by or for the US government on this site is within the public domain. Public domain information on the National Library of Medicine (NLM) Web pages may be freely distributed and copied."
+    conditions:
+      - "Serve only summaries whose Source column is RefSeq (143,352 of 151,703 human rows): they are written by NCBI staff."
+      - "Never store for serving or publish the 821 human summaries whose Source is OMIM: OMIM text is licensed by Johns Hopkins University and is outside the public-domain statement."
+      - "Hold back the 7,523 Alliance of Genome Resources summaries until the Alliance's own licence has been read and recorded."
+      - "Acknowledge NCBI Gene / RefSeq as the source, with the file date, as the policies page requests."
+    next_action: 'Measured 2026-11-21: 3,378,541 summary rows across all taxa (23,894,520 bytes compressed); 151,703 human rows, every GeneID present in gene_info: RefSeq 143,352, Alliance of Genome Resources 7,523, OMIM 821, other 7; 58,856,606 characters, median 383; 150,748 end with a "[provided by ...]" stamp. Next: read the Alliance licence, and measure deterministic extraction of the provider stamp, review month and cited gene family from the RefSeq summaries.'
+  - key: icd-cdc-icd10cm-code-set
+    name: "CDC NCHS ICD-10-CM code set, fiscal year 2027 (order file: every code and header with short and long descriptions and the billable flag; yearly addenda)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US CDC National Center for Health Statistics
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/icd10cm-code-descriptions-2027.zip', 'https://www.cdc.gov/other/agencymaterials.html' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json, docs/sources/pipeline/evidence/2026-11-21/icd_handcheck.json ]
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission."
+    conditions:
+      - "The CDC page says most, not all, of its information is public domain. ICD-10-CM is the US clinical modification of the WHO ICD-10: read and quote the NCHS and WHO statements on reuse of ICD-10-CM before RIGHTS_DETERMINED."
+      - "Serve every code with its fiscal year (and the April update where one exists); a code is valid only for the dates of its release."
+      - "A code description is not coding advice: do not tell a user which code to report for a patient."
+    next_action: 'Measured 2026-11-21: the FY2027 directory lists 8 files (code descriptions zip dated 6/16/2026, 2,192,779 bytes); the order file has 98,403 codes: 74,879 billable and 23,524 headers, 1,921 three-character categories, 51,587 seven-character codes; the order addenda list 253 additions (190 codes and 63 headers), 36 deletions and 4 revisions for FY2027. The CDC page says "most" information is public domain and names exceptions; ICD-10-CM is the US clinical modification maintained by NCHS, and the WHO ICD-10 text it derives from is to be addressed in the rights record. Next: archive every fiscal year back to FY2016 and the April updates, build the code history (added, deleted, revised per year) and read the WHO / NCHS statement on ICD-10-CM reuse before RIGHTS_DETERMINED.'
+  - key: icd-cdc-icd10cm-tabular-notes
+    name: "CDC NCHS ICD-10-CM tabular list instructional notes (includes, inclusion terms, Excludes1, Excludes2, code first, use additional code, code also, 7th character definitions; tabular XML)"
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US CDC National Center for Health Statistics
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/icd10cm-table-and-index-2027.zip', 'https://www.cdc.gov/other/agencymaterials.html' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json, docs/sources/pipeline/evidence/2026-11-21/icd_handcheck.json ]
+    terms:
+      - url: https://www.cdc.gov/other/agencymaterials.html
+        quote: "Most of the information on the CDC and ATSDR websites is not subject to copyright, is in the public domain, and may be freely used or reproduced without obtaining copyright permission."
+    conditions:
+      - "The CDC page says most, not all, of its information is public domain. ICD-10-CM is the US clinical modification of the WHO ICD-10: read and quote the NCHS and WHO statements on reuse of ICD-10-CM before RIGHTS_DETERMINED."
+      - "Serve every code with its fiscal year (and the April update where one exists); a code is valid only for the dates of its release."
+      - "A code description is not coding advice: do not tell a user which code to report for a patient."
+    next_action: 'Measured 2026-11-21: the tabular XML (table-and-index zip, 20,923,571 bytes) has 22 chapters, 297 sections and 47,025 code elements, all present in the order file; 24,448 notes (1,068,625 characters): inclusion terms 12,624, Excludes1 5,259, Excludes2 2,187, use additional code 1,373, includes 917, code first 801, code also 678, 7th character notes 508, other notes 101; 10,222 notes cite a code and 12,614 of 12,625 cited codes or code prefixes resolve to the order file (the 11 that do not are B12, K93 and I64). Next: turn each note into a typed rule row (source code, rule type, target code or range, sentence) and expand the 508 seven-character definition blocks; same rights step as the code set.'
+  - key: icd-cms-icd10cm-code-descriptions
+    name: "CMS copy of the ICD-10-CM code descriptions (2027 Code Descriptions in Tabular Order)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US Centers for Medicare & Medicaid Services
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip', 'https://www.cms.gov/medicare/coding-billing/icd-10-codes' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 1, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json ]
+    next_action: 'PARKED 2026-11-21 as a mirror, not an independent source: the CMS order file is byte-identical to the CDC NCHS one (both SHA-256 38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f; 98,403 codes), so it adds no fact and no independent link. Its terms were not read. Reopen only as a fallback download path, or for the CMS-maintained ICD-10-PCS procedure codes, which are a different entity type.'
 
 datasets:
   - key: home-product-recalls-global
@@ -12739,6 +12995,7 @@ datasets:
       - appliance-energy-star-registry
       - plumbing-energystar-water-heaters
       - appliance-brand-ownership
+      - fr-rappelconso-v2
     join_keys:
       - key: joint-recall marker ("Joint recall with ... CPSC" in the HC OGL field) + date within 45 days +
           at least 2 shared distinctive title tokens
@@ -12852,6 +13109,21 @@ datasets:
         reviewed:
           correct: 2
           checked: 2
+      - key: Safety Gate case number used by RappelConso as its notice number (cited reference number; links the French notice to the EU alert it republishes)
+        between: [ fr-rappelconso-v2, eu-safety-gate-alerts ]
+        measured: "2,173/2,173 RappelConso notices numbered with a Safety Gate case number (prefixes A12 1,337, SR 777, A11 30, INFO 29) resolve to an alert in the 507 weekly reports from 2017 to Report-2026-46 (28,110 distinct case numbers); the alert was notified by Germany for 944, France 837, Portugal 135, Poland 56, Belgium 46; 1,828 of the notices are vehicles; 20/20 seeded pairs carry the same make and model list (evidence/2026-11-21/widen_measure.py)"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: exact GTIN-14 with a valid GS1 check digit (RappelConso identification_produits, Safety Gate barcode); links notice to product, never merges recall events
+        between: [ fr-rappelconso-v2, eu-safety-gate-alerts ]
+        measured: "388/1,857 non-food RappelConso notices with a valid GTIN share one with a Safety Gate alert (10,808 alerts with a valid GTIN); none of the 388 is numbered with that alert's case number, so the GTIN is the only link; hand check of 20 seeded pairs: 18 same product, 1 different product, 1 undetermined"
+        mode: declared
+        reviewed: { correct: 18, checked: 20 }
+      - key: exact GTIN-14 with a valid GS1 check digit (RappelConso identification_produits, CPSC ProductUPCs); links notice to product, never merges recall events
+        between: [ fr-rappelconso-v2, cpsc-recalls ]
+        measured: "1/11,186 RappelConso notices with a valid GTIN share one with a CPSC recall (402 CPSC recalls carry a valid UPC, 1,260 distinct): Aesop Post-Poo Drops, notice 2022-01-0420 and CPSC recall 9359; same product on hand check"
+        mode: declared
+        reviewed: { correct: 1, checked: 1 }
     taxonomy:
       - "jurisdiction: US | CA | EU (+ notifying member state) | GB | AU | NZ"
       - "agency: CPSC | HC | EC-SafetyGate | OPSS | ACCC | MBIE"
@@ -16774,3 +17046,156 @@ datasets:
     scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
     next_action: 'Add "IPEDS UNITID", "ROR id" and "UKPRN" to the declared-join allow-list; read the IPEDS mission table with an Access reader and measure its text coverage (the free-text member is still DISCOVERED); read and quote the NCES / Department of Education reuse notice (www.ed.gov answered 403); take the Wikidata identifier statements from the entity dump rather than SPARQL; screen DAPIP accreditation actions (ope.ed.gov is a script-rendered application, not measured), UKRLP, HESA and the Scottish, Welsh and Northern Irish provider lists as further members.'
+
+  - key: tariff-schedule-lines
+    name: "Tariff schedule lines: US HTS rate lines and the UK goods nomenclature, linked at the six-digit HS subheading, with UK chapter notes (USITC, Department for Business and Trade, HMRC Online Trade Tariff)"
+    category: trade
+    entity: "tariff line (a national tariff code with its description, duty rates, units and validity) and the six-digit Harmonized System subheading it sits under, with the chapter notes that say what the chapter covers and excludes"
+    stage: SCREENED
+    description: "One record per national tariff line, grouped under its six-digit HS subheading. The USITC export gives 6,858 eight-digit rate lines and 19,949 ten-digit statistical lines of the current HTS revision (2026HTSRev23) with general, special and column 2 rates, units and footnotes. The Department for Business and Trade commodities report gives 22,327 current UK ten-digit codes with validity dates. The first six digits of both are the internationally agreed HS subheading, which is the only level at which the two schedules are linked: 5,471 of the 5,612 HTS subheadings are also UK subheadings. National lines below six digits are never linked to each other. The UK Online Trade Tariff API adds the free-text chapter notes (95 chapters, 332,674 characters) that state exclusions and cite headings."
+    sources: [ tariff-usitc-hts, tariff-uk-dbt-commodities-report, tariff-uk-trade-tariff-chapter-notes ]
+    join_keys:
+      - key: HS subheading code (the first six digits of the HTS number and of the UK commodity code)
+        between: [ tariff-usitc-hts, tariff-uk-dbt-commodities-report ]
+        measured: "5,471/5,612 distinct HTS six-digit subheadings in chapters 01 to 97 are also six-digit subheadings of a current UK commodity code; 0 UK subheadings are missing from the HTS; the 15 unmatched HTS codes sampled all end in 00 (an undivided heading, which the UK report holds at heading level); 20/20 seeded pairs carry the same description"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - "level: HS chapter (2 digits) | heading (4) | subheading (6, international) | national rate line (US 8, UK 8) | statistical or TARIC line (10)"
+      - "US rate column: general | special (programme codes) | column 2"
+      - "US rate form: Free | ad valorem | specific | compound (to be parsed)"
+      - "line status: current | ended (UK validity end date) | HTS revision in force"
+      - "note type (UK chapter notes): exclusion (does not cover) | definition | heading reference"
+    agent_questions:
+      - "What is the US general duty rate for this HTS number, in which HTS revision, and which footnotes point to additional chapter 99 duties? (measured: 6,858 rate lines, 4,645 rows with footnotes)"
+      - "Which UK commodity codes sit under the same six-digit subheading as this HTS line? (measured: 5,471 shared subheadings)"
+      - "Does the chapter note exclude this kind of good from the chapter, and which heading does it send it to? (measured: 81 notes cite a heading number, 751 citations)"
+      - "Which codes started or ended validity recently? (measured: newest UK validity start 2026-11-18; 24 HTS releases named 2026)"
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/hts_measure.py, docs/sources/pipeline/evidence/2026-11-21/hts_measure.json, docs/sources/pipeline/evidence/2026-11-21/hts_handcheck.json ]
+    next_action: 'Read and quote the USITC, Department for Business and Trade and Online Trade Tariff reuse terms (all three unread; the two HTML sites answered 403); fetch the UK measures tables for duty rates; link CBP rulings through the HTS number they cite (customs-classification-rulings); screen the EU TARIC and the Canadian Customs Tariff as further members; parse the HTS rate grammar and the chapter-note exclusions.'
+
+  - key: adversary-techniques
+    name: "Adversary techniques: MITRE ATT&CK Enterprise techniques with procedure examples and Atomic Red Team tests (MITRE, Red Canary)"
+    category: cybersecurity
+    entity: "adversary technique or sub-technique, identified by its ATT&CK technique id (T1055.011): name, tactics, platforms, status (live, revoked, deprecated), mitigations, the groups and software reported to use it with the cited source, and the executable tests filed under it"
+    stage: SCREENED
+    description: "One record per ATT&CK Enterprise technique. MITRE's version 20.1 release holds 706 live techniques (227 techniques and 479 sub-techniques), 149 revoked and 12 deprecated, with 15 tactics, 268 mitigations and 17,636 free-text procedure examples that say which group or software used the technique according to which report. Red Canary's Atomic Red Team files 1,915 executable tests under 353 technique ids, and every one of those ids is a live ATT&CK technique. The technique id is assigned by MITRE and cited by Red Canary, so it links the two automatically. Test commands are indexed and linked, not served as runnable text."
+    sources: [ atk-mitre-attack-enterprise, atk-mitre-attack-procedure-examples, atk-red-canary-atomic-red-team ]
+    join_keys:
+      - key: ATT&CK technique id under which Red Canary files an atomic test
+        between: [ atk-red-canary-atomic-red-team, atk-mitre-attack-enterprise ]
+        measured: "353/353 technique ids with at least one atomic test resolve to a live ATT&CK technique (none to a revoked or deprecated one); 353 of the 706 live techniques have a test (1,915 distinct tests)"
+        mode: declared
+      - key: ATT&CK technique id that a procedure example points at (same publisher, not an independent link)
+        between: [ atk-mitre-attack-procedure-examples, atk-mitre-attack-enterprise ]
+        measured: "17,636/17,636 procedure examples with text point at a live technique; 619 of the 706 live techniques have at least one"
+        mode: declared
+    taxonomy:
+      - "tactic: the 15 Enterprise tactics as named in the release (for example persistence, credential-access, command-and-control)"
+      - "level: technique | sub-technique"
+      - "status: live | revoked (with successor) | deprecated"
+      - "platform: Windows | macOS | Linux | ESXi | IaaS | Network Devices | PRE | Office Suite | SaaS | Identity Provider | Containers"
+      - "evidence type: procedure example (group, software or campaign, with citation) | mitigation | detection strategy | atomic test"
+    agent_questions:
+      - "What is technique T1055.011, which tactics and platforms does it belong to, and is the id still live? (measured: 706 live, 149 revoked, 12 deprecated)"
+      - "Which groups or software does ATT&CK record as using this technique, and which report is cited? (measured: 17,636 procedure examples over 619 techniques)"
+      - "Is there an Atomic Red Team test for this technique on Linux, and where is it? (measured: 353 techniques with tests, 1,915 tests)"
+      - "Which live techniques have no public test at all? (measured: 353 of 706)"
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/atk_measure.py, docs/sources/pipeline/evidence/2026-11-21/atk_measure.json ]
+    next_action: 'Add the ATT&CK STIX bundle and the Atomic Red Team index to tooling/snapshots/plans.json; decide in a safety review how test commands may be served (index and link only until then); screen further sources that cite technique ids (CISA advisories answered 403 to the scout; MITRE D3FEND answered 200 but is the same publisher; the Sigma rule repository page answered 403); link software-vulnerabilities and ics-security-advisories where an advisory cites a technique id.'
+
+  - key: rare-diseases
+    name: "Rare diseases: Orphanet nomenclature and definitions linked to the Mondo Disease Ontology by ORPHAcode (Orphadata, Mondo)"
+    category: health
+    entity: "rare disease, group of disorders or subtype, identified by its ORPHAcode and its Mondo id: preferred name, synonyms, type, status, free-text definition, and cross-references to ICD-10, ICD-11, OMIM, UMLS, MeSH, MedDRA and GARD with the relation of each mapping"
+    stage: SCREENED
+    description: "One record per rare disease entity. Orphadata product 1 (CC BY 4.0) holds 11,645 Orphanet entries (7,515 disorders, 2,673 groups, 1,457 subtypes), 15,307 synonyms, free-text definitions for 6,898 of them and typed mappings to eight terminologies. Mondo (CC BY 4.0) holds 32,137 live disease terms, 16,478 in its rare subset, with its own definitions and cross-references. Mondo marks 8,395 ORPHAcodes as equivalent to one of its terms, and 8,376 of them are entries in the Orphadata file; that stated equivalence is the automatic link. Name agreement is a check only (5,677 of the pairs have the same normalised name). Definitions are reference text and are served with their source and version, never as medical advice."
+    sources: [ rd-orphadata-nomenclature, rd-orphadata-definitions, rd-mondo-disease-ontology ]
+    join_keys:
+      - key: ORPHAcode cited by the Mondo term as an equivalent cross-reference
+        between: [ rd-mondo-disease-ontology, rd-orphadata-nomenclature ]
+        measured: "8,376/8,395 ORPHAcodes that Mondo marks equivalentTo resolve to an Orphadata product 1 entry (19 do not); no ORPHAcode is claimed by two Mondo terms; 39 Mondo terms cite more than one; 8,040 of the resolved entries list a MONDO reference themselves; 5,677 pairs share the same normalised name, and 20/20 seeded pairs whose names differ read as the same entity"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: ORPHAcode of the entry a definition belongs to (same file and publisher, not an independent link)
+        between: [ rd-orphadata-definitions, rd-orphadata-nomenclature ]
+        measured: "6,898/11,645 entries carry definition text"
+        mode: declared
+    taxonomy:
+      - "entity level (Orphanet): disorder | group of disorders | subtype of disorder"
+      - "entity type (Orphanet): disease | malformation syndrome | clinical subtype | etiological subtype | category | clinical group | morphological anomaly | others as published"
+      - "status: active | inactive, obsolete, deprecated or historical (Orphanet flag) | obsolete (Mondo, with replacement)"
+      - "mapping relation: exact | ORPHAcode narrower than target | ORPHAcode broader than target | not decided; validated or not"
+      - "rare subset (Mondo): gard_rare | nord_rare | orphanet_rare | doid_rare | ncit_rare | inferred_rare"
+    agent_questions:
+      - "What are the ORPHAcode and Mondo id of this disease, and are both still active? (measured: 8,376 linked pairs; 1,888 flagged Orphanet entries; 3,957 obsolete Mondo terms)"
+      - "Which ICD-10, ICD-11, OMIM and MeSH codes map to this ORPHAcode, and is each mapping exact or broader? (measured: ICD-10 on 7,673 entries, ICD-11 on 6,553, OMIM on 5,074)"
+      - "What is the Orphanet definition of this disease, with its source and version? (measured: 6,898 definitions, median 383 characters)"
+      - "Which Orphanet disorders have no equivalent Mondo term? (measured: 1,168 disorders, 1,724 groups and 377 subtypes)"
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/rd_measure.py, docs/sources/pipeline/evidence/2026-11-21/rd_measure.json, docs/sources/pipeline/evidence/2026-11-21/rd_handcheck.json ]
+    next_action: 'Read the Mondo LICENSE file and citation guidance in full; screen Orphadata products 4 (phenotypes), 6 (genes) and 9 (epidemiology) and the NIH GARD and FDA orphan designation lists (health-fda-orphan-designations) as further members; link gene-disease-evidence and human-genes through the HGNC id in product 6; add both files to tooling/snapshots/plans.json.'
+
+  - key: human-genes
+    name: "Human genes: approved nomenclature, identifiers and functional summaries (HGNC complete set, NCBI Gene info and summaries)"
+    category: genomics
+    entity: "human gene, identified by its HGNC id and its NCBI GeneID: approved symbol and name, locus type, previous and alias symbols, chromosomal location, Ensembl, UniProt and MANE Select cross-references, and a free-text functional summary"
+    stage: SCREENED
+    description: "One record per human gene. HGNC (CC0) gives 45,395 approved records with symbols, previous symbols, locus types and cross-references. NCBI Gene gives 194,011 human rows (genes and biological regions), of which 45,408 cite an HGNC id, and 151,703 free-text summaries. Each side cites the other's identifier: 44,512 HGNC id and GeneID pairs are stated by both files and 44,474 of those carry the same symbol on both sides. A pair stated by one side only (896 from NCBI, 30 from HGNC) is kept as that side's claim and reviewed, not merged. Only RefSeq-written summaries are served; the OMIM-sourced ones are excluded."
+    sources: [ gene-hgnc-complete-set, gene-ncbi-gene-info, gene-ncbi-gene-summaries ]
+    join_keys:
+      - key: HGNC id cited in the NCBI gene_info cross-references
+        between: [ gene-ncbi-gene-info, gene-hgnc-complete-set ]
+        measured: "45,304/45,408 NCBI human genes that cite an HGNC id cite one present in the HGNC complete set (104 cite an id that is not in the approved file); 44,512 HGNC id and GeneID pairs are stated by both files, 44,474 of them with the same symbol; 896 pairs are stated only by NCBI and 30 only by HGNC; 20/20 seeded both-sided pairs carry the same symbol and 19/20 the same location"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: NCBI GeneID of the summary row (same publisher, not an independent link)
+        between: [ gene-ncbi-gene-summaries, gene-ncbi-gene-info ]
+        measured: "151,703/151,703 human summary rows carry a GeneID present in gene_info; through a both-sided pair 23,250 approved HGNC genes have a summary, including 18,787 of the 19,299 protein-coding genes"
+        mode: declared
+    taxonomy:
+      - "locus group (HGNC): protein-coding gene | non-coding RNA | pseudogene | other"
+      - "type of gene (NCBI): protein-coding | ncRNA | pseudo | biological-region | tRNA | rRNA | snoRNA | snRNA | other | unknown"
+      - "nomenclature event: approved | symbol changed | name changed | withdrawn (from the HGNC withdrawn file, not yet read)"
+      - "summary source: RefSeq (served) | Alliance of Genome Resources (held back) | OMIM (excluded)"
+    agent_questions:
+      - "What are the HGNC id, NCBI GeneID, Ensembl id and approved symbol of this gene, and what was it called before? (measured: 44,512 pairs stated by both sides; 12,718 records with a previous symbol)"
+      - "Is this symbol current, or was it changed this year? (measured: 120 symbol changes dated 2026)"
+      - "What does this gene do, in one paragraph, and who wrote the summary? (measured: 143,352 RefSeq summaries; 18,787 of 19,299 protein-coding genes covered)"
+      - "Where do HGNC and NCBI disagree about a gene's symbol or identifier? (measured: 38 both-sided pairs with different symbols; 926 one-sided pairs)"
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/gene_measure.py, docs/sources/pipeline/evidence/2026-11-21/gene_measure.json, docs/sources/pipeline/evidence/2026-11-21/gene_handcheck.json ]
+    next_action: 'Fetch the HGNC withdrawn file and NCBI gene_history to build the symbol and identifier history (the main value over the free sources); read the Alliance of Genome Resources licence; link gene-disease-evidence (ClinGen and UniProt already join on the HGNC id) and rare-diseases (Orphadata product 6); add the three files to tooling/snapshots/plans.json.'
+
+  - key: diagnosis-codes-icd10cm
+    name: "ICD-10-CM diagnosis codes: the US code set with its instructional notes as typed rules, and disease-ontology cross-references (CDC NCHS, Mondo)"
+    category: health
+    entity: "ICD-10-CM diagnosis code or header, identified by its code (E11.9): short and long description, billable flag, fiscal-year validity, the instructional notes that govern its use (includes, Excludes1, Excludes2, code first, use additional code, 7th character), and the disease-ontology terms that cite it"
+    stage: SCREENED
+    description: "One record per ICD-10-CM code for a fiscal year. The CDC NCHS FY2027 order file gives 98,403 codes (74,879 billable, 23,524 headers) and the yearly addenda list what was added, deleted or revised. The tabular XML carries 24,448 free-text instructional notes; 10,222 of them cite codes, and 12,614 of the 12,625 cited codes or code ranges resolve to the code set, so each note becomes a typed rule between codes. Mondo cites 2,148 distinct ICD-10-CM codes on 2,152 disease terms, of which 2,065 are codes in the FY2027 set; a cross-reference is served with Mondo's own qualifier, never as an equivalence. The CMS download is a byte-identical copy of the CDC file and is parked as a mirror."
+    sources: [ icd-cdc-icd10cm-code-set, icd-cdc-icd10cm-tabular-notes, rd-mondo-disease-ontology ]
+    join_keys:
+      - key: ICD-10-CM code cited as a cross-reference on a Mondo disease term
+        between: [ rd-mondo-disease-ontology, icd-cdc-icd10cm-code-set ]
+        measured: "2,065/2,148 distinct ICD-10-CM codes cited by live Mondo terms are codes in the CDC FY2027 order file (the 15 unresolved codes sampled are block ranges such as A00-A09); 1,236 of the resolved codes are billable; 19/20 seeded pairs describe the same condition and 1 cites a narrower code"
+        mode: declared
+        reviewed: { correct: 19, checked: 20 }
+      - key: ICD-10-CM code cited inside an instructional note of the tabular list (same publisher, not an independent link)
+        between: [ icd-cdc-icd10cm-tabular-notes, icd-cdc-icd10cm-code-set ]
+        measured: "12,614/12,625 codes or code ranges cited in notes resolve to the FY2027 order file (unresolved: B12, K93 and I64); all 47,025 tabular code elements are in the order file"
+        mode: declared
+    taxonomy:
+      - "code level: three-character category | subcategory (4 to 6 characters) | seven-character code; billable or header"
+      - "note type: includes | inclusion term | Excludes1 (never coded together) | Excludes2 (not included here) | code first | use additional code | code also | 7th character definition | general note"
+      - "yearly change: added | deleted | revised (order addenda)"
+      - "ontology cross-reference qualifier (Mondo): equivalentTo | narrower | broader | related | unqualified"
+    agent_questions:
+      - "Is this ICD-10-CM code valid and billable in fiscal year 2027, and what is its long description? (measured: 98,403 codes, 74,879 billable)"
+      - "Which codes may never be reported together with this one (Excludes1), and which must be coded first? (measured: 5,259 Excludes1 notes, 801 code first notes)"
+      - "What changed in the code set this fiscal year? (measured: 253 additions, 36 deletions, 4 revisions)"
+      - "Which Mondo disease terms cite this code, and with what qualifier? (measured: 2,065 codes cited)"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json, docs/sources/pipeline/evidence/2026-11-21/icd_handcheck.json ]
+    next_action: 'Read the NCHS and WHO statements on ICD-10-CM reuse and write the rights record; archive every fiscal year back to FY2016 and build the per-code history; parse the notes into typed rule rows and the alphabetic index XML (9,707,127 bytes) into term-to-code rows; screen CMS ICD-10-PCS (procedures) and the CMS NCCI and MS-DRG tables as separate data types; link rare-diseases through the Orphadata ICD mappings only after checking they are WHO ICD-10, not ICD-10-CM.'

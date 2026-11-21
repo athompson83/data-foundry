@@ -1,0 +1,267 @@
+{
+ "fetched": {
+  "mondo.obo": {
+   "bytes": 53442278,
+   "sha256": "b5a3d848578694601dffb1c2866798d4f6f4b4a12c315030c4d4c62ffe4e7e22",
+   "url": "https://purl.obolibrary.org/obo/mondo.obo"
+  },
+  "orpha1.xml": {
+   "bytes": 54026799,
+   "sha256": "df8d562a0c6011af36a74eb4000ce81ca7d723e8031010819fb71727c0962bbb",
+   "url": "https://www.orphadata.com/data/xml/en_product1.xml"
+  }
+ },
+ "mondo": {
+  "data_version": "releases/2026-11-03",
+  "definition_characters": 4022263,
+  "live_terms": 32137,
+  "live_terms_by_xref_prefix_top": {
+   "DOID": 11761,
+   "GARD": 15889,
+   "ICD9": 4295,
+   "MEDGEN": 21650,
+   "MESH": 8002,
+   "NCIT": 7331,
+   "OMIM": 9806,
+   "Orphanet": 9054,
+   "SCTID": 8888,
+   "UMLS": 21650,
+   "VeNom": 5045,
+   "icd11.foundation": 4521
+  },
+  "live_with_any_orphanet_xref": 9054,
+  "live_with_definition": 19545,
+  "live_with_equivalent_orphanet_xref": 8354,
+  "obsolete": 3957,
+  "rare_subsets": {
+   "doid_rare": 3331,
+   "gard_rare": 15889,
+   "inferred_rare": 379,
+   "mondo_curated_rare": 13,
+   "ncit_rare": 842,
+   "nord_rare": 10006,
+   "orphanet_rare": 6329,
+   "rare": 16478,
+   "rare_grouping": 43
+  },
+  "terms": 36094
+ },
+ "orphacode_handcheck_sample_names_differ": [
+  {
+   "mondo": "MONDO:0019522",
+   "mondo_name": "recessive dystrophic epidermolysis bullosa-generalized other",
+   "orphacode": "89842",
+   "orphanet_name": "Autosomal recessive generalized dystrophic epidermolysis bullosa, intermediate form"
+  },
+  {
+   "mondo": "MONDO:0010403",
+   "mondo_name": "albinism-hearing loss syndrome",
+   "orphacode": "998",
+   "orphanet_name": "Albinism-deafness syndrome"
+  },
+  {
+   "mondo": "MONDO:0013222",
+   "mondo_name": "Miyoshi muscular dystrophy 3",
+   "orphacode": "399096",
+   "orphanet_name": "Distal anoctaminopathy"
+  },
+  {
+   "mondo": "MONDO:0014810",
+   "mondo_name": "pancytopenia due to IKZF1 mutations",
+   "orphacode": "317473",
+   "orphanet_name": "Common variable immunodeficiency phenotype due to IKAROS functional haploinsufficiency"
+  },
+  {
+   "mondo": "MONDO:0044406",
+   "mondo_name": "arthrogryposis-ectodermal dysplasia-other anomalies syndrome",
+   "orphacode": "3200",
+   "orphanet_name": "Arthrogryposis-ectodermal dysplasia syndrome"
+  },
+  {
+   "mondo": "MONDO:0008050",
+   "mondo_name": "MYH7-related skeletal myopathy",
+   "orphacode": "59135",
+   "orphanet_name": "Laing distal myopathy"
+  },
+  {
+   "mondo": "MONDO:0014568",
+   "mondo_name": "hereditary spastic paraplegia 73",
+   "orphacode": "444099",
+   "orphanet_name": "Autosomal dominant spastic paraplegia type 73"
+  },
+  {
+   "mondo": "MONDO:0007800",
+   "mondo_name": "chromosome 18p deletion syndrome",
+   "orphacode": "1598",
+   "orphanet_name": "Monosomy 18p syndrome"
+  },
+  {
+   "mondo": "MONDO:0000453",
+   "mondo_name": "short QT syndrome",
+   "orphacode": "51083",
+   "orphanet_name": "Congenital short QT syndrome"
+  },
+  {
+   "mondo": "MONDO:0010512",
+   "mondo_name": "intellectual developmental disorder, X-linked, syndromic, Bain type",
+   "orphacode": "662198",
+   "orphanet_name": "Neurodevelopmental delay-intellectual disability-skeletal defects syndrome"
+  },
+  {
+   "mondo": "MONDO:0010091",
+   "mondo_name": "Cold-induced sweating syndrome 1",
+   "orphacode": "1545",
+   "orphanet_name": "Crisponi syndrome"
+  },
+  {
+   "mondo": "MONDO:0015070",
+   "mondo_name": "laryngeal neuroendocrine neoplasm",
+   "orphacode": "100083",
+   "orphanet_name": "Laryngeal neuroendocrine tumor"
+  },
+  {
+   "mondo": "MONDO:0014857",
+   "mondo_name": "neurodevelopmental disorder with or without anomalies of the brain, eye, or heart",
+   "orphacode": "494344",
+   "orphanet_name": "RERE-related neurodevelopmental syndrome"
+  },
+  {
+   "mondo": "MONDO:0010332",
+   "mondo_name": "cubitus valgus with impaired intellectual development and unusual facies",
+   "orphacode": "85280",
+   "orphanet_name": "X-linked intellectual disability-cubitus valgus-dysmorphism syndrome"
+  },
+  {
+   "mondo": "MONDO:0010184",
+   "mondo_name": "methylmalonic aciduria and homocystinuria type cblC",
+   "orphacode": "79282",
+   "orphanet_name": "Methylmalonic acidemia with homocystinuria, type cblC"
+  },
+  {
+   "mondo": "MONDO:0032819",
+   "mondo_name": "hypothyroidism, congenital, nongoitrous, 7",
+   "orphacode": "99832",
+   "orphanet_name": "Resistance to thyrotropin-releasing hormone syndrome"
+  },
+  {
+   "mondo": "MONDO:0015157",
+   "mondo_name": "human herpesvirus 8-related tumor",
+   "orphacode": "102024",
+   "orphanet_name": "Human herpesvirus 8-related disorder"
+  },
+  {
+   "mondo": "MONDO:0015903",
+   "mondo_name": "hyperalphalipoproteinemia",
+   "orphacode": "181428",
+   "orphanet_name": "Familial Hyperalphalipoproteinemia"
+  },
+  {
+   "mondo": "MONDO:0014875",
+   "mondo_name": "hyperaldosteronism, familial, type IV",
+   "orphacode": "642671",
+   "orphanet_name": "Familial hyperaldosteronism type IV"
+  },
+  {
+   "mondo": "MONDO:0014717",
+   "mondo_name": "early-onset Lafora body disease",
+   "orphacode": "324290",
+   "orphanet_name": "PRDM8-related progressive myoclonus epilepsy"
+  }
+ ],
+ "orphacode_join": {
+  "cited_but_absent_sample": [
+   "240839",
+   "240841",
+   "240845",
+   "240863",
+   "240867",
+   "240869",
+   "240871",
+   "240885",
+   "240887",
+   "240905",
+   "240921",
+   "377788",
+   "409941",
+   "413693",
+   "413696"
+  ],
+  "distinct_orphacodes_cited": 8395,
+  "mondo_equivalent_pairs": 8395,
+  "mondo_terms_citing_more_than_one_orphacode": 39,
+  "orphacodes_cited_by_more_than_one_mondo_term": 0,
+  "orphadata_entries": 11645,
+  "orphadata_entries_named_by_a_mondo_equivalent": 8376,
+  "orphadata_entries_not_named_by_group": {
+   "Disorder": 1168,
+   "Group of disorders": 1724,
+   "Subtype of disorder": 377
+  },
+  "pairs_with_identical_normalised_name": 5677,
+  "resolve_in_orphadata_product1": 8376,
+  "resolved_entries_whose_orphadata_record_lists_a_mondo_reference": 8040
+ },
+ "orphadata_product1": {
+  "by_group": {
+   "Disorder": 7515,
+   "Group of disorders": 2673,
+   "Subtype of disorder": 1457
+  },
+  "by_type": {
+   "Biological anomaly": 17,
+   "Category": 2175,
+   "Clinical group": 498,
+   "Clinical subtype": 1103,
+   "Clinical syndrome": 57,
+   "Disease": 4773,
+   "Etiological subtype": 290,
+   "Histopathological subtype": 64,
+   "Malformation syndrome": 2064,
+   "Morphological anomaly": 532,
+   "Particular clinical situation in a disease or syndrome": 72
+  },
+  "definition_characters": 2727485,
+  "definition_median_characters": 383,
+  "entries": 11645,
+  "entries_flagged_inactive_obsolete_deprecated_or_historical": 1888,
+  "entries_with_definition_text": 6898,
+  "entries_with_reference_by_source": {
+   "GARD": 3825,
+   "ICD-10": 7673,
+   "ICD-11": 6553,
+   "MONDO": 8875,
+   "MeSH": 3209,
+   "MedDRA": 1794,
+   "OMIM": 5074,
+   "UMLS": 9586
+  },
+  "entries_with_synonyms": 7180,
+  "entries_without_a_labelled_flag": 9725,
+  "file_date": "2026-06-23 07:53:50",
+  "file_version": "1.3.42 / 4.1.8 [2025-03-03]",
+  "flag_labels": {
+   "(no label)": 10587,
+   "Deprecated entity": 337,
+   "Head of classification": 32,
+   "Historical entity": 344,
+   "Inactive": 1544,
+   "Non-rare disease in Europe": 149,
+   "Obsolete entity": 1057,
+   "Obsolete with resources": 1
+  },
+  "licence_short_identifier": "CC-BY-4.0",
+  "reference_rows_by_mapping_relation": {
+   "BTNT": 5144,
+   "E (Ex": 34278,
+   "ND (n": 40,
+   "NTBT": 12994
+  },
+  "synonyms": 15307
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 2,
+  "made_this_run": 0,
+  "source_bodies": 2
+ },
+ "run_date": "2026-11-21"
+}

@@ -1,0 +1,364 @@
+{
+ "fetched": {
+  "gene_info.gz": {
+   "bytes": 5175808,
+   "sha256": "9e3021972633ad1cc85151fa752a794475e06d7a556ac22ed8876be2b50c5a8d",
+   "url": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz"
+  },
+  "gene_summary.gz": {
+   "bytes": 23894520,
+   "sha256": "c91d3c05e262ecb4d0daeb09c8c5c4d0fe7fea6cc268db82d8ad4b16dba5264d",
+   "url": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_summary.gz"
+  },
+  "hgnc.txt": {
+   "bytes": 17007798,
+   "sha256": "6df77ac3cbaeb86a6dce5e17d851ebb27b6b3cdcd2471a211a3d8464f00c54c4",
+   "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "gene_id": "101928496",
+   "hgnc_id": "HGNC:51149",
+   "hgnc_location": "9q31.1",
+   "hgnc_symbol": "LINC01492",
+   "ncbi_map_location": "9q31.1",
+   "ncbi_symbol": "LINC01492"
+  },
+  {
+   "gene_id": "56899",
+   "hgnc_id": "HGNC:24600",
+   "hgnc_location": "12q23.1",
+   "hgnc_symbol": "ANKS1B",
+   "ncbi_map_location": "12q23.1",
+   "ncbi_symbol": "ANKS1B"
+  },
+  {
+   "gene_id": "1983",
+   "hgnc_id": "HGNC:3299",
+   "hgnc_location": "14q32.32",
+   "hgnc_symbol": "EIF5",
+   "ncbi_map_location": "14q32.32",
+   "ncbi_symbol": "EIF5"
+  },
+  {
+   "gene_id": "100313894",
+   "hgnc_id": "HGNC:37592",
+   "hgnc_location": "16",
+   "hgnc_symbol": "PIRC88",
+   "ncbi_map_location": "-",
+   "ncbi_symbol": "PIRC88"
+  },
+  {
+   "gene_id": "128667228",
+   "hgnc_id": "HGNC:56737",
+   "hgnc_location": "16p11.2",
+   "hgnc_symbol": "ITGAL-AS1",
+   "ncbi_map_location": "16p11.2",
+   "ncbi_symbol": "ITGAL-AS1"
+  },
+  {
+   "gene_id": "54149",
+   "hgnc_id": "HGNC:16459",
+   "hgnc_location": "21q21.1",
+   "hgnc_symbol": "C21orf91",
+   "ncbi_map_location": "21q21.1",
+   "ncbi_symbol": "C21orf91"
+  },
+  {
+   "gene_id": "2249",
+   "hgnc_id": "HGNC:3682",
+   "hgnc_location": "11q13.3",
+   "hgnc_symbol": "FGF4",
+   "ncbi_map_location": "11q13.3",
+   "ncbi_symbol": "FGF4"
+  },
+  {
+   "gene_id": "55184",
+   "hgnc_id": "HGNC:15858",
+   "hgnc_location": "20p11.23",
+   "hgnc_symbol": "DZANK1",
+   "ncbi_map_location": "20p11.23",
+   "ncbi_symbol": "DZANK1"
+  },
+  {
+   "gene_id": "6157",
+   "hgnc_id": "HGNC:10329",
+   "hgnc_location": "11p15.4",
+   "hgnc_symbol": "RPL27A",
+   "ncbi_map_location": "11p15.4",
+   "ncbi_symbol": "RPL27A"
+  },
+  {
+   "gene_id": "84224",
+   "hgnc_id": "HGNC:25076",
+   "hgnc_location": "1p36.12",
+   "hgnc_symbol": "NBPF3",
+   "ncbi_map_location": "1p36.12",
+   "ncbi_symbol": "NBPF3"
+  },
+  {
+   "gene_id": "118738",
+   "hgnc_id": "HGNC:23535",
+   "hgnc_location": "10q11.22",
+   "hgnc_symbol": "ZNF488",
+   "ncbi_map_location": "10q11.22",
+   "ncbi_symbol": "ZNF488"
+  },
+  {
+   "gene_id": "100421188",
+   "hgnc_id": "HGNC:38563",
+   "hgnc_location": "2p12",
+   "hgnc_symbol": "GAPDHP57",
+   "ncbi_map_location": "2p12",
+   "ncbi_symbol": "GAPDHP57"
+  },
+  {
+   "gene_id": "401630",
+   "hgnc_id": "HGNC:37736",
+   "hgnc_location": "Yq11.222",
+   "hgnc_symbol": "FAM224A",
+   "ncbi_map_location": "Yq11.222",
+   "ncbi_symbol": "FAM224A"
+  },
+  {
+   "gene_id": "767846",
+   "hgnc_id": "HGNC:24298",
+   "hgnc_location": "1p11.2",
+   "hgnc_symbol": "PFN1P2",
+   "ncbi_map_location": "1p11.2",
+   "ncbi_symbol": "PFN1P2"
+  },
+  {
+   "gene_id": "57568",
+   "hgnc_id": "HGNC:23800",
+   "hgnc_location": "1q42.2",
+   "hgnc_symbol": "SIPA1L2",
+   "ncbi_map_location": "1q42.2",
+   "ncbi_symbol": "SIPA1L2"
+  },
+  {
+   "gene_id": "105372520",
+   "hgnc_id": "HGNC:55788",
+   "hgnc_location": "20p12.3",
+   "hgnc_symbol": "TMX4-AS1",
+   "ncbi_map_location": "20p12.3",
+   "ncbi_symbol": "TMX4-AS1"
+  },
+  {
+   "gene_id": "387361",
+   "hgnc_id": "HGNC:38778",
+   "hgnc_location": "Yq11.222",
+   "hgnc_symbol": "USP9YP34",
+   "ncbi_map_location": "Yq11.222",
+   "ncbi_symbol": "USP9YP34"
+  },
+  {
+   "gene_id": "106480738",
+   "hgnc_id": "HGNC:41250",
+   "hgnc_location": "3q28",
+   "hgnc_symbol": "OSTN-AS1",
+   "ncbi_map_location": "3q28",
+   "ncbi_symbol": "OSTN-AS1"
+  },
+  {
+   "gene_id": "729493",
+   "hgnc_id": "HGNC:37792",
+   "hgnc_location": "19q13.32",
+   "hgnc_symbol": "GAPDHP38",
+   "ncbi_map_location": "19q13.32",
+   "ncbi_symbol": "GAPDHP38"
+  },
+  {
+   "gene_id": "133874",
+   "hgnc_id": "HGNC:37272",
+   "hgnc_location": "5q35.1",
+   "hgnc_symbol": "C5orf58",
+   "ncbi_map_location": "5q35.1",
+   "ncbi_symbol": "C5orf58"
+  }
+ ],
+ "hgnc_complete_set": {
+  "approved_by_locus_group": {
+   "non-coding RNA": 10395,
+   "other": 1004,
+   "protein-coding gene": 19299,
+   "pseudogene": 14697
+  },
+  "approved_or_reserved_in_2026": 493,
+  "approved_with": {
+   "alias_symbol": 22678,
+   "ensembl_gene_id": 42736,
+   "entrez_id": 44542,
+   "gene_group": 28620,
+   "location": 45376,
+   "mane_select": 19316,
+   "omim_id": 17577,
+   "prev_symbol": 12718,
+   "refseq_accession": 42650,
+   "uniprot_ids": 20289
+  },
+  "by_status": {
+   "Approved": 45395
+  },
+  "columns": 53,
+  "distinct_hgnc_ids": 45395,
+  "distinct_symbols": 45395,
+  "newest_date_modified": "2026-11-13",
+  "rows": 45395,
+  "symbol_changes_dated_2026": 120
+ },
+ "hgnc_id_join": {
+  "approved_hgnc_genes": 45395,
+  "approved_hgnc_genes_with_ncbi_summary_through_both_sided_pair": 23250,
+  "approved_protein_coding": 19299,
+  "approved_protein_coding_with_summary": 18787,
+  "both_sided_pairs_with_different_symbol_sample": [
+   [
+    "HGNC:28884",
+    "PPA1P2",
+    "151842",
+    "PP1P"
+   ],
+   [
+    "HGNC:7414",
+    "MT-ATP6",
+    "4508",
+    "ATP6"
+   ],
+   [
+    "HGNC:7415",
+    "MT-ATP8",
+    "4509",
+    "ATP8"
+   ],
+   [
+    "HGNC:7419",
+    "MT-CO1",
+    "4512",
+    "COX1"
+   ],
+   [
+    "HGNC:7421",
+    "MT-CO2",
+    "4513",
+    "COX2"
+   ],
+   [
+    "HGNC:7422",
+    "MT-CO3",
+    "4514",
+    "COX3"
+   ],
+   [
+    "HGNC:7427",
+    "MT-CYB",
+    "4519",
+    "CYTB"
+   ],
+   [
+    "HGNC:7455",
+    "MT-ND1",
+    "4535",
+    "ND1"
+   ],
+   [
+    "HGNC:7456",
+    "MT-ND2",
+    "4536",
+    "ND2"
+   ],
+   [
+    "HGNC:7458",
+    "MT-ND3",
+    "4537",
+    "ND3"
+   ]
+  ],
+  "both_sided_pairs_with_same_symbol": 44474,
+  "cited_hgnc_ids_absent_sample": [
+   "HGNC:10112",
+   "HGNC:10695",
+   "HGNC:16423",
+   "HGNC:16428",
+   "HGNC:18845",
+   "HGNC:21235",
+   "HGNC:21363",
+   "HGNC:23583",
+   "HGNC:24498",
+   "HGNC:26601"
+  ],
+  "cited_hgnc_ids_present_in_hgnc_file": 45304,
+  "cited_hgnc_ids_with_status_approved": 45304,
+  "hgnc_approved_records_citing_an_entrez_id": 44542,
+  "ncbi_genes_citing_an_hgnc_id": 45408,
+  "pairs_only_hgnc": 30,
+  "pairs_only_ncbi": 896,
+  "pairs_stated_by_both_sides": 44512
+ },
+ "ncbi_gene_info_human": {
+  "by_type_of_gene": {
+   "biological-region": 128261,
+   "ncRNA": 22806,
+   "other": 846,
+   "protein-coding": 20575,
+   "pseudo": 17512,
+   "rRNA": 781,
+   "scRNA": 4,
+   "snRNA": 175,
+   "snoRNA": 1199,
+   "tRNA": 655,
+   "unknown": 1197
+  },
+  "columns": [
+   "tax_id",
+   "GeneID",
+   "Symbol",
+   "LocusTag",
+   "Synonyms",
+   "dbXrefs",
+   "chromosome",
+   "map_location",
+   "description",
+   "type_of_gene",
+   "Symbol_from_nomenclature_authority",
+   "Full_name_from_nomenclature_authority",
+   "Nomenclature_status",
+   "Other_designations",
+   "Modification_date",
+   "Feature_type"
+  ],
+  "modified_in_november_2026": 191141,
+  "newest_modification_date": "20261120",
+  "rows": 194084,
+  "rows_tax_9606": 194011,
+  "with_ensembl_cross_reference": 38515,
+  "with_hgnc_cross_reference": 45408,
+  "with_mim_cross_reference": 19090
+ },
+ "ncbi_gene_summary": {
+  "human_by_source": {
+   "Alliance of Genome Resources": 7523,
+   "OMIM": 821,
+   "RefSeq": 143352,
+   "other": 7
+  },
+  "human_rows": 151703,
+  "human_summaries_ending_with_a_provider_stamp": 150748,
+  "human_summaries_whose_gene_id_is_in_gene_info": 151703,
+  "human_summary_characters": 58856606,
+  "median_characters": 383,
+  "provider_stamps_top": {
+   "Alliance of Genome Resources": 7523,
+   "R. Dalgleish": 3,
+   "RefSeq": 143222
+  },
+  "rows_all_taxa": 3378541
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 3,
+  "made_this_run": 0,
+  "source_bodies": 3
+ },
+ "run_date": "2026-11-21"
+}

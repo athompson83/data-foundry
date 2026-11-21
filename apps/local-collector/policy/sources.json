@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "d791dd6bfc2e25a237ac364bc4d892dd977151009f815bfd2ebb3c932d8a96b9",
+  "registry_sha256": "502da4298410d8a38ec8a45b853c8ba38bc928ebbefe05daad5b7d22fcfd4306",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -64,7 +64,8 @@
         "appliance-saferproducts-incidents",
         "appliance-energy-star-registry",
         "plumbing-energystar-water-heaters",
-        "appliance-brand-ownership"
+        "appliance-brand-ownership",
+        "fr-rappelconso-v2"
       ]
     },
     "home-equipment-model-registry": {
@@ -953,6 +954,51 @@
         "hei-ror-registry",
         "hei-wikidata-institution-identifiers",
         "hei-uk-ofs-register"
+      ]
+    },
+    "tariff-schedule-lines": {
+      "name": "Tariff schedule lines: US HTS rate lines and the UK goods nomenclature, linked at the six-digit HS subheading, with UK chapter notes (USITC, Department for Business and Trade, HMRC Online Trade Tariff)",
+      "stage": "SCREENED",
+      "sources": [
+        "tariff-usitc-hts",
+        "tariff-uk-dbt-commodities-report",
+        "tariff-uk-trade-tariff-chapter-notes"
+      ]
+    },
+    "adversary-techniques": {
+      "name": "Adversary techniques: MITRE ATT&CK Enterprise techniques with procedure examples and Atomic Red Team tests (MITRE, Red Canary)",
+      "stage": "SCREENED",
+      "sources": [
+        "atk-mitre-attack-enterprise",
+        "atk-mitre-attack-procedure-examples",
+        "atk-red-canary-atomic-red-team"
+      ]
+    },
+    "rare-diseases": {
+      "name": "Rare diseases: Orphanet nomenclature and definitions linked to the Mondo Disease Ontology by ORPHAcode (Orphadata, Mondo)",
+      "stage": "SCREENED",
+      "sources": [
+        "rd-orphadata-nomenclature",
+        "rd-orphadata-definitions",
+        "rd-mondo-disease-ontology"
+      ]
+    },
+    "human-genes": {
+      "name": "Human genes: approved nomenclature, identifiers and functional summaries (HGNC complete set, NCBI Gene info and summaries)",
+      "stage": "SCREENED",
+      "sources": [
+        "gene-hgnc-complete-set",
+        "gene-ncbi-gene-info",
+        "gene-ncbi-gene-summaries"
+      ]
+    },
+    "diagnosis-codes-icd10cm": {
+      "name": "ICD-10-CM diagnosis codes: the US code set with its instructional notes as typed rules, and disease-ontology cross-references (CDC NCHS, Mondo)",
+      "stage": "SCREENED",
+      "sources": [
+        "icd-cdc-icd10cm-code-set",
+        "icd-cdc-icd10cm-tabular-notes",
+        "rd-mondo-disease-ontology"
       ]
     }
   },
@@ -1926,16 +1972,16 @@
       ]
     },
     "fr-rappelconso-v2": {
-      "name": "France RappelConso V2 product recalls with GTIN (DGCCRF, data.economie.gouv.fr)",
-      "rights": "RED",
-      "stage": "PARKED",
-      "format": null,
-      "publisher": null,
+      "name": "France RappelConso V2 product recalls (DGCCRF, data.economie.gouv.fr): food and non-food notices with GTINs, lots, recall reason and risk text, and Safety Gate case numbers",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "French Ministry of Economy (DGCCRF)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "rights verdict is RED",
-        "stage PARKED is before PROTOTYPED"
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "oecd-globalrecalls-portal": {
@@ -2107,14 +2153,14 @@
     "building-products-ibhs-fortified-incentives": {
       "name": "IBHS FORTIFIED state incentives and standards pages (insurance discounts, grants, tax credits by state)",
       "rights": "AMBER",
-      "stage": "DISCOVERED",
-      "format": null,
-      "publisher": null,
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Insurance Institute for Business & Home Safety (IBHS)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
-        "stage DISCOVERED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "building-products-wikidata-manufacturers": {
@@ -8703,6 +8749,201 @@
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
         "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tariff-usitc-hts": {
+      "name": "USITC Harmonized Tariff Schedule of the United States (REST export: 8-digit rate lines, 10-digit statistical lines, general / special / column 2 rates, units, footnotes)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US International Trade Commission",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tariff-uk-dbt-commodities-report": {
+      "name": "UK goods nomenclature commodities report (Department for Business and Trade Data API: commodity code, suffix, description, validity dates, parent)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "UK Department for Business and Trade",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "tariff-uk-trade-tariff-chapter-notes": {
+      "name": "UK Online Trade Tariff API: chapter notes, sections, chapters and headings (legal notes on what each chapter covers and excludes)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "HM Revenue and Customs (UK Online Trade Tariff)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "atk-mitre-attack-enterprise": {
+      "name": "MITRE ATT&CK Enterprise matrix (techniques, sub-techniques, tactics, platforms, mitigations, groups, software; STIX bundle and the Excel workbook on attack.mitre.org)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "The MITRE Corporation",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "atk-mitre-attack-procedure-examples": {
+      "name": "MITRE ATT&CK technique descriptions and procedure examples (prose describing how each technique works and how named groups and software used it, with citations)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "The MITRE Corporation",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "atk-red-canary-atomic-red-team": {
+      "name": "Red Canary Atomic Red Team (executable test cases filed under ATT&CK technique ids: commands, platforms, prerequisites, cleanup)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Red Canary",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "rd-orphadata-nomenclature": {
+      "name": "Orphadata Science product 1: Orphanet rare disease nomenclature and cross-references (ORPHAcode, type, synonyms, ICD-10, ICD-11, OMIM, UMLS, MeSH, MedDRA, GARD and MONDO mappings)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Orphanet (INSERM US14)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "rd-orphadata-definitions": {
+      "name": "Orphanet disease definitions (free-text definition of each rare disease, in Orphadata Science product 1)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Orphanet (INSERM US14)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "rd-mondo-disease-ontology": {
+      "name": "Mondo Disease Ontology (disease terms with definitions and cross-references to Orphanet, OMIM, GARD, DOID, MeSH, NCIt, ICD-10-CM and others; rare-disease subsets)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Monarch Initiative (Mondo)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gene-hgnc-complete-set": {
+      "name": "HGNC complete gene set (approved human gene symbols and names, locus type, previous and alias symbols, Entrez, Ensembl, UniProt, OMIM and MANE Select cross-references)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "HUGO Gene Nomenclature Committee (HGNC)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gene-ncbi-gene-info": {
+      "name": "NCBI Gene gene_info for Homo sapiens (GeneID, symbol, synonyms, type of gene, map location, HGNC / Ensembl / MIM cross-references)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US National Center for Biotechnology Information (NLM)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gene-ncbi-gene-summaries": {
+      "name": "NCBI Gene summaries (free-text functional summary of each gene: RefSeq-written, with a smaller share from the Alliance of Genome Resources and OMIM)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Center for Biotechnology Information (NLM)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "icd-cdc-icd10cm-code-set": {
+      "name": "CDC NCHS ICD-10-CM code set, fiscal year 2027 (order file: every code and header with short and long descriptions and the billable flag; yearly addenda)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US CDC National Center for Health Statistics",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "icd-cdc-icd10cm-tabular-notes": {
+      "name": "CDC NCHS ICD-10-CM tabular list instructional notes (includes, inclusion terms, Excludes1, Excludes2, code first, use additional code, code also, 7th character definitions; tabular XML)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US CDC National Center for Health Statistics",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "icd-cms-icd10cm-code-descriptions": {
+      "name": "CMS copy of the ICD-10-CM code descriptions (2027 Code Descriptions in Tabular Order)",
+      "rights": "UNKNOWN",
+      "stage": "PARKED",
+      "format": "structured",
+      "publisher": "US Centers for Medicare & Medicaid Services",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "rights verdict is UNKNOWN",
+        "stage PARKED is before PROTOTYPED"
       ]
     }
   },
