@@ -66,11 +66,16 @@ leaf_parent = {r["parent__code"] + r["parent__suffix"] for r in live}
 # Any code below heading level carries its HS subheading in the first six digits (an undivided heading
 # such as 0205 appears as 0205.00 in both schedules).
 uk_hs6 = {c[:6] for c in uk_codes if (c[4:6] != "00" or c[6:] != "0000") and c[:2] <= "97"}
+# A heading with no code below it at all is itself the subheading XXXX.00 (the HTS writes it as 0501.00).
+# A heading that has codes below it is an aggregate and is not a subheading.
+below = collections.Counter(c[:4] for c in uk_codes if c[4:] != "000000")
+uk_undivided = {c[:6] for c in uk_codes if c[2:4] != "00" and c[4:] == "000000" and below[c[:4]] == 0 and c[:2] <= "97"}
+uk_hs6 |= uk_undivided
 out["dbt_commodities_report"] = {
     "rows": len(rows), "rows_without_end_date": len(live), "distinct_commodity_codes_without_end_date": len(uk_codes),
     "newest_validity_start": max(r["commodity__validity_start"] for r in rows),
     "suffix_80_rows_without_end_date": sum(1 for r in live if r["commodity__suffix"] == "80"),
-    "distinct_hs6_chapters_01_97": len(uk_hs6), "fields": list(rows[0]),
+    "distinct_hs6_chapters_01_97": len(uk_hs6), "of_which_undivided_headings_held_at_heading_level": len(uk_undivided), "fields": list(rows[0]),
     "versions_endpoint_status": status("https://data.api.trade.gov.uk/v1/datasets/uk-tariff-2021-01-01/versions?format=json"),
 }
 

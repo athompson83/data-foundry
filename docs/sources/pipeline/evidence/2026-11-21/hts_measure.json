@@ -1,7 +1,7 @@
 {
  "dbt_commodities_report": {
   "distinct_commodity_codes_without_end_date": 22327,
-  "distinct_hs6_chapters_01_97": 5471,
+  "distinct_hs6_chapters_01_97": 5612,
   "fields": [
    "id",
    "commodity__sid",
@@ -15,6 +15,7 @@
    "parent__suffix"
   ],
   "newest_validity_start": "2026-11-18",
+  "of_which_undivided_headings_held_at_heading_level": 141,
   "rows": 25904,
   "rows_without_end_date": 25822,
   "suffix_80_rows_without_end_date": 22324,
@@ -761,26 +762,10 @@
  ],
  "hs6_join": {
   "hts_hs6": 5612,
-  "hts_only": 141,
-  "hts_only_sample": [
-   "050100",
-   "051000",
-   "081400",
-   "090300",
-   "110900",
-   "120300",
-   "150600",
-   "152000",
-   "180100",
-   "180200",
-   "180400",
-   "180500",
-   "190300",
-   "230400",
-   "230500"
-  ],
-  "in_both": 5471,
-  "uk_hs6": 5471,
+  "hts_only": 0,
+  "hts_only_sample": [],
+  "in_both": 5612,
+  "uk_hs6": 5612,
   "uk_only": 0,
   "uk_only_sample": []
  },

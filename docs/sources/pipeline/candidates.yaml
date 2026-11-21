@@ -12728,7 +12728,7 @@ candidates:
       - "Terms unread: the Data API's licence statement was not fetched in this round (presumed usable under ADR-0018; UK government data is normally under the Open Government Licence). Read and quote it before RIGHTS_DETERMINED."
       - "The report lists the nomenclature only (codes and descriptions), not duty rates or measures; do not present it as a tariff."
       - "Keep the validity start and end dates on every code; a code with an end date is historical."
-    next_action: 'Measured 2026-11-21: 25,904 rows (3,397,401 bytes), 25,822 without an end date covering 22,327 distinct ten-digit codes; newest validity start 2026-11-18; 5,471 distinct six-digit subheadings in chapters 01 to 97. Next: read the licence statement, fetch the measures tables of the same dataset (duty rates, quotas) and archive each dated version.'
+    next_action: 'Measured 2026-11-21: 25,904 rows (3,397,401 bytes), 25,822 without an end date covering 22,327 distinct ten-digit codes; newest validity start 2026-11-18; 5,612 distinct six-digit subheadings in chapters 01 to 97, 141 of them undivided headings held at heading level. Next: read the licence statement, fetch the measures tables of the same dataset (duty rates, quotas) and archive each dated version.'
   - key: tariff-uk-trade-tariff-chapter-notes
     name: "UK Online Trade Tariff API: chapter notes, sections, chapters and headings (legal notes on what each chapter covers and excludes)"
     category: trade
@@ -17052,12 +17052,12 @@ datasets:
     category: trade
     entity: "tariff line (a national tariff code with its description, duty rates, units and validity) and the six-digit Harmonized System subheading it sits under, with the chapter notes that say what the chapter covers and excludes"
     stage: SCREENED
-    description: "One record per national tariff line, grouped under its six-digit HS subheading. The USITC export gives 6,858 eight-digit rate lines and 19,949 ten-digit statistical lines of the current HTS revision (2026HTSRev23) with general, special and column 2 rates, units and footnotes. The Department for Business and Trade commodities report gives 22,327 current UK ten-digit codes with validity dates. The first six digits of both are the internationally agreed HS subheading, which is the only level at which the two schedules are linked: 5,471 of the 5,612 HTS subheadings are also UK subheadings. National lines below six digits are never linked to each other. The UK Online Trade Tariff API adds the free-text chapter notes (95 chapters, 332,674 characters) that state exclusions and cite headings."
+    description: "One record per national tariff line, grouped under its six-digit HS subheading. The USITC export gives 6,858 eight-digit rate lines and 19,949 ten-digit statistical lines of the current HTS revision (2026HTSRev23) with general, special and column 2 rates, units and footnotes. The Department for Business and Trade commodities report gives 22,327 current UK ten-digit codes with validity dates. The first six digits of both are the internationally agreed HS subheading, which is the only level at which the two schedules are linked: all 5,612 HTS subheadings are also UK subheadings (141 of them undivided headings that the UK report holds at heading level). National lines below six digits are never linked to each other. The UK Online Trade Tariff API adds the free-text chapter notes (95 chapters, 332,674 characters) that state exclusions and cite headings."
     sources: [ tariff-usitc-hts, tariff-uk-dbt-commodities-report, tariff-uk-trade-tariff-chapter-notes ]
     join_keys:
       - key: HS subheading code (the first six digits of the HTS number and of the UK commodity code)
         between: [ tariff-usitc-hts, tariff-uk-dbt-commodities-report ]
-        measured: "5,471/5,612 distinct HTS six-digit subheadings in chapters 01 to 97 are also six-digit subheadings of a current UK commodity code; 0 UK subheadings are missing from the HTS; the 15 unmatched HTS codes sampled all end in 00 (an undivided heading, which the UK report holds at heading level); 20/20 seeded pairs carry the same description"
+        measured: "5,612/5,612 distinct HTS six-digit subheadings in chapters 01 to 97 are also six-digit subheadings of a current UK commodity code, and 0 UK subheadings are missing from the HTS; 141 of them are undivided headings (0501.00 in the HTS), which the UK report holds as a heading-level code with nothing below it (0501000000); 20/20 seeded pairs carry the same description"
         mode: declared
         reviewed: { correct: 20, checked: 20 }
     taxonomy:
@@ -17068,7 +17068,7 @@ datasets:
       - "note type (UK chapter notes): exclusion (does not cover) | definition | heading reference"
     agent_questions:
       - "What is the US general duty rate for this HTS number, in which HTS revision, and which footnotes point to additional chapter 99 duties? (measured: 6,858 rate lines, 4,645 rows with footnotes)"
-      - "Which UK commodity codes sit under the same six-digit subheading as this HTS line? (measured: 5,471 shared subheadings)"
+      - "Which UK commodity codes sit under the same six-digit subheading as this HTS line? (measured: 5,612 shared subheadings)"
       - "Does the chapter note exclude this kind of good from the chapter, and which heading does it send it to? (measured: 81 notes cite a heading number, 751 citations)"
       - "Which codes started or ended validity recently? (measured: newest UK validity start 2026-11-18; 24 HTS releases named 2026)"
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }

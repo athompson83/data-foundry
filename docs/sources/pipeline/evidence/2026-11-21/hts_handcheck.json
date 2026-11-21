@@ -1,6 +1,6 @@
 {
  "checked_on": "2026-11-21",
- "method": "The 20 shared HS6 codes drawn with seed 20261121 by hts_measure.py (hs6_handcheck_sample); the HTS and UK descriptions at the six-digit level were read side by side.",
+ "method": "20 shared HS6 codes drawn with seed 20261121 by hts_measure.py (hs6_handcheck_sample); the HTS and UK descriptions at the six-digit level were read side by side.",
  "checked": 20,
  "same_subheading": 20,
  "note": "All 20 descriptions say the same thing apart from spelling (colors/colours), a trailing colon, a statistical suffix such as (224) and wording such as 'G.V.W. exceeding 20 metric tons' against 'Of a gross vehicle weight exceeding 20 tonnes'. The match holds at the six-digit subheading only: the 8- and 10-digit lines below it are national and are never linked.",
