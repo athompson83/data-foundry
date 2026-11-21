@@ -69,6 +69,16 @@ async function fetchSource(url: string, agency: ProductAgency, bucket: R2Bucket,
   throw new Error(`${new URL(url).host} unavailable after retries`);
 }
 
+/**
+ * The Health Canada index is served through a CDN that kept answering the plain URL with the previous
+ * day's file (measured 2026-11-20 and 2026-11-21: the plain URL returned the file last modified a day
+ * earlier, while the same URL with an unused query string returned the current one). A query string that
+ * changes every hour makes each scheduled read fetch the publisher's current file.
+ */
+export function hcUrl(now: string): string {
+  return `${HC_ENDPOINT}?retrieved=${now.slice(0, 13).replace(/[^0-9]/g, '')}`;
+}
+
 export function cpscUrl(from?: string): string {
   return `${CPSC_ENDPOINT}?format=json${from ? `&LastPublishDateStart=${from}` : ''}`;
 }
@@ -223,7 +233,7 @@ export async function scheduledProductSync(env: ProductSyncEnv, options: { full:
   );
   results.push(
     await attempt('product:HC', async () => {
-      const { key, records } = await fetchSource(HC_ENDPOINT, 'HC', env.RAW_ARTIFACTS, fetcher, now);
+      const { key, records } = await fetchSource(hcUrl(now), 'HC', env.RAW_ARTIFACTS, fetcher, now);
       if (!Array.isArray(records)) throw new Error('Health Canada response is not a JSON array');
       const inScope = records.filter((record) => isPublishable('HC', record));
       if (inScope.length < MIN_FULL_HC_CONSUMER) throw new Error(`Health Canada index has only ${inScope.length} consumer-product records`);
