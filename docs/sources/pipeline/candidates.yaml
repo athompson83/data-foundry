@@ -13114,10 +13114,10 @@ datasets:
         measured: "2,173/2,173 RappelConso notices numbered with a Safety Gate case number (prefixes A12 1,337, SR 777, A11 30, INFO 29) resolve to an alert in the 507 weekly reports from 2017 to Report-2026-46 (28,110 distinct case numbers); the alert was notified by Germany for 944, France 837, Portugal 135, Poland 56, Belgium 46; 1,828 of the notices are vehicles; 20/20 seeded pairs carry the same make and model list (evidence/2026-11-21/widen_measure.py)"
         mode: declared
         reviewed: { correct: 20, checked: 20 }
-      - key: exact GTIN-14 with a valid GS1 check digit (RappelConso identification_produits, Safety Gate barcode); links notice to product, never merges recall events
+      - key: shared GTIN-14 with a valid GS1 check digit (RappelConso identification_produits, Safety Gate barcode), proposed for review and accepted only when the brand on both sides agrees; never merges recall events
         between: [ fr-rappelconso-v2, eu-safety-gate-alerts ]
-        measured: "388/1,857 non-food RappelConso notices with a valid GTIN share one with a Safety Gate alert (10,808 alerts with a valid GTIN); none of the 388 is numbered with that alert's case number, so the GTIN is the only link; hand check of 20 seeded pairs: 18 same product, 1 different product, 1 undetermined"
-        mode: declared
+        measured: "388/1,857 non-food RappelConso notices with a valid GTIN share one with a Safety Gate alert (10,808 alerts with a valid GTIN); none of the 388 is numbered with that alert's case number, so the GTIN is the only link; hand check of 20 seeded pairs: 18 same product, 1 different product (notice 2024-05-0053, Quantum tattoo ink, against alert A12/01516/23, Eternal Ink: one GTIN printed on two brands), 1 undetermined; because a shared GTIN was shown to join different products here, this join is a review candidate, not an automatic link"
+        mode: candidate
         reviewed: { correct: 18, checked: 20 }
       - key: exact GTIN-14 with a valid GS1 check digit (RappelConso identification_produits, CPSC ProductUPCs); links notice to product, never merges recall events
         between: [ fr-rappelconso-v2, cpsc-recalls ]
