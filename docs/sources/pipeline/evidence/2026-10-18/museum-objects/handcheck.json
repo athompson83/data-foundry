@@ -1,0 +1,328 @@
+{
+ "method": "Reviewer read each exact-name pair and judged it the same person from the full name alone. This is a name-based judgement: no dates, nationality or ULAN id were compared (the Art Institute publishes ulan_id for 1 of 17,017 agents), so it supports a review candidate, not a declared link.",
+ "checked": 38,
+ "same_artist": 38,
+ "excluded": [
+  {
+   "met_name": "Charles Ray",
+   "verdict": "excluded",
+   "note": "common personal name; cannot tell the Met and Art Institute artist apart from the name alone"
+  },
+  {
+   "met_name": "Joshua Johnson",
+   "verdict": "excluded",
+   "note": "common personal name; cannot tell the Met and Art Institute artist apart from the name alone"
+  },
+  {
+   "met_name": "Unknown Artist",
+   "verdict": "excluded",
+   "note": "placeholder name"
+  }
+ ],
+ "rows": [
+  {
+   "ulan": "500115190",
+   "met_name": "Anthony van Dyck",
+   "aic_agent_id": 40563,
+   "aic_title": "Anthony van Dyck",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500023972",
+   "met_name": "John Singer Sargent",
+   "aic_agent_id": 36540,
+   "aic_title": "John Singer Sargent",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500018196",
+   "met_name": "Leonora Carrington",
+   "aic_agent_id": 42671,
+   "aic_title": "Leonora Carrington",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500027334",
+   "met_name": "Marisol",
+   "aic_agent_id": 31944,
+   "aic_title": "Marisol",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500002921",
+   "met_name": "Peter Paul Rubens",
+   "aic_agent_id": 36487,
+   "aic_title": "Peter Paul Rubens",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500002633",
+   "met_name": "Egon Schiele",
+   "aic_agent_id": 36559,
+   "aic_title": "Egon Schiele",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500026325",
+   "met_name": "Horace Pippin",
+   "aic_agent_id": 37451,
+   "aic_title": "Horace Pippin",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500016619",
+   "met_name": "Auguste Rodin",
+   "aic_agent_id": 36418,
+   "aic_title": "Auguste Rodin",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500023210",
+   "met_name": "Yasuo Kuniyoshi",
+   "aic_agent_id": 35356,
+   "aic_title": "Yasuo Kuniyoshi",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500116241",
+   "met_name": "Ralph Earl",
+   "aic_agent_id": 34347,
+   "aic_title": "Ralph Earl",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500124332",
+   "met_name": "Augustus Saint-Gaudens",
+   "aic_agent_id": 36518,
+   "aic_title": "Augustus Saint-Gaudens",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500004539",
+   "met_name": "Sir Joshua Reynolds",
+   "aic_agent_id": 40771,
+   "aic_title": "Sir Joshua Reynolds",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500024301",
+   "met_name": "Alfred Stieglitz",
+   "aic_agent_id": 36809,
+   "aic_title": "Alfred Stieglitz",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500115355",
+   "met_name": "Philippe de Champaigne",
+   "aic_agent_id": 40483,
+   "aic_title": "Philippe de Champaigne",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500012910",
+   "met_name": "Marsden Hartley",
+   "aic_agent_id": 34853,
+   "aic_title": "Marsden Hartley",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500006031",
+   "met_name": "Andy Warhol",
+   "aic_agent_id": 37219,
+   "aic_title": "Andy Warhol",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500045683",
+   "met_name": "Georg Baselitz",
+   "aic_agent_id": 42408,
+   "aic_title": "Georg Baselitz",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500019824",
+   "met_name": "Léonard Limosin",
+   "aic_agent_id": 64833,
+   "aic_title": "Léonard Limosin",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500115329",
+   "met_name": "Jean Honoré Fragonard",
+   "aic_agent_id": 40583,
+   "aic_title": "Jean Honoré Fragonard",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500012076",
+   "met_name": "Walker Evans",
+   "aic_agent_id": 34437,
+   "aic_title": "Walker Evans",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500016751",
+   "met_name": "Käthe Kollwitz",
+   "aic_agent_id": 40649,
+   "aic_title": "Käthe Kollwitz",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500009177",
+   "met_name": "John Singleton Copley",
+   "aic_agent_id": 34028,
+   "aic_title": "John Singleton Copley",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500115588",
+   "met_name": "Vincent van Gogh",
+   "aic_agent_id": 40610,
+   "aic_title": "Vincent van Gogh",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500114717",
+   "met_name": "David Hammons",
+   "aic_agent_id": 60822,
+   "aic_title": "David Hammons",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500005259",
+   "met_name": "Hans Holbein the Younger",
+   "aic_agent_id": 34982,
+   "aic_title": "Hans Holbein, the younger",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500115055",
+   "met_name": "Angelica Kauffmann",
+   "aic_agent_id": 35218,
+   "aic_title": "Angelica Kauffmann",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500008873",
+   "met_name": "Georges Seurat",
+   "aic_agent_id": 40810,
+   "aic_title": "Georges Seurat",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500010070",
+   "met_name": "Elisabeth Louise Vigée Le Brun",
+   "aic_agent_id": 27458,
+   "aic_title": "Élisabeth Louise Vigée Le Brun",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500003133",
+   "met_name": "Paul Strand",
+   "aic_agent_id": 36816,
+   "aic_title": "Paul Strand",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500028037",
+   "met_name": "Jean Auguste Dominique Ingres",
+   "aic_agent_id": 35059,
+   "aic_title": "Jean Auguste Dominique Ingres",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500004441",
+   "met_name": "Charles Demuth",
+   "aic_agent_id": 6512,
+   "aic_title": "Charles Demuth",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500084070",
+   "met_name": "Francesca Woodman",
+   "aic_agent_id": 60579,
+   "aic_title": "Francesca Woodman",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500001266",
+   "met_name": "Andrew Wyeth",
+   "aic_agent_id": 29156,
+   "aic_title": "Andrew Wyeth",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500028143",
+   "met_name": "Martin Schongauer",
+   "aic_agent_id": 23279,
+   "aic_title": "Martin Schongauer",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500015509",
+   "met_name": "Augustin Pajou",
+   "aic_agent_id": 19878,
+   "aic_title": "Augustin Pajou",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500110115",
+   "met_name": "Thomas Ruff",
+   "aic_agent_id": 57088,
+   "aic_title": "Thomas Ruff",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500015402",
+   "met_name": "David Smith",
+   "aic_agent_id": 36716,
+   "aic_title": "David Smith",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  },
+  {
+   "ulan": "500032586",
+   "met_name": "Josiah Johnson Hawes",
+   "aic_agent_id": 11168,
+   "aic_title": "Josiah Johnson Hawes",
+   "verdict": "same-artist",
+   "note": "identical full name (accents folded); a single well-known artist of that name"
+  }
+ ]
+}

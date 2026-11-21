@@ -1,0 +1,570 @@
+{
+ "checked_on": "2026-11-21",
+ "case_number": {
+  "method": "20 RappelConso notices whose notice number is a Safety Gate case number, drawn with seed 20261121 by widen_measure.py; brand and model on the French notice compared with brand and name on the Safety Gate alert of that number.",
+  "checked": 20,
+  "same_recall": 20,
+  "note": "All 20 are vehicle or motorcycle recalls with the same make and the same model list on both sides. The alert was notified by Germany, Portugal, Poland or France: RappelConso republishes other member states' Safety Gate alerts for products sold in France under the alert's own number.",
+  "pairs": [
+   {
+    "fr_brand": "audi",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "q3, q3 sportback voiture particulière",
+    "numero_fiche": "sr/03079/26",
+    "sg_brand": "Audi",
+    "sg_country": "Germany",
+    "sg_name": "Q3, Q3 Sportback",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "ford",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "ranger camionnette",
+    "numero_fiche": "a12/01427/22",
+    "sg_brand": "Ford",
+    "sg_country": "Germany",
+    "sg_name": "Ranger",
+    "sg_product": "Pickup truck"
+   },
+   {
+    "fr_brand": "honda",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "crf1100a/d motocyclette",
+    "numero_fiche": "a12/00224/21",
+    "sg_brand": "Honda",
+    "sg_country": "Portugal",
+    "sg_name": "CRF1100A/D",
+    "sg_product": "Motorcycle"
+   },
+   {
+    "fr_brand": "renault",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "captur voiture de tourisme",
+    "numero_fiche": "a12/00128/20",
+    "sg_brand": "Renault",
+    "sg_country": "Portugal",
+    "sg_name": "Captur",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "peugeot",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "208 ii voiture particulière",
+    "numero_fiche": "a12/02727/24",
+    "sg_brand": "Peugeot",
+    "sg_country": "France",
+    "sg_name": "208 II",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "ford",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "s-max, galaxy voiture de tourisme",
+    "numero_fiche": "a12/00466/20",
+    "sg_brand": "Ford",
+    "sg_country": "Germany",
+    "sg_name": "S-MAX, Galaxy",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "nissan",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "nv400 véhicule de tourisme / véhicule utilitaire léger",
+    "numero_fiche": "a12/03171/24",
+    "sg_brand": "Nissan",
+    "sg_country": "France",
+    "sg_name": "NV400",
+    "sg_product": "Passenger van / Light commercial vehicle"
+   },
+   {
+    "fr_brand": "ford",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "transit custom double cab van de passagers",
+    "numero_fiche": "sr/00540/26",
+    "sg_brand": "Ford",
+    "sg_country": "Germany",
+    "sg_name": "Transit Custom Double cab",
+    "sg_product": "Passenger van"
+   },
+   {
+    "fr_brand": "peugeot",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "expert, traveller voiture de tourisme",
+    "numero_fiche": "a12/01314/22",
+    "sg_brand": "Peugeot",
+    "sg_country": "Germany",
+    "sg_name": "Expert, Traveller",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "mercedes-benz",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "clc-class voiture de tourisme",
+    "numero_fiche": "a12/00392/23",
+    "sg_brand": "Mercedes-Benz",
+    "sg_country": "Germany",
+    "sg_name": "CLC-class",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "alpine",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "a110 voiture de tourisme",
+    "numero_fiche": "a12/1018/19",
+    "sg_brand": "Alpine",
+    "sg_country": "France",
+    "sg_name": "A110",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "peugeot",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "208i, 2008i, 301i voiture de tourisme",
+    "numero_fiche": "a12/00066/20",
+    "sg_brand": "Peugeot",
+    "sg_country": "France",
+    "sg_name": "208I, 2008I, 301I",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "ford",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "ranger camionnette",
+    "numero_fiche": "a12/01568/22",
+    "sg_brand": "Ford",
+    "sg_country": "Germany",
+    "sg_name": "Ranger",
+    "sg_product": "Pickup truck"
+   },
+   {
+    "fr_brand": "porsche",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "911 voiture de tourisme",
+    "numero_fiche": "a12/00061/23",
+    "sg_brand": "Porsche",
+    "sg_country": "Germany",
+    "sg_name": "911",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "fiat professional",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "talento camionnette/véhicule utilitaire léger",
+    "numero_fiche": "a12/0729/19",
+    "sg_brand": "Fiat Professional",
+    "sg_country": "Germany",
+    "sg_name": "Talento",
+    "sg_product": "Passenger van / Light commercial vehicle"
+   },
+   {
+    "fr_brand": "peugeot",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "rifter, partner voiture particulière",
+    "numero_fiche": "sr/01169/26",
+    "sg_brand": "Peugeot",
+    "sg_country": "France",
+    "sg_name": "Rifter, Partner",
+    "sg_product": "Passenger car"
+   },
+   {
+    "fr_brand": "mercedes-benz",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "metris, vito, v-class camionnette/véhicule utilitaire léger",
+    "numero_fiche": "a12/00095/19",
+    "sg_brand": "Mercedes-Benz",
+    "sg_country": "Germany",
+    "sg_name": "Metris, Vito, V-Class",
+    "sg_product": "Passenger van / Light commercial vehicle"
+   },
+   {
+    "fr_brand": "renault",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "trafic iii camionnette/véhicule utilitaire léger",
+    "numero_fiche": "a12/00236/20",
+    "sg_brand": "Renault",
+    "sg_country": "Portugal",
+    "sg_name": "Trafic III",
+    "sg_product": "Passenger van / Light commercial vehicle"
+   },
+   {
+    "fr_brand": "triumph",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "rocket 3gt triple black, triumph rocket 3r black, rocket 3gt, rocket 3 r, rocket 3 tfc moto",
+    "numero_fiche": "a12/02868/23",
+    "sg_brand": "Triumph",
+    "sg_country": "Poland",
+    "sg_name": "Rocket 3GT Triple Black, Triumph Rocket 3R Black, Rocket 3GT, Rocket 3 R, Rocket 3 TFC",
+    "sg_product": "Motorcycle"
+   },
+   {
+    "fr_brand": "mercedes-benz",
+    "fr_category": "automobiles, motos, scooters",
+    "fr_label": "eqc voiture de tourisme",
+    "numero_fiche": "a12/01009/21",
+    "sg_brand": "Mercedes-Benz",
+    "sg_country": "Germany",
+    "sg_name": "EQC",
+    "sg_product": "Passenger car"
+   }
+  ]
+ },
+ "gtin_to_safety_gate": {
+  "method": "20 non-food RappelConso notices that share a check-digit-valid GTIN with a Safety Gate alert, drawn with seed 20261121; brand and product wording compared.",
+  "checked": 20,
+  "same_product": 18,
+  "different_product": 1,
+  "undetermined": 1,
+  "note": "18 pairs name the same product (same brand, same article, usually the same weeks). One does not: notice 2024-05-0053 (Quantum tattoo ink) shares a GTIN with alert A12/01516/23 (Eternal Ink), so a shared GTIN proposes the product link and a mismatch in brand sends it to review. One cannot be judged: notice 2023-04-0152 (unbranded Halloween mask) matches alert A12/00761/23, which carries no brand or name.",
+  "pairs": [
+   {
+    "fr_brand": "db kids",
+    "fr_date": "2025-03-24",
+    "fr_label": "masques réutilisables et coloriables",
+    "numero_fiche": "2025-03-0144",
+    "safety_gate": [
+     {
+      "brand": "DB Kids",
+      "case": "SR/02094/25",
+      "country": "France",
+      "name": "Masques réutilisables et coloriables",
+      "product": "Fancy-dress mask"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "lexibook sa",
+    "fr_date": "2023-06-05",
+    "fr_label": "jgw100kt - chat glouton bio toys – jeu de pêche à la ligne en bois",
+    "numero_fiche": "2023-05-0166",
+    "safety_gate": [
+     {
+      "brand": "LEXIBOOK",
+      "case": "A12/01041/23",
+      "country": "Belgium",
+      "name": "Eco-friendly fishing game",
+      "product": "Fishing game"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "elise&lise",
+    "fr_date": "2023-11-14",
+    "fr_label": "montre femme",
+    "numero_fiche": "2023-11-0169",
+    "safety_gate": [
+     {
+      "brand": "Elise&amp;Lise",
+      "case": "A12/00015/24",
+      "country": "France",
+      "name": "Montre",
+      "product": "Watch"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "shooter zone",
+    "fr_date": "2024-05-21",
+    "fr_label": "soft bullet fun shooting game shooter zone",
+    "numero_fiche": "2024-05-0099",
+    "safety_gate": [
+     {
+      "brand": "SHOOTER ZONE",
+      "case": "A12/01712/24",
+      "country": "France",
+      "name": "SOFT BULLET GUN SHOOTING GAME",
+      "product": "Toy bow"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "skala",
+    "fr_date": "2025-07-28",
+    "fr_label": "creme divino potão",
+    "numero_fiche": "2025-07-0290",
+    "safety_gate": [
+     {
+      "brand": "SKALA",
+      "case": "SR/03702/25",
+      "country": "France",
+      "name": "DIVINO POTÃO",
+      "product": "Hair care product"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "g!",
+    "fr_date": "2022-07-19",
+    "fr_label": "351840  fond de baignoire pvc 67x35 gr",
+    "numero_fiche": "2022-07-0085",
+    "safety_gate": [
+     {
+      "brand": "G!",
+      "case": "A12/00988/22",
+      "country": "Luxembourg",
+      "name": "Fond de bain anti-dérapant G!",
+      "product": "Bath mat"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "h j.k distribution",
+    "fr_date": "2024-04-22",
+    "fr_label": "raquettes électriques anti-insectes rechargeable 2 en 1",
+    "numero_fiche": "2024-04-0204",
+    "safety_gate": [
+     {
+      "brand": "HJK DISTRIBUTION",
+      "case": "A12/01393/24",
+      "country": "France",
+      "name": "Raquette électrique rechargeable 2 en 1",
+      "product": "Insect killer"
+     },
+     {
+      "brand": "Marque LITIAN / H J.K DISTRIBUTION",
+      "case": "A12/01394/24",
+      "country": "France",
+      "name": "",
+      "product": "Electric fly swatter"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "diggers tools",
+    "fr_date": "2022-06-30",
+    "fr_label": "echelles télescopiques",
+    "numero_fiche": "2022-06-0342",
+    "safety_gate": [
+     {
+      "brand": "Diggers Tools",
+      "case": "A12/00839/22",
+      "country": "Belgium",
+      "name": "Telescopic ladder 2.6m",
+      "product": "Telescopic ladder"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "herzberg",
+    "fr_date": "2021-03-31",
+    "fr_label": "autocuiseur healthy cooking herzberg",
+    "numero_fiche": "2021-03-0036",
+    "safety_gate": [
+     {
+      "brand": "HERZBERG",
+      "case": "A11/00106/20",
+      "country": "France",
+      "name": "HERZBERG - healthy cooking",
+      "product": "Pressure cooker"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "qilive",
+    "fr_date": "2023-06-26",
+    "fr_label": "scooter small size 5 inches q.4377",
+    "numero_fiche": "2023-06-0275",
+    "safety_gate": [
+     {
+      "brand": "Qilive",
+      "case": "A12/00693/23",
+      "country": "Hungary",
+      "name": "Scooter 5\"",
+      "product": "Electric scooter"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "roo crew",
+    "fr_date": "2023-03-28",
+    "fr_label": "la niche de puppy roo crew avec ses accessoires",
+    "numero_fiche": "2023-03-0269",
+    "safety_gate": [
+     {
+      "brand": "Roo Crew",
+      "case": "A12/00918/23",
+      "country": "France",
+      "name": "Maison de chiot",
+      "product": "Plastic toy set"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "marque g",
+    "fr_date": "2024-06-11",
+    "fr_label": "372949 barbecue boule charbon fisher lot novembre 2023 uniquement",
+    "numero_fiche": "2024-06-0064",
+    "safety_gate": [
+     {
+      "brand": "GIFI Diffusion SAS",
+      "case": "A12/01851/24",
+      "country": "France",
+      "name": "BARBECUE BOULE CHARCOAL FISHER",
+      "product": "Charcoal barbecue"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "b&g international",
+    "fr_date": "2024-05-22",
+    "fr_label": "téléphone 13 cm son/lumière perles  fashion sons et lumières",
+    "numero_fiche": "2024-05-0101",
+    "safety_gate": [
+     {
+      "brand": "B&amp;G International",
+      "case": "A12/01658/24",
+      "country": "France",
+      "name": "Fashion sons et lumière",
+      "product": "Toy telephone"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "sans marque",
+    "fr_date": "2023-04-21",
+    "fr_label": "masque halloween",
+    "numero_fiche": "2023-04-0152",
+    "safety_gate": [
+     {
+      "brand": "",
+      "case": "A12/00761/23",
+      "country": "Germany",
+      "name": "",
+      "product": "Halloween mask"
+     }
+    ],
+    "verdict": "undetermined"
+   },
+   {
+    "fr_brand": "parfums de saint hubert",
+    "fr_date": "2023-05-03",
+    "fr_label": "eau de toilette american style",
+    "numero_fiche": "2023-04-0112",
+    "safety_gate": [
+     {
+      "brand": "AM diffusion",
+      "case": "A12/01367/23",
+      "country": "France",
+      "name": "Eau de toilette - vaporisateur spray American Style",
+      "product": "Eau de toilette"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "carrefour soft",
+    "fr_date": "2025-07-03",
+    "fr_label": "lait demaquillant douceur",
+    "numero_fiche": "2025-07-0012",
+    "safety_gate": [
+     {
+      "brand": "CARREFOUR SOFT",
+      "case": "SR/03037/25",
+      "country": "France",
+      "name": "Lait démaquillant douceur",
+      "product": "Make-up remover"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "marque g",
+    "fr_date": "2024-06-11",
+    "fr_label": "616202 barbecue grill tonneau met+pla",
+    "numero_fiche": "2024-06-0065",
+    "safety_gate": [
+     {
+      "brand": "MARQUE G",
+      "case": "A12/01868/24",
+      "country": "France",
+      "name": "CRUZ",
+      "product": "Charcoal barbecue"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "solea",
+    "fr_date": "2024-09-18",
+    "fr_label": "solea 250w",
+    "numero_fiche": "2024-09-0110",
+    "safety_gate": [
+     {
+      "brand": "Solea",
+      "case": "A12/02112/24",
+      "country": "Finland",
+      "name": "Ultra flat heater",
+      "product": "Heating mat"
+     }
+    ],
+    "verdict": "same"
+   },
+   {
+    "fr_brand": "quantum",
+    "fr_date": "2024-05-13",
+    "fr_label": "quantum assphalt",
+    "numero_fiche": "2024-05-0053",
+    "safety_gate": [
+     {
+      "brand": "Eternal Ink",
+      "case": "A12/01516/23",
+      "country": "Sweden",
+      "name": "Eternal ink darker gray wash",
+      "product": "Tattoo ink"
+     }
+    ],
+    "verdict": "different"
+   },
+   {
+    "fr_brand": "disneyland paris",
+    "fr_date": "2025-08-04",
+    "fr_label": "p15chapo ratatouille attract",
+    "numero_fiche": "2025-07-0181",
+    "safety_gate": [
+     {
+      "brand": "Disneyland Paris",
+      "case": "SR/03229/25",
+      "country": "France",
+      "name": "Chapeau ratatouille",
+      "product": "Toy chef’s hat"
+     }
+    ],
+    "verdict": "same"
+   }
+  ]
+ },
+ "gtin_to_cpsc": {
+  "checked": 1,
+  "same_product": 1,
+  "note": "The one shared GTIN (09319944009200) is Aesop Post-Poo Drops: RappelConso notice 2022-01-0420 and CPSC recall 9359 of 2022-07-28.",
+  "pairs": [
+   {
+    "brand": "aesop",
+    "cpsc": [
+     {
+      "RecallDate": "2022-07-28",
+      "RecallID": 9359,
+      "Title": "Aesop USA Recalls Bathroom Deodorizing Drops and Oil Burner Blends Due to Failure to Meet Child Resistant Packaging Requirements and Violation of FHSA Labeling Requirement; Risk of Poisoning"
+     }
+    ],
+    "label": "gouttes anti-odeur de merde (post-poo drops)",
+    "numero_fiche": "2022-01-0420",
+    "shared_gtin14": [
+     "09319944009200"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,161 @@
+candidates:
+  - key: water-epa-sdwis-violations-enforcement
+    name: US EPA SDWIS violations and enforcement actions per public water system (Envirofacts API)
+    category: environment
+    structuring: event-extraction
+    format: structured
+    publisher: US EPA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.epa.gov/efservice/WATER_SYSTEM/rows/0:2/JSON',
+        'https://data.epa.gov/efservice/VIOLATION/rows/0:2/JSON',
+        'https://data.epa.gov/efservice/ENFORCEMENT_ACTION/rows/0:2/JSON'
+      ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: 'https://www.epa.gov/web-policies-and-procedures/epa-disclaimers'
+        quote: 'Unless otherwise specified, geospatial data produced by the EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C. § 105.'
+      - url: 'https://www.epa.gov/web-policies-and-procedures/epa-disclaimers'
+        quote: 'Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'Publish facts only (system, violation, enforcement dates and codes); do not reproduce EPA documents, and quote enforcement_comment_text only as short factual excerpts.'
+      - 'Exclude personal contact fields (admin_name, phone_number, email_addr, fax_number, alt_phone_number).'
+      - 'Credit US EPA SDWIS, show the extraction date, and keep compliance status and dates so resolved violations are not shown as current.'
+      - 'Page the Envirofacts API politely (a few requests per second), and use ECHO bulk downloads for full snapshots.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Measure free-text hit rates on enforcement_comment_text (56 percent filled in 5,000 CA rows) and archive a full CA snapshot to R2.
+
+  - key: water-ca-swrcb-safer-risk-assessment
+    name: California State Water Board SAFER failing and at-risk drinking water systems (risk assessment file)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: California State Water Resources Control Board
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      [
+        'https://data.ca.gov/dataset/safer-failing-and-at-risk-drinking-water-systems',
+        'https://data.ca.gov/api/3/action/package_show?id=safer-failing-and-at-risk-drinking-water-systems'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: 'https://data.ca.gov/dataset/safer-failing-and-at-risk-drinking-water-systems'
+        quote: 'Public Access Level Public Rights No restrictions on public use'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive the CSV (resolve the expiring blob link via the CKAN API each run) and measure daily change; map risk criteria to a typed schema.
+
+  - key: water-ontario-dws-orders-awqi
+    name: Ontario drinking water systems - provincial orders, adverse water quality incidents and inspections
+    category: environment
+    structuring: event-extraction
+    format: free-text
+    publisher: Ontario Ministry of the Environment, Conservation and Parks
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.ontario.ca/dataset/drinking-water-quality-and-enforcement',
+        'https://files.ontario.ca/moe_mapping/downloads/2Water/DWMD/DW_2024-25-EN.zip'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 3,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: 'https://www.ontario.ca/page/open-government-licence-ontario'
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Acknowledge the source and include the Open Government Licence - Ontario attribution statement and link.'
+      - 'Exclude or aggregate natural-person owner names (sole-proprietor owners appear in Owner Legal Name).'
+      - 'Orders are few per year (14 in 2024-25); pull all fiscal years from 2014-15 and re-fetch yearly.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Pull earlier fiscal years of DWS Orders, parse Order Summary prose into typed requirements, and find an Ontario or Canadian registry that links DWS numbers to the other members.
+
+  - key: water-epa-echo-sdw-rest
+    name: EPA ECHO drinking water REST services (get_systems)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: US EPA
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://echodata.epa.gov/echo/sdw_rest_services.get_systems' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 1,
+        structuring_value: 2,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 2
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked 2026-10-04 on HTTP 502 proxy errors (three attempts); retest later, as the Envirofacts SDWIS tables serve the same data.
+
+datasets:
+  - key: water-system-compliance
+    name: Public water system compliance register (violations, enforcement actions and regulator orders)
+    category: environment
+    entity: public_water_system (one PWSID) with violation, enforcement_action, risk-assessment and regulator-order records
+    stage: SCREENED
+    description: "One record per public water system, keyed by the US PWSID. Violations and enforcement actions from US EPA SDWIS (with free-text enforcement comments that cite dockets and rules) are linked automatically by exact PWSID to the California State Water Board SAFER risk assessment, which carries failing/at-risk status and the reasons. Ontario's drinking water system orders and adverse incident records add provincial order prose (Order Summary) structured into typed requirements, but Ontario uses its own DWS number and does not yet link to the US members. Every fact carries its source; California and EPA data both originate in state SDWIS reporting, so agreement is not treated as independent corroboration."
+    sources:
+      - water-epa-sdwis-violations-enforcement
+      - water-ca-swrcb-safer-risk-assessment
+      - water-ontario-dws-orders-awqi
+    join_keys:
+      - key: exact PWSID (the cited public water system reference number, SAFER WATER_SYSTEM_NUMBER equals SDWIS pwsid)
+        between:
+          - water-ca-swrcb-safer-risk-assessment
+          - water-epa-sdwis-violations-enforcement
+        measured: 3190/3190 SAFER systems found among 18,607 California EPA SDWIS water systems (population equal for 2,241; 19/25 sampled SAFER primary-MCL flags have an EPA MCL record)
+        mode: declared
+    taxonomy:
+      - 'violation category: MCL, treatment technique, monitoring and reporting, public notification'
+      - 'health-based or not, contaminant group and rule'
+      - 'system type (community, non-transient, transient), source water and size class'
+      - 'enforcement action type and status; failing / at-risk status'
+    agent_questions:
+      - Which public water systems serving more than 10,000 people have an open health-based violation, and what enforcement has followed?
+      - Is the water system that serves a given address failing or at risk, and for which contaminants?
+      - What did the regulator order the owner of a given water system to do, and by when?
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive full CA SDWIS and SAFER snapshots to R2, add a US-wide second state source with PWSID, and link Ontario through a Canadian registry or split it out.

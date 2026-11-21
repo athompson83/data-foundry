@@ -1,0 +1,1985 @@
+{
+ "run_date": "2026-11-15",
+ "eu_api_doc": {
+  "status": 200,
+  "version": "2.5.8"
+ },
+ "eu_total_elements": 3935,
+ "eu_records_fetched": 3935,
+ "eu_fields": [
+  "amendment",
+  "applicationType",
+  "cancellation",
+  "cnClassification",
+  "controlAuthority",
+  "countries",
+  "giIdentifier",
+  "giType",
+  "legalInstrument",
+  "modificationDateTime",
+  "productType",
+  "protectedNames",
+  "recognisedProducer",
+  "registration",
+  "removedFlag",
+  "thirdCountry",
+  "transcriptions"
+ ],
+ "eu_registration_fields": [
+  "applicationDate",
+  "cancellationDate",
+  "document",
+  "fileNumber",
+  "officialPublication",
+  "publicationDate",
+  "registrationDate",
+  "rejectionDate",
+  "status"
+ ],
+ "eu_by_product_type": {
+  "Food": 1980,
+  "Wine": 1682,
+  "Spirit drink": 273
+ },
+ "eu_by_gi_type": {
+  "PGI": 1890,
+  "PDO": 2045
+ },
+ "eu_by_status": {
+  "REGISTERED": 3737,
+  "APPLIED": 137,
+  "PUBLISHED": 29,
+  "CANCELLED": 20,
+  "REJECTED": 12
+ },
+ "eu_third_country": 358,
+ "eu_top_countries": [
+  [
+   "it",
+   911
+  ],
+  [
+   "fr",
+   788
+  ],
+  [
+   "es",
+   411
+  ],
+  [
+   "gr",
+   285
+  ],
+  [
+   "pt",
+   219
+  ],
+  [
+   "de",
+   182
+  ],
+  [
+   "cn",
+   110
+  ],
+  [
+   "tr",
+   103
+  ],
+  [
+   "hu",
+   94
+  ],
+  [
+   "ro",
+   84
+  ],
+  [
+   "hr",
+   82
+  ],
+  [
+   "gb",
+   78
+  ],
+  [
+   "bg",
+   76
+  ],
+  [
+   "at",
+   57
+  ],
+  [
+   "pl",
+   46
+  ]
+ ],
+ "eu_with_file_number": 3935,
+ "eu_file_number_examples": [
+  "PGI-IN-0659",
+  "PGI-LV-03457",
+  "PDO-SE-03018",
+  "PDO-ES-A1549",
+  "PGI-MT-03301"
+ ],
+ "eu_with_spec_document": 2614,
+ "eu_with_amendments": 1280,
+ "eu_with_cn_code": 3930,
+ "eu_newest_modification": "2026-11-13T16:50:36.198Z",
+ "eu_control_authority_with_email_or_phone": 144,
+ "eu_recognised_producer_entries": 775,
+ "eu_spec_attachment_sample": {
+  "name": "in_0005_0659_spe_en.pdf",
+  "status": 202,
+  "content_type": "application/pdf",
+  "bytes": 3528976,
+  "is_pdf": true
+ },
+ "uk_total": 5498,
+ "uk_fetched": 5498,
+ "uk_by_status": {
+  "registered": 5475,
+  "applied-for": 12,
+  "cancelled": 9,
+  "rejected": 2
+ },
+ "uk_by_register": {
+  "spirit-drinks": 361,
+  "foods-designated-origin-and-geographical-indication": 1776,
+  "wines": 2120,
+  "traditional-terms-for-wine": 400,
+  "foods-traditional-speciality-guaranteed": 67,
+  "american-viticultural-areas": 768,
+  "aromatised-wines": 6
+ },
+ "uk_by_reason": {
+  "uk-gi-after-2021": 37,
+  "uk-gi-before-2021": 88,
+  "uk-trade-agreement": 1713,
+  "eu-agreement": 3654,
+  "null": 6
+ },
+ "uk_with_eu_registration_date": 3365,
+ "uk_newest_public_timestamp": "2026-10-30T11:23:31Z",
+ "uk_metadata_fields": [
+  "title",
+  "link",
+  "registered_name",
+  "country_of_origin",
+  "status",
+  "protection_type",
+  "register",
+  "date_registration",
+  "date_registration_eu",
+  "class_category",
+  "reason_for_protection",
+  "date_application",
+  "public_timestamp"
+ ],
+ "uk_content_samples": {
+  "english-whisky-slash-english-whiskey": {
+   "status": 200,
+   "attachments": [
+    "application/pdf",
+    "application/pdf"
+   ],
+   "spec_pdf_links_in_body": 2,
+   "change_history_notes": 2,
+   "metadata_keys": [
+    "class_category",
+    "country_of_origin",
+    "date_application",
+    "date_registration",
+    "protection_type",
+    "reason_for_protection",
+    "register",
+    "registered_name",
+    "status"
+   ]
+  },
+  "cornish-clotted-cream": {
+   "status": 200,
+   "attachments": [
+    "application/pdf"
+   ],
+   "spec_pdf_links_in_body": 1,
+   "change_history_notes": 1,
+   "metadata_keys": [
+    "class_category",
+    "country_of_origin",
+    "date_registration",
+    "date_registration_eu",
+    "protection_type",
+    "reason_for_protection",
+    "register",
+    "registered_name",
+    "status",
+    "time_registration"
+   ]
+  },
+  "roquefort": {
+   "status": 200,
+   "attachments": [],
+   "spec_pdf_links_in_body": 0,
+   "change_history_notes": 1,
+   "metadata_keys": [
+    "class_category",
+    "country_of_origin",
+    "date_registration",
+    "date_registration_eu",
+    "protection_type",
+    "reason_for_protection",
+    "register",
+    "registered_name",
+    "status",
+    "time_registration"
+   ]
+  },
+  "scotch-whisky": {
+   "status": 200,
+   "attachments": [
+    "application/pdf"
+   ],
+   "spec_pdf_links_in_body": 1,
+   "change_history_notes": 1,
+   "metadata_keys": [
+    "class_category",
+    "country_of_origin",
+    "date_registration",
+    "date_registration_eu",
+    "protection_type",
+    "reason_for_protection",
+    "register",
+    "registered_name",
+    "status",
+    "time_registration"
+   ]
+  }
+ },
+ "uk_eu_file_number_in_metadata": false,
+ "join_uk_to_eu": {
+  "uk_entries_with_eu_date": 3365,
+  "name_matched": 3060,
+  "name_and_eu_date_equal": 3054
+ },
+ "join_uk_to_eu_sample_pairs": [
+  {
+   "uk_link": "/protected-food-drink-names/scotch-whisky",
+   "uk_name": "Scotch Whisky",
+   "uk_country": [
+    "united-kingdom"
+   ],
+   "uk_type": "geographical-indication-gi",
+   "uk_class": [
+    "2-whisky-or-whiskey"
+   ],
+   "uk_date_registration_eu": "1989-06-12",
+   "eu_gi": "EUGI00000015685",
+   "eu_file_number": "PGI-GB-01854",
+   "eu_names": [
+    "Scotch Whisky"
+   ],
+   "eu_country": [
+    "gb"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Spirit drink",
+   "eu_registration_date": "1989-06-12",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/alsace-grand-cru-altenberg-de-bergbieten",
+   "uk_name": "Alsace grand cru Altenberg de Bergbieten",
+   "uk_country": [
+    "france"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "1999-02-19",
+   "eu_gi": "EUGI00000002052",
+   "eu_file_number": "PDO-FR-A0349",
+   "eu_names": [
+    "Alsace grand cru Altenberg de Bergbieten"
+   ],
+   "eu_country": [
+    "fr"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "1999-02-19",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/aceite-de-ibiza-slash-oli-deivissa",
+   "uk_name": "Aceite de Ibiza / Oli d´Eivissa",
+   "uk_country": [
+    "spain"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "1-5-oils-and-fats-butter-margarine-oil-etc"
+   ],
+   "uk_date_registration_eu": "2020-10-21",
+   "eu_gi": "EUGI00000016633",
+   "eu_file_number": "PGI-ES-02459",
+   "eu_names": [
+    "Aceite de Ibiza",
+    "Oli d'Eivissa"
+   ],
+   "eu_country": [
+    "es"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "2020-10-21",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/calatayud",
+   "uk_name": "Calatayud",
+   "uk_country": [
+    "spain"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "1992-06-20",
+   "eu_gi": "EUGI00000005102",
+   "eu_file_number": "PDO-ES-A0247",
+   "eu_names": [
+    "Calatayud"
+   ],
+   "eu_country": [
+    "es"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "1992-06-20",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/daujenu-namine-duona",
+   "uk_name": "Daujėnų naminė duona",
+   "uk_country": [
+    "lithuania"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "2-3-bread-pastry-cakes-confectionery-biscuits-and-other-bakers-wares"
+   ],
+   "uk_date_registration_eu": "2014-02-21",
+   "eu_gi": "EUGI00000014276",
+   "eu_file_number": "PGI-LT-1059",
+   "eu_names": [
+    "Daujėnų naminė duona"
+   ],
+   "eu_country": [
+    "lt"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "2014-02-21",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/ricciarelli-di-siena",
+   "uk_name": "Ricciarelli di Siena",
+   "uk_country": [
+    "italy"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "2-3-bread-pastry-cakes-confectionery-biscuits-and-other-bakers-wares"
+   ],
+   "uk_date_registration_eu": "2010-03-19",
+   "eu_gi": "EUGI00000013664",
+   "eu_file_number": "PGI-IT-0666",
+   "eu_names": [
+    "Ricciarelli di Siena"
+   ],
+   "eu_country": [
+    "it"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "2010-03-19",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/mortadella-di-prato",
+   "uk_name": "Mortadella di Prato",
+   "uk_country": [
+    "italy"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "1-2-meat-products-cooked-salted-smoked-etc"
+   ],
+   "uk_date_registration_eu": "2016-02-09",
+   "eu_gi": "EUGI00000015954",
+   "eu_file_number": "PGI-IT-01333",
+   "eu_names": [
+    "Mortadella di Prato"
+   ],
+   "eu_country": [
+    "it"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "2016-02-09",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/pouilly-fuisse",
+   "uk_name": "Pouilly-Fuissé",
+   "uk_country": [
+    "france"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "1973-09-18",
+   "eu_gi": "EUGI00000001783",
+   "eu_file_number": "PDO-FR-A0653",
+   "eu_names": [
+    "Pouilly-Fuissé"
+   ],
+   "eu_country": [
+    "fr"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "1973-09-18",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/tuica-zetea-de-mediesu-aurit",
+   "uk_name": "Țuică Zetea de Medieșu Aurit",
+   "uk_country": [
+    "romania"
+   ],
+   "uk_type": "geographical-indication-gi",
+   "uk_class": [
+    "9-fruit-spirit"
+   ],
+   "uk_date_registration_eu": "2005-06-21",
+   "eu_gi": "EUGI00000014190",
+   "eu_file_number": "PGI-RO-02001",
+   "eu_names": [
+    "Țuică Zetea de Medieșu Aurit"
+   ],
+   "eu_country": [
+    "ro"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Spirit drink",
+   "eu_registration_date": "2005-06-21",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/vipavska-dolina",
+   "uk_name": "Vipavska dolina",
+   "uk_country": [
+    "slovenia"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "2006-02-17",
+   "eu_gi": "EUGI00000005861",
+   "eu_file_number": "PDO-SI-A0448",
+   "eu_names": [
+    "Vipavska dolina"
+   ],
+   "eu_country": [
+    "si"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "2006-02-17",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/bitto",
+   "uk_name": "Bitto",
+   "uk_country": [
+    "italy"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "1-3-cheeses"
+   ],
+   "uk_date_registration_eu": "1996-07-02",
+   "eu_gi": "EUGI00000013382",
+   "eu_file_number": "PDO-IT-1502",
+   "eu_names": [
+    "Bitto"
+   ],
+   "eu_country": [
+    "it"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Food",
+   "eu_registration_date": "1996-07-02",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/vin-des-allobroges",
+   "uk_name": "Vin des Allobroges",
+   "uk_country": [
+    "france"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "1978-03-17",
+   "eu_gi": "EUGI00000002441",
+   "eu_file_number": "PGI-FR-A1144",
+   "eu_names": [
+    "Vin des Allobroges"
+   ],
+   "eu_country": [
+    "fr"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "1978-03-17",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/olumpia-slash-olympia",
+   "uk_name": "Ολυμπία / Olympia",
+   "uk_country": [
+    "greece"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "1-5-oils-and-fats-butter-margarine-oil-etc"
+   ],
+   "uk_date_registration_eu": "1996-06-21",
+   "eu_gi": "EUGI00000013015",
+   "eu_file_number": "PGI-GR-0034",
+   "eu_names": [
+    "Ολυμπία",
+    "Olympia"
+   ],
+   "eu_country": [
+    "gr"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "1996-06-21",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/valdepenas",
+   "uk_name": "Valdepeñas",
+   "uk_country": [
+    "spain"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "1986-06-13",
+   "eu_gi": "EUGI00000007650",
+   "eu_file_number": "PDO-ES-A0051",
+   "eu_names": [
+    "Valdepeñas"
+   ],
+   "eu_country": [
+    "es"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "1986-06-13",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/ribera-del-guadiana",
+   "uk_name": "Ribera del Guadiana",
+   "uk_country": [
+    "spain"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "2004-04-14",
+   "eu_gi": "EUGI00000005462",
+   "eu_file_number": "PDO-ES-A1295",
+   "eu_names": [
+    "Ribera del Guadiana"
+   ],
+   "eu_country": [
+    "es"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "2004-04-14",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/batata-de-tras-os-montes",
+   "uk_name": "Batata de Trás-os-Montes",
+   "uk_country": [
+    "portugal"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "1-6-fruit-vegetables-and-cereals-fresh-or-processed"
+   ],
+   "uk_date_registration_eu": "2007-02-16",
+   "eu_gi": "EUGI00000013526",
+   "eu_file_number": "PGI-PT-0217",
+   "eu_names": [
+    "Batata de Trás-os-Montes"
+   ],
+   "eu_country": [
+    "pt"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "2007-02-16",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/ail-rose-de-lautrec",
+   "uk_name": "Ail rose de Lautrec",
+   "uk_country": [
+    "france"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "1-6-fruit-vegetables-and-cereals-fresh-or-processed"
+   ],
+   "uk_date_registration_eu": "1996-06-21",
+   "eu_gi": "EUGI00000013209",
+   "eu_file_number": "PGI-FR-0193",
+   "eu_names": [
+    "Ail rose de Lautrec"
+   ],
+   "eu_country": [
+    "fr"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "1996-06-21",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/colli-euganei",
+   "uk_name": "Colli Euganei",
+   "uk_country": [
+    "italy"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "wine"
+   ],
+   "uk_date_registration_eu": "1973-09-18",
+   "eu_gi": "EUGI00000002968",
+   "eu_file_number": "PDO-IT-A0454",
+   "eu_names": [
+    "Colli Euganei"
+   ],
+   "eu_country": [
+    "it"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Wine",
+   "eu_registration_date": "1973-09-18",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/patatas-de-prades-slash-patates-de-prades",
+   "uk_name": "Patatas de Prades / Patates de Prades",
+   "uk_country": [
+    "spain"
+   ],
+   "uk_type": "protected-geographical-indication-pgi",
+   "uk_class": [
+    "1-6-fruit-vegetables-and-cereals-fresh-or-processed"
+   ],
+   "uk_date_registration_eu": "2007-02-16",
+   "eu_gi": "EUGI00000013539",
+   "eu_file_number": "PGI-ES-0232",
+   "eu_names": [
+    "Patatas de Prades",
+    "Patates de Prades"
+   ],
+   "eu_country": [
+    "es"
+   ],
+   "eu_type": "PGI",
+   "eu_product_type": "Food",
+   "eu_registration_date": "2007-02-16",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  },
+  {
+   "uk_link": "/protected-food-drink-names/toma-piemontese",
+   "uk_name": "Toma Piemontese",
+   "uk_country": [
+    "italy"
+   ],
+   "uk_type": "protected-designation-of-origin-pdo",
+   "uk_class": [
+    "1-3-cheeses"
+   ],
+   "uk_date_registration_eu": "1996-07-02",
+   "eu_gi": "EUGI00000013008",
+   "eu_file_number": "PDO-IT-0026",
+   "eu_names": [
+    "Toma Piemontese"
+   ],
+   "eu_country": [
+    "it"
+   ],
+   "eu_type": "PDO",
+   "eu_product_type": "Food",
+   "eu_registration_date": "1996-07-02",
+   "same_eu_date": true,
+   "eu_candidates": 1
+  }
+ ],
+ "lisbon_import_info": {
+  "totalrecords": 1461,
+  "lastUpdated": 1794242879535,
+  "errors": []
+ },
+ "lisbon_last_updated_utc": "2026-11-09",
+ "lisbon_total": 1461,
+ "lisbon_fetched": 1461,
+ "lisbon_fields": [
+  "CAT",
+  "SORT_KEY",
+  "areagr",
+  "cancellation",
+  "cancellationgr",
+  "cancelled",
+  "contact",
+  "contractingPartyOrigin",
+  "correction",
+  "displayTitle",
+  "geneva_act",
+  "holgr",
+  "kind",
+  "legalar",
+  "lisbon_act",
+  "metadata",
+  "modification",
+  "name",
+  "note",
+  "number",
+  "productgr",
+  "pubdate",
+  "publication",
+  "refusal",
+  "registration",
+  "title",
+  "withdrawal"
+ ],
+ "lisbon_by_kind": {
+  "AO": 1376,
+  "GI": 85
+ },
+ "lisbon_by_origin": [
+  [
+   "FR",
+   565
+  ],
+  [
+   "EU",
+   272
+  ],
+  [
+   "IT",
+   175
+  ],
+  [
+   "IR",
+   98
+  ],
+  [
+   "CZ",
+   79
+  ],
+  [
+   "BG",
+   51
+  ],
+  [
+   "SK",
+   41
+  ],
+  [
+   "HU",
+   28
+  ],
+  [
+   "GE",
+   28
+  ],
+  [
+   "CU",
+   20
+  ],
+  [
+   "DZ",
+   19
+  ],
+  [
+   "MX",
+   19
+  ],
+  [
+   "PE",
+   10
+  ],
+  [
+   "TN",
+   9
+  ],
+  [
+   "PT",
+   7
+  ]
+ ],
+ "lisbon_with_area_text": 1390,
+ "lisbon_with_legal_basis_text": 1389,
+ "lisbon_with_refusals": 833,
+ "lisbon_with_current_info_pdf": 1202,
+ "lisbon_area_text_median_chars": 57,
+ "lisbon_eu_file_number_cited": 243,
+ "lisbon_newest_pubdate": "20260715",
+ "join_lisbon_to_eu": {
+  "lisbon_records": 1461,
+  "lisbon_records_from_eu_states": 946,
+  "matched_name_and_country": 564
+ },
+ "join_lisbon_to_eu_sample_pairs": [
+  {
+   "lisbon_no": "4",
+   "lisbon_name": [
+    "KARLOVARSKÝ SUCHAR / BISCOTTE DE CARLSBAD / CARLSBAD RUSK / KARLSBADER ZWIEBACK"
+   ],
+   "lisbon_origin": "cz",
+   "lisbon_product": "Carlsbad butter rusk. Carlsbad dietetic rusk",
+   "lisbon_date": "22.11.1967",
+   "eu_gi": "EUGI00000013733",
+   "eu_file_number": "PGI-CZ-0404",
+   "eu_names": [
+    "Karlovarský suchar"
+   ],
+   "eu_product_type": "Food",
+   "eu_type": "PGI",
+   "eu_cn": [
+    "1905"
+   ]
+  },
+  {
+   "lisbon_no": "100",
+   "lisbon_name": [
+    "GRAVES SUPÉRIEURES"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000003569",
+   "eu_file_number": "PDO-FR-A1014",
+   "eu_names": [
+    "Graves supérieures"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "135",
+   "lisbon_name": [
+    "BEAUNE"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000001203",
+   "eu_file_number": "PDO-FR-A1022",
+   "eu_names": [
+    "Beaune"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "175",
+   "lisbon_name": [
+    "Côte de Beaune"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000001286",
+   "eu_file_number": "PDO-FR-A0592",
+   "eu_names": [
+    "Côte de Beaune"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "208",
+   "lisbon_name": [
+    "NUITS-SAINT-GEORGES"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000003243",
+   "eu_file_number": "PDO-FR-A0579",
+   "eu_names": [
+    "Nuits-Saint-Georges"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "237",
+   "lisbon_name": [
+    "Château-Chalon"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000001102",
+   "eu_file_number": "PDO-FR-A0187",
+   "eu_names": [
+    "Château-Chalon"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "271",
+   "lisbon_name": [
+    "COTEAUX DU LAYON"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000002525",
+   "eu_file_number": "PDO-FR-A0826",
+   "eu_names": [
+    "Coteaux du Layon"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "316",
+   "lisbon_name": [
+    "MONBAZILLAC"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000001042",
+   "eu_file_number": "PDO-FR-A0153",
+   "eu_names": [
+    "Monbazillac"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "372",
+   "lisbon_name": [
+    "CÔTES DU VIVARAIS"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000000226",
+   "eu_file_number": "PDO-FR-A0390",
+   "eu_names": [
+    "Côtes du Vivarais"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "448",
+   "lisbon_name": [
+    "MIRABELLE DE LORRAINE"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Fruit spirit",
+   "lisbon_date": "20.12.1967",
+   "eu_gi": "EUGI00000014136",
+   "eu_file_number": "PGI-FR-01976",
+   "eu_names": [
+    "Mirabelle de Lorraine"
+   ],
+   "eu_product_type": "Spirit drink",
+   "eu_type": "PGI",
+   "eu_cn": [
+    "2208"
+   ]
+  },
+  {
+   "lisbon_no": "513",
+   "lisbon_name": [
+    "PARMIGIANO-REGGIANO"
+   ],
+   "lisbon_origin": "it",
+   "lisbon_product": "Cheese",
+   "lisbon_date": "23.12.1969",
+   "eu_gi": "EUGI00000012998",
+   "eu_file_number": "PDO-IT-0016",
+   "eu_names": [
+    "Parmigiano Reggiano"
+   ],
+   "eu_product_type": "Food",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "0406"
+   ]
+  },
+  {
+   "lisbon_no": "588",
+   "lisbon_name": [
+    "DÃO"
+   ],
+   "lisbon_origin": "pt",
+   "lisbon_product": "Wine products",
+   "lisbon_date": "17.04.1974",
+   "eu_gi": "EUGI00000003963",
+   "eu_file_number": "PDO-PT-A1534",
+   "eu_names": [
+    "Dão"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "704",
+   "lisbon_name": [
+    "Rosé de Loire"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wines",
+   "lisbon_date": "18.03.1985",
+   "eu_gi": "EUGI00000001003",
+   "eu_file_number": "PDO-FR-A0150",
+   "eu_names": [
+    "Rosé de Loire"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "770",
+   "lisbon_name": [
+    "GIGONDAS"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "29.06.1998",
+   "eu_gi": "EUGI00000000183",
+   "eu_file_number": "PDO-FR-A0143",
+   "eu_names": [
+    "Gigondas"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "809",
+   "lisbon_name": [
+    "CÔTES D'AUVERGNE"
+   ],
+   "lisbon_origin": "fr",
+   "lisbon_product": "Wine",
+   "lisbon_date": "29.06.1998",
+   "eu_gi": "EUGI00000001202",
+   "eu_file_number": "PDO-FR-A0925",
+   "eu_names": [
+    "Côtes d'Auvergne"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "888",
+   "lisbon_name": [
+    "BARBARESCO"
+   ],
+   "lisbon_origin": "it",
+   "lisbon_product": "Wine",
+   "lisbon_date": "16.06.2009",
+   "eu_gi": "EUGI00000004886",
+   "eu_file_number": "PDO-IT-A1399",
+   "eu_names": [
+    "Barbaresco"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "958",
+   "lisbon_name": [
+    "SALVA CREMASCO"
+   ],
+   "lisbon_origin": "it",
+   "lisbon_product": "Cheese",
+   "lisbon_date": "06.11.2014",
+   "eu_gi": "EUGI00000013950",
+   "eu_file_number": "PDO-IT-0639",
+   "eu_names": [
+    "Salva Cremasco"
+   ],
+   "eu_product_type": "Food",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "0406"
+   ]
+  },
+  {
+   "lisbon_no": "987",
+   "lisbon_name": [
+    "PROSCIUTTO DI MODENA"
+   ],
+   "lisbon_origin": "it",
+   "lisbon_product": "Meat products",
+   "lisbon_date": "23.10.2014",
+   "eu_gi": "EUGI00000013033",
+   "eu_file_number": "PDO-IT-0066",
+   "eu_names": [
+    "Prosciutto di Modena"
+   ],
+   "eu_product_type": "Food",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "16"
+   ]
+  },
+  {
+   "lisbon_no": "1017",
+   "lisbon_name": [
+    "ASTI"
+   ],
+   "lisbon_origin": "it",
+   "lisbon_product": "Wine",
+   "lisbon_date": "18.12.2015",
+   "eu_gi": "EUGI00000006878",
+   "eu_file_number": "PDO-IT-A1396",
+   "eu_names": [
+    "Asti"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  },
+  {
+   "lisbon_no": "1074",
+   "lisbon_name": [
+    "FREISA D'ASTI"
+   ],
+   "lisbon_origin": "it",
+   "lisbon_product": "Wine",
+   "lisbon_date": "25.09.2017",
+   "eu_gi": "EUGI00000006290",
+   "eu_file_number": "PDO-IT-A1180",
+   "eu_names": [
+    "Freisa d'Asti"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO",
+   "eu_cn": [
+    "2204"
+   ]
+  }
+ ],
+ "join_lisbon_cited_eu_file_number": {
+  "lisbon_records_citing_eu_file_number": 243,
+  "cited_number_exists_in_eambrosia": 243,
+  "of_which_same_normalised_name": 236,
+  "by_origin": {
+   "EU": 243
+  }
+ },
+ "join_lisbon_cited_eu_file_number_sample": [
+  {
+   "lisbon_no": "1156",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Queso de Murcia al vino"
+   ],
+   "cited_eu_file_number": "PDO-ES-0204",
+   "eu_gi": "EUGI00000013513",
+   "eu_names": [
+    "Queso de Murcia al vino"
+   ]
+  },
+  {
+   "lisbon_no": "1157",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Queso Manchego"
+   ],
+   "cited_eu_file_number": "PDO-ES-0087",
+   "eu_gi": "EUGI00000012963",
+   "eu_names": [
+    "Queso Manchego"
+   ]
+  },
+  {
+   "lisbon_no": "1158",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Chinchón"
+   ],
+   "cited_eu_file_number": "PGI-ES-02017",
+   "eu_gi": "EUGI00000014222",
+   "eu_names": [
+    "Chinchón"
+   ]
+  },
+  {
+   "lisbon_no": "1159",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Gin de Mahón"
+   ],
+   "cited_eu_file_number": "PGI-ES-01953",
+   "eu_gi": "EUGI00000014194",
+   "eu_names": [
+    "Gin de Mahón"
+   ]
+  },
+  {
+   "lisbon_no": "1160",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Brandy de Jerez"
+   ],
+   "cited_eu_file_number": "PGI-ES-01944",
+   "eu_gi": "EUGI00000014158",
+   "eu_names": [
+    "Brandy de Jerez"
+   ]
+  },
+  {
+   "lisbon_no": "1161",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Brandy del Penedés"
+   ],
+   "cited_eu_file_number": "PGI-ES-01946",
+   "eu_gi": "EUGI00000014160",
+   "eu_names": [
+    "Brandy del Penedés"
+   ]
+  },
+  {
+   "lisbon_no": "1162",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Castilla y León"
+   ],
+   "cited_eu_file_number": "PGI-ES-A0948",
+   "eu_gi": "EUGI00000006824",
+   "eu_names": [
+    "Castilla y León"
+   ]
+  },
+  {
+   "lisbon_no": "1163",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Castilla"
+   ],
+   "cited_eu_file_number": "PGI-ES-A0059",
+   "eu_gi": "EUGI00000007661",
+   "eu_names": [
+    "Castilla"
+   ]
+  },
+  {
+   "lisbon_no": "1164",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Montilla-Moriles"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1479",
+   "eu_gi": "EUGI00000007201",
+   "eu_names": [
+    "Montilla-Moriles"
+   ]
+  },
+  {
+   "lisbon_no": "1165",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Yecla"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0606",
+   "eu_gi": "EUGI00000006159",
+   "eu_names": [
+    "Yecla"
+   ]
+  },
+  {
+   "lisbon_no": "1166",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Vinos de Madrid"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1525",
+   "eu_gi": "EUGI00000006981",
+   "eu_names": [
+    "Vinos de Madrid"
+   ]
+  },
+  {
+   "lisbon_no": "1167",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Valencia"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0872",
+   "eu_gi": "EUGI00000006603",
+   "eu_names": [
+    "Valencia"
+   ]
+  },
+  {
+   "lisbon_no": "1168",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Toro"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0886",
+   "eu_gi": "EUGI00000006149",
+   "eu_names": [
+    "Toro"
+   ]
+  },
+  {
+   "lisbon_no": "1169",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Utiel-Requena"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0874",
+   "eu_gi": "EUGI00000006601",
+   "eu_names": [
+    "Utiel-Requena"
+   ]
+  },
+  {
+   "lisbon_no": "1170",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Valdeorras"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1132",
+   "eu_gi": "EUGI00000006903",
+   "eu_names": [
+    "Valdeorras"
+   ]
+  },
+  {
+   "lisbon_no": "1171",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Valdepeñas"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0051",
+   "eu_gi": "EUGI00000007650",
+   "eu_names": [
+    "Valdepeñas"
+   ]
+  },
+  {
+   "lisbon_no": "1172",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Somontano"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0534",
+   "eu_gi": "EUGI00000005662",
+   "eu_names": [
+    "Somontano"
+   ]
+  },
+  {
+   "lisbon_no": "1173",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Terra Alta"
+   ],
+   "cited_eu_file_number": "PDO-ES-A1556",
+   "eu_gi": "EUGI00000007321",
+   "eu_names": [
+    "Terra Alta"
+   ]
+  },
+  {
+   "lisbon_no": "1174",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Ribera del Júcar"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0049",
+   "eu_gi": "EUGI00000007648",
+   "eu_names": [
+    "Ribera del Júcar"
+   ]
+  },
+  {
+   "lisbon_no": "1175",
+   "lisbon_origin": "EU",
+   "lisbon_name": [
+    "Rioja"
+   ],
+   "cited_eu_file_number": "PDO-ES-A0117",
+   "eu_gi": "EUGI00000003061",
+   "eu_names": [
+    "Rioja"
+   ]
+  }
+ ],
+ "nz_export": {
+  "status": 200,
+  "content_type": "application/csv; name=\"export-gi-register.xlsx\"",
+  "bytes": 244251
+ },
+ "nz_header": [
+  "IP Number",
+  "Centroid",
+  "GI Name",
+  "Transliteration",
+  "Translation",
+  "Category",
+  "Type",
+  "Product Class",
+  "Status",
+  "Submitted Date",
+  "Filed Date",
+  "Accepted Date",
+  "Registered Date",
+  "Renewal Due",
+  "Last Modified",
+  "Region 1",
+  "Primary Country",
+  "Secondary Country 1",
+  "Secondary Country 2",
+  "Secondary Country 3",
+  "Secondary Country 4",
+  "Page Link"
+ ],
+ "nz_rows": 2003,
+ "nz_by_category": {
+  "Enduring": 3,
+  "New Zealand": 19,
+  "Foreign": 6,
+  "International": 1975
+ },
+ "nz_by_type": {
+  "Enduring": 3,
+  "Wine": 1603,
+  "Spirits": 234,
+  "Other": 163
+ },
+ "nz_by_status": {
+  "Registered by statute": 4,
+  "Registered": 24,
+  "Withdrawn": 1,
+  "Registered by treaty": 1974
+ },
+ "nz_newest_last_modified": "2026-08-25",
+ "join_nz_to_eu": {
+  "nz_rows_with_eu_primary_country": 1967,
+  "matched_name_and_country": 1712
+ },
+ "join_nz_to_eu_sample_pairs": [
+  {
+   "nz_ip_number": "1024",
+   "nz_name": "Cognac",
+   "nz_country": "France",
+   "nz_type": "Spirits",
+   "nz_class": "",
+   "eu_gi": "EUGI00000014112",
+   "eu_file_number": "PGI-FR-02043",
+   "eu_names": [
+    "Eau-de-vie de Cognac",
+    "Eau-de-vie des Charentes",
+    "Cognac"
+   ],
+   "eu_product_type": "Spirit drink",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "4137",
+   "nz_name": "Mosel",
+   "nz_country": "Germany",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000004648",
+   "eu_file_number": "PDO-DE-A1270",
+   "eu_names": [
+    "Mosel"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "4395",
+   "nz_name": "Castilla y León",
+   "nz_country": "Spain",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000006824",
+   "eu_file_number": "PGI-ES-A0948",
+   "eu_names": [
+    "Castilla y León"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "4480",
+   "nz_name": "Ribera del Gállego – Cinco Villas",
+   "nz_country": "Spain",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000005342",
+   "eu_file_number": "PGI-ES-A0245",
+   "eu_names": [
+    "Ribera del Gállego - Cinco Villas"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "4565",
+   "nz_name": "Alsace grand cru Praelatenberg",
+   "nz_country": "France",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000002062",
+   "eu_file_number": "PDO-FR-A0381",
+   "eu_names": [
+    "Alsace grand cru Praelatenberg"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "4653",
+   "nz_name": "Cévennes",
+   "nz_country": "France",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000002982",
+   "eu_file_number": "PGI-FR-A1151",
+   "eu_names": [
+    "Cévennes"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "4740",
+   "nz_name": "Côtes de Bourg",
+   "nz_country": "France",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000001986",
+   "eu_file_number": "PDO-FR-A0828",
+   "eu_names": [
+    "Bourg",
+    "Côtes de Bourg",
+    "Bourgeais"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "4825",
+   "nz_name": "Haut-Poitou",
+   "nz_country": "France",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000001001",
+   "eu_file_number": "PDO-FR-A0726",
+   "eu_names": [
+    "Haut-Poitou"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "4912",
+   "nz_name": "Muscadet Sèvre et Maine",
+   "nz_country": "France",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000001743",
+   "eu_file_number": "PDO-FR-A0494",
+   "eu_names": [
+    "Muscadet Sèvre et Maine"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "4997",
+   "nz_name": "Saint-Estèphe",
+   "nz_country": "France",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000001723",
+   "eu_file_number": "PDO-FR-A0178",
+   "eu_names": [
+    "Saint-Estèphe"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5083",
+   "nz_name": "Varaždinsko zelje",
+   "nz_country": "Croatia",
+   "nz_type": "Other",
+   "nz_class": "Fresh and processed fruits and nuts",
+   "eu_gi": "EUGI00000015883",
+   "eu_file_number": "PDO-HR-01132",
+   "eu_names": [
+    "Varaždinsko zelje"
+   ],
+   "eu_product_type": "Food",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5170",
+   "nz_name": "Campi Flegrei",
+   "nz_country": "Italy",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000004801",
+   "eu_file_number": "PDO-IT-A0239",
+   "eu_names": [
+    "Campi Flegrei"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5257",
+   "nz_name": "Colline Teatine",
+   "nz_country": "Italy",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000003227",
+   "eu_file_number": "PGI-IT-A0891",
+   "eu_names": [
+    "Colline Teatine"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "5342",
+   "nz_name": "Grappa lombarda / Grappa della Lombardia",
+   "nz_country": "Italy",
+   "nz_type": "Spirits",
+   "nz_class": "",
+   "eu_gi": "EUGI00000014179",
+   "eu_file_number": "PGI-IT-01951",
+   "eu_names": [
+    "Grappa lombarda",
+    "Grappa della Lombardia"
+   ],
+   "eu_product_type": "Spirit drink",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "5428",
+   "nz_name": "Moscadello di Montalcino",
+   "nz_country": "Italy",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000006443",
+   "eu_file_number": "PDO-IT-A1440",
+   "eu_names": [
+    "Moscadello di Montalcino"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5516",
+   "nz_name": "Rosso Orvietano / Orvietano Rosso",
+   "nz_country": "Italy",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000005485",
+   "eu_file_number": "PDO-IT-A0847",
+   "eu_names": [
+    "Rosso Orvietano",
+    "Orvietano Rosso"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5601",
+   "nz_name": "Torgiano Rosso Riserva",
+   "nz_country": "Italy",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000005683",
+   "eu_file_number": "PDO-IT-A0834",
+   "eu_names": [
+    "Torgiano Rosso Riserva"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5699",
+   "nz_name": "Debrői Hárslevelű",
+   "nz_country": "Hungary",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000005786",
+   "eu_file_number": "PDO-HU-A1373",
+   "eu_names": [
+    "Debrői Hárslevelű"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  },
+  {
+   "nz_ip_number": "5785",
+   "nz_name": "Wachauer Marillenbrand",
+   "nz_country": "Austria",
+   "nz_type": "Spirits",
+   "nz_class": "",
+   "eu_gi": "EUGI00000015335",
+   "eu_file_number": "PGI-AT-01918",
+   "eu_names": [
+    "Wachauer Marillenbrand"
+   ],
+   "eu_product_type": "Spirit drink",
+   "eu_type": "PGI"
+  },
+  {
+   "nz_ip_number": "5872",
+   "nz_name": "Crișana",
+   "nz_country": "Romania",
+   "nz_type": "Wine",
+   "nz_class": "",
+   "eu_gi": "EUGI00000002971",
+   "eu_file_number": "PDO-RO-A0105",
+   "eu_names": [
+    "Crişana"
+   ],
+   "eu_product_type": "Wine",
+   "eu_type": "PDO"
+  }
+ ],
+ "ch_blw_layers": {
+  "kaese": {
+   "status": 200,
+   "features_with_code_containing_1": 39,
+   "distinct_names": 31,
+   "attribute_fields": [
+    "label",
+    "objekt_d",
+    "objekt_f",
+    "objekt_i",
+    "objektcode"
+   ]
+  },
+  "fleisch": {
+   "status": 200,
+   "features_with_code_containing_1": 10,
+   "distinct_names": 7,
+   "attribute_fields": [
+    "label",
+    "objekt_d",
+    "objekt_f",
+    "objekt_i",
+    "objektcode"
+   ]
+  },
+  "pflanzen": {
+   "status": 200,
+   "features_with_code_containing_1": 1,
+   "distinct_names": 1,
+   "attribute_fields": [
+    "label",
+    "objekt_d",
+    "objekt_f",
+    "objekt_i",
+    "objektcode"
+   ]
+  },
+  "spirituosen": {
+   "status": 200,
+   "features_with_code_containing_1": 1,
+   "distinct_names": 1,
+   "attribute_fields": [
+    "label",
+    "objekt_d",
+    "objekt_f",
+    "objekt_i",
+    "objektcode"
+   ]
+  },
+  "konditoreiwaren": {
+   "status": 200,
+   "features_with_code_containing_1": 1,
+   "distinct_names": 1,
+   "attribute_fields": [
+    "label",
+    "objekt_d",
+    "objekt_f",
+    "objekt_i",
+    "objektcode"
+   ]
+  }
+ },
+ "ch_opendata_packages": [
+  [
+   "register-ursprungsbezeichnungen-gub-und-geografische-angaben-gga-konditoreiware",
+   "2009-12-16T00:00:00"
+  ],
+  [
+   "kontrollierte-ursprungsbezeichnung",
+   "2020-09-23T00:00:00"
+  ],
+  [
+   "register-ursprungsbezeichnungen-gub-und-geografische-angaben-gga-spirituosen",
+   "2009-12-16T00:00:00"
+  ],
+  [
+   "register-ursprungsbezeichnungen-gub-und-geografische-angaben-gga-kase",
+   "2009-12-16T00:00:00"
+  ],
+  [
+   "register-ursprungsbezeichnungen-gub-und-geografische-angaben-gga-fleischware",
+   "2011-12-14T00:00:00"
+  ],
+  [
+   "register-ursprungsbezeichnungen-gub-und-geografische-angaben-gga-pflanzliche-produkte",
+   "2009-12-16T00:00:00"
+  ],
+  [
+   "rebbaukataster",
+   "2026-09-30T13:43:40.042933"
+  ]
+ ],
+ "other_registers": {
+  "wine_australia_register": {
+   "status": 200,
+   "final_url": "https://www.wineaustralia.com/labelling/register-of-protected-gis-and-other-terms",
+   "altcha_or_captcha": true,
+   "register_pdf_links": [
+    "/getmedia/8a31bbf3-bd17-46e5-b5bb-809e1b0a0a79/Wine-Australia-Register-of-EU-Geographical-Indications-Updated-18-Jan-2019.pdf"
+   ]
+  },
+  "ipindia_gi_registry": {
+   "status": 404,
+   "final_url": "https://search.ipindia.gov.in/GIRPublic/Application/Status",
+   "altcha_or_captcha": false,
+   "register_pdf_links": []
+  },
+  "uspto_gi_page": {
+   "status": 404,
+   "final_url": "https://www.uspto.gov/ip-policy/trademark-policy/geographical-indications-gi-protection-us",
+   "altcha_or_captcha": false,
+   "register_pdf_links": []
+  },
+  "cipo_gi_list": {
+   "status": 404,
+   "final_url": "https://ised-isde.canada.ca/site/canadian-intellectual-property-office/en/trademarks/geographical-indications/list-geographical-indications",
+   "altcha_or_captcha": false,
+   "register_pdf_links": []
+  },
+  "wipo_global_brand_db_gi": {
+   "status": 200,
+   "final_url": "https://branddb.wipo.int/branddb/en/?type=ao",
+   "altcha_or_captcha": true,
+   "register_pdf_links": []
+  }
+ }
+}

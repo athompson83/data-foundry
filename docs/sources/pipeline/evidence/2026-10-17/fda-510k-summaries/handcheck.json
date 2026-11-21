@@ -1,0 +1,92 @@
+{
+ "method": "every 5th of the 68 records with an extracted section in extract.json, read by hand against the capture",
+ "checked": 14,
+ "pass": 12,
+ "behind_form_preamble": 10,
+ "records": [
+  {
+   "k_number": "K120735",
+   "verdict": "pass",
+   "note": "device indication text present",
+   "capture_prefix": "The PathAssist Light Seeker is intended to locate, illumninate within, and transillumninate across nasal and sinus struc"
+  },
+  {
+   "k_number": "K131379",
+   "verdict": "pass",
+   "note": "device indication text present",
+   "capture_prefix": "The EarlySense 2.0 System is intended for continuous measurement of respiration rate, heart rate and movement, in an aut"
+  },
+  {
+   "k_number": "K133717",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K133717 Device Name Longbow Spacer System Indications for Use (Describ"
+  },
+  {
+   "k_number": "K150378",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K150378 Device Name NICO BrainPath and Accessories Indications for Use"
+  },
+  {
+   "k_number": "K143713",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K143713 Device Name Lustre PRO Light System Indications for Use (Descr"
+  },
+  {
+   "k_number": "K170416",
+   "verdict": "fail",
+   "note": "font-encoded garbled text",
+   "capture_prefix": "(Describe) \u0003 7KH\u0003/=,\u00030HWKDGRQH\u00030HWDEROLWH\u0003 (''3 \u0003(Q]\\PH\u0003,PPXQRDVVD\\\u0003LV\u0003DQ\u0003LQ\u0003YLWUR\u0003GLDJQRVWLF\u0003WHVW\u0003LQWHQGHG\u0003IRU\u0003WKH\u0003TXDO"
+  },
+  {
+   "k_number": "K173746",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K173746 Device Name Activmotion Range Indications for Use (Describe) T"
+  },
+  {
+   "k_number": "K191823",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K191823 Device Name Clear-Aligners Indications for Use (Describe) The "
+  },
+  {
+   "k_number": "K190559",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K190559 Device Name SmartPort+ and SmartPort Plastic Implantable Ports"
+  },
+  {
+   "k_number": "K223565",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K223565 Device Name LnK Spinal Fixation System /OpenLoc-L Spinal Fixat"
+  },
+  {
+   "k_number": "K223890",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K223890 Device Name NAJA Gastrointestinal Balloon Catheter Indications"
+  },
+  {
+   "k_number": "K233775",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K233775 Device Name Vivatmo pro Indications for Use (Describe) Vivatmo"
+  },
+  {
+   "k_number": "K250856",
+   "verdict": "pass",
+   "note": "device indication text present behind the Form 3881 preamble",
+   "capture_prefix": "See PRA Statement below. 510(k) Number (if known) K250856 Device Name ETEST Aztreonam/Avibactam (AZA) (0.016/4-256/4 \u00b5g/"
+  },
+  {
+   "k_number": "K254055",
+   "verdict": "fail",
+   "note": "trailing fragment, not the indication",
+   "capture_prefix": "of the OSSIOfiber\u00ae Suture Anchors previously cleared under K251309."
+  }
+ ]
+}

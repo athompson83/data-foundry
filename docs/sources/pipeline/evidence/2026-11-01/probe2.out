@@ -1,0 +1,34 @@
+== lda-filings :: 200 3121 application/json
+{"count":82142,"next":"https://lda.gov/api/v1/filings/?filing_year=2026&page=2&page_size=1","previous":null,"results":[{"url":"https://lda.gov/api/v1/filings/a934e791-d564-4fd3-8b78-041f8cfcf115/","filing_uuid":"a934e791-d564-4fd3-8b78-041f8cfcf115",
+== lda-terms :: 200 12976 text/html; charset=utf-8
+ <!DOCTYPE html> <html lang="en"> <head>   <meta charset="utf-8">   <meta content="IE=edge" http-equiv="X-UA-Compatible">   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    <title>API Documentation - v1 | LDA.
+== ca-lobbying-ckan :: 200 37371 application/json;charset=utf-8
+{"help": "https://open.canada.ca/data/api/3/action/help_show?name=package_search", "success": true, "result": {"count": 13, "facets": {}, "facet_ranges": {"portal_release_date": {"counts": ["1926-11-01T00:00:00Z", 13], "gap": "+100YEARS", "start": "1
+== eu-transparency :: 200 64550 application/json
+{"result":{"count":83013,"results":[{"identifier":["1f2ad094-e440-42c4-965c-0e22c5c21739"],"country":{"resource":"http://publications.europa.eu/resource/authority/country/ROU","label":"Romania","id":"ro"},"corporate-body-classification":{"label":{"ti
+== regs-dockets :: curl: (3) bad range in URL position 47:
+https://api.regulations.gov/v4/dockets?filter[docketType]=Rulemaking&page[size]=5&api_key=DEMO_KEY
+                                              ^
+{"result":{"count":83013,"results":[{"identifier":["1f2ad094-e440-42c4-965c-0e22c5c21739"],"country":{"resource":"http://publications.europa.eu/resource/authority/country/ROU","label":"Romania","id":"ro"},"corporate-body-classification":{"label":{"ti
+== regs-docs-prop :: curl: (3) bad range in URL position 49:
+https://api.regulations.gov/v4/documents?filter[documentType]=Proposed%20Rule&filter[postedDate][ge]=2026-10-01&page[size]=5&api_key=DEMO_KEY
+                                                ^
+{"result":{"count":83013,"results":[{"identifier":["1f2ad094-e440-42c4-965c-0e22c5c21739"],"country":{"resource":"http://publications.europa.eu/resource/authority/country/ROU","label":"Romania","id":"ro"},"corporate-body-classification":{"label":{"ti
+== fr-api :: curl: (3) bad range in URL position 66:
+https://www.federalregister.gov/api/v1/documents.json?conditions[type][]=PRORULE&conditions[publication_date][gte]=2026-10-01&per_page=2
+                                                                 ^
+{"result":{"count":83013,"results":[{"identifier":["1f2ad094-e440-42c4-965c-0e22c5c21739"],"country":{"resource":"http://publications.europa.eu/resource/authority/country/ROU","label":"Romania","id":"ro"},"corporate-body-classification":{"label":{"ti
+== fdic-inst :: 200 1851 application/json; charset=utf-8
+{"meta":{"total":27835,"parameters":{"filters":"","limit":"1"},"index":{"name":"institutions_20261030090007","createTimestamp":"2026-10-30T11:58:49Z"}},"data":[{"data":{"ZIP":"04073","INSAGNT1":"BIF","BKCLASS":"SM","SASSER":0,"CHRTAGNT":"STATE","EFFD
+== fdic-orders :: curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0 
+{"meta":{"total":27835,"parameters":{"filters":"","limit":"1"},"index":{"name":"institutions_20261030090007","createTimestamp":"2026-10-30T11:58:49Z"}},"data":[{"data":{"ZIP":"04073","INSAGNT1":"BIF","BKCLASS":"SM","SASSER":0,"CHRTAGNT":"STATE","EFFD
+== openfda-vet-fields :: curl: (3) bad range in URL position 80:
+https://api.fda.gov/animalandveterinary/event.json?limit=1&search=receivedate:[20260101+TO+20261031]
+                                                                               ^
+{"meta":{"total":27835,"parameters":{"filters":"","limit":"1"},"index":{"name":"institutions_20261030090007","createTimestamp":"2026-10-30T11:58:49Z"}},"data":[{"data":{"ZIP":"04073","INSAGNT1":"BIF","BKCLASS":"SM","SASSER":0,"CHRTAGNT":"STATE","EFFD

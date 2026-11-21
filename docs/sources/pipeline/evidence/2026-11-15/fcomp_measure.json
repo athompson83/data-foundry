@@ -1,0 +1,776 @@
+{
+ "run_date": "2026-11-15",
+ "terms": {
+  "usda_fdc": {
+   "url": "https://fdc.nal.usda.gov/",
+   "status": 200,
+   "quote_present": true
+  },
+  "ogl_canada": {
+   "url": "https://open.canada.ca/en/open-government-licence-canada",
+   "status": 200,
+   "quote_present": true
+  },
+  "fsanz": {
+   "url": "https://www.foodstandards.gov.au/legal-policies/copyright",
+   "status": 200,
+   "excerpt": "Unless expressly noted otherwise, material presented on this website is provided under a Creative Commons Attribution 4.0 Australia (CC BY 4.0) licence, except for: the Food Standards Australia New Zealand logo; and third party material. The details of the licence conditions and the full legal code for the CC BY 4.0 licence are available on the Creative Commons website (accessible using the link provided). Attributio",
+   "commercial_clause_present": true
+  },
+  "gov_uk_cofid_page": {
+   "url": "https://www.gov.uk/government/publications/composition-of-foods-integrated-dataset-cofid",
+   "status": 200,
+   "ogl_footer_present": true,
+   "last_updated": "19 March 2021"
+  },
+  "nz_foodfiles": {
+   "url": "https://www.foodcomposition.co.nz/terms/",
+   "status": 200,
+   "no_modify_present": true,
+   "reserve_present": true,
+   "download_formats": [
+    "msi",
+    "pdf"
+   ]
+  }
+ },
+ "usda_sr_legacy": {
+  "status": 200,
+  "bytes": 6074592,
+  "files": 19,
+  "foods": 7793,
+  "ndb_numbers": 7793,
+  "food_nutrient_rows": 644125,
+  "publication_dates": [
+   "2019-04-01"
+  ]
+ },
+ "usda_foundation": {
+  "csv_status": 200,
+  "csv_bytes": 1127612,
+  "csv_files": [
+   "acquisition_samples.csv",
+   "agricultural_samples.csv",
+   "food_attribute_type.csv",
+   "food_category.csv",
+   "food_protein_conversion_factor.csv",
+   "foundation_food.csv",
+   "lab_method.csv",
+   "lab_method_code.csv",
+   "lab_method_nutrient.csv",
+   "market_acquisition.csv",
+   "measure_unit.csv",
+   "nutrient.csv",
+   "sub_sample_result.csv"
+  ],
+  "csv_has_food_csv": false,
+  "csv_has_food_nutrient_csv": false,
+  "csv_foundation_food_rows": 424,
+  "csv_footnotes_nonempty": 82,
+  "csv_market_acquisition_rows": 7607,
+  "json_status": 200,
+  "json_bytes": 696866,
+  "json_foods": 424,
+  "json_foods_with_ndb": 424,
+  "json_food_nutrients_total": 22138,
+  "json_newest_publication_date": "4/30/2026",
+  "json_fields": [
+   "dataType",
+   "description",
+   "fdcId",
+   "foodAttributes",
+   "foodCategory",
+   "foodClass",
+   "foodNutrients",
+   "foodPortions",
+   "inputFoods",
+   "isHistoricalReference",
+   "ndbNumber",
+   "nutrientConversionFactors",
+   "publicationDate"
+  ],
+  "ndb_also_in_sr_legacy": 212
+ },
+ "cnf_package": {
+  "status": 200,
+  "title": "Canadian Nutrient File, 2026",
+  "license_id": "ca-ogl-lgo",
+  "metadata_modified": "2026-10-04T06:45:58.876972",
+  "resources": 14
+ },
+ "cnf_2026": {
+  "status": 200,
+  "bytes": 1047745,
+  "foods": 5993,
+  "columns": [
+   "Food_Code",
+   "Food_Description_EN",
+   "Food_Description_FR",
+   "Alternate_Description_EN",
+   "Alternate_Description_FR",
+   "Food_Source_Code",
+   "USDA_NDB_Code",
+   "CNF_Food_Group_Code",
+   "Comment_EN",
+   "Comment_FR",
+   "ScientificName",
+   "Food_Last_Updated_Date"
+  ],
+  "newest_food_last_updated": "2026-02-11",
+  "updated_in_2026": 3383,
+  "with_usda_ndb_code": 4798,
+  "with_comment_en": 497,
+  "comment_examples": [
+   "Rice not included in the analyses.  May include onions, cabbage, carrots and/or broccoli.",
+   "coffee-mate, international delight, no name",
+   "Neilson, Dairyland, Quebon, Beatrice, Sealtest, Natrel, Lactantia, Baxter, Scotsburn, Farmers, Lucerne, Foremost, Macs",
+   "Neilson, Dairyland, Beatrice, Sealtest, Quebon, Natrel, Lactantia, Baxter, Farmers, Scotsburn, Foremost, Lucerne, Macs",
+   "medallion food co."
+  ]
+ },
+ "join_cnf_ndb_to_sr_legacy": {
+  "matched": 4615,
+  "total": 4798,
+  "to_foundation_matched": 188,
+  "sample_description_ratio_ge_0_6": 16,
+  "sample": [
+   {
+    "cnf_food_code": "5",
+    "usda_ndb": "36623",
+    "sr_fdc_id": "168083",
+    "cnf_description": "Chinese dish, chow mein, chicken",
+    "sr_description": "Restaurant, Chinese, chicken chow mein",
+    "desc_ratio": 0.58
+   },
+   {
+    "cnf_food_code": "571",
+    "usda_ndb": "5020",
+    "sr_fdc_id": "171057",
+    "cnf_description": "Chicken, broiler, giblets, raw",
+    "sr_description": "Chicken, broilers or fryers, giblets, raw",
+    "desc_ratio": 0.83
+   },
+   {
+    "cnf_food_code": "839",
+    "usda_ndb": "5060",
+    "sr_fdc_id": "171075",
+    "cnf_description": "Chicken, broiler, breast, meat and skin, roasted",
+    "sr_description": "Chicken, broilers or fryers, breast, meat and skin, cooked, roasted",
+    "desc_ratio": 0.83
+   },
+   {
+    "cnf_food_code": "1566",
+    "usda_ndb": "9118",
+    "sr_fdc_id": "173034",
+    "cnf_description": "Grapefruit, white, florida, raw",
+    "sr_description": "Grapefruit, raw, white, Florida",
+    "desc_ratio": 0.86
+   },
+   {
+    "cnf_food_code": "1817",
+    "usda_ndb": "10074",
+    "sr_fdc_id": "168255",
+    "cnf_description": "Pork, shoulder, picnic (arm), lean and fat, raw",
+    "sr_description": "Pork, fresh, shoulder, arm picnic, separable lean and fat, raw",
+    "desc_ratio": 0.82
+   },
+   {
+    "cnf_food_code": "2096",
+    "usda_ndb": "11222",
+    "sr_fdc_id": "168416",
+    "cnf_description": "Drumstick (horseradish-tree, moringa), leaves, raw",
+    "sr_description": "Drumstick leaves, raw",
+    "desc_ratio": 0.62
+   },
+   {
+    "cnf_food_code": "2337",
+    "usda_ndb": "11940",
+    "sr_fdc_id": "169378",
+    "cnf_description": "Pickles, cucumber, sweet",
+    "sr_description": "Pickles, cucumber, sweet (includes bread and butter pickles)",
+    "desc_ratio": 0.56
+   },
+   {
+    "cnf_food_code": "2583",
+    "usda_ndb": "12143",
+    "sr_fdc_id": "170183",
+    "cnf_description": "Nuts, pecans, dry roasted",
+    "sr_description": "Nuts, pecans, dry roasted, without salt added",
+    "desc_ratio": 0.71
+   },
+   {
+    "cnf_food_code": "3008",
+    "usda_ndb": "15030",
+    "sr_fdc_id": "171961",
+    "cnf_description": "Fish, gefiltefish, commercial, sweet recipe with broth",
+    "sr_description": "Fish, gefiltefish, commercial, sweet recipe",
+    "desc_ratio": 0.88
+   },
+   {
+    "cnf_food_code": "3255",
+    "usda_ndb": "16019",
+    "sr_fdc_id": "175189",
+    "cnf_description": "Beans, cranberry (roman), mature seeds, dry",
+    "sr_description": "Beans, cranberry (roman), mature seeds, raw",
+    "desc_ratio": 0.95
+   },
+   {
+    "cnf_food_code": "3555",
+    "usda_ndb": "17136",
+    "sr_fdc_id": "175288",
+    "cnf_description": "Veal, sirloin, lean and fat, roasted",
+    "sr_description": "Veal, sirloin, separable lean and fat, cooked, roasted",
+    "desc_ratio": 0.8
+   },
+   {
+    "cnf_food_code": "3893",
+    "usda_ndb": "18250",
+    "sr_fdc_id": "174992",
+    "cnf_description": "Doughnut (donut), cake-type, plain, sugared or glazed",
+    "sr_description": "Doughnuts, cake-type, plain, sugared or glazed",
+    "desc_ratio": 0.92
+   },
+   {
+    "cnf_food_code": "4217",
+    "usda_ndb": "19159",
+    "sr_fdc_id": "168767",
+    "cnf_description": "Candies, bars, 3 Musketeers",
+    "sr_description": "Candies, MARS SNACKFOOD US, 3 MUSKETEERS Bar",
+    "desc_ratio": 0.72
+   },
+   {
+    "cnf_food_code": "4505",
+    "usda_ndb": "20096",
+    "sr_fdc_id": "169730",
+    "cnf_description": "Pasta, fresh-refrigerated, spinach, cooked",
+    "sr_description": "Pasta, fresh-refrigerated, spinach, cooked",
+    "desc_ratio": 1.0
+   },
+   {
+    "cnf_food_code": "5330",
+    "usda_ndb": "4639",
+    "sr_fdc_id": "173592",
+    "cnf_description": "Salad dressing, ranch dressing, regular",
+    "sr_description": "Salad dressing, ranch dressing, regular",
+    "desc_ratio": 1.0
+   },
+   {
+    "cnf_food_code": "5644",
+    "usda_ndb": "5627",
+    "sr_fdc_id": "172834",
+    "cnf_description": "Emu, full rump, cooked, broiled",
+    "sr_description": "Emu, full rump, cooked, broiled",
+    "desc_ratio": 1.0
+   },
+   {
+    "cnf_food_code": "6091",
+    "usda_ndb": "13486",
+    "sr_fdc_id": "169470",
+    "cnf_description": "Beef, hip, sirloin tip roast, boneless, lean, raw",
+    "sr_description": "Beef, round, tip round, roast, separable lean and fat, trimmed to 0\" fat, all grades, raw",
+    "desc_ratio": 0.5
+   },
+   {
+    "cnf_food_code": "6435",
+    "usda_ndb": "15190",
+    "sr_fdc_id": "174230",
+    "cnf_description": "Fish, burbot (loche), baked or broiled",
+    "sr_description": "Fish, burbot, cooked, dry heat",
+    "desc_ratio": 0.66
+   },
+   {
+    "cnf_food_code": "6878",
+    "usda_ndb": "5737",
+    "sr_fdc_id": "171135",
+    "cnf_description": "Turkey, hen, drumstick, meat and skin, roasted",
+    "sr_description": "Turkey, retail parts, drumstick, meat and skin, cooked, roasted",
+    "desc_ratio": 0.8
+   },
+   {
+    "cnf_food_code": "7349",
+    "usda_ndb": "19407",
+    "sr_fdc_id": "168850",
+    "cnf_description": "Meat stick, pepperoni, non-refrigerated",
+    "sr_description": "Snacks, beef sticks, smoked",
+    "desc_ratio": 0.35
+   }
+  ]
+ },
+ "afcd_files_page": {
+  "status": 200,
+  "files": [
+   "AFCD%20Release%203%20-%20Food%20Details.xlsx",
+   "AFCD%20Release%203%20-%20Food%20group%20information.xlsx",
+   "AFCD%20Release%203%20-%20Nutrient%20details.xlsx",
+   "AFCD%20Release%203%20-%20Nutrient%20profiles.xlsx",
+   "AFCD%20Release%203%20-%20Recipes.xlsx",
+   "AFCD%20Release%203%20-%20Reference%20List.xlsx",
+   "About%20the%20Australian%20Food%20Composition%20Database%20-%20Release%203.pdf"
+  ],
+  "page_last_updated": "23 December 2025"
+ },
+ "afcd_release3": {
+  "status": 200,
+  "bytes": 1137444,
+  "foods": 1588,
+  "columns": [
+   "Public Food Key",
+   "Classification",
+   "Derivation",
+   "Food Name",
+   "Food Description",
+   "Sampling Details",
+   "Nitrogen Factor",
+   "Fat Factor",
+   "Specific Gravity",
+   "Analysed Portion",
+   "Unanalysed Portion"
+  ],
+  "derivation_counts": {
+   "Borrowed": 78,
+   "Analysed": 1046,
+   "Imputed": 29,
+   "Recipe": 417,
+   "Estimated": 9,
+   "Label Data": 9
+  },
+  "with_sampling_details": 1588,
+  "sampling_details_mean_chars": 448,
+  "mentions_usda": 248,
+  "foods_citing_fdc_id": 221,
+  "fdc_id_citations": 232
+ },
+ "join_afcd_fdcid_to_fdc": {
+  "matched_sr_legacy": 211,
+  "matched_foundation": 3,
+  "matched_either": 214,
+  "total_citations": 232,
+  "unmatched_ids": [
+   "02063",
+   "05653",
+   "1100465",
+   "11007",
+   "11015",
+   "11156",
+   "11213",
+   "11670",
+   "11702",
+   "14145",
+   "16923",
+   "16992",
+   "17177",
+   "17917",
+   "18239",
+   "20125"
+  ],
+  "unmatched_ids_that_are_sr_ndb_numbers": [
+   "11007",
+   "11015",
+   "11156",
+   "11213",
+   "11670",
+   "11702",
+   "14145",
+   "17177",
+   "18239",
+   "20125",
+   "2063",
+   "5653"
+  ],
+  "sample": [
+   {
+    "afcd_key": "F002258",
+    "fdc_id": "170919",
+    "afcd_name": "Cardamom seed, dried, ground",
+    "sr_description": "Spices, cardamom",
+    "desc_ratio": 0.39
+   },
+   {
+    "afcd_key": "F006118",
+    "fdc_id": "171326",
+    "afcd_name": "Nutmeg, dried, ground",
+    "sr_description": "Spices, nutmeg, ground",
+    "desc_ratio": 0.67
+   },
+   {
+    "afcd_key": "F003250",
+    "fdc_id": "175041",
+    "afcd_name": "Cream of tartar, dry powder",
+    "sr_description": "Leavening agents, cream of tartar",
+    "desc_ratio": 0.52
+   },
+   {
+    "afcd_key": "F008460",
+    "fdc_id": "171869",
+    "afcd_name": "Soft drink, tonic water",
+    "sr_description": "Beverages, carbonated, tonic water",
+    "desc_ratio": 0.59
+   },
+   {
+    "afcd_key": "F007593",
+    "fdc_id": "168874",
+    "afcd_name": "Quinoa, black, uncooked",
+    "sr_description": "Quinoa, uncooked",
+    "desc_ratio": 0.83
+   },
+   {
+    "afcd_key": "F007683",
+    "fdc_id": "168897",
+    "afcd_name": "Rice, wild, boiled, no added salt",
+    "sr_description": "Wild rice, cooked",
+    "desc_ratio": 0.35
+   },
+   {
+    "afcd_key": "F005702",
+    "fdc_id": "172442",
+    "afcd_name": "Paste, soybean",
+    "sr_description": "Miso",
+    "desc_ratio": 0.24
+   },
+   {
+    "afcd_key": "F008783",
+    "fdc_id": "175043",
+    "afcd_name": "Spread, yeast, marmite",
+    "sr_description": "Leavening agents, yeast, baker's, active dry",
+    "desc_ratio": 0.43
+   },
+   {
+    "afcd_key": "F006172",
+    "fdc_id": "172337",
+    "afcd_name": "Oil, mustard seed",
+    "sr_description": "Oil, mustard",
+    "desc_ratio": 0.81
+   },
+   {
+    "afcd_key": "F003328",
+    "fdc_id": "168154",
+    "afcd_name": "Cumquat (kumquat), raw",
+    "sr_description": "Kumquats, raw",
+    "desc_ratio": 0.71
+   },
+   {
+    "afcd_key": "F005516",
+    "fdc_id": "169911",
+    "afcd_name": "Melon, honey dew, white skin, peeled, raw",
+    "sr_description": "Melons, honeydew, raw",
+    "desc_ratio": 0.64
+   },
+   {
+    "afcd_key": "F007612",
+    "fdc_id": "168167",
+    "afcd_name": "Rambutan, raw",
+    "sr_description": "Rambutan, canned, syrup pack",
+    "desc_ratio": 0.58
+   },
+   {
+    "afcd_key": "F000451",
+    "fdc_id": "175194",
+    "afcd_name": "Bean, red kidney, dried, boiled, drained",
+    "sr_description": "Beans, kidney, red, mature seeds, cooked, boiled, without salt",
+    "desc_ratio": 0.54
+   },
+   {
+    "afcd_key": "F006543",
+    "fdc_id": "172428",
+    "afcd_name": "Pea, split, dried",
+    "sr_description": "Peas, green, split, mature seeds, raw",
+    "desc_ratio": 0.54
+   },
+   {
+    "afcd_key": "F006282",
+    "fdc_id": "174483",
+    "afcd_name": "Ostrich, fan fillet, raw",
+    "sr_description": "Ostrich, fan, raw",
+    "desc_ratio": 0.81
+   },
+   {
+    "afcd_key": "F006098",
+    "fdc_id": "170581",
+    "afcd_name": "Nut, hazelnut, raw, unsalted",
+    "sr_description": "Nuts, hazelnuts or filberts",
+    "desc_ratio": 0.63
+   },
+   {
+    "afcd_key": "F009303",
+    "fdc_id": "175159",
+    "afcd_name": "Tuna, yellowfin, fillet, raw",
+    "sr_description": "Fish, tuna, fresh, yellowfin, raw",
+    "desc_ratio": 0.67
+   },
+   {
+    "afcd_key": "F002220",
+    "fdc_id": "172238",
+    "afcd_name": "Capers, pickled, canned, drained",
+    "sr_description": "Capers, canned",
+    "desc_ratio": 0.62
+   },
+   {
+    "afcd_key": "F003192",
+    "fdc_id": "169997",
+    "afcd_name": "Coriander, fresh, raw",
+    "sr_description": "Coriander (cilantro) leaves, raw",
+    "desc_ratio": 0.71
+   },
+   {
+    "afcd_key": "F002384",
+    "fdc_id": "170400",
+    "afcd_name": "Celeriac, peeled, raw",
+    "sr_description": "Celeriac, raw",
+    "desc_ratio": 0.77
+   }
+  ]
+ },
+ "uk_cofid_2021": {
+  "status": 200,
+  "bytes": 4629542,
+  "foods": 2887,
+  "columns_first_12": [
+   "Food Code",
+   "Food Name",
+   "Description",
+   "Group",
+   "Previous",
+   "Main data references",
+   "Footnote",
+   "Water (g)",
+   "Total nitrogen (g)",
+   "Protein (g)",
+   "Fat (g)",
+   "Carbohydrate (g)"
+  ],
+  "with_description": 2887,
+  "with_main_data_references": 2886,
+  "references_citing_usda": 26,
+  "references_citing_ndb_number": 0,
+  "with_footnote": 12,
+  "examples": [
+   {
+    "code": "13-145",
+    "description": "8 cans",
+    "cites_usda": false
+   },
+   {
+    "code": "13-146",
+    "description": "Literature sources",
+    "cites_usda": false
+   },
+   {
+    "code": "13-147",
+    "description": "Literature sources",
+    "cites_usda": false
+   },
+   {
+    "code": "13-148",
+    "description": "Analytical and literature sources",
+    "cites_usda": false
+   }
+  ]
+ },
+ "join_cofid_name_to_sr_legacy": {
+  "cofid_rows_citing_usda": 26,
+  "proposed_ratio_ge_0_6": 26,
+  "pairs": [
+   {
+    "cofid_code": "14-897",
+    "cofid_name": "Almonds, toasted",
+    "sr_fdc_id": "170160",
+    "sr_description": "Nuts, almond paste",
+    "ratio": 0.75
+   },
+   {
+    "cofid_code": "14-898",
+    "cofid_name": "Almonds, weighed with shells",
+    "sr_fdc_id": "169060",
+    "sr_description": "Candies, nougat, with almonds",
+    "ratio": 0.63
+   },
+   {
+    "cofid_code": "14-896",
+    "cofid_name": "Almonds, whole kernels",
+    "sr_fdc_id": "171032",
+    "sr_description": "Oil, apricot kernel",
+    "ratio": 0.62
+   },
+   {
+    "cofid_code": "14-895",
+    "cofid_name": "Breadnut seeds, dried",
+    "sr_fdc_id": "170553",
+    "sr_description": "Seeds, breadnut tree seeds, dried",
+    "ratio": 0.89
+   },
+   {
+    "cofid_code": "13-873",
+    "cofid_name": "Chilli powder",
+    "sr_fdc_id": "171319",
+    "sr_description": "Spices, chili powder",
+    "ratio": 0.75
+   },
+   {
+    "cofid_code": "13-887",
+    "cofid_name": "Chives, fresh",
+    "sr_fdc_id": "169994",
+    "sr_description": "Chives, raw",
+    "ratio": 0.73
+   },
+   {
+    "cofid_code": "13-874",
+    "cofid_name": "Cinnamon, ground",
+    "sr_fdc_id": "171320",
+    "sr_description": "Spices, cinnamon, ground",
+    "ratio": 0.81
+   },
+   {
+    "cofid_code": "17-505",
+    "cofid_name": "Cola, diet",
+    "sr_fdc_id": "172336",
+    "sr_description": "Oil, canola",
+    "ratio": 0.63
+   },
+   {
+    "cofid_code": "13-888",
+    "cofid_name": "Coriander leaves, fresh",
+    "sr_fdc_id": "170921",
+    "sr_description": "Spices, coriander leaf, dried",
+    "ratio": 0.73
+   },
+   {
+    "cofid_code": "13-875",
+    "cofid_name": "Coriander seeds",
+    "sr_fdc_id": "170922",
+    "sr_description": "Spices, coriander seed",
+    "ratio": 0.83
+   },
+   {
+    "cofid_code": "17-744",
+    "cofid_name": "Cranberry fruit juice drink",
+    "sr_fdc_id": "171902",
+    "sr_description": "Beverages, cranberry-grape juice drink, bottled",
+    "ratio": 0.64
+   },
+   {
+    "cofid_code": "13-889",
+    "cofid_name": "Cumin seeds",
+    "sr_fdc_id": "170923",
+    "sr_description": "Spices, cumin seed",
+    "ratio": 0.79
+   },
+   {
+    "cofid_code": "13-876",
+    "cofid_name": "Curry powder",
+    "sr_fdc_id": "170924",
+    "sr_description": "Spices, curry powder",
+    "ratio": 0.77
+   },
+   {
+    "cofid_code": "13-890",
+    "cofid_name": "Ginger, fresh",
+    "sr_fdc_id": "173670",
+    "sr_description": "Fish, ling, raw",
+    "ratio": 0.64
+   },
+   {
+    "cofid_code": "14-337",
+    "cofid_name": "Lemon peel",
+    "sr_fdc_id": "167749",
+    "sr_description": "Lemon peel, raw",
+    "ratio": 0.83
+   },
+   {
+    "cofid_code": "13-877",
+    "cofid_name": "Nutmeg, ground",
+    "sr_fdc_id": "171326",
+    "sr_description": "Spices, nutmeg, ground",
+    "ratio": 0.79
+   },
+   {
+    "cofid_code": "13-878",
+    "cofid_name": "Oregano, dried, ground",
+    "sr_fdc_id": "169907",
+    "sr_description": "Longans, dried",
+    "ratio": 0.67
+   },
+   {
+    "cofid_code": "13-891",
+    "cofid_name": "Oregano, fresh",
+    "sr_fdc_id": "170416",
+    "sr_description": "Parsley, fresh",
+    "ratio": 0.62
+   },
+   {
+    "cofid_code": "13-879",
+    "cofid_name": "Paprika",
+    "sr_fdc_id": "168106",
+    "sr_description": "Papad",
+    "ratio": 0.67
+   },
+   {
+    "cofid_code": "13-880",
+    "cofid_name": "Pepper, black",
+    "sr_fdc_id": "170931",
+    "sr_description": "Spices, pepper, black",
+    "ratio": 0.77
+   },
+   {
+    "cofid_code": "13-881",
+    "cofid_name": "Pepper, white",
+    "sr_fdc_id": "170933",
+    "sr_description": "Spices, pepper, white",
+    "ratio": 0.77
+   },
+   {
+    "cofid_code": "13-882",
+    "cofid_name": "Rosemary, dried",
+    "sr_fdc_id": "171333",
+    "sr_description": "Spices, rosemary, dried",
+    "ratio": 0.8
+   },
+   {
+    "cofid_code": "13-892",
+    "cofid_name": "Rosemary, fresh",
+    "sr_fdc_id": "173473",
+    "sr_description": "Rosemary, fresh",
+    "ratio": 1.0
+   },
+   {
+    "cofid_code": "13-463",
+    "cofid_name": "Sweet potato, raw, flesh only",
+    "sr_fdc_id": "169303",
+    "sr_description": "Sweet potato leaves, raw",
+    "ratio": 0.8
+   },
+   {
+    "cofid_code": "13-883",
+    "cofid_name": "Thyme, dried, ground",
+    "sr_fdc_id": "168567",
+    "sr_description": "Tomatoes, sun-dried",
+    "ratio": 0.67
+   },
+   {
+    "cofid_code": "13-893",
+    "cofid_name": "Thyme, fresh",
+    "sr_fdc_id": "173470",
+    "sr_description": "Thyme, fresh",
+    "ratio": 1.0
+   }
+  ]
+ },
+ "ciqual": {
+  "datagouv_status": 200,
+  "title": "Table de composition nutritionnelle des aliments Ciqual 2020",
+  "license": "fr-lo",
+  "last_modified": "2025-11-20T10:35:11.972000+00:00",
+  "resource_urls": [
+   "https://ciqual.anses.fr/cms/sites/default/files/inline-files/XML_2020_07_07.zip",
+   "https://ciqual.anses.fr/cms/sites/default/files/inline-files/Table%20Ciqual%202020_doc_XML_FR_2020%2007%2007.pdf",
+   "https://ciqual.anses.fr/cms/sites/default/files/inline-files/Table%20Ciqual%202020_FR_2020%2007%2007.xls",
+   "https://ciqual.anses.fr/cms/sites/default/files/inline-files/Table%20Ciqual%202020_doc_Excel_FR_2020%2007%2007.pdf"
+  ],
+  "download_status": 503
+ },
+ "frida": {
+  "status": 200,
+  "final_url": "https://fcdb.fooddata.dk/",
+  "app_shell": true,
+  "bytes": 2392
+ }
+}

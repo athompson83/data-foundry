@@ -1,0 +1,635 @@
+{
+ "bridge_ipeds_ror_through_wikidata": {
+  "ipeds_units_bridged": 2978,
+  "pairs_in_wikidata": 3226,
+  "pairs_resolving_on_both_sides": 2979,
+  "ror_records_bridged": 2979,
+  "ror_with_more_than_one_unit": 0,
+  "same_normalised_name": 2488,
+  "same_state": 2930,
+  "same_web_domain": 2761,
+  "units_with_more_than_one_ror": 1
+ },
+ "candidate_name_state_ipeds_ror": {
+  "ipeds_hd_rows": 6072,
+  "ipeds_rows_with_a_ror_name_state_match": 2536,
+  "of_single_matches_with_a_wikidata_bridge": 2474,
+  "same_web_domain_among_single_matches": 2401,
+  "single_matches_contradicting_the_wikidata_bridge": 6,
+  "single_matches_equal_to_the_wikidata_bridge": 2468,
+  "single_matches_with_no_wikidata_bridge": 43,
+  "us_education_ror_records": 4679,
+  "with_exactly_one_match": 2517
+ },
+ "handcheck_sample": [
+  {
+   "ipeds_city": "South San Francisco",
+   "ipeds_name": "Unitek College",
+   "ipeds_state": "CA",
+   "ipeds_web_domain": "unitekcollege.edu",
+   "ror_city": "Fremont",
+   "ror_id": "03q832b05",
+   "ror_name": "Unitek College",
+   "ror_status": "active",
+   "ror_web_domain": "unitekcollege.edu",
+   "unitid": "476799"
+  },
+  {
+   "ipeds_city": "St. Louis",
+   "ipeds_name": "Ponce Health Sciences University-St Louis",
+   "ipeds_state": "MO",
+   "ipeds_web_domain": "stlouis.psm.edu",
+   "ror_city": "St Louis",
+   "ror_id": "0056bae70",
+   "ror_name": "Ponce Health Sciences University, St. Louis",
+   "ror_status": "active",
+   "ror_web_domain": "phsu.edu",
+   "unitid": "494010"
+  },
+  {
+   "ipeds_city": "Alhambra",
+   "ipeds_name": "California Institute of Advanced Management",
+   "ipeds_state": "CA",
+   "ipeds_web_domain": "ciam.edu",
+   "ror_city": "Alhambra",
+   "ror_id": "01xaca322",
+   "ror_name": "California Institute of Advanced Management",
+   "ror_status": "active",
+   "ror_web_domain": "ciam.edu",
+   "unitid": "487649"
+  },
+  {
+   "ipeds_city": "Salisbury",
+   "ipeds_name": "Hood Theological Seminary",
+   "ipeds_state": "NC",
+   "ipeds_web_domain": "hoodseminary.edu",
+   "ror_city": "Salisbury",
+   "ror_id": "024fwqd79",
+   "ror_name": "Hood Theological Seminary",
+   "ror_status": "active",
+   "ror_web_domain": "hoodseminary.edu",
+   "unitid": "443076"
+  },
+  {
+   "ipeds_city": "Orange",
+   "ipeds_name": "Lamar State College-Orange",
+   "ipeds_state": "TX",
+   "ipeds_web_domain": "lsco.edu",
+   "ror_city": "Orange",
+   "ror_id": "037tfve16",
+   "ror_name": "Lamar State College–Orange",
+   "ror_status": "withdrawn",
+   "ror_web_domain": "lsco.edu",
+   "unitid": "226107"
+  },
+  {
+   "ipeds_city": "Burton",
+   "ipeds_name": "Kent State University at Geauga",
+   "ipeds_state": "OH",
+   "ipeds_web_domain": "kent.edu",
+   "ror_city": "Burton",
+   "ror_id": "005d5fb76",
+   "ror_name": "Kent State University Geauga",
+   "ror_status": "active",
+   "ror_web_domain": "kent.edu",
+   "unitid": "203526"
+  },
+  {
+   "ipeds_city": "Newark",
+   "ipeds_name": "Rutgers University-Newark",
+   "ipeds_state": "NJ",
+   "ipeds_web_domain": "newark.rutgers.edu",
+   "ror_city": "Newark",
+   "ror_id": "011vh9z64",
+   "ror_name": "Rutgers University–Newark",
+   "ror_status": "withdrawn",
+   "ror_web_domain": "newark.rutgers.edu",
+   "unitid": "186399"
+  },
+  {
+   "ipeds_city": "Irving",
+   "ipeds_name": "Universal Technical Institute-Dallas Fort Worth",
+   "ipeds_state": "TX",
+   "ipeds_web_domain": "uti.edu",
+   "ror_city": "Irving",
+   "ror_id": "00f6qhc93",
+   "ror_name": "Universal Technical Institute Dallas-Fort Worth",
+   "ror_status": "active",
+   "ror_web_domain": "uti.edu",
+   "unitid": "460543"
+  },
+  {
+   "ipeds_city": "Kansas City",
+   "ipeds_name": "Metropolitan Community College-Kansas City",
+   "ipeds_state": "MO",
+   "ipeds_web_domain": "mcckc.edu",
+   "ror_city": "Kansas City",
+   "ror_id": "02bdat184",
+   "ror_name": "Metropolitan Community College - Kansas City",
+   "ror_status": "active",
+   "ror_web_domain": "mcckc.edu",
+   "unitid": "177995"
+  },
+  {
+   "ipeds_city": "Temecula",
+   "ipeds_name": "The University of America",
+   "ipeds_state": "CA",
+   "ipeds_web_domain": "ua-edu.us",
+   "ror_city": "Murrieta",
+   "ror_id": "03s0c9350",
+   "ror_name": "University of America",
+   "ror_status": "active",
+   "ror_web_domain": "ua-edu.us",
+   "unitid": "475237"
+  },
+  {
+   "ipeds_city": "El Paso",
+   "ipeds_name": "Texas Tech University Health Sciences Center-El Paso",
+   "ipeds_state": "TX",
+   "ipeds_web_domain": "elpaso.ttuhsc.edu",
+   "ror_city": "El Paso",
+   "ror_id": "052r2q311",
+   "ror_name": "Texas Tech University Health Sciences Center El Paso",
+   "ror_status": "active",
+   "ror_web_domain": "ttuhscep.edu",
+   "unitid": "492689"
+  },
+  {
+   "ipeds_city": "San Diego",
+   "ipeds_name": "High Tech High Graduate School of Education",
+   "ipeds_state": "CA",
+   "ipeds_web_domain": "hthgse.edu",
+   "ror_city": "San Diego",
+   "ror_id": "03jt0v447",
+   "ror_name": "High Tech High Graduate School of Education",
+   "ror_status": "active",
+   "ror_web_domain": "hthgse.edu",
+   "unitid": "485403"
+  },
+  {
+   "ipeds_city": "Raleigh",
+   "ipeds_name": "University of North Carolina System",
+   "ipeds_state": "NC",
+   "ipeds_web_domain": "northcarolina.edu",
+   "ror_city": "Raleigh",
+   "ror_id": "0566a8c54",
+   "ror_name": "University of North Carolina System",
+   "ror_status": "active",
+   "ror_web_domain": "northcarolina.edu",
+   "unitid": "199175"
+  },
+  {
+   "ipeds_city": "New Orleans",
+   "ipeds_name": "NationsUniversity",
+   "ipeds_state": "LA",
+   "ipeds_web_domain": "nationsu.edu",
+   "ror_city": "New Orleans",
+   "ror_id": "01n7ngw29",
+   "ror_name": "NationsUniversity",
+   "ror_status": "active",
+   "ror_web_domain": "nationsu.edu",
+   "unitid": "488721"
+  },
+  {
+   "ipeds_city": "Indianapolis",
+   "ipeds_name": "Purdue University - Indianapolis",
+   "ipeds_state": "IN",
+   "ipeds_web_domain": "",
+   "ror_city": "Indianapolis",
+   "ror_id": "0482ksk80",
+   "ror_name": "Purdue University in Indianapolis",
+   "ror_status": "active",
+   "ror_web_domain": "purdue.edu",
+   "unitid": "500139"
+  },
+  {
+   "ipeds_city": "Hamilton",
+   "ipeds_name": "Miami University-Hamilton",
+   "ipeds_state": "OH",
+   "ipeds_web_domain": "miamioh.edu",
+   "ror_city": "Hamilton",
+   "ror_id": "038tk1e03",
+   "ror_name": "Miami University Hamilton",
+   "ror_status": "withdrawn",
+   "ror_web_domain": "miamioh.edu",
+   "unitid": "204006"
+  },
+  {
+   "ipeds_city": "Salisbury",
+   "ipeds_name": "Rowan-Cabarrus Community College",
+   "ipeds_state": "NC",
+   "ipeds_web_domain": "rccc.edu",
+   "ror_city": "Concord",
+   "ror_id": "01wm9rt41",
+   "ror_name": "Rowan-Cabarrus Community College",
+   "ror_status": "active",
+   "ror_web_domain": "rccc.edu",
+   "unitid": "199494"
+  },
+  {
+   "ipeds_city": "Ahoskie",
+   "ipeds_name": "Roanoke-Chowan Community College",
+   "ipeds_state": "NC",
+   "ipeds_web_domain": "roanokechowan.edu",
+   "ror_city": "Ahoskie",
+   "ror_id": "030gep771",
+   "ror_name": "Roanoke-Chowan Community College",
+   "ror_status": "active",
+   "ror_web_domain": "roanokechowan.edu",
+   "unitid": "199467"
+  },
+  {
+   "ipeds_city": "Springfield",
+   "ipeds_name": "Cox College",
+   "ipeds_state": "MO",
+   "ipeds_web_domain": "coxcollege.edu",
+   "ror_city": "Springfield",
+   "ror_id": "04p5ezw03",
+   "ror_name": "Cox College",
+   "ror_status": "active",
+   "ror_web_domain": "coxcollege.edu",
+   "unitid": "176770"
+  },
+  {
+   "ipeds_city": "Elk Grove",
+   "ipeds_name": "California Northstate University",
+   "ipeds_state": "CA",
+   "ipeds_web_domain": "cnsu.edu",
+   "ror_city": "Elk Grove",
+   "ror_id": "03h0d2228",
+   "ror_name": "California Northstate University",
+   "ror_status": "active",
+   "ror_web_domain": "medicine.cnsu.edu",
+   "unitid": "496627"
+  }
+ ],
+ "handcheck_sample_seed": 20261120,
+ "ipeds_access_databases": {
+  "2023-24 final": {
+   "content_length": 94499516,
+   "last_modified": "Mon, 02 Mar 2026 18:47:02 GMT",
+   "url": "https://nces.ed.gov/ipeds/tablefiles/zipfiles/IPEDS_2023-24_Final.zip"
+  },
+  "2024-25 provisional": {
+   "content_length": 67487516,
+   "last_modified": "Mon, 02 Mar 2026 18:54:04 GMT",
+   "url": "https://nces.ed.gov/ipeds/tablefiles/zipfiles/IPEDS_2024-25_Provisional.zip"
+  },
+  "mission_table": "not parsed: the mission statement text and URL (table IC2023mission in IPEDS202324.accdb, documented in IPEDS202324Tablesdoc.xlsx: 'Mission statements provided manually are limited to 2,000 characters or less') are published only inside the Access database; no Access reader was available in the scout session, so the share of institutions with mission text was not measured"
+ },
+ "ipeds_hd": {
+  "by_control": {
+   "not available": 22,
+   "private for-profit": 2257,
+   "private not-for-profit": 1813,
+   "public": 1980
+  },
+  "by_level": {
+   "at least 2 but less than 4 years": 1499,
+   "four or more years": 2851,
+   "less than 2 years": 1700,
+   "not available": 22
+  },
+  "currently_active": 5994,
+  "degree_granting": 4090,
+  "distinct_unitid": 6072,
+  "fields": 72,
+  "file": "HD2024.csv",
+  "last_modified": "Sun, 21 Sep 2025 20:40:58 GMT",
+  "member_date": "2025-09-21",
+  "person_fields_not_read": [
+   "CHFNM",
+   "CHFTITLE"
+  ],
+  "rows": 6072,
+  "states_and_territories": 59,
+  "with_coordinates": 6072,
+  "with_ein": 5994,
+  "with_opeid": 6034,
+  "with_uei": 5537,
+  "with_web_address": 6001,
+  "zip_bytes": 1088372
+ },
+ "ipeds_ic": {
+  "file": "IC2024.csv",
+  "rows": 5963,
+  "unitid_in_hd": 5963
+ },
+ "join_ror_wikidata_qid": {
+  "of_which_item_cites_the_same_ror_id_back": 3063,
+  "ror_records_with_a_wikidata_id": 65141,
+  "ror_wikidata_ids_naming_an_item_with_an_ipeds_id": 3091
+ },
+ "join_scorecard_unitid_ipeds": {
+  "in_ipeds_hd2024": 5729,
+  "ipeds_hd_rows": 6072,
+  "ipeds_hd_rows_in_scorecard": 5729,
+  "same_opeid_8_digits": 5702,
+  "same_state": 5725,
+  "sample_unmatched_scorecard_unitids": [
+   "10236801",
+   "10236802",
+   "10236803",
+   "10236808",
+   "10236809",
+   "10415101",
+   "10415102",
+   "10415103",
+   "10415104",
+   "10415106",
+   "10415107",
+   "10415108",
+   "10415109",
+   "10415110",
+   "10415111",
+   "10415112",
+   "10415113",
+   "10415114",
+   "10415115",
+   "10415116"
+  ],
+  "scorecard_unitids": 6272
+ },
+ "join_wikidata_ipeds_id": {
+  "distinct_ipeds_ids_in_wikidata": 3856,
+  "ipeds_hd_rows": 6072,
+  "ipeds_hd_rows_named_by_wikidata": 3392,
+  "resolve_in_ipeds_hd2024": 3392,
+  "sample_unresolved": [
+   "100636",
+   "101073",
+   "101499",
+   "101541",
+   "101949",
+   "102261",
+   "103361",
+   "103723",
+   "103778",
+   "103787",
+   "104188",
+   "105367",
+   "105516",
+   "109086",
+   "110051"
+  ]
+ },
+ "join_wikidata_ror_id": {
+  "distinct_ror_ids_cited_with_an_ipeds_id": 3226,
+  "resolve_in_ror_dump": 3226,
+  "resolved_status": {
+   "active": 3158,
+   "inactive": 49,
+   "withdrawn": 19
+  },
+  "sample_unresolved": []
+ },
+ "join_wikidata_ukprn_ofs": {
+  "ofs_ukprns": 425,
+  "ofs_ukprns_bridged_to_a_ror_record": 230,
+  "ofs_ukprns_named_by_wikidata": 282
+ },
+ "ofs_register": {
+  "by_category": {
+   "Approved": 83,
+   "Approved (fee cap)": 342
+  },
+  "by_degree_awarding_powers": {
+   "Bachelor's": 6,
+   "Bachelor's - New DAPs": 2,
+   "Foundation": 4,
+   "Not applicable": 256,
+   "Research": 104,
+   "Taught": 47,
+   "Taught - New DAPs": 6
+  },
+  "columns": 73,
+  "contact_fields_not_read": [
+   "Provider's email address",
+   "Provider's contact address"
+  ],
+  "distinct_ukprn": 425,
+  "other_sheet_rows": {
+   "Conditions_no_longer_in_force": 26,
+   "Monetary_penalties_applied_s.15": 26,
+   "Registration_Suspension_S16": 2,
+   "de-registration_under_s.22": 343,
+   "deregistration_under_S.18": 3
+  },
+  "providers": 425,
+  "providers_with_specific_condition_text": 20,
+  "sheets": [
+   "Register",
+   "de-registration_under_s.22",
+   "deregistration_under_S.18",
+   "Monetary_penalties_applied_s.15",
+   "Conditions_no_longer_in_force",
+   "Registration_Suspension_S16"
+  ],
+  "specific_condition_cells": 25,
+  "specific_condition_characters": 3186,
+  "with_university_title": 122,
+  "xlsx_bytes": 365040
+ },
+ "requests": 11,
+ "ror": {
+  "by_status": {
+   "active": 148516,
+   "inactive": 2333,
+   "withdrawn": 1448
+  },
+  "countries": 232,
+  "external_id_types_in_csv": [
+   "fundref",
+   "grid",
+   "isni",
+   "wikidata"
+  ],
+  "file": "v2.16-2026-11-19-ror-data.zip",
+  "gb_education": 622,
+  "licence": "cc-zero",
+  "newest_last_modified": "2026-11-19",
+  "publication_date": "2026-11-19",
+  "records": 152297,
+  "releases_in_community": 3,
+  "title": "ROR Data",
+  "type_education": 32295,
+  "us_education": 4679,
+  "with_isni": 61161,
+  "with_website": 146082,
+  "with_wikidata_id": 65141,
+  "zenodo_record": "https://zenodo.org/records/24378467",
+  "zip_bytes": 40861154
+ },
+ "run_date": "2026-11-20",
+ "sample_declared_bridges": [
+  {
+   "ipeds_name": "Purdue University-Main Campus",
+   "ror_id": "02dqehb95",
+   "ror_name": "Purdue University West Lafayette",
+   "unitid": "243780"
+  },
+  {
+   "ipeds_name": "Carson-Newman University",
+   "ror_id": "05bhsrq51",
+   "ror_name": "Carson Newman University",
+   "unitid": "219806"
+  },
+  {
+   "ipeds_name": "Lake Superior College",
+   "ror_id": "03d6j2008",
+   "ror_name": "Lake Superior College",
+   "unitid": "173461"
+  },
+  {
+   "ipeds_name": "Woodbury University",
+   "ror_id": "013fs2498",
+   "ror_name": "Woodbury University",
+   "unitid": "125897"
+  },
+  {
+   "ipeds_name": "Golden Gate University",
+   "ror_id": "01wj7vt66",
+   "ror_name": "Golden Gate University",
+   "unitid": "115083"
+  },
+  {
+   "ipeds_name": "Full Sail University",
+   "ror_id": "0430b4z40",
+   "ror_name": "Full Sail University",
+   "unitid": "134237"
+  },
+  {
+   "ipeds_name": "College of the Muscogee Nation",
+   "ror_id": "01qfzbz52",
+   "ror_name": "College of the Muscogee Nation",
+   "unitid": "480967"
+  },
+  {
+   "ipeds_name": "Great Basin College",
+   "ror_id": "038m8dc24",
+   "ror_name": "Great Basin College",
+   "unitid": "182306"
+  },
+  {
+   "ipeds_name": "Oblate School of Theology",
+   "ror_id": "03jcbwy51",
+   "ror_name": "Oblate School of Theology",
+   "unitid": "227289"
+  },
+  {
+   "ipeds_name": "St. John Fisher University",
+   "ror_id": "05ech9204",
+   "ror_name": "St. John Fisher University",
+   "unitid": "195720"
+  },
+  {
+   "ipeds_name": "Albany College of Pharmacy and Health Sciences",
+   "ror_id": "014hfaw95",
+   "ror_name": "Albany College of Pharmacy and Health Sciences",
+   "unitid": "188526"
+  },
+  {
+   "ipeds_name": "Mississippi Gulf Coast Community College",
+   "ror_id": "01vgd5418",
+   "ror_name": "Mississippi Gulf Coast Community College",
+   "unitid": "176071"
+  },
+  {
+   "ipeds_name": "CUNY Lehman College",
+   "ror_id": "03m908832",
+   "ror_name": "Lehman College",
+   "unitid": "190637"
+  },
+  {
+   "ipeds_name": "Oregon State University-Cascades Campus",
+   "ror_id": "00tngcb91",
+   "ror_name": "Oregon State University Cascades",
+   "unitid": "440828"
+  },
+  {
+   "ipeds_name": "Southwestern Indian Polytechnic Institute",
+   "ror_id": "04hemee20",
+   "ror_name": "Southwestern Indian Polytechnic Institute",
+   "unitid": "188216"
+  },
+  {
+   "ipeds_name": "Embry-Riddle Aeronautical University-Prescott",
+   "ror_id": "03mt1jy53",
+   "ror_name": "Embry-Riddle Aeronautical University Prescott Arizona Campus",
+   "unitid": "104586"
+  },
+  {
+   "ipeds_name": "Cleveland State Community College",
+   "ror_id": "04jr7pd40",
+   "ror_name": "Cleveland State Community College",
+   "unitid": "219879"
+  },
+  {
+   "ipeds_name": "Texas Tech University",
+   "ror_id": "0405mnx93",
+   "ror_name": "Texas Tech University",
+   "unitid": "229115"
+  },
+  {
+   "ipeds_name": "Maine College of Art & Design",
+   "ror_id": "00dds9q45",
+   "ror_name": "Maine College of Art",
+   "unitid": "161509"
+  },
+  {
+   "ipeds_name": "Centenary University",
+   "ror_id": "04hgt1t77",
+   "ror_name": "Centenary College of New Jersey",
+   "unitid": "183974"
+  },
+  {
+   "ipeds_name": "Louisiana State University-Alexandria",
+   "ror_id": "043z25g17",
+   "ror_name": "Louisiana State University of Alexandria",
+   "unitid": "159382"
+  },
+  {
+   "ipeds_name": "Piedmont Community College",
+   "ror_id": "03b3s2n43",
+   "ror_name": "Piedmont Community College",
+   "unitid": "199324"
+  },
+  {
+   "ipeds_name": "Cheyney University of Pennsylvania",
+   "ror_id": "02nckwn80",
+   "ror_name": "Cheyney University of Pennsylvania",
+   "unitid": "211608"
+  },
+  {
+   "ipeds_name": "Grossmont College",
+   "ror_id": "01nzgtr23",
+   "ror_name": "Grossmont College",
+   "unitid": "115296"
+  },
+  {
+   "ipeds_name": "Durham Technical Community College",
+   "ror_id": "03fm7wh60",
+   "ror_name": "Durham Technical Community College",
+   "unitid": "198455"
+  }
+ ],
+ "scorecard": {
+  "columns": 3379,
+  "distinct_accrediting_agencies": 39,
+  "main_campus_rows": 4953,
+  "page_last_updated": "November 2, 2026",
+  "rows": 6272,
+  "url": "https://ed-public-download.scorecard.network/downloads/Most-Recent-Cohorts-Institution_11022026.zip",
+  "with_accrediting_agency": 6108,
+  "zip_bytes": 24209950
+ },
+ "wikidata": {
+  "distinct_ipeds_ids": 3856,
+  "distinct_ukprn": 27413,
+  "items_with_ipeds_id": 3860,
+  "items_with_ipeds_id_and_ror_id": 3226,
+  "items_with_more_than_one_ipeds_id": 2,
+  "items_with_ukprn": 27433,
+  "items_with_ukprn_and_ror_id": 349
+ }
+}

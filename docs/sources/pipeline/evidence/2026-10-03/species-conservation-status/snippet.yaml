@@ -1,0 +1,308 @@
+candidates:
+  - key: species-ecos-fws-listings-recovery
+    name: US FWS ECOS species listings and recovery documents (ESA status, listing date, recovery-plan PDFs)
+    category: environment
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: U.S. Fish and Wildlife Service
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://ecos.fws.gov/ecp/pullreports/catalog/species/report/species/export?format=json',
+        'https://ecos.fws.gov/ecp/pullreports/catalog/species/report/recoveryDocs/export?format=json'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 5,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://www.fws.gov/disclaimer',
+          quote: 'There is no need to request permission. Not all the information on our site is in the public domain. Some images/graphics are licensed'
+        }
+    conditions:
+      [
+        'Publish only the listing facts (names, ESA status, population, listing date, region) and the recovery-document metadata and links; do not cache recovery-plan images or graphics, which the FWS disclaimer says may be copyright-licensed.',
+        'The documented bulk export returns no ITIS TSN or other taxon identifier (species columns tried: cn, sn, status, desc, listing_date, id, sid, vipcode, status_category), so the link to other publishers is the scientific name only.',
+        'Recovery-plan and critical-habitat text lives in PDFs (1,830 of 1,834 recovery-document rows link a PDF); extraction of listing rules and recovery criteria from those PDFs is not yet measured.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Pull 20 recovery-plan PDFs, measure deterministic extraction of recovery criteria and critical-habitat statements, and map ECOS status codes (E, T, Species of Concern) to the shared status taxonomy.
+
+  - key: species-eccc-sara-critical-habitat
+    name: Environment Canada SARA critical habitat national dataset (COSEWIC id, SARA status, recovery document)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Environment and Climate Change Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://maps-cartes.ec.gc.ca/arcgis/rest/services/CWS_SCF/CriticalHabitat/MapServer/3' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://open.canada.ca/en/open-government-licence-canada',
+          quote: 'Copy, modify, publish, translate, adapt, distribute or otherwise use the Information in any medium, mode or format for any lawful purpose.'
+        }
+    conditions:
+      [
+        'Open Government Licence - Canada: acknowledge the source and link to the licence in every published view.',
+        'Layer covers only species with a posted recovery document that identifies critical habitat (273 unique scientific names, 459 distinct species/population/document rows), not the full SARA schedule 1 list; the full registry (species-registry.canada.ca) was reachable but exposes no bulk species API that was measured.',
+        'Sensitive_E marks sensitive locations; honour it and never publish geometry flagged sensitive.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Page the 25,180 area features without geometry, confirm the Sensitive_E semantics, and map SARA_Status codes 1/2/3 to the shared status taxonomy using the layer's coded-value domain.
+
+  - key: species-epbc-threatened-list-au
+    name: Australia EPBC Act threatened species state lists (status, SPRAT taxon id, profile link)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Australian Department of Climate Change, Energy, the Environment and Water
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://data.gov.au/data/dataset/ae652011-f39e-4c6c-91b8-1dc2d2dfee8f',
+        'https://data.gov.au/data/dataset/ae652011-f39e-4c6c-91b8-1dc2d2dfee8f/resource/78401dce-1f40-49d3-92c4-3713d6e34974/download/20260828spcs.csv'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - {
+          url: 'https://data.gov.au/data/api/3/action/package_show?id=ae652011-f39e-4c6c-91b8-1dc2d2dfee8f',
+          quote: 'Creative Commons Attribution 3.0 Australia'
+        }
+    conditions:
+      [
+        'CC BY 3.0 Australia: attribute the Commonwealth of Australia (DCCEEW) and the dataset in every published view.',
+        'The CSV carries a SPRAT taxon id and a profile URL but no ITIS TSN or GBIF key, so cross-publisher links are by scientific name only.',
+        'The SPRAT species profile pages (environment.gov.au) returned HTTP 403 from this egress, so profile free text is not acquired and is out of scope until a supported route is found.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Confirm the data.gov.au dataset notes on licence scope, then map Threatened status values and the state flag columns to the shared status taxonomy.
+
+  - key: species-gbif-backbone-taxonomy
+    name: GBIF Backbone Taxonomy species API (usage key, accepted name, synonyms, classification)
+    category: environment
+    structuring: identifier-extraction
+    format: structured
+    publisher: GBIF Secretariat
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      [
+        'https://api.gbif.org/v1/species/match',
+        'https://api.gbif.org/v1/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c'
+      ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 3,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 2,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://api.gbif.org/v1/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c',
+          quote: 'http://creativecommons.org/licenses/by/4.0/legalcode'
+        }
+    conditions:
+      [
+        'The backbone dataset record declares CC BY 4.0 (not CC0): attribute the GBIF Backbone Taxonomy, DOI 10.15468/39omei, in every published view.',
+        'gbif.org/terms and gbif.org/terms/data-user returned HTTP 403 from this egress, so the portal terms were not read and no workaround was attempted; rely on the dataset licence field only.',
+        'Backbone metadata modified 2023-11-17, so it is a stable name resolver, not a freshness source; the match API had frequent connection resets and needs retry with backoff at 2 req/s or less.'
+      ]
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Decide whether to use the GBIF match API at runtime or load the backbone checklist download once; measure accepted-name resolution for synonyms across all four status publishers.
+
+  - key: species-itis-taxonomy
+    name: ITIS integrated taxonomic information system (TSN, valid name, hierarchy)
+    category: environment
+    structuring: identifier-extraction
+    format: structured
+    publisher: Integrated Taxonomic Information System (ITIS)
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      [
+        'https://www.itis.gov/ITISWebService/jsonservice/searchByScientificName',
+        'https://www.itis.gov/downloads/index.html'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 5,
+        acquisition_ease: 4,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 2
+      }
+    terms:
+      - {
+          url: 'https://www.itis.gov/privacy.html',
+          quote: 'Information presented on the ITIS website is considered public information and may be distributed or copied. Use of the appropriate citation is requested.'
+        }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Use the monthly export (1,000,636 scientific names on 22-Sep-2026) as the TSN lookup table, check accepted versus invalid names, and cite ITIS as requested.
+
+  - key: species-iucn-red-list
+    name: IUCN Red List assessments (global threat category, criteria, habitat and threat text)
+    category: environment
+    structuring: eligibility-criteria
+    format: structured
+    publisher: International Union for Conservation of Nature
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.iucnredlist.org/terms/terms-of-use' ]
+    scores:
+      {
+        agent_demand: 5,
+        rights_clarity: 1,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    next_action: Parked, no workaround. The terms page returned HTTP 403 with a Cloudflare challenge from this egress and the Red List API needs a token; reopen only if an unauthenticated, redistributable licence is published and readable.
+
+  - key: species-noaa-fisheries-directory
+    name: NOAA Fisheries species directory (threatened and endangered marine species, status by region)
+    category: environment
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: NOAA Fisheries
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fisheries.noaa.gov/species-directory/threatened-endangered' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 2,
+        structuring_value: 3,
+        freshness: 3,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    next_action: Parked. The page is reachable (HTTP 200, 105 results listed) but is an HTML listing with no documented API, and the privacy-policy URL tried returned 404 so terms were not read; the ESA marine species are already in ECOS, so revisit only for NOAA-only species text.
+
+  - key: species-jncc-uk-conservation
+    name: UK JNCC species conservation designations (priority species, Annex lists)
+    category: environment
+    structuring: normalization
+    format: structured
+    publisher: Joint Nature Conservation Committee
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://data.jncc.gov.uk/' ]
+    scores:
+      {
+        agent_demand: 2,
+        rights_clarity: 2,
+        acquisition_ease: 2,
+        structuring_value: 3,
+        freshness: 2,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    next_action: Parked as not screened. data.jncc.gov.uk returned HTTP 200 but no machine-readable species-status dataset with a readable licence was identified this round; revisit with a targeted search of the JNCC catalogue.
+
+datasets:
+  - key: species-conservation-status
+    name: Species conservation status (listing, critical habitat, recovery documents, taxonomy)
+    category: environment
+    entity: A species or subspecies conservation-status record with its jurisdictional listings, critical-habitat and recovery-document references, linked through scientific name
+    stage: SCREENED
+    description: >-
+      One record per taxon assembled from US FWS ECOS (ESA status and recovery plan PDFs), Environment Canada
+      (SARA critical habitat with COSEWIC id), Australia EPBC (threatened status with SPRAT id), the GBIF backbone
+      (usage key, accepted name) and ITIS (TSN). The same taxon carries different statuses in different
+      jurisdictions, which no single feed shows. No declared taxon-id join exists between the status publishers
+      (none publishes an ITIS TSN or GBIF key), so scientific name is a reviewed candidate join and taxon keys are
+      derived from it.
+    sources:
+      - species-ecos-fws-listings-recovery
+      - species-eccc-sara-critical-habitat
+      - species-epbc-threatened-list-au
+      - species-gbif-backbone-taxonomy
+      - species-itis-taxonomy
+    join_keys:
+      - key: scientific name exact match (ECOS listed vs Canada SARA critical habitat)
+        between: [ species-ecos-fws-listings-recovery, species-eccc-sara-critical-habitat ]
+        measured: '19/273 Canada scientific names equal an ECOS-listed name after dropping parenthetical synonyms and lower-casing; hand-checked 19 of 19 as the same taxon by binomial and common name.'
+        mode: candidate
+        reviewed: { correct: 19, checked: 19 }
+      - key: scientific name exact match (ECOS listed vs Australia EPBC)
+        between: [ species-ecos-fws-listings-recovery, species-epbc-threatened-list-au ]
+        measured: '51/2222 EPBC rows share a scientific name with an ECOS-listed species (28 pairs have different status words, for example Quokka Endangered in ECOS and Vulnerable in EPBC); hand-checked 51 of 51 as the same taxon by binomial and common name.'
+        mode: candidate
+        reviewed: { correct: 51, checked: 51 }
+      - key: scientific name exact match (Canada SARA vs Australia EPBC)
+        between: [ species-eccc-sara-critical-habitat, species-epbc-threatened-list-au ]
+        measured: '0/273 Canada scientific names appear in the EPBC list: no overlap.'
+        mode: candidate
+      - key: GBIF backbone usage key resolved from scientific name (ECOS vs Canada SARA)
+        between: [ species-ecos-fws-listings-recovery, species-eccc-sara-critical-habitat ]
+        measured: '21/273 Canada names share a GBIF accepted key with an ECOS name (180 ECOS names in shared genera looked up); hand-checked 19 of 21 correct, the 2 wrong are species versus subspecies rank (Vulpes velox vs V. v. hebes, Ambystoma mavortium vs A. m. stebbinsi), which must not merge.'
+        mode: candidate
+        reviewed: { correct: 19, checked: 21 }
+      - key: scientific name lookup to GBIF backbone usage key (ECOS vs GBIF)
+        between: [ species-ecos-fws-listings-recovery, species-gbif-backbone-taxonomy ]
+        measured: '175/180 looked-up ECOS names returned an EXACT GBIF match (3 HIGHERRANK, 2 NONE); derived from the name, so a candidate.'
+        mode: candidate
+      - key: scientific name lookup to ITIS TSN (ECOS vs ITIS)
+        between: [ species-ecos-fws-listings-recovery, species-itis-taxonomy ]
+        measured: '68/70 overlap names resolved to exactly one ITIS TSN by exact combined-name match (1 none, 1 error); accepted-versus-invalid TSN status was not checked.'
+        mode: candidate
+    taxonomy:
+      - jurisdiction (US federal, Canada federal, Australia federal)
+      - status category (extinct, critically endangered, endangered, threatened or vulnerable, species of concern)
+      - taxon group (mammals, birds, reptiles, amphibians, fishes, invertebrates, plants)
+      - recovery stage (draft, final, revision)
+      - critical-habitat designation (final, proposed, none)
+    agent_questions:
+      - Which species are listed as threatened or endangered in both the United States and Canada, and do the two statuses agree?
+      - Which ESA-listed species have a recovery plan newer than a given date, and what recovery criteria does it state?
+      - What is a species' accepted scientific name, its ITIS TSN and GBIF key, and every jurisdiction that lists it?
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-03.md ]
+    next_action: Measure criteria extraction on 20 ECOS recovery PDFs, add Canada SARA schedule 1 listing text if a bulk route appears, and review the candidate scientific-name links before any publication.

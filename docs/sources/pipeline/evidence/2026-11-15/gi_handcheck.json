@@ -1,0 +1,426 @@
+{
+ "checked_on": "2026-11-15",
+ "method": "each pair inspected by hand: name variants, origin country, scheme (PDO/PGI/GI), product class and, for the UK, the EU registration date",
+ "uk_to_eu": {
+  "correct": 20,
+  "checked": 20,
+  "pairs": [
+   {
+    "uk_link": "/protected-food-drink-names/scotch-whisky",
+    "uk_name": "Scotch Whisky",
+    "eu_file_number": "PGI-GB-01854",
+    "eu_names": [
+     "Scotch Whisky"
+    ],
+    "evidence": "same country, PGI vs geographical-indication-gi, product Spirit drink vs class 2-whisky-or-whiskey, EU registration date 1989-06-12 equals UK date_registration_eu 1989-06-12",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/alsace-grand-cru-altenberg-de-bergbieten",
+    "uk_name": "Alsace grand cru Altenberg de Bergbieten",
+    "eu_file_number": "PDO-FR-A0349",
+    "eu_names": [
+     "Alsace grand cru Altenberg de Bergbieten"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 1999-02-19 equals UK date_registration_eu 1999-02-19",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/aceite-de-ibiza-slash-oli-deivissa",
+    "uk_name": "Aceite de Ibiza / Oli d´Eivissa",
+    "eu_file_number": "PGI-ES-02459",
+    "eu_names": [
+     "Aceite de Ibiza",
+     "Oli d'Eivissa"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 1-5-oils-and-fats-butter-margarine-oil-etc, EU registration date 2020-10-21 equals UK date_registration_eu 2020-10-21",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/calatayud",
+    "uk_name": "Calatayud",
+    "eu_file_number": "PDO-ES-A0247",
+    "eu_names": [
+     "Calatayud"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 1992-06-20 equals UK date_registration_eu 1992-06-20",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/daujenu-namine-duona",
+    "uk_name": "Daujėnų naminė duona",
+    "eu_file_number": "PGI-LT-1059",
+    "eu_names": [
+     "Daujėnų naminė duona"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 2-3-bread-pastry-cakes-confectionery-biscuits-and-other-bakers-wares, EU registration date 2014-02-21 equals UK date_registration_eu 2014-02-21",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/ricciarelli-di-siena",
+    "uk_name": "Ricciarelli di Siena",
+    "eu_file_number": "PGI-IT-0666",
+    "eu_names": [
+     "Ricciarelli di Siena"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 2-3-bread-pastry-cakes-confectionery-biscuits-and-other-bakers-wares, EU registration date 2010-03-19 equals UK date_registration_eu 2010-03-19",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/mortadella-di-prato",
+    "uk_name": "Mortadella di Prato",
+    "eu_file_number": "PGI-IT-01333",
+    "eu_names": [
+     "Mortadella di Prato"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 1-2-meat-products-cooked-salted-smoked-etc, EU registration date 2016-02-09 equals UK date_registration_eu 2016-02-09",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/pouilly-fuisse",
+    "uk_name": "Pouilly-Fuissé",
+    "eu_file_number": "PDO-FR-A0653",
+    "eu_names": [
+     "Pouilly-Fuissé"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 1973-09-18 equals UK date_registration_eu 1973-09-18",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/tuica-zetea-de-mediesu-aurit",
+    "uk_name": "Țuică Zetea de Medieșu Aurit",
+    "eu_file_number": "PGI-RO-02001",
+    "eu_names": [
+     "Țuică Zetea de Medieșu Aurit"
+    ],
+    "evidence": "same country, PGI vs geographical-indication-gi, product Spirit drink vs class 9-fruit-spirit, EU registration date 2005-06-21 equals UK date_registration_eu 2005-06-21",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/vipavska-dolina",
+    "uk_name": "Vipavska dolina",
+    "eu_file_number": "PDO-SI-A0448",
+    "eu_names": [
+     "Vipavska dolina"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 2006-02-17 equals UK date_registration_eu 2006-02-17",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/bitto",
+    "uk_name": "Bitto",
+    "eu_file_number": "PDO-IT-1502",
+    "eu_names": [
+     "Bitto"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Food vs class 1-3-cheeses, EU registration date 1996-07-02 equals UK date_registration_eu 1996-07-02",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/vin-des-allobroges",
+    "uk_name": "Vin des Allobroges",
+    "eu_file_number": "PGI-FR-A1144",
+    "eu_names": [
+     "Vin des Allobroges"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Wine vs class wine, EU registration date 1978-03-17 equals UK date_registration_eu 1978-03-17",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/olumpia-slash-olympia",
+    "uk_name": "Ολυμπία / Olympia",
+    "eu_file_number": "PGI-GR-0034",
+    "eu_names": [
+     "Ολυμπία",
+     "Olympia"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 1-5-oils-and-fats-butter-margarine-oil-etc, EU registration date 1996-06-21 equals UK date_registration_eu 1996-06-21",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/valdepenas",
+    "uk_name": "Valdepeñas",
+    "eu_file_number": "PDO-ES-A0051",
+    "eu_names": [
+     "Valdepeñas"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 1986-06-13 equals UK date_registration_eu 1986-06-13",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/ribera-del-guadiana",
+    "uk_name": "Ribera del Guadiana",
+    "eu_file_number": "PDO-ES-A1295",
+    "eu_names": [
+     "Ribera del Guadiana"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 2004-04-14 equals UK date_registration_eu 2004-04-14",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/batata-de-tras-os-montes",
+    "uk_name": "Batata de Trás-os-Montes",
+    "eu_file_number": "PGI-PT-0217",
+    "eu_names": [
+     "Batata de Trás-os-Montes"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 1-6-fruit-vegetables-and-cereals-fresh-or-processed, EU registration date 2007-02-16 equals UK date_registration_eu 2007-02-16",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/ail-rose-de-lautrec",
+    "uk_name": "Ail rose de Lautrec",
+    "eu_file_number": "PGI-FR-0193",
+    "eu_names": [
+     "Ail rose de Lautrec"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 1-6-fruit-vegetables-and-cereals-fresh-or-processed, EU registration date 1996-06-21 equals UK date_registration_eu 1996-06-21",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/colli-euganei",
+    "uk_name": "Colli Euganei",
+    "eu_file_number": "PDO-IT-A0454",
+    "eu_names": [
+     "Colli Euganei"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Wine vs class wine, EU registration date 1973-09-18 equals UK date_registration_eu 1973-09-18",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/patatas-de-prades-slash-patates-de-prades",
+    "uk_name": "Patatas de Prades / Patates de Prades",
+    "eu_file_number": "PGI-ES-0232",
+    "eu_names": [
+     "Patatas de Prades",
+     "Patates de Prades"
+    ],
+    "evidence": "same country, PGI vs protected-geographical-indication-pgi, product Food vs class 1-6-fruit-vegetables-and-cereals-fresh-or-processed, EU registration date 2007-02-16 equals UK date_registration_eu 2007-02-16",
+    "verdict": "same GI"
+   },
+   {
+    "uk_link": "/protected-food-drink-names/toma-piemontese",
+    "uk_name": "Toma Piemontese",
+    "eu_file_number": "PDO-IT-0026",
+    "eu_names": [
+     "Toma Piemontese"
+    ],
+    "evidence": "same country, PDO vs protected-designation-of-origin-pdo, product Food vs class 1-3-cheeses, EU registration date 1996-07-02 equals UK date_registration_eu 1996-07-02",
+    "verdict": "same GI"
+   }
+  ]
+ },
+ "nz_to_eu": {
+  "correct": 20,
+  "checked": 20,
+  "pairs": [
+   {
+    "nz_ip_number": "1024",
+    "nz_name": "Cognac",
+    "eu_file_number": "PGI-FR-02043",
+    "eu_names": [
+     "Eau-de-vie de Cognac",
+     "Eau-de-vie des Charentes",
+     "Cognac"
+    ],
+    "evidence": "same country France; NZ type Spirits vs EU Spirit drink PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4137",
+    "nz_name": "Mosel",
+    "eu_file_number": "PDO-DE-A1270",
+    "eu_names": [
+     "Mosel"
+    ],
+    "evidence": "same country Germany; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4395",
+    "nz_name": "Castilla y León",
+    "eu_file_number": "PGI-ES-A0948",
+    "eu_names": [
+     "Castilla y León"
+    ],
+    "evidence": "same country Spain; NZ type Wine vs EU Wine PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4480",
+    "nz_name": "Ribera del Gállego – Cinco Villas",
+    "eu_file_number": "PGI-ES-A0245",
+    "eu_names": [
+     "Ribera del Gállego - Cinco Villas"
+    ],
+    "evidence": "same country Spain; NZ type Wine vs EU Wine PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4565",
+    "nz_name": "Alsace grand cru Praelatenberg",
+    "eu_file_number": "PDO-FR-A0381",
+    "eu_names": [
+     "Alsace grand cru Praelatenberg"
+    ],
+    "evidence": "same country France; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4653",
+    "nz_name": "Cévennes",
+    "eu_file_number": "PGI-FR-A1151",
+    "eu_names": [
+     "Cévennes"
+    ],
+    "evidence": "same country France; NZ type Wine vs EU Wine PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4740",
+    "nz_name": "Côtes de Bourg",
+    "eu_file_number": "PDO-FR-A0828",
+    "eu_names": [
+     "Bourg",
+     "Côtes de Bourg",
+     "Bourgeais"
+    ],
+    "evidence": "same country France; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4825",
+    "nz_name": "Haut-Poitou",
+    "eu_file_number": "PDO-FR-A0726",
+    "eu_names": [
+     "Haut-Poitou"
+    ],
+    "evidence": "same country France; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4912",
+    "nz_name": "Muscadet Sèvre et Maine",
+    "eu_file_number": "PDO-FR-A0494",
+    "eu_names": [
+     "Muscadet Sèvre et Maine"
+    ],
+    "evidence": "same country France; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "4997",
+    "nz_name": "Saint-Estèphe",
+    "eu_file_number": "PDO-FR-A0178",
+    "eu_names": [
+     "Saint-Estèphe"
+    ],
+    "evidence": "same country France; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5083",
+    "nz_name": "Varaždinsko zelje",
+    "eu_file_number": "PDO-HR-01132",
+    "eu_names": [
+     "Varaždinsko zelje"
+    ],
+    "evidence": "same country Croatia; NZ type Other vs EU Food PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5170",
+    "nz_name": "Campi Flegrei",
+    "eu_file_number": "PDO-IT-A0239",
+    "eu_names": [
+     "Campi Flegrei"
+    ],
+    "evidence": "same country Italy; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5257",
+    "nz_name": "Colline Teatine",
+    "eu_file_number": "PGI-IT-A0891",
+    "eu_names": [
+     "Colline Teatine"
+    ],
+    "evidence": "same country Italy; NZ type Wine vs EU Wine PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5342",
+    "nz_name": "Grappa lombarda / Grappa della Lombardia",
+    "eu_file_number": "PGI-IT-01951",
+    "eu_names": [
+     "Grappa lombarda",
+     "Grappa della Lombardia"
+    ],
+    "evidence": "same country Italy; NZ type Spirits vs EU Spirit drink PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5428",
+    "nz_name": "Moscadello di Montalcino",
+    "eu_file_number": "PDO-IT-A1440",
+    "eu_names": [
+     "Moscadello di Montalcino"
+    ],
+    "evidence": "same country Italy; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5516",
+    "nz_name": "Rosso Orvietano / Orvietano Rosso",
+    "eu_file_number": "PDO-IT-A0847",
+    "eu_names": [
+     "Rosso Orvietano",
+     "Orvietano Rosso"
+    ],
+    "evidence": "same country Italy; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5601",
+    "nz_name": "Torgiano Rosso Riserva",
+    "eu_file_number": "PDO-IT-A0834",
+    "eu_names": [
+     "Torgiano Rosso Riserva"
+    ],
+    "evidence": "same country Italy; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5699",
+    "nz_name": "Debrői Hárslevelű",
+    "eu_file_number": "PDO-HU-A1373",
+    "eu_names": [
+     "Debrői Hárslevelű"
+    ],
+    "evidence": "same country Hungary; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5785",
+    "nz_name": "Wachauer Marillenbrand",
+    "eu_file_number": "PGI-AT-01918",
+    "eu_names": [
+     "Wachauer Marillenbrand"
+    ],
+    "evidence": "same country Austria; NZ type Spirits vs EU Spirit drink PGI",
+    "verdict": "same GI"
+   },
+   {
+    "nz_ip_number": "5872",
+    "nz_name": "Crișana",
+    "eu_file_number": "PDO-RO-A0105",
+    "eu_names": [
+     "Crişana"
+    ],
+    "evidence": "same country Romania; NZ type Wine vs EU Wine PDO",
+    "verdict": "same GI"
+   }
+  ],
+  "note": "4740 'Côtes de Bourg' matches one of three EU names on PDO-FR-A0828 (Bourg / Côtes de Bourg / Bourgeais); 5872 'Crișana' (comma-below) equals EU 'Crişana' (cedilla) after accent folding"
+ }
+}

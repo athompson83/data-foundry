@@ -1,0 +1,305 @@
+{
+ "note": "Hand-checked 2026-10-17 by reading each proposed pair (every third matched EMA medicine in sample order, first 30): in all 30 the FDA application lists the same active substance as the EMA entry (salt, biosimilar suffix and form differences ignored). The link is substance-level only: it does not assert the EU and US products are the same formulation or the same marketing authorisation.",
+ "pairs": [
+  {
+   "ema_product_number": "EMEA/H/C/000071",
+   "ema_name": "GONAL-f",
+   "ema_active_substance": "follitropin alfa",
+   "fda_application": "BLA020378",
+   "fda_ingredients": [
+    "FOLLITROPIN ALFA/BETA"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/000240",
+   "ema_name": "Remicade",
+   "ema_active_substance": "infliximab",
+   "fda_application": "BLA103772",
+   "fda_ingredients": [
+    "INFLIXIMAB"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/000363",
+   "ema_name": "Kineret",
+   "ema_active_substance": "anakinra",
+   "fda_application": "BLA103950",
+   "fda_ingredients": [
+    "ANAKINRA"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/000494",
+   "ema_name": "Reyataz",
+   "ema_active_substance": "atazanavir (as sulfate)",
+   "fda_application": "ANDA078785",
+   "fda_ingredients": [
+    "ATAZANAVIR SULFATE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/000618",
+   "ema_name": "Tarceva",
+   "ema_active_substance": "erlotinib",
+   "fda_application": "ANDA091002",
+   "fda_ingredients": [
+    "ERLOTINIB HYDROCHLORIDE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/000746",
+   "ema_name": "Invega",
+   "ema_active_substance": "paliperidone",
+   "fda_application": "ANDA202645",
+   "fda_ingredients": [
+    "PALIPERIDONE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/000885",
+   "ema_name": "Bridion",
+   "ema_active_substance": "sugammadex",
+   "fda_application": "ANDA213915",
+   "fda_ingredients": [
+    "SUGAMMADEX SODIUM"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/001029",
+   "ema_name": "Nimvastid",
+   "ema_active_substance": "rivastigmine",
+   "fda_application": "ANDA077129",
+   "fda_ingredients": [
+    "RIVASTIGMINE TARTRATE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/001168",
+   "ema_name": "Telmisartan Actavis",
+   "ema_active_substance": "telmisartan",
+   "fda_application": "ANDA078710",
+   "fda_ingredients": [
+    "TELMISARTAN"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/002185",
+   "ema_name": "Plenadren",
+   "ema_active_substance": "hydrocortisone",
+   "fda_application": "ANDA040310",
+   "fda_ingredients": [
+    "HYDROCORTISONE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/002388",
+   "ema_name": "Betmiga",
+   "ema_active_substance": "mirabegron",
+   "fda_application": "ANDA209413",
+   "fda_ingredients": [
+    "MIRABEGRON"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/002572",
+   "ema_name": "Tybost",
+   "ema_active_substance": "cobicistat",
+   "fda_application": "ANDA209986",
+   "fda_ingredients": [
+    "COBICISTAT"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/002682",
+   "ema_name": "Imnovid (previously Pomalidomide Celgene)",
+   "ema_active_substance": "Pomalidomide",
+   "fda_application": "ANDA209956",
+   "fda_ingredients": [
+    "POMALIDOMIDE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/003746",
+   "ema_name": "Otezla",
+   "ema_active_substance": "apremilast",
+   "fda_application": "ANDA211674",
+   "fda_ingredients": [
+    "APREMILAST"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/003961",
+   "ema_name": "Pelgraz",
+   "ema_active_substance": "pegfilgrastim",
+   "fda_application": "BLA125031",
+   "fda_ingredients": [
+    "PEGFILGRASTIM"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/004112",
+   "ema_name": "Truxima",
+   "ema_active_substance": "rituximab",
+   "fda_application": "BLA103705",
+   "fda_ingredients": [
+    "RITUXIMAB"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/004246",
+   "ema_name": "Elmiron",
+   "ema_active_substance": "pentosan polysulfate sodium",
+   "fda_application": "NDA020193",
+   "fda_ingredients": [
+    "PENTOSAN POLYSULFATE SODIUM"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/004435",
+   "ema_name": "Tacforius",
+   "ema_active_substance": "tacrolimus monohydrate",
+   "fda_application": "ANDA065461",
+   "fda_ingredients": [
+    "TACROLIMUS"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/004722",
+   "ema_name": "Doptelet",
+   "ema_active_substance": "avatrombopag maleate",
+   "fda_application": "NDA210238",
+   "fda_ingredients": [
+    "AVATROMBOPAG MALEATE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/004865",
+   "ema_name": "Hefiya",
+   "ema_active_substance": "adalimumab",
+   "fda_application": "BLA125057",
+   "fda_ingredients": [
+    "ADALIMUMAB"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/005048",
+   "ema_name": "Xenleta",
+   "ema_active_substance": "lefamulin acetate",
+   "fda_application": "NDA211672",
+   "fda_ingredients": [
+    "LEFAMULIN ACETATE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/005218",
+   "ema_name": "Arsenic trioxide medac",
+   "ema_active_substance": "arsenic trioxide",
+   "fda_application": "ANDA078729",
+   "fda_ingredients": [
+    "ARSENIC TRIOXIDE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/005408",
+   "ema_name": "Abiraterone Accord",
+   "ema_active_substance": "abiraterone acetate",
+   "fda_application": "ANDA208327",
+   "fda_ingredients": [
+    "ABIRATERONE ACETATE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/005636",
+   "ema_name": "Welireg",
+   "ema_active_substance": "belzutifan",
+   "fda_application": "NDA215383",
+   "fda_ingredients": [
+    "BELZUTIFAN"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/005898",
+   "ema_name": "Orserdu",
+   "ema_active_substance": "elacestrant",
+   "fda_application": "NDA217639",
+   "fda_ingredients": [
+    "ELACESTRANT HYDROCHLORIDE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/006016",
+   "ema_name": "Imjudo",
+   "ema_active_substance": "tremelimumab",
+   "fda_application": "BLA761270",
+   "fda_ingredients": [
+    "TREMELIMUMAB-ACTL"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/006192",
+   "ema_name": "Vgenfli",
+   "ema_active_substance": "aflibercept",
+   "fda_application": "BLA125387",
+   "fda_ingredients": [
+    "AFLIBERCEPT"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/006315",
+   "ema_name": "Nilotinib Accord",
+   "ema_active_substance": "nilotinib",
+   "fda_application": "ANDA203640",
+   "fda_ingredients": [
+    "NILOTINIB HYDROCHLORIDE"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/006492",
+   "ema_name": "Osqay",
+   "ema_active_substance": "denosumab",
+   "fda_application": "BLA125320",
+   "fda_ingredients": [
+    "DENOSUMAB"
+   ],
+   "verdict": "same-substance"
+  },
+  {
+   "ema_product_number": "EMEA/H/C/006667",
+   "ema_name": "Usgena",
+   "ema_active_substance": "ustekinumab",
+   "fda_application": "BLA125261",
+   "fda_ingredients": [
+    "USTEKINUMAB"
+   ],
+   "verdict": "same-substance"
+  }
+ ]
+}

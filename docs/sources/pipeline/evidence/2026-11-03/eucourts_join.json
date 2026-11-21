@@ -1,0 +1,1121 @@
+{
+ "summary": {
+  "sample": 150,
+  "with_text": 102,
+  "citing_echr_ecli": 10,
+  "distinct_cited_echr_eclis": 23,
+  "resolved_in_hudoc": 23,
+  "unresolved": []
+ },
+ "resolved": {
+  "ECLI:CE:ECHR:1979:0426JUD00065387": 10,
+  "ECLI:CE:ECHR:2007:1113JUD00573250": 25,
+  "ECLI:CE:ECHR:2008:0513JUD00190090": 24,
+  "ECLI:CE:ECHR:2008:0701JUD00582430": 4,
+  "ECLI:CE:ECHR:2008:1204JUD00305620": 26,
+  "ECLI:CE:ECHR:2013:1017JUD00270130": 9,
+  "ECLI:CE:ECHR:2013:1021JUD00427500": 29,
+  "ECLI:CE:ECHR:2016:0322JUD00236821": 12,
+  "ECLI:CE:ECHR:2016:0823JUD00591661": 16,
+  "ECLI:CE:ECHR:2017:1003JUD00086751": 5,
+  "ECLI:CE:ECHR:2017:1219JUD00784771": 4,
+  "ECLI:CE:ECHR:2018:0628JUD00018280": 13,
+  "ECLI:CE:ECHR:2020:0213JUD00086751": 12,
+  "ECLI:CE:ECHR:2020:1201JUD00263741": 13,
+  "ECLI:CE:ECHR:2021:0507JUD00049071": 7,
+  "ECLI:CE:ECHR:2021:1118JUD00156701": 3,
+  "ECLI:CE:ECHR:2022:0315JUD00435721": 9,
+  "ECLI:CE:ECHR:2022:1110JUD00050841": 5,
+  "ECLI:CE:ECHR:2023:1212JUD00114541": 3,
+  "ECLI:CE:ECHR:2024:0220JUD00438681": 6,
+  "ECLI:CE:ECHR:2024:0919JUD00588281": 3,
+  "ECLI:CE:ECHR:2025:0107JUD00157832": 4,
+  "ECLI:CE:ECHR:2025:0424JUD00536622": 3
+ },
+ "rows": [
+  {
+   "celex": "62023CJ0769",
+   "ecli": "ECLI:EU:C:2025:984",
+   "date": "2025-12-18",
+   "chars": 67066,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0633",
+   "ecli": "ECLI:EU:C:2025:991",
+   "date": "2025-12-18",
+   "chars": 94972,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0168",
+   "ecli": "ECLI:EU:C:2025:986",
+   "date": "2025-12-18",
+   "chars": 30679,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0296",
+   "ecli": "ECLI:EU:C:2025:999",
+   "date": "2025-12-18",
+   "chars": 51523,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0325",
+   "ecli": "ECLI:EU:C:2025:989",
+   "date": "2025-12-18",
+   "chars": 81873,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0320",
+   "ecli": "ECLI:EU:C:2025:993",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0259",
+   "ecli": "ECLI:EU:C:2025:1013",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0161",
+   "ecli": "ECLI:EU:C:2025:985",
+   "date": "2025-12-18",
+   "chars": 42965,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0481",
+   "ecli": "ECLI:EU:C:2025:996",
+   "date": "2025-12-18",
+   "chars": 38567,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0316",
+   "ecli": "ECLI:EU:C:2025:992",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0245",
+   "ecli": "ECLI:EU:C:2025:987",
+   "date": "2025-12-18",
+   "chars": 54007,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0260",
+   "ecli": "ECLI:EU:C:2025:988",
+   "date": "2025-12-18",
+   "chars": 48866,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0323",
+   "ecli": "ECLI:EU:C:2025:983",
+   "date": "2025-12-18",
+   "chars": 44094,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0353",
+   "ecli": "ECLI:EU:C:2025:1012",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0345",
+   "ecli": "ECLI:EU:C:2025:1009",
+   "date": "2025-12-18",
+   "chars": 90237,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0184",
+   "ecli": "ECLI:EU:C:2025:997",
+   "date": "2025-12-18",
+   "chars": 81759,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0182",
+   "ecli": "ECLI:EU:C:2025:979",
+   "date": "2025-12-18",
+   "chars": 66008,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0417",
+   "ecli": "ECLI:EU:C:2025:1017",
+   "date": "2025-12-18",
+   "chars": 129188,
+   "echr_eclis": [
+    "CE:ECHR:2007:1113JUD00573250",
+    "CE:ECHR:2008:0513JUD00190090",
+    "CE:ECHR:2013:1017JUD00270130",
+    "CE:ECHR:2024:0220JUD00438681"
+   ]
+  },
+  {
+   "celex": "62024CJ0776",
+   "ecli": "ECLI:EU:C:2025:1010",
+   "date": "2025-12-18",
+   "chars": 40552,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0448",
+   "ecli": "ECLI:EU:C:2025:975",
+   "date": "2025-12-18",
+   "chars": 234009,
+   "echr_eclis": [
+    "CE:ECHR:2020:1201JUD00263741",
+    "CE:ECHR:2021:0507JUD00049071",
+    "CE:ECHR:2022:0315JUD00435721"
+   ]
+  },
+  {
+   "celex": "62023CJ0731",
+   "ecli": "ECLI:EU:C:2025:982",
+   "date": "2025-12-18",
+   "chars": 61957,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0679",
+   "ecli": "ECLI:EU:C:2025:976",
+   "date": "2025-12-18",
+   "chars": 153359,
+   "echr_eclis": [
+    "CE:ECHR:2021:1118JUD00156701"
+   ]
+  },
+  {
+   "celex": "62024CJ0136",
+   "ecli": "ECLI:EU:C:2025:977",
+   "date": "2025-12-18",
+   "chars": 135916,
+   "echr_eclis": [
+    "CE:ECHR:2016:0823JUD00591661",
+    "CE:ECHR:2017:1003JUD00086751",
+    "CE:ECHR:2020:0213JUD00086751",
+    "CE:ECHR:2021:1118JUD00156701",
+    "CE:ECHR:2025:0107JUD00157832"
+   ]
+  },
+  {
+   "celex": "62024CJ0548",
+   "ecli": "ECLI:EU:C:2025:1014",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0550",
+   "ecli": "ECLI:EU:C:2025:1015",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0433",
+   "ecli": "ECLI:EU:C:2025:981",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0552",
+   "ecli": "ECLI:EU:C:2025:1016",
+   "date": "2025-12-18",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0743",
+   "ecli": "ECLI:EU:C:2025:954",
+   "date": "2025-12-11",
+   "chars": 61484,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0789",
+   "ecli": "ECLI:EU:C:2025:956",
+   "date": "2025-12-11",
+   "chars": 37992,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0796",
+   "ecli": "ECLI:EU:C:2025:963",
+   "date": "2025-12-11",
+   "chars": 34103,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0497",
+   "ecli": "ECLI:EU:C:2025:959",
+   "date": "2025-12-11",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0121",
+   "ecli": "ECLI:EU:C:2025:957",
+   "date": "2025-12-11",
+   "chars": 35692,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0485",
+   "ecli": "ECLI:EU:C:2025:955",
+   "date": "2025-12-11",
+   "chars": 45952,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0473",
+   "ecli": "ECLI:EU:C:2025:961",
+   "date": "2025-12-11",
+   "chars": 42823,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0767",
+   "ecli": "ECLI:EU:C:2025:962",
+   "date": "2025-12-11",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0665",
+   "ecli": "ECLI:EU:C:2025:960",
+   "date": "2025-12-11",
+   "chars": 50402,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0662",
+   "ecli": "ECLI:EU:C:2025:958",
+   "date": "2025-12-11",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62022CJ0602",
+   "ecli": "ECLI:EU:C:2025:953",
+   "date": "2025-12-11",
+   "chars": 136178,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0580",
+   "ecli": "ECLI:EU:C:2025:941",
+   "date": "2025-12-04",
+   "chars": 81664,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0279",
+   "ecli": "ECLI:EU:C:2025:942",
+   "date": "2025-12-04",
+   "chars": 33470,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0492",
+   "ecli": "ECLI:EU:C:2025:935",
+   "date": "2025-12-02",
+   "chars": 126044,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0034",
+   "ecli": "ECLI:EU:C:2025:936",
+   "date": "2025-12-02",
+   "chars": 68134,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0356",
+   "ecli": "ECLI:EU:C:2025:926",
+   "date": "2025-11-27",
+   "chars": 76658,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0539",
+   "ecli": "ECLI:EU:C:2025:919",
+   "date": "2025-11-27",
+   "chars": 38900,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0525",
+   "ecli": "ECLI:EU:C:2025:922",
+   "date": "2025-11-27",
+   "chars": 60985,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0567",
+   "ecli": "ECLI:EU:C:2025:920",
+   "date": "2025-11-27",
+   "chars": 44319,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0509",
+   "ecli": "ECLI:EU:C:2025:924",
+   "date": "2025-11-27",
+   "chars": 42252,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0643",
+   "ecli": "ECLI:EU:C:2025:923",
+   "date": "2025-11-27",
+   "chars": 65247,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0746",
+   "ecli": "ECLI:EU:C:2025:925",
+   "date": "2025-11-27",
+   "chars": 49170,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0137",
+   "ecli": "ECLI:EU:C:2025:918",
+   "date": "2025-11-27",
+   "chars": 85595,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0729",
+   "ecli": "ECLI:EU:C:2025:921",
+   "date": "2025-11-27",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0713",
+   "ecli": "ECLI:EU:C:2025:917",
+   "date": "2025-11-25",
+   "chars": 61409,
+   "echr_eclis": [
+    "CE:ECHR:2023:1212JUD00114541",
+    "CE:ECHR:2024:0919JUD00588281",
+    "CE:ECHR:2025:0424JUD00536622"
+   ]
+  },
+  {
+   "celex": "62023CJ0631",
+   "ecli": "ECLI:EU:C:2025:906",
+   "date": "2025-11-20",
+   "chars": 54967,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0327",
+   "ecli": "ECLI:EU:C:2025:901",
+   "date": "2025-11-20",
+   "chars": 51519,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0204",
+   "ecli": "ECLI:EU:C:2025:912",
+   "date": "2025-11-20",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0617",
+   "ecli": "ECLI:EU:C:2025:908",
+   "date": "2025-11-20",
+   "chars": 37199,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0401",
+   "ecli": "ECLI:EU:C:2025:902",
+   "date": "2025-11-20",
+   "chars": 55638,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0340",
+   "ecli": "ECLI:EU:C:2025:910",
+   "date": "2025-11-20",
+   "chars": 33540,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0518",
+   "ecli": "ECLI:EU:C:2025:911",
+   "date": "2025-11-20",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0570",
+   "ecli": "ECLI:EU:C:2025:907",
+   "date": "2025-11-20",
+   "chars": 41099,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0057",
+   "ecli": "ECLI:EU:C:2025:905",
+   "date": "2025-11-20",
+   "chars": 96376,
+   "echr_eclis": [
+    "CE:ECHR:1979:0426JUD00065387",
+    "CE:ECHR:2008:0701JUD00582430",
+    "CE:ECHR:2008:1204JUD00305620"
+   ]
+  },
+  {
+   "celex": "62025CJ0195",
+   "ecli": "ECLI:EU:C:2025:904",
+   "date": "2025-11-20",
+   "chars": 66715,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0525",
+   "ecli": "ECLI:EU:C:2025:877",
+   "date": "2025-11-13",
+   "chars": 82250,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0654",
+   "ecli": "ECLI:EU:C:2025:871",
+   "date": "2025-11-13",
+   "chars": 78162,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0250",
+   "ecli": "ECLI:EU:C:2025:885",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0142",
+   "ecli": "ECLI:EU:C:2025:873",
+   "date": "2025-11-13",
+   "chars": 69546,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0117",
+   "ecli": "ECLI:EU:C:2025:872",
+   "date": "2025-11-13",
+   "chars": 49563,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0632",
+   "ecli": "ECLI:EU:C:2025:890",
+   "date": "2025-11-13",
+   "chars": 77990,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0678",
+   "ecli": "ECLI:EU:C:2025:878",
+   "date": "2025-11-13",
+   "chars": 73852,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0563",
+   "ecli": "ECLI:EU:C:2025:887",
+   "date": "2025-11-13",
+   "chars": 33466,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0197",
+   "ecli": "ECLI:EU:C:2025:876",
+   "date": "2025-11-13",
+   "chars": 37012,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0272",
+   "ecli": "ECLI:EU:C:2025:874",
+   "date": "2025-11-13",
+   "chars": 51005,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0445",
+   "ecli": "ECLI:EU:C:2025:893",
+   "date": "2025-11-13",
+   "chars": 46616,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0639",
+   "ecli": "ECLI:EU:C:2025:888",
+   "date": "2025-11-13",
+   "chars": 29896,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0499",
+   "ecli": "ECLI:EU:C:2025:875",
+   "date": "2025-11-13",
+   "chars": 96833,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0004",
+   "ecli": "ECLI:EU:C:2025:879",
+   "date": "2025-11-13",
+   "chars": 81388,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0009",
+   "ecli": "ECLI:EU:C:2025:883",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0013",
+   "ecli": "ECLI:EU:C:2025:884",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0352",
+   "ecli": "ECLI:EU:C:2025:892",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0803",
+   "ecli": "ECLI:EU:C:2025:881",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0806",
+   "ecli": "ECLI:EU:C:2025:882",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0779",
+   "ecli": "ECLI:EU:C:2025:880",
+   "date": "2025-11-13",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0019",
+   "ecli": "ECLI:EU:C:2025:865",
+   "date": "2025-11-11",
+   "chars": 133299,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0321",
+   "ecli": "ECLI:EU:C:2025:836",
+   "date": "2025-10-30",
+   "chars": 37943,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0134",
+   "ecli": "ECLI:EU:C:2025:839",
+   "date": "2025-10-30",
+   "chars": 64336,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0790",
+   "ecli": "ECLI:EU:C:2025:838",
+   "date": "2025-10-30",
+   "chars": 49491,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0373",
+   "ecli": "ECLI:EU:C:2025:842",
+   "date": "2025-10-30",
+   "chars": 57695,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0398",
+   "ecli": "ECLI:EU:C:2025:843",
+   "date": "2025-10-30",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0348",
+   "ecli": "ECLI:EU:C:2025:845",
+   "date": "2025-10-30",
+   "chars": 48594,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0002",
+   "ecli": "ECLI:EU:C:2025:848",
+   "date": "2025-10-30",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0402",
+   "ecli": "ECLI:EU:C:2025:840",
+   "date": "2025-10-30",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0558",
+   "ecli": "ECLI:EU:C:2025:847",
+   "date": "2025-10-30",
+   "chars": 27484,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0500",
+   "ecli": "ECLI:EU:C:2025:846",
+   "date": "2025-10-30",
+   "chars": 27097,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0546",
+   "ecli": "ECLI:EU:C:2025:844",
+   "date": "2025-10-30",
+   "chars": 25236,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0143",
+   "ecli": "ECLI:EU:C:2025:837",
+   "date": "2025-10-30",
+   "chars": 100559,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0146",
+   "ecli": "ECLI:EU:C:2025:841",
+   "date": "2025-10-30",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0682",
+   "ecli": "ECLI:EU:C:2025:827",
+   "date": "2025-10-23",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0744",
+   "ecli": "ECLI:EU:C:2025:816",
+   "date": "2025-10-23",
+   "chars": 28868,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0760",
+   "ecli": "ECLI:EU:C:2025:828",
+   "date": "2025-10-23",
+   "chars": 68840,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0466",
+   "ecli": "ECLI:EU:C:2025:830",
+   "date": "2025-10-23",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0087",
+   "ecli": "ECLI:EU:C:2025:826",
+   "date": "2025-10-23",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0267",
+   "ecli": "ECLI:EU:C:2025:829",
+   "date": "2025-10-23",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0469",
+   "ecli": "ECLI:EU:C:2025:833",
+   "date": "2025-10-23",
+   "chars": 68476,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0221",
+   "ecli": "ECLI:EU:C:2025:818",
+   "date": "2025-10-23",
+   "chars": 64230,
+   "echr_eclis": [
+    "CE:ECHR:2018:0628JUD00018280"
+   ]
+  },
+  {
+   "celex": "62024CJ0232",
+   "ecli": "ECLI:EU:C:2025:820",
+   "date": "2025-10-23",
+   "chars": 65897,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0234",
+   "ecli": "ECLI:EU:C:2025:831",
+   "date": "2025-10-23",
+   "chars": 58871,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0281",
+   "ecli": "ECLI:EU:C:2025:822",
+   "date": "2025-10-23",
+   "chars": 66120,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0294",
+   "ecli": "ECLI:EU:C:2025:823",
+   "date": "2025-10-23",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0002",
+   "ecli": "ECLI:EU:C:2025:825",
+   "date": "2025-10-23",
+   "chars": 73448,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0385",
+   "ecli": "ECLI:EU:C:2025:832",
+   "date": "2025-10-23",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0510",
+   "ecli": "ECLI:EU:C:2025:795",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0218",
+   "ecli": "ECLI:EU:C:2025:794",
+   "date": "2025-10-16",
+   "chars": 28991,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0718",
+   "ecli": "ECLI:EU:C:2025:797",
+   "date": "2025-10-16",
+   "chars": 71855,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0399",
+   "ecli": "ECLI:EU:C:2025:791",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0282",
+   "ecli": "ECLI:EU:C:2025:790",
+   "date": "2025-10-16",
+   "chars": 42380,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0659",
+   "ecli": "ECLI:EU:C:2025:796",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0391",
+   "ecli": "ECLI:EU:C:2025:799",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0805",
+   "ecli": "ECLI:EU:C:2025:792",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0482",
+   "ecli": "ECLI:EU:C:2025:789",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0576",
+   "ecli": "ECLI:EU:C:2025:793",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0059",
+   "ecli": "ECLI:EU:C:2025:798",
+   "date": "2025-10-16",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0101",
+   "ecli": "ECLI:EU:C:2025:764",
+   "date": "2025-10-09",
+   "chars": 45125,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0416",
+   "ecli": "ECLI:EU:C:2025:765",
+   "date": "2025-10-09",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0080",
+   "ecli": "ECLI:EU:C:2025:767",
+   "date": "2025-10-09",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0798",
+   "ecli": "ECLI:EU:C:2025:763",
+   "date": "2025-10-09",
+   "chars": 58279,
+   "echr_eclis": [
+    "CE:ECHR:2013:1021JUD00427500",
+    "CE:ECHR:2022:1110JUD00050841"
+   ]
+  },
+  {
+   "celex": "62024CJ0368",
+   "ecli": "ECLI:EU:C:2025:770",
+   "date": "2025-10-09",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0540",
+   "ecli": "ECLI:EU:C:2025:766",
+   "date": "2025-10-09",
+   "chars": 45851,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0110",
+   "ecli": "ECLI:EU:C:2025:768",
+   "date": "2025-10-09",
+   "chars": 31977,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0315",
+   "ecli": "ECLI:EU:C:2025:769",
+   "date": "2025-10-09",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0551",
+   "ecli": "ECLI:EU:C:2025:771",
+   "date": "2025-10-09",
+   "chars": 36701,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0086",
+   "ecli": "ECLI:EU:C:2025:745",
+   "date": "2025-10-02",
+   "chars": 31451,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0535",
+   "ecli": "ECLI:EU:C:2025:744",
+   "date": "2025-10-02",
+   "chars": 23379,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0369",
+   "ecli": "ECLI:EU:C:2025:743",
+   "date": "2025-10-02",
+   "chars": 32113,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0284",
+   "ecli": "ECLI:EU:C:2025:741",
+   "date": "2025-10-02",
+   "chars": 32668,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0391",
+   "ecli": "ECLI:EU:C:2025:748",
+   "date": "2025-10-02",
+   "chars": 48861,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0573",
+   "ecli": "ECLI:EU:C:2025:747",
+   "date": "2025-10-02",
+   "chars": 33489,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0243",
+   "ecli": "ECLI:EU:C:2025:742",
+   "date": "2025-10-02",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0764",
+   "ecli": "ECLI:EU:C:2025:691",
+   "date": "2025-09-11",
+   "chars": 138546,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0038",
+   "ecli": "ECLI:EU:C:2025:690",
+   "date": "2025-09-11",
+   "chars": 70801,
+   "echr_eclis": [
+    "CE:ECHR:2016:0322JUD00236821"
+   ]
+  },
+  {
+   "celex": "62024CJ0341",
+   "ecli": "ECLI:EU:C:2025:693",
+   "date": "2025-09-11",
+   "chars": 73553,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0384",
+   "ecli": "ECLI:EU:C:2025:696",
+   "date": "2025-09-11",
+   "chars": 47702,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0005",
+   "ecli": "ECLI:EU:C:2025:689",
+   "date": "2025-09-11",
+   "chars": 63512,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0687",
+   "ecli": "ECLI:EU:C:2025:687",
+   "date": "2025-09-11",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0115",
+   "ecli": "ECLI:EU:C:2025:694",
+   "date": "2025-09-11",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0215",
+   "ecli": "ECLI:EU:C:2025:695",
+   "date": "2025-09-11",
+   "chars": 89493,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0802",
+   "ecli": "ECLI:EU:C:2025:688",
+   "date": "2025-09-11",
+   "chars": 51214,
+   "echr_eclis": [
+    "CE:ECHR:2017:1219JUD00784771"
+   ]
+  },
+  {
+   "celex": "62023CJ0059",
+   "ecli": "ECLI:EU:C:2025:686",
+   "date": "2025-09-11",
+   "chars": 109243,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62024CJ0451",
+   "ecli": "ECLI:EU:C:2025:663",
+   "date": "2025-09-04",
+   "chars": 214,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62023CJ0726",
+   "ecli": "ECLI:EU:C:2025:646",
+   "date": "2025-09-04",
+   "chars": 51895,
+   "echr_eclis": []
+  },
+  {
+   "celex": "62022CJ0776",
+   "ecli": "ECLI:EU:C:2025:644",
+   "date": "2025-09-04",
+   "chars": 214,
+   "echr_eclis": []
+  }
+ ]
+}

@@ -1,0 +1,1832 @@
+{
+ "run_date": "2026-11-18",
+ "nga_wpi": {
+  "publisher_host_probes": {
+   "https://msi.nga.mil/api/publications/world-port-index?output=json": {
+    "status": 503,
+    "content_type": "text/html",
+    "maintenance_notice": true,
+    "excerpt": "MSI IS CURRENTLY UNDER MAINTENANCE Announcement The Maritime Safety Information (MSI) Portal is currently unavailable. Please take advantage of the helpful resources linked here. MSI will be operational as quickly as possible. We "
+   },
+   "https://msi.nga.mil/Publications/WPI": {
+    "status": 503,
+    "content_type": "text/html",
+    "maintenance_notice": true,
+    "excerpt": "MSI IS CURRENTLY UNDER MAINTENANCE Announcement The Maritime Safety Information (MSI) Portal is currently unavailable. Please take advantage of the helpful resources linked here. MSI will be operational as quickly as possible. We "
+   },
+   "https://msi.nga.mil/commercial-use": {
+    "status": 503,
+    "content_type": "text/html",
+    "maintenance_notice": true,
+    "excerpt": "MSI IS CURRENTLY UNDER MAINTENANCE Announcement The Maritime Safety Information (MSI) Portal is currently unavailable. Please take advantage of the helpful resources linked here. MSI will be operational as quickly as possible. We "
+   }
+  },
+  "esri_copy_item": {
+   "status": 200,
+   "url": "https://www.arcgis.com/sharing/rest/content/items/b4043522b2ea443489505d9d3cc02ac4?f=json",
+   "owner": "TeachingAtlas_Curator",
+   "title": "Ports Around the World",
+   "snippet": "Explore global trade ports with this layer from the National Geospatial-Intelligence Agency (NGA)’s World Port Index database. This 2026 layer shows the location and key characteristics of each port.",
+   "licenseInfo_text": "(C) Copyright 2022 by the United States Government No copyright claimed under Title 17 U.S.C. Privacy Policy | Commercial Use Warning | Legal Disclaimer & Security Policy",
+   "accessInformation": "Prepared and published by the National Geospatial-Intelligence Agency",
+   "created": "2026-05-07",
+   "modified": "2026-06-08",
+   "provenance_sentences": [
+    "This data is, in part, crowd sourced.",
+    "The NGA updates this dataset every month, however, the map makers in charge of maintaining this collection will update this layer annually, unless a large change occurs.",
+    "The data was initially downloaded in May 2026."
+   ]
+  },
+  "layer": {
+   "status": 200,
+   "url": "https://services7.arcgis.com/xuAg12SDp2ow0Fb8/arcgis/rest/services/UpdatedPub150/FeatureServer/0",
+   "n_fields": 110,
+   "data_last_edit": "2026-06-05",
+   "field_aliases": [
+    "ID",
+    "World Port Index Number",
+    "Region Name",
+    "Main Port Name",
+    "Alternate Port Name",
+    "UN/LOCODE",
+    "Country Code",
+    "World Water Body",
+    "IHO S-130 Sea Area",
+    "Sailing Direction or Publication",
+    "Publication Link",
+    "Standard Nautical Chart",
+    "IHO S-57 Electronic Navigational Chart",
+    "IHO S-101 Electronic Navigational Chart",
+    "Digital Nautical Chart",
+    "Tidal Range (m)",
+    "Entrance Width (m)",
+    "Channel Depth (m)",
+    "Anchorage Depth (m)",
+    "Cargo Pier Depth (m)",
+    "Oil Terminal Depth (m)",
+    "Liquified Natural Gas Terminal Depth (m)",
+    "Maximum Vessel Length (m)",
+    "Maximum Vessel Beam (m)",
+    "Maximum Vessel Draft (m)",
+    "Offshore Maximum Vessel Length (m)",
+    "Offshore Maximum Vessel Beam (m)",
+    "Offshore Maximum Vessel Draft (m)",
+    "Harbor Size",
+    "Harbor Type",
+    "Harbor Use",
+    "Shelter Afforded",
+    "Entrance Restriction - Tide",
+    "Entrance Restriction - Heavy Swell",
+    "Entrance Restriction - Ice",
+    "Entrance Restriction - Other",
+    "Overhead Limits",
+    "Underkeel Clearance Management System",
+    "Good Holding Ground",
+    "Turning Area",
+    "Port Security",
+    "Estimated Time of Arrival Message",
+    "Quarantine - Pratique",
+    "Quarantine - Sanitation",
+    "Quarantine - Other",
+    "Traffic Separation Scheme",
+    "Vessel Traffic Service",
+    "First Port of Entry",
+    "US Representative",
+    "Pilotage - Compulsory",
+    "Pilotage - Available",
+    "Pilotage - Local Assistance",
+    "Pilotage - Advisable",
+    "Tugs - Salvage",
+    "Tugs - Assistance",
+    "Communications - Telephone",
+    "Communications - Telefax",
+    "Communications - Radio",
+    "Communications - Radiotelephone",
+    "Communications - Airport",
+    "Communications - Rail",
+    "Search and Rescue",
+    "Navigational Area",
+    "Facilities - Wharves",
+    "Facilities - Anchorage",
+    "Facilities - Dangerous Cargo Anchorage",
+    "Facilities - Med Mooring",
+    "Facilities - Beach Mooring",
+    "Facilities - Ice Mooring",
+    "Facilities - Ro-Ro",
+    "Facilities - Solid Bulk",
+    "Facilities - Liquid Bulk",
+    "Facilities - Container",
+    "Facilities - Breakbulk",
+    "Facilities - Oil Terminal",
+    "Facilities - LNG Terminal",
+    "Facilities - Other",
+    "Medical Facilities",
+    "Garbage Disposal",
+    "Chemical Holding Tank Disposal",
+    "Degaussing Facility",
+    "Dirty Ballast Disposal",
+    "Cranes - Fixed",
+    "Cranes - Mobile",
+    "Cranes - Floating",
+    "Cranes Container",
+    "Lifts - 100+ Tons",
+    "Lifts - 50-100 Tons",
+    "Lifts - 25-49 Tons",
+    "Lifts - 0-24 Tons",
+    "Services - Longshoremen",
+    "Services - Electricity",
+    "Services -Steam",
+    "Services - Navigation Equipment",
+    "Services - Electrical Repair",
+    "Services - Ice Breaking",
+    "Services -Diving",
+    "Supplies - Provisions",
+    "Supplies - Potable Water",
+    "Supplies - Fuel Oil",
+    "Supplies - Diesel Oil",
+    "Supplies - Aviation Fuel",
+    "Supplies - Deck",
+    "Supplies - Engine",
+    "Repair Capacity",
+    "Dry Dock",
+    "Railway Facilities",
+    "Latitude of Port",
+    "Longitude of Port",
+    "ObjectId"
+   ]
+  },
+  "rows": 3804,
+  "rows_status": 200,
+  "index_number": {
+   "rows_with_number": 3804,
+   "distinct": 3803,
+   "min": 40,
+   "max": 63130
+  },
+  "un_locode_column": {
+   "rows_with_value": 3345,
+   "value_samples": [
+    "EG RAB",
+    "CN PLI",
+    "EG WAF",
+    "EG SSH",
+    "CN TGS",
+    "EG RSU",
+    "CU TDZ",
+    "CN WEG"
+   ],
+   "well_formed_single": 3340,
+   "rows_listing_several_codes": 0,
+   "rows_unparsable": 5
+  },
+  "countries": 195,
+  "top_countries": [
+   [
+    "United States",
+    666
+   ],
+   [
+    "Canada",
+    284
+   ],
+   [
+    "United Kingdom",
+    185
+   ],
+   [
+    "Japan",
+    163
+   ],
+   [
+    "Norway",
+    141
+   ],
+   [
+    "Indonesia",
+    123
+   ],
+   [
+    "Italy",
+    123
+   ],
+   [
+    "Sweden",
+    92
+   ]
+  ],
+  "harbor_size": {
+   "Very Small": 2114,
+   "Small": 1017,
+   "Medium": 370,
+   "Large": 174,
+   " ": 129
+  },
+  "harbor_type": {
+   "Open Roadstead": 666,
+   "Coastal (Natural)": 1250,
+   "Coastal (Breakwater)": 789,
+   "River (Natural)": 665,
+   "Canal or Lake": 73,
+   "Coastal (Tide Gates)": 34,
+   "River (Basins)": 86,
+   " ": 182,
+   "River (Tide Gates)": 55,
+   "Typhoon Harbor": 4
+  },
+  "populated": {
+   "Channel_Depth__m_": 3172,
+   "Anchorage_Depth__m_": 3304,
+   "Cargo_Pier_Depth__m_": 3161,
+   "Oil_Terminal_Depth__m_": 1688,
+   "Tidal_Range__m_": 2548,
+   "Entrance_Width__m_": 120,
+   "Maximum_Vessel_Length__m_": 810,
+   "Maximum_Vessel_Beam__m_": 605,
+   "Maximum_Vessel_Draft__m_": 896,
+   "Alternate_Port_Name": 860,
+   "Standard_Nautical_Chart": 2842,
+   "Sailing_Direction_or_Publication": 3804,
+   "Publication_Link": 3804
+  },
+  "pilotage_compulsory": {
+   "Yes": 2518,
+   "Unknown": 843,
+   "No": 443
+  },
+  "publication_cited": [
+   [
+    "Sailing Directions Pub. 131 (Enroute) - Western Mediterranean",
+    220
+   ],
+   [
+    "U.S. Coast Pilot 6 - Great Lakes and their connecting waterways",
+    205
+   ],
+   [
+    "Sailing Directions Pub. 132 (Enroute) - Eastern Mediterranean",
+    145
+   ],
+   [
+    "Sailing Directions Pub. 172 (Enroute) - Red Sea and the Persian Gulf",
+    130
+   ],
+   [
+    "Sailing Directions Pub. 194 (Enroute) - Baltic Sea (Southern Part)",
+    118
+   ],
+   [
+    "Sailing Directions Pub. 182 (Enroute) - North and West Coasts of Norway",
+    116
+   ],
+   [
+    "Sailing Directions Pub. 124 (Enroute) - East Coast of South America",
+    112
+   ],
+   [
+    "U.S. Coast Pilot 10 - Oregon Washington Hawaii and Pacific Islands",
+    107
+   ],
+   [
+    "Sailing Directions Pub. 145 (Enroute) - Nova Scotia and the Saint Lawrence",
+    106
+   ],
+   [
+    "Sailing Directions Pub. 147 (Enroute) - Caribbean Sea - Volume I",
+    103
+   ],
+   [
+    "Sailing Directions Pub. 123 (Enroute) - Southwest Coast of Africa",
+    103
+   ],
+   [
+    "Sailing Directions Pub. 163 (Enroute) - Borneo Jawa Sulawesi and Nusa Tenggara",
+    102
+   ],
+   [
+    "Sailing Directions Pub. 148 (Enroute) - Caribbean Sea - Volume II",
+    102
+   ],
+   [
+    "Sailing Directions Pub. 159 (Enroute) - Japan - Volume II",
+    100
+   ],
+   [
+    "Sailing Directions Pub. 195 (Enroute) - Gulf of Finland and Gulf of Bothnia",
+    100
+   ],
+   [
+    "Sailing Directions Pub. 192 (Enroute) - North Sea",
+    97
+   ],
+   [
+    "Sailing Directions Pub. 143 (Enroute) - West Coast of Europe and Northwest Africa",
+    92
+   ],
+   [
+    "U.S. Coast Pilot 9 - Alaska: Cape Spencer to Beaufort Sea - Beaufort Sea",
+    92
+   ],
+   [
+    "Sailing Directions Pub. 141 (Enroute) - Scotland",
+    82
+   ],
+   [
+    "Sailing Directions Pub. 157 (Enroute) - Coasts of Korea and China",
+    81
+   ],
+   [
+    "U.S. Coast Pilot 5 - Gulf of Mexico Puerto Rico and Virgin Islands",
+    76
+   ],
+   [
+    "Admiralty Sailing Directions - NP24 - Black Sea and Sea of Azov Pilot (United Kingdom Hydrographic Office)",
+    74
+   ],
+   [
+    "Sailing Directions Pub. 173 (Enroute) - India and the Bay of Bengal",
+    73
+   ],
+   [
+    "Sailing Directions Pub. 162 (Enroute) - Philippine Islands",
+    70
+   ],
+   [
+    "U.S. Coast Pilot 2 - Atlantic Coast: Cape Cod MA to Sandy Hook NJ",
+    67
+   ],
+   [
+    "U.S. Coast Pilot 1 - Atlantic Coast: Eastport ME to Cape Cod MA",
+    66
+   ],
+   [
+    "Sailing Directions Pub. 181 (Enroute) - Greenland and Iceland",
+    66
+   ],
+   [
+    "Sailing Directions Pub. 158 (Enroute) - Japan - Volume I",
+    64
+   ],
+   [
+    "Sailing Directions Pub. 193 (Enroute) - Skagerrak and Kattegat",
+    63
+   ],
+   [
+    "Sailing Directions Pub. 142 (Enroute) - Ireland and the West Coast of England",
+    62
+   ],
+   [
+    "Sailing Directions Pub. 161 (Enroute) - South China Sea and Gulf of Thailand",
+    61
+   ],
+   [
+    "Sailing Directions Pub. 127 (Enroute) - East Coast of Australia and New Zealand",
+    59
+   ],
+   [
+    "Sailing Directions Pub. 191 (Enroute) - English Channel",
+    58
+   ],
+   [
+    "Sailing Directions Pub. 125 (Enroute) - West Coast of South America",
+    58
+   ],
+   [
+    "Sailing Directions Pub. 171 (Enroute) - East Africa and the South Indian Ocean",
+    57
+   ],
+   [
+    "U.S. Coast Pilot 7 - Pacific Coast: California",
+    54
+   ],
+   [
+    "Sailing Directions Pub. 126 (Enroute) - Pacific Islands",
+    54
+   ],
+   [
+    "Sailing Directions Pub. 154 (Enroute) - British Columbia",
+    49
+   ],
+   [
+    "U.S. Coast Pilot 8 - Alaska: Dixon Entrance to Cape Spencer - Cape Spencer",
+    47
+   ],
+   [
+    "Sailing Directions Pub. 174 (Enroute) - Strait of Malacca and Sumatera",
+    43
+   ],
+   [
+    "Sailing Directions Pub. 146 (Enroute) - Newfoundland Labrador and Hudson Bay",
+    42
+   ],
+   [
+    "Sailing Directions Pub. 153 (Enroute) - West Coasts of Mexico and Central America",
+    34
+   ],
+   [
+    "U.S. Coast Pilot 3 - Atlantic Coast: Sandy Hook NJ to Cape Henry VA",
+    33
+   ],
+   [
+    "Sailing Directions Pub. 164 (Enroute) - New Guinea",
+    33
+   ],
+   [
+    "U.S. Coast Pilot 4 - Atlantic Coast: Cape Henry VA to Key West FL",
+    32
+   ],
+   [
+    "Sailing Directions Pub. 175 (Enroute) - North West and South Coasts of Australia",
+    31
+   ],
+   [
+    "Sailing Directions Pub. 155 (Enroute) - East Coast of Russia",
+    30
+   ],
+   [
+    "Sailing Directions Pub. 183 (Enroute) - North Coast of Russia",
+    24
+   ],
+   [
+    "Sailing Directions Pub. 200 (Planning Guide & Enroute) - Antarctica",
+    8
+   ],
+   [
+    "No NGA Sailing Directions (Enroute) Coverage",
+    3
+   ]
+  ],
+  "us_ports": 666,
+  "us_ports_citing_coast_pilot": 665,
+  "sample_rows": [
+   {
+    "World_Port_Index_Number": 9240,
+    "Main_Port_Name": "Houston",
+    "UN_LOCODE": "US HOU",
+    "Country_Code": "United States",
+    "Harbor_Size": "Large",
+    "Channel_Depth__m_": 14,
+    "Maximum_Vessel_Draft__m_": 0,
+    "Pilotage___Compulsory": "Yes",
+    "Sailing_Direction_or_Publication": "U.S. Coast Pilot 5 - Gulf of Mexico Puerto Rico and Virgin Islands",
+    "Latitude": 29.75,
+    "Longitude": -95.283333
+   },
+   {
+    "World_Port_Index_Number": 31140,
+    "Main_Port_Name": "Rotterdam",
+    "UN_LOCODE": "NL RTM",
+    "Country_Code": "Netherlands",
+    "Harbor_Size": "Large",
+    "Channel_Depth__m_": 11,
+    "Maximum_Vessel_Draft__m_": 0,
+    "Pilotage___Compulsory": "Yes",
+    "Sailing_Direction_or_Publication": "Sailing Directions Pub. 192 (Enroute) - North Sea",
+    "Latitude": 51.9,
+    "Longitude": 4.483333
+   },
+   {
+    "World_Port_Index_Number": 6600,
+    "Main_Port_Name": "Eastport",
+    "UN_LOCODE": "US EPM",
+    "Country_Code": "United States",
+    "Harbor_Size": "Very Small",
+    "Channel_Depth__m_": 12.5,
+    "Maximum_Vessel_Draft__m_": 0,
+    "Pilotage___Compulsory": "Yes",
+    "Sailing_Direction_or_Publication": "U.S. Coast Pilot 1 - Atlantic Coast: Eastport ME to Cape Cod MA",
+    "Latitude": 44.9,
+    "Longitude": -66.983333
+   }
+  ]
+ },
+ "unece_unlocode": {
+  "probes": {
+   "https://unece.org/trade/cefact/unlocode-code-list-country-and-territory": {
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "blocked_page": true,
+    "excerpt": "Just a moment... Enable JavaScript and cookies to continue"
+   },
+   "https://service.unece.org/trade/locode/loc241csv.zip": {
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "blocked_page": true,
+    "excerpt": "Just a moment... Enable JavaScript and cookies to continue"
+   },
+   "https://unece.org/terms-and-conditions": {
+    "status": 403,
+    "content_type": "text/html; charset=UTF-8",
+    "blocked_page": true,
+    "excerpt": "Just a moment... Enable JavaScript and cookies to continue"
+   }
+  },
+  "publications_page": {
+   "status": 200,
+   "last_updated": "November 5, 2026",
+   "latest_release": "January 2025",
+   "footer_licence_sentence": "All UN/CEFACT standards are free to use under CC By 4.0 license",
+   "footer_related_standards": "Related UN/CEFACT standards: GRID , UNVTD , LOCODE"
+  },
+  "terms_page": {
+   "status": 200,
+   "url": "https://unlocode.unece.org/terms",
+   "grant_sentence": "The United Nations grants permission to Users to visit the Site and to download and copy the information, documents and materials (collectively, “Materials”) from the Site for the User’s personal, non-commercial use, without any right to resell or redistribute them or to compile or create derivative works therefrom, subject to the terms and conditions outlined below, and also subject to more specific restrictions that may apply to specific Material within this Site."
+  },
+  "zip": {
+   "status": 200,
+   "url": "https://unlocode.unece.org/downloads/unlocode-latest.zip",
+   "bytes": 13257712,
+   "members": [
+    [
+     "release/",
+     0,
+     "2026-11-05"
+    ],
+    [
+     "release/UNLOCODE.ttl",
+     32922718,
+     "2026-11-05"
+    ],
+    [
+     "release/UNLOCODE CodeList.mdb",
+     16621568,
+     "2026-11-05"
+    ],
+    [
+     "release/csv/",
+     0,
+     "2026-11-05"
+    ],
+    [
+     "release/csv/UNLOCODE CodeListPart1.csv",
+     3589461,
+     "2026-11-05"
+    ],
+    [
+     "release/csv/UNLOCODE CodeListPart2.csv",
+     1720911,
+     "2026-11-05"
+    ],
+    [
+     "release/csv/UNLOCODE CodeListPart3.csv",
+     2020547,
+     "2026-11-05"
+    ],
+    [
+     "release/csv/SubdivisionCodes.csv",
+     137482,
+     "2026-11-05"
+    ],
+    [
+     "release/txt/",
+     0,
+     "2026-11-05"
+    ],
+    [
+     "release/txt/UNLOCODE Codelist.xml",
+     41535178,
+     "2026-11-05"
+    ],
+    [
+     "release/txt/UNLOCODE CodeList.txt",
+     20216902,
+     "2026-11-05"
+    ],
+    [
+     "release/txt/SubdivisionCodes.txt",
+     1479510,
+     "2026-11-05"
+    ]
+   ]
+  },
+  "csv_rows": 116777,
+  "location_entries": 116476,
+  "distinct_codes": 116330,
+  "countries": 249,
+  "port_function_codes": 17571,
+  "codes_with_coordinates": 94489,
+  "port_codes_with_coordinates": 11871,
+  "marked_for_removal": 39,
+  "newest_entry_date_yymm": "2610",
+  "us_codes": 20858,
+  "sample": {
+   "NLRTM": {
+    "name": "Rotterdam",
+    "sub": "ZH",
+    "function": "12345---",
+    "date": "0501",
+    "coord": "5155N 00430E",
+    "change": ""
+   },
+   "SGSIN": {
+    "name": "Singapore",
+    "sub": "",
+    "function": "1--45---",
+    "date": "2407",
+    "coord": "0117N 10351E",
+    "change": ""
+   },
+   "USHOU": {
+    "name": "Houston",
+    "sub": "TX",
+    "function": "1-345---",
+    "date": "1207",
+    "coord": "2945N 09521W",
+    "change": ""
+   },
+   "USEPM": {
+    "name": "Eastport",
+    "sub": "ME",
+    "function": "1-------",
+    "date": "0106",
+    "coord": "4454N 06659W",
+    "change": ""
+   }
+  },
+  "github_mirror_datapackage": {
+   "status": 200,
+   "licence_title": "Open Data Commons Public Domain Dedication and License v1.0. Applies only to the maintainers' own work (the scripts, the column definitions and the file layout). It does not cover the UN/LOCODE data itself; the licence of that is unclear, see README.md and ATTRIBUTION.txt.",
+   "source": "https://unlocode.unece.org/downloads/unlocode-latest.zip"
+  }
+ },
+ "join_wpi_unlocode": {
+  "wpi_rows": 3804,
+  "wpi_rows_with_code": 3340,
+  "resolved": 3324,
+  "resolved_with_port_function": 2865,
+  "unresolved_samples": [
+   {
+    "wpi": 62118,
+    "port": "Hibikinada",
+    "code": "JB HBI"
+   },
+   {
+    "wpi": 38670,
+    "port": "Puerto De Alcudia",
+    "code": "ES ALD"
+   },
+   {
+    "wpi": 46340,
+    "port": "Cogo",
+    "code": "GC COG"
+   },
+   {
+    "wpi": 10978,
+    "port": "Amber Cove",
+    "code": "COAMB"
+   },
+   {
+    "wpi": 46488,
+    "port": "Kuito Oil Field",
+    "code": "AO KOT"
+   },
+   {
+    "wpi": 11380,
+    "port": "Gustavia",
+    "code": "BL GUS"
+   },
+   {
+    "wpi": 10250,
+    "port": "Felton",
+    "code": "CUFEL"
+   },
+   {
+    "wpi": 9855,
+    "port": "Punta Rincon",
+    "code": "PAPRI"
+   },
+   {
+    "wpi": 23736,
+    "port": "Slagenstangen",
+    "code": "NOSEG"
+   },
+   {
+    "wpi": 23710,
+    "port": "Sandefjorden",
+    "code": "NOSAD"
+   },
+   {
+    "wpi": 45163,
+    "port": "El Maadiya",
+    "code": "EG EMD"
+   },
+   {
+    "wpi": 55800,
+    "port": "Uturoa",
+    "code": "PF UTU"
+   }
+  ],
+  "coordinate_agreement": {
+   "pairs_with_both_coordinates": 1807,
+   "median_km": 1.9,
+   "within_10_km": 1658,
+   "within_25_km": 1716,
+   "over_100_km": 59
+  },
+  "distinct_codes_cited": 3312,
+  "codes_cited_by_more_than_one_wpi_row": 27,
+  "unece_port_function_codes_with_a_wpi_row": 2838
+ },
+ "noaa_coast_pilot": {
+  "books": [
+   {
+    "book": 1,
+    "status": 200,
+    "edition": "56th",
+    "year": "2026",
+    "description": "covers the coasts of Maine, New Hampshire, and part of Massachusetts, from Eastport, ME to Provincetown, MA.",
+    "chapters_listed": 17,
+    "chapters_parsed": 12,
+    "paragraphs": 6212,
+    "chars": 1691183,
+    "geo_tagged": 2066,
+    "newest_weekly_update": "2026-07-05",
+    "weekly_updates_listed": 4
+   },
+   {
+    "book": 2,
+    "status": 200,
+    "edition": "56th",
+    "year": "2027",
+    "description": "covers the Atlantic coast from Cape Cod, MA to Sandy Hook, NJ, including the coasts of Rhode Island, Connecticut, and New York.",
+    "chapters_listed": 17,
+    "chapters_parsed": 12,
+    "paragraphs": 6908,
+    "chars": 1682814,
+    "geo_tagged": 1523,
+    "newest_weekly_update": null,
+    "weekly_updates_listed": 0
+   },
+   {
+    "book": 3,
+    "status": 200,
+    "edition": "59th",
+    "year": "2026",
+    "description": "covers the Atlantic coast from Sandy Hook, NJ to Cape Henry, VA, including Delaware Bay and Chesapeake Bay.",
+    "chapters_listed": 20,
+    "chapters_parsed": 15,
+    "paragraphs": 5929,
+    "chars": 1451246,
+    "geo_tagged": 1088,
+    "newest_weekly_update": "2026-09-13",
+    "weekly_updates_listed": 11
+   },
+   {
+    "book": 4,
+    "status": 200,
+    "edition": "58th",
+    "year": "2026",
+    "description": "covers the Atlantic coast from Cape Henry, VA to Key West, FL.",
+    "chapters_listed": 17,
+    "chapters_parsed": 12,
+    "paragraphs": 6683,
+    "chars": 1828231,
+    "geo_tagged": 749,
+    "newest_weekly_update": "2026-11-08",
+    "weekly_updates_listed": 1
+   },
+   {
+    "book": 5,
+    "status": 200,
+    "edition": "54th",
+    "year": "2026",
+    "description": "covers the Gulf coast from Key West, FL to the Rio Grande, including Puerto Rico and the Virgin Islands.",
+    "chapters_listed": 19,
+    "chapters_parsed": 14,
+    "paragraphs": 9204,
+    "chars": 2396809,
+    "geo_tagged": 1704,
+    "newest_weekly_update": "2026-11-15",
+    "weekly_updates_listed": 9
+   },
+   {
+    "book": 6,
+    "status": 200,
+    "edition": "56th",
+    "year": "2026",
+    "description": "covers the Great Lakes, connecting waters, and the St. Lawrence River.",
+    "chapters_listed": 19,
+    "chapters_parsed": 14,
+    "paragraphs": 6818,
+    "chars": 1889687,
+    "geo_tagged": 1202,
+    "newest_weekly_update": "2026-09-20",
+    "weekly_updates_listed": 7
+   },
+   {
+    "book": 7,
+    "status": 200,
+    "edition": "58th",
+    "year": "2026",
+    "description": "covers the coasts of California.",
+    "chapters_listed": 13,
+    "chapters_parsed": 8,
+    "paragraphs": 5715,
+    "chars": 1391374,
+    "geo_tagged": 512,
+    "newest_weekly_update": "2026-05-24",
+    "weekly_updates_listed": 1
+   },
+   {
+    "book": 8,
+    "status": 200,
+    "edition": "48th",
+    "year": "2026",
+    "description": "covers the panhandle section of Alaska between the south boundary and Cape Spencer.",
+    "chapters_listed": 20,
+    "chapters_parsed": 15,
+    "paragraphs": 5593,
+    "chars": 1674239,
+    "geo_tagged": 2376,
+    "newest_weekly_update": null,
+    "weekly_updates_listed": 0
+   },
+   {
+    "book": 9,
+    "status": 200,
+    "edition": "44th",
+    "year": "2026",
+    "description": "covers the Pacific and Arctic coasts of Alaska from Cape Spencer to the Beaufort Sea.",
+    "chapters_listed": 14,
+    "chapters_parsed": 9,
+    "paragraphs": 7726,
+    "chars": 2374135,
+    "geo_tagged": 2618,
+    "newest_weekly_update": null,
+    "weekly_updates_listed": 0
+   },
+   {
+    "book": 10,
+    "status": 200,
+    "edition": "07th",
+    "year": "2026",
+    "description": "Oregon, Washington, Hawaii and Pacific Islands",
+    "chapters_listed": 15,
+    "chapters_parsed": 10,
+    "paragraphs": 7422,
+    "chars": 1931929,
+    "geo_tagged": 1345,
+    "newest_weekly_update": "2026-10-04",
+    "weekly_updates_listed": 2
+   }
+  ],
+  "chapter_fetch_failures": [],
+  "totals": {
+   "books": 10,
+   "chapters_parsed": 121,
+   "paragraphs": 68210,
+   "chars": 18311647,
+   "geo_tagged_mentions": 15183,
+   "geo_tagged_with_coordinates": 15173,
+   "distinct_gnis_ids": 14776,
+   "paragraphs_opening_with_a_tagged_place": 7791,
+   "newest_weekly_update": "2026-11-15"
+  },
+  "feature_classes": [
+   [
+    "Island",
+    3131
+   ],
+   [
+    "Bay",
+    2971
+   ],
+   [
+    "Cape",
+    2625
+   ],
+   [
+    "Populated Place",
+    1670
+   ],
+   [
+    "Stream",
+    1250
+   ],
+   [
+    "Bar",
+    1243
+   ],
+   [
+    "Channel",
+    886
+   ],
+   [
+    "Summit",
+    308
+   ],
+   [
+    "Lake",
+    178
+   ],
+   [
+    "Harbor",
+    135
+   ],
+   [
+    "Locale",
+    134
+   ],
+   [
+    "Gut",
+    113
+   ],
+   [
+    "Cliff",
+    104
+   ],
+   [
+    "Pillar",
+    62
+   ],
+   [
+    "Canal",
+    53
+   ]
+  ],
+  "geo_sources": {
+   "GNIS": 15173
+  },
+  "licensing_page": {
+   "status": 200,
+   "url": "https://nauticalcharts.noaa.gov/data/data-licensing.html",
+   "sentence": "All data acquired by Coast Survey is formally dedicated to the public domain via the Creative Commons Zero 1.0 Universal Public Domain Dedication (CC0-1.0), which removes all copyright from the data so that it may be used by anyone, for any purpose."
+  },
+  "index_page": {
+   "status": 200,
+   "url": "https://nauticalcharts.noaa.gov/publications/coast-pilot/index.html",
+   "sentence": "All Coast Pilot books are available to download free of charge.",
+   "reproduction_notice": "Notice: Incomplete and otherwise inaccurate reproductions of United States Coast Pilot are being sold on the commercial market ."
+  }
+ },
+ "join_wpi_coast_pilot": {
+  "radius_km": 25.0,
+  "wpi_us_ports": 666,
+  "matched": 405,
+  "name_found_but_farther_than_radius": 29,
+  "matched_opening_a_paragraph": 348,
+  "matched_feature_classes": {
+   "Populated Place": 287,
+   "Bay": 73,
+   "Harbor": 20,
+   "Lake": 3,
+   "Locale": 2,
+   "Cape": 13,
+   "Island": 4,
+   "Sea": 1,
+   "Stream": 2
+  },
+  "matched_paragraph_chars": {
+   "median": 357,
+   "min": 64,
+   "max": 1498,
+   "total": 169037
+  },
+  "wpi_cited_volume_equals_matched_book": 405,
+  "matched_with_coast_pilot_citation": 405,
+  "handcheck_pairs": [
+   {
+    "wpi_number": 7450,
+    "wpi_port": "Montauk Harbor",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 41.066667,
+    "wpi_lon": -71.933333,
+    "wpi_publication": "U.S. Coast Pilot 2 - Atlantic Coast: Cape Cod MA to Sandy Hook NJ",
+    "wpi_un_locode": "US MTP",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 2,
+    "cp_chapter": 7,
+    "cp_paragraph": "136",
+    "cp_place": "Montauk",
+    "cp_class": "Populated Place",
+    "cp_state": "NY",
+    "cp_gnis_id": "957540",
+    "cp_lat": 41.0359,
+    "cp_lon": -71.9545,
+    "distance_km": 3.9,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 226,
+    "cp_excerpt": "Montauk , a summer resort at the southeast end of the bay, is the terminus of a Class II railroad. A depth of 10 feet was reported alongside the commercial pier on the east side of the bay. There are no public piers available."
+   },
+   {
+    "wpi_number": 7970,
+    "wpi_port": "Sayreville",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 40.466667,
+    "wpi_lon": -74.366667,
+    "wpi_publication": "U.S. Coast Pilot 2 - Atlantic Coast: Cape Cod MA to Sandy Hook NJ",
+    "wpi_un_locode": "US XNA",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 2,
+    "cp_chapter": 11,
+    "cp_paragraph": "357",
+    "cp_place": "Sayreville",
+    "cp_class": "Populated Place",
+    "cp_state": "NJ",
+    "cp_gnis_id": "880284",
+    "cp_lat": 40.4593,
+    "cp_lon": -74.361,
+    "distance_km": 0.9,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 120,
+    "cp_excerpt": "Sayreville is 6 miles above South Amboy on the south bank of the Raritan River. Most of the wharves are privately owned."
+   },
+   {
+    "wpi_number": 56272,
+    "wpi_port": "Barber's Point",
+    "wpi_alternate": "Kalaeloa",
+    "wpi_region": "Hawaiian Islands -- 56050",
+    "wpi_lat": 21.316667,
+    "wpi_lon": -158.116667,
+    "wpi_publication": "U.S. Coast Pilot 10 - Oregon Washington Hawaii and Pacific Islands",
+    "wpi_un_locode": "US NAX",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 10,
+    "cp_chapter": 9,
+    "cp_paragraph": "759",
+    "cp_place": "Kalaeloa",
+    "cp_class": "Cape",
+    "cp_state": "HI",
+    "cp_gnis_id": "358666",
+    "cp_lat": 21.2962,
+    "cp_lon": -158.106,
+    "distance_km": 2.5,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 306,
+    "cp_excerpt": "Kalaeloa , 17 miles west of Diamond Head, is the southwest extremity of O‘ahu. The low land back of the rounding point extends 3 miles north to the foothills of the Waianae Mountains; the hill slopes are steep and partly brush covered but the bare soil that shows in places gives them a reddish appearance."
+   },
+   {
+    "wpi_number": 9310,
+    "wpi_port": "Port Aransas",
+    "wpi_alternate": "",
+    "wpi_region": "US Gulf Coast -- 8650",
+    "wpi_lat": 27.833333,
+    "wpi_lon": -97.05,
+    "wpi_publication": "U.S. Coast Pilot 5 - Gulf of Mexico Puerto Rico and Virgin Islands",
+    "wpi_un_locode": "US YAS",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 5,
+    "cp_chapter": 11,
+    "cp_paragraph": "233",
+    "cp_place": "Port Aransas",
+    "cp_class": "Populated Place",
+    "cp_state": "TX",
+    "cp_gnis_id": "1344363",
+    "cp_lat": 27.8339,
+    "cp_lon": -97.0611,
+    "distance_km": 1.1,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 605,
+    "cp_excerpt": "Port Aransas is a small commercial fishing and resort town on the north end of Mustang Island at the inner end of Aransas Pass. A marked dredged channel leads south to a harbor basin from inside the pass. There are boatyards and a municipal marina in the basin. Berths with electricity, gasoline, diesel fuel, water, ice, marine supplies, provisions, pumpout and launching ramps are available. A 1,200-foot fishing pier "
+   },
+   {
+    "wpi_number": 8665,
+    "wpi_port": "Boca Grande",
+    "wpi_alternate": "Charlotte Harbor",
+    "wpi_region": "US Gulf Coast -- 8650",
+    "wpi_lat": 26.7,
+    "wpi_lon": -82.333333,
+    "wpi_publication": "U.S. Coast Pilot 5 - Gulf of Mexico Puerto Rico and Virgin Islands",
+    "wpi_un_locode": "US BCG",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 5,
+    "cp_chapter": 12,
+    "cp_paragraph": "42",
+    "cp_place": "Boca Grande",
+    "cp_class": "Populated Place",
+    "cp_state": "FL",
+    "cp_gnis_id": "279119",
+    "cp_lat": 26.749,
+    "cp_lon": -82.262,
+    "distance_km": 8.9,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 220,
+    "cp_excerpt": "Boca Grande , west of Mile 28.6 , has marinas, boatyards and a yacht basin. Berths with electricity, gasoline, diesel fuel, water, ice, marine supplies, pump-out station, launching ramps and engine repairs are available."
+   },
+   {
+    "wpi_number": 7430,
+    "wpi_port": "Quonset Point",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 41.583333,
+    "wpi_lon": -71.4,
+    "wpi_publication": "U.S. Coast Pilot 2 - Atlantic Coast: Cape Cod MA to Sandy Hook NJ",
+    "wpi_un_locode": "US NCO",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 2,
+    "cp_chapter": 6,
+    "cp_paragraph": "326",
+    "cp_place": "Quonset Point",
+    "cp_class": "Cape",
+    "cp_state": "RI",
+    "cp_gnis_id": "1218098",
+    "cp_lat": 41.5901,
+    "cp_lon": -71.4042,
+    "distance_km": 0.8,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 797,
+    "cp_excerpt": "Quonset Point , on the north side of Wickford Harbor, is marked by elevated tanks. Near the eastern end of the point are the conspicuous buildings of the Quonset Point Industrial Park. The piers at Quonset Point, and at Davisville , about 1.5 miles northward, are usually approached from East Passage until north of Conanicut Island, thence through a buoyed dredged channel to a turning basin off the point from which a "
+   },
+   {
+    "wpi_number": 8080,
+    "wpi_port": "Chester",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 39.85,
+    "wpi_lon": -75.35,
+    "wpi_publication": "U.S. Coast Pilot 3 - Atlantic Coast: Sandy Hook NJ to Cape Henry VA",
+    "wpi_un_locode": "US CHT",
+    "wpi_harbor_size": "Large",
+    "cp_book": 3,
+    "cp_chapter": 6,
+    "cp_paragraph": "245",
+    "cp_place": "Chester",
+    "cp_class": "Populated Place",
+    "cp_state": "PA",
+    "cp_gnis_id": "1171694",
+    "cp_lat": 39.8496,
+    "cp_lon": -75.3557,
+    "distance_km": 0.5,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 191,
+    "cp_excerpt": "Chester , Mile 72N, is an important manufacturing center, and many of its industries use the wharf facilities along the 3-mile waterfront. The nearest designated anchorage is off Marcus Hook."
+   },
+   {
+    "wpi_number": 8115,
+    "wpi_port": "Paulsboro",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 39.85,
+    "wpi_lon": -75.25,
+    "wpi_publication": "U.S. Coast Pilot 3 - Atlantic Coast: Sandy Hook NJ to Cape Henry VA",
+    "wpi_un_locode": "US PAU",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 3,
+    "cp_chapter": 6,
+    "cp_paragraph": "262",
+    "cp_place": "Paulsboro",
+    "cp_class": "Populated Place",
+    "cp_state": "NJ",
+    "cp_gnis_id": "879176",
+    "cp_lat": 39.8304,
+    "cp_lon": -75.2405,
+    "distance_km": 2.3,
+    "cp_opens_paragraph": false,
+    "cp_paragraph_chars": 69,
+    "cp_excerpt": "There are several large petroleum facilities at Paulsboro , Mile 77S."
+   },
+   {
+    "wpi_number": 20010,
+    "wpi_port": "Chignik",
+    "wpi_alternate": "",
+    "wpi_region": "Alaska -- 19080",
+    "wpi_lat": 56.3,
+    "wpi_lon": -158.4,
+    "wpi_publication": "U.S. Coast Pilot 9 - Alaska: Cape Spencer to Beaufort Sea - Beaufort Sea",
+    "wpi_un_locode": "US KCL",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 9,
+    "cp_chapter": 6,
+    "cp_paragraph": "194",
+    "cp_place": "Chignik",
+    "cp_class": "Populated Place",
+    "cp_state": "AK",
+    "cp_gnis_id": "1400269",
+    "cp_lat": 56.2953,
+    "cp_lon": -158.4022,
+    "distance_km": 0.5,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 624,
+    "cp_excerpt": "Chignik is a fishing settlement at the head of Anchorage Bay. In 2002, a two-fingered pier in the southwest portion of the bay had a 200-foot face with depths of 33 feet reported alongside. The opening in the center of the pier has a 35-ton travel lift. Another pier in the southeast portion of the bay has a 160-foot face and depths of 33 feet reported to be alongside. There is a sewer outfall that extends 210 feet be"
+   },
+   {
+    "wpi_number": 16080,
+    "wpi_port": "Los Angeles",
+    "wpi_alternate": "San Pedro; Terminal Island; Wilmington",
+    "wpi_region": "United States W Coast -- 16000",
+    "wpi_lat": 33.75,
+    "wpi_lon": -118.25,
+    "wpi_publication": "U.S. Coast Pilot 7 - Pacific Coast: California",
+    "wpi_un_locode": "US LAX",
+    "wpi_harbor_size": "Large",
+    "cp_book": 7,
+    "cp_chapter": 4,
+    "cp_paragraph": "235",
+    "cp_place": "Los Angeles Harbor",
+    "cp_class": "Bay",
+    "cp_state": "CA",
+    "cp_gnis_id": "252133",
+    "cp_lat": 33.7097,
+    "cp_lon": -118.2676,
+    "distance_km": 4.8,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 142,
+    "cp_excerpt": "Los Angeles Harbor , at the west end of San Pedro Bay, includes the districts of San Pedro and Wilmington and a major part of Terminal Island."
+   },
+   {
+    "wpi_number": 18070,
+    "wpi_port": "Blaine",
+    "wpi_alternate": "",
+    "wpi_region": "United States W Coast -- 16000",
+    "wpi_lat": 49,
+    "wpi_lon": -122.75,
+    "wpi_publication": "U.S. Coast Pilot 10 - Oregon Washington Hawaii and Pacific Islands",
+    "wpi_un_locode": "US BWS",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 10,
+    "cp_chapter": 7,
+    "cp_paragraph": "520",
+    "cp_place": "Blaine",
+    "cp_class": "Populated Place",
+    "cp_state": "WA",
+    "cp_gnis_id": "1512014",
+    "cp_lat": 48.9937,
+    "cp_lon": -122.7471,
+    "distance_km": 0.7,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 92,
+    "cp_excerpt": "Blaine , a small town on the northeast shore of Drayton Harbor, is a c ustoms port of entry."
+   },
+   {
+    "wpi_number": 20090,
+    "wpi_port": "Sanak",
+    "wpi_alternate": "",
+    "wpi_region": "Alaska -- 19080",
+    "wpi_lat": 54.483333,
+    "wpi_lon": -162.816667,
+    "wpi_publication": "U.S. Coast Pilot 9 - Alaska: Cape Spencer to Beaufort Sea - Beaufort Sea",
+    "wpi_un_locode": "",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 9,
+    "cp_chapter": 6,
+    "cp_paragraph": "763",
+    "cp_place": "Sanak Harbor",
+    "cp_class": "Bay",
+    "cp_state": "AK",
+    "cp_gnis_id": "1419174",
+    "cp_lat": 54.4833,
+    "cp_lon": -162.8283,
+    "distance_km": 0.8,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 325,
+    "cp_excerpt": "Sanak Harbor , at the northwest end of Sanak Island, affords restricted anchorage for small vessels with protection from south and west weather but is exposed to winds from northwest to east, and a swell makes in with strong west winds. Temporary anchorage may be had about 0.2 mile northeast of Point Petrof , in 10 fathoms."
+   },
+   {
+    "wpi_number": 20150,
+    "wpi_port": "Constantine Harbor",
+    "wpi_alternate": "",
+    "wpi_region": "Aleutian Islands -- 20095",
+    "wpi_lat": 51.4,
+    "wpi_lon": 179.3,
+    "wpi_publication": "U.S. Coast Pilot 9 - Alaska: Cape Spencer to Beaufort Sea - Beaufort Sea",
+    "wpi_un_locode": "",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 9,
+    "cp_chapter": 7,
+    "cp_paragraph": "1194",
+    "cp_place": "Constantine Harbor",
+    "cp_class": "Bay",
+    "cp_state": "AK",
+    "cp_gnis_id": "1416134",
+    "cp_lat": 51.4031,
+    "cp_lon": 179.2969,
+    "distance_km": 0.4,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 249,
+    "cp_excerpt": "Constantine Harbor , on the north side of Amchitka Island 6 miles west of East Cape, provides a fair anchorage. Because there are no prominent features on the island, caution is necessary to avoid mistaking other indentations for Constantine Harbor."
+   },
+   {
+    "wpi_number": 19680,
+    "wpi_port": "Whittier",
+    "wpi_alternate": "",
+    "wpi_region": "Alaska -- 19080",
+    "wpi_lat": 60.778333333,
+    "wpi_lon": -148.694444444,
+    "wpi_publication": "U.S. Coast Pilot 9 - Alaska: Cape Spencer to Beaufort Sea - Beaufort Sea",
+    "wpi_un_locode": "US WQF",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 9,
+    "cp_chapter": 4,
+    "cp_paragraph": "634",
+    "cp_place": "Whittier",
+    "cp_class": "Populated Place",
+    "cp_state": "AK",
+    "cp_gnis_id": "1415757",
+    "cp_lat": 60.7731,
+    "cp_lon": -148.6839,
+    "distance_km": 0.8,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 463,
+    "cp_excerpt": "Whittier is on the south side of Passage Canal, 1.5 miles from the head. The town is the terminus for the Alaska Railroad and has a fish processing plant and a U.S. Army fuel depot. The waterfront was greatly destroyed during the 1964 earthquake and the dock facilities were rebuilt in the 1970s. The port handles large numbers of railroad cars, the Alaska State Ferry handles autos and passengers and cruise ships and t"
+   },
+   {
+    "wpi_number": 8770,
+    "wpi_port": "Mobile",
+    "wpi_alternate": "",
+    "wpi_region": "US Gulf Coast -- 8650",
+    "wpi_lat": 30.683333,
+    "wpi_lon": -88.116667,
+    "wpi_publication": "U.S. Coast Pilot 5 - Gulf of Mexico Puerto Rico and Virgin Islands",
+    "wpi_un_locode": "US MOB",
+    "wpi_harbor_size": "Large",
+    "cp_book": 5,
+    "cp_chapter": 7,
+    "cp_paragraph": "77",
+    "cp_place": "Mobile",
+    "cp_class": "Populated Place",
+    "cp_state": "AL",
+    "cp_gnis_id": "155153",
+    "cp_lat": 30.6944,
+    "cp_lon": -88.0431,
+    "distance_km": 7.1,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 962,
+    "cp_excerpt": "Mobile , 28 miles north of the bay entrance, is one of the largest and most important seaports on the Gulf of America. A fully equipped ocean terminal, excellent transportation facilities, large shipyards and all kinds of marine supplies are available at Mobile. Principal foreign exports are marine supplies, paper products, lumber, wood pulp, flour, aluminum, chemicals, grain, soybeans, coal and bunker oil, iron and "
+   },
+   {
+    "wpi_number": 16510,
+    "wpi_port": "Pittsburg",
+    "wpi_alternate": "",
+    "wpi_region": "United States W Coast -- 16000",
+    "wpi_lat": 38.033333,
+    "wpi_lon": -121.883333,
+    "wpi_publication": "U.S. Coast Pilot 7 - Pacific Coast: California",
+    "wpi_un_locode": "US PBG",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 7,
+    "cp_chapter": 7,
+    "cp_paragraph": "445",
+    "cp_place": "Pittsburg",
+    "cp_class": "Populated Place",
+    "cp_state": "CA",
+    "cp_gnis_id": "1659783",
+    "cp_lat": 38.028,
+    "cp_lon": -121.8847,
+    "distance_km": 0.6,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 142,
+    "cp_excerpt": "Pittsburg , on the south side of New York Slough 12 miles east of Suisun Point bridges, is a manufacturing city with several deepwater berths."
+   },
+   {
+    "wpi_number": 16840,
+    "wpi_port": "Warrenton",
+    "wpi_alternate": "",
+    "wpi_region": "United States W Coast -- 16000",
+    "wpi_lat": 46.166667,
+    "wpi_lon": -123.916667,
+    "wpi_publication": "U.S. Coast Pilot 10 - Oregon Washington Hawaii and Pacific Islands",
+    "wpi_un_locode": "US WTO",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 10,
+    "cp_chapter": 5,
+    "cp_paragraph": "115",
+    "cp_place": "Warrenton",
+    "cp_class": "Populated Place",
+    "cp_state": "OR",
+    "cp_gnis_id": "1136879",
+    "cp_lat": 46.1651,
+    "cp_lon": -123.9238,
+    "distance_km": 0.6,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 395,
+    "cp_excerpt": "Warrenton , on the Skipanon Waterway at Mile 9.5 (11), is the base of a large sport fishing fleet. About 1 mile above the entrance to the waterway is a basin with a marina on the south side. Berths with electricity, gasoline, diesel fuel, water, ice, marine supplies and a launching ramp are available. A marine railway that can handle boats up to 80 feet long is at the marina for hull repairs."
+   },
+   {
+    "wpi_number": 7460,
+    "wpi_port": "Greenport",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 41.1,
+    "wpi_lon": -72.366667,
+    "wpi_publication": "U.S. Coast Pilot 2 - Atlantic Coast: Cape Cod MA to Sandy Hook NJ",
+    "wpi_un_locode": "US GP4",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 2,
+    "cp_chapter": 7,
+    "cp_paragraph": "200",
+    "cp_place": "Greenport",
+    "cp_class": "Populated Place",
+    "cp_state": "NY",
+    "cp_gnis_id": "951759",
+    "cp_lat": 41.1034,
+    "cp_lon": -72.3593,
+    "distance_km": 0.7,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 206,
+    "cp_excerpt": "Greenport is an important town and the terminus of a branch of a Class II railroad. The white church spires, near the northern end of town, and a tank and TV radio tower in the center of town are prominent."
+   },
+   {
+    "wpi_number": 7010,
+    "wpi_port": "New Harbor",
+    "wpi_alternate": "",
+    "wpi_region": "United States E Coast -- 6585",
+    "wpi_lat": 43.866667,
+    "wpi_lon": -69.483333,
+    "wpi_publication": "U.S. Coast Pilot 1 - Atlantic Coast: Eastport ME to Cape Cod MA",
+    "wpi_un_locode": "",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 1,
+    "cp_chapter": 8,
+    "cp_paragraph": "47",
+    "cp_place": "New Harbor",
+    "cp_class": "Populated Place",
+    "cp_state": "ME",
+    "cp_gnis_id": "572116",
+    "cp_lat": 43.8759,
+    "cp_lon": -69.49,
+    "distance_km": 1.2,
+    "cp_opens_paragraph": false,
+    "cp_paragraph_chars": 813,
+    "cp_excerpt": "New Harbor is on the western shore of Muscongus Bay, about 2.5 miles northeastward of Pemaquid Point Light. A lighted bell buoy is off the entrance to the harbor. A church spire in the village of New Harbor at the head is prominent. The cove offers anchorage to small craft only and is open eastward. The channel is narrow between a shelving ledge extending northeastward from the south point at the entrance and a ledge"
+   },
+   {
+    "wpi_number": 19620,
+    "wpi_port": "Yakutat",
+    "wpi_alternate": "",
+    "wpi_region": "Alaska -- 19080",
+    "wpi_lat": 59.55,
+    "wpi_lon": -139.733333,
+    "wpi_publication": "U.S. Coast Pilot 9 - Alaska: Cape Spencer to Beaufort Sea - Beaufort Sea",
+    "wpi_un_locode": "US YAK",
+    "wpi_harbor_size": "Very Small",
+    "cp_book": 9,
+    "cp_chapter": 4,
+    "cp_paragraph": "76",
+    "cp_place": "Yakutat",
+    "cp_class": "Populated Place",
+    "cp_state": "AK",
+    "cp_gnis_id": "1415858",
+    "cp_lat": 59.5469,
+    "cp_lon": -139.7272,
+    "distance_km": 0.5,
+    "cp_opens_paragraph": true,
+    "cp_paragraph_chars": 157,
+    "cp_excerpt": "Yakutat , a town at the east end of Monti Bay, has a small hospital, school, and two general stores. There are several lodging options available in the town."
+   }
+  ]
+ },
+ "usace": {
+  "principal_ports_item": {
+   "status": 200,
+   "url": "https://www.arcgis.com/sharing/rest/content/items/16d570a7aa054943aabf52b0032a3b57?f=json",
+   "owner": "usace_iwr_cac",
+   "title": "Principal Ports",
+   "licenseInfo_text": "This data set is publicly available without any use restrictions; however, this data set was developed for use at a national scale and may not be appropriate for use in local scale mapping.",
+   "accessInformation": "U.S. Army Corps of Engineers",
+   "modified": "2026-07-14"
+  },
+  "navigation_facilities_item": {
+   "status": 200,
+   "url": "https://www.arcgis.com/sharing/rest/content/items/db8bdecc473646cd859c625508334483?f=json",
+   "owner": "USDOT_BTS",
+   "title": "Navigation Facilities",
+   "licenseInfo_text": "This data set is publicly available without any use restrictions; however, this data set was developed for use at a national scale and may not be appropriate for use in local scale mapping.",
+   "accessInformation": "Acknowledgment of the U S Army Corps of Engineers (USACE), Institute for Water Resources (IWR), and Navigation and Civil Works Decision Support (NDC); and the Bureau of Transportation Statistics (BTS) [distributor].",
+   "modified": "2026-10-01"
+  },
+  "port_areas_item": {
+   "status": 200,
+   "url": "https://www.arcgis.com/sharing/rest/content/items/b7fd6cec8d8c43e4a141d24170e6d82f?f=json",
+   "owner": "usace_iwr_cac",
+   "title": "Port and Port Statistical Areas",
+   "licenseInfo_text": "Port boundaries are for statistical data collection and tabulation purposes only. Their depiction and designation for statistical purposes does not constitute a determination of jurisdictional authority or rights of ownership or entitlement and they are not legal land descriptions.",
+   "accessInformation": "",
+   "modified": "2025-12-11"
+  },
+  "layers": {
+   "principal_ports": {
+    "status": 200,
+    "url": "https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Principal_Ports/FeatureServer/0",
+    "copyrightText": "U.S. Army Corps of Engineers",
+    "description": "The principal port file contains USACE port codes, geographic location, names, and commodity tonnage summaries (total tons, domestic, foreign, imports and exports) for principal USACE ports for CY 2023.",
+    "data_last_edit": "2026-07-14",
+    "fields": [
+     "OBJECTID",
+     "RANK",
+     "PORT",
+     "TYPE",
+     "PORTNAME",
+     "TOTAL",
+     "DOMESTIC",
+     "FOREIGN_",
+     "IMPORTS",
+     "EXPORTS",
+     "Shape__Area",
+     "Shape__Length"
+    ],
+    "rows": 150
+   },
+   "ports": {
+    "status": 200,
+    "url": "https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Port_Statistical_Area/FeatureServer/0",
+    "copyrightText": "",
+    "description": "<p><span style=\"color:#000000;\">The Port and Port Statistical Area web service allows users to visualize and access two USACE enterprise-wide feature classes: the Port Feature Class and the Port Statistical Area Feature Class, both of which include polygon geometries used to generate statistics for commerce data and vessel movem",
+    "data_last_edit": "2025-07-21",
+    "fields": [
+     "OBJECTID",
+     "FEATUREDESCRIPTION",
+     "FEATURENAME",
+     "INSTALLATIONID",
+     "MEDIAID",
+     "METADATAID",
+     "PORTIDPK",
+     "SDSID",
+     "DATA_YEAR",
+     "Shape__Area",
+     "Shape__Length"
+    ],
+    "rows": 370
+   },
+   "port_statistical_areas": {
+    "status": 200,
+    "url": "https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Port_Statistical_Area/FeatureServer/1",
+    "copyrightText": "",
+    "description": "<p><span style=\"color:#000000;\">The Port and Port Statistical Area web service allows users to visualize and access two USACE enterprise-wide feature classes: the Port Feature Class and the Port Statistical Area Feature Class, both of which include polygon geometries used to generate statistics for commerce data and vessel movem",
+    "data_last_edit": "2025-07-21",
+    "fields": [
+     "OBJECTID",
+     "FEATUREDESCRIPTION",
+     "FEATURENAME",
+     "INSTALLATIONID",
+     "MEDIAID",
+     "METADATAID",
+     "PORTIDPK",
+     "SDSID",
+     "DATA_YEAR",
+     "Shape__Area",
+     "Shape__Length"
+    ],
+    "rows": 7
+   },
+   "docks": {
+    "status": 200,
+    "url": "https://services7.arcgis.com/n1YM8pTrFmm7L4hs/arcgis/rest/services/Docks/FeatureServer/0",
+    "copyrightText": "U.S. Army Corps of Engineers",
+    "description": "The data includes location (latitude, longitude, waterway, mile, and bank); operations (name, owner, operator, purpose, handling equipment, rates, and details of open-and-covered storage facilities); and type of construction (length of berthing space for vessels and/or barges, depth, deck elevation, and details of rail-and-highw",
+    "data_last_edit": "2026-09-30",
+    "fields": [
+     "OBJECTID",
+     "LATITUDE",
+     "LONGITUDE",
+     "LOC_DOCK",
+     "NAV_UNIT_ID",
+     "NAV_UNIT_GUID",
+     "UNLOCODE",
+     "NAV_UNIT_NAME",
+     "FAC_TYPE",
+     "DATA_RECORD_STATUS",
+     "LOCATION_DESCRIPTION",
+     "STREET_ADDRESS",
+     "CITY_OR_TOWN",
+     "STATE",
+     "ZIPCODE",
+     "COUNTY_NAME",
+     "COUNTY_FIPS_CODE",
+     "CONGRESS",
+     "CONGRESS_FIPS",
+     "TOWS_LINK_NUM",
+     "TOWS_MILE",
+     "WTWY",
+     "WTWY_NAME",
+     "PORT",
+     "PORT_NAME",
+     "PSA",
+     "PSA_NAME",
+     "MILE",
+     "BANK",
+     "OPERATORS",
+     "OWNERS",
+     "PURPOSE",
+     "HIGHWAY_NOTE",
+     "RAILWAY_NOTE",
+     "COMMODITIES",
+     "CONSTRUCTION",
+     "MECHANICAL_HANDLING",
+     "REMARKS",
+     "VERTICAL_DATUM",
+     "DEPTH_MIN",
+     "DEPTH_MAX",
+     "BERTHING_LARGEST",
+     "BERTHING_TOTAL",
+     "DECK_HEIGHT_MIN",
+     "DECK_HEIGHT_MAX",
+     "PARENT_OR_CHILD",
+     "SERVICE_INITIATION_DATE"
+    ],
+    "rows": 20563
+   }
+  },
+  "principal_ports_types": {
+   "Coastal": 86,
+   "Internal": 42,
+   "Great Lakes": 22
+  },
+  "principal_ports_top5": [
+   {
+    "rank": 1,
+    "port_code": 2031,
+    "port": "Houston Port Authority, TX",
+    "total_tons": 309531236
+   },
+   {
+    "rank": 2,
+    "port_code": 2253,
+    "port": "South Louisiana, LA, Port of",
+    "total_tons": 217531611
+   },
+   {
+    "rank": 3,
+    "port_code": 2436,
+    "port": "Corpus Christi, TX",
+    "total_tons": 189775751
+   },
+   {
+    "rank": 4,
+    "port_code": 398,
+    "port": "New York, NY & NJ",
+    "total_tons": 132289509
+   },
+   {
+    "rank": 5,
+    "port_code": 2393,
+    "port": "Beaumont, TX",
+    "total_tons": 87879130
+   }
+  ],
+  "port_code_within_publisher": {
+   "principal_ports_with_code": 150,
+   "principal_port_codes_found_in_port_polygons": 150,
+   "port_polygon_codes": 377,
+   "port_polygon_data_years": {
+    "2019": 113,
+    "2021": 142,
+    "2020": 111,
+    "2023": 3,
+    "2022": 1
+   },
+   "docks_with_port_code": 11269,
+   "dock_port_codes_distinct": 335,
+   "dock_port_codes_found_in_port_polygons": 335
+  },
+  "docks": {
+   "fac_types": [
+    [
+     "Dock",
+     9479
+    ],
+    [
+     "Milepoint",
+     8841
+    ],
+    [
+     "",
+     777
+    ],
+    [
+     "Open Water",
+     334
+    ],
+    [
+     "Lock Chamber",
+     278
+    ],
+    [
+     "Anchorage",
+     260
+    ],
+    [
+     "Lock and/or Dam",
+     244
+    ],
+    [
+     "Fleeting Area",
+     121
+    ],
+    [
+     "Junction",
+     86
+    ],
+    [
+     "Marina",
+     72
+    ],
+    [
+     "Bridge",
+     52
+    ],
+    [
+     "Virtual Dock",
+     11
+    ]
+   ],
+   "with_depth_max": 6646,
+   "with_berthing_largest": 6659,
+   "with_purpose_text": 7069,
+   "with_remarks_text": 6929,
+   "purpose_chars_total": 463707,
+   "remarks_chars_total": 1277047,
+   "states": 49
+  },
+  "join_dock_unlocode": {
+   "docks": 20563,
+   "docks_with_code": 16768,
+   "resolved_in_unece": 16740,
+   "resolved_only_with_territory_country_code": 0,
+   "resolved_to_a_wpi_row": 5464,
+   "unresolved_code_samples": [
+    {
+     "code": "USYNM",
+     "state": "WV"
+    },
+    {
+     "code": "USSG2",
+     "state": "MO"
+    }
+   ],
+   "distinct_codes": 1550,
+   "distinct_codes_resolved_in_unece": 1548,
+   "distinct_codes_with_a_wpi_row": 323,
+   "coordinate_agreement": {
+    "pairs_with_both_coordinates": 6019,
+    "median_km": 6.7,
+    "within_25_km": 5603,
+    "over_100_km": 149
+   },
+   "usace_port_codes_reaching_a_wpi_row_through_dock_codes": 185,
+   "principal_ports_reaching_a_wpi_row_through_dock_codes": 90,
+   "principal_port_examples": [
+    {
+     "usace_port_code": "2031",
+     "usace_port": "Houston Port Authority, TX",
+     "wpi_number": 9240,
+     "wpi_port": "Houston",
+     "docks": 161
+    },
+    {
+     "usace_port_code": "398",
+     "usace_port": "New York, NY & NJ",
+     "wpi_number": 7630,
+     "wpi_port": "Brooklyn",
+     "docks": 96
+    },
+    {
+     "usace_port_code": "4722",
+     "usace_port": "Seattle, WA",
+     "wpi_number": 17730,
+     "wpi_port": "Seattle",
+     "docks": 191
+    },
+    {
+     "usace_port_code": "2251",
+     "usace_port": "New Orleans, LA",
+     "wpi_number": 8860,
+     "wpi_port": "New Orleans",
+     "docks": 139
+    },
+    {
+     "usace_port_code": "2436",
+     "usace_port": "Corpus Christi, TX",
+     "wpi_number": 9300,
+     "wpi_port": "Corpus Christi",
+     "docks": 69
+    },
+    {
+     "usace_port_code": "2253",
+     "usace_port": "South Louisiana, LA, Port of",
+     "wpi_number": 8930,
+     "wpi_port": "Reserve",
+     "docks": 40
+    },
+    {
+     "usace_port_code": "5700",
+     "usace_port": "Virginia, VA, Port of",
+     "wpi_number": 8280,
+     "wpi_port": "Norfolk",
+     "docks": 70
+    },
+    {
+     "usace_port_code": "2017",
+     "usace_port": "Jacksonville, FL",
+     "wpi_number": 8580,
+     "wpi_port": "Jacksonville",
+     "docks": 104
+    }
+   ]
+  }
+ },
+ "other_probes_not_measured": {
+  "https://ec.europa.eu/eurostat/web/gisco/geodata/transport-networks": {
+   "status": 200,
+   "content_type": "text/html;charset=UTF-8",
+   "bytes": 194940
+  },
+  "https://www.marineregions.org/": {
+   "status": 200,
+   "content_type": "text/html; charset=utf-8",
+   "bytes": 25984
+  }
+ },
+ "http_requests": 182
+}

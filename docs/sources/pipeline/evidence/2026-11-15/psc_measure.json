@@ -1,0 +1,1583 @@
+{
+ "run_date": "2026-11-15",
+ "tc_years": {
+  "2024": {
+   "total_reported": 61,
+   "parsed": 61
+  },
+  "2025": {
+   "total_reported": 72,
+   "parsed": 72
+  },
+  "2026": {
+   "total_reported": 59,
+   "parsed": 59
+  }
+ },
+ "tc_newest_detention": "2026-11-06",
+ "tc_ports_2026": [
+  [
+   "Vancouver",
+   17
+  ],
+  [
+   "Trois-Rivières",
+   6
+  ],
+  [
+   "Montréal",
+   5
+  ],
+  [
+   "Sorel",
+   5
+  ],
+  [
+   "Québec",
+   4
+  ],
+  [
+   "Sept-Îles",
+   3
+  ],
+  [
+   "Relance",
+   3
+  ],
+  [
+   "Fraser-Surrey Docks",
+   2
+  ],
+  [
+   "Port Moody",
+   2
+  ],
+  [
+   "Roberts Bank",
+   2
+  ]
+ ],
+ "tc_flags_2026": [
+  [
+   "Marshall Islands",
+   14
+  ],
+  [
+   "Panama",
+   11
+  ],
+  [
+   "Liberia",
+   8
+  ],
+  [
+   "Cyprus",
+   6
+  ],
+  [
+   "Antigua and Barbuda",
+   4
+  ],
+  [
+   "Hong Kong, China",
+   3
+  ],
+  [
+   "Malta",
+   2
+  ],
+  [
+   "Bahamas",
+   2
+  ],
+  [
+   "Singapore",
+   2
+  ],
+  [
+   "Portugal",
+   1
+  ]
+ ],
+ "tc_2026_records": [
+  {
+   "imo": "9692686",
+   "flag": "Malta",
+   "detained": "2026-11-06",
+   "released": "2026-11-11",
+   "port": "Montréal"
+  },
+  {
+   "imo": "9577604",
+   "flag": "Marshall Islands",
+   "detained": "2026-10-27",
+   "released": "2026-10-28",
+   "port": "Sorel"
+  },
+  {
+   "imo": "9728473",
+   "flag": "Marshall Islands",
+   "detained": "2026-10-26",
+   "released": "2026-10-29",
+   "port": "Baie-Comeau"
+  },
+  {
+   "imo": "9600592",
+   "flag": "Portugal",
+   "detained": "2026-10-26",
+   "released": "2026-10-27",
+   "port": "Fraser Wharves"
+  },
+  {
+   "imo": "9673173",
+   "flag": "Panama",
+   "detained": "2026-10-24",
+   "released": "2026-10-25",
+   "port": "Sorel"
+  },
+  {
+   "imo": "9189354",
+   "flag": "Liberia",
+   "detained": "2026-10-18",
+   "released": "2026-10-22",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9426879",
+   "flag": "Cyprus",
+   "detained": "2026-10-09",
+   "released": "2026-10-11",
+   "port": "Sorel"
+  },
+  {
+   "imo": "1130113",
+   "flag": "Marshall Islands",
+   "detained": "2026-10-02",
+   "released": "2026-10-10",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "1078054",
+   "flag": "Liberia",
+   "detained": "2026-09-28",
+   "released": "2026-10-01",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9684213",
+   "flag": "Malta",
+   "detained": "2026-09-28",
+   "released": "2026-09-30",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9592795",
+   "flag": "Panama",
+   "detained": "2026-09-25",
+   "released": "2026-10-06",
+   "port": "Sept-Îles"
+  },
+  {
+   "imo": "9703825",
+   "flag": "Marshall Islands",
+   "detained": "2026-09-24",
+   "released": "2026-09-28",
+   "port": "Trois-Rivières"
+  },
+  {
+   "imo": "9637143",
+   "flag": "Cyprus",
+   "detained": "2026-09-10",
+   "released": "2026-09-14",
+   "port": "Relance"
+  },
+  {
+   "imo": "9714185",
+   "flag": "Panama",
+   "detained": "2026-08-28",
+   "released": "2026-09-04",
+   "port": "Halifax"
+  },
+  {
+   "imo": "9949663",
+   "flag": "Marshall Islands",
+   "detained": "2026-08-27",
+   "released": "2026-09-03",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9399129",
+   "flag": "Netherlands",
+   "detained": "2026-08-19",
+   "released": "2026-08-21",
+   "port": "Sorel"
+  },
+  {
+   "imo": "9713478",
+   "flag": "Liberia",
+   "detained": "2026-08-19",
+   "released": "2026-08-22",
+   "port": "Relance"
+  },
+  {
+   "imo": "9483231",
+   "flag": "Liberia",
+   "detained": "2026-08-17",
+   "released": "2026-08-19",
+   "port": "Trois-Rivières"
+  },
+  {
+   "imo": "9535606",
+   "flag": "Antigua and Barbuda",
+   "detained": "2026-07-29",
+   "released": "2026-08-01",
+   "port": "Sorel"
+  },
+  {
+   "imo": "1058133",
+   "flag": "Marshall Islands",
+   "detained": "2026-07-21",
+   "released": "2026-07-23",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9381835",
+   "flag": "Bahamas",
+   "detained": "2026-07-14",
+   "released": "2026-07-17",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "1025954",
+   "flag": "Marshall Islands",
+   "detained": "2026-06-26",
+   "released": "2026-06-29",
+   "port": "Fraser-Surrey Docks"
+  },
+  {
+   "imo": "9192179",
+   "flag": "Bahamas",
+   "detained": "2026-06-25",
+   "released": "2026-06-25",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9718870",
+   "flag": "Hong Kong, China",
+   "detained": "2026-06-16",
+   "released": "2026-06-19",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9970222",
+   "flag": "Panama",
+   "detained": "2026-06-09",
+   "released": "2026-06-12",
+   "port": "Port Moody"
+  },
+  {
+   "imo": "9545168",
+   "flag": "Liberia",
+   "detained": "2026-05-29",
+   "released": "2026-05-31",
+   "port": "Québec"
+  },
+  {
+   "imo": "9461063",
+   "flag": "Marshall Islands",
+   "detained": "2026-05-28",
+   "released": "2026-06-09",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9457878",
+   "flag": "Marshall Islands",
+   "detained": "2026-05-27",
+   "released": "2026-05-30",
+   "port": "Trois-Rivières"
+  },
+  {
+   "imo": "9438377",
+   "flag": "Marshall Islands",
+   "detained": "2026-05-15",
+   "released": "2026-05-21",
+   "port": "Roberts Bank"
+  },
+  {
+   "imo": "9757539",
+   "flag": "Marshall Islands",
+   "detained": "2026-04-28",
+   "released": "2026-04-30",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9081318",
+   "flag": "Antigua and Barbuda",
+   "detained": "2026-04-20",
+   "released": "2026-04-23",
+   "port": "Trois-Rivières"
+  },
+  {
+   "imo": "9535606",
+   "flag": "Antigua and Barbuda",
+   "detained": "2026-04-17",
+   "released": "2026-04-24",
+   "port": "Thunder Bay"
+  },
+  {
+   "imo": "9727986",
+   "flag": "Panama",
+   "detained": "2026-04-10",
+   "released": "2026-04-12",
+   "port": "Port-Cartier"
+  },
+  {
+   "imo": "9986946",
+   "flag": "Panama",
+   "detained": "2026-04-10",
+   "released": "2026-04-15",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9546784",
+   "flag": "Cyprus",
+   "detained": "2026-04-07",
+   "released": "2026-04-19",
+   "port": "Gros Cacouna"
+  },
+  {
+   "imo": "9546784",
+   "flag": "Cyprus",
+   "detained": "2026-04-07",
+   "released": "2026-04-11",
+   "port": "Relance"
+  },
+  {
+   "imo": "9571650",
+   "flag": "Panama",
+   "detained": "2026-03-31",
+   "released": "2026-04-09",
+   "port": "Québec"
+  },
+  {
+   "imo": "9415246",
+   "flag": "Turkiye",
+   "detained": "2026-03-30",
+   "released": "2026-04-02",
+   "port": "Contrecoeur"
+  },
+  {
+   "imo": "9939008",
+   "flag": "Liberia",
+   "detained": "2026-03-18",
+   "released": "2026-03-21",
+   "port": "Sept-Îles"
+  },
+  {
+   "imo": "9241451",
+   "flag": "Liberia",
+   "detained": "2026-03-13",
+   "released": "2026-04-03",
+   "port": "Montréal"
+  },
+  {
+   "imo": "9398735",
+   "flag": "Isle of Man (GB)",
+   "detained": "2026-03-10",
+   "released": "2026-03-15",
+   "port": "Sept-Îles"
+  },
+  {
+   "imo": "9659919",
+   "flag": "Panama",
+   "detained": "2026-03-05",
+   "released": "2026-03-06",
+   "port": "Trois-Rivières"
+  },
+  {
+   "imo": "9483279",
+   "flag": "Singapore",
+   "detained": "2026-03-05",
+   "released": "2026-03-08",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9833589",
+   "flag": "Marshall Islands",
+   "detained": "2026-03-02",
+   "released": "2026-03-04",
+   "port": "Port Moody"
+  },
+  {
+   "imo": "9591545",
+   "flag": "Hong Kong, China",
+   "detained": "2026-03-02",
+   "released": "2026-03-05",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9459979",
+   "flag": "Cyprus",
+   "detained": "2026-02-26",
+   "released": "2026-03-03",
+   "port": "Port-Alfred"
+  },
+  {
+   "imo": "9940631",
+   "flag": "Hong Kong, China",
+   "detained": "2026-02-19",
+   "released": "2026-02-21",
+   "port": "Roberts Bank"
+  },
+  {
+   "imo": "9763904",
+   "flag": "Egypt",
+   "detained": "2026-02-19",
+   "released": "2026-03-06",
+   "port": "Fraser-Surrey Docks"
+  },
+  {
+   "imo": "9506514",
+   "flag": "Mexico",
+   "detained": "2026-02-17",
+   "released": "2026-02-21",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9477828",
+   "flag": "Cyprus",
+   "detained": "2026-02-10",
+   "released": "2026-02-12",
+   "port": "Trois-Rivières"
+  },
+  {
+   "imo": "9290414",
+   "flag": "Marshall Islands",
+   "detained": "2026-02-09",
+   "released": "2026-02-11",
+   "port": "Montréal"
+  },
+  {
+   "imo": "1040825",
+   "flag": "Panama",
+   "detained": "2026-02-09",
+   "released": "2026-02-11",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9181663",
+   "flag": "Panama",
+   "detained": "2026-02-05",
+   "released": "2026-02-06",
+   "port": "Montréal"
+  },
+  {
+   "imo": "9379325",
+   "flag": "Liberia",
+   "detained": "2026-02-03",
+   "released": "2026-02-05",
+   "port": "Montréal"
+  },
+  {
+   "imo": "9723710",
+   "flag": "Singapore",
+   "detained": "2026-01-31",
+   "released": "2026-02-02",
+   "port": "Québec"
+  },
+  {
+   "imo": "9667356",
+   "flag": "Panama",
+   "detained": "2026-01-21",
+   "released": "2026-06-05",
+   "port": "Prince Rupert"
+  },
+  {
+   "imo": "9413901",
+   "flag": "Antigua and Barbuda",
+   "detained": "2026-01-13",
+   "released": "2026-01-15",
+   "port": "Port-Alfred"
+  },
+  {
+   "imo": "9748461",
+   "flag": "Norway",
+   "detained": "2026-01-12",
+   "released": "2026-01-14",
+   "port": "Vancouver"
+  },
+  {
+   "imo": "9377664",
+   "flag": "Marshall Islands",
+   "detained": "2026-01-09",
+   "released": "2026-01-11",
+   "port": "Québec"
+  }
+ ],
+ "tc_detail_samples": {
+  "9692686": {
+   "status": 200,
+   "detentions_listed": 1,
+   "with_deficiency_text": 0
+  },
+  "9577604": {
+   "status": 200,
+   "detentions_listed": 1,
+   "with_deficiency_text": 0
+  },
+  "9728473": {
+   "status": 200,
+   "detentions_listed": 1,
+   "with_deficiency_text": 1
+  },
+  "9600592": {
+   "status": 200,
+   "detentions_listed": 2,
+   "with_deficiency_text": 1
+  },
+  "9673173": {
+   "status": 200,
+   "detentions_listed": 1,
+   "with_deficiency_text": 1
+  }
+ },
+ "mca_press_releases_total": 104,
+ "mca_detention_releases": 11,
+ "mca_newest_release": "2024-08-08",
+ "mca_oldest_release": "2023-10-12",
+ "mca_detentions_parsed": 103,
+ "mca_with_imo": 92,
+ "mca_with_date_and_port": 72,
+ "mca_with_deficiency_codes": 103,
+ "mca_median_prose_chars": 751,
+ "mca_records": [
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "9452543",
+   "detained": "17 July 2024",
+   "port": "Immingham",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "9226372",
+   "detained": "22 July 2024",
+   "port": "Royal Portbury",
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "9284805",
+   "detained": "22 July 2024",
+   "port": "Tranmere",
+   "grounds_rows": 13
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "9566916",
+   "detained": "25 July 2024",
+   "port": "Teesport",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "9497505",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 10
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "9243863",
+   "detained": "26 June 2024",
+   "port": "Wisbech",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-july-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9559690",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9466312",
+   "detained": "09 June 2024",
+   "port": "London",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9497505",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9721982",
+   "detained": "13 June 2024",
+   "port": "Immingham",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "8303173",
+   "detained": "14 June 2024",
+   "port": "Ayr",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9543249",
+   "detained": "17 June 2024",
+   "port": "Liverpool",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9413341",
+   "detained": "18 June 2024",
+   "port": "Plymouth",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9459383",
+   "detained": "21 June 2024",
+   "port": "Immingham",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9243851",
+   "detained": "24 June 2024",
+   "port": "Wisbech",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9243863",
+   "detained": "26 June 2024",
+   "port": "Wisbech",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "9877808",
+   "detained": "29 May 2024",
+   "port": "Milford Haven",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-june-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-may-2024-under-paris-mou",
+   "imo": "9491197",
+   "detained": "05 May 2024",
+   "port": "London",
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-may-2024-under-paris-mou",
+   "imo": "9617301",
+   "detained": "09 May 2024",
+   "port": "Silloth",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-may-2024-under-paris-mou",
+   "imo": "9306029",
+   "detained": "15 May 2024",
+   "port": "London",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-may-2024-under-paris-mou",
+   "imo": "9877808",
+   "detained": "29 May 2024",
+   "port": "Milford Haven",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-may-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-may-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "9441245",
+   "detained": "01 April 2024",
+   "port": "Fawley",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "9524803",
+   "detained": "23 April 2024",
+   "port": "Teesport",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "9150212",
+   "detained": "24 April 2024",
+   "port": "London",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "9486427",
+   "detained": "25 April 2024",
+   "port": "Belfast",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "9962237",
+   "detained": "25 April 2024",
+   "port": "Flixborough",
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "9595149",
+   "detained": "28 April 2024",
+   "port": "Avonmouth",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-april-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": "9508378",
+   "detained": "01 March 2024",
+   "port": "Grangemouth",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": "9559602",
+   "detained": "08 March 2024",
+   "port": "Sharpness",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": "9173197",
+   "detained": "21 March 2024",
+   "port": "New Holland",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": "9352183",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 13
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": "9418975",
+   "detained": "29 January 2024",
+   "port": "Avonmouth",
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-march-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9578995",
+   "detained": "01 February 2024",
+   "port": "Immingham",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9030486",
+   "detained": "08 February 2024",
+   "port": "London",
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "8711837",
+   "detained": "11 February 2024",
+   "port": "Silloth",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9352183",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 13
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9418975",
+   "detained": "29 January 2024",
+   "port": "Avonmouth",
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9438157",
+   "detained": "29 January 2024",
+   "port": "Falmouth",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9619892",
+   "detained": "28 January 2024",
+   "port": "South Shields",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9519298",
+   "detained": "27 January 2024",
+   "port": "Portland",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "9250414",
+   "detained": "27 December 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 10
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-february-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9418975",
+   "detained": "29 January 2024",
+   "port": "Avonmouth",
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9438157",
+   "detained": "29 January 2024",
+   "port": "Falmouth",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9619892",
+   "detained": "28 January 2024",
+   "port": "South Shields",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9519298",
+   "detained": "27 January 2024",
+   "port": "Portland",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9808156",
+   "detained": "25 January 2024",
+   "port": "Immingham",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "8903090",
+   "detained": "23 January 2024",
+   "port": "Sheerness",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9588342",
+   "detained": "20 January 2024",
+   "port": "London",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9136785",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "9250414",
+   "detained": "27 December 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-january-2024-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": "9618795",
+   "detained": "08 December 2023",
+   "port": "Hull",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": "8806149",
+   "detained": "15 December 2023",
+   "port": "Bromborough doc",
+   "grounds_rows": 8
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": "9250414",
+   "detained": "27 December 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 9
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": "9209506",
+   "detained": "28 December 2023",
+   "port": "South Shields",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": "9549267",
+   "detained": "13 November 2023",
+   "port": "Immingham",
+   "grounds_rows": 8
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-december-2023-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9216597",
+   "detained": "05 November 2023",
+   "port": "Hunterston",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9249831",
+   "detained": "10 November 2023",
+   "port": "New Holland",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9180853",
+   "detained": "11 November 2023",
+   "port": "London",
+   "grounds_rows": 5
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9549267",
+   "detained": "13 November 2023",
+   "port": "Immingham",
+   "grounds_rows": 8
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9176395",
+   "detained": "15 November 2023",
+   "port": "Southampton",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9630016",
+   "detained": "23 November 2023",
+   "port": "Belfast",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9104263",
+   "detained": "11 October 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 10
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "9121857",
+   "detained": "28 October 2023",
+   "port": "Southampton",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-november-2023-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9104263",
+   "detained": "11 October 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 10
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9476769",
+   "detained": "13 October 2023",
+   "port": "Royal Portbury",
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9227053",
+   "detained": "16 October 2023",
+   "port": "Royal Portbury",
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9121857",
+   "detained": "28 October 2023",
+   "port": "Southampton",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9194309",
+   "detained": "24 September 2023",
+   "port": "Goole",
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9588419",
+   "detained": "25 September 2023",
+   "port": "Royal Portbury",
+   "grounds_rows": 10
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9406104",
+   "detained": "26 September 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9473652",
+   "detained": "26 September 2023",
+   "port": "Belfast",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "9467615",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-october-2023-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9883364",
+   "detained": "10 September 2023",
+   "port": "Immingham",
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9587233",
+   "detained": "21 September 2023",
+   "port": "Immingham",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9194309",
+   "detained": "24 September 2023",
+   "port": "Goole",
+   "grounds_rows": 6
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9588419",
+   "detained": "25 September 2023",
+   "port": "Royal Portbury",
+   "grounds_rows": 10
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9406104",
+   "detained": "26 September 2023",
+   "port": "Avonmouth",
+   "grounds_rows": 3
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9473652",
+   "detained": "26 September 2023",
+   "port": "Belfast",
+   "grounds_rows": 1
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "9467615",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "8748828",
+   "detained": "11 June 2023",
+   "port": "Ayr",
+   "grounds_rows": 7
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "6822216",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 4
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": "7363217",
+   "detained": null,
+   "port": null,
+   "grounds_rows": 2
+  },
+  {
+   "release": "foreign-flagged-ships-detained-in-the-uk-during-september-2023-under-paris-mou",
+   "imo": null,
+   "detained": null,
+   "port": null,
+   "grounds_rows": 6
+  }
+ ],
+ "med_mou_thetis": {
+  "status": 200,
+  "current_detentions": 6,
+  "fields": [
+   "detentionDate",
+   "detentionPort",
+   "detentionReportingAuthority",
+   "flag",
+   "id",
+   "imoNumber",
+   "shipName",
+   "shipType"
+  ],
+  "newest_detention": "2026-11-12",
+  "oldest_detention": "2024-01-15",
+  "by_authority": [
+   [
+    "Turkiye",
+    4
+   ],
+   [
+    "Lebanon",
+    1
+   ],
+   [
+    "Albania",
+    1
+   ]
+  ]
+ },
+ "med_mou_records": [
+  {
+   "imo": "9008093",
+   "detained": "12/11/2026",
+   "port": "Gemlik",
+   "authority": "Turkiye",
+   "flag": "Panama"
+  },
+  {
+   "imo": "8324646",
+   "detained": "20/10/2026",
+   "port": "Istanbul",
+   "authority": "Turkiye",
+   "flag": "Togo"
+  },
+  {
+   "imo": "9260263",
+   "detained": "09/06/2026",
+   "port": "Zouk",
+   "authority": "Lebanon",
+   "flag": "Panama"
+  },
+  {
+   "imo": "8810748",
+   "detained": "12/01/2026",
+   "port": "Durres",
+   "authority": "Albania",
+   "flag": "Belize"
+  },
+  {
+   "imo": "9297917",
+   "detained": "18/01/2024",
+   "port": "Ambarli",
+   "authority": "Turkiye",
+   "flag": "Belize"
+  },
+  {
+   "imo": "7803229",
+   "detained": "15/01/2024",
+   "port": "Mersin",
+   "authority": "Turkiye",
+   "flag": "Comoros"
+  }
+ ],
+ "paris_mou_thetis": {
+  "status": 200,
+  "current_detentions": 56,
+  "fields": [
+   "detentionDate",
+   "detentionPort",
+   "detentionReportingAuthority",
+   "flag",
+   "id",
+   "imoNumber",
+   "shipName",
+   "shipType"
+  ],
+  "newest_detention": "2026-11-15",
+  "oldest_detention": "2011-08-22",
+  "by_authority": [
+   [
+    "Italy",
+    9
+   ],
+   [
+    "United Kingdom",
+    7
+   ],
+   [
+    "Romania",
+    7
+   ],
+   [
+    "Greece",
+    6
+   ],
+   [
+    "Germany",
+    4
+   ],
+   [
+    "Belgium",
+    4
+   ],
+   [
+    "Netherlands",
+    4
+   ],
+   [
+    "Bulgaria",
+    4
+   ],
+   [
+    "Portugal",
+    2
+   ],
+   [
+    "Norway",
+    2
+   ],
+   [
+    "France",
+    2
+   ],
+   [
+    "Russian Federation",
+    2
+   ],
+   [
+    "Sweden",
+    1
+   ],
+   [
+    "Croatia",
+    1
+   ],
+   [
+    "Malta",
+    1
+   ]
+  ]
+ },
+ "paris_mou_imos": [
+  "9349198",
+  "9549449",
+  "9325855",
+  "9616084",
+  "9356751",
+  "9162411",
+  "7810210",
+  "9472713",
+  "9519054",
+  "9228277",
+  "7711799",
+  "9894466",
+  "9379478",
+  "8820107",
+  "9111371",
+  "8422022",
+  "9489821",
+  "9404431",
+  "9300910",
+  "1021570",
+  "9176412",
+  "9264166",
+  "8891390",
+  "9165310",
+  "9392523",
+  "9309887",
+  "9383613",
+  "9003770",
+  "9517874",
+  "9143611",
+  "9387279",
+  "7000231",
+  "7332490",
+  "9396256",
+  "8906212",
+  "8868068",
+  "9137222",
+  "8121537",
+  "9169756",
+  "8917895",
+  "8903040",
+  "7529976",
+  "9199775",
+  "5134973",
+  "9132519",
+  "7432733",
+  "6822216",
+  "8866723",
+  "8962826",
+  "9137856",
+  "8211198",
+  "9087104",
+  "9006021",
+  "7645380",
+  "7917874",
+  "4500084"
+ ],
+ "tokyo_mou_2026_months": {
+  "09": {
+   "status": 200,
+   "rows": 140
+  },
+  "10": {
+   "status": 200,
+   "rows": 119
+  }
+ },
+ "tokyo_with_deficiency_codes": 258,
+ "join_mca_to_tc_history": {
+  "mca_imos": 63,
+  "imos_with_tc_detention": 1,
+  "statuses": {
+   "404": 62,
+   "200": 1
+  },
+  "matched": {
+   "9216597": [
+    [
+     "2015-10-19",
+     "Hamilton"
+    ]
+   ]
+  }
+ },
+ "join_med_to_tc_history": {
+  "med_imos": 6,
+  "imos_with_tc_detention": 0,
+  "matched": {}
+ },
+ "overlap_tc_2024_2026_vs_mca": 0,
+ "overlap_tc_2024_2026_vs_med_current": 0,
+ "overlap_tc_2024_2026_vs_paris_current_RED": 0,
+ "context_tokyo_canada_events_in_tc_RED": {
+  "tokyo_rows_in_canada": 5,
+  "same_imo_and_date_in_tc": 3
+ },
+ "other_authorities": {
+  "uscg_psc_page": {
+   "status": 403,
+   "final_url": "https://www.dco.uscg.mil/Our-Organization/Assistant-Commandant-for-Prevention-Policy-CG-5P/Inspections-Compliance-CG-5PC-/Commercial-Vessel-Compliance/Foreign-Offshore-Compliance-Division/PortStateControl/",
+   "imo_numbers_on_page": 0,
+   "mentions_login": false,
+   "body_head": "Access Denied Access Denied You don't have permission to access \"http://www.dco.uscg.mil/Our-Organization/Assistant-Comm"
+  },
+  "uscg_psix": {
+   "status": 200,
+   "final_url": "https://cgmix.uscg.mil/PSIX/PSIXSearch.aspx",
+   "imo_numbers_on_page": 0,
+   "mentions_login": false,
+   "body_head": null
+  },
+  "amsa_detained_ships": {
+   "status": 403,
+   "final_url": "https://www.amsa.gov.au/vessels-operators/port-state-control/detained-ships",
+   "imo_numbers_on_page": 0,
+   "mentions_login": false,
+   "body_head": "ERROR: The request could not be satisfied 403 ERROR The request could not be satisfied. Request blocked. We can't connec"
+  },
+  "iomou": {
+   "status": 403,
+   "final_url": "https://www.iomou.org/",
+   "imo_numbers_on_page": 0,
+   "mentions_login": false,
+   "body_head": "body { font-family: Arial; margin-left: 40px; } img { border: 0 none; } #content { margin-left: auto; margin-right: auto"
+  },
+  "bsmou": {
+   "status": 0,
+   "final_url": "https://www.bsmou.org/",
+   "imo_numbers_on_page": 0,
+   "mentions_login": false,
+   "body_head": ""
+  },
+  "caribbean_mou": {
+   "status": 200,
+   "final_url": "https://www.caribbeanmou.org/content/inspection-detention-data",
+   "imo_numbers_on_page": 1,
+   "mentions_login": true,
+   "body_head": null
+  },
+  "abuja_mou": {
+   "status": 200,
+   "final_url": "https://abujamou.org/detention-list/",
+   "imo_numbers_on_page": 0,
+   "mentions_login": true,
+   "body_head": null
+  },
+  "equasis": {
+   "status": 200,
+   "final_url": "https://www.equasis.org/EquasisWeb/public/HomePage",
+   "imo_numbers_on_page": 0,
+   "mentions_login": true,
+   "body_head": null
+  }
+ }
+}

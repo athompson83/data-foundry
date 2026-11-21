@@ -1,0 +1,56 @@
+== fsis-recall-api :: 403 413 text/html
+<HTML><HEAD> <TITLE>Access Denied</TITLE> </HEAD><BODY> <H1>Access Denied</H1>   You don't have permission to access "http&#58;&#47;&#47;www&#46;fsis&#46;usda&#46;gov&#47;fsis&#47;api&#47;recall&#47;v&#47;1&#63;" on this server.<P> Reference&#32;&#35;18&#46;953d117&#46;1793630770&#46;4b3ab7cd <P>htt
+== fmcsa-socrata-carriers :: 200 928 application/json;charset=utf-8
+[{"add_date":"19870618","status_code":"I","dot_number":"295909","dun_bradstreet_no":"122150972","phy_omc_region":"01","safety_inv_terr":"T","carrier_operation":"A","business_org_id":"3","mcs150_mileage":"0","mcs150_mileage_year":"0","mcs150_update_code_id":"3","business_org_desc":"CORPORATION","truc
+== fmcsa-socrata-inspections :: 200 1416 application/json;charset=utf-8
+[{"change_date":"20231102 2141","inspection_id":"80066954","dot_number":"1163849","report_state":"CT","report_number":"0513000050","insp_date":"20231102","insp_start_time":"1004","insp_end_time":"1032","region":"ET","ci_status_code":"C","location":"083S","location_desc":"MIDDLETOWN SCALE","county_co
+== epa-sems-envirofacts :: 404 68 application/json
+{"error": "SEMS_ACTIVE_SITES/rows/0:1: The table is not available."}
+== epa-superfund-arcgis :: 200 72 application/json; charset=utf-8
+{"error":{"code":400,"message":"Invalid URL","details":["Invalid URL"]}}
+== fcsi-ca :: 200 16903 application/json;charset=utf-8
+{"help": "https://open.canada.ca/data/api/3/action/help_show?name=package_search", "success": true, "result": {"count": 231, "facets": {}, "facet_ranges": {"portal_release_date": {"counts": ["1926-11-02T00:00:00Z", 141], "gap": "+100YEARS", "start": "1926-11-02T00:00:00Z", "end": "2126-11-02T00:00:0
+== openfema-pa :: 200 1089 application/json; charset=utf-8
+{"metadata": {"skip":0,"select":null,"rundate":"2026-11-02T14:00:03.453Z","top":1,"filter":"","format":"json","metadata":true,"orderby":"","entityname":"PublicAssistanceFundedProjectsDetails","version":"v2","url":"/api/open/v2/PublicAssistanceFundedProjectsDetails?$top=1","count":0}, "PublicAssistan
+== cms-nursing :: 200 1397 application/json
+{"accessLevel":"public","landingPage":"https:\/\/data.cms.gov\/provider-data\/dataset\/r5ix-sfxw","bureauCode":["009:38"],"issued":"2026-09-01","@type":"dcat:Dataset","modified":"2026-10-01","released":"2026-10-28","nextUpdateDate":"2026-12-02","keyword":["Complaints","Deficiencies","Citations"],"co
+== cms-nursing-deficiencies :: 200 3830 application/json
+{"results":[{"cms_certification_number_ccn":"015009","provider_name":"BURNS NURSING HOME, INC.","provider_address":"701 MONROE STREET NW","citytown":"RUSSELLVILLE","state":"AL","zip_code":"35653","survey_date":"2023-03-02","survey_footnote":"","survey_type":"Health","deficiency_prefix":"F","deficien
+== legistar-seattle :: 200 1610 application/json; charset=utf-8
+[{"MatterId":1785,"MatterGuid":"843DA7B1-197B-4E3E-9496-A0A2A1FB6BBA","MatterLastModifiedUtc":"2017-07-26T18:05:26.6","MatterRowVersion":"AAAAAABVmbg=","MatterFile":"CB 118329","MatterName":"CB 118329","MatterTitle":"AN ORDINANCE relating to water services of Seattle Public Utilities; revising certa
+== legistar-nyc :: 403 0 
+
+== ttb-cola :: curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.se/docs/sslcerts.html
+
+curl failed to verify the legitimacy of the server and therefore could not
+establish a secure connection to it. To learn more about this situation and
+how to fix it, please visit the web page mentioned above.
+000 0 
+
+== oib-organic :: 200 9551 text/html; charset=utf-8
+ <!DOCTYPE html> <html lang="en"> <head>             <meta charset="utf-8" />     <meta name="viewport" content="width=device-width, initial-scale=1.0" />     <title>Organic Integrity Database</title>     <base href="/integrity/" />      <link rel="stylesheet" href="css/bootstrap/bootstrap.
+== loc-api :: 200 29288 application/json
+{"breadcrumbs": [{"Library of Congress": "https://www.loc.gov"}, {"Digital Collections": "https://www.loc.gov/collections/"}], "browse": {"facets": {"include": [{"field": "subject_topic", "label": "Topic"}, {"field": "partof", "label": "Part of"}, {"field": "original-format", "label": "Original Form
+== mobility-db :: 403 111 application/xml; charset=UTF-8
+<?xml version='1.0' encoding='UTF-8'?><Error><Code>AccessDenied</Code><Message>Access denied.</Message></Error>
+== paris-mou :: 200 92536 text/html; charset=UTF-8
+<!DOCTYPE html> <html lang="en-GB">  <head>     <meta charset="UTF-8" />     <meta name="viewport" content="width=device-width, initial-scale=1.0" />     <link rel="stylesheet" href="https://parismou.org/wp-content/themes/parismou/style.css" type="text/css" media="screen" />     <link rel="pingback"
+== uscg-psix :: 200 65034 text/html; charset=utf-8
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns="http://www.w3.org/1999/xhtml"> <head><title> 	USCG Maritime Information Exchange (CGMIX) Main Page </title><link rel="Stylesheet" href="CGMIXMainSS.css" />  
+== nrc-adams :: curl: (56) CONNECT tunnel failed, response 502
+000 0 
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns="http://www.w3.org/1999/xhtml"> <head><title> 	USCG Maritime Information Exchange (CGMIX) Main Page </title><link rel="Stylesheet" href="CGMIXMainSS.css" />  
+== patentsview :: curl: (56) CONNECT tunnel failed, response 502
+000 0 
+ <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html xmlns="http://www.w3.org/1999/xhtml"> <head><title> 	USCG Maritime Information Exchange (CGMIX) Main Page </title><link rel="Stylesheet" href="CGMIXMainSS.css" />  
+== uspto-odp :: 200 20666 text/html
+<!doctype html> <html lang="en" data-beasties-container> <head><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>   <meta charset="utf-8">   <base href="/">   <meta name="viewport" content="width=device-width, initial-scale=1">   <meta name="description" content="The Open Data Port
+== ec-rapex :: 405 730 text/html;charset=ISO-8859-1
+<!DOCTYPE html> <html> <body><script type="text/javascript" src="https://ec.europa.eu/safety-gate-alerts/ruxitagentjs_ICANVfgqrux_10343260715123811.js" data-dtconfig="app=6c758c1e49bd4eb7|cuc=m097nmfl|agentId=8cf9c154b21afa3e|owasp=1|mel=100000|featureHash=ICANVfgqrux|dpvc=1|lastModification=17936
+== opss-gov :: 200 2297 application/json
+{"results":[{"description":"Corrective Action Programme for Haier Heat Pump Tumble Dryers presenting a serious risk of fire.","format":"product_safety_alert_report_recall","link":"/product-safety-alerts-reports-recalls/haier-heat-pump-tumble-dryer-corrective-action-programme","organisations":[{"orga
+== accc-recalls :: 403 389 text/html
+<HTML><HEAD> <TITLE>Access Denied</TITLE> </HEAD><BODY> <H1>Access Denied</H1>   You don't have permission to access "http&#58;&#47;&#47;www&#46;productsafety&#46;gov&#46;au&#47;recalls" on this server.<P> Reference&#32;&#35;18&#46;52aa3717&#46;1793630782&#46;1c0f51cd <P>https&#58;&#47;&#47;errors&#
+== nz-recalls :: 200 216838 text/html; charset=utf-8
+<!doctype html> <html lang="en-GB" dir="ltr" class="no-js en-GB ltr">     <head>         <title>Recalled products – Product Safety New Zealand</title>  <base href="https://www.productsafety.govt.nz/"><!--[if lte IE 6]></base><![endif]-->  <meta charset="utf-8"> <meta name="viewport" content="width

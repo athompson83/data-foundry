@@ -1,0 +1,129 @@
+{
+ "checked_on": "2026-11-21",
+ "method": "20 Mondo-to-ORPHAcode equivalent pairs whose normalised names differ, drawn with seed 20261121 by rd_measure.py; judged from the two names and their known synonyms, not by a clinical reviewer.",
+ "checked": 20,
+ "same_disease_entity": 20,
+ "note": "Every pair reads as the same entity under two naming conventions (for example Miyoshi muscular dystrophy 3 and distal anoctaminopathy; cold-induced sweating syndrome 1 and Crisponi syndrome; monosomy 18p and chromosome 18p deletion syndrome). This is a reading of names only; a pair is published because Mondo states the equivalence, not because of this check.",
+ "pairs": [
+  {
+   "mondo": "MONDO:0019522",
+   "mondo_name": "recessive dystrophic epidermolysis bullosa-generalized other",
+   "orphacode": "89842",
+   "orphanet_name": "Autosomal recessive generalized dystrophic epidermolysis bullosa, intermediate form"
+  },
+  {
+   "mondo": "MONDO:0010403",
+   "mondo_name": "albinism-hearing loss syndrome",
+   "orphacode": "998",
+   "orphanet_name": "Albinism-deafness syndrome"
+  },
+  {
+   "mondo": "MONDO:0013222",
+   "mondo_name": "Miyoshi muscular dystrophy 3",
+   "orphacode": "399096",
+   "orphanet_name": "Distal anoctaminopathy"
+  },
+  {
+   "mondo": "MONDO:0014810",
+   "mondo_name": "pancytopenia due to IKZF1 mutations",
+   "orphacode": "317473",
+   "orphanet_name": "Common variable immunodeficiency phenotype due to IKAROS functional haploinsufficiency"
+  },
+  {
+   "mondo": "MONDO:0044406",
+   "mondo_name": "arthrogryposis-ectodermal dysplasia-other anomalies syndrome",
+   "orphacode": "3200",
+   "orphanet_name": "Arthrogryposis-ectodermal dysplasia syndrome"
+  },
+  {
+   "mondo": "MONDO:0008050",
+   "mondo_name": "MYH7-related skeletal myopathy",
+   "orphacode": "59135",
+   "orphanet_name": "Laing distal myopathy"
+  },
+  {
+   "mondo": "MONDO:0014568",
+   "mondo_name": "hereditary spastic paraplegia 73",
+   "orphacode": "444099",
+   "orphanet_name": "Autosomal dominant spastic paraplegia type 73"
+  },
+  {
+   "mondo": "MONDO:0007800",
+   "mondo_name": "chromosome 18p deletion syndrome",
+   "orphacode": "1598",
+   "orphanet_name": "Monosomy 18p syndrome"
+  },
+  {
+   "mondo": "MONDO:0000453",
+   "mondo_name": "short QT syndrome",
+   "orphacode": "51083",
+   "orphanet_name": "Congenital short QT syndrome"
+  },
+  {
+   "mondo": "MONDO:0010512",
+   "mondo_name": "intellectual developmental disorder, X-linked, syndromic, Bain type",
+   "orphacode": "662198",
+   "orphanet_name": "Neurodevelopmental delay-intellectual disability-skeletal defects syndrome"
+  },
+  {
+   "mondo": "MONDO:0010091",
+   "mondo_name": "Cold-induced sweating syndrome 1",
+   "orphacode": "1545",
+   "orphanet_name": "Crisponi syndrome"
+  },
+  {
+   "mondo": "MONDO:0015070",
+   "mondo_name": "laryngeal neuroendocrine neoplasm",
+   "orphacode": "100083",
+   "orphanet_name": "Laryngeal neuroendocrine tumor"
+  },
+  {
+   "mondo": "MONDO:0014857",
+   "mondo_name": "neurodevelopmental disorder with or without anomalies of the brain, eye, or heart",
+   "orphacode": "494344",
+   "orphanet_name": "RERE-related neurodevelopmental syndrome"
+  },
+  {
+   "mondo": "MONDO:0010332",
+   "mondo_name": "cubitus valgus with impaired intellectual development and unusual facies",
+   "orphacode": "85280",
+   "orphanet_name": "X-linked intellectual disability-cubitus valgus-dysmorphism syndrome"
+  },
+  {
+   "mondo": "MONDO:0010184",
+   "mondo_name": "methylmalonic aciduria and homocystinuria type cblC",
+   "orphacode": "79282",
+   "orphanet_name": "Methylmalonic acidemia with homocystinuria, type cblC"
+  },
+  {
+   "mondo": "MONDO:0032819",
+   "mondo_name": "hypothyroidism, congenital, nongoitrous, 7",
+   "orphacode": "99832",
+   "orphanet_name": "Resistance to thyrotropin-releasing hormone syndrome"
+  },
+  {
+   "mondo": "MONDO:0015157",
+   "mondo_name": "human herpesvirus 8-related tumor",
+   "orphacode": "102024",
+   "orphanet_name": "Human herpesvirus 8-related disorder"
+  },
+  {
+   "mondo": "MONDO:0015903",
+   "mondo_name": "hyperalphalipoproteinemia",
+   "orphacode": "181428",
+   "orphanet_name": "Familial Hyperalphalipoproteinemia"
+  },
+  {
+   "mondo": "MONDO:0014875",
+   "mondo_name": "hyperaldosteronism, familial, type IV",
+   "orphacode": "642671",
+   "orphanet_name": "Familial hyperaldosteronism type IV"
+  },
+  {
+   "mondo": "MONDO:0014717",
+   "mondo_name": "early-onset Lafora body disease",
+   "orphacode": "324290",
+   "orphanet_name": "PRDM8-related progressive myoclonus epilepsy"
+  }
+ ]
+}

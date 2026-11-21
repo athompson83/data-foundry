@@ -1,0 +1,192 @@
+{
+ "date": "2026-10-26",
+ "software-vulnerabilities": {
+  "kev_count": 1756,
+  "kev_catalogVersion": "2026.10.23",
+  "kev_with_notes_text": 1756,
+  "nvd_total": 414172,
+  "sample_newest_kev": 30,
+  "nvd_sampled": 15,
+  "nvd_found": 15,
+  "nvd_with_description": 15,
+  "osv_found_of_sample": 7,
+  "rows": [
+   {
+    "cve": "CVE-2026-88772",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-88771",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-86950",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-76504",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-104286",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-102490",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-102489",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-88779",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2015-5477",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2016-3081",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2023-22894",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2021-3199",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2015-3306",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-104935",
+    "nvd": true,
+    "nvd_description": true
+   },
+   {
+    "cve": "CVE-2026-96951",
+    "nvd": true,
+    "nvd_description": true
+   }
+  ]
+ },
+ "earthquake-events": {
+  "window": "2026-09-26..2026-10-26",
+  "usgs_m5": 205,
+  "emsc_m5": 225,
+  "usgs_with_emsc_match_60s_100km": 201,
+  "mean_abs_magnitude_difference": 0.022,
+  "usgs_events_with_place_text": 205,
+  "usgs_total_since_2026-10-01": 8164
+ },
+ "variant-clinical-significance": {
+  "clinvar_brca1_pathogenic_total": "14321",
+  "sampled_recent": 20,
+  "found_in_allele_registry_by_declared_clinvar_id": 0,
+  "rows": [
+   {
+    "variation_id": "5019327",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5019127",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5016490",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5016489",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5016488",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5016487",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5016453",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "5005761",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4935332",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4935326",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4935318",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4890871",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4890846",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4887763",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4887537",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4886868",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4884209",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4883931",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4883316",
+    "allele_registry": null
+   },
+   {
+    "variation_id": "4883311",
+    "allele_registry": null
+   }
+  ]
+ },
+ "weather-alerts": {
+  "nws_active": 348,
+  "nws_with_description": 348,
+  "nws_event_types": 27
+ }
+}

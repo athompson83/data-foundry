@@ -1,0 +1,123 @@
+# Paste into docs/sources/pipeline/candidates.yaml (orchestrator merges).
+#  candidates:        one NEW key (PARKED). uk-opss-product-safety-alerts, eu-safety-gate-alerts and au-accc-product-recalls
+#                     already exist; their measured additions are in candidate_updates (append to next_action).
+#  dataset_edit:      applies now to consumer-product-recalls-north-america (BUILDING): it adds one join between two members
+#                     that are already BUILDING, and no new member, so the BUILDING member-stage gate is not affected.
+#  dataset_edit_home_product_recalls_global: optional; UK/EU measurements belong to the global dataset (SCREENED).
+candidates:
+  - key: mx-red-alerta-rapida-alertas-gob-mx
+    name: Mexico Red de Alerta Rapida (PROFECO consumer-product alerts, alertas.gob.mx)
+    category: product-safety
+    structuring: normalization
+    format: free-text
+    publisher: Mexico PROFECO (Red de Alerta Rapida)
+    stage: PARKED
+    rights: UNKNOWN
+    sources:
+      [
+        'https://alertas.gob.mx/alertas.php?site=RAR&filtro=PROFECO',
+        'https://alertas.gob.mx/detallealerta.php?site=RAR&alerta=739',
+        'https://www.gob.mx/terminos'
+      ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 4,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 3,
+        poor_existing_access: 4
+      }
+    terms:
+      - {
+          url: 'https://www.gob.mx/terminos',
+          quote: 'Se autoriza al Usuario a visualizar y descargar los materiales contenidos en el sitio solamente para su uso personal y no para un uso comercial.'
+        }
+      - {
+          url: 'https://www.gob.mx/terminos',
+          quote: 'La información del portal gob.mx es pública a menos que se indique lo contrario, en cuyo caso antes de reproducirla, deberás observar si tiene derechos reservados y respetarlos en términos de las normas relativas a derechos de autor y propiedad industrial.'
+        }
+    evidence:
+      [
+        docs/sources/pipeline/research-2026-10-04.md,
+        docs/sources/pipeline/evidence/2026-10-04/recalls-widening/notes.md
+      ]
+    next_action: >-
+      PARKED 2026-10-04: reachable and structured (listing 168 alerts per page, ids up to 1291, newest 2026-09-22; detail
+      fields Organismo notificador, Fecha, Marca, Modelo, Categoria, Riesgo, Descripcion with units sold in Mexico, the
+      US and worldwide), and CPSC declares links to it (7 CPSC recalls cite an alertas.gob.mx alert, 6 detail pages
+      resolve, all 6 same firm, 5/6 identical product; HC joint-recall text names PROFECO in 9 notices), but the gob.mx
+      terms restrict materials to personal, non-commercial use and alertas.gob.mx has no licence page (footer says
+      Derechos Reservados). Unblock only with a published Libre Uso MX or open-data licence for the RAR dataset or a
+      written permission; until then record the cited URLs as links and ingest nothing.
+
+candidate_updates:
+  - key: uk-opss-product-safety-alerts
+    append_next_action: >-
+      2026-10-04 measured all 3,746 notices (2021-01-08 to 2026-10-02: 1,570 recalls, 2,167 reports, 9 alerts; PSD number
+      in 3,581 titles, barcode row in 876, valid GTIN in 672, model row in 1,455). Zero citations of CPSC, Health Canada or
+      a Safety Gate case number. Exact GTIN to CPSC links 2 notices to 2 CPSC recalls (2/2 correct); title tokens to CPSC
+      7/20 and to Health Canada 9/20 (candidate only). See evidence/2026-10-04/recalls-widening.
+  - key: eu-safety-gate-alerts
+    append_next_action: >-
+      2026-10-04 read the newest 156 weekly reports (12,539 notifications, 2023-09-22 to 2026-10-02; barcode filled 7,841,
+      valid GTIN 6,968, model 8,136, URLrecall 1,426). Zero citations of CPSC, Health Canada or PROFECO and 0 GTIN matches to
+      CPSC or Health Canada. Brand-field plus product-token matching: to Health Canada 32 matched, 16/20 correct; to CPSC 43
+      matched, 12/20 correct. Detail URLs need their search=WEB_REPORT parameter or return a 732-byte shell.
+  - key: au-accc-product-recalls
+    append_next_action: >-
+      2026-10-04 re-checked: the RSS is still only the newest 100 (2026-05-15 to 2026-09-29), 7 with a valid GTIN, none names
+      CPSC, Health Canada or Safety Gate; data.gov.au has no recall export. Still no complete listing route.
+
+dataset_edit:
+  key: consumer-product-recalls-north-america
+  join_keys_add:
+    - key: cited legacy Health Canada notice URL (CPSC Inconjunctions[].URL on healthycanadians.gc.ca, resolved by its redirect to the recalls-rappels.canada.ca notice URL)
+      between:
+        - cpsc-recalls
+        - health-canada-consumer-product-recalls
+      measured: 831/834 CPSC recalls citing a healthycanadians.gc.ca recall URL redirect (one HEAD each, 834/834 answered 200)
+        to a Consumer product safety notice in the Health Canada open-data index of 2026-10-04 (CPSC list 2026-10-04, 10,027
+        recalls); none of the 831 also cites a current URL, so they add to the 342/371 already linked. Unresolved are
+        10029 and 15091 (stay on the legacy host) and 13114 (resolves to a drug notice outside Consumer product safety)
+      mode: declared
+  next_action_append: >-
+    2026-10-04 widening round 2: resolve the 834 legacy Health Canada citations at ingest (about +831 declared links, 343 to
+    about 1,174); treat the CPSC API HTTP-200 error body as a failed fetch and split the window; add CPSC recall 15190
+    (in the SaferProducts export, absent from the API list); persist TC, PROFECO and ACCC citations; widen the Health Canada
+    organisation filter (about 93 consumer-type notices sit under other organisation values). PROFECO's Red de Alerta
+    Rapida is PARKED on its gob.mx terms. See evidence/2026-10-04/recalls-widening/notes.md.
+
+dataset_edit_home_product_recalls_global:
+  key: home-product-recalls-global
+  join_keys_add:
+    - key: exact GTIN with a valid GS1 check digit, within 365 days (UK barcode to CPSC ProductUPCs or description GTIN)
+      between:
+        - uk-opss-product-safety-alerts
+        - cpsc-recalls
+      measured: 2 UK notices link to 2 CPSC recalls on 11 GTIN pairs (Boxine tonies R-blocks UK 2203-0518 to CPSC 22736;
+        Make Believe Ideas Rainbow Road board books UK 2309-0140 to CPSC 23292), 2/2 correct, over 3,746 UK notices and
+        10,027 CPSC recalls (CPSC carries a GTIN in 646 recalls)
+      mode: declared
+    - key: EU Safety Gate brand field as a whole word in the Health Canada title plus one shared product token, within 120 days
+      between:
+        - eu-safety-gate-alerts
+        - appliance-health-canada-recalls
+      measured: 32/12,539 EU notifications (2023-09 to 2026-10) matched; random 20 hand-checked 16/20 correct, 1 not confirmable
+      mode: candidate
+      reviewed: { correct: 16, checked: 20 }
+    - key: EU Safety Gate brand field as a whole word in the CPSC title plus one shared product token, within 120 days
+      between:
+        - eu-safety-gate-alerts
+        - cpsc-recalls
+      measured: 43/12,539 EU notifications matched; random 20 hand-checked 12/20 correct, 4 not confirmable
+      mode: candidate
+      reviewed: { correct: 12, checked: 20 }
+    - key: UK title tokens (at least 2 shared distinctive tokens) within 90 days
+      between:
+        - uk-opss-product-safety-alerts
+        - appliance-health-canada-recalls
+      measured: 231/3,746 UK notices matched; random 20 hand-checked 9/20 correct, 2 not confirmable
+      mode: candidate
+      reviewed: { correct: 9, checked: 20 }

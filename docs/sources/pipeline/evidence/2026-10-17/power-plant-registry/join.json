@@ -1,0 +1,2704 @@
+{
+ "run_at": "2026-10-17T14:20:10+00:00",
+ "requests": [
+  {
+   "url": "https://www.eia.gov/electricity/data/eia860/xls/eia8602025.zip",
+   "http": 200,
+   "bytes": 23622347,
+   "at": "2026-10-17T14:18:51+00:00"
+  },
+  {
+   "url": "https://www.epa.gov/system/files/documents/2025-06/egrid2023_data_rev2.xlsx",
+   "http": 200,
+   "bytes": 21213301,
+   "at": "2026-10-17T14:19:05+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/reading-rm/doc-collections/event-status/event/2026/",
+   "http": 200,
+   "bytes": 130212
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260102en",
+   "http": 200,
+   "bytes": 103804,
+   "at": "2026-10-17T14:19:14+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260107en",
+   "http": 200,
+   "bytes": 113044,
+   "at": "2026-10-17T14:19:15+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260112en",
+   "http": 200,
+   "bytes": 103069,
+   "at": "2026-10-17T14:19:16+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260115en",
+   "http": 200,
+   "bytes": 107472,
+   "at": "2026-10-17T14:19:17+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260121en",
+   "http": 200,
+   "bytes": 107062,
+   "at": "2026-10-17T14:19:18+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260127en",
+   "http": 200,
+   "bytes": 104054,
+   "at": "2026-10-17T14:19:19+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260130en",
+   "http": 200,
+   "bytes": 105392,
+   "at": "2026-10-17T14:19:20+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260204en",
+   "http": 200,
+   "bytes": 115782,
+   "at": "2026-10-17T14:19:21+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260209en",
+   "http": 200,
+   "bytes": 124669,
+   "at": "2026-10-17T14:19:22+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260212en",
+   "http": 200,
+   "bytes": 115819,
+   "at": "2026-10-17T14:19:23+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260218en",
+   "http": 200,
+   "bytes": 108014,
+   "at": "2026-10-17T14:19:24+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260223en",
+   "http": 200,
+   "bytes": 104561,
+   "at": "2026-10-17T14:19:25+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260226en",
+   "http": 200,
+   "bytes": 104212,
+   "at": "2026-10-17T14:19:25+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260303en",
+   "http": 200,
+   "bytes": 115083,
+   "at": "2026-10-17T14:19:26+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260306en",
+   "http": 200,
+   "bytes": 108701,
+   "at": "2026-10-17T14:19:27+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260311en",
+   "http": 200,
+   "bytes": 114943,
+   "at": "2026-10-17T14:19:28+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260316en",
+   "http": 200,
+   "bytes": 104268,
+   "at": "2026-10-17T14:19:29+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260319en",
+   "http": 200,
+   "bytes": 117797,
+   "at": "2026-10-17T14:19:30+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260324en",
+   "http": 200,
+   "bytes": 121075,
+   "at": "2026-10-17T14:19:31+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260327en",
+   "http": 200,
+   "bytes": 108631,
+   "at": "2026-10-17T14:19:32+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260401en",
+   "http": 200,
+   "bytes": 107305,
+   "at": "2026-10-17T14:19:33+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260406en",
+   "http": 200,
+   "bytes": 115188,
+   "at": "2026-10-17T14:19:34+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260409en",
+   "http": 200,
+   "bytes": 113842,
+   "at": "2026-10-17T14:19:35+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260414en",
+   "http": 200,
+   "bytes": 103160,
+   "at": "2026-10-17T14:19:36+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260417en",
+   "http": 200,
+   "bytes": 109970,
+   "at": "2026-10-17T14:19:37+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260422en",
+   "http": 200,
+   "bytes": 109753,
+   "at": "2026-10-17T14:19:38+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260427en",
+   "http": 200,
+   "bytes": 106824,
+   "at": "2026-10-17T14:19:38+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260430en",
+   "http": 200,
+   "bytes": 125981,
+   "at": "2026-10-17T14:19:39+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260505en",
+   "http": 200,
+   "bytes": 104139,
+   "at": "2026-10-17T14:19:41+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260508en",
+   "http": 200,
+   "bytes": 109555,
+   "at": "2026-10-17T14:19:41+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260513en",
+   "http": 200,
+   "bytes": 120022,
+   "at": "2026-10-17T14:19:42+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260518en",
+   "http": 200,
+   "bytes": 117521,
+   "at": "2026-10-17T14:19:43+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260521en",
+   "http": 200,
+   "bytes": 106288,
+   "at": "2026-10-17T14:19:44+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260527en",
+   "http": 200,
+   "bytes": 102876,
+   "at": "2026-10-17T14:19:45+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260601en",
+   "http": 200,
+   "bytes": 109473,
+   "at": "2026-10-17T14:19:46+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260604en",
+   "http": 200,
+   "bytes": 106296,
+   "at": "2026-10-17T14:19:47+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260609en",
+   "http": 200,
+   "bytes": 103548,
+   "at": "2026-10-17T14:19:48+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260612en",
+   "http": 200,
+   "bytes": 122107,
+   "at": "2026-10-17T14:19:49+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260617en",
+   "http": 200,
+   "bytes": 122806,
+   "at": "2026-10-17T14:19:50+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260623en",
+   "http": 200,
+   "bytes": 113442,
+   "at": "2026-10-17T14:19:51+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260626en",
+   "http": 200,
+   "bytes": 106023,
+   "at": "2026-10-17T14:19:52+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260701en",
+   "http": 200,
+   "bytes": 107557,
+   "at": "2026-10-17T14:19:53+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260707en",
+   "http": 200,
+   "bytes": 107566,
+   "at": "2026-10-17T14:19:53+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260710en",
+   "http": 200,
+   "bytes": 110876,
+   "at": "2026-10-17T14:19:54+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260715en",
+   "http": 200,
+   "bytes": 103390,
+   "at": "2026-10-17T14:19:55+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260720en",
+   "http": 200,
+   "bytes": 106372,
+   "at": "2026-10-17T14:19:56+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260723en",
+   "http": 200,
+   "bytes": 112848,
+   "at": "2026-10-17T14:19:57+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260728en",
+   "http": 200,
+   "bytes": 115208,
+   "at": "2026-10-17T14:19:58+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260731en",
+   "http": 200,
+   "bytes": 126089,
+   "at": "2026-10-17T14:19:59+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260805en",
+   "http": 200,
+   "bytes": 114667,
+   "at": "2026-10-17T14:20:00+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260810en",
+   "http": 200,
+   "bytes": 108648,
+   "at": "2026-10-17T14:20:01+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260813en",
+   "http": 200,
+   "bytes": 107677,
+   "at": "2026-10-17T14:20:02+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260818en",
+   "http": 200,
+   "bytes": 111133,
+   "at": "2026-10-17T14:20:03+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260821en",
+   "http": 200,
+   "bytes": 106412,
+   "at": "2026-10-17T14:20:03+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260826en",
+   "http": 200,
+   "bytes": 105821,
+   "at": "2026-10-17T14:20:04+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260831en",
+   "http": 200,
+   "bytes": 118932,
+   "at": "2026-10-17T14:20:05+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260903en",
+   "http": 200,
+   "bytes": 109909,
+   "at": "2026-10-17T14:20:06+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260908en",
+   "http": 200,
+   "bytes": 103211,
+   "at": "2026-10-17T14:20:07+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260911en",
+   "http": 200,
+   "bytes": 100225,
+   "at": "2026-10-17T14:20:08+00:00"
+  },
+  {
+   "url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026/20260916en",
+   "http": 200,
+   "bytes": 112550,
+   "at": "2026-10-17T14:20:09+00:00"
+  }
+ ],
+ "eia860": {
+  "release": "2025 final (released 2026-09-10 per the EIA-860 page)",
+  "plants": 17349,
+  "operable_generators": 27919,
+  "nuclear_plants": 56,
+  "plant_columns": [
+   "Utility ID",
+   "Utility Name",
+   "Plant Code",
+   "Plant Name",
+   "Street Address",
+   "City",
+   "State",
+   "Zip",
+   "County",
+   "Latitude",
+   "Longitude",
+   "NERC Region",
+   "Balancing Authority Code",
+   "Balancing Authority Name",
+   "Name of Water Source",
+   "Primary Purpose (NAICS Code)",
+   "Regulatory Status",
+   "Sector",
+   "Sector Name",
+   "FERC Cogeneration Status",
+   "FERC Cogeneration Docket Number",
+   "FERC Small Power Producer Status",
+   "FERC Small Power Producer Docket Number",
+   "FERC Exempt Wholesale Generator Status",
+   "FERC Exempt Wholesale Generator Docket Number",
+   "Ash Impoundment?",
+   "Ash Impoundment Lined?",
+   "Ash Impoundment Status",
+   "Transmission or Distribution System Owner",
+   "Transmission or Distribution System Owner ID",
+   "Transmission or Distribution System Owner State",
+   "Grid Voltage (kV)",
+   "Grid Voltage 2 (kV)",
+   "Grid Voltage 3 (kV)",
+   "Energy Storage",
+   "Natural Gas LDC Name",
+   "Natural Gas Pipeline Name 1",
+   "Natural Gas Pipeline Name 2",
+   "Natural Gas Pipeline Name 3",
+   "Pipeline Notes",
+   "Natural Gas Storage",
+   "Liquefied Natural Gas Storage"
+  ]
+ },
+ "egrid2023": {
+  "plants": 12612,
+  "columns_sample": [
+   "SEQPLT23",
+   "YEAR",
+   "PSTATABB",
+   "PNAME",
+   "ORISPL",
+   "OPRNAME",
+   "OPRCODE",
+   "UTLSRVNM",
+   "UTLSRVID",
+   "SECTOR",
+   "BANAME",
+   "BACODE"
+  ]
+ },
+ "docket_columns_in_eia860_or_egrid": [
+  "FERC Cogeneration Docket Number",
+  "FERC Small Power Producer Docket Number",
+  "FERC Exempt Wholesale Generator Docket Number"
+ ],
+ "nrc_sample": {
+  "daily_reports_fetched": 60,
+  "days_available_2026": 200,
+  "events": 189,
+  "by_kind": {
+   "Power Reactor": 42,
+   "Agreement State": 112,
+   "Part 21": 12,
+   "Non-Agreement State": 14,
+   "Fuel Cycle Facility": 4,
+   "Hospital": 5
+  },
+  "power_reactor_events": 42,
+  "power_reactor_events_with_a_docket_field": 0,
+  "distinct_power_reactor_facilities": 26,
+  "events_detail": [
+   {
+    "day": "20260102",
+    "kind": "Power Reactor",
+    "event": "58104",
+    "facility": "Hatch",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 1782
+   },
+   {
+    "day": "20260107",
+    "kind": "Power Reactor",
+    "event": "58042",
+    "facility": "Sequoyah",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "TN",
+    "event_text_chars": 1697
+   },
+   {
+    "day": "20260107",
+    "kind": "Agreement State",
+    "event": "58103",
+    "facility": "Chino Mine",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NM",
+    "event_text_chars": 771
+   },
+   {
+    "day": "20260107",
+    "kind": "Agreement State",
+    "event": "58105",
+    "facility": "New Indy Catawba",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "SC",
+    "event_text_chars": 997
+   },
+   {
+    "day": "20260107",
+    "kind": "Power Reactor",
+    "event": "58109",
+    "facility": "Callaway",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "MO",
+    "event_text_chars": 1727
+   },
+   {
+    "day": "20260112",
+    "kind": "Agreement State",
+    "event": "58106",
+    "facility": "Park Hill Caf? LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1614
+   },
+   {
+    "day": "20260115",
+    "kind": "Agreement State",
+    "event": "58110",
+    "facility": "Memorial Sloan-Kettering",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NY",
+    "event_text_chars": 697
+   },
+   {
+    "day": "20260115",
+    "kind": "Agreement State",
+    "event": "58111",
+    "facility": "Chalmette Refining, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "LA",
+    "event_text_chars": 651
+   },
+   {
+    "day": "20260115",
+    "kind": "Power Reactor",
+    "event": "58115",
+    "facility": "Summer",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "SC",
+    "event_text_chars": 859
+   },
+   {
+    "day": "20260121",
+    "kind": "Agreement State",
+    "event": "58114",
+    "facility": "Von Roll USA, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NY",
+    "event_text_chars": 1990
+   },
+   {
+    "day": "20260121",
+    "kind": "Agreement State",
+    "event": "58116",
+    "facility": "Geocon, Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 2014
+   },
+   {
+    "day": "20260127",
+    "kind": "Power Reactor",
+    "event": "58129",
+    "facility": "Comanche Peak",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "TX",
+    "event_text_chars": 1449
+   },
+   {
+    "day": "20260130",
+    "kind": "Part 21",
+    "event": "58135",
+    "facility": "Region:",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TN",
+    "event_text_chars": 1075
+   },
+   {
+    "day": "20260130",
+    "kind": "Agreement State",
+    "event": "58126",
+    "facility": "NAN YA Plastics Corp.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "SC",
+    "event_text_chars": 1362
+   },
+   {
+    "day": "20260204",
+    "kind": "Agreement State",
+    "event": "58130",
+    "facility": "Florida State University",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 1687
+   },
+   {
+    "day": "20260204",
+    "kind": "Agreement State",
+    "event": "58131",
+    "facility": "St. Joseph&#039;s Medical Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 1751
+   },
+   {
+    "day": "20260204",
+    "kind": "Non-Agreement State",
+    "event": "58132",
+    "facility": "AMC Theater Ward Parkway 14",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MO",
+    "event_text_chars": 1393
+   },
+   {
+    "day": "20260204",
+    "kind": "Agreement State",
+    "event": "58133",
+    "facility": "SCAPA Tapes",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CT",
+    "event_text_chars": 1554
+   },
+   {
+    "day": "20260204",
+    "kind": "Agreement State",
+    "event": "58134",
+    "facility": "Federal Engineering and Testing",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 1176
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58137",
+    "facility": "American Crystal Sugar Company ",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "ND",
+    "event_text_chars": 644
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58138",
+    "facility": "NM Inst. of Mining and Technology",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NM",
+    "event_text_chars": 2350
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58140",
+    "facility": "BSK Associates",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 820
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58143",
+    "facility": "Halley Engineering Contractors, INC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 1272
+   },
+   {
+    "day": "20260209",
+    "kind": "Fuel Cycle Facility",
+    "event": "58144",
+    "facility": "Global Nuclear Fuel - Americas",
+    "unit": "[] [] []",
+    "docket": null,
+    "state": "NC",
+    "event_text_chars": 768
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58145",
+    "facility": "Wisconsin Medical Radiopharmacy",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WI",
+    "event_text_chars": 2145
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58146",
+    "facility": "Unknown",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NV",
+    "event_text_chars": 1618
+   },
+   {
+    "day": "20260209",
+    "kind": "Agreement State",
+    "event": "58147",
+    "facility": "Memorial Hospital UC Health",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1939
+   },
+   {
+    "day": "20260212",
+    "kind": "Agreement State",
+    "event": "58149",
+    "facility": "St. Francis Health, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "GA",
+    "event_text_chars": 978
+   },
+   {
+    "day": "20260212",
+    "kind": "Agreement State",
+    "event": "58151",
+    "facility": "University of Miami",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 2097
+   },
+   {
+    "day": "20260212",
+    "kind": "Agreement State",
+    "event": "58153",
+    "facility": "All State Engineering &amp; Testing Consultants, INC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 1599
+   },
+   {
+    "day": "20260212",
+    "kind": "Agreement State",
+    "event": "58154",
+    "facility": "Epsilon Engineering &amp; Material, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AZ",
+    "event_text_chars": 3058
+   },
+   {
+    "day": "20260218",
+    "kind": "Agreement State",
+    "event": "58161",
+    "facility": "Valley Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NJ",
+    "event_text_chars": 1085
+   },
+   {
+    "day": "20260218",
+    "kind": "Non-Agreement State",
+    "event": "58162",
+    "facility": "Curium",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MO",
+    "event_text_chars": 3943
+   },
+   {
+    "day": "20260226",
+    "kind": "Part 21",
+    "event": "58135",
+    "facility": "Region:",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TN",
+    "event_text_chars": 2737
+   },
+   {
+    "day": "20260303",
+    "kind": "Agreement State",
+    "event": "58169",
+    "facility": "University of Maryland",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MD",
+    "event_text_chars": 1540
+   },
+   {
+    "day": "20260303",
+    "kind": "Agreement State",
+    "event": "58171",
+    "facility": "Canyon Fuel Company, LLC - Skyline Mines",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "UT",
+    "event_text_chars": 1105
+   },
+   {
+    "day": "20260303",
+    "kind": "Agreement State",
+    "event": "58172",
+    "facility": "HonorHealth d/b/a Scottsdale Shea Medical Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AZ",
+    "event_text_chars": 1542
+   },
+   {
+    "day": "20260303",
+    "kind": "Agreement State",
+    "event": "58173",
+    "facility": "UES Professional Solutions, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 979
+   },
+   {
+    "day": "20260303",
+    "kind": "Power Reactor",
+    "event": "58181",
+    "facility": "Brunswick",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "NC",
+    "event_text_chars": 1220
+   },
+   {
+    "day": "20260306",
+    "kind": "Agreement State",
+    "event": "58173",
+    "facility": "UES Professional Solutions, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 1639
+   },
+   {
+    "day": "20260306",
+    "kind": "Agreement State",
+    "event": "58176",
+    "facility": "WM-Azusa Special Waste Services",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 1147
+   },
+   {
+    "day": "20260306",
+    "kind": "Hospital",
+    "event": "58178",
+    "facility": "Christiana Care Health System",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "DE",
+    "event_text_chars": 1148
+   },
+   {
+    "day": "20260311",
+    "kind": "Agreement State",
+    "event": "58183",
+    "facility": "Acuren Inspection, Inc",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "LA",
+    "event_text_chars": 1567
+   },
+   {
+    "day": "20260311",
+    "kind": "Power Reactor",
+    "event": "58186",
+    "facility": "Byron",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "IL",
+    "event_text_chars": 994
+   },
+   {
+    "day": "20260311",
+    "kind": "Power Reactor",
+    "event": "58187",
+    "facility": "Clinton",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "IL",
+    "event_text_chars": 368
+   },
+   {
+    "day": "20260311",
+    "kind": "Hospital",
+    "event": "58184",
+    "facility": "Georgetown Univ Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "DC",
+    "event_text_chars": 724
+   },
+   {
+    "day": "20260311",
+    "kind": "Power Reactor",
+    "event": "58190",
+    "facility": "Palo Verde",
+    "unit": "[1] [2] [3]",
+    "docket": null,
+    "state": "AZ",
+    "event_text_chars": 944
+   },
+   {
+    "day": "20260316",
+    "kind": "Power Reactor",
+    "event": "58200",
+    "facility": "Beaver Valley",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "PA",
+    "event_text_chars": 1930
+   },
+   {
+    "day": "20260319",
+    "kind": "Agreement State",
+    "event": "58191",
+    "facility": "Loyola University Medical Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 1582
+   },
+   {
+    "day": "20260319",
+    "kind": "Fuel Cycle Facility",
+    "event": "58192",
+    "facility": "Louisiana Energy Services",
+    "unit": "[] [] []",
+    "docket": null,
+    "state": "NM",
+    "event_text_chars": 1426
+   },
+   {
+    "day": "20260319",
+    "kind": "Power Reactor",
+    "event": "58202",
+    "facility": "Millstone",
+    "unit": "[3] [] []",
+    "docket": null,
+    "state": "CT",
+    "event_text_chars": 499
+   },
+   {
+    "day": "20260319",
+    "kind": "Agreement State",
+    "event": "58193",
+    "facility": "DMS Health Technologies",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NJ",
+    "event_text_chars": 1113
+   },
+   {
+    "day": "20260319",
+    "kind": "Agreement State",
+    "event": "58194",
+    "facility": "Jubilant DraxImage, Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 1190
+   },
+   {
+    "day": "20260319",
+    "kind": "Agreement State",
+    "event": "58195",
+    "facility": "Jubilant DraxImage, Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 1732
+   },
+   {
+    "day": "20260324",
+    "kind": "Agreement State",
+    "event": "58201",
+    "facility": "DMS Health Technologies",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NY",
+    "event_text_chars": 2981
+   },
+   {
+    "day": "20260324",
+    "kind": "Agreement State",
+    "event": "58203",
+    "facility": "Baystate Health",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MA",
+    "event_text_chars": 1914
+   },
+   {
+    "day": "20260324",
+    "kind": "Agreement State",
+    "event": "58204",
+    "facility": "Methodist Medical Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 2324
+   },
+   {
+    "day": "20260324",
+    "kind": "Agreement State",
+    "event": "58205",
+    "facility": "BH Corbin - Cumberland Isotopes",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "KY",
+    "event_text_chars": 640
+   },
+   {
+    "day": "20260324",
+    "kind": "Agreement State",
+    "event": "58206",
+    "facility": "University of Virginia",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "VA",
+    "event_text_chars": 1816
+   },
+   {
+    "day": "20260324",
+    "kind": "Agreement State",
+    "event": "58207",
+    "facility": "Ninyo &amp; Moore Geotechnical &amp; Enviro",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "UT",
+    "event_text_chars": 1613
+   },
+   {
+    "day": "20260327",
+    "kind": "Non-Agreement State",
+    "event": "58212",
+    "facility": "Indiana University",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 792
+   },
+   {
+    "day": "20260327",
+    "kind": "Power Reactor",
+    "event": "58217",
+    "facility": "Cook",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "MI",
+    "event_text_chars": 543
+   },
+   {
+    "day": "20260327",
+    "kind": "Power Reactor",
+    "event": "58218",
+    "facility": "Vogtle 3/4",
+    "unit": "[3] [4] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 777
+   },
+   {
+    "day": "20260401",
+    "kind": "Agreement State",
+    "event": "58216",
+    "facility": "CF Industries",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IA",
+    "event_text_chars": 1820
+   },
+   {
+    "day": "20260401",
+    "kind": "Power Reactor",
+    "event": "58224",
+    "facility": "Vogtle 1/2",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 1453
+   },
+   {
+    "day": "20260406",
+    "kind": "Agreement State",
+    "event": "58219",
+    "facility": "Yale New Haven Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CT",
+    "event_text_chars": 2843
+   },
+   {
+    "day": "20260406",
+    "kind": "Agreement State",
+    "event": "58220",
+    "facility": "Summit Health Cancer Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NJ",
+    "event_text_chars": 617
+   },
+   {
+    "day": "20260406",
+    "kind": "Agreement State",
+    "event": "58221",
+    "facility": "Rayonier Advanced Materials",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "GA",
+    "event_text_chars": 533
+   },
+   {
+    "day": "20260406",
+    "kind": "Agreement State",
+    "event": "58222",
+    "facility": "Honor Health dba Deer Valley Medical Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AZ",
+    "event_text_chars": 1609
+   },
+   {
+    "day": "20260406",
+    "kind": "Non-Agreement State",
+    "event": "58223",
+    "facility": "Defense Health Agency (DHA)",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1472
+   },
+   {
+    "day": "20260409",
+    "kind": "Agreement State",
+    "event": "58226",
+    "facility": "University of Pittsburgh",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "PA",
+    "event_text_chars": 1015
+   },
+   {
+    "day": "20260409",
+    "kind": "Agreement State",
+    "event": "58227",
+    "facility": "Thompson Engineering Inc",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 2733
+   },
+   {
+    "day": "20260409",
+    "kind": "Agreement State",
+    "event": "58229",
+    "facility": "Moffitt Cancer Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 2026
+   },
+   {
+    "day": "20260409",
+    "kind": "Hospital",
+    "event": "58230",
+    "facility": "BAMF Health Management, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MI",
+    "event_text_chars": 1525
+   },
+   {
+    "day": "20260414",
+    "kind": "Agreement State",
+    "event": "58236",
+    "facility": "Medical College of Wisconsin",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WI",
+    "event_text_chars": 1758
+   },
+   {
+    "day": "20260417",
+    "kind": "Hospital",
+    "event": "58230",
+    "facility": "BAMF Health Management, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MI",
+    "event_text_chars": 1692
+   },
+   {
+    "day": "20260417",
+    "kind": "Power Reactor",
+    "event": "58242",
+    "facility": "Beaver Valley",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "PA",
+    "event_text_chars": 1069
+   },
+   {
+    "day": "20260417",
+    "kind": "Agreement State",
+    "event": "58239",
+    "facility": "Building &amp; Earth Sciences LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AL",
+    "event_text_chars": 1724
+   },
+   {
+    "day": "20260422",
+    "kind": "Power Reactor",
+    "event": "58246",
+    "facility": "Nine Mile Point",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "NY",
+    "event_text_chars": 426
+   },
+   {
+    "day": "20260422",
+    "kind": "Power Reactor",
+    "event": "58248",
+    "facility": "Catawba",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "SC",
+    "event_text_chars": 662
+   },
+   {
+    "day": "20260422",
+    "kind": "Part 21",
+    "event": "58249",
+    "facility": "Fisher Controls International",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IA",
+    "event_text_chars": 2297
+   },
+   {
+    "day": "20260427",
+    "kind": "Power Reactor",
+    "event": "58256",
+    "facility": "Cook",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "MI",
+    "event_text_chars": 541
+   },
+   {
+    "day": "20260427",
+    "kind": "Power Reactor",
+    "event": "58257",
+    "facility": "Hatch",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 1695
+   },
+   {
+    "day": "20260430",
+    "kind": "Part 21",
+    "event": "57959",
+    "facility": "Hanna Cylinders",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WI",
+    "event_text_chars": 2052
+   },
+   {
+    "day": "20260430",
+    "kind": "Non-Agreement State",
+    "event": "58232",
+    "facility": "CDC NIOSH",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WV",
+    "event_text_chars": 4004
+   },
+   {
+    "day": "20260430",
+    "kind": "Agreement State",
+    "event": "58252",
+    "facility": "Apave America inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "ND",
+    "event_text_chars": 1500
+   },
+   {
+    "day": "20260430",
+    "kind": "Fuel Cycle Facility",
+    "event": "58253",
+    "facility": "Westinghouse Electric Corporation",
+    "unit": "[] [] []",
+    "docket": null,
+    "state": "SC",
+    "event_text_chars": 1713
+   },
+   {
+    "day": "20260430",
+    "kind": "Power Reactor",
+    "event": "58254",
+    "facility": "Hatch",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 1696
+   },
+   {
+    "day": "20260430",
+    "kind": "Agreement State",
+    "event": "58255",
+    "facility": "Chevron Phillips Chemical Co LP",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 751
+   },
+   {
+    "day": "20260430",
+    "kind": "Agreement State",
+    "event": "58258",
+    "facility": "Syensqo Specialty Polymers USA",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1500
+   },
+   {
+    "day": "20260505",
+    "kind": "Agreement State",
+    "event": "58261",
+    "facility": "Premier Testing &amp; Inspection, Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 2625
+   },
+   {
+    "day": "20260508",
+    "kind": "Power Reactor",
+    "event": "58269",
+    "facility": "Grand Gulf",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "MS",
+    "event_text_chars": 476
+   },
+   {
+    "day": "20260508",
+    "kind": "Part 21",
+    "event": "58118",
+    "facility": "Region:",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CT",
+    "event_text_chars": 4975
+   },
+   {
+    "day": "20260513",
+    "kind": "Agreement State",
+    "event": "58264",
+    "facility": "Pope Testing Services, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AL",
+    "event_text_chars": 2058
+   },
+   {
+    "day": "20260513",
+    "kind": "Agreement State",
+    "event": "58265",
+    "facility": "NWC Livestock Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1173
+   },
+   {
+    "day": "20260513",
+    "kind": "Agreement State",
+    "event": "58266",
+    "facility": "University of Maryland College Park",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MD",
+    "event_text_chars": 1128
+   },
+   {
+    "day": "20260513",
+    "kind": "Agreement State",
+    "event": "58267",
+    "facility": "ATC Associates, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NC",
+    "event_text_chars": 768
+   },
+   {
+    "day": "20260513",
+    "kind": "Power Reactor",
+    "event": "58273",
+    "facility": "Cook",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "MI",
+    "event_text_chars": 555
+   },
+   {
+    "day": "20260513",
+    "kind": "Agreement State",
+    "event": "58268",
+    "facility": "Advanced Cardiovascular Specialist",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NV",
+    "event_text_chars": 3636
+   },
+   {
+    "day": "20260518",
+    "kind": "Part 21",
+    "event": "58249",
+    "facility": "Fisher Controls International",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IA",
+    "event_text_chars": 3232
+   },
+   {
+    "day": "20260518",
+    "kind": "Non-Agreement State",
+    "event": "58270",
+    "facility": "Alt and Witzig Engineering",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 1311
+   },
+   {
+    "day": "20260518",
+    "kind": "Non-Agreement State",
+    "event": "58274",
+    "facility": "Labcorp Early Development Laboratories, Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 1121
+   },
+   {
+    "day": "20260518",
+    "kind": "Agreement State",
+    "event": "58275",
+    "facility": "Building and Earth Sciences LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1487
+   },
+   {
+    "day": "20260518",
+    "kind": "Power Reactor",
+    "event": "58280",
+    "facility": "LaSalle",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "IL",
+    "event_text_chars": 838
+   },
+   {
+    "day": "20260521",
+    "kind": "Agreement State",
+    "event": "58277",
+    "facility": "Innovative Plant Consulting",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "KS",
+    "event_text_chars": 1343
+   },
+   {
+    "day": "20260521",
+    "kind": "Agreement State",
+    "event": "58278",
+    "facility": "Memorial Sloan-Kettering",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NY",
+    "event_text_chars": 1877
+   },
+   {
+    "day": "20260527",
+    "kind": "Agreement State",
+    "event": "58287",
+    "facility": "Valley Hospital Luckow Pavillion",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NJ",
+    "event_text_chars": 1483
+   },
+   {
+    "day": "20260601",
+    "kind": "Hospital",
+    "event": "58289",
+    "facility": "CAMC Memorial Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WV",
+    "event_text_chars": 1574
+   },
+   {
+    "day": "20260601",
+    "kind": "Power Reactor",
+    "event": "58293",
+    "facility": "South Texas",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "TX",
+    "event_text_chars": 515
+   },
+   {
+    "day": "20260601",
+    "kind": "Part 21",
+    "event": "58295",
+    "facility": "Hatch",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "GA",
+    "event_text_chars": 1542
+   },
+   {
+    "day": "20260604",
+    "kind": "Agreement State",
+    "event": "58292",
+    "facility": "CHEVRON PHILLIPS CHEMICAL CO",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 705
+   },
+   {
+    "day": "20260604",
+    "kind": "Power Reactor",
+    "event": "58298",
+    "facility": "Surry",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "VA",
+    "event_text_chars": 1999
+   },
+   {
+    "day": "20260609",
+    "kind": "Agreement State",
+    "event": "58297",
+    "facility": "UL Verification Services, Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MA",
+    "event_text_chars": 2064
+   },
+   {
+    "day": "20260612",
+    "kind": "Agreement State",
+    "event": "58302",
+    "facility": "Westrock Longview, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WA",
+    "event_text_chars": 1337
+   },
+   {
+    "day": "20260612",
+    "kind": "Power Reactor",
+    "event": "58309",
+    "facility": "Callaway",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "MO",
+    "event_text_chars": 1139
+   },
+   {
+    "day": "20260612",
+    "kind": "Power Reactor",
+    "event": "58310",
+    "facility": "South Texas",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "TX",
+    "event_text_chars": 1404
+   },
+   {
+    "day": "20260612",
+    "kind": "Power Reactor",
+    "event": "58312",
+    "facility": "Palo Verde",
+    "unit": "[1] [2] [3]",
+    "docket": null,
+    "state": "AZ",
+    "event_text_chars": 392
+   },
+   {
+    "day": "20260612",
+    "kind": "Power Reactor",
+    "event": "58314",
+    "facility": "Millstone",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "CT",
+    "event_text_chars": 700
+   },
+   {
+    "day": "20260612",
+    "kind": "Power Reactor",
+    "event": "58315",
+    "facility": "Brunswick",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "NC",
+    "event_text_chars": 394
+   },
+   {
+    "day": "20260612",
+    "kind": "Agreement State",
+    "event": "58316",
+    "facility": "HF Sinclair Woods Cross Refn, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "UT",
+    "event_text_chars": 1380
+   },
+   {
+    "day": "20260617",
+    "kind": "Agreement State",
+    "event": "58304",
+    "facility": "Bard Brachytherapy",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 2465
+   },
+   {
+    "day": "20260617",
+    "kind": "Agreement State",
+    "event": "58305",
+    "facility": "University of New Mexico",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NM",
+    "event_text_chars": 1481
+   },
+   {
+    "day": "20260617",
+    "kind": "Agreement State",
+    "event": "58307",
+    "facility": "Duninck Inc.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1069
+   },
+   {
+    "day": "20260617",
+    "kind": "Agreement State",
+    "event": "58308",
+    "facility": "Kaiser Permanente",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 1447
+   },
+   {
+    "day": "20260617",
+    "kind": "Agreement State",
+    "event": "58311",
+    "facility": "Precision NDT, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NM",
+    "event_text_chars": 1382
+   },
+   {
+    "day": "20260617",
+    "kind": "Power Reactor",
+    "event": "58320",
+    "facility": "Surry",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "VA",
+    "event_text_chars": 763
+   },
+   {
+    "day": "20260617",
+    "kind": "Part 21",
+    "event": "58321",
+    "facility": "Curtiss Wright Flow Control Co.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "OH",
+    "event_text_chars": 1948
+   },
+   {
+    "day": "20260623",
+    "kind": "Part 21",
+    "event": "58290",
+    "facility": "Region:",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1764
+   },
+   {
+    "day": "20260623",
+    "kind": "Agreement State",
+    "event": "58318",
+    "facility": "Heart &amp; Vascular Care, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "GA",
+    "event_text_chars": 1551
+   },
+   {
+    "day": "20260623",
+    "kind": "Agreement State",
+    "event": "58319",
+    "facility": "Atlas Technical Consultants",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NJ",
+    "event_text_chars": 1792
+   },
+   {
+    "day": "20260623",
+    "kind": "Power Reactor",
+    "event": "58326",
+    "facility": "Millstone",
+    "unit": "[2] [3] []",
+    "docket": null,
+    "state": "CT",
+    "event_text_chars": 809
+   },
+   {
+    "day": "20260626",
+    "kind": "Agreement State",
+    "event": "58323",
+    "facility": "Nucor Steel Tuscaloosa",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AL",
+    "event_text_chars": 712
+   },
+   {
+    "day": "20260626",
+    "kind": "Agreement State",
+    "event": "58324",
+    "facility": "Apave America, Inc",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 2286
+   },
+   {
+    "day": "20260701",
+    "kind": "Agreement State",
+    "event": "58327",
+    "facility": "GE Healthcare DBA/Medi Physics",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 2265
+   },
+   {
+    "day": "20260701",
+    "kind": "Agreement State",
+    "event": "58328",
+    "facility": "University Hospitals of Cleveland",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "OH",
+    "event_text_chars": 2128
+   },
+   {
+    "day": "20260707",
+    "kind": "Agreement State",
+    "event": "58339",
+    "facility": "Radiopharmacy of Indianapolis",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 1194
+   },
+   {
+    "day": "20260707",
+    "kind": "Non-Agreement State",
+    "event": "58340",
+    "facility": "Curium",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 3300
+   },
+   {
+    "day": "20260710",
+    "kind": "Power Reactor",
+    "event": "58122",
+    "facility": "Browns Ferry",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "AL",
+    "event_text_chars": 1656
+   },
+   {
+    "day": "20260710",
+    "kind": "Part 21",
+    "event": "58321",
+    "facility": "Curtiss Wright Flow Control Co.",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "OH",
+    "event_text_chars": 2112
+   },
+   {
+    "day": "20260710",
+    "kind": "Agreement State",
+    "event": "58353",
+    "facility": "Dow Chemical Company",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "LA",
+    "event_text_chars": 1303
+   },
+   {
+    "day": "20260715",
+    "kind": "Agreement State",
+    "event": "58351",
+    "facility": "UES",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NC",
+    "event_text_chars": 1873
+   },
+   {
+    "day": "20260720",
+    "kind": "Agreement State",
+    "event": "58358",
+    "facility": "Glenn O. Hawbaker, Inc",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "PA",
+    "event_text_chars": 1868
+   },
+   {
+    "day": "20260720",
+    "kind": "Power Reactor",
+    "event": "58364",
+    "facility": "Hope Creek",
+    "unit": "[1] [] []",
+    "docket": null,
+    "state": "NJ",
+    "event_text_chars": 824
+   },
+   {
+    "day": "20260723",
+    "kind": "Agreement State",
+    "event": "58361",
+    "facility": "The Dow Chemical Company",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1067
+   },
+   {
+    "day": "20260723",
+    "kind": "Agreement State",
+    "event": "58362",
+    "facility": "Baptist Health Louisville",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "KY",
+    "event_text_chars": 1902
+   },
+   {
+    "day": "20260723",
+    "kind": "Agreement State",
+    "event": "58363",
+    "facility": "Precision NDT LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1102
+   },
+   {
+    "day": "20260723",
+    "kind": "Power Reactor",
+    "event": "58369",
+    "facility": "Hatch",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 1731
+   },
+   {
+    "day": "20260728",
+    "kind": "Agreement State",
+    "event": "57891",
+    "facility": "Gentech Scientific, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NY",
+    "event_text_chars": 3387
+   },
+   {
+    "day": "20260728",
+    "kind": "Agreement State",
+    "event": "58366",
+    "facility": "Illinois Emergency Mgmt. Agency",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IL",
+    "event_text_chars": 2494
+   },
+   {
+    "day": "20260728",
+    "kind": "Agreement State",
+    "event": "58367",
+    "facility": "Cleveland Clinic Foundation",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "OH",
+    "event_text_chars": 1141
+   },
+   {
+    "day": "20260728",
+    "kind": "Agreement State",
+    "event": "58368",
+    "facility": "Engineering Consulting Services",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "MD",
+    "event_text_chars": 1709
+   },
+   {
+    "day": "20260731",
+    "kind": "Agreement State",
+    "event": "58375",
+    "facility": "LDS Church",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1173
+   },
+   {
+    "day": "20260731",
+    "kind": "Non-Agreement State",
+    "event": "58377",
+    "facility": "Delaware Surgery Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "DE",
+    "event_text_chars": 2886
+   },
+   {
+    "day": "20260731",
+    "kind": "Fuel Cycle Facility",
+    "event": "58386",
+    "facility": "Global Nuclear Fuel - Americas",
+    "unit": "[] [] []",
+    "docket": null,
+    "state": "NC",
+    "event_text_chars": 1085
+   },
+   {
+    "day": "20260731",
+    "kind": "Agreement State",
+    "event": "58379",
+    "facility": "Desert NDT LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1715
+   },
+   {
+    "day": "20260731",
+    "kind": "Agreement State",
+    "event": "58380",
+    "facility": "GCF US Holdings, LLC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "GA",
+    "event_text_chars": 2314
+   },
+   {
+    "day": "20260731",
+    "kind": "Agreement State",
+    "event": "58381",
+    "facility": "Robert Packer Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "PA",
+    "event_text_chars": 2244
+   },
+   {
+    "day": "20260731",
+    "kind": "Power Reactor",
+    "event": "58388",
+    "facility": "Columbia Generating Station",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "WA",
+    "event_text_chars": 2332
+   },
+   {
+    "day": "20260805",
+    "kind": "Agreement State",
+    "event": "58384",
+    "facility": "LDS Church",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1190
+   },
+   {
+    "day": "20260805",
+    "kind": "Agreement State",
+    "event": "58385",
+    "facility": "Loma Linda University",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 1898
+   },
+   {
+    "day": "20260805",
+    "kind": "Power Reactor",
+    "event": "58392",
+    "facility": "Millstone",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "CT",
+    "event_text_chars": 1097
+   },
+   {
+    "day": "20260805",
+    "kind": "Non-Agreement State",
+    "event": "58387",
+    "facility": "Curium",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 3585
+   },
+   {
+    "day": "20260810",
+    "kind": "Agreement State",
+    "event": "58371",
+    "facility": "United States Steel Corporation",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "PA",
+    "event_text_chars": 1517
+   },
+   {
+    "day": "20260810",
+    "kind": "Agreement State",
+    "event": "58391",
+    "facility": "Robert Wood Johnson Univ. Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NJ",
+    "event_text_chars": 891
+   },
+   {
+    "day": "20260810",
+    "kind": "Power Reactor",
+    "event": "58401",
+    "facility": "Fermi",
+    "unit": "[2] [] []",
+    "docket": null,
+    "state": "MI",
+    "event_text_chars": 898
+   },
+   {
+    "day": "20260813",
+    "kind": "Agreement State",
+    "event": "58396",
+    "facility": "Sarasota Memorial Hospital",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "FL",
+    "event_text_chars": 831
+   },
+   {
+    "day": "20260813",
+    "kind": "Non-Agreement State",
+    "event": "58398",
+    "facility": "US Army",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AK",
+    "event_text_chars": 659
+   },
+   {
+    "day": "20260813",
+    "kind": "Agreement State",
+    "event": "58399",
+    "facility": "Phillips 66 Sweeny Refinery",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1570
+   },
+   {
+    "day": "20260818",
+    "kind": "Agreement State",
+    "event": "58404",
+    "facility": "Moffat County School",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1153
+   },
+   {
+    "day": "20260818",
+    "kind": "Agreement State",
+    "event": "58405",
+    "facility": "Rocky Mountain Bottle Company",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1151
+   },
+   {
+    "day": "20260818",
+    "kind": "Agreement State",
+    "event": "58406",
+    "facility": "Bonded Inspections INC",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 3950
+   },
+   {
+    "day": "20260821",
+    "kind": "Agreement State",
+    "event": "58410",
+    "facility": "Unknown",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NC",
+    "event_text_chars": 1945
+   },
+   {
+    "day": "20260821",
+    "kind": "Agreement State",
+    "event": "58411",
+    "facility": "Banner Desert Medical Center",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AZ",
+    "event_text_chars": 1503
+   },
+   {
+    "day": "20260826",
+    "kind": "Power Reactor",
+    "event": "58418",
+    "facility": "Quad Cities",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "IL",
+    "event_text_chars": 366
+   },
+   {
+    "day": "20260826",
+    "kind": "Agreement State",
+    "event": "58413",
+    "facility": "Ascend Performance Materials Texas",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 1557
+   },
+   {
+    "day": "20260831",
+    "kind": "Non-Agreement State",
+    "event": "58416",
+    "facility": "Proximo Distillery",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 1452
+   },
+   {
+    "day": "20260831",
+    "kind": "Agreement State",
+    "event": "58417",
+    "facility": "UW Health Center at ProHealth Care",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "WI",
+    "event_text_chars": 1650
+   },
+   {
+    "day": "20260831",
+    "kind": "Agreement State",
+    "event": "58419",
+    "facility": "Cinemark Century Bel Mar 16",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1242
+   },
+   {
+    "day": "20260831",
+    "kind": "Power Reactor",
+    "event": "58425",
+    "facility": "Saint Lucie",
+    "unit": "[1] [2] []",
+    "docket": null,
+    "state": "FL",
+    "event_text_chars": 390
+   },
+   {
+    "day": "20260831",
+    "kind": "Part 21",
+    "event": "58427",
+    "facility": "Region:",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "NC",
+    "event_text_chars": 1438
+   },
+   {
+    "day": "20260831",
+    "kind": "Power Reactor",
+    "event": "58429",
+    "facility": "Palo Verde",
+    "unit": "[1] [2] [3]",
+    "docket": null,
+    "state": "AZ",
+    "event_text_chars": 867
+   },
+   {
+    "day": "20260903",
+    "kind": "Agreement State",
+    "event": "58422",
+    "facility": "Insight NDE",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "AL",
+    "event_text_chars": 1192
+   },
+   {
+    "day": "20260903",
+    "kind": "Agreement State",
+    "event": "58423",
+    "facility": "Regal Southglenn",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CO",
+    "event_text_chars": 1192
+   },
+   {
+    "day": "20260903",
+    "kind": "Part 21",
+    "event": "58434",
+    "facility": "Region:",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "PA",
+    "event_text_chars": 2703
+   },
+   {
+    "day": "20260908",
+    "kind": "Non-Agreement State",
+    "event": "58433",
+    "facility": "Refresco Beverage Inc",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 1709
+   },
+   {
+    "day": "20260916",
+    "kind": "Non-Agreement State",
+    "event": "58438",
+    "facility": "Community Health Network",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "IN",
+    "event_text_chars": 1707
+   },
+   {
+    "day": "20260916",
+    "kind": "Agreement State",
+    "event": "58439",
+    "facility": "Ketjen Limited Liability Company",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "TX",
+    "event_text_chars": 953
+   },
+   {
+    "day": "20260916",
+    "kind": "Agreement State",
+    "event": "58440",
+    "facility": "AMC Brentwood (Non-Licensee)",
+    "unit": null,
+    "docket": "NRC Notified By:",
+    "state": "CA",
+    "event_text_chars": 1542
+   },
+   {
+    "day": "20260916",
+    "kind": "Power Reactor",
+    "event": "58449",
+    "facility": "Vogtle 3/4",
+    "unit": "[3] [4] []",
+    "docket": null,
+    "state": "GA",
+    "event_text_chars": 839
+   }
+  ]
+ },
+ "join_A_egrid_orispl_to_eia860_plant_code": {
+  "matched": 12439,
+  "total": 12612,
+  "unmatched_sample": [
+   "423",
+   "50359",
+   "57467",
+   "356",
+   "62577",
+   "65192",
+   "58440",
+   "302",
+   "65202",
+   "57714",
+   "10623",
+   "50632",
+   "58170",
+   "63674",
+   "10300",
+   "60100",
+   "64693",
+   "330",
+   "55396",
+   "58216"
+  ]
+ },
+ "join_B_nrc_facility_to_eia860_nuclear_plant_candidate": {
+  "facilities": 26,
+  "with_exactly_one_candidate": 25,
+  "pairs": [
+   {
+    "nrc_facility": "Hatch",
+    "nrc_docket": null,
+    "nrc_state": "GA",
+    "eia_candidates": [
+     {
+      "plant_code": "6051",
+      "plant_name": "Edwin I Hatch",
+      "state": "GA"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Sequoyah",
+    "nrc_docket": null,
+    "nrc_state": "TN",
+    "eia_candidates": [
+     {
+      "plant_code": "6152",
+      "plant_name": "Sequoyah",
+      "state": "TN"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Callaway",
+    "nrc_docket": null,
+    "nrc_state": "MO",
+    "eia_candidates": [
+     {
+      "plant_code": "6153",
+      "plant_name": "Callaway",
+      "state": "MO"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Summer",
+    "nrc_docket": null,
+    "nrc_state": "SC",
+    "eia_candidates": [
+     {
+      "plant_code": "6127",
+      "plant_name": "V C Summer",
+      "state": "SC"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Comanche Peak",
+    "nrc_docket": null,
+    "nrc_state": "TX",
+    "eia_candidates": [
+     {
+      "plant_code": "6145",
+      "plant_name": "Comanche Peak",
+      "state": "TX"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Brunswick",
+    "nrc_docket": null,
+    "nrc_state": "NC",
+    "eia_candidates": [
+     {
+      "plant_code": "6014",
+      "plant_name": "Brunswick Nuclear",
+      "state": "NC"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Byron",
+    "nrc_docket": null,
+    "nrc_state": "IL",
+    "eia_candidates": [
+     {
+      "plant_code": "6023",
+      "plant_name": "Byron Generating Station",
+      "state": "IL"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Clinton",
+    "nrc_docket": null,
+    "nrc_state": "IL",
+    "eia_candidates": [
+     {
+      "plant_code": "204",
+      "plant_name": "Clinton Power Station",
+      "state": "IL"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Palo Verde",
+    "nrc_docket": null,
+    "nrc_state": "AZ",
+    "eia_candidates": [
+     {
+      "plant_code": "6008",
+      "plant_name": "Palo Verde",
+      "state": "AZ"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Beaver Valley",
+    "nrc_docket": null,
+    "nrc_state": "PA",
+    "eia_candidates": [
+     {
+      "plant_code": "6040",
+      "plant_name": "Beaver Valley",
+      "state": "PA"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Millstone",
+    "nrc_docket": null,
+    "nrc_state": "CT",
+    "eia_candidates": [
+     {
+      "plant_code": "566",
+      "plant_name": "Millstone",
+      "state": "CT"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Cook",
+    "nrc_docket": null,
+    "nrc_state": "MI",
+    "eia_candidates": [
+     {
+      "plant_code": "6000",
+      "plant_name": "Donald C Cook",
+      "state": "MI"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Vogtle 3/4",
+    "nrc_docket": null,
+    "nrc_state": "GA",
+    "eia_candidates": [
+     {
+      "plant_code": "649",
+      "plant_name": "Vogtle",
+      "state": "GA"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Vogtle 1/2",
+    "nrc_docket": null,
+    "nrc_state": "GA",
+    "eia_candidates": [
+     {
+      "plant_code": "649",
+      "plant_name": "Vogtle",
+      "state": "GA"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Nine Mile Point",
+    "nrc_docket": null,
+    "nrc_state": "NY",
+    "eia_candidates": [
+     {
+      "plant_code": "2589",
+      "plant_name": "Nine Mile Point Nuclear Station",
+      "state": "NY"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Catawba",
+    "nrc_docket": null,
+    "nrc_state": "SC",
+    "eia_candidates": [
+     {
+      "plant_code": "6036",
+      "plant_name": "Catawba",
+      "state": "SC"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Grand Gulf",
+    "nrc_docket": null,
+    "nrc_state": "MS",
+    "eia_candidates": [
+     {
+      "plant_code": "6072",
+      "plant_name": "Grand Gulf",
+      "state": "MS"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "LaSalle",
+    "nrc_docket": null,
+    "nrc_state": "IL",
+    "eia_candidates": [
+     {
+      "plant_code": "6026",
+      "plant_name": "LaSalle Generating Station",
+      "state": "IL"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "South Texas",
+    "nrc_docket": null,
+    "nrc_state": "TX",
+    "eia_candidates": [
+     {
+      "plant_code": "6251",
+      "plant_name": "South Texas Project",
+      "state": "TX"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Surry",
+    "nrc_docket": null,
+    "nrc_state": "VA",
+    "eia_candidates": [
+     {
+      "plant_code": "3806",
+      "plant_name": "Surry",
+      "state": "VA"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Browns Ferry",
+    "nrc_docket": null,
+    "nrc_state": "AL",
+    "eia_candidates": [
+     {
+      "plant_code": "46",
+      "plant_name": "Browns Ferry",
+      "state": "AL"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Hope Creek",
+    "nrc_docket": null,
+    "nrc_state": "NJ",
+    "eia_candidates": [
+     {
+      "plant_code": "6118",
+      "plant_name": "PSEG Hope Creek Generating Station",
+      "state": "NJ"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Columbia Generating Station",
+    "nrc_docket": null,
+    "nrc_state": "WA",
+    "eia_candidates": [
+     {
+      "plant_code": "371",
+      "plant_name": "Columbia Generating Station",
+      "state": "WA"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Fermi",
+    "nrc_docket": null,
+    "nrc_state": "MI",
+    "eia_candidates": [
+     {
+      "plant_code": "1729",
+      "plant_name": "Fermi",
+      "state": "MI"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Quad Cities",
+    "nrc_docket": null,
+    "nrc_state": "IL",
+    "eia_candidates": [
+     {
+      "plant_code": "880",
+      "plant_name": "Quad Cities Generating Station",
+      "state": "IL"
+     }
+    ]
+   },
+   {
+    "nrc_facility": "Saint Lucie",
+    "nrc_docket": null,
+    "nrc_state": "FL",
+    "eia_candidates": []
+   }
+  ],
+  "hand_check": {
+   "checked": 25,
+   "correct": 25
+  }
+ }
+}

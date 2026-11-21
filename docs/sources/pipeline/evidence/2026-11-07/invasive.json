@@ -1,0 +1,368 @@
+{
+ "nas_exotic_in_groups": 537,
+ "sampled": 60,
+ "easin_exact_binomial": 29,
+ "authority_equal": 24,
+ "rows": [
+  [
+   "Luziola subintegra",
+   783694,
+   false,
+   false
+  ],
+  [
+   "Nymphaea alba",
+   503972,
+   true,
+   true
+  ],
+  [
+   "Eichhornia paniculata",
+   502222,
+   false,
+   false
+  ],
+  [
+   "Halophila stipulacea",
+   null,
+   true,
+   true
+  ],
+  [
+   "Epinephelus irroratus",
+   551068,
+   false,
+   false
+  ],
+  [
+   "Cephalopholis argus",
+   167752,
+   true,
+   false
+  ],
+  [
+   "Salix atrocinerea",
+   520760,
+   true,
+   true
+  ],
+  [
+   "Drosera capensis",
+   896168,
+   true,
+   true
+  ],
+  [
+   "Cephalopholis urodeta",
+   167755,
+   false,
+   false
+  ],
+  [
+   "Carassius carassius",
+   163352,
+   true,
+   true
+  ],
+  [
+   "Salvinia auriculata",
+   18013,
+   false,
+   false
+  ],
+  [
+   "Hemichromis camerounensis",
+   null,
+   false,
+   false
+  ],
+  [
+   "Upeneus vittatus",
+   169443,
+   false,
+   false
+  ],
+  [
+   "Misgurnus mizolepis",
+   640096,
+   true,
+   true
+  ],
+  [
+   "Piaractus brachypomus",
+   163280,
+   true,
+   true
+  ],
+  [
+   "Egeria densa",
+   38972,
+   true,
+   true
+  ],
+  [
+   "Poecilia mexicana",
+   165902,
+   false,
+   false
+  ],
+  [
+   "Xenentodon cancila",
+   165599,
+   false,
+   false
+  ],
+  [
+   "Hemichromis letourneuxi",
+   553306,
+   false,
+   false
+  ],
+  [
+   "Vieja melanura",
+   648944,
+   false,
+   false
+  ],
+  [
+   "Gymnocorymbus ternetzi",
+   162891,
+   false,
+   false
+  ],
+  [
+   "Dascyllus aruanus",
+   170123,
+   false,
+   false
+  ],
+  [
+   "Lates angustifrons",
+   645773,
+   false,
+   false
+  ],
+  [
+   "Oenanthe javanica",
+   506796,
+   true,
+   true
+  ],
+  [
+   "Limnoperna fortunei",
+   null,
+   true,
+   false
+  ],
+  [
+   "Schoenoplectiella mucronata",
+   507791,
+   true,
+   true
+  ],
+  [
+   "Centropyge flavissima",
+   646767,
+   false,
+   false
+  ],
+  [
+   "Halophila ovalis",
+   38959,
+   false,
+   false
+  ],
+  [
+   "Arothron diadematus",
+   646261,
+   false,
+   false
+  ],
+  [
+   "Omobranchus obliquus",
+   636452,
+   false,
+   false
+  ],
+  [
+   "Vallisneria spiralis",
+   817914,
+   true,
+   true
+  ],
+  [
+   "Ctenopoma nigropannosum",
+   172607,
+   false,
+   false
+  ],
+  [
+   "Clarias fuscus",
+   164122,
+   false,
+   false
+  ],
+  [
+   "Cyperus difformis",
+   39915,
+   true,
+   true
+  ],
+  [
+   "Clarias gariepinus",
+   164125,
+   true,
+   true
+  ],
+  [
+   "Eichhornia crassipes",
+   42623,
+   false,
+   false
+  ],
+  [
+   "Tilapia zillii",
+   169813,
+   false,
+   false
+  ],
+  [
+   "Neopomacentrus cyanomos",
+   615385,
+   false,
+   false
+  ],
+  [
+   "Perna viridis",
+   null,
+   true,
+   false
+  ],
+  [
+   "Pterygoplichthys gibbiceps",
+   164373,
+   true,
+   true
+  ],
+  [
+   "Salix cinerea",
+   22519,
+   true,
+   false
+  ],
+  [
+   "Poeciliopsis monacha-occidentalis",
+   null,
+   false,
+   false
+  ],
+  [
+   "Oreochromis mossambicus",
+   170015,
+   true,
+   true
+  ],
+  [
+   "Rhodeus sericeus",
+   163607,
+   true,
+   true
+  ],
+  [
+   "Najas graminea",
+   39000,
+   true,
+   true
+  ],
+  [
+   "Maylandia lombardoi",
+   null,
+   false,
+   false
+  ],
+  [
+   "Salvinia minima",
+   181822,
+   true,
+   true
+  ],
+  [
+   "Melanochromis johannii",
+   169972,
+   false,
+   false
+  ],
+  [
+   "Trichogaster fasciata",
+   172624,
+   false,
+   false
+  ],
+  [
+   "Cyprinus carpio",
+   163344,
+   true,
+   true
+  ],
+  [
+   "Dichotomyctere nigroviridis",
+   1054610,
+   false,
+   false
+  ],
+  [
+   "Zebrasoma xanthurum",
+   623270,
+   true,
+   true
+  ],
+  [
+   "Amphilophus labiatus",
+   648257,
+   false,
+   false
+  ],
+  [
+   "Zizania latifolia",
+   41320,
+   true,
+   true
+  ],
+  [
+   "Ludwigia grandiflora",
+   516152,
+   true,
+   true
+  ],
+  [
+   "Hydrocharis morsus-ranae",
+   503098,
+   false,
+   false
+  ],
+  [
+   "Lysimachia nummularia",
+   23993,
+   true,
+   true
+  ],
+  [
+   "Oreochromis urolepis",
+   170020,
+   true,
+   false
+  ],
+  [
+   "Channa aurolineata",
+   1184562,
+   false,
+   false
+  ],
+  [
+   "Monodactylus sebae",
+   169469,
+   true,
+   true
+  ]
+ ]
+}

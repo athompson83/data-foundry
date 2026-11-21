@@ -1,0 +1,1514 @@
+{
+ "run_date": "2026-11-18",
+ "nist_cmvp": {
+  "lists": {
+   "Active": {
+    "http": 200,
+    "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Active&ValidationYear=0",
+    "bytes": 613073,
+    "stated_total": 758,
+    "rows_parsed": 758
+   },
+   "Historical": {
+    "http": 200,
+    "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Historical&ValidationYear=0",
+    "bytes": 3761739,
+    "stated_total": 4823,
+    "rows_parsed": 4823
+   },
+   "Revoked": {
+    "http": 200,
+    "url": "https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules/search?SearchMode=Advanced&CertificateStatus=Revoked&ValidationYear=0",
+    "bytes": 71206,
+    "stated_total": 25,
+    "rows_parsed": 25
+   }
+  },
+  "certificates": 5584,
+  "list_rows_total": 5606,
+  "certificate_number_range": [
+   1,
+   5592
+  ],
+  "rows_without_vendor": 113,
+  "distinct_vendors": 1198,
+  "by_module_type": {
+   "Hardware": 3124,
+   "Software": 2097,
+   "Firmware": 176,
+   "Software-Hybrid": 93,
+   "Firmware-hybrid": 35,
+   "Software-hybrid": 32,
+   "Firmware-Hybrid": 27
+  },
+  "newest_validation_date": "2026-11-17",
+  "oldest_validation_date": "1995-10-12",
+  "validated_per_year_last5": {
+   "2022": 284,
+   "2023": 270,
+   "2024": 261,
+   "2025": 180,
+   "2026": 477
+  },
+  "newest_rows": [
+   {
+    "certificate": 5592,
+    "vendor": "Zimperium, Inc.",
+    "module": "Zimperium zKeyBox white-box cryptography library",
+    "type": "Software",
+    "last": "2026-11-17"
+   },
+   {
+    "certificate": 5591,
+    "vendor": "Hewlett Packard Enterprise Development LP",
+    "module": "iLO 5 & iLO 6 Cryptographic Module",
+    "type": "Hardware",
+    "last": "2026-11-17"
+   },
+   {
+    "certificate": 5589,
+    "vendor": "Geotab Inc.",
+    "module": "Geotab Cryptographic Module",
+    "type": "Firmware",
+    "last": "2026-11-16"
+   },
+   {
+    "certificate": 5588,
+    "vendor": "Marvell Semiconductor, Inc.",
+    "module": "LS2 HSM Family module",
+    "type": "Hardware",
+    "last": "2026-11-16"
+   },
+   {
+    "certificate": 5587,
+    "vendor": "PQShield Ltd.",
+    "module": "PQCryptoLib-Core",
+    "type": "Software",
+    "last": "2026-11-16"
+   }
+  ],
+  "certificate_pages_sampled": 20,
+  "certificate_page_field_hits": {
+   "standard": 20,
+   "status": 20,
+   "sunset_date": 1,
+   "overall_level": 20,
+   "embodiment": 20,
+   "caveat_prose": 18,
+   "validation_history_lab": 20,
+   "security_policy_pdf_link": 20,
+   "pages_with_contact_email_not_written": 20
+  },
+  "certificate_page_samples": [
+   {
+    "certificate": 5495,
+    "http": 200,
+    "standard": "FIPS 140-3",
+    "status": "Active",
+    "sunset_date": "8/17/2031",
+    "overall_level": "2",
+    "embodiment": "MultiChipEmbed",
+    "caveat_chars": 390,
+    "first_history_row": {
+     "date": "2026-08-18",
+     "type": "Initial",
+     "lab": "Leidos Accredited Testing & Evaluation (AT&E) Lab"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp5495.pdf"
+   },
+   {
+    "certificate": 1705,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 81,
+    "first_history_row": {
+     "date": "2012-04-12",
+     "type": "Initial",
+     "lab": "DXC Technology"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1705.pdf"
+   },
+   {
+    "certificate": 2877,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-Chip",
+    "caveat_chars": 106,
+    "first_history_row": {
+     "date": "2017-04-06",
+     "type": "Initial",
+     "lab": "EWA - Canada"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp2877.pdf"
+   },
+   {
+    "certificate": 610,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "1",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 26,
+    "first_history_row": {
+     "date": "2005-12-23",
+     "type": "Initial",
+     "lab": "UL Verification Services, Inc."
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp610.pdf"
+   },
+   {
+    "certificate": 373,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 26,
+    "first_history_row": {
+     "date": "2004-01-15",
+     "type": "Initial",
+     "lab": "DOMUS"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp373.pdf"
+   },
+   {
+    "certificate": 149,
+    "http": 200,
+    "standard": "FIPS 140-1",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 26,
+    "first_history_row": {
+     "date": "2001-05-23",
+     "type": "Initial",
+     "lab": "DOMUS"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp149.pdf"
+   },
+   {
+    "certificate": 1887,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 106,
+    "first_history_row": {
+     "date": "2013-02-08",
+     "type": "Initial",
+     "lab": "UL Verification Services, Inc."
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1887.pdf"
+   },
+   {
+    "certificate": 3198,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "3",
+    "embodiment": "Single",
+    "first_history_row": {
+     "date": "2018-06-14",
+     "type": "Initial",
+     "lab": "UL Verification Services, Inc."
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp3198.pdf"
+   },
+   {
+    "certificate": 2657,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "1",
+    "embodiment": "Multi-Chip",
+    "caveat_chars": 26,
+    "first_history_row": {
+     "date": "2016-06-13",
+     "type": "Initial",
+     "lab": "atsec information security corporation"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp2657.pdf"
+   },
+   {
+    "certificate": 4154,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "3",
+    "embodiment": "Multi-Chip",
+    "caveat_chars": 26,
+    "first_history_row": {
+     "date": "2022-02-15",
+     "type": "Initial",
+     "lab": "atsec information security corporation"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp4154.pdf"
+   },
+   {
+    "certificate": 3557,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "1",
+    "embodiment": "Multi-Chip",
+    "caveat_chars": 332,
+    "first_history_row": {
+     "date": "2019-10-25",
+     "type": "Initial",
+     "lab": "atsec information security corporation"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp3557.pdf"
+   },
+   {
+    "certificate": 1374,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "1",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 131,
+    "first_history_row": {
+     "date": "2010-08-26",
+     "type": "Initial",
+     "lab": "Leidos Accredited Testing & Evaluation (AT&E) Lab"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1374.pdf"
+   },
+   {
+    "certificate": 1821,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 118,
+    "first_history_row": {
+     "date": "2012-11-01",
+     "type": "Initial",
+     "lab": "DXC Technology"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1821.pdf"
+   },
+   {
+    "certificate": 29,
+    "http": 200,
+    "standard": "FIPS 140-1",
+    "status": "Historical",
+    "overall_level": "3",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 81,
+    "first_history_row": {
+     "date": "1998-10-02",
+     "type": "Initial",
+     "lab": "DOMUS"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp29.pdf"
+   },
+   {
+    "certificate": 1924,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 119,
+    "first_history_row": {
+     "date": "2013-03-26",
+     "type": "Initial",
+     "lab": "SAIC-VA"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1924.pdf"
+   },
+   {
+    "certificate": 4568,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "1",
+    "embodiment": "Multi-Chip",
+    "caveat_chars": 109,
+    "first_history_row": {
+     "date": "2023-08-30",
+     "type": "Initial",
+     "lab": "Gossamer Security Solutions"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp4568.pdf"
+   },
+   {
+    "certificate": 439,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "3",
+    "embodiment": "Multi-chip",
+    "first_history_row": {
+     "date": "2004-06-16",
+     "type": "Initial",
+     "lab": "UL Verification Services, Inc."
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp439.pdf"
+   },
+   {
+    "certificate": 3105,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "1",
+    "embodiment": "Multi-Chip",
+    "caveat_chars": 117,
+    "first_history_row": {
+     "date": "2018-01-05",
+     "type": "Initial",
+     "lab": "COACT INC CAFE LAB"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp3105.pdf"
+   },
+   {
+    "certificate": 52,
+    "http": 200,
+    "standard": "FIPS 140-1",
+    "status": "Historical",
+    "overall_level": "3",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 26,
+    "first_history_row": {
+     "date": "1999-06-15",
+     "type": "Initial",
+     "lab": "UL Verification Services, Inc."
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp52.pdf"
+   },
+   {
+    "certificate": 1743,
+    "http": 200,
+    "standard": "FIPS 140-2",
+    "status": "Historical",
+    "overall_level": "2",
+    "embodiment": "Multi-chip",
+    "caveat_chars": 81,
+    "first_history_row": {
+     "date": "2012-06-25",
+     "type": "Initial",
+     "lab": "DXC Technology"
+    },
+    "security_policy": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1743.pdf"
+   }
+  ],
+  "security_policy_pdfs_checked": [
+   {
+    "url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp5495.pdf",
+    "http": 200,
+    "bytes": 1091582,
+    "is_pdf": true,
+    "text_chars_extracted": 216829,
+    "mentions_non_proprietary_or_reproduced": true
+   },
+   {
+    "url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp1705.pdf",
+    "http": 200,
+    "bytes": 763217,
+    "is_pdf": true,
+    "text_chars_extracted": 84454,
+    "mentions_non_proprietary_or_reproduced": true
+   },
+   {
+    "url": "https://csrc.nist.gov/CSRC/media/projects/cryptographic-module-validation-program/documents/security-policies/140sp2877.pdf",
+    "http": 200,
+    "bytes": 2584291,
+    "is_pdf": true,
+    "text_chars_extracted": 525951,
+    "mentions_non_proprietary_or_reproduced": false
+   }
+  ]
+ },
+ "cc_portal": {
+  "files": {
+   "certified_products.csv": {
+    "http": 200,
+    "content_type": "text/csv",
+    "bytes": 913508,
+    "rows": 2079,
+    "rows_with_two_letter_scheme": 2075,
+    "columns": [
+     "Category",
+     "Name",
+     "Manufacturer",
+     "Scheme",
+     "Assurance Level",
+     "Protection Profile(s)",
+     "Certification Date",
+     "Archived Date",
+     "Certification Report URL",
+     "Security Target URL",
+     "Maintenance Date",
+     "Maintenance Title",
+     "Maintenance Report",
+     "Maintenance ST"
+    ],
+    "newest_certification_date": "2026-11-17",
+    "by_scheme": {
+     "FR": 514,
+     "DE": 348,
+     "NL": 332,
+     "US": 209,
+     "CA": 153,
+     "JP": 115,
+     "ES": 81,
+     "SE": 80,
+     "IT": 63,
+     "KR": 52,
+     "AU": 40,
+     "MY": 26,
+     "SG": 21,
+     "TR": 12,
+     "NO": 11,
+     "IN": 9,
+     "PL": 7,
+     "QA": 2
+    },
+    "with_security_target_url": 2075,
+    "with_certification_report_url": 2075,
+    "with_eal_assurance_level": 1521,
+    "with_protection_profile": 1583,
+    "with_maintenance_date": 321
+   },
+   "certified_products-archived.csv": {
+    "http": 200,
+    "content_type": "text/csv",
+    "bytes": 2837412,
+    "rows": 6459,
+    "rows_with_two_letter_scheme": 6457,
+    "columns": [
+     "Category",
+     "Name",
+     "Manufacturer",
+     "Scheme",
+     "Assurance Level",
+     "Protection Profile(s)",
+     "Certification Date",
+     "Archived Date",
+     "Certification Report URL",
+     "Security Target URL",
+     "Maintenance Date",
+     "Maintenance Title",
+     "Maintenance Report",
+     "Maintenance ST"
+    ],
+    "newest_certification_date": "2026-02-23",
+    "by_scheme": {
+     "US": 1409,
+     "DE": 1276,
+     "FR": 1276,
+     "CA": 622,
+     "JP": 595,
+     "NL": 192,
+     "ES": 166,
+     "KR": 163,
+     "UK": 141,
+     "AU": 122,
+     "NO": 114,
+     "SE": 112,
+     "MY": 89,
+     "TR": 83,
+     "IT": 69,
+     "IN": 18,
+     "SG": 10
+    },
+    "with_security_target_url": 6457,
+    "with_certification_report_url": 6457,
+    "with_eal_assurance_level": 5307,
+    "with_protection_profile": 3257,
+    "with_maintenance_date": 1436
+   }
+  },
+  "rows_total": 8532,
+  "distinct_products": 6714,
+  "distinct_manufacturers": 1183,
+  "oldest_certification_date": "1997-08-01",
+  "newest_rows": [
+   {
+    "Scheme": "FR",
+    "Manufacturer": "STMicroelectronics",
+    "Name": "ST31P450 including optional cryptographic library NESLIB, C04 (EUCC-3090-2026-90)",
+    "Assurance Level": "EAL5+,ALC_DVS.2,ALC_FLR.2,ASE_TSS.2,AVA_VAN.5",
+    "Protection Profile(s)": "SECURITY_IC_AUGP_V1.0",
+    "Certification Date": "11/17/2026"
+   },
+   {
+    "Scheme": "FR",
+    "Manufacturer": "STMicroelectronics",
+    "Name": "ST31P450, A09 (EUCC-3090-2026-89)",
+    "Assurance Level": "EAL5+,ALC_DVS.2,ALC_FLR.2,ASE_TSS.2,AVA_VAN.5",
+    "Protection Profile(s)": "SECURITY_IC_AUGP_V1.0",
+    "Certification Date": "11/17/2026"
+   },
+   {
+    "Scheme": "FR",
+    "Manufacturer": "THALES DIS FRANCE SA",
+    "Name": "eTravel 2.5 BAC on MultiApp V5.0 ,  Configuration 1: Operating System release level: 0104 , Configuration 2: Operating System release level: 0000 (EUCC-3090-2026-96)",
+    "Assurance Level": "EAL4+,ADV_FSP.5,ADV_INT.2,ADV_TDS.4,ALC_CMS.5,ALC_DVS.2,ALC_FLR.1,ALC_TAT.2,ATE_DPT.3",
+    "Protection Profile(s)": "MRTD_ICAO_BA_V1.10",
+    "Certification Date": "11/16/2026"
+   },
+   {
+    "Scheme": "FR",
+    "Manufacturer": "THALES DIS FRANCE SA",
+    "Name": "eTravel 2.5 EAC on BAC on MultiApp V5.0, Configuration 1: Operating System release level: 0104Configuration 2: Operating System release level: 0000 (EUCC-3090-2026-97)",
+    "Assurance Level": "EAL5+,ALC_DVS.2,ALC_FLR.1,AVA_VAN.5",
+    "Protection Profile(s)": "MRTD_ICAO_BA_V1.10",
+    "Certification Date": "11/16/2026"
+   },
+   {
+    "Scheme": "FR",
+    "Manufacturer": "THALES DIS FRANCE SA",
+    "Name": "eTravel 2.5 EAC on SAC on MultiApp V5.0,  Configuration 1: Operating System release level: 0104Configuration 2: Operating System release level: 0000 (EUCC-3090-2026-98)",
+    "Assurance Level": "EAL5+,ALC_DVS.2,ALC_FLR.1,AVA_VAN.5",
+    "Protection Profile(s)": "MRTD_ICAO_EAC_V1.3",
+    "Certification Date": "11/16/2026"
+   }
+  ],
+  "terms": {
+   "home_http": 200,
+   "home_mentions_copyright_or_terms": false,
+   "home_visible_text_chars": 1482,
+   "sitemap_http": 200,
+   "sitemap_links": 32,
+   "sitemap_links_naming_terms_copyright_legal": []
+  }
+ },
+ "niap_pcl": {
+  "list": {
+   "http": 200,
+   "content_type": "application/json",
+   "bytes": 1427773,
+   "rows": 1773,
+   "fields": [
+    "active_maintenances",
+    "am_sort",
+    "assigned_lab_name",
+    "certification_date",
+    "from_cc_portal",
+    "kicked_off_date",
+    "product_id",
+    "product_name",
+    "protection_profiles",
+    "status_sort",
+    "submitting_country_id_code",
+    "submitting_country_id_name",
+    "sunset_date",
+    "tech_types",
+    "v_id",
+    "vendor_id_name"
+   ]
+  },
+  "by_status": {
+   "Archived": 1474,
+   "Certified": 265,
+   "In Progress": 34
+  },
+  "non_integer_product_ids": 316,
+  "from_cc_portal_flag": {
+   "False": 1457,
+   "True": 316
+  },
+  "by_submitting_country": {
+   "US": 1457,
+   "CA": 165,
+   "AU": 48,
+   "SE": 46,
+   "IT": 17,
+   "JP": 16,
+   "ES": 12,
+   "DE": 7,
+   "NL": 3,
+   "IN": 2
+  },
+  "newest_certification_date": "2026-11-09",
+  "oldest_certification_date": "2000-10-01",
+  "with_lab": 1771,
+  "with_protection_profile": 1772,
+  "distinct_vendors": 346,
+  "newest_rows": [
+   {
+    "product_id": 11706,
+    "vendor": "Zebra Technologies Corporation",
+    "product": "Zebra 4490/5430/6490 Devices on Android 15",
+    "lab": "Gossamer Security Solutions",
+    "certification_date": "2026-11-09",
+    "pps": [
+     "MOD_BT_V1.0",
+     "PKG_TLS_V1.1",
+     "MOD_WLANC_v1.0",
+     "PP_MDF_V3.3"
+    ]
+   },
+   {
+    "product_id": 11721,
+    "vendor": "CAE Inc.",
+    "product": "MPIC2 v4.3",
+    "lab": "Lightship Security USA, Inc.",
+    "certification_date": "2026-10-29",
+    "pps": [
+     "PKG_SSH_V1.0",
+     "CPP_ND_V3.0E"
+    ]
+   },
+   {
+    "product_id": 11711,
+    "vendor": "Samsung Electronics Co., Ltd.",
+    "product": "Samsung Electronics Co., Ltd. Samsung Galaxy Devices on Android 16 - Spring",
+    "lab": "Gossamer Security Solutions",
+    "certification_date": "2026-10-28",
+    "pps": [
+     "MOD_BT_V1.0",
+     "PKG_TLS_V1.1",
+     "MOD_WLANC_v1.0",
+     "PP_MDF_V3.3",
+     "MOD_CPP_BIO_V1.1",
+     "MOD_VPNC_V2.5"
+    ]
+   },
+   {
+    "product_id": 11715,
+    "vendor": "Palo Alto Networks, Inc.",
+    "product": "Palo Alto Networks Cortex XSOAR Server 6.14",
+    "lab": "Gossamer Security Solutions",
+    "certification_date": "2026-10-26",
+    "pps": [
+     "PKG_X509_v1.0",
+     "PP_APP_v2.0",
+     "PKG_TLS_V2.1"
+    ]
+   },
+   {
+    "product_id": 11716,
+    "vendor": "Palo Alto Networks, Inc.",
+    "product": "Palo Alto Networks Cortex XSOAR Engine 6.14",
+    "lab": "Gossamer Security Solutions",
+    "certification_date": "2026-10-26",
+    "pps": [
+     "PKG_X509_v1.0",
+     "PP_APP_v2.0",
+     "PKG_TLS_V2.1"
+    ]
+   }
+  ],
+  "counts_endpoint": {
+   "http": 200,
+   "body": {
+    "in_evaluation": 34,
+    "certified": 265,
+    "archived": 1474
+   }
+  },
+  "robots_txt": {
+   "http": 200,
+   "body": "# https://www.robotstxt.org/robotstxt.html\nUser-agent: *\nDisallow:\n"
+  },
+  "site_shell": {
+   "http": 200,
+   "bytes": 1071,
+   "is_javascript_app_shell": true,
+   "visible_text_chars": 51
+  },
+  "note": "the per-product detail endpoint (pcl_products/<id>/) returns vendor contact persons; it is not used here"
+ },
+ "join_niap_vid": {
+  "cc_us_rows": 1618,
+  "cc_us_distinct_products": 1294,
+  "cc_us_distinct_with_vid_in_file": 1289,
+  "matched_to_niap_product_id": 1282,
+  "matched_active": 180,
+  "active_with_vid": 182,
+  "matched_archived": 1102,
+  "archived_with_vid": 1107,
+  "distinct_vids_matched": 1258,
+  "matched_same_certification_date": 1183,
+  "matched_same_normalised_vendor": 1085,
+  "unmatched_vids_sample": [
+   "10050",
+   "1023",
+   "10419",
+   "10685",
+   "11127",
+   "11628"
+  ],
+  "niap_us_certified_or_archived": 1423,
+  "niap_us_ids_found_in_cc_portal": 1258,
+  "sample": [
+   {
+    "vid": "10008",
+    "cc_name": "Cisco Security Agent",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_date": "2007-04-01",
+    "niap_product": "Cisco Security Agent",
+    "niap_vendor": "Cisco Systems, Inc.",
+    "niap_date": "2007-04-01"
+   },
+   {
+    "vid": "10921",
+    "cc_name": "Ciena Carrier Ethernet Solutions (CES) 3900 series and 5100 series",
+    "cc_manufacturer": "Ciena, Inc.",
+    "cc_date": "2019-03-26",
+    "niap_product": "Ciena Carrier Ethernet Solutions (CES) 3900 series and 5100 series",
+    "niap_vendor": "Ciena Corporation",
+    "niap_date": "2019-03-26"
+   },
+   {
+    "vid": "11520",
+    "cc_name": "SailPoint IdentityIQ v8.3p5",
+    "cc_manufacturer": "SailPoint Technologies, Inc.",
+    "cc_date": "2025-02-12",
+    "niap_product": "SailPoint IdentityIQ v8.3p5",
+    "niap_vendor": "SailPoint Technologies, Inc.",
+    "niap_date": "2025-02-12"
+   },
+   {
+    "vid": "11496",
+    "cc_name": "Cisco FTD 7.4 on Firepower 1000 Series with FMC/FMCv",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_date": "2025-02-19",
+    "niap_product": "Cisco FTD 7.4 on Firepower 1000 Series with FMC/FMCv",
+    "niap_vendor": "Cisco Systems, Inc.",
+    "niap_date": "2025-02-19"
+   },
+   {
+    "vid": "11671",
+    "cc_name": "Hewlett Packard Enterprise’s CX-5420, CX-6200M, CX-6300, CX-6400, CX-8360, and CX-9300s Sw",
+    "cc_manufacturer": "HPE Aruba Networking",
+    "cc_date": "2026-08-19",
+    "niap_product": "Hewlett Packard Enterprise’s CX-5420, CX-6200M, CX-6300, CX-6400, CX-8360, and CX-9300s Sw",
+    "niap_vendor": "Hewlett Packard Enterprise",
+    "niap_date": "2026-08-19"
+   },
+   {
+    "vid": "11228",
+    "cc_name": "Samsung Galaxy Devices on Android 12 - Spring",
+    "cc_manufacturer": "Samsung Electronics Co., Ltd.",
+    "cc_date": "2022-05-25",
+    "niap_product": "Samsung Galaxy Devices on Android 12 - Spring",
+    "niap_vendor": "Samsung Electronics Co., Ltd.",
+    "niap_date": "2022-05-25"
+   },
+   {
+    "vid": "10661",
+    "cc_name": "Juniper MX240 MX480, MX960, MX2010, MX2020, EX9204, EX9208, EX9214, PTX3000, PTX5000 with ",
+    "cc_manufacturer": "HPE Juniper Networking",
+    "cc_date": "2015-12-28",
+    "niap_product": "Juniper MX240 MX480, MX960, MX2010, MX2020, EX9204, EX9208, EX9214, PTX3000, PTX5000 with ",
+    "niap_vendor": "HPE Juniper Networking",
+    "niap_date": "2015-12-28"
+   },
+   {
+    "vid": "11176",
+    "cc_name": "Sierra Nevada Corporation Binary Armor SCADA Network Guard, with firmware version 2.1",
+    "cc_manufacturer": "Sierra Nevada Corporation",
+    "cc_date": "2021-07-15",
+    "niap_product": "Sierra Nevada Corporation Binary Armor SCADA Network Guard, with firmware version 2.1",
+    "niap_vendor": "Sierra Nevada Corporation",
+    "niap_date": "2021-07-15"
+   }
+  ]
+ },
+ "join_cmvp_number_cited_in_st": {
+  "pool_distinct_security_targets_us_ca": 1848,
+  "sampled": 60,
+  "fetched_pdf": 60,
+  "text_extracted": 59,
+  "mention_fips_140": 19,
+  "cite_a_certificate_number": 11,
+  "cite_a_number_present_in_cmvp": 11,
+  "cited_numbers": 16,
+  "cited_numbers_in_cmvp": 16,
+  "hits": [
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Broadcom Corporation",
+    "cc_name": "Symantec Privileged Access Manager v3.3.0.1085",
+    "cc_date": "2020-05-31",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/383-4-476_ST_v1.8.pdf",
+    "cited_certificate": 3043,
+    "context": "YPTOGRAPHIC SUPPOR T The TOE includes a FIPS 140 - 2 validated cryptographic module , ( Cryptographic Module Validation Program ( CMVP ) certificate # 3043 ). This module is called the",
+    "in_cmvp": true,
+    "cmvp_vendor": "CA, Inc. dba CA Technologies",
+    "cmvp_module": "CA Technologies C-Security Kernel",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2017-10-13"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Symantec Corporation",
+    "cc_name": "Symantec™ Endpoint Protection Version 12.1.2",
+    "cc_date": "2013-03-05",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/383-4-217%20ST%20v08.pdf",
+    "cited_certificate": 989,
+    "context": "tails the validations: OPERATING SYSTEM CMVP Cert # Windows XP (32 - bit, SP - 3 or higher, 64 - bit, all SPs) (FIPS 140 - 2 cert. #989) Windows Server 2003 (32 - bi",
+    "in_cmvp": true,
+    "cmvp_vendor": "Microsoft Corporation",
+    "cmvp_module": "Windows XP Enhanced Cryptographic Provider (RSAENH)",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2008-07-24"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Symantec Corporation",
+    "cc_name": "Symantec™ Endpoint Protection Version 12.1.2",
+    "cc_date": "2013-03-05",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/383-4-217%20ST%20v08.pdf",
+    "cited_certificate": 382,
+    "context": "(32 - bit, 64 - bit, R2, SP1 or later) (FIPS 140 - 2 cert. #382 , 868, 1012 ) Windows Server",
+    "in_cmvp": true,
+    "cmvp_vendor": "Microsoft Corporation",
+    "cmvp_module": "Windows Server 2003 Enhanced Cryptographic Provider (RSAENH)",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2004-02-17"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Symantec Corporation",
+    "cc_name": "Symantec™ Endpoint Protection Version 12.1.2",
+    "cc_date": "2013-03-05",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/383-4-217%20ST%20v08.pdf",
+    "cited_certificate": 1010,
+    "context": "dows Server 2008 (32 - bit, 64 - bit) ( FIPS 140 - 2 cert. #1010) Table 20 - Cryptographic Mod",
+    "in_cmvp": true,
+    "cmvp_vendor": "Microsoft Corporation",
+    "cmvp_module": "Windows Server 2008 Enhanced Cryptographic Provider (RSAENH)",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2008-08-15"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "BMC Software, Inc.",
+    "cc_name": "BMC Remedy Action Request System with Premium Encryption Security v8.1",
+    "cc_date": "2015-03-30",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/bmc-remedy-v81-sec-eng.pdf",
+    "cited_certificate": 1048,
+    "context": "to-J JCE Provider Module, version 4.0  CMVP certificate number 1048. The FIPS- certified RSA BSAF",
+    "in_cmvp": true,
+    "cmvp_vendor": "RSA, The Security Division of EMC",
+    "cmvp_module": "RSA BSAFE® Crypto-J JCE Provider Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2008-10-27"
+   },
+   {
+    "cc_scheme": "US",
+    "cc_manufacturer": "AirTight Networks, Inc.",
+    "cc_name": "AirTight Networks SpectraGuard Enterprise, Version 6.5",
+    "cc_date": "2012-06-11",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/st_vid10441-st.pdf",
+    "cited_certificate": 1609,
+    "context": "Sensor s with software version 6.7 are FIPS 140 - 2 Level 2 certi fied (Certificate #1609) . The v endor asserts that t",
+    "in_cmvp": true,
+    "cmvp_vendor": "AirTight Networks, Inc.",
+    "cmvp_module": "SpectraGuard® Enterprise Sensor",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2011-09-26"
+   },
+   {
+    "cc_scheme": "US",
+    "cc_manufacturer": "AirTight Networks, Inc.",
+    "cc_name": "AirTight Networks SpectraGuard Enterprise, Version 6.5",
+    "cc_date": "2012-06-11",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/st_vid10441-st.pdf",
+    "cited_certificate": 1649,
+    "context": ". The Server application version 6.5 is FIPS 140- 2 Level 1 certified (Certificate #1649) . In the Server application",
+    "in_cmvp": true,
+    "cmvp_vendor": "AirTight Networks, Inc.",
+    "cmvp_module": "SpectraGuard® Enterprise Server",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2011-12-14"
+   },
+   {
+    "cc_scheme": "US",
+    "cc_manufacturer": "Check Point Software Technologies Incorporated",
+    "cc_name": "Check Point Endpoint Security Media Encryption",
+    "cc_date": "2010-07-16",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/st_vid10231-st.pdf",
+    "cited_certificate": 784,
+    "context": "l 1 FCS_CKM.1, User data protection key FIPS 140 - 2 cert. #784 10 10 FIPS 140 - 2 certificat",
+    "in_cmvp": true,
+    "cmvp_vendor": "Check Point Software Technologies Ltd.",
+    "cmvp_module": "Reflex Magnetics Cryptographic Library",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2007-06-14"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Xerox Corporation",
+    "cc_name": "WorkCentre® 5945/5945i/5955/5955i 2016 Xerox® ConnectKey® Technology",
+    "cc_date": "2016-08-15",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/Xerox%20CK2.0%20WorkCentre%2059xx_ST_1.2.pdf",
+    "cited_certificate": 1614,
+    "context": "cryptographic mo dules:  Mocana v5.4f (CMVP Cert #1614) provides cryptographic funct",
+    "in_cmvp": true,
+    "cmvp_vendor": "Mocana Corporation",
+    "cmvp_module": "Mocana Cryptographic Suite B Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2011-09-30"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Xerox Corporation",
+    "cc_name": "WorkCentre® 5945/5945i/5955/5955i 2016 Xerox® ConnectKey® Technology",
+    "cc_date": "2016-08-15",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/Xerox%20CK2.0%20WorkCentre%2059xx_ST_1.2.pdf",
+    "cited_certificate": 1747,
+    "context": "s using OpenSSL FIPS Object Module 2.0 (CMVP Cert #1747) provides all other cryptogra",
+    "in_cmvp": true,
+    "cmvp_vendor": "OpenSSL Software Services Inc.",
+    "cmvp_module": "OpenSSL FIPS Object Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2012-06-27"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Citrix Systems, Inc.",
+    "cc_name": "Citrix Hypervisor ® 8.2 LTSR Premium Edition (CU1)",
+    "cc_date": "2022-08-23",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/580-LSS%20ST%20v1.9.pdf",
+    "cited_certificate": 2988,
+    "context": "(Citrix FIPS Cryptographic Module v1.0, CMVP Certificate No. 2988) has not been modified and op",
+    "in_cmvp": true,
+    "cmvp_vendor": "Citrix Systems, Inc.",
+    "cmvp_module": "Citrix FIPS Cryptographic Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2017-08-10"
+   },
+   {
+    "cc_scheme": "US",
+    "cc_manufacturer": "Gigamon, Inc",
+    "cc_name": "GigaVUE version 4.4",
+    "cc_date": "2016-03-04",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/st_vid10648-st.pdf",
+    "cited_certificate": 2128,
+    "context": "amon Linux - Based Cryptographic Module CMVP certificate #2128 [15] Gigamon GigaVUE Suppleme",
+    "in_cmvp": true,
+    "cmvp_vendor": "Gigamon Inc.",
+    "cmvp_module": "Gigamon Linux-Based Cryptographic Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2014-05-20"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Xerox Corporation",
+    "cc_name": "WorkCentre® 7830/7830i/7835/7835i 2016 Xerox® ConnectKey® Technology",
+    "cc_date": "2016-08-10",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/Xerox%20CK2.0%20WorkCentre%20783x_ST_1.2.pdf",
+    "cited_certificate": 1614,
+    "context": "cryptographic mo dules:  Mocana v5.4f (CMVP Cert #1614) provides cryptographic funct",
+    "in_cmvp": true,
+    "cmvp_vendor": "Mocana Corporation",
+    "cmvp_module": "Mocana Cryptographic Suite B Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2011-09-30"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "Xerox Corporation",
+    "cc_name": "WorkCentre® 7830/7830i/7835/7835i 2016 Xerox® ConnectKey® Technology",
+    "cc_date": "2016-08-10",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/Xerox%20CK2.0%20WorkCentre%20783x_ST_1.2.pdf",
+    "cited_certificate": 1747,
+    "context": "s using OpenSSL FIPS Object Module 2.0 (CMVP Cert #1747) provides all other cryptogra",
+    "in_cmvp": true,
+    "cmvp_vendor": "OpenSSL Software Services Inc.",
+    "cmvp_module": "OpenSSL FIPS Object Module",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2012-06-27"
+   },
+   {
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco 5915 and 5940 Embedded Services Router",
+    "cc_date": "2014-11-17",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/st_vid10570-st.pdf",
+    "cited_certificate": 2241,
+    "context": "for conformance to the requirements of FIPS 140- 2 Level 2 ( Certificate #2241) . Please see Table 6 below f",
+    "in_cmvp": true,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco 5915 and 5940 Embedded Services Routers",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2014-09-10"
+   },
+   {
+    "cc_scheme": "CA",
+    "cc_manufacturer": "SonicWALL, Inc",
+    "cc_name": "SonicWall SonicOS Enhanced V6.2.5 on NSA, SM, and TZ Appliances",
+    "cc_date": "2017-06-13",
+    "security_target": "https://www.commoncriteriaportal.org/files/epfiles/383-4-393%20ST%20v1.15.pdf",
+    "cited_certificate": 2749,
+    "context": "ryptographic Module Validation Program (CMVP) certificates #2749, 2750, and 2751 were issued f",
+    "in_cmvp": true,
+    "cmvp_vendor": "SonicWall, Inc.",
+    "cmvp_module": "SonicWALL TZ Series TZ 300, TZ 300W, TZ 400, TZ 400W, TZ 500, TZ 500W and TZ 600",
+    "cmvp_status": "Historical",
+    "cmvp_first_validated": "2016-09-19"
+   }
+  ],
+  "failures": []
+ },
+ "join_vendor_product_tokens": {
+  "cmvp_modules_with_vendor": 5471,
+  "cmvp_modules_whose_vendor_is_a_cc_manufacturer": 3529,
+  "cmvp_modules_with_product_match": 443,
+  "rule": "same normalised vendor, >= 2 shared product tokens (stop words, vendor words and version numbers removed), Jaccard >= 0.5; best CC row per CMVP module",
+  "handcheck_pairs": [
+   {
+    "cmvp_certificate": 4151,
+    "cmvp_vendor": "Utimaco IS GmbH",
+    "cmvp_module": "u.trust Anchor",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2022-02-10",
+    "cmvp_status": "Historical",
+    "cc_scheme": "NL",
+    "cc_manufacturer": "Utimaco IS GmbH",
+    "cc_name": "Utimaco u.trust Anchor 4.49.1",
+    "cc_category": "Products for Digital Signatures",
+    "cc_date": "2025-04-21",
+    "cc_assurance": "EAL4+,ALC_FLR.3,AVA_VAN.5",
+    "shared_tokens": [
+     "anchor",
+     "trust"
+    ],
+    "jaccard": 1.0
+   },
+   {
+    "cmvp_certificate": 5420,
+    "cmvp_vendor": "SUSE, LLC",
+    "cmvp_module": "SUSE Linux Enterprise Libgcrypt Cryptographic Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2026-07-16",
+    "cmvp_status": "Active",
+    "cc_scheme": "DE",
+    "cc_manufacturer": "SUSE LLC",
+    "cc_name": "SUSE Linux Enterprise Micro 5.3",
+    "cc_category": "Operating Systems",
+    "cc_date": "2025-01-24",
+    "cc_assurance": "Basic,ADV_FSP.1,AGD_OPE.1,AGD_PRE.1,ALC_CMC.1,ALC_CMS.1,ASE_CCL.1,ASE_ECD.1,ASE_INT.1,ASE_OBJ.2,ASE_REQ.2,ASE_SPD.1,ASE_TSS.1,ATE_IND.1,AVA_VAN.1,ALC_TSU_EXT.1",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "cmvp_certificate": 1657,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco Catalyst 3560-X and 3750-X Switches",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2011-12-22",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Catalyst 9400X/9600X Series Switches 17.12",
+    "cc_category": "Network and Network-Related Devices and Systems",
+    "cc_date": "2024-09-17",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "catalyst",
+     "switches"
+    ],
+    "jaccard": 1.0
+   },
+   {
+    "cmvp_certificate": 2416,
+    "cmvp_vendor": "McAfee, Inc.",
+    "cmvp_module": "McAfee Firewall Enterprise Control Center Virtual Appliance",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2015-07-30",
+    "cmvp_status": "Historical",
+    "cc_scheme": "CA",
+    "cc_manufacturer": "McAfee, Inc.",
+    "cc_name": "McAfee Firewall Enterprise v8.2.0 and McAfee Firewall Enterprise Control Center v5.2.0",
+    "cc_category": "Boundary Protection Devices and Systems",
+    "cc_date": "2012-01-27",
+    "cc_assurance": "EAL4+,ALC_FLR.3",
+    "shared_tokens": [
+     "center",
+     "control",
+     "enterprise",
+     "firewall"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 942,
+    "cmvp_vendor": "Guidance Software, Inc.",
+    "cmvp_module": "EnCase Enterprise Cryptographic Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2008-05-16",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Guidance Software, Inc.",
+    "cc_name": "EnCase Enterprise Version 6.8",
+    "cc_category": "Key Management Systems",
+    "cc_date": "2008-11-20",
+    "cc_assurance": "EAL2",
+    "shared_tokens": [
+     "encase",
+     "enterprise"
+    ],
+    "jaccard": 1.0
+   },
+   {
+    "cmvp_certificate": 704,
+    "cmvp_vendor": "Utimaco® Safeware AG",
+    "cmvp_module": "SafeGuard Easy",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2006-09-15",
+    "cmvp_status": "Historical",
+    "cc_scheme": "DE",
+    "cc_manufacturer": "Utimaco Safeware AG",
+    "cc_name": "SafeGuard Easy 3.20 für Windows 2000",
+    "cc_category": "Access Control Devices and Systems",
+    "cc_date": "2004-09-24",
+    "cc_assurance": "EAL3",
+    "shared_tokens": [
+     "easy",
+     "safeguard"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 4719,
+    "cmvp_vendor": "Palo Alto Networks, Inc.",
+    "cmvp_module": "Palo Alto Networks SD-WAN Instant-On Network (ION) Devices ION 1200, ION 1200-S, ION 3200, ION 5200, and ION 9200",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2024-07-11",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Palo Alto Networks, Inc.",
+    "cc_name": "Palo Alto Networks SD-WAN Instant-On Network (ION) Devices ION 1200, ION 1200-S, ION 3200, ION 5200, ION 9200, vION, and Controller running 6.5",
+    "cc_category": "Network and Network-Related Devices and Systems",
+    "cc_date": "2026-10-05",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "devices",
+     "instant",
+     "ion",
+     "network",
+     "wan"
+    ],
+    "jaccard": 0.71
+   },
+   {
+    "cmvp_certificate": 460,
+    "cmvp_vendor": "Lucent Technologies, Inc.",
+    "cmvp_module": "VPN Firewall Brick® 350 and Brick® 1000",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2004-09-08",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Lucent Technologies",
+    "cc_name": "Lucent VPN Firewall V7.2 (Patch 292)",
+    "cc_category": "Boundary Protection Devices and Systems",
+    "cc_date": "2006-01-19",
+    "cc_assurance": "EAL4",
+    "shared_tokens": [
+     "firewall",
+     "vpn"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "cmvp_certificate": 1792,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux 6.2 OpenSSH Server Cryptographic Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2012-08-24",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_category": "Operating Systems",
+    "cc_date": "2025-02-25",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "cmvp_certificate": 2564,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux 6.6 NSS Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2016-02-17",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_category": "Operating Systems",
+    "cc_date": "2025-02-25",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 2253,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Nexus 7000 Series Switches",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2014-09-22",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Nexus 9000 Series Switches Running NX-OS 10.4",
+    "cc_category": "Network and Network-Related Devices and Systems",
+    "cc_date": "2025-01-27",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "nexus",
+     "switches"
+    ],
+    "jaccard": 1.0
+   },
+   {
+    "cmvp_certificate": 3216,
+    "cmvp_vendor": "SUSE, LLC",
+    "cmvp_module": "SUSE Linux Enterprise Server 12 SP2 - NSS Cryptographic Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2018-07-03",
+    "cmvp_status": "Historical",
+    "cc_scheme": "DE",
+    "cc_manufacturer": "SUSE LLC",
+    "cc_name": "SUSE Linux Enterprise Server Version 15 SP2",
+    "cc_category": "Operating Systems",
+    "cc_date": "2021-11-11",
+    "cc_assurance": "Basic",
+    "shared_tokens": [
+     "enterprise",
+     "linux",
+     "server",
+     "sp2"
+    ],
+    "jaccard": 0.8
+   },
+   {
+    "cmvp_certificate": 4491,
+    "cmvp_vendor": "Commscope Technologies LLC",
+    "cmvp_module": "FastIron ICX™ 7750, ICX™ 7250 and ICX™ 7150 Series Switch/Router",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2023-04-27",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Commscope Technologies, LLC",
+    "cc_name": "CommScope Technologies LLC, Ruckus FastIron ICX Series Switch/Router 10.0.10",
+    "cc_category": "Network and Network-Related Devices and Systems",
+    "cc_date": "2024-07-09",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "fastiron",
+     "icx",
+     "router",
+     "switch"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 2721,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux Libreswan Cryptographic Module v4.0",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2016-08-29",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_category": "Operating Systems",
+    "cc_date": "2025-02-25",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 4487,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco Catalyst 9200L Series Switches",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2023-04-26",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Catalyst 9200/9200L Series Switches 17.18",
+    "cc_category": "Network and Network-Related Devices and Systems",
+    "cc_date": "2026-09-30",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "9200l",
+     "catalyst",
+     "switches"
+    ],
+    "jaccard": 1.0
+   },
+   {
+    "cmvp_certificate": 1496,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco Secure Access Control Server (ACS) FIPS module (cryptolib)",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2011-02-10",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Nexus 7000 Series Switch running Software version NX-OS version 5.1(a) and Cisco Secure Access Control Server (ACS) running version 5.2 patch 3",
+    "cc_category": "Network and Network-Related Devices and Systems",
+    "cc_date": "2011-04-27",
+    "cc_assurance": "EAL4+,ALC_FLR.2",
+    "shared_tokens": [
+     "access",
+     "acs",
+     "control",
+     "server"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "cmvp_certificate": 1757,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux 6.2 Libgcrypt Cryptographic Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2012-07-27",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_category": "Operating Systems",
+    "cc_date": "2025-02-25",
+    "cc_assurance": "None",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 4395,
+    "cmvp_vendor": "Autotalks Ltd.",
+    "cmvp_module": "CRATON2/SECTON embedded V2X HSM",
+    "cmvp_type": "Hardware",
+    "cmvp_validated": "2022-12-16",
+    "cmvp_status": "Historical",
+    "cc_scheme": "NL",
+    "cc_manufacturer": "Autotalks Ltd.",
+    "cc_name": "SECTON / CRATON2 Embedded V2X HSM CUT3.1",
+    "cc_category": "ICs, Smart Cards and Smart Card-Related Devices and Systems",
+    "cc_date": "2023-11-28",
+    "cc_assurance": "EAL4+,ALC_FLR.1,AVA_VAN.4",
+    "shared_tokens": [
+     "craton2",
+     "embedded",
+     "hsm",
+     "secton"
+    ],
+    "jaccard": 0.8
+   },
+   {
+    "cmvp_certificate": 231,
+    "cmvp_vendor": "Fortress™ Technologies, Inc.",
+    "cmvp_module": "AirFortress Wireless Security Gateway Cryptographic Module",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2002-06-19",
+    "cmvp_status": "Historical",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Fortress Technologies, Inc.",
+    "cc_name": "Fortress Wireless Secure Gateway Version 1.0",
+    "cc_category": "Boundary Protection Devices and Systems",
+    "cc_date": "2007-10-23",
+    "cc_assurance": "EAL3",
+    "shared_tokens": [
+     "gateway",
+     "wireless"
+    ],
+    "jaccard": 0.67
+   },
+   {
+    "cmvp_certificate": 1812,
+    "cmvp_vendor": "McAfee, Inc.",
+    "cmvp_module": "McAfee Firewall Enterprise Control Center Virtual Appliance",
+    "cmvp_type": "Software",
+    "cmvp_validated": "2012-10-11",
+    "cmvp_status": "Historical",
+    "cc_scheme": "CA",
+    "cc_manufacturer": "McAfee, Inc.",
+    "cc_name": "McAfee Firewall Enterprise v8.2.0 and McAfee Firewall Enterprise Control Center v5.2.0",
+    "cc_category": "Boundary Protection Devices and Systems",
+    "cc_date": "2012-01-27",
+    "cc_assurance": "EAL4+,ALC_FLR.3",
+    "shared_tokens": [
+     "center",
+     "control",
+     "enterprise",
+     "firewall"
+    ],
+    "jaccard": 0.67
+   }
+  ]
+ },
+ "other_sources": {
+  "ca_cccs": {
+   "http": 200,
+   "bytes": 143620,
+   "table_rows": 128,
+   "newest_certificate_date": "2026-10-09",
+   "terms_link_is_canada_ca": true
+  },
+  "es_ccn": {
+   "http": 200,
+   "bytes": 1106930,
+   "mentions_certification_date": true
+  },
+  "fr_anssi": {
+   "http": 200,
+   "bytes": 212,
+   "incapsula_challenge": true
+  },
+  "de_bsi": {
+   "http": 200,
+   "bytes": 67268,
+   "certificate_ids_on_index_page": 0,
+   "note": "category index only; not screened further"
+  },
+  "us_fedramp": {
+   "http": 200,
+   "bytes": 4235941,
+   "last_change": "2026-05-19T02:40:43.412Z",
+   "total": 517,
+   "note": "cloud service authorisations, a different entity type; not a member"
+  }
+ },
+ "terms": {
+  "nist": {
+   "url": "https://www.nist.gov/oism/copyrights",
+   "http": 200,
+   "quote": "With the exception of material marked as copyrighted, information presented on NIST sites are considered public information and may be distributed or copied.",
+   "quote_found_verbatim": true
+  },
+  "canada_ca": {
+   "url": "https://www.canada.ca/en/transparency/terms.html",
+   "http": 200,
+   "quote": "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator.",
+   "quote_found_verbatim": true
+  },
+  "es_ccn": {
+   "url": "https://oc.ccn.cni.es/en/legal-advice",
+   "http": 200,
+   "quote": "is totally prohibited unless previous written authorization from the CCN is provided.",
+   "quote_found_verbatim": true
+  }
+ },
+ "requests": 102
+}

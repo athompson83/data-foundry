@@ -1,0 +1,216 @@
+{
+ "join": "Orange Book trade name = Health Canada Patent Register brand name, with an overlapping active moiety (salt words removed)",
+ "criterion": "Same marketed drug in both jurisdictions: identical brand and identical active ingredient(s) on manual reading of both records. This links drug products, never patents: a US and a Canadian patent are separate rights and are not merged.",
+ "checked": 20,
+ "pairs": [
+  {
+   "brand": "ABILIFY",
+   "us_appl": "N021713",
+   "us_ingredient": "ARIPIPRAZOLE",
+   "ca_din": "02322374",
+   "ca_ingredient": "Aripiprazole",
+   "us_last_expiry": "2027-03-02",
+   "ca_last_expiry_derived": "2024-05-19",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "AMVUTTRA",
+   "us_appl": "N215515",
+   "us_ingredient": "VUTRISIRAN SODIUM",
+   "ca_din": "02542420",
+   "ca_ingredient": "VUTRISIRAN SODIUM",
+   "us_last_expiry": "2036-07-28",
+   "ca_last_expiry_derived": "2036-07-28",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "BIJUVA",
+   "us_appl": "N210132",
+   "us_ingredient": "ESTRADIOL; PROGESTERONE",
+   "ca_din": "02505215",
+   "ca_ingredient": "ESTRADIOL HEMIHYDRATE / PROGESTERONE",
+   "us_last_expiry": "2032-11-21",
+   "ca_last_expiry_derived": "2032-11-21",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "CLEVIPREX",
+   "us_appl": "N022156",
+   "us_ingredient": "CLEVIDIPINE",
+   "ca_din": "02366223",
+   "ca_ingredient": "Clevidipine",
+   "us_last_expiry": "2031-10-10",
+   "ca_last_expiry_derived": "2014-11-03",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "DOJOLVI",
+   "us_appl": "N213687",
+   "us_ingredient": "TRIHEPTANOIN",
+   "ca_din": "02512556",
+   "ca_ingredient": "TRIHEPTANOIN",
+   "us_last_expiry": "2034-11-14",
+   "ca_last_expiry_derived": "2034-11-14",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "EVOTAZ",
+   "us_appl": "N206353",
+   "us_ingredient": "ATAZANAVIR SULFATE; COBICISTAT",
+   "ca_din": "02446731",
+   "ca_ingredient": "ATAZANAVIR SULFATE / COBICISTAT",
+   "us_last_expiry": "2032-10-06",
+   "ca_last_expiry_derived": "2029-05-01",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "IBRANCE",
+   "us_appl": "N207103",
+   "us_ingredient": "PALBOCICLIB",
+   "ca_din": "02453150",
+   "ca_ingredient": "PALBOCICLIB",
+   "us_last_expiry": "2034-08-08",
+   "ca_last_expiry_derived": "2034-02-08",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "INVOKANA",
+   "us_appl": "N204042",
+   "us_ingredient": "CANAGLIFLOZIN",
+   "ca_din": "02425483",
+   "ca_ingredient": "CANAGLIFLOZIN",
+   "us_last_expiry": "2029-08-26",
+   "ca_last_expiry_derived": "2031-05-11",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "KALYDECO",
+   "us_appl": "N207925",
+   "us_ingredient": "IVACAFTOR",
+   "ca_din": "02397412",
+   "ca_ingredient": "IVACAFTOR",
+   "us_last_expiry": "2033-08-27",
+   "ca_last_expiry_derived": "2033-02-27",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "LOKELMA",
+   "us_appl": "N207078",
+   "us_ingredient": "SODIUM ZIRCONIUM CYCLOSILICATE",
+   "ca_din": "02490714",
+   "ca_ingredient": "SODIUM ZIRCONIUM CYCLOSILICATE",
+   "us_last_expiry": "2035-10-14",
+   "ca_last_expiry_derived": "2036-10-10",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "NAROPIN",
+   "us_appl": "N020533",
+   "us_ingredient": "ROPIVACAINE HYDROCHLORIDE",
+   "ca_din": "02229415",
+   "ca_ingredient": "Ropivacaine Hydrochloride",
+   "us_last_expiry": "2026-11-28",
+   "ca_last_expiry_derived": "2014-05-26",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "OLUX E",
+   "us_appl": "N022013",
+   "us_ingredient": "CLOBETASOL PROPIONATE",
+   "ca_din": "02344408",
+   "ca_ingredient": "Clobetasol Propionate",
+   "us_last_expiry": "2028-11-05",
+   "ca_last_expiry_derived": "2025-08-31",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "PICATO",
+   "us_appl": "N202833",
+   "us_ingredient": "INGENOL MEBUTATE",
+   "ca_din": "02400995",
+   "ca_ingredient": "Ingenol Mebutate",
+   "us_last_expiry": "2033-05-15",
+   "ca_last_expiry_derived": "2026-12-18",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "RECARBRIO",
+   "us_appl": "N212819",
+   "us_ingredient": "CILASTATIN SODIUM; IMIPENEM; RELEBACTAM",
+   "ca_din": "02565323",
+   "ca_ingredient": "IMIPENEM / CILASTATIN SODIUM / RELEBACTAM",
+   "us_last_expiry": "2033-03-21",
+   "ca_last_expiry_derived": "2029-01-15",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "SIGNIFOR",
+   "us_appl": "N200677",
+   "us_ingredient": "PASIREOTIDE DIASPARTATE",
+   "ca_din": "02413299",
+   "ca_ingredient": "Pasireotide Diaspartate",
+   "us_last_expiry": "2026-12-14",
+   "ca_last_expiry_derived": "2024-06-23",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "SUNLENCA",
+   "us_appl": "N215973",
+   "us_ingredient": "LENACAPAVIR SODIUM",
+   "ca_din": "02532476",
+   "ca_ingredient": "LENACAPAVIR SODIUM",
+   "us_last_expiry": "2041-08-28",
+   "ca_last_expiry_derived": "2039-07-15",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "TORISEL",
+   "us_appl": "N022088",
+   "us_ingredient": "TEMSIROLIMUS",
+   "ca_din": "02304104",
+   "ca_ingredient": "Temsirolimus",
+   "us_last_expiry": "2032-11-10",
+   "ca_last_expiry_derived": "2023-07-25",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "UBRELVY",
+   "us_appl": "N211765",
+   "us_ingredient": "UBROGEPANT",
+   "ca_din": "02532530",
+   "ca_ingredient": "UBROGEPANT",
+   "us_last_expiry": "2041-12-22",
+   "ca_last_expiry_derived": "2031-11-10",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "VIRAMUNE XR",
+   "us_appl": "N201152",
+   "us_ingredient": "NEVIRAPINE",
+   "ca_din": "02367289",
+   "ca_ingredient": "Nevirapine",
+   "us_last_expiry": "2029-03-12",
+   "ca_last_expiry_derived": "2028-06-04",
+   "verdict": "same drug"
+  },
+  {
+   "brand": "XARELTO",
+   "us_appl": "N022406",
+   "us_ingredient": "RIVAROXABAN",
+   "ca_din": "02316986",
+   "ca_ingredient": "Rivaroxaban",
+   "us_last_expiry": "2034-08-17",
+   "ca_last_expiry_derived": "2038-02-02",
+   "verdict": "same drug"
+  }
+ ],
+ "notes": [
+  "All 20 pairs name the same brand and the same active ingredient(s); salt forms differ only in wording (e.g. ESTRADIOL vs ESTRADIOL HEMIHYDRATE).",
+  "The moiety filter misses true matches whose ingredient wording differs (BYDUREON: EXENATIDE SYNTHETIC vs EXENATIDE; CABOMETYX: CABOZANTINIB S-MALATE vs CABOZANTINIB MALATE); 20 of 410 same-brand pairs fail the filter.",
+  "Canadian expiry is derived as filing date + 20 years because the export's EXPIRATION_DATE equals DATE_GRANTED on every row."
+ ],
+ "reviewed": {
+  "correct": 20,
+  "checked": 20
+ }
+}

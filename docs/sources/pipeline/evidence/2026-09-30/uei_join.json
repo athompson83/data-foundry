@@ -1,0 +1,199 @@
+{
+ "nih_fy2025_projects_read": 72722,
+ "nih_distinct_uei": 2961,
+ "states_capped_at_15000": [],
+ "nsf_sample": 40,
+ "nsf_uei_on_nih_fy2025": 38,
+ "matched": [
+  {
+   "nsf_award": "2530612",
+   "awardee": "Brown University",
+   "uei": "E3FDXZ6TBHW3"
+  },
+  {
+   "nsf_award": "2443145",
+   "awardee": "University of Connecticut",
+   "uei": "WNTPS995QBM7"
+  },
+  {
+   "nsf_award": "2530968",
+   "awardee": "Dartmouth College",
+   "uei": "EB8ASJBCFER9"
+  },
+  {
+   "nsf_award": "2452116",
+   "awardee": "University of Maryland Baltimore County",
+   "uei": "RNKYWXURFRL5"
+  },
+  {
+   "nsf_award": "2452479",
+   "awardee": "University of Massachusetts Boston",
+   "uei": "CGCDJ24JJLZ1"
+  },
+  {
+   "nsf_award": "2442788",
+   "awardee": "University of Connecticut",
+   "uei": "WNTPS995QBM7"
+  },
+  {
+   "nsf_award": "2431357",
+   "awardee": "University of Minnesota-Twin Cities",
+   "uei": "KABJZBBJ4B54"
+  },
+  {
+   "nsf_award": "2452372",
+   "awardee": "University of Minnesota-Twin Cities",
+   "uei": "KABJZBBJ4B54"
+  },
+  {
+   "nsf_award": "2500222",
+   "awardee": "Baylor University",
+   "uei": "C6T9BYG5EYX5"
+  },
+  {
+   "nsf_award": "2449563",
+   "awardee": "University of Massachusetts Amherst",
+   "uei": "VGJHK59NMPK9"
+  },
+  {
+   "nsf_award": "2448121",
+   "awardee": "Oregon State University",
+   "uei": "MZ4DYXE1SL98"
+  },
+  {
+   "nsf_award": "2526737",
+   "awardee": "Lafayette College",
+   "uei": "Q4FMY6KZXBP1"
+  },
+  {
+   "nsf_award": "2447606",
+   "awardee": "University of California-Santa Cruz",
+   "uei": "VXUFPE4MCZH5"
+  },
+  {
+   "nsf_award": "2447730",
+   "awardee": "Mississippi State University",
+   "uei": "NTXJM52SHKS7"
+  },
+  {
+   "nsf_award": "2531037",
+   "awardee": "Board of Regents, NSHE, obo University of Nevada, Reno",
+   "uei": "WLDGTNCFFJZ3"
+  },
+  {
+   "nsf_award": "2526795",
+   "awardee": "University of Wyoming",
+   "uei": "FDR5YF2K32X5"
+  },
+  {
+   "nsf_award": "2452778",
+   "awardee": "University of Illinois at Urbana-Champaign",
+   "uei": "Y8CWNJRCNN91"
+  },
+  {
+   "nsf_award": "2520502",
+   "awardee": "East Carolina University",
+   "uei": "HWPEKM8VFTJ9"
+  },
+  {
+   "nsf_award": "2450204",
+   "awardee": "Oklahoma State University",
+   "uei": "NNYDFK5FTSX9"
+  },
+  {
+   "nsf_award": "2452726",
+   "awardee": "Missouri University of Science and Technology",
+   "uei": "Y6MGH342N169"
+  },
+  {
+   "nsf_award": "2449325",
+   "awardee": "California Institute of Technology",
+   "uei": "U2JMKHNS5TG4"
+  },
+  {
+   "nsf_award": "2452517",
+   "awardee": "Arizona State University",
+   "uei": "NTLHJXM55KZ6"
+  },
+  {
+   "nsf_award": "2439897",
+   "awardee": "University of Denver",
+   "uei": "WCUGNQQ8DZU1"
+  },
+  {
+   "nsf_award": "2533259",
+   "awardee": "University of Connecticut",
+   "uei": "WNTPS995QBM7"
+  },
+  {
+   "nsf_award": "2524549",
+   "awardee": "Boise State University",
+   "uei": "HYWTVM5HNFM3"
+  },
+  {
+   "nsf_award": "2533260",
+   "awardee": "Regents of the University of Michigan - Dearborn",
+   "uei": "RY78VSF6P4G3"
+  },
+  {
+   "nsf_award": "2445784",
+   "awardee": "Temple University",
+   "uei": "QD4MGHFDJKU1"
+  },
+  {
+   "nsf_award": "2526527",
+   "awardee": "Regents of the University of Michigan - Ann Arbor",
+   "uei": "GNJ7BBP73WE9"
+  },
+  {
+   "nsf_award": "2452130",
+   "awardee": "University of Texas at Dallas",
+   "uei": "EJCVPNN1WFS5"
+  },
+  {
+   "nsf_award": "2508707",
+   "awardee": "Trustees of Boston University",
+   "uei": "THL6A6JLE1S7"
+  },
+  {
+   "nsf_award": "2452028",
+   "awardee": "The University of Central Florida Board of Trustees",
+   "uei": "RD7MXJV7DKT9"
+  },
+  {
+   "nsf_award": "2452117",
+   "awardee": "Oregon State University",
+   "uei": "MZ4DYXE1SL98"
+  },
+  {
+   "nsf_award": "2500434",
+   "awardee": "Case Western Reserve University",
+   "uei": "HJMKEF7EJW69"
+  },
+  {
+   "nsf_award": "2530613",
+   "awardee": "Massachusetts Institute of Technology",
+   "uei": "E2NYLCDML6V1"
+  },
+  {
+   "nsf_award": "2452494",
+   "awardee": "University of Virginia Main Campus",
+   "uei": "JJG6HU8PA4S5"
+  },
+  {
+   "nsf_award": "2452816",
+   "awardee": "University of Illinois at Chicago",
+   "uei": "W8XEAJDKMXH3"
+  },
+  {
+   "nsf_award": "2501206",
+   "awardee": "University of Texas at Austin",
+   "uei": "V6AFQPN18437"
+  },
+  {
+   "nsf_award": "2520503",
+   "awardee": "North Carolina State University",
+   "uei": "U3NVH931QJJ3"
+  }
+ ]
+}

@@ -1,0 +1,39 @@
+{
+ "activities": 455,
+ "activities_with_bill_citation": 3,
+ "distinct_bills_cited": 5,
+ "checked": 5,
+ "resolved_in_govinfo_119": 5,
+ "examples": [
+  [
+   "hr",
+   1,
+   "found",
+   "Small Business Tax Cut Act"
+  ],
+  [
+   "hr",
+   1960,
+   "found",
+   "Simplifying Veterans Assistance Act of 2025"
+  ],
+  [
+   "hr",
+   3633,
+   "found",
+   "Providing for consideration of the bill (H.R. 4922) to limit youth offender stat"
+  ],
+  [
+   "s",
+   1197,
+   "found",
+   "SNAP Reform and Upward Mobility Act of 2025"
+  ],
+  [
+   "s",
+   1582,
+   "found",
+   "Providing for consideration of the bill (H.R. 4016) making appropriations for th"
+  ]
+ ]
+}

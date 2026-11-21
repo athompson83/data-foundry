@@ -1,0 +1,388 @@
+{
+ "method": "20 pairs per join (all CT pairs = 20; NY and NJ random.seed(16) sample of the matched pairs) from csite_measure.py run 2026-11-16; reviewer compared state name, municipality and the EPA SEMS name, city and NPL status. Only identifiers are committed; names stay in the source systems.",
+ "joins": {
+  "ny_dec_to_sems": {
+   "matched_pairs": 708,
+   "checked": 20,
+   "correct": 19,
+   "pairs": [
+    {
+     "state_id": "E518022",
+     "epa_site_id": "NYD002064004",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "837004",
+     "epa_site_id": "NYD981560782",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "C808043",
+     "epa_site_id": "NYD980532527",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "905009",
+     "epa_site_id": "NYD980535546",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "645022",
+     "epa_site_id": "NYD982716938",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "V00695",
+     "epa_site_id": "NYD980532006",
+     "sems_npl_status_code": "N",
+     "same_site": false,
+     "note": "state record is a one-word VCP entry; EPA record is a utility MGP works: same place plausible, not confirmable from the two records"
+    },
+    {
+     "state_id": "360049",
+     "epa_site_id": "NYN000204358",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "314062",
+     "epa_site_id": "NYD982181083",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "130033",
+     "epa_site_id": "NYD057713315",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "518015",
+     "epa_site_id": "NYD982268823",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "633037",
+     "epa_site_id": "NY0001119403",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "862003A",
+     "epa_site_id": "NYD000765024",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "152091",
+     "epa_site_id": "NYD986994424",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "932005",
+     "epa_site_id": "NY4570024642",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "932073",
+     "epa_site_id": "NYD980654438",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "356004",
+     "epa_site_id": "NYD002090991",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "517002",
+     "epa_site_id": "NYD000511733",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "819009",
+     "epa_site_id": "NYD981185234",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "V00380",
+     "epa_site_id": "NYC200400950",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    },
+    {
+     "state_id": "152031",
+     "epa_site_id": "NYD002044139",
+     "sems_npl_status_code": "N",
+     "same_site": true
+    }
+   ]
+  },
+  "ct_deep_to_sems": {
+   "matched_pairs": 20,
+   "checked": 20,
+   "correct": 20,
+   "pairs": [
+    {
+     "state_id": "DCN-016772",
+     "epa_site_id": "CTD980670814",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-023985",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016820",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016817",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016818",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016819",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016720",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016707",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016719",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016721",
+     "epa_site_id": "CTD001186618",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016577",
+     "epa_site_id": "CTD072122062",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016773",
+     "epa_site_id": "CTD980521165",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016578",
+     "epa_site_id": "CTD001452093",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-028490",
+     "epa_site_id": "CTD001452093",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-024941",
+     "epa_site_id": "CTD001452093",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016448",
+     "epa_site_id": "CT0002265551",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-021366",
+     "epa_site_id": "CTD980670806",
+     "sems_npl_status_code": "D",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016708",
+     "epa_site_id": "CTD009717604",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-024898",
+     "epa_site_id": "CTD980732333",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "DCN-016702",
+     "epa_site_id": "CTD001153923",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    }
+   ]
+  },
+  "nj_kcs_to_sems": {
+   "matched_pairs": 74,
+   "checked": 20,
+   "correct": 19,
+   "pairs": [
+    {
+     "state_id": "G000004514",
+     "epa_site_id": "NJD980529408",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000003964",
+     "epa_site_id": "NJD092226000",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000004005",
+     "epa_site_id": "NJD094966611",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000004422",
+     "epa_site_id": "NJD980505382",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000004875",
+     "epa_site_id": "NJD980654198",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "648249",
+     "epa_site_id": "NJN000200874",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000004877",
+     "epa_site_id": "NJD980654222",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "000850",
+     "epa_site_id": "NJD048044325",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000004872",
+     "epa_site_id": "NJD980654164",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000001919",
+     "epa_site_id": "NJD002362705",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000002953",
+     "epa_site_id": "NJD049860836",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000004439",
+     "epa_site_id": "NJD980505671",
+     "sems_npl_status_code": "D",
+     "same_site": true
+    },
+    {
+     "state_id": "012272",
+     "epa_site_id": "NJD030253355",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000003575",
+     "epa_site_id": "NJD070565403",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "018724",
+     "epa_site_id": "NJD041743220",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "033717",
+     "epa_site_id": "NJD073732257",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "G000003352",
+     "epa_site_id": "NJD063160667",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "025488",
+     "epa_site_id": "NJD982189300",
+     "sems_npl_status_code": "A",
+     "same_site": false,
+     "note": "KCS entry is the Martin Aaron NPL site; matched EPA record is the related Rhodes Drum record (npl code A, site is part of an NPL site), not the NPL site record"
+    },
+    {
+     "state_id": "G000004452",
+     "epa_site_id": "NJD980505887",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    },
+    {
+     "state_id": "216727",
+     "epa_site_id": "NJD980505648",
+     "sems_npl_status_code": "F",
+     "same_site": true
+    }
+   ]
+  }
+ }
+}

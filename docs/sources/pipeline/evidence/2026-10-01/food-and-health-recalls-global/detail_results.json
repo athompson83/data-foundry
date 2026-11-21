@@ -1,0 +1,384 @@
+[
+ {
+  "nid": "82641",
+  "title": "Heinz brand Real Mayonnaise single serve units recalled due to undeclared mustar",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "82092",
+  "title": "Blackstone brand Parmesan Ranch Seasoning recalled due to Salmonella",
+  "has_affected_products_table": true,
+  "upcs": [
+   "717604041062"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [
+   "H-0817-2026"
+  ],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "81542",
+  "title": "Gerber brand arrowroot biscuits recalled due to possible presence of pieces of s",
+  "has_affected_products_table": true,
+  "upcs": [
+   "055000403146"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "81490",
+  "title": "Tom Bumble Nutty and Tom Bumble brand Peanut Butter Flake Candy recalled due to ",
+  "has_affected_products_table": true,
+  "upcs": [
+   "852905007024",
+   "852905007055"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [
+   "H-0391-2026"
+  ],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "81339",
+  "title": "McCain Tasti Taters brand Crispy Potato Bites recalled due to pieces of plastic",
+  "has_affected_products_table": true,
+  "upcs": [
+   "055773000795",
+   "055773003062"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "81288",
+  "title": "Celebration Herbals brand Senna Leaf Herbal Tea recalled due to Salmonella",
+  "has_affected_products_table": true,
+  "upcs": [
+   "628240201829"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [
+   "H-0328-2026"
+  ],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "81219",
+  "title": "ByHeart Whole Nutrition Infant Formula may be unsafe due to potential presence o",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "77655",
+  "title": "Peeters Mushroom Farm brand Sliced Mushrooms recalled due to Listeria monocytoge",
+  "has_affected_products_table": true,
+  "upcs": [
+   "033383676005",
+   "068414969603"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [
+   "H-0316-2025",
+   "H-0318-2025"
+  ],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "75338",
+  "title": "Honeywell Eyesaline Emergency Eyewash: deficiencies in Good Manufacturing Practi",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "hand-correct"
+ },
+ {
+  "nid": "82687",
+  "title": "Smarter Snacks brand Vegan Protein Puff Chili & Lime Flavored recalled due to un",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82692",
+  "title": "Certain Summerhill Market brand raspberries and raspberry-containing products re",
+  "has_affected_products_table": true,
+  "upcs": [
+   "056647156983",
+   "056647157065",
+   "056647157058",
+   "056647164308"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82685",
+  "title": "Nutraphase brand Clean Beans Roasted Broad Beans Ketchup flavour recalled due to",
+  "has_affected_products_table": true,
+  "upcs": [
+   "628618002973"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82689",
+  "title": "Smarter Snacks brand Vegan Protein Puff Chili & Lime Flavored contains undeclare",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82667",
+  "title": "Go! Beanz brand Roasted Broadbeans (Ketchup and Salt & Pepper flavors) recalled ",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82658",
+  "title": "Richters brand Dried Lemongrass recalled due to presence of stones",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82663",
+  "title": "Chungjungwon brand Sunchang Ssamjang (seasoned bean paste) recalled due to undec",
+  "has_affected_products_table": true,
+  "upcs": [
+   "8801052773261"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82632",
+  "title": "R.J. King Fisheries Ltd. and Moncton Fish Market brand frozen cooked lobster mea",
+  "has_affected_products_table": true,
+  "upcs": [],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82648",
+  "title": "So Delicious Dairy Free brand Salted Caramel Non-dairy Frozen Dessert, Cashew Ba",
+  "has_affected_products_table": true,
+  "upcs": [
+   "744473276134"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [
+   "H-0398-2026"
+  ],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82645",
+  "title": "Yotvata brand Caciotta Peperoncino Cheese recalled  due to Staphylococcus aureus",
+  "has_affected_products_table": true,
+  "upcs": [
+   "8003950003017"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "78484",
+  "title": "Various brands of sandwiches recalled due to Listeria monocytogenes",
+  "has_affected_products_table": true,
+  "upcs": [
+   "877838002175",
+   "877838002007",
+   "877838002045",
+   "877838007033",
+   "877838001987",
+   "877838484889",
+   "877838484803",
+   "877838484292",
+   "877838001987",
+   "877838002007",
+   "877838002045",
+   "877838484827",
+   "877838484810",
+   "877838484681",
+   "877838484216",
+   "877838484889",
+   "062375054439",
+   "062375054798",
+   "062375054958",
+   "062375054750",
+   "062375054491",
+   "062375054514",
+   "628242490023",
+   "628242490061",
+   "628242490245",
+   "628242490078"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82638",
+  "title": "Europena brand Gluten Free Black Garlic (Marinade) recalled due to undeclared so",
+  "has_affected_products_table": true,
+  "upcs": [
+   "882879003302"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82630",
+  "title": "Momchipz brand Veggie Chips (Bell Pepper Chips) recalled due to undeclared wheat",
+  "has_affected_products_table": true,
+  "upcs": [
+   "628634442180"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82629",
+  "title": "no name brand chopped walnuts recalled due to shell fragments",
+  "has_affected_products_table": true,
+  "upcs": [
+   "060383018450",
+   "060383643843"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82631",
+  "title": "Alasko brand frozen whole raspberries recalled due to norovirus",
+  "has_affected_products_table": true,
+  "upcs": [
+   "695058002054",
+   "10695058002051"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82621",
+  "title": "Co-op Gold brand Frozen Chicken Products recalled due to undeclared egg",
+  "has_affected_products_table": true,
+  "upcs": [
+   "057316217950",
+   "057316218612"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82605",
+  "title": "Rossdown Farms & Natural Foods brand Meal Starters Black Garlic Chicken Breast p",
+  "has_affected_products_table": true,
+  "upcs": [
+   "628000600732",
+   "24612632461267",
+   "628000600947",
+   "628000600329"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82611",
+  "title": "PK brand Roasted Lemon N\u2019 Chilli Peanuts recalled due to Salmonella",
+  "has_affected_products_table": true,
+  "upcs": [
+   "628998001245"
+  ],
+  "lot_or_bb_codes_present": true,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82622",
+  "title": "Olymel brand Chicken Breast Strips recalled due to Listeria monocytogenes",
+  "has_affected_products_table": true,
+  "upcs": [
+   "069094635963"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ },
+ {
+  "nid": "82606",
+  "title": "Ofood brand Mild Ssamjang Original Seasoned Soybean Paste recalled due to improp",
+  "has_affected_products_table": true,
+  "upcs": [
+   "8801052048192",
+   "8801052048215",
+   "8801052048208"
+  ],
+  "lot_or_bb_codes_present": false,
+  "recall_number_field": true,
+  "declared_fda_matches": [],
+  "group": "recent-cfia"
+ }
+]

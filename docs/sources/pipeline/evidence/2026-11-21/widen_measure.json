@@ -1,0 +1,3225 @@
+{
+ "case_number_handcheck_sample": [
+  {
+   "fr_brand": "audi",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "q3, q3 sportback voiture particulière",
+   "numero_fiche": "sr/03079/26",
+   "sg_brand": "Audi",
+   "sg_country": "Germany",
+   "sg_name": "Q3, Q3 Sportback",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "ford",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "ranger camionnette",
+   "numero_fiche": "a12/01427/22",
+   "sg_brand": "Ford",
+   "sg_country": "Germany",
+   "sg_name": "Ranger",
+   "sg_product": "Pickup truck"
+  },
+  {
+   "fr_brand": "honda",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "crf1100a/d motocyclette",
+   "numero_fiche": "a12/00224/21",
+   "sg_brand": "Honda",
+   "sg_country": "Portugal",
+   "sg_name": "CRF1100A/D",
+   "sg_product": "Motorcycle"
+  },
+  {
+   "fr_brand": "renault",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "captur voiture de tourisme",
+   "numero_fiche": "a12/00128/20",
+   "sg_brand": "Renault",
+   "sg_country": "Portugal",
+   "sg_name": "Captur",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "peugeot",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "208 ii voiture particulière",
+   "numero_fiche": "a12/02727/24",
+   "sg_brand": "Peugeot",
+   "sg_country": "France",
+   "sg_name": "208 II",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "ford",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "s-max, galaxy voiture de tourisme",
+   "numero_fiche": "a12/00466/20",
+   "sg_brand": "Ford",
+   "sg_country": "Germany",
+   "sg_name": "S-MAX, Galaxy",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "nissan",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "nv400 véhicule de tourisme / véhicule utilitaire léger",
+   "numero_fiche": "a12/03171/24",
+   "sg_brand": "Nissan",
+   "sg_country": "France",
+   "sg_name": "NV400",
+   "sg_product": "Passenger van / Light commercial vehicle"
+  },
+  {
+   "fr_brand": "ford",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "transit custom double cab van de passagers",
+   "numero_fiche": "sr/00540/26",
+   "sg_brand": "Ford",
+   "sg_country": "Germany",
+   "sg_name": "Transit Custom Double cab",
+   "sg_product": "Passenger van"
+  },
+  {
+   "fr_brand": "peugeot",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "expert, traveller voiture de tourisme",
+   "numero_fiche": "a12/01314/22",
+   "sg_brand": "Peugeot",
+   "sg_country": "Germany",
+   "sg_name": "Expert, Traveller",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "mercedes-benz",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "clc-class voiture de tourisme",
+   "numero_fiche": "a12/00392/23",
+   "sg_brand": "Mercedes-Benz",
+   "sg_country": "Germany",
+   "sg_name": "CLC-class",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "alpine",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "a110 voiture de tourisme",
+   "numero_fiche": "a12/1018/19",
+   "sg_brand": "Alpine",
+   "sg_country": "France",
+   "sg_name": "A110",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "peugeot",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "208i, 2008i, 301i voiture de tourisme",
+   "numero_fiche": "a12/00066/20",
+   "sg_brand": "Peugeot",
+   "sg_country": "France",
+   "sg_name": "208I, 2008I, 301I",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "ford",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "ranger camionnette",
+   "numero_fiche": "a12/01568/22",
+   "sg_brand": "Ford",
+   "sg_country": "Germany",
+   "sg_name": "Ranger",
+   "sg_product": "Pickup truck"
+  },
+  {
+   "fr_brand": "porsche",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "911 voiture de tourisme",
+   "numero_fiche": "a12/00061/23",
+   "sg_brand": "Porsche",
+   "sg_country": "Germany",
+   "sg_name": "911",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "fiat professional",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "talento camionnette/véhicule utilitaire léger",
+   "numero_fiche": "a12/0729/19",
+   "sg_brand": "Fiat Professional",
+   "sg_country": "Germany",
+   "sg_name": "Talento",
+   "sg_product": "Passenger van / Light commercial vehicle"
+  },
+  {
+   "fr_brand": "peugeot",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "rifter, partner voiture particulière",
+   "numero_fiche": "sr/01169/26",
+   "sg_brand": "Peugeot",
+   "sg_country": "France",
+   "sg_name": "Rifter, Partner",
+   "sg_product": "Passenger car"
+  },
+  {
+   "fr_brand": "mercedes-benz",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "metris, vito, v-class camionnette/véhicule utilitaire léger",
+   "numero_fiche": "a12/00095/19",
+   "sg_brand": "Mercedes-Benz",
+   "sg_country": "Germany",
+   "sg_name": "Metris, Vito, V-Class",
+   "sg_product": "Passenger van / Light commercial vehicle"
+  },
+  {
+   "fr_brand": "renault",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "trafic iii camionnette/véhicule utilitaire léger",
+   "numero_fiche": "a12/00236/20",
+   "sg_brand": "Renault",
+   "sg_country": "Portugal",
+   "sg_name": "Trafic III",
+   "sg_product": "Passenger van / Light commercial vehicle"
+  },
+  {
+   "fr_brand": "triumph",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "rocket 3gt triple black, triumph rocket 3r black, rocket 3gt, rocket 3 r, rocket 3 tfc moto",
+   "numero_fiche": "a12/02868/23",
+   "sg_brand": "Triumph",
+   "sg_country": "Poland",
+   "sg_name": "Rocket 3GT Triple Black, Triumph Rocket 3R Black, Rocket 3GT, Rocket 3 R, Rocket 3 TFC",
+   "sg_product": "Motorcycle"
+  },
+  {
+   "fr_brand": "mercedes-benz",
+   "fr_category": "automobiles, motos, scooters",
+   "fr_label": "eqc voiture de tourisme",
+   "numero_fiche": "a12/01009/21",
+   "sg_brand": "Mercedes-Benz",
+   "sg_country": "Germany",
+   "sg_name": "EQC",
+   "sg_product": "Passenger car"
+  }
+ ],
+ "etalab_open_licence_2_grant": "The \"Grantor\" grants the \"Reuser\" the free, non-exclusive right to \"Reuse\" the \"Information\" subject of this licence, for commercial or non-commercial purposes, worldwide and for an unlimited period, in accordance with the conditions stated below.",
+ "fetched": {
+  "cpsc_full.json": {
+   "bytes": 27891660,
+   "sha256": "de3b6c3f1adf0baeb4d6c9043ff338d7eef9ae0141547df19adf1062b4193c53",
+   "url": "https://www.saferproducts.gov/RestWebServices/Recall?format=json"
+  },
+  "etalab_open_licence_2.md": {
+   "bytes": 6444,
+   "sha256": "8ead98cc22756015f4ff21a29d9c6eac4511b7703f2eba44f13af4bb297d8ac1",
+   "url": "https://raw.githubusercontent.com/etalab/licence-ouverte/master/open-licence.md"
+  },
+  "fr_meta.json": {
+   "bytes": 4092,
+   "sha256": "5ed0eeb76d920270d33c0f72d1b083442447f1a840a0cbf230b2234c0a779aa3",
+   "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces"
+  },
+  "fr_rc.json": {
+   "bytes": 8003937,
+   "sha256": "93712545423ee17dcc194b02db4626d5ef0f9287a3d3bba67cbf6ca09c63c419",
+   "url": "https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/rappelconso-v2-gtin-espaces/exports/json"
+  },
+  "sg-Report-2017-001.xml": {
+   "bytes": 73916,
+   "sha256": "1d75504318057679f626f6938dac07d763992e80bae0e457a0cc1408b3f57de4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2201?language=en&search=WEB_REPORT%7C:%7C2201,"
+  },
+  "sg-Report-2017-002.xml": {
+   "bytes": 42715,
+   "sha256": "33ea4258b1358103f562c1cf56ba46356cb0bf0e9683cd04ed3699bca73e48c5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2211?language=en&search=WEB_REPORT%7C:%7C2211,"
+  },
+  "sg-Report-2017-003.xml": {
+   "bytes": 105917,
+   "sha256": "c5d8ed91c62f63655e01560e2542749ea136f618021fbd91c9ee2747ee99ee2f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2221?language=en&search=WEB_REPORT%7C:%7C2221,"
+  },
+  "sg-Report-2017-004.xml": {
+   "bytes": 55615,
+   "sha256": "a1b5c5df3f554504842f0d046e2508d9f5abfb5e277b934d5e32b451ea3e5cf1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2231?language=en&search=WEB_REPORT%7C:%7C2231,"
+  },
+  "sg-Report-2017-005.xml": {
+   "bytes": 77379,
+   "sha256": "f7c7ed320fb887f3e8fc42b44810783466553c4eee76330bce1a8d7ff34efec3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2241?language=en&search=WEB_REPORT%7C:%7C2241,"
+  },
+  "sg-Report-2017-006.xml": {
+   "bytes": 58672,
+   "sha256": "cf66c51e31c49506f480d5b5ea26b4957e375797d9d5f866994a3658388b6fb8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2251?language=en&search=WEB_REPORT%7C:%7C2251,"
+  },
+  "sg-Report-2017-007.xml": {
+   "bytes": 77810,
+   "sha256": "6aa3294f88a9db6816552ee09cb9ad30c3f13e95ac3977aa4f701494cb809c6a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2261?language=en&search=WEB_REPORT%7C:%7C2261,"
+  },
+  "sg-Report-2017-008.xml": {
+   "bytes": 68751,
+   "sha256": "488eb7b4ea17edb48e5d38fa7bb3204ef8e2e1d7144baf92b0aae3462ca704da",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2271?language=en&search=WEB_REPORT%7C:%7C2271,"
+  },
+  "sg-Report-2017-009.xml": {
+   "bytes": 107177,
+   "sha256": "4563853375efbf9292d43309044e13e3f85771cfa85f061cd2c790be1aafdb2c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2281?language=en&search=WEB_REPORT%7C:%7C2281,"
+  },
+  "sg-Report-2017-010.xml": {
+   "bytes": 64589,
+   "sha256": "baf483d85b04fe243d0bb156780da51cbb1f2e1512cff345223d37e0c87af43b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2291?language=en&search=WEB_REPORT%7C:%7C2291,"
+  },
+  "sg-Report-2017-011.xml": {
+   "bytes": 84742,
+   "sha256": "2e45494b29ba01a5ae2445f633f62f1a36a6b45ee054f83f71a393b78ef218f3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2301?language=en&search=WEB_REPORT%7C:%7C2301,"
+  },
+  "sg-Report-2017-012.xml": {
+   "bytes": 47872,
+   "sha256": "77ed3026a6bfb5f23e0f1bfb2914fd018bacbc31a217f6da32946a7e7d66f7f6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2311?language=en&search=WEB_REPORT%7C:%7C2311,"
+  },
+  "sg-Report-2017-013.xml": {
+   "bytes": 94969,
+   "sha256": "42d47d8eb5d71a11e1fb8ac9265445d6acb92c955a16fcd97e0e00e8dee8d5e5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2321?language=en&search=WEB_REPORT%7C:%7C2321,"
+  },
+  "sg-Report-2017-014.xml": {
+   "bytes": 73055,
+   "sha256": "8d081b49fb52b53712d7e9b2bb396a27201b75fd6c2fb55115f56af5008c9a26",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2331?language=en&search=WEB_REPORT%7C:%7C2331,"
+  },
+  "sg-Report-2017-015.xml": {
+   "bytes": 112745,
+   "sha256": "7960d808b8aa5a6a43198e83fb4eca00a65bfaf14c5dedb452d26efd69fe8821",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2341?language=en&search=WEB_REPORT%7C:%7C2341,"
+  },
+  "sg-Report-2017-016.xml": {
+   "bytes": 86525,
+   "sha256": "7a18f153393b13799ac3b090529b24f59cc1c4651af847d8e74993fceb08c3fa",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2351?language=en&search=WEB_REPORT%7C:%7C2351,"
+  },
+  "sg-Report-2017-017.xml": {
+   "bytes": 70787,
+   "sha256": "4e88adfd3ced00d9467ca7465917afdee52396fcf872d0789b0f910e6268c0fe",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2361?language=en&search=WEB_REPORT%7C:%7C2361,"
+  },
+  "sg-Report-2017-018.xml": {
+   "bytes": 64062,
+   "sha256": "9113b2229548b1a0ec4f8970f728016eceb3b32785d07cf5d41bcb51f03a1161",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2362?language=en&search=WEB_REPORT%7C:%7C2362,"
+  },
+  "sg-Report-2017-019.xml": {
+   "bytes": 38742,
+   "sha256": "ec36f9785546ada7b50185bf6e5c838d053cc842fc5ee8a3994083107e1172f7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2363?language=en&search=WEB_REPORT%7C:%7C2363,"
+  },
+  "sg-Report-2017-020.xml": {
+   "bytes": 111129,
+   "sha256": "42f43077a3cf0c38b3790923dc8b5018530e99fb81b8ac9365881689e3f18e0c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2372?language=en&search=WEB_REPORT%7C:%7C2372,"
+  },
+  "sg-Report-2017-021.xml": {
+   "bytes": 101419,
+   "sha256": "011593de0ca6624d2018927f629d0cffdc86df3dbe80f88fdcd2d8df0f6536e5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2382?language=en&search=WEB_REPORT%7C:%7C2382,"
+  },
+  "sg-Report-2017-022.xml": {
+   "bytes": 45608,
+   "sha256": "f194dbc1783afdfdd774fd4b779928d2da31df2705f1732c691245de8760d200",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2392?language=en&search=WEB_REPORT%7C:%7C2392,"
+  },
+  "sg-Report-2017-023.xml": {
+   "bytes": 107689,
+   "sha256": "434c86ce4ae10991b922cb090af2d6ca16c971b807fd6d6d55a7d1296e268f6a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2402?language=en&search=WEB_REPORT%7C:%7C2402,"
+  },
+  "sg-Report-2017-024.xml": {
+   "bytes": 69667,
+   "sha256": "a3dbdbf6c73226c8f992f954eed826a3293049dbaabd4e8f5ebee3bb92ce027f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2412?language=en&search=WEB_REPORT%7C:%7C2412,"
+  },
+  "sg-Report-2017-025.xml": {
+   "bytes": 68134,
+   "sha256": "bf7b4f2bdf4a734a833211fcd6fc9d4f4f319705476b9d49dab6dd98fb730319",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2422?language=en&search=WEB_REPORT%7C:%7C2422,"
+  },
+  "sg-Report-2017-026.xml": {
+   "bytes": 66039,
+   "sha256": "13ac6d126ce7793f8b14d6f6cc27cec64b126dc4754b9fd8ea03a54b435634cb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2432?language=en&search=WEB_REPORT%7C:%7C2432,"
+  },
+  "sg-Report-2017-027.xml": {
+   "bytes": 43589,
+   "sha256": "cc886666175dc9fbf8ed241351efd2f5508966c31cc314c285c490ffa9470cab",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2442?language=en&search=WEB_REPORT%7C:%7C2442,"
+  },
+  "sg-Report-2017-028.xml": {
+   "bytes": 86207,
+   "sha256": "c4ea0605b5ca1ae902855755aab2a8c2e649ab27a90b4e40b95ddb3d335f8dc9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2452?language=en&search=WEB_REPORT%7C:%7C2452,"
+  },
+  "sg-Report-2017-029.xml": {
+   "bytes": 101654,
+   "sha256": "f2695adf7d781d40b682e43e9464e4a16090ff2874bbb5c2654bb15b0ad0946f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2462?language=en&search=WEB_REPORT%7C:%7C2462,"
+  },
+  "sg-Report-2017-030.xml": {
+   "bytes": 67423,
+   "sha256": "f9e2f44ff5dcdb2389f1187d872c7f86b446514faac9be2e144e7d5736523575",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2472?language=en&search=WEB_REPORT%7C:%7C2472,"
+  },
+  "sg-Report-2017-031.xml": {
+   "bytes": 56831,
+   "sha256": "f7aceea918c3464925988c671171a6f1e3a066bfd3feefdb639dd68274d84827",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2482?language=en&search=WEB_REPORT%7C:%7C2482,"
+  },
+  "sg-Report-2017-032.xml": {
+   "bytes": 72475,
+   "sha256": "b002d2abac71609ccde5621d904c675fee20e12a6830ff39799cadc437a7c7f9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2492?language=en&search=WEB_REPORT%7C:%7C2492,"
+  },
+  "sg-Report-2017-033.xml": {
+   "bytes": 60535,
+   "sha256": "8adbab5287f0503e23bbcbb7344b9f5e338fddf29958427533ae8389e4b7b185",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2502?language=en&search=WEB_REPORT%7C:%7C2502,"
+  },
+  "sg-Report-2017-034.xml": {
+   "bytes": 75557,
+   "sha256": "5637ffbea0c14c1a7b1a1169741f2f502fb36d12545999e85bfb4718905c5944",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2512?language=en&search=WEB_REPORT%7C:%7C2512,"
+  },
+  "sg-Report-2017-035.xml": {
+   "bytes": 70773,
+   "sha256": "1d19f3a1aedc1208c846bd3c53815b0d4e8b8deec6c87421e328c556ffa393ff",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2522?language=en&search=WEB_REPORT%7C:%7C2522,"
+  },
+  "sg-Report-2017-036.xml": {
+   "bytes": 54968,
+   "sha256": "c2ba296d119d449bb38be0774e451b1be52a766d3c7e7330e2742a7c8e11ee4e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2532?language=en&search=WEB_REPORT%7C:%7C2532,"
+  },
+  "sg-Report-2017-037.xml": {
+   "bytes": 86269,
+   "sha256": "c60afd4ac76520485011e0ef330758b4d0fe6be8ec602ad0483694f6323b30e9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2542?language=en&search=WEB_REPORT%7C:%7C2542,"
+  },
+  "sg-Report-2017-038.xml": {
+   "bytes": 73708,
+   "sha256": "a8712cb7dfcefeaf7deac92cf79e0cf6c37694eb7d7f175acfe979a31fa3135e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2552?language=en&search=WEB_REPORT%7C:%7C2552,"
+  },
+  "sg-Report-2017-039.xml": {
+   "bytes": 49612,
+   "sha256": "e1ee25f535ddb7b58a7e8839b008beaa56b9e2be1c0cfee1f8ad33955b37ae4e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2562?language=en&search=WEB_REPORT%7C:%7C2562,"
+  },
+  "sg-Report-2017-040.xml": {
+   "bytes": 99921,
+   "sha256": "3e7a68e5935af2d2883e6f0221f503a7e88a0016173488e9207e39f59d021814",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2572?language=en&search=WEB_REPORT%7C:%7C2572,"
+  },
+  "sg-Report-2017-041.xml": {
+   "bytes": 74478,
+   "sha256": "1d14dca0e258029d5ee6ef79202f7d7b3f2acf4cef05471f5d58fe731b16ce43",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2582?language=en&search=WEB_REPORT%7C:%7C2582,"
+  },
+  "sg-Report-2017-042.xml": {
+   "bytes": 56152,
+   "sha256": "50102fc8d241089ea8888ec9f414ce007488a6613cfd93e9696fe799766c2886",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2592?language=en&search=WEB_REPORT%7C:%7C2592,"
+  },
+  "sg-Report-2017-043.xml": {
+   "bytes": 69352,
+   "sha256": "730fe4566a2d64c62c4f24339a52f3e01893019462e7098cc10858b4cc37309a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2602?language=en&search=WEB_REPORT%7C:%7C2602,"
+  },
+  "sg-Report-2017-044.xml": {
+   "bytes": 91053,
+   "sha256": "74c7c7dba9896f5439c61d67d0dc5e251256ae0f8c254934013b29d7342abebb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2612?language=en&search=WEB_REPORT%7C:%7C2612,"
+  },
+  "sg-Report-2017-045.xml": {
+   "bytes": 75040,
+   "sha256": "167634f8a27158c324e5d18f6fbc37b6885281a1202b65ed552ffb95abaf450d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2622?language=en&search=WEB_REPORT%7C:%7C2622,"
+  },
+  "sg-Report-2017-046.xml": {
+   "bytes": 117935,
+   "sha256": "ae7599f348183d1132efbcb839c82c7eaf87d3131b9c33b875bd823ea1362e9b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2632?language=en&search=WEB_REPORT%7C:%7C2632,"
+  },
+  "sg-Report-2017-047.xml": {
+   "bytes": 113808,
+   "sha256": "9d371f530c83582b993c912a8a2249a8ef9d258a8f107474744d0deadc0392ad",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2642?language=en&search=WEB_REPORT%7C:%7C2642,"
+  },
+  "sg-Report-2017-048.xml": {
+   "bytes": 96862,
+   "sha256": "596237e0bd8afd9594c591317e7cb5ba00de90c412dd66edf6f25439a1f0eec0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2652?language=en&search=WEB_REPORT%7C:%7C2652,"
+  },
+  "sg-Report-2017-049.xml": {
+   "bytes": 138512,
+   "sha256": "a94d4de4f62877e4be9c488f9a3f432a7ee566400850e4317eebbcce1a28c9a8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2662?language=en&search=WEB_REPORT%7C:%7C2662,"
+  },
+  "sg-Report-2017-050.xml": {
+   "bytes": 76150,
+   "sha256": "255bbf805a9d35bd266ea497e41496a9b75738fcde70ea57d88e4a68e132a195",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2672?language=en&search=WEB_REPORT%7C:%7C2672,"
+  },
+  "sg-Report-2017-051.xml": {
+   "bytes": 124083,
+   "sha256": "aa7dc3fe6a7965b707c281c1142db6128ed1f2077fcf6aa102fffd5779240b88",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2682?language=en&search=WEB_REPORT%7C:%7C2682,"
+  },
+  "sg-Report-2018-001.xml": {
+   "bytes": 56972,
+   "sha256": "0a273711bf0ab344c450972c64300963b46102d9bf4e37c35ac13146192d6fe2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2692?language=en&search=WEB_REPORT%7C:%7C2692,"
+  },
+  "sg-Report-2018-002.xml": {
+   "bytes": 41255,
+   "sha256": "7d50930b6cc752b1fdfe967e477508b7ddcec73c338384582e7718528bf6721f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2702?language=en&search=WEB_REPORT%7C:%7C2702,"
+  },
+  "sg-Report-2018-003.xml": {
+   "bytes": 93117,
+   "sha256": "3606a1cd7b8c43328e710b38a5ff86d2445de599fc956b1d4a1dd7e9e78e979a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2712?language=en&search=WEB_REPORT%7C:%7C2712,"
+  },
+  "sg-Report-2018-004.xml": {
+   "bytes": 89411,
+   "sha256": "a2ef9988df6d3e64f4b5960497639733d03d69922abb9a6ca29f684d5e52cdf4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2722?language=en&search=WEB_REPORT%7C:%7C2722,"
+  },
+  "sg-Report-2018-005.xml": {
+   "bytes": 90058,
+   "sha256": "05a2ac2cb0871294f4a390e35d4b1685872540102d8180ed64f64d64ec918c4c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2732?language=en&search=WEB_REPORT%7C:%7C2732,"
+  },
+  "sg-Report-2018-006.xml": {
+   "bytes": 76747,
+   "sha256": "12f2eb908e046fbef1f2000db4ae73cf94a841f6fe01292283e8bcf50dce3f01",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2742?language=en&search=WEB_REPORT%7C:%7C2742,"
+  },
+  "sg-Report-2018-007.xml": {
+   "bytes": 81223,
+   "sha256": "fb34419093ab208766dfd0033f47baefd0f4a04fb6f514f69f5b56c2d6b2f2b8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2752?language=en&search=WEB_REPORT%7C:%7C2752,"
+  },
+  "sg-Report-2018-008.xml": {
+   "bytes": 114806,
+   "sha256": "276d27277bee65a7141d252660f58b61235ea7e25dd5324564ad172680f34f1a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2762?language=en&search=WEB_REPORT%7C:%7C2762,"
+  },
+  "sg-Report-2018-009.xml": {
+   "bytes": 98211,
+   "sha256": "6013f4b2d775998d8fce2db81c57033b4275f35469f10cf557b2dfb7183fb366",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2772?language=en&search=WEB_REPORT%7C:%7C2772,"
+  },
+  "sg-Report-2018-010.xml": {
+   "bytes": 68926,
+   "sha256": "dd750944f2fc93577c76a665dce14ef314048a77226b7a8062bc7004ffa761a6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2782?language=en&search=WEB_REPORT%7C:%7C2782,"
+  },
+  "sg-Report-2018-011.xml": {
+   "bytes": 45974,
+   "sha256": "055f2715e80cd85dad89564c4f7368384523295482e5aa1ebf48305247a8ed16",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2792?language=en&search=WEB_REPORT%7C:%7C2792,"
+  },
+  "sg-Report-2018-012.xml": {
+   "bytes": 83440,
+   "sha256": "b0841dc4d31e760e86cd50f25d78f969f48008cb17fc103680b8031046c71229",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2802?language=en&search=WEB_REPORT%7C:%7C2802,"
+  },
+  "sg-Report-2018-013.xml": {
+   "bytes": 93783,
+   "sha256": "53258e578f3d65a40e58690b442e1d1bbdde18dcfa6bff7d9e1f99f0cd51432f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2812?language=en&search=WEB_REPORT%7C:%7C2812,"
+  },
+  "sg-Report-2018-014.xml": {
+   "bytes": 40078,
+   "sha256": "51bfb1d15f0568ca9dbe248d669644a65a546647e84784a6aeff89330f690142",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2822?language=en&search=WEB_REPORT%7C:%7C2822,"
+  },
+  "sg-Report-2018-015.xml": {
+   "bytes": 76085,
+   "sha256": "0df23ab6270735b6cc5b84aafff14339dcfb0de84fc1c125a7fc4973fa3496ee",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2832?language=en&search=WEB_REPORT%7C:%7C2832,"
+  },
+  "sg-Report-2018-016.xml": {
+   "bytes": 55451,
+   "sha256": "efd829fb87fe60c236ac0f58645fdd83f25c3fd20d6e762d3a640a8dfa836b1c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2842?language=en&search=WEB_REPORT%7C:%7C2842,"
+  },
+  "sg-Report-2018-017.xml": {
+   "bytes": 60603,
+   "sha256": "c02ee432904cf3201292fe73813f5407475f6078c5ebf7397dfde9e8a05ae854",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2852?language=en&search=WEB_REPORT%7C:%7C2852,"
+  },
+  "sg-Report-2018-018.xml": {
+   "bytes": 40147,
+   "sha256": "ef922e3fe4b667f380e74a7d0fa582ad14c3277ab51551d1bff67ccf3abb206b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2862?language=en&search=WEB_REPORT%7C:%7C2862,"
+  },
+  "sg-Report-2018-019.xml": {
+   "bytes": 104170,
+   "sha256": "ca0e783a632c6a1dd028243137a34dcf708fb9db20ae692bb4466ed2069c917f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2872?language=en&search=WEB_REPORT%7C:%7C2872,"
+  },
+  "sg-Report-2018-020.xml": {
+   "bytes": 21833,
+   "sha256": "9b21b906fa4f98095be95b619e466ada1e9e99f711910739b734a3c7a1299091",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2882?language=en&search=WEB_REPORT%7C:%7C2882,"
+  },
+  "sg-Report-2018-021.xml": {
+   "bytes": 59761,
+   "sha256": "669920f920da7198c27e765f8be5dc66fdc18a8d07bad38f1b081c70cd0aee67",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2892?language=en&search=WEB_REPORT%7C:%7C2892,"
+  },
+  "sg-Report-2018-022.xml": {
+   "bytes": 67092,
+   "sha256": "b10180a24f6175186b5af5e4ee260c4828102e99823e07de8e5bcd3f127c8d88",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2902?language=en&search=WEB_REPORT%7C:%7C2902,"
+  },
+  "sg-Report-2018-023.xml": {
+   "bytes": 63690,
+   "sha256": "802ceac817b716d264ec2a4110b06714d8e9aac3c79106359f8d2fd9b19973d1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2912?language=en&search=WEB_REPORT%7C:%7C2912,"
+  },
+  "sg-Report-2018-024.xml": {
+   "bytes": 42474,
+   "sha256": "23f7aa2d9fba60c4c7e4429eee49875249570e9d5449a9d511e03ce5bef4a980",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2922?language=en&search=WEB_REPORT%7C:%7C2922,"
+  },
+  "sg-Report-2018-025.xml": {
+   "bytes": 60921,
+   "sha256": "f6c28877646fa4adfe824be87ffa8dd1d8db3fb23b5b3270c6d269d75549fc0a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2932?language=en&search=WEB_REPORT%7C:%7C2932,"
+  },
+  "sg-Report-2018-026.xml": {
+   "bytes": 53662,
+   "sha256": "39b58f9bce5c2f54f6cfa27d6074de751ac47afc1b28680201b914577054c2b6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2942?language=en&search=WEB_REPORT%7C:%7C2942,"
+  },
+  "sg-Report-2018-027.xml": {
+   "bytes": 76560,
+   "sha256": "bbd6a1af64df591209b2fffe9670f7a35ef1c54dca5ccbe56d834e4d4950b3f2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2952?language=en&search=WEB_REPORT%7C:%7C2952,"
+  },
+  "sg-Report-2018-028.xml": {
+   "bytes": 82730,
+   "sha256": "516691ef5b146054e09b5d1d7b0162127e7160b08dc3b89b588387a28a535f0b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2962?language=en&search=WEB_REPORT%7C:%7C2962,"
+  },
+  "sg-Report-2018-029.xml": {
+   "bytes": 89973,
+   "sha256": "ff91bacb4ebfb0fa7a530562b747c40e8cc39b8f9581b34273efea30c6d19791",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2972?language=en&search=WEB_REPORT%7C:%7C2972,"
+  },
+  "sg-Report-2018-030.xml": {
+   "bytes": 136537,
+   "sha256": "781090a7da0037c1d6b51e3e12d6edea78fd463de0b6af3ee7515ee9031d5efc",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2982?language=en&search=WEB_REPORT%7C:%7C2982,"
+  },
+  "sg-Report-2018-031.xml": {
+   "bytes": 133851,
+   "sha256": "4146c2701bd01c35159bcfe3f42bf5568daf63718be5f4edfaaa271e372e5e88",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3002?language=en&search=WEB_REPORT%7C:%7C3002,"
+  },
+  "sg-Report-2018-032.xml": {
+   "bytes": 103848,
+   "sha256": "f85fa7a18fa99efcd8afacc692a899f8444ca5a726061b25f66f931c4e715ed6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3012?language=en&search=WEB_REPORT%7C:%7C3012,"
+  },
+  "sg-Report-2018-033.xml": {
+   "bytes": 53383,
+   "sha256": "1e969605590254cbc95948528289d870295ef361d34d8ef23932787cb980a69f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3022?language=en&search=WEB_REPORT%7C:%7C3022,"
+  },
+  "sg-Report-2018-034.xml": {
+   "bytes": 52829,
+   "sha256": "0e521450e8c426037ba2797cf63dbe1d71322ebcbb7f23f415fd71158cf594a8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3032?language=en&search=WEB_REPORT%7C:%7C3032,"
+  },
+  "sg-Report-2018-035.xml": {
+   "bytes": 36421,
+   "sha256": "e117534d36b7d2216dabb8cbf2bbddc3c825c49c567fec18c5ac80aa006b98c0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3042?language=en&search=WEB_REPORT%7C:%7C3042,"
+  },
+  "sg-Report-2018-036.xml": {
+   "bytes": 54903,
+   "sha256": "8d81718f335a752fe5d3434c5559b600e83779e81d6bc4edcf9073e0f0d48357",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3052?language=en&search=WEB_REPORT%7C:%7C3052,"
+  },
+  "sg-Report-2018-037.xml": {
+   "bytes": 81599,
+   "sha256": "52d643de09e7788104f02aea0244ff66a9fd8e69ee1da3664c16b91aaece67a1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3062?language=en&search=WEB_REPORT%7C:%7C3062,"
+  },
+  "sg-Report-2018-038.xml": {
+   "bytes": 115517,
+   "sha256": "493803a6793304ab81a96ea22ab35f72f7b188f65bd0a004ed3991e1e338e4e0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3072?language=en&search=WEB_REPORT%7C:%7C3072,"
+  },
+  "sg-Report-2018-039.xml": {
+   "bytes": 108151,
+   "sha256": "8bd4569775f7a226fd0d04e7e807e371344f1e78c38856a2924a299eec63e434",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3082?language=en&search=WEB_REPORT%7C:%7C3082,"
+  },
+  "sg-Report-2018-040.xml": {
+   "bytes": 75945,
+   "sha256": "0f5671de9dc568f7f4d4c04ec7931465f644402544b34f8ef8dcef7760af5ef2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3092?language=en&search=WEB_REPORT%7C:%7C3092,"
+  },
+  "sg-Report-2018-041.xml": {
+   "bytes": 53445,
+   "sha256": "dca226dbeb231245deb9584c9a6c52d2accd8095f3650aeaf0200ed01d35ad2d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3102?language=en&search=WEB_REPORT%7C:%7C3102,"
+  },
+  "sg-Report-2018-042.xml": {
+   "bytes": 70505,
+   "sha256": "62b69c5be9045cae6a5d064d07924d500e4bd6ab12d48c83d176d5d1d10a24b2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3112?language=en&search=WEB_REPORT%7C:%7C3112,"
+  },
+  "sg-Report-2018-043.xml": {
+   "bytes": 103182,
+   "sha256": "c80ad67e4e479a609a188aa5499dcae8f63afc75d4ec78af5c74c7844d3795ed",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3122?language=en&search=WEB_REPORT%7C:%7C3122,"
+  },
+  "sg-Report-2018-044.xml": {
+   "bytes": 75796,
+   "sha256": "7596571314515251573bf5ca9f8902bf7999bbba25f2ba6b84c7392a84291301",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3132?language=en&search=WEB_REPORT%7C:%7C3132,"
+  },
+  "sg-Report-2018-045.xml": {
+   "bytes": 62469,
+   "sha256": "04ba3ec72e8ad5e6bfe101c10ccc84bdecdc26dff058068db5d72000b0342ea1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3142?language=en&search=WEB_REPORT%7C:%7C3142,"
+  },
+  "sg-Report-2018-046.xml": {
+   "bytes": 126564,
+   "sha256": "4348ae4bf1a1d43abe0cbdd9ff913b4048d54f0cd127622d749d2dc7e89eb060",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3152?language=en&search=WEB_REPORT%7C:%7C3152,"
+  },
+  "sg-Report-2018-047.xml": {
+   "bytes": 89786,
+   "sha256": "e0f7a7640fea34a92d2b0ec67f0096dbecd506937d441c13d9b7a5b171d1144b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3162?language=en&search=WEB_REPORT%7C:%7C3162,"
+  },
+  "sg-Report-2018-048.xml": {
+   "bytes": 62775,
+   "sha256": "92d71e80b10f1671fd0c6bc881043edd0bedd723c212626f982d03e42c9fd589",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3172?language=en&search=WEB_REPORT%7C:%7C3172,"
+  },
+  "sg-Report-2018-049.xml": {
+   "bytes": 80880,
+   "sha256": "e1b1d7966ef5474435a8d977b6155aad0594bcb7dca37e7e01080be5455d9c81",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3182?language=en&search=WEB_REPORT%7C:%7C3182,"
+  },
+  "sg-Report-2018-050.xml": {
+   "bytes": 122452,
+   "sha256": "d80fbe4afeccd0d634ffc588edf3e1576b2a3cb47976678fdfb0c399e5457b72",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3192?language=en&search=WEB_REPORT%7C:%7C3192,"
+  },
+  "sg-Report-2018-051.xml": {
+   "bytes": 132913,
+   "sha256": "e0b6857e280006012d33c603148356ab9832346a92a8335349a2f736ce62e8a9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3202?language=en&search=WEB_REPORT%7C:%7C3202,"
+  },
+  "sg-Report-2019-001.xml": {
+   "bytes": 76796,
+   "sha256": "21957d021a8783992e57de60388d279d00b27169f92363850511dbe415c027db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3222?language=en&search=WEB_REPORT%7C:%7C3222,"
+  },
+  "sg-Report-2019-002.xml": {
+   "bytes": 109512,
+   "sha256": "488ac591ac5dd866be254f48e219b50c467508d71e96326bd70f338a8892b0a7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3232?language=en&search=WEB_REPORT%7C:%7C3232,"
+  },
+  "sg-Report-2019-003.xml": {
+   "bytes": 61599,
+   "sha256": "309a29673e003e7ea11932cbfd2a857ba5fac6632501f52d7751d31b27012202",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3242?language=en&search=WEB_REPORT%7C:%7C3242,"
+  },
+  "sg-Report-2019-004.xml": {
+   "bytes": 145260,
+   "sha256": "4c15df8b273d3de498800c4355351f5d08e3d5a8b195465d2bffdf137dc0ca96",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3252?language=en&search=WEB_REPORT%7C:%7C3252,"
+  },
+  "sg-Report-2019-005.xml": {
+   "bytes": 92221,
+   "sha256": "fc3a157aa0f38933bfdc317232435432e779719e55b711776d5f3e7ce9928c17",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3262?language=en&search=WEB_REPORT%7C:%7C3262,"
+  },
+  "sg-Report-2019-006.xml": {
+   "bytes": 97383,
+   "sha256": "53087eb73a32c19678e643f16b6ec2db204b9d1057e528910c25f46387bb879a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3272?language=en&search=WEB_REPORT%7C:%7C3272,"
+  },
+  "sg-Report-2019-007.xml": {
+   "bytes": 115100,
+   "sha256": "a065c8dc9893ade4f225176bfc8e5bb0dd0053dfcac091155a33b69b12fd6880",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3282?language=en&search=WEB_REPORT%7C:%7C3282,"
+  },
+  "sg-Report-2019-008.xml": {
+   "bytes": 93448,
+   "sha256": "8e0c874123f1e5dc7737c3c753faed291e1ab70979877e04e2399a774a72d8aa",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3292?language=en&search=WEB_REPORT%7C:%7C3292,"
+  },
+  "sg-Report-2019-009.xml": {
+   "bytes": 52660,
+   "sha256": "abafc317d7ea69fb23f46317c54e3bb3337763541646d0520125cfef9bf4d872",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3302?language=en&search=WEB_REPORT%7C:%7C3302,"
+  },
+  "sg-Report-2019-010.xml": {
+   "bytes": 91079,
+   "sha256": "bd0c82c61beada1ce77ade03fe8a08ab64656297c2ae48b47fc802638e03c563",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3312?language=en&search=WEB_REPORT%7C:%7C3312,"
+  },
+  "sg-Report-2019-011.xml": {
+   "bytes": 78379,
+   "sha256": "e4141aac75641212df84ec6caa775f2a1f3fa681084abf6bcd863833b28fc5e6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3322?language=en&search=WEB_REPORT%7C:%7C3322,"
+  },
+  "sg-Report-2019-012.xml": {
+   "bytes": 135056,
+   "sha256": "6f1dd3501a0c61dbcd03fc389b83bda8df9fce38670f628cefe2bb23a03d2987",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3332?language=en&search=WEB_REPORT%7C:%7C3332,"
+  },
+  "sg-Report-2019-013.xml": {
+   "bytes": 88592,
+   "sha256": "bebe347d11fcf774716f3281166dd06d97a5d71fff006402e23fa30a5cca66f2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3342?language=en&search=WEB_REPORT%7C:%7C3342,"
+  },
+  "sg-Report-2019-014.xml": {
+   "bytes": 50615,
+   "sha256": "9a0b7d95b5f4d31573f8fe15936a8c4f814c63edb4c5b58ba423618455a8a052",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3352?language=en&search=WEB_REPORT%7C:%7C3352,"
+  },
+  "sg-Report-2019-015.xml": {
+   "bytes": 97170,
+   "sha256": "48200cfd96b4f79c797c2f3f293f7fcb9d464c25040dc495e4a82351e4e0451b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3362?language=en&search=WEB_REPORT%7C:%7C3362,"
+  },
+  "sg-Report-2019-016.xml": {
+   "bytes": 78066,
+   "sha256": "dcbeb00a8497dfd6da9dba282a03ae695250b5157ab51d2c394dcf8c1c285590",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3372?language=en&search=WEB_REPORT%7C:%7C3372,"
+  },
+  "sg-Report-2019-017.xml": {
+   "bytes": 35828,
+   "sha256": "2adf4c52f0c2dd3da65bdbdcca609afe6b37fe252e3c0590cedc2a94fc7e4905",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3382?language=en&search=WEB_REPORT%7C:%7C3382,"
+  },
+  "sg-Report-2019-018.xml": {
+   "bytes": 60044,
+   "sha256": "8b105a6afa9060cd8bb305db8c77ed192ddc57c0d7874989efccee46ac06b619",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3392?language=en&search=WEB_REPORT%7C:%7C3392,"
+  },
+  "sg-Report-2019-019.xml": {
+   "bytes": 67622,
+   "sha256": "5b2402c30470dff11c56260370a4ab55b83bd4a13bd95989655a5b4acaff9a0e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3402?language=en&search=WEB_REPORT%7C:%7C3402,"
+  },
+  "sg-Report-2019-020.xml": {
+   "bytes": 73254,
+   "sha256": "9711fd3960f9351824c9883544e8f7b45ce34880d7a7f529f39553b4ba08d6ef",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3412?language=en&search=WEB_REPORT%7C:%7C3412,"
+  },
+  "sg-Report-2019-021.xml": {
+   "bytes": 58083,
+   "sha256": "bc6dab360ad8d62be44f9e8ac26064443cdae9123781ae98d4c4ce5368196e74",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3422?language=en&search=WEB_REPORT%7C:%7C3422,"
+  },
+  "sg-Report-2019-022.xml": {
+   "bytes": 90343,
+   "sha256": "ccb029a5ed2ec41cd68561a57846e75a47df33c9643c04f66367810ee621d027",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3432?language=en&search=WEB_REPORT%7C:%7C3432,"
+  },
+  "sg-Report-2019-023.xml": {
+   "bytes": 43550,
+   "sha256": "a24e6f137136805b438d9d44d01b119f807127adec9bd7753085bd951e03809f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3442?language=en&search=WEB_REPORT%7C:%7C3442,"
+  },
+  "sg-Report-2019-024.xml": {
+   "bytes": 69361,
+   "sha256": "1164f58728aa54181b2c0da6f96659886a94c76fd91f38453856a3f85873d8d0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3452?language=en&search=WEB_REPORT%7C:%7C3452,"
+  },
+  "sg-Report-2019-025.xml": {
+   "bytes": 71614,
+   "sha256": "2e132523a90e5f3f3702db08479c52a9fb47c77ca2e5d846537e94ea68e63f9e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3462?language=en&search=WEB_REPORT%7C:%7C3462,"
+  },
+  "sg-Report-2019-026.xml": {
+   "bytes": 80441,
+   "sha256": "902f1ec6ed6424b723a80d65dacc65dcea07fffc004683953664cd516a5452fa",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3472?language=en&search=WEB_REPORT%7C:%7C3472,"
+  },
+  "sg-Report-2019-027.xml": {
+   "bytes": 71575,
+   "sha256": "00d046a5c7060e852e2bbf876401043736368beb78b00d8966e939de6e5a579d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3482?language=en&search=WEB_REPORT%7C:%7C3482,"
+  },
+  "sg-Report-2019-028.xml": {
+   "bytes": 81589,
+   "sha256": "eac86a647e6a9f4f6836b5649edbcc61c1f690c4aadb7f8102d18f4315d35796",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3492?language=en&search=WEB_REPORT%7C:%7C3492,"
+  },
+  "sg-Report-2019-029.xml": {
+   "bytes": 121227,
+   "sha256": "fd8b7e40110183c74b3509a18834b2b090c7b32ac29e7c8a54f4fdcf17057620",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3502?language=en&search=WEB_REPORT%7C:%7C3502,"
+  },
+  "sg-Report-2019-030.xml": {
+   "bytes": 79065,
+   "sha256": "ae48b81f61d25a9a0b203d00037996397ce7157186199bf3e83cd12ca6740920",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3512?language=en&search=WEB_REPORT%7C:%7C3512,"
+  },
+  "sg-Report-2019-031.xml": {
+   "bytes": 61902,
+   "sha256": "9e68d2defcfa8b2dcfde1d3f473e380f2287d8c6a37cb4f84466d00d41cfd887",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3522?language=en&search=WEB_REPORT%7C:%7C3522,"
+  },
+  "sg-Report-2019-032.xml": {
+   "bytes": 100255,
+   "sha256": "9eae6cbe5fcb443e37eef194e59d5464192ccbf1c20f31f7c761dcdf40dbf88b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3532?language=en&search=WEB_REPORT%7C:%7C3532,"
+  },
+  "sg-Report-2019-033.xml": {
+   "bytes": 88993,
+   "sha256": "bc3e1812b616348957e8a56a6e3f26966dcca2a677965587ce9de31654c5e508",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3542?language=en&search=WEB_REPORT%7C:%7C3542,"
+  },
+  "sg-Report-2019-034.xml": {
+   "bytes": 34678,
+   "sha256": "2f9e15f7b5d7a7e0d05a3da8c1ca9e83143fa730acfa1d4b3c3802f449d3d963",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3552?language=en&search=WEB_REPORT%7C:%7C3552,"
+  },
+  "sg-Report-2019-035.xml": {
+   "bytes": 49432,
+   "sha256": "09eddbea470f25574dc14e670eba6cdb186ee69344bbff63383304a603628eb1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3562?language=en&search=WEB_REPORT%7C:%7C3562,"
+  },
+  "sg-Report-2019-036.xml": {
+   "bytes": 49676,
+   "sha256": "55cb13777a7f4d9d66531aef74173325008400dd55c52541689bb3fbd0420029",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3572?language=en&search=WEB_REPORT%7C:%7C3572,"
+  },
+  "sg-Report-2019-037.xml": {
+   "bytes": 68337,
+   "sha256": "4c2a4145e67136388c85beeb4c4d8e796a48c3df2ae3b1abd800fa8128fb846f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3582?language=en&search=WEB_REPORT%7C:%7C3582,"
+  },
+  "sg-Report-2019-038.xml": {
+   "bytes": 58635,
+   "sha256": "89dcc80e9da44d8929b16d139bce52e0c4635aef9c6923bfa0fd083e2103303e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3592?language=en&search=WEB_REPORT%7C:%7C3592,"
+  },
+  "sg-Report-2019-039.xml": {
+   "bytes": 120155,
+   "sha256": "dc128496baea507afab204dcc330ca70fe88e19db712af80653a1bdb90f9d3e2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3602?language=en&search=WEB_REPORT%7C:%7C3602,"
+  },
+  "sg-Report-2019-040.xml": {
+   "bytes": 90179,
+   "sha256": "d6d0ba9d8d7c39917e3cffb9283a5c8923f8f202ef3f323cb84df3f7b5bf6916",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3612?language=en&search=WEB_REPORT%7C:%7C3612,"
+  },
+  "sg-Report-2019-041.xml": {
+   "bytes": 61147,
+   "sha256": "3fcec9e2dbd02761de145c62f96436073bc32c314b44101a1842e2cf8f9cf396",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3622?language=en&search=WEB_REPORT%7C:%7C3622,"
+  },
+  "sg-Report-2019-042.xml": {
+   "bytes": 78536,
+   "sha256": "acfe3fe59af5f1d96f51772f6600959f90011ff4ebbb21c8cde19c0c13734b2d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3632?language=en&search=WEB_REPORT%7C:%7C3632,"
+  },
+  "sg-Report-2019-043.xml": {
+   "bytes": 106255,
+   "sha256": "59c67daed8255680a6f80ede6afa8fdedd8f42246a557a55e547c316c0f18e12",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3642?language=en&search=WEB_REPORT%7C:%7C3642,"
+  },
+  "sg-Report-2019-044.xml": {
+   "bytes": 129108,
+   "sha256": "e0235675d7800c8f09253486f7e2d3bf8ad61aee93e1e06dd08833af32bd4b54",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3652?language=en&search=WEB_REPORT%7C:%7C3652,"
+  },
+  "sg-Report-2019-045.xml": {
+   "bytes": 67095,
+   "sha256": "48e008ff3970c980ffb13f35dc63fbc2de45da5afc7e05ca9ed97368024648b9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3662?language=en&search=WEB_REPORT%7C:%7C3662,"
+  },
+  "sg-Report-2019-046.xml": {
+   "bytes": 64503,
+   "sha256": "3dc8b53b99a6af334036f25974c2b6c66206f0712255071c30b7563952e393e9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3672?language=en&search=WEB_REPORT%7C:%7C3672,"
+  },
+  "sg-Report-2019-047.xml": {
+   "bytes": 71974,
+   "sha256": "14c86ae7b2f73c752af024916685db09892064ffecbf68be1c1bf445600651dd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3682?language=en&search=WEB_REPORT%7C:%7C3682,"
+  },
+  "sg-Report-2019-048.xml": {
+   "bytes": 186157,
+   "sha256": "c847d711074dcf4e95a5caad9cebf937a680b9ad7c8f8e62d41e93f677a91847",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3692?language=en&search=WEB_REPORT%7C:%7C3692,"
+  },
+  "sg-Report-2019-049.xml": {
+   "bytes": 225271,
+   "sha256": "44ec9614f829444d5ae2e49d3a630ec1568662f5e986214426997b65c6e530d2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3702?language=en&search=WEB_REPORT%7C:%7C3702,"
+  },
+  "sg-Report-2019-050.xml": {
+   "bytes": 77226,
+   "sha256": "78cf2691b955a6fcc5e1abe1c4aabab1a610927b87a62e9f5aec015bca9eb097",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3712?language=en&search=WEB_REPORT%7C:%7C3712,"
+  },
+  "sg-Report-2019-51.xml": {
+   "bytes": 74341,
+   "sha256": "81eb490d3dab9443d1db20eb9b697f3466c2471eda2f0be058900994daa8399a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/1?language=en&search=WEB_REPORT%7C:%7C1,"
+  },
+  "sg-Report-2020-01.xml": {
+   "bytes": 56165,
+   "sha256": "a111b9fd4aefc6c5d5aaacf5200f1eda77b7773e558d1570cf343a76c5cee322",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/2?language=en&search=WEB_REPORT%7C:%7C2,"
+  },
+  "sg-Report-2020-10.xml": {
+   "bytes": 77029,
+   "sha256": "e4339f97366620f0d57ac5e150d5f6320c1016a9192e03290d68f2f94dc35312",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/11?language=en&search=WEB_REPORT%7C:%7C11,"
+  },
+  "sg-Report-2020-11.xml": {
+   "bytes": 79729,
+   "sha256": "0edd1c004c7e0f32a5ad45fcea94ab64e8c6afd3a824dd1a4bc74b9e913c571f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/12?language=en&search=WEB_REPORT%7C:%7C12,"
+  },
+  "sg-Report-2020-12.xml": {
+   "bytes": 99434,
+   "sha256": "45364fcf7e9afcff170b399ed6fa67be59bf0f46cf1a872b3cc31b9ab0e34a09",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/13?language=en&search=WEB_REPORT%7C:%7C13,"
+  },
+  "sg-Report-2020-13.xml": {
+   "bytes": 102201,
+   "sha256": "8d75a82b80f2c7856d70b582b01ac25d96be3a93f92a037c0ab05d9c34e19c73",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/14?language=en&search=WEB_REPORT%7C:%7C14,"
+  },
+  "sg-Report-2020-14.xml": {
+   "bytes": 66140,
+   "sha256": "c285d8e37120652981232309b41a4ad776fee349452356cea0f9c19a390e8a95",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/15?language=en&search=WEB_REPORT%7C:%7C15,"
+  },
+  "sg-Report-2020-15.xml": {
+   "bytes": 76591,
+   "sha256": "a899777855de64e04cc7ab5a7e72ff4a085981105aef3f7c9b79b29ebdc1adc0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/16?language=en&search=WEB_REPORT%7C:%7C16,"
+  },
+  "sg-Report-2020-16.xml": {
+   "bytes": 51246,
+   "sha256": "5a1248c09ace09ee383b32b8eb4553006f56a667c50cef2f704bb7d1b3715afb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/17?language=en&search=WEB_REPORT%7C:%7C17,"
+  },
+  "sg-Report-2020-17.xml": {
+   "bytes": 68341,
+   "sha256": "d7bd9e623b53a5270b656b0bf24d76329eab6a939f5df94c5c3f8c7068009ba6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/18?language=en&search=WEB_REPORT%7C:%7C18,"
+  },
+  "sg-Report-2020-18.xml": {
+   "bytes": 100211,
+   "sha256": "ab87abbf56d3c54c80447940b8351cd158850ac12fcf507b39fef03614aa074e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/19?language=en&search=WEB_REPORT%7C:%7C19,"
+  },
+  "sg-Report-2020-19.xml": {
+   "bytes": 52830,
+   "sha256": "a0433a02a9c7e97f78084db7583224573a0b4f3562e054ec747b939e33b95ada",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/20?language=en&search=WEB_REPORT%7C:%7C20,"
+  },
+  "sg-Report-2020-2.xml": {
+   "bytes": 46100,
+   "sha256": "d96dacc1b0db94d8fa5a43022ee180f8e40ac91e1aafcfc5d7536d3bf50d46b3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/3?language=en&search=WEB_REPORT%7C:%7C3,"
+  },
+  "sg-Report-2020-20.xml": {
+   "bytes": 96972,
+   "sha256": "56fe37f0368a2571dd957a16481e7746ff4c07b87430879648773ac8595723e0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/21?language=en&search=WEB_REPORT%7C:%7C21,"
+  },
+  "sg-Report-2020-21.xml": {
+   "bytes": 70994,
+   "sha256": "54c7ea4c8931694371303c2be78ad82f5dc7b23781138bc462eb528af32424c8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/22?language=en&search=WEB_REPORT%7C:%7C22,"
+  },
+  "sg-Report-2020-22.xml": {
+   "bytes": 108681,
+   "sha256": "42bdde3977a058d782eb2c63fe965b4186de3631e0e87c24dd6125116b6ac5b5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/23?language=en&search=WEB_REPORT%7C:%7C23,"
+  },
+  "sg-Report-2020-23.xml": {
+   "bytes": 56288,
+   "sha256": "0ad50979b6659ad423d8a93734f5eac83327fa080e105e3c9c5a76eb03b5a09a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/24?language=en&search=WEB_REPORT%7C:%7C24,"
+  },
+  "sg-Report-2020-24.xml": {
+   "bytes": 60589,
+   "sha256": "4e3f5d8345ad5933143dd8afb4211a9b74715064fb4db31924c62c6a5adac3db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/25?language=en&search=WEB_REPORT%7C:%7C25,"
+  },
+  "sg-Report-2020-25.xml": {
+   "bytes": 56771,
+   "sha256": "f4f746b065d2129bf11bb6aacddc943b523dc611ce4e5ee7fc0e6f6d068015a2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/26?language=en&search=WEB_REPORT%7C:%7C26,"
+  },
+  "sg-Report-2020-26.xml": {
+   "bytes": 88014,
+   "sha256": "56a05b0f69ac866c98225819ac3cb4ea46bf9721f339eed1cfac53e484cddf6e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000000?language=en&search=WEB_REPORT%7C:%7C10000000,"
+  },
+  "sg-Report-2020-27.xml": {
+   "bytes": 73146,
+   "sha256": "99c94a380ca6b09f78b54b25a4910fc30be7fba061b2eabb5c5681b19e950e8c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000001?language=en&search=WEB_REPORT%7C:%7C10000001,"
+  },
+  "sg-Report-2020-28.xml": {
+   "bytes": 154046,
+   "sha256": "6ab65456341006bf62ce40f1b1d69073849f4787bd752271a3a12d2cc9d8d5bc",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000002?language=en&search=WEB_REPORT%7C:%7C10000002,"
+  },
+  "sg-Report-2020-29.xml": {
+   "bytes": 67570,
+   "sha256": "bb0aa06a6ea14a91218e6cb021c7647cd09b112418768079d17262dad09279e1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000003?language=en&search=WEB_REPORT%7C:%7C10000003,"
+  },
+  "sg-Report-2020-3.xml": {
+   "bytes": 143181,
+   "sha256": "587bd2ce57efae2a00307d9dd94cc4abe827a21007cbb895f2c1ff50baeb37f1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/4?language=en&search=WEB_REPORT%7C:%7C4,"
+  },
+  "sg-Report-2020-30.xml": {
+   "bytes": 68272,
+   "sha256": "7b05699783aa1e7229d9e45b46e3904ec074168f87f4ab7ec1aab54ff71bd73b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000004?language=en&search=WEB_REPORT%7C:%7C10000004,"
+  },
+  "sg-Report-2020-31.xml": {
+   "bytes": 50249,
+   "sha256": "e6d1d2761df0285e8a38bcd5fa6e00ae887489ae4f740570665e6d2705736883",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000005?language=en&search=WEB_REPORT%7C:%7C10000005,"
+  },
+  "sg-Report-2020-32.xml": {
+   "bytes": 55112,
+   "sha256": "01ccef7537da0a8e1e5ad4a380de7b4a368dc62dada62bac334537f3c2909b03",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000006?language=en&search=WEB_REPORT%7C:%7C10000006,"
+  },
+  "sg-Report-2020-33.xml": {
+   "bytes": 38289,
+   "sha256": "de1cc56f46c66388c984ef41e20d95a7bc84af1c47317e5624c941ca3a454a04",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000007?language=en&search=WEB_REPORT%7C:%7C10000007,"
+  },
+  "sg-Report-2020-34.xml": {
+   "bytes": 48815,
+   "sha256": "18914ca3f4492055e9228de57a2144d7b2d4a96f3533ef1837d443e54255e878",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000008?language=en&search=WEB_REPORT%7C:%7C10000008,"
+  },
+  "sg-Report-2020-35.xml": {
+   "bytes": 50636,
+   "sha256": "27de171b14cc4f7fe4650b1c9eea509309f6a2fb273cc16d5233b5047f0d38ee",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000009?language=en&search=WEB_REPORT%7C:%7C10000009,"
+  },
+  "sg-Report-2020-36.xml": {
+   "bytes": 45734,
+   "sha256": "88f6bf0b2acc57dd26cc38fab77066cce39fd1b4312afb2213fd7b1d0d5f62f2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000010?language=en&search=WEB_REPORT%7C:%7C10000010,"
+  },
+  "sg-Report-2020-37.xml": {
+   "bytes": 53890,
+   "sha256": "ea267f5710ec0f265db2ccfe7e4c29def955fe6b81472c49ed031e4dc282b723",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000011?language=en&search=WEB_REPORT%7C:%7C10000011,"
+  },
+  "sg-Report-2020-38.xml": {
+   "bytes": 56763,
+   "sha256": "390c07814126c85f9fe301df68304379ca59dd090864e7b0a85a4163b5f17d2a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000012?language=en&search=WEB_REPORT%7C:%7C10000012,"
+  },
+  "sg-Report-2020-39.xml": {
+   "bytes": 72640,
+   "sha256": "c32895767bbe5a742f9d49239f33611595efa8a7e5feb3c0a123eba15e40f2c4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000013?language=en&search=WEB_REPORT%7C:%7C10000013,"
+  },
+  "sg-Report-2020-4.xml": {
+   "bytes": 113445,
+   "sha256": "b2c9dc8782cd707822e674cf4c11746c050763d091e04ceeb351ffe215c228a9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/5?language=en&search=WEB_REPORT%7C:%7C5,"
+  },
+  "sg-Report-2020-40.xml": {
+   "bytes": 50563,
+   "sha256": "ffe8267cfa4cf4dfa9afad71c1a107a0c863f486b89279b0a8c50d51844da8db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000014?language=en&search=WEB_REPORT%7C:%7C10000014,"
+  },
+  "sg-Report-2020-41.xml": {
+   "bytes": 58423,
+   "sha256": "92e92992cec6db8b990d51d415dd8573011299a4c29d4d0a695af8dd3e88ddc6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000015?language=en&search=WEB_REPORT%7C:%7C10000015,"
+  },
+  "sg-Report-2020-42.xml": {
+   "bytes": 85383,
+   "sha256": "82da302a785968debb6b3996ddf88526af0807489cb59619b4153f18ca4179dd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000016?language=en&search=WEB_REPORT%7C:%7C10000016,"
+  },
+  "sg-Report-2020-43.xml": {
+   "bytes": 81002,
+   "sha256": "e63a23618d98cb6dd2fef42312256bbfbc75fb4508a98596a19e94a3567e79c8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000017?language=en&search=WEB_REPORT%7C:%7C10000017,"
+  },
+  "sg-Report-2020-44.xml": {
+   "bytes": 53052,
+   "sha256": "a2051683702ea5f997ca159069ea37b5b51d1653ef27082cfae20f4777fa0b47",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000018?language=en&search=WEB_REPORT%7C:%7C10000018,"
+  },
+  "sg-Report-2020-45.xml": {
+   "bytes": 59333,
+   "sha256": "3dc2aef9f65c9ea2d467c96925a3274e028fb90af4e11c08583a25045f4ff4a4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000019?language=en&search=WEB_REPORT%7C:%7C10000019,"
+  },
+  "sg-Report-2020-46.xml": {
+   "bytes": 54724,
+   "sha256": "cecb82fbc90db9658b988087691b07462934f2d498043c6095e3373d17bfe90c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000020?language=en&search=WEB_REPORT%7C:%7C10000020,"
+  },
+  "sg-Report-2020-47.xml": {
+   "bytes": 176564,
+   "sha256": "9391fcc56b31a9505c98c973c399a14ae548a55c24f9c4fe2607758f989cabc5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000021?language=en&search=WEB_REPORT%7C:%7C10000021,"
+  },
+  "sg-Report-2020-48.xml": {
+   "bytes": 212046,
+   "sha256": "b53b3f9b29ebf0c7ebfb4051b8468fee229c66a82f1f7d9e714f4018ca62f2de",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000022?language=en&search=WEB_REPORT%7C:%7C10000022,"
+  },
+  "sg-Report-2020-49.xml": {
+   "bytes": 165151,
+   "sha256": "d3d47a1d9f115612c9d5c58b17a81f712fa2f344afad0ab1ec7209d4877d4c49",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000023?language=en&search=WEB_REPORT%7C:%7C10000023,"
+  },
+  "sg-Report-2020-5.xml": {
+   "bytes": 51811,
+   "sha256": "6251b10d61da9046f649610106f74903d2fc83dae55a31652c188dd83aedafd6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/6?language=en&search=WEB_REPORT%7C:%7C6,"
+  },
+  "sg-Report-2020-50.xml": {
+   "bytes": 78527,
+   "sha256": "613e390014ba596aa1a41f64180878806eb286fec5557c4ad0f06925c1100ec9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000024?language=en&search=WEB_REPORT%7C:%7C10000024,"
+  },
+  "sg-Report-2020-51.xml": {
+   "bytes": 145695,
+   "sha256": "a2a6eb6b47f6de0210c0128528216b0e4fbb2c6550e610fea1647d7a4b34a9db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000025?language=en&search=WEB_REPORT%7C:%7C10000025,"
+  },
+  "sg-Report-2020-52.xml": {
+   "bytes": 216463,
+   "sha256": "b2991bd40026afbaa824831b3793d8e4dde895453ebaf0458f18206d887b069f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000026?language=en&search=WEB_REPORT%7C:%7C10000026,"
+  },
+  "sg-Report-2020-6.xml": {
+   "bytes": 114909,
+   "sha256": "22e8ac1c6ff3ea2b63f1474287828c7ed19b57c4951591ba0689aae88737cbc3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/7?language=en&search=WEB_REPORT%7C:%7C7,"
+  },
+  "sg-Report-2020-7.xml": {
+   "bytes": 60515,
+   "sha256": "604d81c18c412b83e30f764fadd9797a103e2f55d047ff6caf4bc3e6e00e7af1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/8?language=en&search=WEB_REPORT%7C:%7C8,"
+  },
+  "sg-Report-2020-8.xml": {
+   "bytes": 83884,
+   "sha256": "476362a31bd945b8463741a4e93fc608ab89ad89cc8d07b1a8f3acbd9e25618c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/9?language=en&search=WEB_REPORT%7C:%7C9,"
+  },
+  "sg-Report-2020-9.xml": {
+   "bytes": 188585,
+   "sha256": "0dc70f1e22a08725750c7f233b25084c0a954ffeb82c44f3dc5adc93a71daf8b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10?language=en&search=WEB_REPORT%7C:%7C10,"
+  },
+  "sg-Report-2021-1.xml": {
+   "bytes": 36870,
+   "sha256": "231c1ed6c1377bad64a40d4293331dfdf07148a68db108c87ba15277e275dd0b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000027?language=en&search=WEB_REPORT%7C:%7C10000027,"
+  },
+  "sg-Report-2021-10.xml": {
+   "bytes": 71778,
+   "sha256": "9528ef9d25b7f91cb0f4566747aee604b33e05ca0a405f23789c241f8ad1fe5c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000037?language=en&search=WEB_REPORT%7C:%7C10000037,"
+  },
+  "sg-Report-2021-11.xml": {
+   "bytes": 85915,
+   "sha256": "28a37c46083c52dccdc21b54d624fd2ee2fada5a1b4d73f875ecf68ee3d4fda5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000038?language=en&search=WEB_REPORT%7C:%7C10000038,"
+  },
+  "sg-Report-2021-12.xml": {
+   "bytes": 87553,
+   "sha256": "60d5462e170c611428e6bc15ae27f8f9a95e19db03e97a682b512553eeb9bbf9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000039?language=en&search=WEB_REPORT%7C:%7C10000039,"
+  },
+  "sg-Report-2021-13.xml": {
+   "bytes": 118053,
+   "sha256": "d26c68a323eed460cf5a1b1f3cff9a5438e493ccc4a2292b27d733ac0aeb1021",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000040?language=en&search=WEB_REPORT%7C:%7C10000040,"
+  },
+  "sg-Report-2021-14.xml": {
+   "bytes": 34796,
+   "sha256": "2cc7cb76d1af6b4b7354ca4500d49683a0d19d907452717ee923ab5e461a8a61",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000041?language=en&search=WEB_REPORT%7C:%7C10000041,"
+  },
+  "sg-Report-2021-15.xml": {
+   "bytes": 89134,
+   "sha256": "0236269e627b032ff10f0053da8dcb2a3cba95c9b3feec32f34e204ff6d1f4ae",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000042?language=en&search=WEB_REPORT%7C:%7C10000042,"
+  },
+  "sg-Report-2021-16.xml": {
+   "bytes": 82295,
+   "sha256": "8998ae35a6d90822174056c1ad9fea22b6331591439eaabd9af868bd98faf1b5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000043?language=en&search=WEB_REPORT%7C:%7C10000043,"
+  },
+  "sg-Report-2021-17.xml": {
+   "bytes": 76407,
+   "sha256": "983dee8629def317bb1f76e1267db4104a2e6df3fe42e1c0f413da6ffc08abdb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000044?language=en&search=WEB_REPORT%7C:%7C10000044,"
+  },
+  "sg-Report-2021-18.xml": {
+   "bytes": 65392,
+   "sha256": "5b0a361a093870e56e4ce7fc0d8f2651dc4a363c5a0f2aa748080af390478da0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000045?language=en&search=WEB_REPORT%7C:%7C10000045,"
+  },
+  "sg-Report-2021-19.xml": {
+   "bytes": 99139,
+   "sha256": "c71ea2de0760b353b417ec873b1a3aee9fbb813c753798a835d82d2842b197a8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000046?language=en&search=WEB_REPORT%7C:%7C10000046,"
+  },
+  "sg-Report-2021-2.xml": {
+   "bytes": 88952,
+   "sha256": "ae53960624ca031700ca0687a6eb31909bd937ae5df54ffdd467b14aa4737794",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000028?language=en&search=WEB_REPORT%7C:%7C10000028,"
+  },
+  "sg-Report-2021-20.xml": {
+   "bytes": 50758,
+   "sha256": "f7854ea121c9787ce1ad63b27ec5aed2f60e39b79154d3fea728c48bb41c0fe0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000047?language=en&search=WEB_REPORT%7C:%7C10000047,"
+  },
+  "sg-Report-2021-21.xml": {
+   "bytes": 122141,
+   "sha256": "bc2dee52984409fd138a270855e1ea25cc6672ccef27539f2ff1d25981b5222d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000048?language=en&search=WEB_REPORT%7C:%7C10000048,"
+  },
+  "sg-Report-2021-22.xml": {
+   "bytes": 115733,
+   "sha256": "eec160b8d3491c4f0cc1c15f2462e0b4842c70b42d1c210417f4aac5c955aa83",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000049?language=en&search=WEB_REPORT%7C:%7C10000049,"
+  },
+  "sg-Report-2021-23.xml": {
+   "bytes": 140599,
+   "sha256": "939e2df5f7974d6faf581b48e5a61a30a32bc639d1b3e697368e1fd62ad50bd9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000050?language=en&search=WEB_REPORT%7C:%7C10000050,"
+  },
+  "sg-Report-2021-24.xml": {
+   "bytes": 112585,
+   "sha256": "b54e3208bd1aef39e97f6d7689b24aa67b365b33b2a80fd5370829f3b796a8d3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000051?language=en&search=WEB_REPORT%7C:%7C10000051,"
+  },
+  "sg-Report-2021-25.xml": {
+   "bytes": 84426,
+   "sha256": "74efe4f63bf74d10e16a84276f8befb9ec88b155a62c8736a07c5e11fa74f151",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000052?language=en&search=WEB_REPORT%7C:%7C10000052,"
+  },
+  "sg-Report-2021-26.xml": {
+   "bytes": 61851,
+   "sha256": "11f626fcbd3a3ded23ce845ed981d65b20ca80665d55ac7b8b68d10151ae0c94",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000053?language=en&search=WEB_REPORT%7C:%7C10000053,"
+  },
+  "sg-Report-2021-27.xml": {
+   "bytes": 108021,
+   "sha256": "1ed73e5eabcf3c29a6401bff72383973489018eb2eb011e3fd76c192be5c27db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000054?language=en&search=WEB_REPORT%7C:%7C10000054,"
+  },
+  "sg-Report-2021-28.xml": {
+   "bytes": 108417,
+   "sha256": "c88b027f6df25cfd615a3fa0ca9795023337eafb560a90a492c7e8064fbb9ff0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000055?language=en&search=WEB_REPORT%7C:%7C10000055,"
+  },
+  "sg-Report-2021-29.xml": {
+   "bytes": 121603,
+   "sha256": "89e9a80afbae9ba7b115a73b612e8d763cd67b2206df5869441f7a1e1d24aea4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000056?language=en&search=WEB_REPORT%7C:%7C10000056,"
+  },
+  "sg-Report-2021-3.xml": {
+   "bytes": 79954,
+   "sha256": "203052d26523ef1d9d859af19972eb608803a85628605fd6726848aeb235ac36",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000029?language=en&search=WEB_REPORT%7C:%7C10000029,"
+  },
+  "sg-Report-2021-30.xml": {
+   "bytes": 80219,
+   "sha256": "e960d0cbe278d700248f5e6573033620cbd8def0c65041072e769f1e207deb47",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000057?language=en&search=WEB_REPORT%7C:%7C10000057,"
+  },
+  "sg-Report-2021-31.xml": {
+   "bytes": 64070,
+   "sha256": "75bf41419e4fa26aa3d724d0b3d11dc895058854963fea7006f0ce0f81916d50",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000058?language=en&search=WEB_REPORT%7C:%7C10000058,"
+  },
+  "sg-Report-2021-32.xml": {
+   "bytes": 40070,
+   "sha256": "6904d818a350419cde4c7f07954cf6d5dc3a47021badf1e25c71d5c0a89b15d8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000059?language=en&search=WEB_REPORT%7C:%7C10000059,"
+  },
+  "sg-Report-2021-33.xml": {
+   "bytes": 66633,
+   "sha256": "7e762e077a0b44874096734759c9db591ce12c5ba3ed62c5690123a7229b004b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000060?language=en&search=WEB_REPORT%7C:%7C10000060,"
+  },
+  "sg-Report-2021-34.xml": {
+   "bytes": 51978,
+   "sha256": "a9d8d87332db1d06e588bcdfc72f84c2f27bdfe788eacd91aa0c201fca04acdb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000061?language=en&search=WEB_REPORT%7C:%7C10000061,"
+  },
+  "sg-Report-2021-35.xml": {
+   "bytes": 58002,
+   "sha256": "6d29c8668e5882a0c3b87fbb19d02f28f20ab91624f2ee748860e82f34a4079c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000062?language=en&search=WEB_REPORT%7C:%7C10000062,"
+  },
+  "sg-Report-2021-36.xml": {
+   "bytes": 33876,
+   "sha256": "814c790b4eb05f6ffbc6e3f432a465e5440023298cb39022799f7d71c9c2289e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000063?language=en&search=WEB_REPORT%7C:%7C10000063,"
+  },
+  "sg-Report-2021-37.xml": {
+   "bytes": 67280,
+   "sha256": "2f223667151832dd14f3526dafcf72d1a844d8c6125552a8b948f6cc43a51754",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000064?language=en&search=WEB_REPORT%7C:%7C10000064,"
+  },
+  "sg-Report-2021-38.xml": {
+   "bytes": 72244,
+   "sha256": "65d478ffb42fd67abd3ea5cae59d845fe45298fe28b40fd5a81289030c554ce6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000065?language=en&search=WEB_REPORT%7C:%7C10000065,"
+  },
+  "sg-Report-2021-39.xml": {
+   "bytes": 82234,
+   "sha256": "f5a713ef27e44f16c692417f7a7a6a03bcef657dce7cc38b9292f62eaba2201f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000066?language=en&search=WEB_REPORT%7C:%7C10000066,"
+  },
+  "sg-Report-2021-4.xml": {
+   "bytes": 62816,
+   "sha256": "4a500f53134d27fa57a2b270c5535d5288b4d75e1eaa6248dc8437e186d113b5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000030?language=en&search=WEB_REPORT%7C:%7C10000030,"
+  },
+  "sg-Report-2021-40.xml": {
+   "bytes": 46010,
+   "sha256": "d53cec289e57e48e9ceeae3fa186e1207cd32ce4834d0db7acb7f791cf5a685f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000067?language=en&search=WEB_REPORT%7C:%7C10000067,"
+  },
+  "sg-Report-2021-41.xml": {
+   "bytes": 58156,
+   "sha256": "2d110856096b979d1d14803b994d6401a36b72ae90e9dc0a84f90f193e0034b0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000068?language=en&search=WEB_REPORT%7C:%7C10000068,"
+  },
+  "sg-Report-2021-42.xml": {
+   "bytes": 39028,
+   "sha256": "5fcfe4b5e4925793661e9579970f97c3e27e3b6a622ca2ea9ec0a23aa56565f8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000069?language=en&search=WEB_REPORT%7C:%7C10000069,"
+  },
+  "sg-Report-2021-43.xml": {
+   "bytes": 61978,
+   "sha256": "c7c32292c8a1628801076ea8e2c5b87a1ca30f4eac012406885de67358e2f0e9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000070?language=en&search=WEB_REPORT%7C:%7C10000070,"
+  },
+  "sg-Report-2021-44.xml": {
+   "bytes": 45347,
+   "sha256": "cd05cc8839ecdcb3362ff0a86a3da70d9c7dc4d0e392ecdd5d054468fd112263",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000071?language=en&search=WEB_REPORT%7C:%7C10000071,"
+  },
+  "sg-Report-2021-45.xml": {
+   "bytes": 88492,
+   "sha256": "47e8e7cc7f6d557bc902e93ce98afcb4c4a4a758f535d6d8b88f00b1000a1b29",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000072?language=en&search=WEB_REPORT%7C:%7C10000072,"
+  },
+  "sg-Report-2021-46.xml": {
+   "bytes": 108047,
+   "sha256": "89cb3b8f843e396bf7067a6b12525bfb89cd0dc895be757f656a61bd9febfe1c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000073?language=en&search=WEB_REPORT%7C:%7C10000073,"
+  },
+  "sg-Report-2021-47.xml": {
+   "bytes": 105851,
+   "sha256": "da8bf9e4f5dacfb3585e346974b90a4cbcce79dcbc6f7062303633da58776f06",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000074?language=en&search=WEB_REPORT%7C:%7C10000074,"
+  },
+  "sg-Report-2021-48.xml": {
+   "bytes": 117396,
+   "sha256": "9515dac7ef9260bf1f9cd0b026d1d0bc151f748de95996725aa187dd536cce85",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000075?language=en&search=WEB_REPORT%7C:%7C10000075,"
+  },
+  "sg-Report-2021-49.xml": {
+   "bytes": 113476,
+   "sha256": "d06032a5fd48be4899a9b4826c9a97b7ffd8e91099b9c0b4a32aa4488e55b600",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000076?language=en&search=WEB_REPORT%7C:%7C10000076,"
+  },
+  "sg-Report-2021-5.xml": {
+   "bytes": 70348,
+   "sha256": "1c7b1315ac973005db94dd14d97ff2d56e3ae8a80d481bcc1e64550ba5d2f9b3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000031?language=en&search=WEB_REPORT%7C:%7C10000031,"
+  },
+  "sg-Report-2021-50.xml": {
+   "bytes": 128199,
+   "sha256": "e382eeb87a1bbac62a1808fb66a0202bbdaeca2d976ac105326c66d437e9572c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000077?language=en&search=WEB_REPORT%7C:%7C10000077,"
+  },
+  "sg-Report-2021-51.xml": {
+   "bytes": 226080,
+   "sha256": "8db0a2150a45ced0b543e467ffc59c0d38920c9e4ad0b06b42da7a39c0a57dca",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000078?language=en&search=WEB_REPORT%7C:%7C10000078,"
+  },
+  "sg-Report-2021-6.xml": {
+   "bytes": 86185,
+   "sha256": "8187e0e298deb484f739c6032825f0ff614277ddd0e6c263654644ae4dcf90b6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000033?language=en&search=WEB_REPORT%7C:%7C10000033,"
+  },
+  "sg-Report-2021-7.xml": {
+   "bytes": 99077,
+   "sha256": "3ba477d6df4576dbd599d7e70199559c8de6d6402e37e1fac9fe4ca95d1474cd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000034?language=en&search=WEB_REPORT%7C:%7C10000034,"
+  },
+  "sg-Report-2021-8.xml": {
+   "bytes": 106006,
+   "sha256": "978df352e5cdf0e888924c7807c43d2feed0bf4a76a14c583df8c89e4f9cb842",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000035?language=en&search=WEB_REPORT%7C:%7C10000035,"
+  },
+  "sg-Report-2021-9.xml": {
+   "bytes": 96080,
+   "sha256": "5448365531d6a4d486f7f39f08d5c41f300574b7424df50c0e0bbee0c2e34e27",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000036?language=en&search=WEB_REPORT%7C:%7C10000036,"
+  },
+  "sg-Report-2022-1.xml": {
+   "bytes": 92080,
+   "sha256": "e51e088d1b33d7ad774609a1ba5615561bf9dd9a430f76361b3a965d8134ce26",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000079?language=en&search=WEB_REPORT%7C:%7C10000079,"
+  },
+  "sg-Report-2022-10.xml": {
+   "bytes": 62958,
+   "sha256": "7ea8073c693479e01e0f07240d212d0dfe827b8a9b28e930cd0610afef0ae428",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000088?language=en&search=WEB_REPORT%7C:%7C10000088,"
+  },
+  "sg-Report-2022-11.xml": {
+   "bytes": 94591,
+   "sha256": "50a27456ae5d3defa5524d27ef6b51cffac366f01b78a2266e312bc9e2010956",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000089?language=en&search=WEB_REPORT%7C:%7C10000089,"
+  },
+  "sg-Report-2022-12.xml": {
+   "bytes": 69895,
+   "sha256": "1945d9dc49d5d16632d6c015cfc1f711c8474a1149d2f3445fcd4c448c3a5b02",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000090?language=en&search=WEB_REPORT%7C:%7C10000090,"
+  },
+  "sg-Report-2022-13.xml": {
+   "bytes": 209695,
+   "sha256": "26dce4b8133a7baccf546093161f688d0f577f856ab89c285e27c99d52152ea6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000091?language=en&search=WEB_REPORT%7C:%7C10000091,"
+  },
+  "sg-Report-2022-14.xml": {
+   "bytes": 137618,
+   "sha256": "88519281eb007d18956701ea131baeab91c224389368503eb89a571794bce653",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000092?language=en&search=WEB_REPORT%7C:%7C10000092,"
+  },
+  "sg-Report-2022-15.xml": {
+   "bytes": 74554,
+   "sha256": "5b0cd3471d4def33ae9f1157fded1c711df1b01c05c6375ca0ee6d47050e03b5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000093?language=en&search=WEB_REPORT%7C:%7C10000093,"
+  },
+  "sg-Report-2022-16.xml": {
+   "bytes": 60814,
+   "sha256": "45739c7a9450da5c529eb2af899a6fea72abd04857ae6da7590106e9481a70c7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000094?language=en&search=WEB_REPORT%7C:%7C10000094,"
+  },
+  "sg-Report-2022-17.xml": {
+   "bytes": 89586,
+   "sha256": "c56ee82f9fd14f5a65a064c410a64b817ba90df3d642da6a7410b7cbd25796c0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000095?language=en&search=WEB_REPORT%7C:%7C10000095,"
+  },
+  "sg-Report-2022-18.xml": {
+   "bytes": 115161,
+   "sha256": "e737ee9723cb572661526455577fe474e2d2557194439f113efc05f91b04e97d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000096?language=en&search=WEB_REPORT%7C:%7C10000096,"
+  },
+  "sg-Report-2022-19.xml": {
+   "bytes": 73933,
+   "sha256": "fd28b2dbc1cba9c4d2a2e709ecf3bd50ba98df6f3b991dd51a0e39d99b2bfbfb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000097?language=en&search=WEB_REPORT%7C:%7C10000097,"
+  },
+  "sg-Report-2022-2.xml": {
+   "bytes": 128689,
+   "sha256": "7e0d449c596d9ecf27868a279bbb0de8fed2b72144135354585f7b408c147a5d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000080?language=en&search=WEB_REPORT%7C:%7C10000080,"
+  },
+  "sg-Report-2022-20.xml": {
+   "bytes": 55509,
+   "sha256": "fa4ef5ff0dda14c338f47de479154c3031d2af8c69adc04f892673677000546b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000098?language=en&search=WEB_REPORT%7C:%7C10000098,"
+  },
+  "sg-Report-2022-21.xml": {
+   "bytes": 84015,
+   "sha256": "cb05b224cc4c4454d5541e66d24f653a2691025e95fe8b90b34b38f1fc22b5b2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000099?language=en&search=WEB_REPORT%7C:%7C10000099,"
+  },
+  "sg-Report-2022-22.xml": {
+   "bytes": 82848,
+   "sha256": "505817e7aa96a641c1bcacc1978b8c4e621a42085c10c4b4b357f529ed244d6e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000100?language=en&search=WEB_REPORT%7C:%7C10000100,"
+  },
+  "sg-Report-2022-23.xml": {
+   "bytes": 68120,
+   "sha256": "2e8af8ee3cff7200d20df6a37a7548db1a6ea0903ff8561b9608fc73be536b1c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000101?language=en&search=WEB_REPORT%7C:%7C10000101,"
+  },
+  "sg-Report-2022-24.xml": {
+   "bytes": 54361,
+   "sha256": "903fdd903d58778e51ea59214069835c7617a6893aa6d3394b06738f22b65bbf",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000102?language=en&search=WEB_REPORT%7C:%7C10000102,"
+  },
+  "sg-Report-2022-25.xml": {
+   "bytes": 44556,
+   "sha256": "dbabbaca70512cdf551a207c9ed62d018a12bd7eec5a827e3877eee7b56d1259",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000103?language=en&search=WEB_REPORT%7C:%7C10000103,"
+  },
+  "sg-Report-2022-26.xml": {
+   "bytes": 68134,
+   "sha256": "5d0426e4a9827f24c5b981d1a3a6bddfe41cfd03e809d903ddcfdec9075535f1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000104?language=en&search=WEB_REPORT%7C:%7C10000104,"
+  },
+  "sg-Report-2022-27.xml": {
+   "bytes": 112860,
+   "sha256": "1a3f6ff6c0a5ebee050e65f42e7ceb24f3aa400656a5825087c7a2d621b8feed",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000105?language=en&search=WEB_REPORT%7C:%7C10000105,"
+  },
+  "sg-Report-2022-28.xml": {
+   "bytes": 114331,
+   "sha256": "365a9d0a22a1929b8b78479337a28f35379a366b8d538073aef3750bfc5cf6d3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000106?language=en&search=WEB_REPORT%7C:%7C10000106,"
+  },
+  "sg-Report-2022-29.xml": {
+   "bytes": 104309,
+   "sha256": "69f12ab043963d5c9bf7e33339c175e1451e11c6b86203d0f1acdc15c166579f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000107?language=en&search=WEB_REPORT%7C:%7C10000107,"
+  },
+  "sg-Report-2022-3.xml": {
+   "bytes": 152835,
+   "sha256": "7ca4a0924f6c30c4e1972cf93e0ffe3754fd878a0f0a6bd53fff4342aea2251a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000081?language=en&search=WEB_REPORT%7C:%7C10000081,"
+  },
+  "sg-Report-2022-30.xml": {
+   "bytes": 52716,
+   "sha256": "fbde559c2b1713248b2bb4ef590ae01242f15a351bf66db38f986d9e7d6678d7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000108?language=en&search=WEB_REPORT%7C:%7C10000108,"
+  },
+  "sg-Report-2022-31.xml": {
+   "bytes": 63315,
+   "sha256": "f495c173ffa4c1db1eac8d86c5d0727efe050a8a3a9bea1fb56d2d3b362536b3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000109?language=en&search=WEB_REPORT%7C:%7C10000109,"
+  },
+  "sg-Report-2022-32.xml": {
+   "bytes": 64211,
+   "sha256": "9547eebe9df06ba273cbc7f3d3887608c75b26ffebfb975133fe7cc49e805577",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000110?language=en&search=WEB_REPORT%7C:%7C10000110,"
+  },
+  "sg-Report-2022-33.xml": {
+   "bytes": 54516,
+   "sha256": "70d2ee345657b4073747195e04302347fe327733be76320aa92e9f9122d87179",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000111?language=en&search=WEB_REPORT%7C:%7C10000111,"
+  },
+  "sg-Report-2022-34.xml": {
+   "bytes": 88036,
+   "sha256": "443528fac61a10f07c503cc58fb7d5f7026349de377ae063a26afc2849be1afe",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000112?language=en&search=WEB_REPORT%7C:%7C10000112,"
+  },
+  "sg-Report-2022-35.xml": {
+   "bytes": 74135,
+   "sha256": "ed44cdbcb6b1b0075f27b67965b37d15ba56d7e11b21f4c83f7d5f7a81166c17",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000113?language=en&search=WEB_REPORT%7C:%7C10000113,"
+  },
+  "sg-Report-2022-36.xml": {
+   "bytes": 46148,
+   "sha256": "18419f689d19972a7dfa52b384bcceaa3d55874d4bd4a7a0a809f67ece0cb747",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000114?language=en&search=WEB_REPORT%7C:%7C10000114,"
+  },
+  "sg-Report-2022-37.xml": {
+   "bytes": 69229,
+   "sha256": "ed1ce995a66d22e383ecdd2a6adaf0819817e5a7537b25b0530e869f08a2727f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000115?language=en&search=WEB_REPORT%7C:%7C10000115,"
+  },
+  "sg-Report-2022-38.xml": {
+   "bytes": 41991,
+   "sha256": "953ed44aa791e126dbfc503e100c457a8f1a35a3cd7e81e451a199d5acd3069b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000116?language=en&search=WEB_REPORT%7C:%7C10000116,"
+  },
+  "sg-Report-2022-39.xml": {
+   "bytes": 94795,
+   "sha256": "d1c6715c5c5e637073672c82cf4ed82b585933169af001dc3db162612800fb14",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000117?language=en&search=WEB_REPORT%7C:%7C10000117,"
+  },
+  "sg-Report-2022-4.xml": {
+   "bytes": 99296,
+   "sha256": "285aca5d3b67ec9edad611725598c181adc1b7a4e7c4c4c53a2075d6af045fb2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000082?language=en&search=WEB_REPORT%7C:%7C10000082,"
+  },
+  "sg-Report-2022-40.xml": {
+   "bytes": 61847,
+   "sha256": "bfbecc0a12adf7dcd5c6fdecca1857aaa806a323c16cf83d7c6e761095b215fc",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000118?language=en&search=WEB_REPORT%7C:%7C10000118,"
+  },
+  "sg-Report-2022-41.xml": {
+   "bytes": 87480,
+   "sha256": "ff69373d54d05f6744bb7289f248230700372fbd9720a1071d5e61510da815e2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000119?language=en&search=WEB_REPORT%7C:%7C10000119,"
+  },
+  "sg-Report-2022-42.xml": {
+   "bytes": 94347,
+   "sha256": "398eda891df54f370e69a019aa32a16aa8507662c46de580eb11c861cdfa465a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000120?language=en&search=WEB_REPORT%7C:%7C10000120,"
+  },
+  "sg-Report-2022-43.xml": {
+   "bytes": 104819,
+   "sha256": "4b12a71150932ea08594b86e97619a1eb416e7e34d7ddb876cb57a8c3cecb149",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000121?language=en&search=WEB_REPORT%7C:%7C10000121,"
+  },
+  "sg-Report-2022-44.xml": {
+   "bytes": 31617,
+   "sha256": "612d1e64101ce48749c78f6f3746baca2d5e9c7a878187321c2840c32003f874",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000122?language=en&search=WEB_REPORT%7C:%7C10000122,"
+  },
+  "sg-Report-2022-45.xml": {
+   "bytes": 147726,
+   "sha256": "0f6addd500e0d73eb4ffcfa56d62848047de66917206b57bd11cf931fdb975a0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000123?language=en&search=WEB_REPORT%7C:%7C10000123,"
+  },
+  "sg-Report-2022-46.xml": {
+   "bytes": 76174,
+   "sha256": "a070ebfe6a4da8e9e9b3081cea00b3a800cf28e6129489bea8ff1e1185e64d61",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000124?language=en&search=WEB_REPORT%7C:%7C10000124,"
+  },
+  "sg-Report-2022-47.xml": {
+   "bytes": 77558,
+   "sha256": "f88311cec58531f600974ac1709a4d31cd79e373487a6941fc0354d99de2fad4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000125?language=en&search=WEB_REPORT%7C:%7C10000125,"
+  },
+  "sg-Report-2022-48.xml": {
+   "bytes": 141071,
+   "sha256": "43bca86a43919f1612e86e352fc319c20a2fa8b0ed3a5f75b0dd16cff553fcc6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000126?language=en&search=WEB_REPORT%7C:%7C10000126,"
+  },
+  "sg-Report-2022-49.xml": {
+   "bytes": 63502,
+   "sha256": "9895e6b19d93ddd4fffa55a8f8a7f002139ff215a5945ba912c25a12f3661bc4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000127?language=en&search=WEB_REPORT%7C:%7C10000127,"
+  },
+  "sg-Report-2022-5.xml": {
+   "bytes": 78100,
+   "sha256": "9e0e014b441b45fda50484ef5bd689a4e22cebcb91ca352e0e6c48181ae85ee2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000083?language=en&search=WEB_REPORT%7C:%7C10000083,"
+  },
+  "sg-Report-2022-50.xml": {
+   "bytes": 80221,
+   "sha256": "fc13b27f1fc302da1c6d3d3049fcc349f3a4d8f16cfe8c937fca41a25ffb2097",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000128?language=en&search=WEB_REPORT%7C:%7C10000128,"
+  },
+  "sg-Report-2022-51.xml": {
+   "bytes": 182146,
+   "sha256": "d152a0bcdf55ff2d341fd56e5c8ff1e6db099de5dc6dcb3ee6b865f2fc807889",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000129?language=en&search=WEB_REPORT%7C:%7C10000129,"
+  },
+  "sg-Report-2022-6.xml": {
+   "bytes": 83813,
+   "sha256": "7cdd84e20a0a322c477d9114128bddb51375533cfdbbe79725c8137176b8cda9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000084?language=en&search=WEB_REPORT%7C:%7C10000084,"
+  },
+  "sg-Report-2022-7.xml": {
+   "bytes": 124399,
+   "sha256": "8a0f4b8496ec5623f8389336ecf6f6fcfa6a49107430fb9c8014d109b3ed62c9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000085?language=en&search=WEB_REPORT%7C:%7C10000085,"
+  },
+  "sg-Report-2022-8.xml": {
+   "bytes": 95325,
+   "sha256": "13127d310fd3c0ca1bbc92c228d2f4b063497b994d25cce6a3a45b43d8d0f5e3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000086?language=en&search=WEB_REPORT%7C:%7C10000086,"
+  },
+  "sg-Report-2022-9.xml": {
+   "bytes": 81661,
+   "sha256": "f5c381a1b23bcbf072d4ac09bb948df19f5ef01327af9de422718bd07012934a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000087?language=en&search=WEB_REPORT%7C:%7C10000087,"
+  },
+  "sg-Report-2023-1.xml": {
+   "bytes": 45880,
+   "sha256": "3821f46244dd92b3f8f360696c14a141d81603b62b3952390d22e53a0bcbe0e0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000130?language=en&search=WEB_REPORT%7C:%7C10000130,"
+  },
+  "sg-Report-2023-10.xml": {
+   "bytes": 96135,
+   "sha256": "4e6cf537eb42f9a38d5e62a507d214d8a317052c953a267c9822b4c2f697df3d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000139?language=en&search=WEB_REPORT%7C:%7C10000139,"
+  },
+  "sg-Report-2023-11.xml": {
+   "bytes": 112650,
+   "sha256": "693c6f8dc4c0eacb67aae31a811c89e7499b0bc6a74c9d87b223f47ca867e66b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000140?language=en&search=WEB_REPORT%7C:%7C10000140,"
+  },
+  "sg-Report-2023-12.xml": {
+   "bytes": 112582,
+   "sha256": "674d330c95df41d7cb2d2c3c0cf343a75ed1433775720f7989b46ea2a1b4cf91",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000141?language=en&search=WEB_REPORT%7C:%7C10000141,"
+  },
+  "sg-Report-2023-13.xml": {
+   "bytes": 76506,
+   "sha256": "e8b71f1cce3c7fac67e997b56b4ab84777eabc285fc6fee8e6ad4a65f8ba7d0e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000142?language=en&search=WEB_REPORT%7C:%7C10000142,"
+  },
+  "sg-Report-2023-14.xml": {
+   "bytes": 113580,
+   "sha256": "dab820178945d5e2ac54973753171b52131044980cfd676ea01273020b85d8f6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000143?language=en&search=WEB_REPORT%7C:%7C10000143,"
+  },
+  "sg-Report-2023-15.xml": {
+   "bytes": 204172,
+   "sha256": "a73272c7b0df5c51187b15768f68c49c320ca59d3e2ec39533306e58c29c83a4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000144?language=en&search=WEB_REPORT%7C:%7C10000144,"
+  },
+  "sg-Report-2023-16.xml": {
+   "bytes": 200068,
+   "sha256": "6eb94a326c973a7d248325d7cbee171a18ece156dcd97b2988e41368ef342fc3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000145?language=en&search=WEB_REPORT%7C:%7C10000145,"
+  },
+  "sg-Report-2023-17.xml": {
+   "bytes": 203144,
+   "sha256": "5c3da006f2a3c97a3a208c1ba05b7568ee46fe1c493128c54e69ebbbab270f6c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000146?language=en&search=WEB_REPORT%7C:%7C10000146,"
+  },
+  "sg-Report-2023-18.xml": {
+   "bytes": 193222,
+   "sha256": "96bf6a3d390a181620cbfcca2f9e42b2df33d39edf90d974442f00c043ecc76e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000147?language=en&search=WEB_REPORT%7C:%7C10000147,"
+  },
+  "sg-Report-2023-19.xml": {
+   "bytes": 105798,
+   "sha256": "3cc0ee4ab84fc8fe14fb5b9dc8e4786b20c13289aa5ddb2ef4f466ad6fe9e86f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000148?language=en&search=WEB_REPORT%7C:%7C10000148,"
+  },
+  "sg-Report-2023-2.xml": {
+   "bytes": 174714,
+   "sha256": "2046967a3fd627cf550b49532a438507b034cef5724a2bced5e1e43c2aa357c1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000131?language=en&search=WEB_REPORT%7C:%7C10000131,"
+  },
+  "sg-Report-2023-20.xml": {
+   "bytes": 202948,
+   "sha256": "c8c4d50586f737f80a1bde26cdff18dc287db570cb88e2faa4f33e8206915a30",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000149?language=en&search=WEB_REPORT%7C:%7C10000149,"
+  },
+  "sg-Report-2023-21.xml": {
+   "bytes": 182918,
+   "sha256": "2ce85470b42148f7458b6886f6946892b58ea5559a936aa7cba92f70cb9d3ddc",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000150?language=en&search=WEB_REPORT%7C:%7C10000150,"
+  },
+  "sg-Report-2023-22.xml": {
+   "bytes": 120146,
+   "sha256": "220b918dabb7b57e92f7f52777eaf973ba44b03f690780fb69fa164bc33380dd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000151?language=en&search=WEB_REPORT%7C:%7C10000151,"
+  },
+  "sg-Report-2023-23.xml": {
+   "bytes": 83610,
+   "sha256": "e9f8d2ed0095aabb5ca3828dbb3a8872467d8d53145492845fb8db8d23d3e522",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000152?language=en&search=WEB_REPORT%7C:%7C10000152,"
+  },
+  "sg-Report-2023-24.xml": {
+   "bytes": 93593,
+   "sha256": "812fe2b0ed8c93faa0874ccdb3b9c3f7d72182fb218fef2cdeaf1b182db7d227",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000153?language=en&search=WEB_REPORT%7C:%7C10000153,"
+  },
+  "sg-Report-2023-25.xml": {
+   "bytes": 83319,
+   "sha256": "e098023b7614a4a35c692010815b22f96dcce3d7499124aa0443b9fc8391797f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000155?language=en&search=WEB_REPORT%7C:%7C10000155,"
+  },
+  "sg-Report-2023-26.xml": {
+   "bytes": 185436,
+   "sha256": "32100b300e877c1eb9c02010c648ceb84cc79ccbc75a4d08780a0f85fa5d9244",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000156?language=en&search=WEB_REPORT%7C:%7C10000156,"
+  },
+  "sg-Report-2023-27.xml": {
+   "bytes": 193935,
+   "sha256": "f6fb4398ab23703b3fc3ec858d0fc0c2234bbc550cdd28bbd838ec760a3fe739",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000157?language=en&search=WEB_REPORT%7C:%7C10000157,"
+  },
+  "sg-Report-2023-28.xml": {
+   "bytes": 110520,
+   "sha256": "61f0dd1598583a313feef418e4c54149099991438de2b2bbb038a2c0ca7b9949",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000158?language=en&search=WEB_REPORT%7C:%7C10000158,"
+  },
+  "sg-Report-2023-29.xml": {
+   "bytes": 94010,
+   "sha256": "4ea7b3f4182fc9c24c12fee7de1cd704bce1fffc0b9ba107fdf974cb3feed432",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000159?language=en&search=WEB_REPORT%7C:%7C10000159,"
+  },
+  "sg-Report-2023-3.xml": {
+   "bytes": 103909,
+   "sha256": "0f7cf65aca632f7240e9842904fbb363770fb21386b89ef6aecbce5e3ee0da75",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000132?language=en&search=WEB_REPORT%7C:%7C10000132,"
+  },
+  "sg-Report-2023-30.xml": {
+   "bytes": 136212,
+   "sha256": "215e7b4ba8d7284cd5b899c4b1b29f574905376602eba4c1e6544fdbd29e4cb3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000160?language=en&search=WEB_REPORT%7C:%7C10000160,"
+  },
+  "sg-Report-2023-31.xml": {
+   "bytes": 75975,
+   "sha256": "a0966cc5c246ce8bdd81175702414ad2c42a7d6007b3e14691ed0de3ddf0384e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000161?language=en&search=WEB_REPORT%7C:%7C10000161,"
+  },
+  "sg-Report-2023-32.xml": {
+   "bytes": 70407,
+   "sha256": "7178cac184ab34977cadb67bfc25636b329f3069c540c5fc38b7f1ac28883683",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000162?language=en&search=WEB_REPORT%7C:%7C10000162,"
+  },
+  "sg-Report-2023-33.xml": {
+   "bytes": 68943,
+   "sha256": "2d8cb2a6ca65eaaeda35255db76f24787f5973845c072c05685813348f1606b5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000163?language=en&search=WEB_REPORT%7C:%7C10000163,"
+  },
+  "sg-Report-2023-34.xml": {
+   "bytes": 102919,
+   "sha256": "c9e06b9a0cdd44124a2909f0186c38e6c184f7f206cedf3025983990dbd9178f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000164?language=en&search=WEB_REPORT%7C:%7C10000164,"
+  },
+  "sg-Report-2023-35.xml": {
+   "bytes": 338201,
+   "sha256": "97543769a1dc799b26daf9bbd34317eb5bdcaf5d8aee48062f5bf1e31d94b6f9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000165?language=en&search=WEB_REPORT%7C:%7C10000165,"
+  },
+  "sg-Report-2023-36.xml": {
+   "bytes": 216454,
+   "sha256": "761bb750bc0fa540e56f76bc5cbd79595ea1f939574f394667754bdfdc8de3a6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000166?language=en&search=WEB_REPORT%7C:%7C10000166,"
+  },
+  "sg-Report-2023-37.xml": {
+   "bytes": 185436,
+   "sha256": "7d2d63d7a0af3a8c3ad734afc119d18fd57fd0034caeba781465a2207a6f469d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000167?language=en&search=WEB_REPORT%7C:%7C10000167,"
+  },
+  "sg-Report-2023-38.xml": {
+   "bytes": 101926,
+   "sha256": "856e0baba3c73f04efe1b0ded4009393a618771789d7b5f36f7f6ef0939cf95d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000168?language=en&search=WEB_REPORT%7C:%7C10000168,"
+  },
+  "sg-Report-2023-39.xml": {
+   "bytes": 146194,
+   "sha256": "7b58aa811df328f8e166c43208deb52c57bd1e8dbad4c2b6598c9c3325d46410",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000169?language=en&search=WEB_REPORT%7C:%7C10000169,"
+  },
+  "sg-Report-2023-4.xml": {
+   "bytes": 85950,
+   "sha256": "7a079ce94230adc9af8c077b75f506010403c383a7c1e9965132f3ddf10d1ef8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000133?language=en&search=WEB_REPORT%7C:%7C10000133,"
+  },
+  "sg-Report-2023-40.xml": {
+   "bytes": 165259,
+   "sha256": "d7b53f0acde2136171670ac5090e9237fa011663d8c7f2f9daf523a6f36f33dd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000170?language=en&search=WEB_REPORT%7C:%7C10000170,"
+  },
+  "sg-Report-2023-41.xml": {
+   "bytes": 172470,
+   "sha256": "90963ac47182c46b613ca3ab0c4846d2ba9fae7002cd3356ac34f59fb55f1174",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000171?language=en&search=WEB_REPORT%7C:%7C10000171,"
+  },
+  "sg-Report-2023-42.xml": {
+   "bytes": 129970,
+   "sha256": "ca0ee0d56b3b515c9ef21b1d9bfb89a02d246c5cce866c500b5451ff232ea7a3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000172?language=en&search=WEB_REPORT%7C:%7C10000172,"
+  },
+  "sg-Report-2023-43.xml": {
+   "bytes": 130880,
+   "sha256": "55cee9a1cfb4bede369f0fc30ec59810966d2a8c122ff83abad45133798c64c6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000173?language=en&search=WEB_REPORT%7C:%7C10000173,"
+  },
+  "sg-Report-2023-44.xml": {
+   "bytes": 163461,
+   "sha256": "6d89e2ed467325a5beb959f9bc01e0c69785a35b3b23b6d18f5cfa127add5d66",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000174?language=en&search=WEB_REPORT%7C:%7C10000174,"
+  },
+  "sg-Report-2023-45.xml": {
+   "bytes": 71319,
+   "sha256": "b5e57103ed83c144aefbd78e4b22a41604c4aec1a1cb6050902ea252be215e15",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000175?language=en&search=WEB_REPORT%7C:%7C10000175,"
+  },
+  "sg-Report-2023-46.xml": {
+   "bytes": 165405,
+   "sha256": "664011a965cc18e819318e2a238fcd2e877743322cf46a7edee134812589a585",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000176?language=en&search=WEB_REPORT%7C:%7C10000176,"
+  },
+  "sg-Report-2023-47.xml": {
+   "bytes": 234522,
+   "sha256": "70ce2e00d5d9b39c82c05bafade51b88236affaba04e8e7df340e12f1f9bd6fb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000177?language=en&search=WEB_REPORT%7C:%7C10000177,"
+  },
+  "sg-Report-2023-48.xml": {
+   "bytes": 192853,
+   "sha256": "e37da4b5b44104329fd6f9b4d41e577fcd2d1d69650cc8bf89c55d7870676077",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000178?language=en&search=WEB_REPORT%7C:%7C10000178,"
+  },
+  "sg-Report-2023-49.xml": {
+   "bytes": 94982,
+   "sha256": "6501cd6fb468334119918e0d409606776899b2c41914474bce3112ef8e3854d7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000179?language=en&search=WEB_REPORT%7C:%7C10000179,"
+  },
+  "sg-Report-2023-5.xml": {
+   "bytes": 71670,
+   "sha256": "ade5f330d0bf80d60efd482772601c53cd923d0cc5c37e94a1cc68e801efe185",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000134?language=en&search=WEB_REPORT%7C:%7C10000134,"
+  },
+  "sg-Report-2023-50.xml": {
+   "bytes": 76012,
+   "sha256": "9ccdef2ec78c035304d09f1408a54a08c3012ce75400ab3756e7f3a0a83fbf78",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000180?language=en&search=WEB_REPORT%7C:%7C10000180,"
+  },
+  "sg-Report-2023-51.xml": {
+   "bytes": 208381,
+   "sha256": "42696e514518f21120bea80745c6de6bd3432457509a681b9bbeb5124283ee4b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000181?language=en&search=WEB_REPORT%7C:%7C10000181,"
+  },
+  "sg-Report-2023-6.xml": {
+   "bytes": 88514,
+   "sha256": "e28846e11efe5971f4eed7b3599393126679df8f8ea3de65b6b074d7a0845f04",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000135?language=en&search=WEB_REPORT%7C:%7C10000135,"
+  },
+  "sg-Report-2023-7.xml": {
+   "bytes": 108445,
+   "sha256": "0e923d1b9f8e9210236825dd04b44394a4eab04ad2487cf37942f3bb4e20008c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000136?language=en&search=WEB_REPORT%7C:%7C10000136,"
+  },
+  "sg-Report-2023-8.xml": {
+   "bytes": 174514,
+   "sha256": "e0948daa453c3f0c9e977eebd7a5b90f7d294196ca93a49343e6926a3b57a47c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000137?language=en&search=WEB_REPORT%7C:%7C10000137,"
+  },
+  "sg-Report-2023-9.xml": {
+   "bytes": 129832,
+   "sha256": "0f45e4ee246e9dbe967424fedf6160e305f8f73bcc1dd447000533f6c72b6429",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000138?language=en&search=WEB_REPORT%7C:%7C10000138,"
+  },
+  "sg-Report-2024-1.xml": {
+   "bytes": 57101,
+   "sha256": "8209fa7cd163f41e997e8be8cdc55668bbf4e41661d7f76f08630c95008558e4",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000182?language=en&search=WEB_REPORT%7C:%7C10000182,"
+  },
+  "sg-Report-2024-10.xml": {
+   "bytes": 195377,
+   "sha256": "a165a87220bce850eac536b2541ea82fdc37a5798448ef33bf6d9cc9ed55b2d1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000191?language=en&search=WEB_REPORT%7C:%7C10000191,"
+  },
+  "sg-Report-2024-11.xml": {
+   "bytes": 186398,
+   "sha256": "83ce116570ee52c9a246c7be31af2aa1f8f6e19381b4b070941934dfd1303ca7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000192?language=en&search=WEB_REPORT%7C:%7C10000192,"
+  },
+  "sg-Report-2024-12.xml": {
+   "bytes": 157492,
+   "sha256": "b35347124c8637a843ed31072148b9417e74ad32cc7898fbd80580704fe2e99c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000193?language=en&search=WEB_REPORT%7C:%7C10000193,"
+  },
+  "sg-Report-2024-13.xml": {
+   "bytes": 171134,
+   "sha256": "9667ff8ed70417b9c847b4f898cc58c5c92ed88cb40e0b87342be69e127fedd5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000194?language=en&search=WEB_REPORT%7C:%7C10000194,"
+  },
+  "sg-Report-2024-14.xml": {
+   "bytes": 59400,
+   "sha256": "edb711f98ff4c8f9fc1c27714167111e06386dad7b77c844ed4e5116d9615516",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000195?language=en&search=WEB_REPORT%7C:%7C10000195,"
+  },
+  "sg-Report-2024-15.xml": {
+   "bytes": 95996,
+   "sha256": "b81692fee4702fc54ee771ff61eb866f874749d08a07fd285f250aef46da048c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000196?language=en&search=WEB_REPORT%7C:%7C10000196,"
+  },
+  "sg-Report-2024-16.xml": {
+   "bytes": 120422,
+   "sha256": "b0d6925070a0cd0306489226df6fcc1cd76ddf9ed14b7cce147d3ed59b876dc1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000197?language=en&search=WEB_REPORT%7C:%7C10000197,"
+  },
+  "sg-Report-2024-17.xml": {
+   "bytes": 130371,
+   "sha256": "6e46c41a886aba64d7f30dd04b5a1114d67907734e1f4e3976ee84743d7b4928",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000198?language=en&search=WEB_REPORT%7C:%7C10000198,"
+  },
+  "sg-Report-2024-18.xml": {
+   "bytes": 247981,
+   "sha256": "f06e0da2834d42c3a616a283902b8952de367a7d7a179ce30454089326ae3f7b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000199?language=en&search=WEB_REPORT%7C:%7C10000199,"
+  },
+  "sg-Report-2024-19.xml": {
+   "bytes": 167441,
+   "sha256": "fc32eafbad2889d684e01e2d0b18a08dd77becd14adaa7e3667e529cb6382b45",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000200?language=en&search=WEB_REPORT%7C:%7C10000200,"
+  },
+  "sg-Report-2024-2.xml": {
+   "bytes": 126280,
+   "sha256": "82672650b0eb1830b84d3f2b0aa4e464d20407dc973b74850c668068e4c91982",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000183?language=en&search=WEB_REPORT%7C:%7C10000183,"
+  },
+  "sg-Report-2024-20.xml": {
+   "bytes": 165482,
+   "sha256": "2339a62a66f3b7cf686db95bffdaff75196158ee5826d7d42a7316073b5f979f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000201?language=en&search=WEB_REPORT%7C:%7C10000201,"
+  },
+  "sg-Report-2024-21.xml": {
+   "bytes": 213657,
+   "sha256": "2d667c84ab4aa235033a25ab0085d106b992a4e46b321b40702f1bba5cbd5ef1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000202?language=en&search=WEB_REPORT%7C:%7C10000202,"
+  },
+  "sg-Report-2024-22.xml": {
+   "bytes": 169737,
+   "sha256": "118c2b25420028ce991b4accd135a2ee9e19dbc52af8420097b9977ec28173fb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000203?language=en&search=WEB_REPORT%7C:%7C10000203,"
+  },
+  "sg-Report-2024-23.xml": {
+   "bytes": 120441,
+   "sha256": "b7d86f21c0d9ebc4abe2f66c29a7fb9d35665c4679fd980b395170205995b5f6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000204?language=en&search=WEB_REPORT%7C:%7C10000204,"
+  },
+  "sg-Report-2024-24.xml": {
+   "bytes": 122080,
+   "sha256": "39fea0284bf20e7274c9e5817e609ab5fbcb8fea4d930a0f9580701b20c88f91",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000205?language=en&search=WEB_REPORT%7C:%7C10000205,"
+  },
+  "sg-Report-2024-25.xml": {
+   "bytes": 134603,
+   "sha256": "b5639104a15785ef93a42d62b5d17464e7cb1e6592459b214fc67c6ec8bfa8b3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000206?language=en&search=WEB_REPORT%7C:%7C10000206,"
+  },
+  "sg-Report-2024-26.xml": {
+   "bytes": 111369,
+   "sha256": "eb40e482de1cc4790b51f77b9ef43a018a80f28ef938ebc86cb6de5eba7b9290",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000207?language=en&search=WEB_REPORT%7C:%7C10000207,"
+  },
+  "sg-Report-2024-27.xml": {
+   "bytes": 218675,
+   "sha256": "6e79a21a26d7ae95fe42296277b47f6aa0a70074e30aef3b6af7087794803227",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000208?language=en&search=WEB_REPORT%7C:%7C10000208,"
+  },
+  "sg-Report-2024-28.xml": {
+   "bytes": 130734,
+   "sha256": "7ebbd9b2f8885cc97c50980927380c1b0bca4b242653d3dc64ee015329cf65d6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000209?language=en&search=WEB_REPORT%7C:%7C10000209,"
+  },
+  "sg-Report-2024-29.xml": {
+   "bytes": 257908,
+   "sha256": "d1b7486831702a5977619b8dd661782e0602ab4b281b8dba6ac9e173bfe37918",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000210?language=en&search=WEB_REPORT%7C:%7C10000210,"
+  },
+  "sg-Report-2024-3.xml": {
+   "bytes": 199940,
+   "sha256": "6de2ec7b597467d34a02c5e5ceb75cc314ce9b8c9fe1bf7f9376f5e3d085b6e1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000184?language=en&search=WEB_REPORT%7C:%7C10000184,"
+  },
+  "sg-Report-2024-30.xml": {
+   "bytes": 68785,
+   "sha256": "143e5a553e05ffc48a4d421e45f5e118bb9d963e278c0a222cc4c3d2a6d33a4e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000211?language=en&search=WEB_REPORT%7C:%7C10000211,"
+  },
+  "sg-Report-2024-31.xml": {
+   "bytes": 39282,
+   "sha256": "9f46d6b78f54f79fdada3dc3ca5b84f5707fd0ef27c9cb77afcc2e554a0a407f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000212?language=en&search=WEB_REPORT%7C:%7C10000212,"
+  },
+  "sg-Report-2024-32.xml": {
+   "bytes": 275483,
+   "sha256": "10a1410d0441041e624615b222995022a41f01c480a57b5d5fbbf11efcbc3656",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000213?language=en&search=WEB_REPORT%7C:%7C10000213,"
+  },
+  "sg-Report-2024-33.xml": {
+   "bytes": 419144,
+   "sha256": "70d2b4088ac00ccf0568cff1abf9b052e4293ac91f734ff35afb358f6efd3245",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000214?language=en&search=WEB_REPORT%7C:%7C10000214,"
+  },
+  "sg-Report-2024-34.xml": {
+   "bytes": 133182,
+   "sha256": "f83eab4596fd029ff8de8613af7c1483eab67d40cfae489a3920a925c4145eed",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000215?language=en&search=WEB_REPORT%7C:%7C10000215,"
+  },
+  "sg-Report-2024-35.xml": {
+   "bytes": 266012,
+   "sha256": "f50b0ae1dba6fb66c78a30530fd5471e9044bf713d05789fca741ea46806e80e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000216?language=en&search=WEB_REPORT%7C:%7C10000216,"
+  },
+  "sg-Report-2024-36.xml": {
+   "bytes": 159071,
+   "sha256": "c8260a6e633a51b67089774fefde192f37ab90ad68f5546778c0d4880a370fa5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000217?language=en&search=WEB_REPORT%7C:%7C10000217,"
+  },
+  "sg-Report-2024-37.xml": {
+   "bytes": 182507,
+   "sha256": "2c9122de61d225f4b9aeadc4cc481f71785751cd196a16e5c3ecd65d431458db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000218?language=en&search=WEB_REPORT%7C:%7C10000218,"
+  },
+  "sg-Report-2024-38.xml": {
+   "bytes": 175488,
+   "sha256": "016ccddc045597fe2729fdf2e2b8f5891c3fb7754e1cf483a41d07a82c5454f3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000219?language=en&search=WEB_REPORT%7C:%7C10000219,"
+  },
+  "sg-Report-2024-39.xml": {
+   "bytes": 118935,
+   "sha256": "8727a4ff9a482db10b594bbf0653138bafe8b28a3a99992b1901156a317f5e25",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000220?language=en&search=WEB_REPORT%7C:%7C10000220,"
+  },
+  "sg-Report-2024-4.xml": {
+   "bytes": 96859,
+   "sha256": "ec32237aef42404531bd1a193a9abe2132670926fb5180deeb26cf0e2326474c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000185?language=en&search=WEB_REPORT%7C:%7C10000185,"
+  },
+  "sg-Report-2024-40.xml": {
+   "bytes": 112385,
+   "sha256": "edf79cfdfca91e471054be92751b6b509a5509b8325fd34dbc4c428f729726ac",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000221?language=en&search=WEB_REPORT%7C:%7C10000221,"
+  },
+  "sg-Report-2024-41.xml": {
+   "bytes": 143815,
+   "sha256": "c6435dbe17565a0f7369274ba4eba8fc99e71265880a0d31e7f7e1e8c7e13f09",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000222?language=en&search=WEB_REPORT%7C:%7C10000222,"
+  },
+  "sg-Report-2024-42.xml": {
+   "bytes": 203177,
+   "sha256": "3edd99cf37029cc4c9b32aa2c89b83aaf0964f9a6adb0008b88f124fa50c74bb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000223?language=en&search=WEB_REPORT%7C:%7C10000223,"
+  },
+  "sg-Report-2024-43.xml": {
+   "bytes": 173782,
+   "sha256": "65d3aeac7536798e9af013d6c6bde5b8c798535d6dd781940ff2ea7b86d20f24",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000224?language=en&search=WEB_REPORT%7C:%7C10000224,"
+  },
+  "sg-Report-2024-44.xml": {
+   "bytes": 165759,
+   "sha256": "5507ec29a26e5b0a90f77f3433e0613326b1820d17ca8d0dba99f8f95494d43e",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000225?language=en&search=WEB_REPORT%7C:%7C10000225,"
+  },
+  "sg-Report-2024-45.xml": {
+   "bytes": 129018,
+   "sha256": "fcc71e8c166d93051fc797cb7106aff417fc53d3306684c9c9c3c5339dea34ed",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000226?language=en&search=WEB_REPORT%7C:%7C10000226,"
+  },
+  "sg-Report-2024-46.xml": {
+   "bytes": 105577,
+   "sha256": "fc0e4eb26fad32ccdc105ab9114e05ddf3d6b8f18642704d36c7fde793959c2d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000227?language=en&search=WEB_REPORT%7C:%7C10000227,"
+  },
+  "sg-Report-2024-47.xml": {
+   "bytes": 198867,
+   "sha256": "14b6f0961b2a093346b34e6139aa5cbe46449bc46542cd8d5d1992ce2aceb313",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000228?language=en&search=WEB_REPORT%7C:%7C10000228,"
+  },
+  "sg-Report-2024-48.xml": {
+   "bytes": 232141,
+   "sha256": "ee342e05a72b055d98b4d7f824a5793d527060865e428d7436ccb69aa3f11175",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000229?language=en&search=WEB_REPORT%7C:%7C10000229,"
+  },
+  "sg-Report-2024-49.xml": {
+   "bytes": 388513,
+   "sha256": "dc3e65993420187d222c12659e7cfa9a7feaf7ba53ee225bb58bb275bf9edeae",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000230?language=en&search=WEB_REPORT%7C:%7C10000230,"
+  },
+  "sg-Report-2024-5.xml": {
+   "bytes": 138356,
+   "sha256": "e60de44a2dc2d86b9f891221896c5766dced8ef337ea17cf99eb6d6ed6c7685a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000186?language=en&search=WEB_REPORT%7C:%7C10000186,"
+  },
+  "sg-Report-2024-50.xml": {
+   "bytes": 382038,
+   "sha256": "354a37ac2955519b187adeb757e865985ebdeeafa608c2091e7f31452ccfcc5c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000231?language=en&search=WEB_REPORT%7C:%7C10000231,"
+  },
+  "sg-Report-2024-51.xml": {
+   "bytes": 254316,
+   "sha256": "fa1b38abb7fd18461541209274e0f2a832c29bf05ff99518b88eabdf53c57858",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000232?language=en&search=WEB_REPORT%7C:%7C10000232,"
+  },
+  "sg-Report-2024-6.xml": {
+   "bytes": 132760,
+   "sha256": "d58f6543f6f3554a9049b3cb639c1ebc2657050683f859659201dd7fc121d33f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000187?language=en&search=WEB_REPORT%7C:%7C10000187,"
+  },
+  "sg-Report-2024-7.xml": {
+   "bytes": 147691,
+   "sha256": "17529fea2138c508ec8e715a8ac6e009911712c01194a2bf568790372b6533ea",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000188?language=en&search=WEB_REPORT%7C:%7C10000188,"
+  },
+  "sg-Report-2024-8.xml": {
+   "bytes": 199388,
+   "sha256": "c3fa39ec737459697ca44f37a78b3b7630c50f33e83d64e70486a0085a0d7f40",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000189?language=en&search=WEB_REPORT%7C:%7C10000189,"
+  },
+  "sg-Report-2024-9.xml": {
+   "bytes": 188278,
+   "sha256": "07f3d7f728f65e472cec0231a47b1975b17632745e102387230c86e2e7734afb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000190?language=en&search=WEB_REPORT%7C:%7C10000190,"
+  },
+  "sg-Report-2025-1.xml": {
+   "bytes": 123700,
+   "sha256": "7c2660462e2cdee8f5bab8e33f129a1b671c3b46113057aae4cfc47328a451db",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000233?language=en&search=WEB_REPORT%7C:%7C10000233,"
+  },
+  "sg-Report-2025-10.xml": {
+   "bytes": 213354,
+   "sha256": "033671857846a818d5bf713a758e633027c10e6d6e96fb28eb8440b045d30d96",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000242?language=en&search=WEB_REPORT%7C:%7C10000242,"
+  },
+  "sg-Report-2025-11.xml": {
+   "bytes": 144288,
+   "sha256": "1827c839ba60b985e620699e8fc5ec4e5a529c97aa4e8bcc68de1b62f5dfc407",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000243?language=en&search=WEB_REPORT%7C:%7C10000243,"
+  },
+  "sg-Report-2025-12.xml": {
+   "bytes": 220128,
+   "sha256": "de8d271d8e51438aaa7b484bab2d80afb16c529dc8fa21afab2154c1f30ab260",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000244?language=en&search=WEB_REPORT%7C:%7C10000244,"
+  },
+  "sg-Report-2025-13.xml": {
+   "bytes": 175865,
+   "sha256": "9f2eba6cc3b5c1111340a188352dbde6caae3639dd4bb8931839338c5e4f14fa",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000245?language=en&search=WEB_REPORT%7C:%7C10000245,"
+  },
+  "sg-Report-2025-14.xml": {
+   "bytes": 244650,
+   "sha256": "313e50363cb965b3aa2e48195ca1478d3e633f3b6f6ef75100d6a6dcf6e0b6eb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000246?language=en&search=WEB_REPORT%7C:%7C10000246,"
+  },
+  "sg-Report-2025-15.xml": {
+   "bytes": 329596,
+   "sha256": "a0932f3a0b38ac910c7c0cc22fe892529ab4c6518458de4973514bd9b175e039",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000247?language=en&search=WEB_REPORT%7C:%7C10000247,"
+  },
+  "sg-Report-2025-16.xml": {
+   "bytes": 169606,
+   "sha256": "52ca71de618ce79dc0ec44aaa769b4926247814b149f54fb1b8ebe8ad127f1bc",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000248?language=en&search=WEB_REPORT%7C:%7C10000248,"
+  },
+  "sg-Report-2025-17.xml": {
+   "bytes": 232259,
+   "sha256": "a023b18578aa7f22766f808a79e6a5e7ecb2fb53cf56b47521f506cda37e0b4a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000249?language=en&search=WEB_REPORT%7C:%7C10000249,"
+  },
+  "sg-Report-2025-18.xml": {
+   "bytes": 194659,
+   "sha256": "61fcbb4c4f02943271bd754d31448935d1716740b1f5e9cd164a7b9034c74aa1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000250?language=en&search=WEB_REPORT%7C:%7C10000250,"
+  },
+  "sg-Report-2025-19.xml": {
+   "bytes": 156443,
+   "sha256": "5b9d038d0a83b473428b62f9a42ddfd98833108161aa8bce40a0828c01dbc36d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000251?language=en&search=WEB_REPORT%7C:%7C10000251,"
+  },
+  "sg-Report-2025-2.xml": {
+   "bytes": 282357,
+   "sha256": "9bddb8d39881c101c0b0cccbcb41fef3b5ff64af3fded855784b1870e255f2ab",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000234?language=en&search=WEB_REPORT%7C:%7C10000234,"
+  },
+  "sg-Report-2025-20.xml": {
+   "bytes": 154804,
+   "sha256": "062c5aa4305a67d1ef968e946d7ca140b9f9b5fc11f281cccc7e0a0d0b902183",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000252?language=en&search=WEB_REPORT%7C:%7C10000252,"
+  },
+  "sg-Report-2025-21.xml": {
+   "bytes": 231540,
+   "sha256": "e234aea63fed43d470be90e12a16194ca13416709d1ebc57a54199d7cece5d1f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000253?language=en&search=WEB_REPORT%7C:%7C10000253,"
+  },
+  "sg-Report-2025-22.xml": {
+   "bytes": 187729,
+   "sha256": "324cbc6e881f7f83149c595a073577adfc357fe50d90d6284e927bb2fa5d6445",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000254?language=en&search=WEB_REPORT%7C:%7C10000254,"
+  },
+  "sg-Report-2025-23.xml": {
+   "bytes": 163113,
+   "sha256": "94153bb45bc01449c8a05c1082f4c0bb7b1a5c2a9a3af3bc9b03924c976a0b30",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000255?language=en&search=WEB_REPORT%7C:%7C10000255,"
+  },
+  "sg-Report-2025-24.xml": {
+   "bytes": 203534,
+   "sha256": "46385e3073e68644e8749cebcbf064fe9af93eb22865990e4aaeb5916d4fbf5a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000256?language=en&search=WEB_REPORT%7C:%7C10000256,"
+  },
+  "sg-Report-2025-25.xml": {
+   "bytes": 306532,
+   "sha256": "fd6c8c7b5afb08899c8c7768f3f4b95b9947deed1e8c46451144c3e313bf1ee2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000257?language=en&search=WEB_REPORT%7C:%7C10000257,"
+  },
+  "sg-Report-2025-26.xml": {
+   "bytes": 149649,
+   "sha256": "29d7cec961835943ca5822121f32ba5075c23b20b0c52ca8466bd6439a92126f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000258?language=en&search=WEB_REPORT%7C:%7C10000258,"
+  },
+  "sg-Report-2025-27.xml": {
+   "bytes": 206041,
+   "sha256": "deec4134b18a8f0e69151fe1ff5ccd838da45ea49ad6468611d12c319ea0e804",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000259?language=en&search=WEB_REPORT%7C:%7C10000259,"
+  },
+  "sg-Report-2025-28.xml": {
+   "bytes": 122193,
+   "sha256": "3f9d4fccb7baae8662c5defa1b40d0381a62287db5907b5c8acff0a75d46d42b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000260?language=en&search=WEB_REPORT%7C:%7C10000260,"
+  },
+  "sg-Report-2025-29.xml": {
+   "bytes": 265332,
+   "sha256": "2157b28db4a45ced9950a39026f0e451ded4a9ce49d09a98550475f706584358",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000261?language=en&search=WEB_REPORT%7C:%7C10000261,"
+  },
+  "sg-Report-2025-3.xml": {
+   "bytes": 292049,
+   "sha256": "f85f8dd848f3be94acd2594005dd3063c82b0bb6909453d9855d24ded6c9702b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000235?language=en&search=WEB_REPORT%7C:%7C10000235,"
+  },
+  "sg-Report-2025-30.xml": {
+   "bytes": 241468,
+   "sha256": "d1fd380b4ba173dbccef786e00f6201ba2a2bdc49165df556b2c1f08f31ef8e2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000263?language=en&search=WEB_REPORT%7C:%7C10000263,"
+  },
+  "sg-Report-2025-31.xml": {
+   "bytes": 168319,
+   "sha256": "1e24f017254af20055bf27ede49bce783c166c0190907ce725e93904281eaf03",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000264?language=en&search=WEB_REPORT%7C:%7C10000264,"
+  },
+  "sg-Report-2025-32.xml": {
+   "bytes": 183941,
+   "sha256": "245a9ec826e7d1de068f994c501a9f5099ba182a4123c2e2a0a2e8be3817bf27",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000265?language=en&search=WEB_REPORT%7C:%7C10000265,"
+  },
+  "sg-Report-2025-33.xml": {
+   "bytes": 238361,
+   "sha256": "16850da78e954c368720aecdf8ca7c271890afa53f7628ac4b03d300dfccf4f0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000266?language=en&search=WEB_REPORT%7C:%7C10000266,"
+  },
+  "sg-Report-2025-34.xml": {
+   "bytes": 104682,
+   "sha256": "82a75228e23a5f264c474e71b45546fcc6c9fee483ee4e86e19b6315e86b4c17",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000267?language=en&search=WEB_REPORT%7C:%7C10000267,"
+  },
+  "sg-Report-2025-35.xml": {
+   "bytes": 118882,
+   "sha256": "5206dd6bb33449c1f63b5370d2d94380cb00e789d408076229df5c00a9ad3016",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000268?language=en&search=WEB_REPORT%7C:%7C10000268,"
+  },
+  "sg-Report-2025-36.xml": {
+   "bytes": 145481,
+   "sha256": "f3b4bb366eab8186a7fa11997244dccb526a8e50535d776a7459e2f58c0d3ed5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000269?language=en&search=WEB_REPORT%7C:%7C10000269,"
+  },
+  "sg-Report-2025-37.xml": {
+   "bytes": 198894,
+   "sha256": "bf9b528263e2cb5e163fbaba831f160ffa2da2530ba9cad28fc2dcdce7019fb3",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000270?language=en&search=WEB_REPORT%7C:%7C10000270,"
+  },
+  "sg-Report-2025-38.xml": {
+   "bytes": 178562,
+   "sha256": "bf87882ba0c94f7022dcdfcc3039e37e30ffebd9ea3834ceec74f43de69ae9df",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000271?language=en&search=WEB_REPORT%7C:%7C10000271,"
+  },
+  "sg-Report-2025-39.xml": {
+   "bytes": 101870,
+   "sha256": "83301e48ad97da20522145e4d565a1c87ea0fd240ad0eabbe3bc30e59c82ab58",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000272?language=en&search=WEB_REPORT%7C:%7C10000272,"
+  },
+  "sg-Report-2025-4.xml": {
+   "bytes": 159914,
+   "sha256": "f636df2b236ed6287eedb5230ddc1a25f0637754fa1cf200cc4adf01fe6489f2",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000236?language=en&search=WEB_REPORT%7C:%7C10000236,"
+  },
+  "sg-Report-2025-40.xml": {
+   "bytes": 97142,
+   "sha256": "99aa5651e2e1f9db93a79159d8080a807a322d834372e6743850826d8ec71912",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000273?language=en&search=WEB_REPORT%7C:%7C10000273,"
+  },
+  "sg-Report-2025-41.xml": {
+   "bytes": 222849,
+   "sha256": "a2371dd3825b10922b1eee8f1bd8c3dc176cc1b3734b49c769c26ad230c7735c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000274?language=en&search=WEB_REPORT%7C:%7C10000274,"
+  },
+  "sg-Report-2025-42.xml": {
+   "bytes": 112420,
+   "sha256": "9d31ef1116eca2c367b037825c9742779ea51a141a517d268f26132ff32fa815",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000275?language=en&search=WEB_REPORT%7C:%7C10000275,"
+  },
+  "sg-Report-2025-43.xml": {
+   "bytes": 340154,
+   "sha256": "94492a81029283dc174ec28e51344b7ce07142f110ef7057bdadf39eecca37c6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000276?language=en&search=WEB_REPORT%7C:%7C10000276,"
+  },
+  "sg-Report-2025-44.xml": {
+   "bytes": 235241,
+   "sha256": "f5fbfd2894f8954ef6c90e29412340fc0420dbc47e8b9a3975c8e520d5ab7fd5",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000277?language=en&search=WEB_REPORT%7C:%7C10000277,"
+  },
+  "sg-Report-2025-45.xml": {
+   "bytes": 187145,
+   "sha256": "83d3497b61c0a555ca3a4c0a4fd7eb7700beb193c5066a4df66ed30165e7c68c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000278?language=en&search=WEB_REPORT%7C:%7C10000278,"
+  },
+  "sg-Report-2025-46.xml": {
+   "bytes": 225606,
+   "sha256": "08c5c37df33c20bdc79a920eecf195b6d47a99fff3346d0e578d82290ea16f6d",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000279?language=en&search=WEB_REPORT%7C:%7C10000279,"
+  },
+  "sg-Report-2025-47.xml": {
+   "bytes": 208155,
+   "sha256": "2aac563e73444979b5a712bd08431c3a9c2e823cff29ca32133807b75acce5bb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000280?language=en&search=WEB_REPORT%7C:%7C10000280,"
+  },
+  "sg-Report-2025-48.xml": {
+   "bytes": 141441,
+   "sha256": "0641c17f50111deac6a6df7a62388d740e5717bb2107e3ab531d5eb88a9de464",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000281?language=en&search=WEB_REPORT%7C:%7C10000281,"
+  },
+  "sg-Report-2025-49.xml": {
+   "bytes": 115029,
+   "sha256": "a3fb584b282574788d6ba3aed9a98047628d2602cc735c2bb56167e1bfdd256c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000282?language=en&search=WEB_REPORT%7C:%7C10000282,"
+  },
+  "sg-Report-2025-5.xml": {
+   "bytes": 309854,
+   "sha256": "b863d70b02f2ce73138dbbd085762326dbca718a6da7ede9842bad755ed7d7c8",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000237?language=en&search=WEB_REPORT%7C:%7C10000237,"
+  },
+  "sg-Report-2025-50.xml": {
+   "bytes": 192214,
+   "sha256": "5da50c1af12b53a1c318ad9d204929cd978ab8810148e4343f1929a276044580",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000283?language=en&search=WEB_REPORT%7C:%7C10000283,"
+  },
+  "sg-Report-2025-51.xml": {
+   "bytes": 201641,
+   "sha256": "d6cdcb56f182d6b67b63bb073460b5e9eee33c4de1aa55e5968f0d054860441b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000284?language=en&search=WEB_REPORT%7C:%7C10000284,"
+  },
+  "sg-Report-2025-52.xml": {
+   "bytes": 186092,
+   "sha256": "f3c62c708c9dad9ccfae3836c593bc74df4aa2ba17bb61c7d523f5ba4280468b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000285?language=en&search=WEB_REPORT%7C:%7C10000285,"
+  },
+  "sg-Report-2025-6.xml": {
+   "bytes": 196878,
+   "sha256": "f97acb1c88d81efbb07d8ec22af35900f39f53038b2ed55ee663b3e09a2c5466",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000238?language=en&search=WEB_REPORT%7C:%7C10000238,"
+  },
+  "sg-Report-2025-7.xml": {
+   "bytes": 146398,
+   "sha256": "f9823535a1820d7f33def3891be2ab353ab0a036adff8a5dfbd0913e9ced78d9",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000239?language=en&search=WEB_REPORT%7C:%7C10000239,"
+  },
+  "sg-Report-2025-8.xml": {
+   "bytes": 212778,
+   "sha256": "9dc69643f35b57300d994c27f029af6aeab62e508c9fab7ece85d4bc2a64be50",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000240?language=en&search=WEB_REPORT%7C:%7C10000240,"
+  },
+  "sg-Report-2025-9.xml": {
+   "bytes": 151739,
+   "sha256": "92f7db6d45b1b8c2e2c8597c3ec4ebb822ee3cd37373c6399831365b4179aee7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000241?language=en&search=WEB_REPORT%7C:%7C10000241,"
+  },
+  "sg-Report-2026-1.xml": {
+   "bytes": 104607,
+   "sha256": "6e01b863d33a29a001935384ee7a7f6a4a206c4f3b5045f1ed5f45599e813f25",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000286?language=en&search=WEB_REPORT%7C:%7C10000286,"
+  },
+  "sg-Report-2026-10.xml": {
+   "bytes": 178843,
+   "sha256": "e8e0776ac5736eb18f482989d144d762cb6cb6fc517cc012805412e931b4bc3a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000296?language=en&search=WEB_REPORT%7C:%7C10000296,"
+  },
+  "sg-Report-2026-11.xml": {
+   "bytes": 147222,
+   "sha256": "e7ecad7e050bd5c58a66e76862a83bbcd89a9881d1574bede4b284ffdf4abdbe",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000297?language=en&search=WEB_REPORT%7C:%7C10000297,"
+  },
+  "sg-Report-2026-12.xml": {
+   "bytes": 178156,
+   "sha256": "12f3f3bc72c133f06cb9db32cc92ef5dc83c32831bb73e7ae799bfa2ca2a63bd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000298?language=en&search=WEB_REPORT%7C:%7C10000298,"
+  },
+  "sg-Report-2026-13.xml": {
+   "bytes": 149102,
+   "sha256": "aec1ab3a2bea582b35a6d19b1fe483d9aedc94fcdd5260fbbef4fde5823973bb",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000299?language=en&search=WEB_REPORT%7C:%7C10000299,"
+  },
+  "sg-Report-2026-14.xml": {
+   "bytes": 200773,
+   "sha256": "2c62da3c21b76b4fda0df361691317151287ec502c59f44061861d92be5b99df",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000300?language=en&search=WEB_REPORT%7C:%7C10000300,"
+  },
+  "sg-Report-2026-15.xml": {
+   "bytes": 215789,
+   "sha256": "11d43ba766c4c5aae6a30bbaa956cc4d4b9a268418b0bacfb03a3bdf763561b6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000301?language=en&search=WEB_REPORT%7C:%7C10000301,"
+  },
+  "sg-Report-2026-16.xml": {
+   "bytes": 162589,
+   "sha256": "11d0b24a1b20cfe02100d646743c87679163381350c79743576acb9ea5f9284a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000302?language=en&search=WEB_REPORT%7C:%7C10000302,"
+  },
+  "sg-Report-2026-17.xml": {
+   "bytes": 183977,
+   "sha256": "a83bd592b9c7b2e4da12b7ab08376813c851a28c0688417c7573062af34da2e6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000303?language=en&search=WEB_REPORT%7C:%7C10000303,"
+  },
+  "sg-Report-2026-18.xml": {
+   "bytes": 172033,
+   "sha256": "504c1c3224c541f175cb8a4dba6bda96fd06bb7382cef04bf476843b9c554513",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000304?language=en&search=WEB_REPORT%7C:%7C10000304,"
+  },
+  "sg-Report-2026-19.xml": {
+   "bytes": 75864,
+   "sha256": "c9a9623e34d52ca728c811bff466948afca1f5cc0275368493ba67cf49b6d9fd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000305?language=en&search=WEB_REPORT%7C:%7C10000305,"
+  },
+  "sg-Report-2026-2.xml": {
+   "bytes": 170949,
+   "sha256": "992c9e047fdbd9c4cd0018451bb1514b02b96466f9713ccdac3c10e69dea203c",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000287?language=en&search=WEB_REPORT%7C:%7C10000287,"
+  },
+  "sg-Report-2026-20.xml": {
+   "bytes": 114874,
+   "sha256": "84c97baa1a4fed4421d8acd63f36dcf5a37fbac2cc11c25501de3558be550b79",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000306?language=en&search=WEB_REPORT%7C:%7C10000306,"
+  },
+  "sg-Report-2026-21.xml": {
+   "bytes": 150259,
+   "sha256": "909f3a90de8908e85f5b62ece5528452cdd1802d74898d826790f348b5c11f31",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000307?language=en&search=WEB_REPORT%7C:%7C10000307,"
+  },
+  "sg-Report-2026-22.xml": {
+   "bytes": 203213,
+   "sha256": "2159f51f575ea176bd6dc3b7ed5e05d05eb1e7d03493c2551edd009696ca7431",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000308?language=en&search=WEB_REPORT%7C:%7C10000308,"
+  },
+  "sg-Report-2026-23.xml": {
+   "bytes": 237761,
+   "sha256": "e23bdbdb8dbd6d35be60578027ea4af9e5aa11bbed0cf80c27464436ec26d281",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000309?language=en&search=WEB_REPORT%7C:%7C10000309,"
+  },
+  "sg-Report-2026-24.xml": {
+   "bytes": 169098,
+   "sha256": "da1d5dee02b26d614aef9c2912ffe513de8cdf7808ff0eef2891d06aaf6a6e80",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000310?language=en&search=WEB_REPORT%7C:%7C10000310,"
+  },
+  "sg-Report-2026-25.xml": {
+   "bytes": 213500,
+   "sha256": "5a0fe1c4e303713bd93dd289e9962c625ce0d6c9d0afa30d80cb9169a17952f7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000311?language=en&search=WEB_REPORT%7C:%7C10000311,"
+  },
+  "sg-Report-2026-26.xml": {
+   "bytes": 102894,
+   "sha256": "4e9907962ee81ebfd2c2fff1842bf6a111693c24c773b3fa868cc5e42dd7de53",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000312?language=en&search=WEB_REPORT%7C:%7C10000312,"
+  },
+  "sg-Report-2026-27.xml": {
+   "bytes": 119692,
+   "sha256": "ddeaa7dfb8dd4b88c2fef3b861f71d81e19fc59e0f074361785f248269c2c4c1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000313?language=en&search=WEB_REPORT%7C:%7C10000313,"
+  },
+  "sg-Report-2026-28.xml": {
+   "bytes": 102345,
+   "sha256": "8d3f4742314b07830e7669cede4539cce829d6dc513c82ed41e93c07dafe5922",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000314?language=en&search=WEB_REPORT%7C:%7C10000314,"
+  },
+  "sg-Report-2026-29.xml": {
+   "bytes": 117513,
+   "sha256": "6845c664998cb06679466dc89b1b1217c0338ea48f8de25be99fcdf832e4648b",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000315?language=en&search=WEB_REPORT%7C:%7C10000315,"
+  },
+  "sg-Report-2026-3.xml": {
+   "bytes": 198226,
+   "sha256": "edc164b24fc6039dfaf55ab5c84fc49f992871af5cb41eb48f39ccf1d91f218a",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000288?language=en&search=WEB_REPORT%7C:%7C10000288,"
+  },
+  "sg-Report-2026-30.xml": {
+   "bytes": 100341,
+   "sha256": "526e76f6acba2dde9b5448804b9a71b44061e288184b104006d0bab2b90abbdc",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000316?language=en&search=WEB_REPORT%7C:%7C10000316,"
+  },
+  "sg-Report-2026-31.xml": {
+   "bytes": 149519,
+   "sha256": "3966fc0f8fd71f2a8845b79070739c88eea350b41b6b82fa561ba9852a1e2927",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000317?language=en&search=WEB_REPORT%7C:%7C10000317,"
+  },
+  "sg-Report-2026-32.xml": {
+   "bytes": 179534,
+   "sha256": "dcb54bd345242cdc957649175f0382992e00f6daea54341fae64343b62ab6d53",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000318?language=en&search=WEB_REPORT%7C:%7C10000318,"
+  },
+  "sg-Report-2026-33.xml": {
+   "bytes": 143752,
+   "sha256": "f1ab194bec26b84068c669c5e73d3571954d7c13b463430cfa24f424b891eedf",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000319?language=en&search=WEB_REPORT%7C:%7C10000319,"
+  },
+  "sg-Report-2026-34.xml": {
+   "bytes": 79417,
+   "sha256": "ac9c942f0bb9387294230cc9b596191fd581f835ee093153f97bd844bef4506f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000320?language=en&search=WEB_REPORT%7C:%7C10000320,"
+  },
+  "sg-Report-2026-35.xml": {
+   "bytes": 54588,
+   "sha256": "5ed503f4e27a4dcdc518e0b6dba2ed08364bef5dbc57ad2a9b8be5d4cb0697ea",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000321?language=en&search=WEB_REPORT%7C:%7C10000321,"
+  },
+  "sg-Report-2026-36.xml": {
+   "bytes": 87421,
+   "sha256": "44f54b898c6cdb6e27f19df05cffac858c772b6f3c07063e5ef9af9cf0ca7997",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000322?language=en&search=WEB_REPORT%7C:%7C10000322,"
+  },
+  "sg-Report-2026-37.xml": {
+   "bytes": 218210,
+   "sha256": "17b53989078987d508f97e0494d19390ea503939c57346f6975d5efce49acdcf",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000323?language=en&search=WEB_REPORT%7C:%7C10000323,"
+  },
+  "sg-Report-2026-38.xml": {
+   "bytes": 181481,
+   "sha256": "fb27ef6d9639d1706c0e690a83195d652a83cc54b86336c0c58fc6bcd6e196a1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000324?language=en&search=WEB_REPORT%7C:%7C10000324,"
+  },
+  "sg-Report-2026-39.xml": {
+   "bytes": 330808,
+   "sha256": "e6d5bf305dc11ec603ab109474aa08c8d37c2be1dd15ab2c03a55cc0c4ff95d1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000325?language=en&search=WEB_REPORT%7C:%7C10000325,"
+  },
+  "sg-Report-2026-4.xml": {
+   "bytes": 140658,
+   "sha256": "7ba225f52955c854deaecedc84ef8dbaba37cb9ea9e114d94fa013c073a84598",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000290?language=en&search=WEB_REPORT%7C:%7C10000290,"
+  },
+  "sg-Report-2026-40.xml": {
+   "bytes": 197585,
+   "sha256": "97190aa011a509c51d1e8983c0f296157437cee074d24c4c663a17dfdcc52a46",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000326?language=en&search=WEB_REPORT%7C:%7C10000326,"
+  },
+  "sg-Report-2026-41.xml": {
+   "bytes": 206931,
+   "sha256": "138fb9f5e38dc23aed669e4dc9935538bc22ec1af9732925dc3702d0d92a51d6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000327?language=en&search=WEB_REPORT%7C:%7C10000327,"
+  },
+  "sg-Report-2026-42.xml": {
+   "bytes": 191509,
+   "sha256": "8daeef92c3da287f16b53dafea076381d1b050328c4fa611efbb4c9ccca9bc45",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000328?language=en&search=WEB_REPORT%7C:%7C10000328,"
+  },
+  "sg-Report-2026-43.xml": {
+   "bytes": 142602,
+   "sha256": "8e9028658bbc7985327fc2ece44059d1f4b079486547f42fbed4df82a54af76f",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000329?language=en&search=WEB_REPORT%7C:%7C10000329,"
+  },
+  "sg-Report-2026-44.xml": {
+   "bytes": 146780,
+   "sha256": "cb6c3ba092dd4bf4e214534799ea06a0b9bf312286a09f57b96b71894efea4b0",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000330?language=en&search=WEB_REPORT%7C:%7C10000330,"
+  },
+  "sg-Report-2026-45.xml": {
+   "bytes": 183893,
+   "sha256": "aea37be4c054e6b9b13b72c54c00f9e9ff881da51e88ad6d7241560017c118cd",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000331?language=en&search=WEB_REPORT%7C:%7C10000331,"
+  },
+  "sg-Report-2026-46.xml": {
+   "bytes": 221619,
+   "sha256": "f6e827f1020b60da3dfbc383ca89af3605893e11005cef6bc86394c89cdebd65",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000332?language=en&search=WEB_REPORT%7C:%7C10000332,"
+  },
+  "sg-Report-2026-5.xml": {
+   "bytes": 288686,
+   "sha256": "a4d65a6968947116302a00635d3fa6e21921360fe9bd2833861b7ed60ec344f6",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000291?language=en&search=WEB_REPORT%7C:%7C10000291,"
+  },
+  "sg-Report-2026-6.xml": {
+   "bytes": 241514,
+   "sha256": "de7e582fa4b1f4dfc3177d1d6c5af03c265dfdd34ff9dd5f9cf26665e81662f1",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000292?language=en&search=WEB_REPORT%7C:%7C10000292,"
+  },
+  "sg-Report-2026-7.xml": {
+   "bytes": 132058,
+   "sha256": "c4c5ecc06d6b5dca03e6a750b34ceff2333cea47bcf1bcbe05bbfcf9dda9fe08",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000293?language=en&search=WEB_REPORT%7C:%7C10000293,"
+  },
+  "sg-Report-2026-8.xml": {
+   "bytes": 123002,
+   "sha256": "efc5e412c2676a4a9f86e03869ce4494f72c1ff452d7b592883883cc123e88d7",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000294?language=en&search=WEB_REPORT%7C:%7C10000294,"
+  },
+  "sg-Report-2026-9.xml": {
+   "bytes": 116869,
+   "sha256": "c9114ed45804657db6b3e5eeba4e11595eedf2c6842c1354a2d10d9617f289de",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/detail/xml/10000295?language=en&search=WEB_REPORT%7C:%7C10000295,"
+  },
+  "sg-list.xml": {
+   "bytes": 392956,
+   "sha256": "d86ceb806681c371a7995f3d3b79a5a1551e7046256c7f3e1816dc29eb1b6c63",
+   "url": "https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en"
+  }
+ },
+ "gtin_handcheck_sample": [
+  {
+   "fr_brand": "db kids",
+   "fr_date": "2025-03-24",
+   "fr_label": "masques réutilisables et coloriables",
+   "numero_fiche": "2025-03-0144",
+   "safety_gate": [
+    {
+     "brand": "DB Kids",
+     "case": "SR/02094/25",
+     "country": "France",
+     "name": "Masques réutilisables et coloriables",
+     "product": "Fancy-dress mask"
+    }
+   ]
+  },
+  {
+   "fr_brand": "lexibook sa",
+   "fr_date": "2023-06-05",
+   "fr_label": "jgw100kt - chat glouton bio toys – jeu de pêche à la ligne en bois",
+   "numero_fiche": "2023-05-0166",
+   "safety_gate": [
+    {
+     "brand": "LEXIBOOK",
+     "case": "A12/01041/23",
+     "country": "Belgium",
+     "name": "Eco-friendly fishing game",
+     "product": "Fishing game"
+    }
+   ]
+  },
+  {
+   "fr_brand": "elise&lise",
+   "fr_date": "2023-11-14",
+   "fr_label": "montre femme",
+   "numero_fiche": "2023-11-0169",
+   "safety_gate": [
+    {
+     "brand": "Elise&amp;Lise",
+     "case": "A12/00015/24",
+     "country": "France",
+     "name": "Montre",
+     "product": "Watch"
+    }
+   ]
+  },
+  {
+   "fr_brand": "shooter zone",
+   "fr_date": "2024-05-21",
+   "fr_label": "soft bullet fun shooting game shooter zone",
+   "numero_fiche": "2024-05-0099",
+   "safety_gate": [
+    {
+     "brand": "SHOOTER ZONE",
+     "case": "A12/01712/24",
+     "country": "France",
+     "name": "SOFT BULLET GUN SHOOTING GAME",
+     "product": "Toy bow"
+    }
+   ]
+  },
+  {
+   "fr_brand": "skala",
+   "fr_date": "2025-07-28",
+   "fr_label": "creme divino potão",
+   "numero_fiche": "2025-07-0290",
+   "safety_gate": [
+    {
+     "brand": "SKALA",
+     "case": "SR/03702/25",
+     "country": "France",
+     "name": "DIVINO POTÃO",
+     "product": "Hair care product"
+    }
+   ]
+  },
+  {
+   "fr_brand": "g!",
+   "fr_date": "2022-07-19",
+   "fr_label": "351840  fond de baignoire pvc 67x35 gr",
+   "numero_fiche": "2022-07-0085",
+   "safety_gate": [
+    {
+     "brand": "G!",
+     "case": "A12/00988/22",
+     "country": "Luxembourg",
+     "name": "Fond de bain anti-dérapant G!",
+     "product": "Bath mat"
+    }
+   ]
+  },
+  {
+   "fr_brand": "h j.k distribution",
+   "fr_date": "2024-04-22",
+   "fr_label": "raquettes électriques anti-insectes rechargeable 2 en 1",
+   "numero_fiche": "2024-04-0204",
+   "safety_gate": [
+    {
+     "brand": "HJK DISTRIBUTION",
+     "case": "A12/01393/24",
+     "country": "France",
+     "name": "Raquette électrique rechargeable 2 en 1",
+     "product": "Insect killer"
+    },
+    {
+     "brand": "Marque LITIAN / H J.K DISTRIBUTION",
+     "case": "A12/01394/24",
+     "country": "France",
+     "name": "",
+     "product": "Electric fly swatter"
+    }
+   ]
+  },
+  {
+   "fr_brand": "diggers tools",
+   "fr_date": "2022-06-30",
+   "fr_label": "echelles télescopiques",
+   "numero_fiche": "2022-06-0342",
+   "safety_gate": [
+    {
+     "brand": "Diggers Tools",
+     "case": "A12/00839/22",
+     "country": "Belgium",
+     "name": "Telescopic ladder 2.6m",
+     "product": "Telescopic ladder"
+    }
+   ]
+  },
+  {
+   "fr_brand": "herzberg",
+   "fr_date": "2021-03-31",
+   "fr_label": "autocuiseur healthy cooking herzberg",
+   "numero_fiche": "2021-03-0036",
+   "safety_gate": [
+    {
+     "brand": "HERZBERG",
+     "case": "A11/00106/20",
+     "country": "France",
+     "name": "HERZBERG - healthy cooking",
+     "product": "Pressure cooker"
+    }
+   ]
+  },
+  {
+   "fr_brand": "qilive",
+   "fr_date": "2023-06-26",
+   "fr_label": "scooter small size 5 inches q.4377",
+   "numero_fiche": "2023-06-0275",
+   "safety_gate": [
+    {
+     "brand": "Qilive",
+     "case": "A12/00693/23",
+     "country": "Hungary",
+     "name": "Scooter 5\"",
+     "product": "Electric scooter"
+    }
+   ]
+  },
+  {
+   "fr_brand": "roo crew",
+   "fr_date": "2023-03-28",
+   "fr_label": "la niche de puppy roo crew avec ses accessoires",
+   "numero_fiche": "2023-03-0269",
+   "safety_gate": [
+    {
+     "brand": "Roo Crew",
+     "case": "A12/00918/23",
+     "country": "France",
+     "name": "Maison de chiot",
+     "product": "Plastic toy set"
+    }
+   ]
+  },
+  {
+   "fr_brand": "marque g",
+   "fr_date": "2024-06-11",
+   "fr_label": "372949 barbecue boule charbon fisher lot novembre 2023 uniquement",
+   "numero_fiche": "2024-06-0064",
+   "safety_gate": [
+    {
+     "brand": "GIFI Diffusion SAS",
+     "case": "A12/01851/24",
+     "country": "France",
+     "name": "BARBECUE BOULE CHARCOAL FISHER",
+     "product": "Charcoal barbecue"
+    }
+   ]
+  },
+  {
+   "fr_brand": "b&g international",
+   "fr_date": "2024-05-22",
+   "fr_label": "téléphone 13 cm son/lumière perles  fashion sons et lumières",
+   "numero_fiche": "2024-05-0101",
+   "safety_gate": [
+    {
+     "brand": "B&amp;G International",
+     "case": "A12/01658/24",
+     "country": "France",
+     "name": "Fashion sons et lumière",
+     "product": "Toy telephone"
+    }
+   ]
+  },
+  {
+   "fr_brand": "sans marque",
+   "fr_date": "2023-04-21",
+   "fr_label": "masque halloween",
+   "numero_fiche": "2023-04-0152",
+   "safety_gate": [
+    {
+     "brand": "",
+     "case": "A12/00761/23",
+     "country": "Germany",
+     "name": "",
+     "product": "Halloween mask"
+    }
+   ]
+  },
+  {
+   "fr_brand": "parfums de saint hubert",
+   "fr_date": "2023-05-03",
+   "fr_label": "eau de toilette american style",
+   "numero_fiche": "2023-04-0112",
+   "safety_gate": [
+    {
+     "brand": "AM diffusion",
+     "case": "A12/01367/23",
+     "country": "France",
+     "name": "Eau de toilette - vaporisateur spray American Style",
+     "product": "Eau de toilette"
+    }
+   ]
+  },
+  {
+   "fr_brand": "carrefour soft",
+   "fr_date": "2025-07-03",
+   "fr_label": "lait demaquillant douceur",
+   "numero_fiche": "2025-07-0012",
+   "safety_gate": [
+    {
+     "brand": "CARREFOUR SOFT",
+     "case": "SR/03037/25",
+     "country": "France",
+     "name": "Lait démaquillant douceur",
+     "product": "Make-up remover"
+    }
+   ]
+  },
+  {
+   "fr_brand": "marque g",
+   "fr_date": "2024-06-11",
+   "fr_label": "616202 barbecue grill tonneau met+pla",
+   "numero_fiche": "2024-06-0065",
+   "safety_gate": [
+    {
+     "brand": "MARQUE G",
+     "case": "A12/01868/24",
+     "country": "France",
+     "name": "CRUZ",
+     "product": "Charcoal barbecue"
+    }
+   ]
+  },
+  {
+   "fr_brand": "solea",
+   "fr_date": "2024-09-18",
+   "fr_label": "solea 250w",
+   "numero_fiche": "2024-09-0110",
+   "safety_gate": [
+    {
+     "brand": "Solea",
+     "case": "A12/02112/24",
+     "country": "Finland",
+     "name": "Ultra flat heater",
+     "product": "Heating mat"
+    }
+   ]
+  },
+  {
+   "fr_brand": "quantum",
+   "fr_date": "2024-05-13",
+   "fr_label": "quantum assphalt",
+   "numero_fiche": "2024-05-0053",
+   "safety_gate": [
+    {
+     "brand": "Eternal Ink",
+     "case": "A12/01516/23",
+     "country": "Sweden",
+     "name": "Eternal ink darker gray wash",
+     "product": "Tattoo ink"
+    }
+   ]
+  },
+  {
+   "fr_brand": "disneyland paris",
+   "fr_date": "2025-08-04",
+   "fr_label": "p15chapo ratatouille attract",
+   "numero_fiche": "2025-07-0181",
+   "safety_gate": [
+    {
+     "brand": "Disneyland Paris",
+     "case": "SR/03229/25",
+     "country": "France",
+     "name": "Chapeau ratatouille",
+     "product": "Toy chef’s hat"
+    }
+   ]
+  }
+ ],
+ "gtin_joins": {
+  "cpsc_distinct_gtin14": 1260,
+  "cpsc_matches": [
+   {
+    "brand": "aesop",
+    "cpsc": [
+     {
+      "RecallDate": "2022-07-28",
+      "RecallID": 9359,
+      "Title": "Aesop USA Recalls Bathroom Deodorizing Drops and Oil Burner Blends Due to Failure to Meet Child Resistant Packaging Requirements and Violation of FHSA Labeling Requirement; Risk of Poisoning"
+     }
+    ],
+    "label": "gouttes anti-odeur de merde (post-poo drops)",
+    "numero_fiche": "2022-01-0420",
+    "shared_gtin14": [
+     "09319944009200"
+    ]
+   }
+  ],
+  "cpsc_recalls": 10098,
+  "cpsc_recalls_with_valid_upc": 402,
+  "non_food_rappelconso_notices_with_valid_gtin": 1857,
+  "of_which_share_a_gtin_with_a_safety_gate_alert": 388,
+  "of_which_the_shared_gtin_alert_is_not_the_notice_s_own_case_number": 388,
+  "rappelconso_notices_sharing_a_gtin_with_a_cpsc_recall": 1,
+  "rappelconso_notices_with_valid_gtin": 11186
+ },
+ "rappelconso": {
+  "by_category": {
+   "alimentation": 14110,
+   "appareils électriques, outils": 386,
+   "automobiles et moyens de déplacement": 1931,
+   "autres": 303,
+   "bébés-enfants (hors alimentaire)": 1205,
+   "equipements de communication": 7,
+   "hygiène-beauté": 359,
+   "maison-habitat": 519,
+   "sports-loisirs": 146,
+   "vêtements, mode, epi": 328
+  },
+  "by_year": {
+   "2018": 63,
+   "2019": 52,
+   "2020": 123,
+   "2021": 3895,
+   "2022": 3130,
+   "2023": 2832,
+   "2024": 2881,
+   "2025": 3167,
+   "2026": 3151
+  },
+  "distinct_gtin14": 14356,
+  "distinct_ids": 19294,
+  "distinct_numero_fiche": 19294,
+  "fields": 34,
+  "free_text_characters_by_field": {
+   "conduites_a_tenir_par_le_consommateur": 1238116,
+   "description_complementaire_risque": 488731,
+   "informations_complementaires_publiques": 465708,
+   "motif_rappel": 1885549,
+   "preconisations_sanitaires": 5195439,
+   "risques_encourus": 729934
+  },
+  "metadata": {
+   "data_processed": "2026-11-21T13:05:32.778000+00:00",
+   "license": "Licence Ouverte v2.0 (Etalab)",
+   "license_url": "https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf",
+   "modified": "2026-11-21T13:05:32.778000+00:00",
+   "publisher": "DGCCRF",
+   "records_count": 19294,
+   "title": "RappelConso V2 - Rappels de produits"
+  },
+  "newest_publication": "2026-11-20",
+  "non_food_records": 5184,
+  "non_food_records_with_valid_gtin": 1857,
+  "oldest_publication": "2018-01-19",
+  "published_since_2026_11_01": 168,
+  "records": 19294,
+  "records_whose_notice_number_is_a_safety_gate_case_number": 2173,
+  "records_with_brand": 19142,
+  "records_with_contact_number": 12836,
+  "records_with_image_link": 17348,
+  "records_with_recall_reason_text": 19293,
+  "records_with_valid_gtin": 11186,
+  "records_with_version_above_1": 926,
+  "safety_gate_numbered_by_category": {
+   "appareils électriques, outils": 101,
+   "automobiles et moyens de déplacement": 1828,
+   "autres": 1,
+   "bébés-enfants (hors alimentaire)": 147,
+   "hygiène-beauté": 5,
+   "maison-habitat": 42,
+   "sports-loisirs": 7,
+   "vêtements, mode, epi": 42
+  },
+  "safety_gate_numbered_by_year": {
+   "2018": 63,
+   "2019": 52,
+   "2020": 123,
+   "2021": 348,
+   "2022": 208,
+   "2023": 246,
+   "2024": 186,
+   "2025": 291,
+   "2026": 656
+  }
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 512,
+  "made_this_run": 0,
+  "source_bodies": 512
+ },
+ "run_date": "2026-11-21",
+ "safety_gate_case_number_join": {
+  "distinct_case_numbers": 2173,
+  "distinct_case_numbers_resolved": 2173,
+  "french_notified_alerts_named_by_a_rappelconso_notice": 837,
+  "rappelconso_notices_numbered_with_a_safety_gate_case_number": 2173,
+  "resolve_to_a_safety_gate_alert": 2173,
+  "resolved_alert_notifying_country": {
+   "Belgium": 46,
+   "France": 837,
+   "Germany": 944,
+   "Poland": 56,
+   "Portugal": 135
+  },
+  "resolved_by_prefix": {
+   "A11": 30,
+   "A12": 1337,
+   "INFO": 29,
+   "SR": 777
+  },
+  "resolved_pairs_sharing_a_gtin": 0,
+  "resolved_pairs_where_both_sides_carry_a_gtin": 0,
+  "safety_gate_alerts_notified_by_france": 2630,
+  "unresolved": 0,
+  "unresolved_by_prefix": {},
+  "unresolved_by_year": {}
+ },
+ "safety_gate_weekly_reports": {
+  "alerts_notified_by_france": 2630,
+  "alerts_with_valid_gtin": 10808,
+  "distinct_case_numbers": 28110,
+  "newest_publication_date": "20/11/2026",
+  "newest_report_read": "Report-2026-46",
+  "oldest_report_read": "Report-2017-001",
+  "reports_listed": 1125,
+  "reports_read": 507
+ }
+}

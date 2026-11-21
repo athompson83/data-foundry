@@ -1,0 +1,767 @@
+{
+ "distro_info_changelog": {
+  "entries_2026": 8,
+  "entries_total": 80,
+  "newest_entry_date": "Mon, 12 Oct 2026 14:24:11 +0200",
+  "newest_version": "2026.10.12-1",
+  "status": 200
+ },
+ "distro_info_debian": {
+  "bytes": 1212,
+  "columns": [
+   "version",
+   "codename",
+   "series",
+   "created",
+   "release",
+   "eol",
+   "eol-lts",
+   "eol-elts"
+  ],
+  "eol_after_today": 1,
+  "newest_release": "2025-08-09",
+  "rows": 22,
+  "status": 200,
+  "with_eol": 18
+ },
+ "distro_info_licence": {
+  "license_line": "License: ISC",
+  "status": 200
+ },
+ "distro_info_ubuntu": {
+  "bytes": 3165,
+  "columns": [
+   "version",
+   "codename",
+   "series",
+   "created",
+   "release",
+   "eol",
+   "eol-server",
+   "eol-esm",
+   "eol-legacy"
+  ],
+  "eol_after_today": 5,
+  "newest_release": "2027-04-22",
+  "rows": 46,
+  "status": 200,
+  "with_eol": 46
+ },
+ "endoflife": {
+  "by_category": {
+   "app": 62,
+   "database": 27,
+   "device": 21,
+   "framework": 74,
+   "lang": 34,
+   "os": 68,
+   "server-app": 176,
+   "service": 25,
+   "standard": 2
+  },
+  "bytes": 3061004,
+  "cycles_lts": 673,
+  "cycles_maintained": 2156,
+  "cycles_released_2026": 941,
+  "cycles_with_eoas_date": 2569,
+  "cycles_with_eol_date": 8149,
+  "cycles_with_latest": 7013,
+  "cycles_with_release_date": 9438,
+  "generated_at": "2026-11-20T08:42:33+00:00",
+  "identifier_types": {
+   "cpe": 508,
+   "purl": 997,
+   "repology": 275
+  },
+  "latest_patch_in_last_30_days": 710,
+  "licence": {
+   "first_line": "Copyright 2020 endoflife.date contributors",
+   "is_mit_grant": true,
+   "sha256": "c5872e49d74084853ebdf61b82f4ee820570f0545c1ff296c5c838eacac923d0",
+   "status": 200
+  },
+  "newest_latest_release_date": "2026-11-20",
+  "products": 489,
+  "products_with_cpe": 292,
+  "products_with_purl": 210,
+  "products_with_release_policy_link": 409,
+  "release_cycles": 9438,
+  "robots": "User-Agent: *\nAllow: /\nSitemap: https://endoflife.date/sitemap.xml",
+  "schema_version": "1.2.1",
+  "status": 200
+ },
+ "join_cycle_version_string": {
+  "debian": {
+   "both_have_eol": 15,
+   "both_have_release_date": 15,
+   "endoflife_cycles": 18,
+   "eol_day_equal": 4,
+   "eol_month_equal": 4,
+   "matched_on_version_string": 15,
+   "publisher_cycles": 22,
+   "release_date_equal": 13
+  },
+  "disagreements": [
+   {
+    "endoflife_cycle": "4",
+    "endoflife_eol": "2018-04-30",
+    "endoflife_release": "2015-09-09",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2018-04-30",
+    "publisher_key": "v4",
+    "publisher_release": "2015-09-08",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "5",
+    "endoflife_eol": "2016-06-30",
+    "endoflife_release": "2015-10-30",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2016-06-30",
+    "publisher_key": "v5",
+    "publisher_release": "2015-10-29",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "9",
+    "endoflife_eol": "2018-06-30",
+    "endoflife_release": "2017-10-31",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2018-06-30",
+    "publisher_key": "v9",
+    "publisher_release": "2017-10-01",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "4.10",
+    "endoflife_eol": "2006-04-30",
+    "endoflife_release": "2004-10-26",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2006-04-30",
+    "publisher_key": "4.10",
+    "publisher_release": "2004-10-20",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "1.3",
+    "endoflife_eol": "1998-12-08",
+    "endoflife_release": "1997-07-02",
+    "eol_day_equal": false,
+    "eol_month_equal": false,
+    "product": "debian",
+    "publisher": "distro-info-data debian.csv",
+    "publisher_eol": "1999-03-09",
+    "publisher_key": "1.3",
+    "publisher_release": "1997-06-05",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "8",
+    "endoflife_eol": "2020-06-30",
+    "endoflife_release": "2015-04-25",
+    "eol_day_equal": false,
+    "eol_month_equal": false,
+    "product": "debian",
+    "publisher": "distro-info-data debian.csv",
+    "publisher_eol": "2018-06-17",
+    "publisher_key": "8",
+    "publisher_release": "2015-04-26",
+    "release_equal": false
+   }
+  ],
+  "handcheck_sample": [
+   {
+    "endoflife_cycle": "6",
+    "endoflife_eol": "2019-04-30",
+    "endoflife_release": "2016-04-26",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2019-04-30",
+    "publisher_key": "v6",
+    "publisher_release": "2016-04-26",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "3.6",
+    "endoflife_eol": "2021-12-23",
+    "endoflife_release": "2016-12-23",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "python",
+    "publisher": "Python release-cycle.json",
+    "publisher_eol": "2021-12-23",
+    "publisher_key": "3.6",
+    "publisher_release": "2016-12-23",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "3.12",
+    "endoflife_eol": "2028-10-31",
+    "endoflife_release": "2023-10-02",
+    "eol_day_equal": false,
+    "eol_month_equal": true,
+    "product": "python",
+    "publisher": "Python release-cycle.json",
+    "publisher_eol": "2028-10",
+    "publisher_key": "3.12",
+    "publisher_release": "2023-10-02",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "22",
+    "endoflife_eol": "2027-04-30",
+    "endoflife_release": "2024-04-24",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2027-04-30",
+    "publisher_key": "v22",
+    "publisher_release": "2024-04-24",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "10",
+    "endoflife_eol": "2021-04-30",
+    "endoflife_release": "2018-04-24",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2021-04-30",
+    "publisher_key": "v10",
+    "publisher_release": "2018-04-24",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "17.04",
+    "endoflife_eol": "2018-01-13",
+    "endoflife_release": "2017-04-13",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2018-01-13",
+    "publisher_key": "17.04",
+    "publisher_release": "2017-04-13",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "1.28",
+    "endoflife_eol": "2024-10-28",
+    "endoflife_release": "2023-08-15",
+    "eol_day_equal": false,
+    "eol_month_equal": true,
+    "product": "kubernetes",
+    "publisher": "Kubernetes schedule.yaml / eol.yaml",
+    "publisher_eol": "2024-10-22",
+    "publisher_key": "1.28",
+    "publisher_release": null,
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "16.10",
+    "endoflife_eol": "2017-07-20",
+    "endoflife_release": "2016-10-13",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2017-07-20",
+    "publisher_key": "16.10",
+    "publisher_release": "2016-10-13",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "1.18",
+    "endoflife_eol": "2021-06-18",
+    "endoflife_release": "2020-03-25",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "kubernetes",
+    "publisher": "Kubernetes schedule.yaml / eol.yaml",
+    "publisher_eol": "2021-06-18",
+    "publisher_key": "1.18",
+    "publisher_release": null,
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "26",
+    "endoflife_eol": "2029-04-30",
+    "endoflife_release": "2026-05-05",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2029-04-30",
+    "publisher_key": "v26",
+    "publisher_release": "2026-05-05",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "8",
+    "endoflife_eol": "2020-06-30",
+    "endoflife_release": "2015-04-25",
+    "eol_day_equal": false,
+    "eol_month_equal": false,
+    "product": "debian",
+    "publisher": "distro-info-data debian.csv",
+    "publisher_eol": "2018-06-17",
+    "publisher_key": "8",
+    "publisher_release": "2015-04-26",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "7.10",
+    "endoflife_eol": "2009-04-18",
+    "endoflife_release": "2007-10-18",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2009-04-18",
+    "publisher_key": "7.10",
+    "publisher_release": "2007-10-18",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "9.10",
+    "endoflife_eol": "2011-04-30",
+    "endoflife_release": "2009-10-29",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2011-04-30",
+    "publisher_key": "9.10",
+    "publisher_release": "2009-10-29",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "4",
+    "endoflife_eol": "2018-04-30",
+    "endoflife_release": "2015-09-09",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2018-04-30",
+    "publisher_key": "v4",
+    "publisher_release": "2015-09-08",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "26.04",
+    "endoflife_eol": "2031-05-29",
+    "endoflife_release": "2026-04-23",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2031-05-29",
+    "publisher_key": "26.04 LTS",
+    "publisher_release": "2026-04-23",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "1.17",
+    "endoflife_eol": "2020-12-25",
+    "endoflife_release": "2019-12-07",
+    "eol_day_equal": false,
+    "eol_month_equal": false,
+    "product": "kubernetes",
+    "publisher": "Kubernetes schedule.yaml / eol.yaml",
+    "publisher_eol": "2021-01-13",
+    "publisher_key": "1.17",
+    "publisher_release": null,
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "12",
+    "endoflife_eol": "2022-04-30",
+    "endoflife_release": "2019-04-23",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2022-04-30",
+    "publisher_key": "v12",
+    "publisher_release": "2019-04-23",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "5.10",
+    "endoflife_eol": "2007-04-13",
+    "endoflife_release": "2005-10-12",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "ubuntu",
+    "publisher": "distro-info-data ubuntu.csv",
+    "publisher_eol": "2007-04-13",
+    "publisher_key": "5.10",
+    "publisher_release": "2005-10-12",
+    "release_equal": true
+   },
+   {
+    "endoflife_cycle": "9",
+    "endoflife_eol": "2018-06-30",
+    "endoflife_release": "2017-10-31",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2018-06-30",
+    "publisher_key": "v9",
+    "publisher_release": "2017-10-01",
+    "release_equal": false
+   },
+   {
+    "endoflife_cycle": "20",
+    "endoflife_eol": "2026-04-30",
+    "endoflife_release": "2023-04-18",
+    "eol_day_equal": true,
+    "eol_month_equal": true,
+    "product": "nodejs",
+    "publisher": "Node.js schedule.json",
+    "publisher_eol": "2026-04-30",
+    "publisher_key": "v20",
+    "publisher_release": "2023-04-18",
+    "release_equal": true
+   }
+  ],
+  "handcheck_sample_seed": 20261120,
+  "kubernetes": {
+   "both_have_eol": 22,
+   "both_have_release_date": 4,
+   "endoflife_cycles": 22,
+   "eol_day_equal": 16,
+   "eol_month_equal": 18,
+   "matched_on_version_string": 22,
+   "publisher_cycles": 36,
+   "release_date_equal": 4
+  },
+  "nodejs": {
+   "both_have_eol": 23,
+   "both_have_release_date": 23,
+   "endoflife_cycles": 26,
+   "eol_day_equal": 22,
+   "eol_month_equal": 23,
+   "matched_on_version_string": 23,
+   "publisher_cycles": 27,
+   "release_date_equal": 20
+  },
+  "python": {
+   "both_have_eol": 18,
+   "both_have_release_date": 18,
+   "endoflife_cycles": 23,
+   "eol_day_equal": 13,
+   "eol_month_equal": 18,
+   "matched_on_version_string": 18,
+   "publisher_cycles": 19,
+   "release_date_equal": 18
+  },
+  "total": {
+   "both_have_eol": 123,
+   "eol_month_equal": 107,
+   "matched_on_version_string": 123,
+   "publisher_cycles": 150,
+   "release_date_equal": 99
+  },
+  "ubuntu": {
+   "both_have_eol": 45,
+   "both_have_release_date": 45,
+   "endoflife_cycles": 45,
+   "eol_day_equal": 34,
+   "eol_month_equal": 44,
+   "matched_on_version_string": 45,
+   "publisher_cycles": 46,
+   "release_date_equal": 44
+  }
+ },
+ "join_pep_number": {
+  "cited_pep_in_peps_json": 23,
+  "cited_pep_is_release_topic": 23,
+  "cited_pep_page_names_the_cycle": 23,
+  "cited_pep_python_version_equals_cycle": 23,
+  "cycles_also_in_release_cycle_json": 18,
+  "cycles_citing_a_pep": 23,
+  "end_of_life_month_equal": 18,
+  "endoflife_cycles_not_in_release_cycle_json": [
+   "2.1",
+   "2.2",
+   "2.3",
+   "2.4",
+   "2.5"
+  ],
+  "endoflife_python_cycles": 23,
+  "first_release_date_equal": 18,
+  "pairs": [
+   {
+    "cycle": "2.6",
+    "endoflife_pep": 361,
+    "eol_endoflife": "2013-10-29",
+    "eol_python": "2013-10-29",
+    "first_release_python": "2008-10-01",
+    "release_cycle_pep": 361,
+    "release_date_endoflife": "2008-10-01"
+   },
+   {
+    "cycle": "2.7",
+    "endoflife_pep": 373,
+    "eol_endoflife": "2020-01-01",
+    "eol_python": "2020-01-01",
+    "first_release_python": "2010-07-03",
+    "release_cycle_pep": 373,
+    "release_date_endoflife": "2010-07-03"
+   },
+   {
+    "cycle": "3.0",
+    "endoflife_pep": 361,
+    "eol_endoflife": "2009-06-27",
+    "eol_python": "2009-06-27",
+    "first_release_python": "2008-12-03",
+    "release_cycle_pep": 361,
+    "release_date_endoflife": "2008-12-03"
+   },
+   {
+    "cycle": "3.1",
+    "endoflife_pep": 375,
+    "eol_endoflife": "2012-04-09",
+    "eol_python": "2012-04-09",
+    "first_release_python": "2009-06-27",
+    "release_cycle_pep": 375,
+    "release_date_endoflife": "2009-06-27"
+   },
+   {
+    "cycle": "3.2",
+    "endoflife_pep": 392,
+    "eol_endoflife": "2016-02-20",
+    "eol_python": "2016-02-20",
+    "first_release_python": "2011-02-20",
+    "release_cycle_pep": 392,
+    "release_date_endoflife": "2011-02-20"
+   },
+   {
+    "cycle": "3.3",
+    "endoflife_pep": 398,
+    "eol_endoflife": "2017-09-29",
+    "eol_python": "2017-09-29",
+    "first_release_python": "2012-09-29",
+    "release_cycle_pep": 398,
+    "release_date_endoflife": "2012-09-29"
+   },
+   {
+    "cycle": "3.4",
+    "endoflife_pep": 429,
+    "eol_endoflife": "2019-03-18",
+    "eol_python": "2019-03-18",
+    "first_release_python": "2014-03-16",
+    "release_cycle_pep": 429,
+    "release_date_endoflife": "2014-03-16"
+   },
+   {
+    "cycle": "3.5",
+    "endoflife_pep": 478,
+    "eol_endoflife": "2020-09-30",
+    "eol_python": "2020-09-30",
+    "first_release_python": "2015-09-13",
+    "release_cycle_pep": 478,
+    "release_date_endoflife": "2015-09-13"
+   },
+   {
+    "cycle": "3.6",
+    "endoflife_pep": 494,
+    "eol_endoflife": "2021-12-23",
+    "eol_python": "2021-12-23",
+    "first_release_python": "2016-12-23",
+    "release_cycle_pep": 494,
+    "release_date_endoflife": "2016-12-23"
+   },
+   {
+    "cycle": "3.7",
+    "endoflife_pep": 537,
+    "eol_endoflife": "2023-06-27",
+    "eol_python": "2023-06-27",
+    "first_release_python": "2018-06-27",
+    "release_cycle_pep": 537,
+    "release_date_endoflife": "2018-06-27"
+   },
+   {
+    "cycle": "3.8",
+    "endoflife_pep": 569,
+    "eol_endoflife": "2024-10-07",
+    "eol_python": "2024-10-07",
+    "first_release_python": "2019-10-14",
+    "release_cycle_pep": 569,
+    "release_date_endoflife": "2019-10-14"
+   },
+   {
+    "cycle": "3.9",
+    "endoflife_pep": 596,
+    "eol_endoflife": "2025-10-31",
+    "eol_python": "2025-10-31",
+    "first_release_python": "2020-10-05",
+    "release_cycle_pep": 596,
+    "release_date_endoflife": "2020-10-05"
+   },
+   {
+    "cycle": "3.10",
+    "endoflife_pep": 619,
+    "eol_endoflife": "2026-10-01",
+    "eol_python": "2026-10-01",
+    "first_release_python": "2021-10-04",
+    "release_cycle_pep": 619,
+    "release_date_endoflife": "2021-10-04"
+   },
+   {
+    "cycle": "3.11",
+    "endoflife_pep": 664,
+    "eol_endoflife": "2027-10-31",
+    "eol_python": "2027-10",
+    "first_release_python": "2022-10-24",
+    "release_cycle_pep": 664,
+    "release_date_endoflife": "2022-10-24"
+   },
+   {
+    "cycle": "3.12",
+    "endoflife_pep": 693,
+    "eol_endoflife": "2028-10-31",
+    "eol_python": "2028-10",
+    "first_release_python": "2023-10-02",
+    "release_cycle_pep": 693,
+    "release_date_endoflife": "2023-10-02"
+   },
+   {
+    "cycle": "3.13",
+    "endoflife_pep": 719,
+    "eol_endoflife": "2029-10-31",
+    "eol_python": "2029-10",
+    "first_release_python": "2024-10-07",
+    "release_cycle_pep": 719,
+    "release_date_endoflife": "2024-10-07"
+   },
+   {
+    "cycle": "3.14",
+    "endoflife_pep": 745,
+    "eol_endoflife": "2030-10-31",
+    "eol_python": "2030-10",
+    "first_release_python": "2025-10-07",
+    "release_cycle_pep": 745,
+    "release_date_endoflife": "2025-10-07"
+   },
+   {
+    "cycle": "3.15",
+    "endoflife_pep": 790,
+    "eol_endoflife": "2031-10-31",
+    "eol_python": "2031-10",
+    "first_release_python": "2026-10-09",
+    "release_cycle_pep": 790,
+    "release_date_endoflife": "2026-10-09"
+   }
+  ],
+  "release_cycle_branches_not_on_endoflife": [
+   "3.16"
+  ],
+  "same_pep_number_as_release_cycle_json": 18
+ },
+ "kubernetes_schedule": {
+  "bytes": 7663,
+  "eol_after_today": 3,
+  "licence_first_line": "Attribution 4.0 International",
+  "minor_releases": 36,
+  "newest_release_date": "2026-08-26",
+  "status_eol": 200,
+  "status_schedule": 200,
+  "with_release_date": 4
+ },
+ "nodejs_schedule": {
+  "bytes": 3254,
+  "end_after_today": 4,
+  "fields": [
+   "alpha",
+   "codename",
+   "end",
+   "lts",
+   "maintenance",
+   "start"
+  ],
+  "licence_probe": {
+   "LICENSE": {
+    "license_field": null,
+    "status": 404
+   },
+   "LICENSE.md": {
+    "license_field": null,
+    "status": 404
+   },
+   "README.md": {
+    "chars": 15992,
+    "mentions_licence": false,
+    "status": 200
+   },
+   "package.json": {
+    "license_field": null,
+    "status": 404
+   }
+  },
+  "lines": 27,
+  "newest_start": "2027-04-22",
+  "status": 200,
+  "with_codename": 12,
+  "with_lts": 13
+ },
+ "python_peps": {
+  "bytes": 433464,
+  "chars_max": 84048,
+  "chars_median": 3544,
+  "chars_min": 1713,
+  "chars_total": 196232,
+  "pages_with_an_iso_date": 15,
+  "pages_with_end_of_support_wording": 18,
+  "pages_with_public_domain_or_cc0_notice": 25,
+  "peps": 749,
+  "release_pep_pages_fetched": 27,
+  "release_peps_with_python_version": 26,
+  "release_topic_peps": 27,
+  "status": 200
+ },
+ "python_release_cycle": {
+  "branches": 19,
+  "by_status": {
+   "bugfix": 2,
+   "end-of-life": 13,
+   "feature": 1,
+   "security": 3
+  },
+  "bytes": 3616,
+  "fields": [
+   "branch",
+   "end_of_life",
+   "first_release",
+   "pep",
+   "status"
+  ],
+  "newest_first_release": "2027-10-06",
+  "note": "the release_manager field (a person's name) is present in the source and is not written",
+  "oldest_first_release": "2008-10-01",
+  "status": 200,
+  "with_pep": 19
+ },
+ "requests": 44,
+ "run_date": "2026-11-20",
+ "user_agent": "data-foundry-scout/1.0 (data@mail.proviciency.com)"
+}

@@ -1,0 +1,1043 @@
+{
+ "run_date": "2026-11-15",
+ "us_hmt": {
+  "status": 200,
+  "edition_date": "2025-10-01",
+  "bytes": 2212474,
+  "entries_with_id": 2480,
+  "distinct_ids": 2369,
+  "un_ids": 2324,
+  "na_ids": 44,
+  "id_ids": 1,
+  "entries_with_special_provisions": 2098,
+  "forbidden_rows": 256
+ },
+ "ca_tdg": {
+  "status": 200,
+  "last_amended": "2026-07-01",
+  "current_date": "2026-07-21",
+  "bytes": 3617008,
+  "schedule1_rows": 2360,
+  "distinct_un": 2336,
+  "rows_with_special_provisions": 993
+ },
+ "join_us_ca_un": {
+  "us_un_in_ca": "2323/2324",
+  "ca_un_in_us": "2323/2336",
+  "primary_class_agrees": "2310/2323",
+  "name_prefix25_agrees": "1987/2323",
+  "name_disagreement_examples": [
+   [
+    "UN0027",
+    "Black powder or Gunpowder, granular or as a meal",
+    "BLACK POWDER granular or as a meal;orGUNPOWDER gra"
+   ],
+   [
+    "UN0028",
+    "Black powder, compressed or Gunpowder, compressed ",
+    "BLACK POWDER, COMPRESSED;BLACK POWDER, IN PELLETS;"
+   ],
+   [
+    "UN0072",
+    "Cyclotrimethylenetrinitramine, wetted or Cyclonite",
+    "CYCLONITE, WETTED with not less than 15% water, by"
+   ],
+   [
+    "UN0079",
+    "Hexanitrodiphenylamine or Dipicrylamine or Hexyl",
+    "HEXANITRODIPHENYLAMINE;DIPICRYLAMINE;orHEXYL"
+   ],
+   [
+    "UN0101",
+    "Fuse, non-detonating instantaneous or quickmatch",
+    "FUSE, NON-DETONATING"
+   ],
+   [
+    "UN0102",
+    "Cord, detonating or Fuze, detonating metal clad",
+    "CORD, DETONATING, metal clad;orFUSE, DETONATING, m"
+   ],
+   [
+    "UN0104",
+    "Cord, detonating, mild effect or Fuse, detonating,",
+    "CORD, DETONATING, MILD EFFECT, metal clad;orFUSE, "
+   ],
+   [
+    "UN0118",
+    "Hexolite, or Hexotol dry or wetted with less than ",
+    "HEXOLITE, dry or wetted with less than 15% water, "
+   ],
+   [
+    "UN0130",
+    "Lead styphnate, wetted or Lead trinitroresorcinate",
+    "LEAD STYPHNATE, WETTED with not less than 20% wate"
+   ],
+   [
+    "UN0153",
+    "Trinitroaniline or Picramide",
+    "PICRAMIDE;orTRINITROANILINE"
+   ]
+  ],
+  "only_us_examples": [
+   "UN3002"
+  ],
+  "only_ca_examples": [
+   "UN1169",
+   "UN1327",
+   "UN2455",
+   "UN2807",
+   "UN3315",
+   "UN3323",
+   "UN3324",
+   "UN3325",
+   "UN3326",
+   "UN3330"
+  ]
+ },
+ "niosh_index": {
+  "status": 200,
+  "pages": 647
+ },
+ "niosh_dot": {
+  "sampled": 30,
+  "pages_200": 30,
+  "with_dot_id": 23,
+  "join_niosh_to_us_hmt": "23/23",
+  "join_niosh_to_ca_tdg": "23/23",
+  "rows": [
+   {
+    "page": "npgd0001",
+    "status": 200,
+    "dot_field": "1089 129",
+    "pairs": [
+     [
+      "1089",
+      "129"
+     ]
+    ],
+    "in_us_hmt": [
+     "1089"
+    ],
+    "in_ca_tdg": [
+     "1089"
+    ]
+   },
+   {
+    "page": "npgd0022",
+    "status": 200,
+    "dot_field": "1309 170",
+    "pairs": [
+     [
+      "1309",
+      "170"
+     ]
+    ],
+    "in_us_hmt": [
+     "1309"
+    ],
+    "in_ca_tdg": [
+     "1309"
+    ]
+   },
+   {
+    "page": "npgd0047",
+    "status": 200,
+    "dot_field": "1564 154",
+    "pairs": [
+     [
+      "1564",
+      "154"
+     ]
+    ],
+    "in_us_hmt": [
+     "1564"
+    ],
+    "in_ca_tdg": [
+     "1564"
+    ]
+   },
+   {
+    "page": "npgd0069",
+    "status": 200,
+    "dot_field": "1193 127",
+    "pairs": [
+     [
+      "1193",
+      "127"
+     ]
+    ],
+    "in_us_hmt": [
+     "1193"
+    ],
+    "in_ca_tdg": [
+     "1193"
+    ]
+   },
+   {
+    "page": "npgd0090",
+    "status": 200,
+    "dot_field": "Formula CaCO\u2083",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0111",
+    "status": 200,
+    "dot_field": "2682 157",
+    "pairs": [
+     [
+      "2682",
+      "157"
+     ]
+    ],
+    "in_us_hmt": [
+     "2682"
+    ],
+    "in_ca_tdg": [
+     "2682"
+    ]
+   },
+   {
+    "page": "npgd0133",
+    "status": 200,
+    "dot_field": "1991 131P",
+    "pairs": [
+     [
+      "1991",
+      "131P"
+     ]
+    ],
+    "in_us_hmt": [
+     "1991"
+    ],
+    "in_ca_tdg": [
+     "1991"
+    ]
+   },
+   {
+    "page": "npgd0159",
+    "status": 200,
+    "dot_field": "1918 130",
+    "pairs": [
+     [
+      "1918",
+      "130"
+     ]
+    ],
+    "in_us_hmt": [
+     "1918"
+    ],
+    "in_ca_tdg": [
+     "1918"
+    ]
+   },
+   {
+    "page": "npgd0180",
+    "status": 200,
+    "dot_field": "Formula (NH\u2082C\u2086H\u2083OCH\u2083)\u2082",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0201",
+    "status": 200,
+    "dot_field": "1958 126",
+    "pairs": [
+     [
+      "1958",
+      "126"
+     ]
+    ],
+    "in_us_hmt": [
+     "1958"
+    ],
+    "in_ca_tdg": [
+     "1958"
+    ]
+   },
+   {
+    "page": "npgd0223",
+    "status": 200,
+    "dot_field": "2253 153",
+    "pairs": [
+     [
+      "2253",
+      "153"
+     ]
+    ],
+    "in_us_hmt": [
+     "2253"
+    ],
+    "in_ca_tdg": [
+     "2253"
+    ]
+   },
+   {
+    "page": "npgd0244",
+    "status": 200,
+    "dot_field": "Formula [(C\u2082H\u2085)\u2082NCS]\u2082S\u2082",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0265",
+    "status": 200,
+    "dot_field": "1891 131",
+    "pairs": [
+     [
+      "1891",
+      "131"
+     ]
+    ],
+    "in_us_hmt": [
+     "1891"
+    ],
+    "in_ca_tdg": [
+     "1891"
+    ]
+   },
+   {
+    "page": "npgd0286",
+    "status": 200,
+    "dot_field": "Formula [(CH\u2083)\u2082NCS\u2082]\u2083Fe",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0310",
+    "status": 200,
+    "dot_field": "Formula CF\u2083CHBrCl",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0332",
+    "status": 200,
+    "dot_field": "1050 125",
+    "pairs": [
+     [
+      "1050",
+      "125"
+     ]
+    ],
+    "in_us_hmt": [
+     "1050"
+    ],
+    "in_ca_tdg": [
+     "1050"
+    ]
+   },
+   {
+    "page": "npgd0354",
+    "status": 200,
+    "dot_field": "Formula C\u2087H\u2081\u2085CH\u2082OH",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0376",
+    "status": 200,
+    "dot_field": "2215 156",
+    "pairs": [
+     [
+      "2215",
+      "156"
+     ]
+    ],
+    "in_us_hmt": [
+     "2215"
+    ],
+    "in_ca_tdg": [
+     "2215"
+    ]
+   },
+   {
+    "page": "npgd0398",
+    "status": 200,
+    "dot_field": "1061 118",
+    "pairs": [
+     [
+      "1061",
+      "118"
+     ]
+    ],
+    "in_us_hmt": [
+     "1061"
+    ],
+    "in_ca_tdg": [
+     "1061"
+    ]
+   },
+   {
+    "page": "npgd0419",
+    "status": 200,
+    "dot_field": "1244 131",
+    "pairs": [
+     [
+      "1244",
+      "131"
+     ]
+    ],
+    "in_us_hmt": [
+     "1244"
+    ],
+    "in_ca_tdg": [
+     "1244"
+    ]
+   },
+   {
+    "page": "npgd0442",
+    "status": 200,
+    "dot_field": "1650 153",
+    "pairs": [
+     [
+      "1650",
+      "153"
+     ]
+    ],
+    "in_us_hmt": [
+     "1650"
+    ],
+    "in_ca_tdg": [
+     "1650"
+    ]
+   },
+   {
+    "page": "npgd0463",
+    "status": 200,
+    "dot_field": "1664 152",
+    "pairs": [
+     [
+      "1664",
+      "152"
+     ]
+    ],
+    "in_us_hmt": [
+     "1664"
+    ],
+    "in_ca_tdg": [
+     "1664"
+    ]
+   },
+   {
+    "page": "npgd0485",
+    "status": 200,
+    "dot_field": "Formula C(CH\u2082OH)\u2084",
+    "pairs": [],
+    "in_us_hmt": [],
+    "in_ca_tdg": []
+   },
+   {
+    "page": "npgd0507",
+    "status": 200,
+    "dot_field": "1381 136",
+    "pairs": [
+     [
+      "1381",
+      "136"
+     ]
+    ],
+    "in_us_hmt": [
+     "1381"
+    ],
+    "in_ca_tdg": [
+     "1381"
+    ]
+   },
+   {
+    "page": "npgd0529",
+    "status": 200,
+    "dot_field": "1848 132",
+    "pairs": [
+     [
+      "1848",
+      "132"
+     ]
+    ],
+    "in_us_hmt": [
+     "1848"
+    ],
+    "in_ca_tdg": [
+     "1848"
+    ]
+   },
+   {
+    "page": "npgd0554",
+    "status": 200,
+    "dot_field": "1346 170",
+    "pairs": [
+     [
+      "1346",
+      "170"
+     ]
+    ],
+    "in_us_hmt": [
+     "1346"
+    ],
+    "in_ca_tdg": [
+     "1346"
+    ]
+   },
+   {
+    "page": "npgd0576",
+    "status": 200,
+    "dot_field": "1080 126",
+    "pairs": [
+     [
+      "1080",
+      "126"
+     ]
+    ],
+    "in_us_hmt": [
+     "1080"
+    ],
+    "in_ca_tdg": [
+     "1080"
+    ]
+   },
+   {
+    "page": "npgd0597",
+    "status": 200,
+    "dot_field": "1702 151",
+    "pairs": [
+     [
+      "1702",
+      "151"
+     ]
+    ],
+    "in_us_hmt": [
+     "1702"
+    ],
+    "in_ca_tdg": [
+     "1702"
+    ]
+   },
+   {
+    "page": "npgd0620",
+    "status": 200,
+    "dot_field": "1709 151",
+    "pairs": [
+     [
+      "1709",
+      "151"
+     ]
+    ],
+    "in_us_hmt": [
+     "1709"
+    ],
+    "in_ca_tdg": [
+     "1709"
+    ]
+   },
+   {
+    "page": "npgd0641",
+    "status": 200,
+    "dot_field": "1356 113",
+    "pairs": [
+     [
+      "1356",
+      "113"
+     ]
+    ],
+    "in_us_hmt": [
+     "1356"
+    ],
+    "in_ca_tdg": [
+     "1356"
+    ]
+   }
+  ]
+ },
+ "cameo_robots": {
+  "status": 200,
+  "disallow": [
+   "/help",
+   "/my",
+   "/reactivity",
+   "/search",
+   "/stats"
+  ]
+ },
+ "cameo": {
+  "unna_sampled": 20,
+  "unna_200": 20,
+  "unna_with_datasheets": 16,
+  "unna_with_erg_guide": 20,
+  "unna_rows": [
+   {
+    "un": "UN0004",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "112",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN0217",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "112",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN0366",
+    "status": 200,
+    "datasheets": 0,
+    "erg_guide": "114",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN0485",
+    "status": 200,
+    "datasheets": 0,
+    "erg_guide": "114",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN1111",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "130",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN1268",
+    "status": 200,
+    "datasheets": 4,
+    "erg_guide": "128",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN1415",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "138",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN1575",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "157",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN1713",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "151",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN1840",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "154",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN2008",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "135",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN2254",
+    "status": 200,
+    "datasheets": 0,
+    "erg_guide": "133",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN2378",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "131",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN2514",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "130",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN2679",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "154",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN2834",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "154",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN3016",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "151",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN3169",
+    "status": 200,
+    "datasheets": 0,
+    "erg_guide": "123",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN3300",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "119",
+    "names_in_page": 1
+   },
+   {
+    "un": "UN3426",
+    "status": 200,
+    "datasheets": 1,
+    "erg_guide": "153",
+    "names_in_page": 1
+   }
+  ],
+  "erg_guide_niosh_vs_cameo": [
+   {
+    "un": "1089",
+    "niosh_guide": "129",
+    "cameo_guide": "129",
+    "status": 200
+   },
+   {
+    "un": "1309",
+    "niosh_guide": "170",
+    "cameo_guide": "170",
+    "status": 200
+   },
+   {
+    "un": "1564",
+    "niosh_guide": "154",
+    "cameo_guide": "154",
+    "status": 200
+   },
+   {
+    "un": "1193",
+    "niosh_guide": "127",
+    "cameo_guide": "127",
+    "status": 200
+   },
+   {
+    "un": "2682",
+    "niosh_guide": "157",
+    "cameo_guide": "157",
+    "status": 200
+   },
+   {
+    "un": "1991",
+    "niosh_guide": "131P",
+    "cameo_guide": "131",
+    "status": 200
+   },
+   {
+    "un": "1918",
+    "niosh_guide": "130",
+    "cameo_guide": "130",
+    "status": 200
+   },
+   {
+    "un": "1958",
+    "niosh_guide": "126",
+    "cameo_guide": "126",
+    "status": 200
+   },
+   {
+    "un": "2253",
+    "niosh_guide": "153",
+    "cameo_guide": "153",
+    "status": 200
+   },
+   {
+    "un": "1891",
+    "niosh_guide": "131",
+    "cameo_guide": "131",
+    "status": 200
+   }
+  ],
+  "erg_guide_equal": "9/10",
+  "chemical_ids_probed": 44,
+  "chemical_200": 13,
+  "chemical_with_un_na": 12,
+  "chemical_with_description": 13,
+  "join_cameo_chemical_un_to_us_hmt": "12/12",
+  "chemical_rows": [
+   {
+    "id": 9000,
+    "status": 200,
+    "un_na": "3264",
+    "description_chars": 233,
+    "cas": "8017-16-1",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 20000,
+    "status": 200,
+    "un_na": "3261",
+    "description_chars": 57,
+    "cas": "6959-47-3",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 25000,
+    "status": 200,
+    "un_na": "1564",
+    "description_chars": 373,
+    "cas": "7727-43-7",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 30000,
+    "status": 200,
+    "un_na": null,
+    "description_chars": 69,
+    "cas": "96-64-0",
+    "un_in_us_hmt": false
+   },
+   {
+    "id": 1,
+    "status": 404
+   },
+   {
+    "id": 2,
+    "status": 200,
+    "un_na": "1088",
+    "description_chars": 218,
+    "cas": "105-57-7",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 3,
+    "status": 404
+   },
+   {
+    "id": 4,
+    "status": 404
+   },
+   {
+    "id": 5,
+    "status": 404
+   },
+   {
+    "id": 6,
+    "status": 404
+   },
+   {
+    "id": 7,
+    "status": 404
+   },
+   {
+    "id": 8,
+    "status": 200,
+    "un_na": "1090",
+    "description_chars": 168,
+    "cas": "67-64-1",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 9,
+    "status": 404
+   },
+   {
+    "id": 10,
+    "status": 200,
+    "un_na": "1091",
+    "description_chars": 68,
+    "cas": null,
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 11,
+    "status": 200,
+    "un_na": "1648",
+    "description_chars": 166,
+    "cas": "75-05-8",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 12,
+    "status": 404
+   },
+   {
+    "id": 13,
+    "status": 404
+   },
+   {
+    "id": 14,
+    "status": 404
+   },
+   {
+    "id": 15,
+    "status": 404
+   },
+   {
+    "id": 16,
+    "status": 404
+   },
+   {
+    "id": 17,
+    "status": 404
+   },
+   {
+    "id": 18,
+    "status": 200,
+    "un_na": "1001",
+    "description_chars": 264,
+    "cas": "74-86-2",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 19,
+    "status": 404
+   },
+   {
+    "id": 20,
+    "status": 404
+   },
+   {
+    "id": 21,
+    "status": 200,
+    "un_na": "2504",
+    "description_chars": 324,
+    "cas": "79-27-6",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 22,
+    "status": 200,
+    "un_na": "1898",
+    "description_chars": 216,
+    "cas": "507-02-8",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 23,
+    "status": 404
+   },
+   {
+    "id": 24,
+    "status": 404
+   },
+   {
+    "id": 25,
+    "status": 200,
+    "un_na": "1718",
+    "description_chars": 170,
+    "cas": "12788-93-1",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 26,
+    "status": 404
+   },
+   {
+    "id": 27,
+    "status": 404
+   },
+   {
+    "id": 28,
+    "status": 200,
+    "un_na": "2218",
+    "description_chars": 380,
+    "cas": "79-10-7",
+    "un_in_us_hmt": true
+   },
+   {
+    "id": 29,
+    "status": 404
+   },
+   {
+    "id": 30,
+    "status": 404
+   },
+   {
+    "id": 31,
+    "status": 404
+   },
+   {
+    "id": 32,
+    "status": 404
+   },
+   {
+    "id": 33,
+    "status": 404
+   },
+   {
+    "id": 34,
+    "status": 404
+   },
+   {
+    "id": 35,
+    "status": 404
+   },
+   {
+    "id": 36,
+    "status": 404
+   },
+   {
+    "id": 37,
+    "status": 404
+   },
+   {
+    "id": 38,
+    "status": 404
+   },
+   {
+    "id": 39,
+    "status": 404
+   },
+   {
+    "id": 40,
+    "status": 404
+   }
+  ]
+ },
+ "reachability_only": {
+  "phmsa_interpretations": {
+   "status": 403,
+   "bytes": 409,
+   "akamai_denied": true,
+   "cloudflare_block": false,
+   "error": null
+  },
+  "phmsa_special_permits": {
+   "status": 403,
+   "bytes": 450,
+   "akamai_denied": true,
+   "cloudflare_block": false,
+   "error": null
+  },
+  "unece_adr_2025": {
+   "status": 403,
+   "bytes": 5466,
+   "akamai_denied": false,
+   "cloudflare_block": false,
+   "error": null
+  },
+  "ntc_adg_code": {
+   "status": 0,
+   "bytes": 45,
+   "akamai_denied": false,
+   "cloudflare_block": false,
+   "error": "Remote end closed connection without response"
+  }
+ }
+}

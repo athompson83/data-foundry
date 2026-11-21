@@ -1,0 +1,353 @@
+{
+ "checked_on": "2026-11-18",
+ "source": "seccert_measure.json -> join_vendor_product_tokens.handcheck_pairs (random.seed(20261118), 20 of 443 matched CMVP modules)",
+ "question": "Is the CMVP-validated module the same product (or the cryptographic module of the same product line and hardware/major release) as the Common Criteria certified product? Verdicts use only the attributes shown in both lists (vendor, product designation, hardware list, release, dates).",
+ "join_vendor_product_tokens": {
+  "checked": 20,
+  "correct": 11,
+  "pairs": [
+   {
+    "cmvp_certificate": 4151,
+    "cmvp_vendor": "Utimaco IS GmbH",
+    "cmvp_module": "u.trust Anchor",
+    "cmvp_validated": "2022-02-10",
+    "cc_scheme": "NL",
+    "cc_manufacturer": "Utimaco IS GmbH",
+    "cc_name": "Utimaco u.trust Anchor 4.49.1",
+    "cc_date": "2025-04-21",
+    "shared_tokens": [
+     "anchor",
+     "trust"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: u.trust Anchor HSM from the same vendor; CC row is a later release (4.49.1, 2025) of the module validated in 2022."
+   },
+   {
+    "cmvp_certificate": 5420,
+    "cmvp_vendor": "SUSE, LLC",
+    "cmvp_module": "SUSE Linux Enterprise Libgcrypt Cryptographic Module",
+    "cmvp_validated": "2026-07-16",
+    "cc_scheme": "DE",
+    "cc_manufacturer": "SUSE LLC",
+    "cc_name": "SUSE Linux Enterprise Micro 5.3",
+    "cc_date": "2025-01-24",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "verdict": "wrong",
+    "reason": "Shared tokens are only 'linux enterprise': the CMVP row is a Libgcrypt module with no product version, the CC row is SLE Micro 5.3; not the same product."
+   },
+   {
+    "cmvp_certificate": 1657,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco Catalyst 3560-X and 3750-X Switches",
+    "cmvp_validated": "2011-12-22",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Catalyst 9400X/9600X Series Switches 17.12",
+    "cc_date": "2024-09-17",
+    "shared_tokens": [
+     "catalyst",
+     "switches"
+    ],
+    "verdict": "wrong",
+    "reason": "Different hardware: Catalyst 3560-X/3750-X (validated 2011) vs Catalyst 9400X/9600X (certified 2024)."
+   },
+   {
+    "cmvp_certificate": 2416,
+    "cmvp_vendor": "McAfee, Inc.",
+    "cmvp_module": "McAfee Firewall Enterprise Control Center Virtual Appliance",
+    "cmvp_validated": "2015-07-30",
+    "cc_scheme": "CA",
+    "cc_manufacturer": "McAfee, Inc.",
+    "cc_name": "McAfee Firewall Enterprise v8.2.0 and McAfee Firewall Enterprise Control Center v5.2.0",
+    "cc_date": "2012-01-27",
+    "shared_tokens": [
+     "center",
+     "control",
+     "enterprise",
+     "firewall"
+    ],
+    "verdict": "correct",
+    "reason": "Same product line: Firewall Enterprise Control Center is part of the CC evaluated configuration (Control Center v5.2.0); the CMVP validation (2015) is of a later release, version not shown in the list."
+   },
+   {
+    "cmvp_certificate": 942,
+    "cmvp_vendor": "Guidance Software, Inc.",
+    "cmvp_module": "EnCase Enterprise Cryptographic Module",
+    "cmvp_validated": "2008-05-16",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Guidance Software, Inc.",
+    "cc_name": "EnCase Enterprise Version 6.8",
+    "cc_date": "2008-11-20",
+    "shared_tokens": [
+     "encase",
+     "enterprise"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: EnCase Enterprise, CMVP module validated 2008-05 and CC certificate for version 6.8 issued 2008-11."
+   },
+   {
+    "cmvp_certificate": 704,
+    "cmvp_vendor": "Utimaco® Safeware AG",
+    "cmvp_module": "SafeGuard Easy",
+    "cmvp_validated": "2006-09-15",
+    "cc_scheme": "DE",
+    "cc_manufacturer": "Utimaco Safeware AG",
+    "cc_name": "SafeGuard Easy 3.20 für Windows 2000",
+    "cc_date": "2004-09-24",
+    "shared_tokens": [
+     "easy",
+     "safeguard"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: SafeGuard Easy by the same vendor (CC 2004 for version 3.20, CMVP 2006); releases differ."
+   },
+   {
+    "cmvp_certificate": 4719,
+    "cmvp_vendor": "Palo Alto Networks, Inc.",
+    "cmvp_module": "Palo Alto Networks SD-WAN Instant-On Network (ION) Devices ION 1200, ION 1200-S, ION 3200, ION 5200, and ION 9200",
+    "cmvp_validated": "2024-07-11",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Palo Alto Networks, Inc.",
+    "cc_name": "Palo Alto Networks SD-WAN Instant-On Network (ION) Devices ION 1200, ION 1200-S, ION 3200, ION 5200, ION 9200, vION, and Controller running 6.5",
+    "cc_date": "2026-10-05",
+    "shared_tokens": [
+     "devices",
+     "instant",
+     "ion",
+     "network",
+     "wan"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: SD-WAN ION devices, identical hardware list (ION 1200, 1200-S, 3200, 5200, 9200) in both records."
+   },
+   {
+    "cmvp_certificate": 460,
+    "cmvp_vendor": "Lucent Technologies, Inc.",
+    "cmvp_module": "VPN Firewall Brick® 350 and Brick® 1000",
+    "cmvp_validated": "2004-09-08",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Lucent Technologies",
+    "cc_name": "Lucent VPN Firewall V7.2 (Patch 292)",
+    "cc_date": "2006-01-19",
+    "shared_tokens": [
+     "firewall",
+     "vpn"
+    ],
+    "verdict": "correct",
+    "reason": "Same product line: the Brick 350/1000 are the Lucent VPN Firewall appliances; CC certificate covers VPN Firewall V7.2 (2006), CMVP 2004."
+   },
+   {
+    "cmvp_certificate": 1792,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux 6.2 OpenSSH Server Cryptographic Module",
+    "cmvp_validated": "2012-08-24",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_date": "2025-02-25",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "verdict": "wrong",
+    "reason": "Different major release: RHEL 6.2 OpenSSH module (2012) vs RHEL 9.4 (2025)."
+   },
+   {
+    "cmvp_certificate": 2564,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux 6.6 NSS Module",
+    "cmvp_validated": "2016-02-17",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_date": "2025-02-25",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "verdict": "wrong",
+    "reason": "Different major release: RHEL 6.6 NSS module (2016) vs RHEL 9.4 (2025)."
+   },
+   {
+    "cmvp_certificate": 2253,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Nexus 7000 Series Switches",
+    "cmvp_validated": "2014-09-22",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Nexus 9000 Series Switches Running NX-OS 10.4",
+    "cc_date": "2025-01-27",
+    "shared_tokens": [
+     "nexus",
+     "switches"
+    ],
+    "verdict": "wrong",
+    "reason": "Different hardware family: Nexus 7000 (2014) vs Nexus 9000 (2025)."
+   },
+   {
+    "cmvp_certificate": 3216,
+    "cmvp_vendor": "SUSE, LLC",
+    "cmvp_module": "SUSE Linux Enterprise Server 12 SP2 - NSS Cryptographic Module",
+    "cmvp_validated": "2018-07-03",
+    "cc_scheme": "DE",
+    "cc_manufacturer": "SUSE LLC",
+    "cc_name": "SUSE Linux Enterprise Server Version 15 SP2",
+    "cc_date": "2021-11-11",
+    "shared_tokens": [
+     "enterprise",
+     "linux",
+     "server",
+     "sp2"
+    ],
+    "verdict": "wrong",
+    "reason": "Different release: SLES 12 SP2 NSS module vs SLES 15 SP2; the shared 'sp2' is coincidental."
+   },
+   {
+    "cmvp_certificate": 4491,
+    "cmvp_vendor": "Commscope Technologies LLC",
+    "cmvp_module": "FastIron ICX™ 7750, ICX™ 7250 and ICX™ 7150 Series Switch/Router",
+    "cmvp_validated": "2023-04-27",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Commscope Technologies, LLC",
+    "cc_name": "CommScope Technologies LLC, Ruckus FastIron ICX Series Switch/Router 10.0.10",
+    "cc_date": "2024-07-09",
+    "shared_tokens": [
+     "fastiron",
+     "icx",
+     "router",
+     "switch"
+    ],
+    "verdict": "correct",
+    "reason": "Same product line: FastIron ICX switch/router series (CMVP lists ICX 7750/7250/7150, CC lists the ICX series on FastIron 10.0.10); individual models not listed in the CC row."
+   },
+   {
+    "cmvp_certificate": 2721,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux Libreswan Cryptographic Module v4.0",
+    "cmvp_validated": "2016-08-29",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_date": "2025-02-25",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "verdict": "wrong",
+    "reason": "Different major release: Libreswan module for RHEL 7-era (2016) vs RHEL 9.4 (2025)."
+   },
+   {
+    "cmvp_certificate": 4487,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco Catalyst 9200L Series Switches",
+    "cmvp_validated": "2023-04-26",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Catalyst 9200/9200L Series Switches 17.18",
+    "cc_date": "2026-09-30",
+    "shared_tokens": [
+     "9200l",
+     "catalyst",
+     "switches"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: Catalyst 9200L switches are in the CC row (Catalyst 9200/9200L, IOS-XE 17.18); CMVP validation 2023, CC 2026."
+   },
+   {
+    "cmvp_certificate": 1496,
+    "cmvp_vendor": "Cisco Systems, Inc.",
+    "cmvp_module": "Cisco Secure Access Control Server (ACS) FIPS module (cryptolib)",
+    "cmvp_validated": "2011-02-10",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Cisco Systems, Inc.",
+    "cc_name": "Cisco Nexus 7000 Series Switch running Software version NX-OS version 5.1(a) and Cisco Secure Access Control Server (ACS) running version 5.2 patch 3",
+    "cc_date": "2011-04-27",
+    "shared_tokens": [
+     "access",
+     "acs",
+     "control",
+     "server"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: Cisco Secure ACS is named in the CC evaluated configuration (ACS 5.2 patch 3, certified 2011-04); CMVP module validated 2011-02."
+   },
+   {
+    "cmvp_certificate": 1757,
+    "cmvp_vendor": "Red Hat®, Inc.",
+    "cmvp_module": "Red Hat Enterprise Linux 6.2 Libgcrypt Cryptographic Module",
+    "cmvp_validated": "2012-07-27",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Red Hat, Inc.",
+    "cc_name": "Red Hat Enterprise Linux 9.4",
+    "cc_date": "2025-02-25",
+    "shared_tokens": [
+     "enterprise",
+     "linux"
+    ],
+    "verdict": "wrong",
+    "reason": "Different major release: RHEL 6.2 Libgcrypt module (2012) vs RHEL 9.4 (2025)."
+   },
+   {
+    "cmvp_certificate": 4395,
+    "cmvp_vendor": "Autotalks Ltd.",
+    "cmvp_module": "CRATON2/SECTON embedded V2X HSM",
+    "cmvp_validated": "2022-12-16",
+    "cc_scheme": "NL",
+    "cc_manufacturer": "Autotalks Ltd.",
+    "cc_name": "SECTON / CRATON2 Embedded V2X HSM CUT3.1",
+    "cc_date": "2023-11-28",
+    "shared_tokens": [
+     "craton2",
+     "embedded",
+     "hsm",
+     "secton"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: CRATON2/SECTON embedded V2X HSM in both records (CMVP 2022, CC 2023)."
+   },
+   {
+    "cmvp_certificate": 231,
+    "cmvp_vendor": "Fortress™ Technologies, Inc.",
+    "cmvp_module": "AirFortress Wireless Security Gateway Cryptographic Module",
+    "cmvp_validated": "2002-06-19",
+    "cc_scheme": "US",
+    "cc_manufacturer": "Fortress Technologies, Inc.",
+    "cc_name": "Fortress Wireless Secure Gateway Version 1.0",
+    "cc_date": "2007-10-23",
+    "shared_tokens": [
+     "gateway",
+     "wireless"
+    ],
+    "verdict": "wrong",
+    "reason": "Not confirmable: AirFortress Wireless Security Gateway module (2002) vs Fortress Wireless Secure Gateway Version 1.0 (2007); different product designation and five years apart."
+   },
+   {
+    "cmvp_certificate": 1812,
+    "cmvp_vendor": "McAfee, Inc.",
+    "cmvp_module": "McAfee Firewall Enterprise Control Center Virtual Appliance",
+    "cmvp_validated": "2012-10-11",
+    "cc_scheme": "CA",
+    "cc_manufacturer": "McAfee, Inc.",
+    "cc_name": "McAfee Firewall Enterprise v8.2.0 and McAfee Firewall Enterprise Control Center v5.2.0",
+    "cc_date": "2012-01-27",
+    "shared_tokens": [
+     "center",
+     "control",
+     "enterprise",
+     "firewall"
+    ],
+    "verdict": "correct",
+    "reason": "Same product: Firewall Enterprise Control Center, CMVP validated 2012-10 and CC certificate (Control Center v5.2.0) 2012-01."
+   }
+  ]
+ },
+ "declared_join_spot_check": {
+  "note": "The 16 CMVP certificate numbers cited in the 11 sampled Security Targets were each read against the CMVP row (join_cmvp_number_cited_in_st.hits). In 14 the cited sentence names the same module or product as the CMVP row (e.g. #1747 OpenSSL FIPS Object Module, #2241 Cisco 5915 and 5940 Embedded Services Routers, #989 Windows XP Enhanced Cryptographic Provider); in 2 (#3043, #784) the sentence does not name the module and only the vendor lineage agrees. Cited modules are often a third party's library embedded in the product, so the link means 'uses or embeds this validated module', not 'is this module'.",
+  "checked": 16,
+  "module_named_and_consistent": 14,
+  "vendor_consistent_only": 2
+ }
+}

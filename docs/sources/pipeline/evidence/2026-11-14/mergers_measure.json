@@ -1,0 +1,910 @@
+{
+ "measured_on": "2026-11-14",
+ "ec_status": 200,
+ "ec_bytes": 41667658,
+ "ec_cases": 10424,
+ "ec_newest_notification": "2026-11-12",
+ "ec_cases_with_decision_document": "10076/10424",
+ "ec_cases_with_sector": 10276,
+ "ec_decision_document_probe": [
+  {
+   "url": "https://ec.europa.eu/competition/mergers/cases1/202646/M_12670_58.pdf",
+   "status": 200,
+   "type": "text/html; charset=utf-8"
+  },
+  {
+   "url": "https://ec.europa.eu/competition/mergers/cases1/202646/M_12581_147.pdf",
+   "status": 200,
+   "type": "application/pdf"
+  },
+  {
+   "url": "https://ec.europa.eu/competition/mergers/cases1/202646/M_12664_85.pdf",
+   "status": 200,
+   "type": "application/pdf"
+  }
+ ],
+ "ec_dataset_licence": [
+  "COM_REUSE"
+ ],
+ "ec_dataset_modified": "2026-11-13",
+ "cma_total": 2001,
+ "cma_fetched": 2001,
+ "cma_description_fill": "2001/2001",
+ "cma_opened_date_fill": "790/2001",
+ "cma_newest_public_timestamp": "2026-11-13T14:00:08Z",
+ "cma_body_probe": [
+  {
+   "link": "/cma-cases/nexfibre-slash-substantial-merger-inquiry",
+   "status": 200,
+   "body_chars": 14521
+  },
+  {
+   "link": "/cma-cases/pilgrims-slash-walkers-deli-and-sausage-co-merger-inquiry",
+   "status": 200,
+   "body_chars": 2332
+  },
+  {
+   "link": "/cma-cases/akzonobel-slash-axalta-merger-inquiry",
+   "status": 200,
+   "body_chars": 3518
+  }
+ ],
+ "ftc_et_status": 200,
+ "ftc_et_first_page_items": 20,
+ "ftc_et_last_page_index": 1411,
+ "ftc_et_estimated_notices": 28240,
+ "ftc_et_first_page_sample": [
+  [
+   "20262405",
+   "November 12, 2026"
+  ],
+  [
+   "20270074",
+   "November 9, 2026"
+  ],
+  [
+   "20270082",
+   "November 9, 2026"
+  ],
+  [
+   "20270106",
+   "November 9, 2026"
+  ],
+  [
+   "20270118",
+   "November 9, 2026"
+  ]
+ ],
+ "accc_status": 200,
+ "accc_first_page_items": 20,
+ "accc_last_page_index": 42,
+ "accc_detail_probe": [
+  {
+   "slug": "steadfast-axiom-insurance-brokers",
+   "status": 200,
+   "mn": "MN-25024",
+   "has_anzsic": true,
+   "has_description": true
+  },
+  {
+   "slug": "william-adams-clennett-hire",
+   "status": 200,
+   "mn": "MN-85063",
+   "has_anzsic": true,
+   "has_description": true
+  },
+  {
+   "slug": "amwins-dragoneer-kkr-temasek-consortium-%E2%80%93-steadfast",
+   "status": 200,
+   "mn": "MN-25056",
+   "has_anzsic": true,
+   "has_description": true
+  },
+  {
+   "slug": "amadeus-idemia-public-security",
+   "status": 200,
+   "mn": "MN-60027",
+   "has_anzsic": true,
+   "has_description": true
+  },
+  {
+   "slug": "too-lost-%E2%80%93-xelon-entertainment",
+   "status": 200,
+   "mn": "MN-65045",
+   "has_anzsic": true,
+   "has_description": true
+  }
+ ],
+ "ca_status": 200,
+ "ca_rows": 861,
+ "ca_newest_opened": "2026-11-06",
+ "ca_oldest_opened": "2021-03-12",
+ "ca_outcomes": [
+  "ARC",
+  "CA",
+  "JD",
+  "NAL",
+  "Ongoing",
+  "Other",
+  "TA"
+ ],
+ "ca_open_canada_licence": "Open Government Licence - Canada",
+ "join_ec_cma_candidates": "54/583 CMA merger cases opened since 2015 have an EC case with both party tokens within 400 days",
+ "join_ec_cma_rows": [
+  {
+   "ec_case": "M.12591",
+   "other": "/cma-cases/ocs-slash-mitie-merger-inquiry",
+   "other_date": "2026-09-15",
+   "ec_notified": "2026-09-22"
+  },
+  {
+   "ec_case": "M.12399",
+   "other": "/cma-cases/the-brinks-company-slash-ncr-atleos-corporation-merger-inquiry",
+   "other_date": "2026-05-20",
+   "ec_notified": "2026-11-03"
+  },
+  {
+   "ec_case": "M.12269",
+   "other": "/cma-cases/akzonobel-slash-axalta-merger-inquiry",
+   "other_date": "2026-04-16",
+   "ec_notified": "2026-09-17"
+  },
+  {
+   "ec_case": "M.11974",
+   "other": "/cma-cases/vandemoortele-slash-delifrance-merger-inquiry",
+   "other_date": "2025-10-03",
+   "ec_notified": "2025-10-30"
+  },
+  {
+   "ec_case": "M.10646",
+   "other": "/cma-cases/microsoft-slash-activision-blizzard-merger-inquiry",
+   "other_date": "2022-07-06",
+   "ec_notified": "2022-09-30"
+  },
+  {
+   "ec_case": "M.12278",
+   "other": "/cma-cases/paramount-slash-warner-bros-discovery-merger-inquiry",
+   "other_date": "2026-04-13",
+   "ec_notified": "2026-06-02"
+  },
+  {
+   "ec_case": "M.10646",
+   "other": "/cma-cases/microsoft-slash-activision-blizzard-ex-cloud-streaming-rights-merger-inquiry",
+   "other_date": "2023-08-22",
+   "ec_notified": "2022-09-30"
+  },
+  {
+   "ec_case": "M.10149",
+   "other": "/cma-cases/korean-air-slash-asiana-airlines-merger-inquiry",
+   "other_date": "2022-09-16",
+   "ec_notified": "2023-01-13"
+  },
+  {
+   "ec_case": "M.12026",
+   "other": "/cma-cases/evri-slash-dhl-merger-inquiry",
+   "other_date": "2025-06-11",
+   "ec_notified": "2025-08-20"
+  },
+  {
+   "ec_case": "M.11033",
+   "other": "/cma-cases/adobe-slash-figma-merger-inquiry",
+   "other_date": "2023-05-03",
+   "ec_notified": "2023-06-30"
+  },
+  {
+   "ec_case": "M.11481",
+   "other": "/cma-cases/synopsys-slash-ansys-merger-inquiry",
+   "other_date": "2024-08-12",
+   "ec_notified": "2024-11-11"
+  },
+  {
+   "ec_case": "M.12236",
+   "other": "/cma-cases/subsea7-slash-saipem-merger-inquiry",
+   "other_date": "2025-07-24",
+   "ec_notified": "2026-06-16"
+  },
+  {
+   "ec_case": "M.12078",
+   "other": "/cma-cases/suzano-slash-kimberly-clark-jv-merger-inquiry",
+   "other_date": "2026-01-30",
+   "ec_notified": "2026-03-31"
+  },
+  {
+   "ec_case": "M.9969",
+   "other": "/cma-cases/veolia-slash-suez-merger-inquiry",
+   "other_date": "2021-02-05",
+   "ec_notified": "2021-10-22"
+  },
+  {
+   "ec_case": "M.12006",
+   "other": "/cma-cases/global-payments-slash-worldpay-merger-inquiry",
+   "other_date": "2025-07-01",
+   "ec_notified": "2025-10-27"
+  },
+  {
+   "ec_case": "M.10560",
+   "other": "/cma-cases/sika-ag-slash-mbcc-group-merger-inquiry",
+   "other_date": "2022-04-19",
+   "ec_notified": "2022-06-07"
+  },
+  {
+   "ec_case": "M.9987",
+   "other": "/cma-cases/nvidia-slash-arm-merger-inquiry",
+   "other_date": "2021-01-06",
+   "ec_notified": "2021-09-08"
+  },
+  {
+   "ec_case": "M.10615",
+   "other": "/cma-cases/booking-holdings-inc-slash-etraveli-group-ab-merger-inquiry",
+   "other_date": "2022-07-04",
+   "ec_notified": "2022-10-10"
+  },
+  {
+   "ec_case": "M.10966",
+   "other": "/cma-cases/cochlear-slash-oticon-merger-inquiry",
+   "other_date": "2022-10-11",
+   "ec_notified": "2023-09-04"
+  },
+  {
+   "ec_case": "M.9871",
+   "other": "/cma-cases/liberty-global-plc-telefonica-s-a-merger-inquiry",
+   "other_date": "2020-10-08",
+   "ec_notified": "2020-09-30"
+  },
+  {
+   "ec_case": "M.11086",
+   "other": "/cma-cases/arcelik-slash-whirlpool-emea-merger-inquiry",
+   "other_date": "2023-07-11",
+   "ec_notified": "2023-09-18"
+  },
+  {
+   "ec_case": "M.10078",
+   "other": "/cma-cases/cargotec-corporation-slash-konecranes-plc-merger-inquiry",
+   "other_date": "2021-05-28",
+   "ec_notified": "2021-05-28"
+  },
+  {
+   "ec_case": "M.8217",
+   "other": "/cma-cases/hammerson-grand-central-merger-inquiry",
+   "other_date": "2016-03-07",
+   "ec_notified": "2016-10-21"
+  },
+  {
+   "ec_case": "M.10431",
+   "other": "/cma-cases/ali-holding-srl-slash-welbilt-inc-merger-inquiry",
+   "other_date": "2022-03-10",
+   "ec_notified": "2022-04-28"
+  },
+  {
+   "ec_case": "M.10920",
+   "other": "/cma-cases/amazon-slash-irobot-merger-inquiry",
+   "other_date": "2023-04-06",
+   "ec_notified": "2023-06-01"
+  },
+  {
+   "ec_case": "M.8177",
+   "other": "/cma-cases/amc-uk-odeon-and-uci-cinemas-merger-inquiry",
+   "other_date": "2016-10-19",
+   "ec_notified": "2016-10-19"
+  },
+  {
+   "ec_case": "M.10575",
+   "other": "/cma-cases/bouygues-sa-slash-equans-sas-merger-inquiry",
+   "other_date": "2022-05-20",
+   "ec_notified": "2022-05-30"
+  },
+  {
+   "ec_case": "M.10806",
+   "other": "/cma-cases/broadcom-slash-vmware-merger-inquiry",
+   "other_date": "2022-11-21",
+   "ec_notified": "2022-11-15"
+  },
+  {
+   "ec_case": "M.10807",
+   "other": "/cma-cases/viasat-slash-inmarsat-merger-inquiry",
+   "other_date": "2022-07-25",
+   "ec_notified": "2023-01-09"
+  },
+  {
+   "ec_case": "M.10506",
+   "other": "/cma-cases/parker-hannifin-corporation-slash-meggitt-plc-merger-inquiry",
+   "other_date": "2021-10-19",
+   "ec_notified": "2022-02-21"
+  },
+  {
+   "ec_case": "M.11578",
+   "other": "/cma-cases/the-boeing-company-slash-spirit-aerosystems-holdings-inc-merger-inquiry",
+   "other_date": "2025-06-30",
+   "ec_notified": "2025-08-26"
+  },
+  {
+   "ec_case": "M.7929",
+   "other": "/cma-cases/south-staffordshire-water-south-west-water-merger-inquiry",
+   "other_date": "2017-02-02",
+   "ec_notified": "2016-01-22"
+  },
+  {
+   "ec_case": "M.11253",
+   "other": "/cma-cases/safran-slash-collins-merger-inquiry",
+   "other_date": "2025-02-18",
+   "ec_notified": "2025-02-14"
+  },
+  {
+   "ec_case": "M.11675",
+   "other": "/cma-cases/carlsberg-slash-britvic-merger-inquiry",
+   "other_date": "2024-09-10",
+   "ec_notified": "2024-11-11"
+  },
+  {
+   "ec_case": "M.11072",
+   "other": "/cma-cases/calisen-slash-mapleco-merger-inquiry",
+   "other_date": "2023-03-13",
+   "ec_notified": "2023-05-04"
+  },
+  {
+   "ec_case": "M.11119",
+   "other": "/cma-cases/ald-slash-leaseplan-merger-inquiry",
+   "other_date": "2022-09-05",
+   "ec_notified": "2023-06-09"
+  },
+  {
+   "ec_case": "M.10638",
+   "other": "/cma-cases/ald-slash-leaseplan-merger-inquiry",
+   "other_date": "2022-09-05",
+   "ec_notified": "2022-10-05"
+  },
+  {
+   "ec_case": "M.9541",
+   "other": "/cma-cases/advent-international-cobham-merger-inquiry",
+   "other_date": "2019-09-18",
+   "ec_notified": "2019-10-01"
+  },
+  {
+   "ec_case": "M.11602",
+   "other": "/cma-cases/ses-sa-slash-intelsat-holdings-sa-r-dot-l-merger-inquiry",
+   "other_date": "2025-04-11",
+   "ec_notified": "2025-04-29"
+  },
+  {
+   "ec_case": "M.11637",
+   "other": "/cma-cases/sonoco-slash-eviosys-merger-inquiry",
+   "other_date": "2024-10-24",
+   "ec_notified": "2024-09-27"
+  }
+ ],
+ "join_ec_ca_candidates": "55/861 Canada concluded reviews have an EC case with both party tokens within 400 days",
+ "join_ec_ca_rows": [
+  {
+   "ec_case": "M.11111",
+   "other": "ca-2023-04-04-12",
+   "other_date": "2023-04-04",
+   "ec_notified": "2023-04-26"
+  },
+  {
+   "ec_case": "M.11091",
+   "other": "ca-2023-03-21-19",
+   "other_date": "2023-03-21",
+   "ec_notified": "2023-04-18"
+  },
+  {
+   "ec_case": "M.11206",
+   "other": "ca-2023-07-13-56",
+   "other_date": "2023-07-13",
+   "ec_notified": "2023-08-29"
+  },
+  {
+   "ec_case": "M.11255",
+   "other": "ca-2023-08-10-68",
+   "other_date": "2023-08-10",
+   "ec_notified": "2023-08-25"
+  },
+  {
+   "ec_case": "M.11225",
+   "other": "ca-2023-08-01-75",
+   "other_date": "2023-08-01",
+   "ec_notified": "2023-09-08"
+  },
+  {
+   "ec_case": "M.11143",
+   "other": "ca-2023-07-18-91",
+   "other_date": "2023-07-18",
+   "ec_notified": "2024-01-05"
+  },
+  {
+   "ec_case": "M.11204",
+   "other": "ca-2023-06-13-126",
+   "other_date": "2023-06-13",
+   "ec_notified": "2024-06-13"
+  },
+  {
+   "ec_case": "M.11288",
+   "other": "ca-2023-10-06-133",
+   "other_date": "2023-10-06",
+   "ec_notified": "2024-03-06"
+  },
+  {
+   "ec_case": "M.11320",
+   "other": "ca-2023-11-22-159",
+   "other_date": "2023-11-22",
+   "ec_notified": "2024-02-07"
+  },
+  {
+   "ec_case": "M.11385",
+   "other": "ca-2023-12-20-177",
+   "other_date": "2023-12-20",
+   "ec_notified": "2024-01-25"
+  },
+  {
+   "ec_case": "M.11486",
+   "other": "ca-2024-05-10-242",
+   "other_date": "2024-05-10",
+   "ec_notified": "2024-10-31"
+  },
+  {
+   "ec_case": "M.11514",
+   "other": "ca-2024-05-13-244",
+   "other_date": "2024-05-13",
+   "ec_notified": "2024-06-14"
+  },
+  {
+   "ec_case": "M.11947",
+   "other": "ca-2024-06-10-264",
+   "other_date": "2024-06-10",
+   "ec_notified": "2025-03-31"
+  },
+  {
+   "ec_case": "M.11621",
+   "other": "ca-2024-07-10-284",
+   "other_date": "2024-07-10",
+   "ec_notified": "2024-07-12"
+  },
+  {
+   "ec_case": "M.12133",
+   "other": "ca-2024-07-15-290",
+   "other_date": "2024-07-15",
+   "ec_notified": "2025-08-11"
+  },
+  {
+   "ec_case": "M.11728",
+   "other": "ca-2024-09-06-328",
+   "other_date": "2024-09-06",
+   "ec_notified": "2024-09-20"
+  },
+  {
+   "ec_case": "M.11746",
+   "other": "ca-2024-10-07-345",
+   "other_date": "2024-10-07",
+   "ec_notified": "2025-03-04"
+  },
+  {
+   "ec_case": "M.11732",
+   "other": "ca-2024-10-09-346",
+   "other_date": "2024-10-09",
+   "ec_notified": "2024-10-21"
+  },
+  {
+   "ec_case": "M.11773",
+   "other": "ca-2024-10-11-348",
+   "other_date": "2024-10-11",
+   "ec_notified": "2024-11-11"
+  },
+  {
+   "ec_case": "M.10646",
+   "other": "ca-2022-03-23-358",
+   "other_date": "2022-03-23",
+   "ec_notified": "2022-09-30"
+  },
+  {
+   "ec_case": "M.11753",
+   "other": "ca-2024-10-25-365",
+   "other_date": "2024-10-25",
+   "ec_notified": "2025-05-16"
+  },
+  {
+   "ec_case": "M.11324",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2023-10-23"
+  },
+  {
+   "ec_case": "M.11325",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2023-10-31"
+  },
+  {
+   "ec_case": "M.12179",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2025-10-01"
+  },
+  {
+   "ec_case": "M.12032",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2025-07-09"
+  },
+  {
+   "ec_case": "M.11965",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2025-04-16"
+  },
+  {
+   "ec_case": "M.12054",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2025-07-14"
+  },
+  {
+   "ec_case": "M.11608",
+   "other": "ca-2024-11-15-387",
+   "other_date": "2024-11-15",
+   "ec_notified": "2024-07-09"
+  },
+  {
+   "ec_case": "M.11835",
+   "other": "ca-2024-12-19-405",
+   "other_date": "2024-12-19",
+   "ec_notified": "2025-02-10"
+  },
+  {
+   "ec_case": "M.11771",
+   "other": "ca-2024-12-20-406",
+   "other_date": "2024-12-20",
+   "ec_notified": "2025-03-31"
+  },
+  {
+   "ec_case": "M.11847",
+   "other": "ca-2024-12-23-409",
+   "other_date": "2024-12-23",
+   "ec_notified": "2025-03-11"
+  },
+  {
+   "ec_case": "M.12149",
+   "other": "ca-2024-12-23-409",
+   "other_date": "2024-12-23",
+   "ec_notified": "2025-10-24"
+  },
+  {
+   "ec_case": "M.11849",
+   "other": "ca-2025-01-14-425",
+   "other_date": "2025-01-14",
+   "ec_notified": "2025-02-11"
+  },
+  {
+   "ec_case": "M.11839",
+   "other": "ca-2025-01-27-431",
+   "other_date": "2025-01-27",
+   "ec_notified": "2025-03-11"
+  },
+  {
+   "ec_case": "M.11889",
+   "other": "ca-2025-02-07-437",
+   "other_date": "2025-02-07",
+   "ec_notified": "2025-03-19"
+  },
+  {
+   "ec_case": "M.11893",
+   "other": "ca-2025-02-28-450",
+   "other_date": "2025-02-28",
+   "ec_notified": "2025-04-09"
+  },
+  {
+   "ec_case": "M.11879",
+   "other": "ca-2025-02-28-452",
+   "other_date": "2025-02-28",
+   "ec_notified": "2025-05-07"
+  },
+  {
+   "ec_case": "M.11994",
+   "other": "ca-2025-05-09-482",
+   "other_date": "2025-05-09",
+   "ec_notified": "2025-06-10"
+  },
+  {
+   "ec_case": "M.12055",
+   "other": "ca-2025-07-02-520",
+   "other_date": "2025-07-02",
+   "ec_notified": "2025-09-12"
+  },
+  {
+   "ec_case": "M.12054",
+   "other": "ca-2025-07-18-531",
+   "other_date": "2025-07-18",
+   "ec_notified": "2025-07-14"
+  }
+ ],
+ "hand_check_ec_cma": {
+  "checked": 20,
+  "correct": 19,
+  "rows": [
+   {
+    "ec_case": "M.12591",
+    "other": "/cma-cases/ocs-slash-mitie-merger-inquiry",
+    "other_date": "2026-09-15",
+    "ec_notified": "2026-09-22",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12399",
+    "other": "/cma-cases/the-brinks-company-slash-ncr-atleos-corporation-merger-inquiry",
+    "other_date": "2026-05-20",
+    "ec_notified": "2026-11-03",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12269",
+    "other": "/cma-cases/akzonobel-slash-axalta-merger-inquiry",
+    "other_date": "2026-04-16",
+    "ec_notified": "2026-09-17",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11974",
+    "other": "/cma-cases/vandemoortele-slash-delifrance-merger-inquiry",
+    "other_date": "2025-10-03",
+    "ec_notified": "2025-10-30",
+    "correct": true
+   },
+   {
+    "ec_case": "M.10646",
+    "other": "/cma-cases/microsoft-slash-activision-blizzard-merger-inquiry",
+    "other_date": "2022-07-06",
+    "ec_notified": "2022-09-30",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12278",
+    "other": "/cma-cases/paramount-slash-warner-bros-discovery-merger-inquiry",
+    "other_date": "2026-04-13",
+    "ec_notified": "2026-06-02",
+    "correct": true
+   },
+   {
+    "ec_case": "M.10646",
+    "other": "/cma-cases/microsoft-slash-activision-blizzard-ex-cloud-streaming-rights-merger-inquiry",
+    "other_date": "2023-08-22",
+    "ec_notified": "2022-09-30",
+    "correct": false
+   },
+   {
+    "ec_case": "M.10149",
+    "other": "/cma-cases/korean-air-slash-asiana-airlines-merger-inquiry",
+    "other_date": "2022-09-16",
+    "ec_notified": "2023-01-13",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12026",
+    "other": "/cma-cases/evri-slash-dhl-merger-inquiry",
+    "other_date": "2025-06-11",
+    "ec_notified": "2025-08-20",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11033",
+    "other": "/cma-cases/adobe-slash-figma-merger-inquiry",
+    "other_date": "2023-05-03",
+    "ec_notified": "2023-06-30",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11481",
+    "other": "/cma-cases/synopsys-slash-ansys-merger-inquiry",
+    "other_date": "2024-08-12",
+    "ec_notified": "2024-11-11",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12236",
+    "other": "/cma-cases/subsea7-slash-saipem-merger-inquiry",
+    "other_date": "2025-07-24",
+    "ec_notified": "2026-06-16",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12078",
+    "other": "/cma-cases/suzano-slash-kimberly-clark-jv-merger-inquiry",
+    "other_date": "2026-01-30",
+    "ec_notified": "2026-03-31",
+    "correct": true
+   },
+   {
+    "ec_case": "M.9969",
+    "other": "/cma-cases/veolia-slash-suez-merger-inquiry",
+    "other_date": "2021-02-05",
+    "ec_notified": "2021-10-22",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12006",
+    "other": "/cma-cases/global-payments-slash-worldpay-merger-inquiry",
+    "other_date": "2025-07-01",
+    "ec_notified": "2025-10-27",
+    "correct": true
+   },
+   {
+    "ec_case": "M.10560",
+    "other": "/cma-cases/sika-ag-slash-mbcc-group-merger-inquiry",
+    "other_date": "2022-04-19",
+    "ec_notified": "2022-06-07",
+    "correct": true
+   },
+   {
+    "ec_case": "M.9987",
+    "other": "/cma-cases/nvidia-slash-arm-merger-inquiry",
+    "other_date": "2021-01-06",
+    "ec_notified": "2021-09-08",
+    "correct": true
+   },
+   {
+    "ec_case": "M.10615",
+    "other": "/cma-cases/booking-holdings-inc-slash-etraveli-group-ab-merger-inquiry",
+    "other_date": "2022-07-04",
+    "ec_notified": "2022-10-10",
+    "correct": true
+   },
+   {
+    "ec_case": "M.10966",
+    "other": "/cma-cases/cochlear-slash-oticon-merger-inquiry",
+    "other_date": "2022-10-11",
+    "ec_notified": "2023-09-04",
+    "correct": true
+   },
+   {
+    "ec_case": "M.9871",
+    "other": "/cma-cases/liberty-global-plc-telefonica-s-a-merger-inquiry",
+    "other_date": "2020-10-08",
+    "ec_notified": "2020-09-30",
+    "correct": true
+   }
+  ]
+ },
+ "hand_check_ec_ca": {
+  "checked": 20,
+  "correct": 18,
+  "rows": [
+   {
+    "ec_case": "M.11111",
+    "other": "ca-2023-04-04-12",
+    "other_date": "2023-04-04",
+    "ec_notified": "2023-04-26",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11091",
+    "other": "ca-2023-03-21-19",
+    "other_date": "2023-03-21",
+    "ec_notified": "2023-04-18",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11206",
+    "other": "ca-2023-07-13-56",
+    "other_date": "2023-07-13",
+    "ec_notified": "2023-08-29",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11255",
+    "other": "ca-2023-08-10-68",
+    "other_date": "2023-08-10",
+    "ec_notified": "2023-08-25",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11225",
+    "other": "ca-2023-08-01-75",
+    "other_date": "2023-08-01",
+    "ec_notified": "2023-09-08",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11143",
+    "other": "ca-2023-07-18-91",
+    "other_date": "2023-07-18",
+    "ec_notified": "2024-01-05",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11204",
+    "other": "ca-2023-06-13-126",
+    "other_date": "2023-06-13",
+    "ec_notified": "2024-06-13",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11288",
+    "other": "ca-2023-10-06-133",
+    "other_date": "2023-10-06",
+    "ec_notified": "2024-03-06",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11320",
+    "other": "ca-2023-11-22-159",
+    "other_date": "2023-11-22",
+    "ec_notified": "2024-02-07",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11385",
+    "other": "ca-2023-12-20-177",
+    "other_date": "2023-12-20",
+    "ec_notified": "2024-01-25",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11486",
+    "other": "ca-2024-05-10-242",
+    "other_date": "2024-05-10",
+    "ec_notified": "2024-10-31",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11514",
+    "other": "ca-2024-05-13-244",
+    "other_date": "2024-05-13",
+    "ec_notified": "2024-06-14",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11947",
+    "other": "ca-2024-06-10-264",
+    "other_date": "2024-06-10",
+    "ec_notified": "2025-03-31",
+    "correct": false
+   },
+   {
+    "ec_case": "M.11621",
+    "other": "ca-2024-07-10-284",
+    "other_date": "2024-07-10",
+    "ec_notified": "2024-07-12",
+    "correct": true
+   },
+   {
+    "ec_case": "M.12133",
+    "other": "ca-2024-07-15-290",
+    "other_date": "2024-07-15",
+    "ec_notified": "2025-08-11",
+    "correct": false
+   },
+   {
+    "ec_case": "M.11728",
+    "other": "ca-2024-09-06-328",
+    "other_date": "2024-09-06",
+    "ec_notified": "2024-09-20",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11746",
+    "other": "ca-2024-10-07-345",
+    "other_date": "2024-10-07",
+    "ec_notified": "2025-03-04",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11732",
+    "other": "ca-2024-10-09-346",
+    "other_date": "2024-10-09",
+    "ec_notified": "2024-10-21",
+    "correct": true
+   },
+   {
+    "ec_case": "M.11773",
+    "other": "ca-2024-10-11-348",
+    "other_date": "2024-10-11",
+    "ec_notified": "2024-11-11",
+    "correct": true
+   },
+   {
+    "ec_case": "M.10646",
+    "other": "ca-2022-03-23-358",
+    "other_date": "2022-03-23",
+    "ec_notified": "2022-09-30",
+    "correct": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,1380 @@
+{
+ "run_date": "2026-11-18",
+ "idb": {
+  "package_status": 200,
+  "datastore_status": 200,
+  "resource_id": "cd0bd9ac-18c6-44bc-8592-9be468c2efd9",
+  "doi": "https://doi.org/10.60966/7pfpgt0f",
+  "license_id": "cc-by",
+  "license_title": "Creative Commons Attribution 4.0 International",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/deed",
+  "metadata_modified": "2026-11-18T14:03:02.747144",
+  "resource_last_modified": "2026-11-18T14:03:02.319470",
+  "fields": [
+   "_id",
+   "Title",
+   "Entity",
+   "Nationality",
+   "Country",
+   "From",
+   "To",
+   "Prohibited Practice",
+   "Source",
+   "Tipo de sancion del BID",
+   "IDB Sanction Source",
+   "Other Name"
+  ],
+  "rows": 1350,
+  "firms": 1073,
+  "individuals_counted_not_written": 277,
+  "other_entity_values": 0,
+  "distinct_normalised_firm_names": 1052,
+  "firms_by_source": {
+   "WBG cross debarment": 485,
+   "ADB cross debarment": 316,
+   "EBRD cross debarment": 120,
+   "IDB": 118,
+   "AfDB cross debarment": 34
+  },
+  "firms_by_idb_sanction_type": {
+   "(blank: cross-debarment rows)": 675,
+   "Debarment w/ conditional release": 220,
+   "Debarment": 178
+  },
+  "firms_by_idb_sanction_source": {
+   "(blank)": 955,
+   "Sanctions Committee": 49,
+   "Sanctions Officer": 35,
+   "NRA (Negotiated Resolution Agreement)": 34
+  },
+  "firms_by_prohibited_practice_top": {
+   "Fraud": 685,
+   "Collusion": 106,
+   "Corruption": 66,
+   "Corruption, Fraud": 50,
+   "Fraud, Collusion": 47,
+   "Corruption, Collusion": 32,
+   "Fraud, Collusion, Obstruction": 17,
+   "Fraud, Corruption": 14
+  },
+  "firms_by_country_top": {
+   "China": 317,
+   "Ukraine": 92,
+   "Mongolia": 47,
+   "Brazil": 43,
+   "Nigeria": 38,
+   "India": 37,
+   "Uzbekistan": 27,
+   "Vietnam": 27,
+   "Serbia": 21,
+   "Indonesia": 20,
+   "Panama": 19,
+   "Bangladesh": 18
+  },
+  "firms_to_ongoing": 449,
+  "newest_from": "2026-10-30",
+  "oldest_from": "2007-03-23",
+  "newest_firm_rows": [
+   {
+    "firm": "China Railway 20th Bureau Group Corporation Ltd.",
+    "country": "Cameroon",
+    "from": "2026-10-30",
+    "to": "2027-10-23",
+    "practice": "Fraud",
+    "source": "AfDB cross debarment"
+   },
+   {
+    "firm": "Bruke Lonia Nigeria Limited",
+    "country": "Nigeria",
+    "from": "2026-10-30",
+    "to": "2030-02-19",
+    "practice": "Fraud",
+    "source": "WBG cross debarment"
+   },
+   {
+    "firm": "Idmon Engineering and Construction Company Limited",
+    "country": "Nigeria",
+    "from": "2026-10-30",
+    "to": "2030-10-19",
+    "practice": "Fraud",
+    "source": "WBG cross debarment"
+   },
+   {
+    "firm": "Inclined Tech. & Construction Company Limited",
+    "country": "Nigeria",
+    "from": "2026-10-30",
+    "to": "2029-04-19",
+    "practice": "Fraud",
+    "source": "WBG cross debarment"
+   },
+   {
+    "firm": "Aqgola Engineering & Management Services Limited",
+    "country": "United Republic of Tanzania",
+    "from": "2026-10-30",
+    "to": "2031-02-19",
+    "practice": "Corruption, Fraud",
+    "source": "WBG cross debarment"
+   },
+   {
+    "firm": "Concay S.A.",
+    "country": "Honduras",
+    "from": "2026-10-09",
+    "to": "2029-10-08",
+    "practice": "Corruption",
+    "source": "IDB"
+   },
+   {
+    "firm": "Construcciones Carrillo Caycedo S.A. (Sucursal Guatemala)",
+    "country": "Honduras",
+    "from": "2026-10-09",
+    "to": "2029-10-08",
+    "practice": "Corruption",
+    "source": "IDB"
+   },
+   {
+    "firm": "CONCAY S.A. (Sucursal Honduras)",
+    "country": "Honduras",
+    "from": "2026-10-09",
+    "to": "2029-10-08",
+    "practice": "Corruption",
+    "source": "IDB"
+   }
+  ],
+  "firm_rows_without_a_legal_form_word_never_written": 115,
+  "firm_titles_citing_a_registration_number": 4,
+  "firm_rows_citing_decision_or_case_number": 0
+ },
+ "ceis": {
+  "listing_status": 200,
+  "file_url": "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/ceis/20261117_CEIS.zip",
+  "file_date": "20261117",
+  "zip_bytes": 3489118,
+  "columns": [
+   "CADASTRO",
+   "CÓDIGO DA SANÇÃO",
+   "TIPO DE PESSOA",
+   "CPF OU CNPJ DO SANCIONADO",
+   "NOME DO SANCIONADO",
+   "NOME INFORMADO PELO ÓRGÃO SANCIONADOR",
+   "RAZÃO SOCIAL - CADASTRO RECEITA",
+   "NOME FANTASIA - CADASTRO RECEITA",
+   "NÚMERO DO PROCESSO",
+   "CATEGORIA DA SANÇÃO",
+   "DATA INÍCIO SANÇÃO",
+   "DATA FINAL SANÇÃO",
+   "DATA PUBLICAÇÃO",
+   "PUBLICAÇÃO",
+   "DETALHAMENTO DO MEIO DE PUBLICAÇÃO",
+   "DATA DO TRÂNSITO EM JULGADO",
+   "ABRAGÊNCIA DA SANÇÃO",
+   "ÓRGÃO SANCIONADOR",
+   "UF ÓRGÃO SANCIONADOR",
+   "ESFERA ÓRGÃO SANCIONADOR",
+   "FUNDAMENTAÇÃO LEGAL",
+   "DATA ORIGEM INFORMAÇÃO",
+   "ORIGEM INFORMAÇÕES",
+   "OBSERVAÇÕES"
+  ],
+  "rows": 23669,
+  "legal_person_rows": 14588,
+  "natural_person_rows_counted_not_written": 9070,
+  "blank_person_type_rows_dropped": 11,
+  "distinct_cnpj": 9671,
+  "legal_person_rows_by_category": {
+   "Impedimento/proibição de contratar com prazo determinado": 9293,
+   "Suspensão": 2564,
+   "Declaração de Inidoneidade sem prazo determinado": 1303,
+   "Declaração de Inidoneidade com prazo determinado": 1264,
+   "Impedimento/proibição de contratar sem prazo determinado": 115,
+   "Suspensão/Interdição das atividades sem prazo determinado": 30,
+   "Suspensão/Interdição das atividades com prazo determinado": 10,
+   "Multa": 5,
+   "Advertência": 4
+  },
+  "legal_person_rows_by_sphere": {
+   "FEDERAL": 5224,
+   "MUNICIPAL": 5115,
+   "ESTADUAL": 4105,
+   "(blank)": 144
+  },
+  "distinct_sanctioning_bodies": 2388,
+  "legal_person_rows_with_process_number": 14588,
+  "legal_person_rows_with_free_text_observation": 9364,
+  "newest_sanction_start": "2026-11-17",
+  "newest_publication": "2026-11-17",
+  "sample_newest_legal_persons": [
+   {
+    "cnpj": "66418765000154",
+    "firm": "CONSTRUTORA CENTRO LESTE ENGENHARIA LTDA",
+    "category": "Suspensão",
+    "from": "2026-11-17",
+    "to": "2027-02-17",
+    "body": "SUPERINTENDÊNCIA REGIONAL DO DNIT - PB",
+    "legal_basis": "LEI 8666 - ART. 87, III - PELA INEXECUÇÃO TOTAL OU PARCIAL DO CONTRATO A ADMINISTRAÇÃO POD"
+   },
+   {
+    "cnpj": "00435781000147",
+    "firm": "MAP SERVICOS DE SEGURANCA LTDA",
+    "category": "Suspensão",
+    "from": "2026-11-17",
+    "to": "2028-05-17",
+    "body": "INSTITUTO NACIONAL DO SEGURO SOCIAL",
+    "legal_basis": "LEI 8666 - ART. 87, III - PELA INEXECUÇÃO TOTAL OU PARCIAL DO CONTRATO A ADMINISTRAÇÃO POD"
+   },
+   {
+    "cnpj": "15441682000145",
+    "firm": "GARDEN PRODUTOS E SERVICOS LTDA",
+    "category": "Impedimento/proibição de contratar com prazo determinado",
+    "from": "2026-11-17",
+    "to": "2026-12-17",
+    "body": "EDF-SECRETARIA DE ESTADO DE SEGURANCA PUBLICA",
+    "legal_basis": "LEI 10520 - ART. 7º - QUEM, CONVOCADO DENTRO DO PRAZO DE VALIDADE DA SUA PROPOSTA, NÃO CEL"
+   },
+   {
+    "cnpj": "46722382000168",
+    "firm": "ECOMAQ SERVICOS LTDA",
+    "category": "Impedimento/proibição de contratar com prazo determinado",
+    "from": "2026-11-17",
+    "to": "2027-01-17",
+    "body": "PREFEITURA MUNICIPAL DE SÃO BENEDITO - CE",
+    "legal_basis": "LEI 14133 - ART. 156, III - IMPEDIMENTO DE LICITAR E CONTRATAR"
+   },
+   {
+    "cnpj": "54974490000156",
+    "firm": "FSG COMERCIO E CONSULTORIA LICITATORIA LTDA",
+    "category": "Impedimento/proibição de contratar com prazo determinado",
+    "from": "2026-11-17",
+    "to": "2027-11-17",
+    "body": "COMANDO DA AERONAUTICA",
+    "legal_basis": "LEI 14133 - ART. 156, III - IMPEDIMENTO DE LICITAR E CONTRATAR"
+   },
+   {
+    "cnpj": "48872449000176",
+    "firm": "DMG COMUNICACAO VISUAL LTDA",
+    "category": "Impedimento/proibição de contratar com prazo determinado",
+    "from": "2026-11-17",
+    "to": "2026-12-08",
+    "body": "FUNDO NACIONAL DE DESENVOLVIMENTO DA EDUCACAO",
+    "legal_basis": "LEI 14133 - ART. 156, III - IMPEDIMENTO DE LICITAR E CONTRATAR"
+   },
+   {
+    "cnpj": "18269815000136",
+    "firm": "ECOPOWER EFICIENCIA ENERGETICA LTDA",
+    "category": "Suspensão",
+    "from": "2026-11-17",
+    "to": "2027-11-17",
+    "body": "EMPRESA BRASILEIRA DE PESQUISA AGROPECUARIA",
+    "legal_basis": "LEI 13303 - ART. 83, II E III - ART. 83. PELA INEXECUÇÃO TOTAL OU PARCIAL DO CONTRATO A EM"
+   },
+   {
+    "cnpj": "34652187000120",
+    "firm": "RKV ALIMENTOS LTDA",
+    "category": "Declaração de Inidoneidade com prazo determinado",
+    "from": "2026-11-17",
+    "to": "2029-11-17",
+    "body": "Prefeitura de Joinville (SC)",
+    "legal_basis": "LEI 14133 - ART. 156, IV - DECLARAÇÃO DE INIDONEIDADE PARA LICITAR OU CONTRATAR"
+   }
+  ],
+  "legal_person_rows_without_a_legal_form_word_never_written": 2186,
+  "terms_page": {
+   "url": "https://portaldatransparencia.gov.br/termos-de-uso",
+   "status": 405,
+   "human_verification_challenge": true
+  }
+ },
+ "cnep": {
+  "listing_status": 200,
+  "file_url": "https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/cnep/20261117_CNEP.zip",
+  "file_date": "20261117",
+  "zip_bytes": 207581,
+  "rows": 1848,
+  "legal_person_rows": 1808,
+  "natural_person_or_blank_rows_counted_not_written": 40,
+  "legal_person_rows_by_category": {
+   "Multa": 1010,
+   "Publicação extraordinária da decisão condenatória": 739,
+   "Proibição de receber incentivos, subsídios, subvenções, doações ou empréstimos": 21,
+   "Declaração de Inidoneidade com prazo determinado": 13,
+   "Suspensão/Interdição das atividades com prazo determinado": 8,
+   "Dissolução compulsória da PJ": 8
+  }
+ },
+ "edes": {
+  "status": 200,
+  "public_cases": 5,
+  "returned": 5,
+  "fields": [
+   "comments",
+   "ecOpAddress",
+   "ecOpCountryCode",
+   "ecOpCountryName",
+   "ecOpName",
+   "fpAmount",
+   "fpCurrencyCode",
+   "from",
+   "grounds",
+   "publicDisplay",
+   "publicFrom",
+   "publicPenalty",
+   "to",
+   "type",
+   "typeLabel"
+  ],
+  "note": "no firm/individual flag in the payload: operator names are not written",
+  "cases": [
+   {
+    "country": "JO",
+    "type": "EXCLUSION",
+    "grounds": "Exclusion Art. 136(1)(d) FR - fraud and criminal activities",
+    "from": "2023-12-03",
+    "to": "2027-12-02",
+    "comments": "Based on a classification of law pursuant to Article 136(1)d)(i) of the Financial Regulation.",
+    "financial_penalty": 0
+   },
+   {
+    "country": "IT",
+    "type": "EXCLUSION",
+    "grounds": "Exclusion Art. 138(1)(c) FR - grave professional misconduct",
+    "from": "2026-06-21",
+    "to": "2027-06-21",
+    "comments": "Exclusion for grave professional misconduct under Article 106(1)(c)(ii) of the 2012 Financial Regulation as amended, corresponding to Article 138(1)(c)(ii) of the 2024 Financial Regulation.",
+    "financial_penalty": 0
+   },
+   {
+    "country": "MK",
+    "type": "EXCLUSION",
+    "grounds": "Exclusion Art. 138(1)(c) FR - grave professional misconduct",
+    "from": "2026-04-21",
+    "to": "2029-01-21",
+    "comments": null,
+    "financial_penalty": 0
+   },
+   {
+    "country": "KE",
+    "type": "EXCLUSION",
+    "grounds": "Exclusion Art. 138(1)(c) FR - grave professional misconduct",
+    "from": "2025-10-06",
+    "to": "2028-10-05",
+    "comments": "Grave professional misconduct in accordance with Article 106(1)(c) of Regulation 966/2012, as amended. There is no final judgment or final administrative decision.",
+    "financial_penalty": 0
+   },
+   {
+    "country": "IT",
+    "type": "EXCLUSION",
+    "grounds": "Exclusion Art. 138 (1)(d)(i) FR - fraud",
+    "from": "2025-12-19",
+    "to": "2030-05-18",
+    "comments": "Based on fraud in accordance with Article 136(1)(d)(i) of the 2018 Financial Regulation, corresponding to Article 138(1)(d)(i) of the 2024 Financial Regulation.",
+    "financial_penalty": 0
+   }
+  ],
+  "newest_from": "2026-06-21",
+  "names_matching_an_idb_firm": 0
+ },
+ "uk_debarment_list": {
+  "guidance_status": 200,
+  "pdf_url": "https://assets.publishing.service.gov.uk/media/69cbc2028017673ffec0f329/2025-11-17_OFFICIAL-_Debarment_List_V1.0.pdf",
+  "pdf_status": 200,
+  "pdf_bytes": 102671,
+  "text_chars": 1234,
+  "header": "Status: APPROVED (CURRENT); Effective: 2025 - 11 - 17; Next review: 2026 - 11 - 17; Classification: OFFICIAL; ",
+  "states_list_will_remain_blank": true,
+  "text_after_column_headers": "",
+  "entries": 0
+ },
+ "canada_pspc": {
+  "status": 200,
+  "suppliers": 14,
+  "by_status": {
+   "Ineligible": 12,
+   "Suspended": 2
+  },
+  "page_date_modified": "2026-11-16",
+  "names_matching_an_idb_firm": 0
+ },
+ "adb": {
+  "meta_totalItems": 1722,
+  "rows_returned": 1517,
+  "pages_offset_rows": [
+   [
+    0,
+    96
+   ],
+   [
+    100,
+    100
+   ],
+   [
+    200,
+    81
+   ],
+   [
+    300,
+    80
+   ],
+   [
+    400,
+    100
+   ],
+   [
+    500,
+    85
+   ],
+   [
+    600,
+    89
+   ],
+   [
+    700,
+    94
+   ],
+   [
+    800,
+    95
+   ],
+   [
+    900,
+    73
+   ],
+   [
+    1000,
+    100
+   ],
+   [
+    1100,
+    67
+   ],
+   [
+    1200,
+    78
+   ],
+   [
+    1300,
+    99
+   ],
+   [
+    1400,
+    70
+   ],
+   [
+    1500,
+    88
+   ],
+   [
+    1600,
+    100
+   ],
+   [
+    1700,
+    22
+   ]
+  ],
+  "firms": 1212,
+  "individuals_counted_not_written": 305,
+  "distinct_normalised_firm_names": 1177,
+  "firms_by_sanction_type": {
+   "Debarred": 967,
+   "Accepted Proposed Sanction": 245
+  },
+  "firms_by_origin": {
+   "WBG": 539,
+   "ADB": 424,
+   "EBRD": 119,
+   "IDB": 102,
+   "AfDB": 28
+  },
+  "newest_effective": "2026-11-09",
+  "newest_change": "2026-11-09",
+  "firm_rows_citing_decision_or_case_number": 0,
+  "fields": [
+   "address",
+   "changesMadeOn",
+   "effectiveDateOfSanction",
+   "entityType",
+   "grounds",
+   "lapseDateOfSanction",
+   "name",
+   "nationality",
+   "otherName",
+   "sanctionType"
+  ]
+ },
+ "aiib": {
+  "status": 200,
+  "rows_firms_and_individuals_no_flag": 1465,
+  "by_debarred_by": {
+   "WBG": 732,
+   "ADB": 408,
+   "IDB": 155,
+   "EBRD": 128,
+   "AfDB": 37,
+   "AIIB": 5
+  },
+  "newest_date_added": "2026-10-08",
+  "fields": [
+   "ADDRESS",
+   "DATE ADDED BY AIIB",
+   "DEBARRED BY",
+   "ECONOMY",
+   "FROM",
+   "NAME",
+   "OTHER NOTES",
+   "PROHIBITED PRACTICE",
+   "TO"
+  ],
+  "rows_citing_decision_or_case_number": 0
+ },
+ "eib": {
+  "status": 200,
+  "table_rows": 10,
+  "press_release_links": 2
+ },
+ "ebrd": {
+  "status": 200,
+  "last_updated": "23/10/2026",
+  "note": "entity cards are rendered by script; not parsed (terms forbid commercial use)"
+ },
+ "worldbank": {
+  "page_status": 200,
+  "page_embeds_subscription_key": true,
+  "api_url": "https://apigwext.worldbank.org/dvsvc/v1.0/json/APPLICATION/ADOBE_EXPRNCE_MGR/FIRM/SANCTIONED_FIRM",
+  "api_status_without_key": 401,
+  "api_message_without_key": "{ \"statusCode\": 401, \"message\": \"Access denied due to missing subscription key. Make sure to include subscription key when making requests to an API.\" }",
+  "data_catalog_search_status": 429,
+  "data_catalog_message": "{ \"statusCode\": 429, \"message\": \"Rate limit is exceeded. Try again in 37 seconds.\" }",
+  "note": "the key embedded in the page script was not used; list not acquired",
+  "sanctions_board_decisions_page_status": 200,
+  "sanctions_board_decisions_listed_in_html": 0
+ },
+ "gated": {
+  "afdb": {
+   "url": "https://www.afdb.org/en/projects-operations/debarment-and-sanctions-procedures",
+   "status": 403,
+   "cloudflare_challenge": true,
+   "body_head": " Just a moment... Enable JavaScript and cookies to continue "
+  },
+  "iadb_web": {
+   "url": "https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals",
+   "status": 200,
+   "cloudflare_challenge": false,
+   "body_head": " IDB | Sanctioned Firms and Individuals Skip to main content English Español Português Fra"
+  },
+  "adb_lotus_legacy": {
+   "url": "https://lnadbg4.adb.org/oga0009p.nsf/sancALLPublic?OpenView&count=999",
+   "status": 0,
+   "cloudflare_challenge": false,
+   "body_head": " "
+  }
+ },
+ "terms": {
+  "idb_cc_by_4": {
+   "url": "https://creativecommons.org/licenses/by/4.0/deed.en",
+   "status": 200,
+   "quote": "Share — copy and redistribute the material in any medium or format for any purpose, even commercially.",
+   "quote_found": true
+  },
+  "idb_dataset_page": {
+   "url": "https://data.iadb.org/dataset/dataset-of-sanctioned-firms-and-individuals",
+   "status": 200,
+   "quote": "License Creative Commons Attribution 4.0 International",
+   "quote_found": true
+  },
+  "european_commission": {
+   "url": "https://commission.europa.eu/legal-notice_en",
+   "status": 200,
+   "quote": "This means that reuse is allowed, provided appropriate credit is given and changes are indicated.",
+   "quote_found": true
+  },
+  "uk_ogl_v3": {
+   "url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+   "status": 200,
+   "quote": "exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.",
+   "quote_found": true
+  },
+  "canada_pspc": {
+   "url": "https://www.canada.ca/en/public-services-procurement/terms.html",
+   "status": 200,
+   "quote": "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator.",
+   "quote_found": true
+  },
+  "adb": {
+   "url": "https://www.adb.org/terms-use",
+   "status": 200,
+   "quote": "Users are restricted from reselling, redistributing or creating derivative works for commercial purposes without the express, written consent of ADB.",
+   "quote_found": true
+  },
+  "aiib": {
+   "url": "https://www.aiib.org/en/general/copyright/index.html",
+   "status": 200,
+   "quote": "Users are restricted from making any derivative work or commercial use thereof, including without limitation reselling, redistributing or creating derivative work for commercial purposes without the prior written consent of the AIIB.",
+   "quote_found": true
+  },
+  "eib": {
+   "url": "https://www.eib.org/en/terms-of-use.htm",
+   "status": 200,
+   "quote": "You may not modify, publish, transmit, display, participate in the transfer or sale, create derivative works, or in any way commercially exploit the content of this website without the express prior written permission of EIB",
+   "quote_found": true
+  },
+  "ebrd": {
+   "url": "https://www.ebrd.com/home/terms-and-conditions.html",
+   "status": 200,
+   "quote": "for your personal, non-commercial use, without any right to resell, redistribute or create derivative works therefrom",
+   "quote_found": true
+  },
+  "worldbank": {
+   "url": "https://www.worldbank.org/ext/en/legal/terms-conditions",
+   "status": 200,
+   "quote": "you may not make any derivative work or commercial use, including without limitation reselling them, charging to access them, charging to redistribute them, or charging for derivative works based on them, without the prior written consent of the relevant member institution(s).",
+   "quote_found": true
+  }
+ },
+ "joins": {
+  "idb_ceis_name": {
+   "mode": "candidate",
+   "idb_firms_located_in_brazil": 45,
+   "matched": 4,
+   "pairs_written": 4,
+   "idb_firms_any_country_with_name_in_ceis": 4,
+   "idb_titles_citing_a_cnpj": 1,
+   "of_which_cnpj_in_ceis": 0,
+   "pairs": [
+    {
+     "normalised": "kairos construtora",
+     "idb": {
+      "id": 61672,
+      "firm": "Kairos Construtora Ltda.",
+      "country": "Brazil",
+      "nationality": "Brazil",
+      "from": "2020-10-29",
+      "to": "Ongoing",
+      "practice": "Fraud",
+      "source": "WBG cross debarment"
+     },
+     "ceis": [
+      {
+       "sanction_code": "375066",
+       "cnpj": "47783616000140",
+       "firm": "KAIROS CONSTRUTORA LTDA",
+       "registry_legal_name": "KAIROS CONSTRUTORA LTDA",
+       "category": "Impedimento/proibição de contratar com prazo determinado",
+       "from": "2026-01-15",
+       "to": "2027-01-15",
+       "body": "MINISTERIO PUBLICO DO ESTADO DO MATO G.DO SUL",
+       "body_state": "MS",
+       "legal_basis": "LEI 14133 - ART. 156, III - IMPEDIMENTO DE LICITAR E CONTRATAR",
+       "observation": "Impedimento de Licitar e Contratar - Lei 14.133/2021, art. 156, inc. III"
+      }
+     ],
+     "ceis_rows": 1
+    },
+    {
+     "normalised": "construtora coesa",
+     "idb": {
+      "id": 61779,
+      "firm": "Construtora COESA S.A.",
+      "country": "Brazil",
+      "nationality": "Brazil",
+      "from": "2022-03-18",
+      "to": "2026-12-15",
+      "practice": "Corruption, Collusion",
+      "source": "IDB"
+     },
+     "ceis": [
+      {
+       "sanction_code": "367110",
+       "cnpj": "14310577000104",
+       "firm": "Construtora OAS S/A - em recuperação judicial",
+       "registry_legal_name": "CONSTRUTORA COESA S.A. - EM RECUPERACAO JUDICIAL",
+       "category": "Declaração de Inidoneidade com prazo determinado",
+       "from": "2025-09-20",
+       "to": "2099-09-19",
+       "body": "Controladoria-Geral do Estado de Minas Gerais - CGE (MG)",
+       "body_state": "MG",
+       "legal_basis": "LEI 45902 (MG) - ART. 45, I - ART. 45. SERÁ INSCRITO NO CAFIMP, APÓS PROCESSO ADMINISTRATIVO CONCLUS",
+       "observation": "Tendo em vista a decisão exarada pelo Governador do Estado, nos autos do processo administrativo n.º 1520.01.0007756/2024-21, mantendo a declaração de descumprimento e rescisão do Acordo de Leniência firmado pela Controladoria-Geral do Estado de Minas Gerais, "
+      },
+      {
+       "sanction_code": "342852",
+       "cnpj": "14310577000104",
+       "firm": "Construtora OAS S/A - em recuperação judicial",
+       "registry_legal_name": "CONSTRUTORA COESA S.A. - EM RECUPERACAO JUDICIAL",
+       "category": "Declaração de Inidoneidade com prazo determinado",
+       "from": "2024-12-17",
+       "to": "2027-12-17",
+       "body": "Prefeitura/Corregedoria Geral do Município de Marília-SP",
+       "body_state": "SP",
+       "legal_basis": "LEI 8666 - ART. 87, IV - PELA INEXECUÇÃO TOTAL OU PARCIAL DO CONTRATO A ADMINISTRAÇÃO PODERÁ, GARANT",
+       "observation": "Foi aplicada a penalidade de Declaração de Inidoneidade nos termo do art. 87, Inciso IV da Lei 8.666/93, c.c. 14.133/21"
+      }
+     ],
+     "ceis_rows": 2
+    },
+    {
+     "normalised": "futura distribuidora e comercio em geral",
+     "idb": {
+      "id": 61901,
+      "firm": "Futura Distribuidora e Comércio em Geral Eireli (“FUTURA”),",
+      "country": "Brazil",
+      "nationality": "Brazil",
+      "from": "2023-10-31",
+      "to": "2028-10-30",
+      "practice": "Corruption, Fraud",
+      "source": "IDB"
+     },
+     "ceis": [
+      {
+       "sanction_code": "354390",
+       "cnpj": "11615369000125",
+       "firm": "FUTURA DISTRIBUIDORA E COMÉRCIO EM GERAL",
+       "registry_legal_name": "FUTURA DISTRIBUIDORA E COMERCIO EM GERAL LTDA",
+       "category": "Impedimento/proibição de contratar com prazo determinado",
+       "from": "2025-03-10",
+       "to": "2027-03-10",
+       "body": "TRIBUNAL DE JUSTICA DO ESTADO DA BAHIA",
+       "body_state": "BA",
+       "legal_basis": "LEI 10520 - ART. 7º - QUEM, CONVOCADO DENTRO DO PRAZO DE VALIDADE DA SUA PROPOSTA, NÃO CELEBRAR O CO",
+       "observation": "Impedimento de Licitar e Contratar - Lei nº 10.520/02, art. 7º"
+      },
+      {
+       "sanction_code": "348840",
+       "cnpj": "11615369000125",
+       "firm": "FUTURA DISTRIBUIDORA E COMÉRCIO EM GERAL",
+       "registry_legal_name": "FUTURA DISTRIBUIDORA E COMERCIO EM GERAL LTDA",
+       "category": "Impedimento/proibição de contratar com prazo determinado",
+       "from": "2025-03-10",
+       "to": "2027-03-10",
+       "body": "TRIBUNAL DE JUSTICA DA BAHIA (TJ-BA)",
+       "body_state": "BA",
+       "legal_basis": "LEI 10520 - ART. 7º - QUEM, CONVOCADO DENTRO DO PRAZO DE VALIDADE DA SUA PROPOSTA, NÃO CELEBRAR O CO",
+       "observation": "Com fulcro no artigo 7º da Lei nº 10.520/02; artigo 4°, inciso IV, alínea b; artigo 11 do Decreto Judiciário Estadual nº 12/2003; artigo 13, § 1º do Decreto Federal nº 8.538/15, Lei Complementar nº 123/06"
+      }
+     ],
+     "ceis_rows": 2
+    },
+    {
+     "normalised": "f i comercio em geral",
+     "idb": {
+      "id": 61902,
+      "firm": "F.I. Comércio em Geral Eireli (“F.I. COMÉRCIO”)",
+      "country": "Brazil",
+      "nationality": "Brazil",
+      "from": "2023-10-31",
+      "to": "2029-10-30",
+      "practice": "Corruption, Fraud",
+      "source": "IDB"
+     },
+     "ceis": [
+      {
+       "sanction_code": "294888",
+       "cnpj": "07999951000165",
+       "firm": "F.I. COMERCIO EM GERAL LTDA",
+       "registry_legal_name": "F.I. COMERCIO EM GERAL LTDA",
+       "category": "Impedimento/proibição de contratar com prazo determinado",
+       "from": "2024-01-18",
+       "to": "2028-01-17",
+       "body": "MINISTERIO PUBLICO DA UNIAO",
+       "body_state": "PE",
+       "legal_basis": "LEI 10520 - ART. 7º - QUEM, CONVOCADO DENTRO DO PRAZO DE VALIDADE DA SUA PROPOSTA, NÃO CELEBRAR O CO",
+       "observation": "Impedimento de Licitar e Contratar - Lei nº 10.520/02, art. 7º"
+      },
+      {
+       "sanction_code": "377385",
+       "cnpj": "07999951000165",
+       "firm": "F.I. COMERCIO EM GERAL LTDA",
+       "registry_legal_name": "F.I. COMERCIO EM GERAL LTDA",
+       "category": "Suspensão",
+       "from": "2026-02-06",
+       "to": "2027-07-31",
+       "body": "Governo do Estado da Bahia (BA)",
+       "body_state": "BA",
+       "legal_basis": "LEI 9433 (BA) - ART. 186, II - AO CANDIDATO A CADASTRAMENTO, AO LICITANTE E AO CONTRATADO, QUE INCOR",
+       "observation": ""
+      }
+     ],
+     "ceis_rows": 2
+    }
+   ]
+  },
+  "idb_adb_name": {
+   "mode": "candidate",
+   "note": "ADB is parked (terms); measured to show the cross-debarment overlap",
+   "idb_distinct_firm_names": 1052,
+   "adb_distinct_firm_names": 1177,
+   "matched_distinct_names": 920,
+   "matched_names_also_agreeing_on_country": 759,
+   "matched_names_where_adb_gives_no_country": 113,
+   "idb_firm_rows_by_source": {
+    "IDB": 118,
+    "ADB cross debarment": 316,
+    "WBG cross debarment": 485,
+    "AfDB cross debarment": 34,
+    "EBRD cross debarment": 120
+   },
+   "idb_firm_rows_matched_by_source": {
+    "ADB cross debarment": 293,
+    "WBG cross debarment": 411,
+    "IDB": 88,
+    "AfDB cross debarment": 31,
+    "EBRD cross debarment": 115
+   },
+   "matched_idb_rows": 938,
+   "matched_idb_rows_with_same_declared_origin": 938,
+   "origin_idb_to_adb_top": {
+    "WBG -> WBG": 410,
+    "ADB -> ADB": 293,
+    "EBRD -> EBRD": 115,
+    "IDB -> IDB": 88,
+    "AfDB -> AfDB": 31,
+    "WBG -> ADB/WBG": 1
+   },
+   "sample_seed": 20261118,
+   "sample_population_names_with_a_legal_form_word": 837,
+   "sample_pairs": [
+    {
+     "normalised": "sao bac dau technologies solutions joint stock",
+     "idb": [
+      {
+       "firm": "Sao Bac Dau Technologies Solutions Joint Stock Company",
+       "country": "Vietnam",
+       "nationality": "Vietnam",
+       "from": "2020-07-08",
+       "to": "2027-06-22",
+       "practice": "Fraud, Collusion",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "SAO BAC DAU TECHNOLOGIES SOLUTIONS JOINT STOCK COMPANY (SBD SOLUTION) (Reg. No.: 0314919235)",
+       "nationality": "Socialist Republic of Viet Nam",
+       "from": "2020-08-07",
+       "to": "2027-06-22",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      },
+      {
+       "firm": "SAO BAC DAU TECHNOLOGIES SOLUTIONS JOINT STOCK COMPANY (SBD SOLUTION)(Reg. No.: 0314919235)",
+       "nationality": "Socialist Republic of Viet Nam",
+       "from": "2020-08-07",
+       "to": "2027-06-22",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "genkey solutions b v",
+     "idb": [
+      {
+       "firm": "GenKey Solutions B.V. (“GenKey”)",
+       "country": "Liberia",
+       "nationality": "Netherlands",
+       "from": "2025-07-07",
+       "to": "2027-01-06",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "GenKey Solutions B.V.",
+       "nationality": "Netherlands",
+       "from": "2025-07-16",
+       "to": "2027-01-06",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "hebei construction group nangong branch",
+     "idb": [
+      {
+       "firm": "Hebei Construction Group Corporation Limited  Nangong Branch",
+       "country": "China",
+       "nationality": "China",
+       "from": "2024-09-13",
+       "to": "2027-07-22",
+       "practice": "Fraud",
+       "source": "ADB cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Hebei Construction Group Corporation Limited Nangong Branch",
+       "nationality": "People's Republic of China",
+       "from": "2024-07-22",
+       "to": "2027-07-22",
+       "grounds": "Affiliate of a debarred entity",
+       "sanction": "Accepted Proposed Sanction"
+      }
+     ]
+    },
+    {
+     "normalised": "branch of canada construction cooperation",
+     "idb": [
+      {
+       "firm": "Branch of Canada Construction Cooperation Limited",
+       "country": "Cambodia",
+       "nationality": "Cambodia",
+       "from": "2022-06-06",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "ADB cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Branch of Canada Construction Cooperation Limited",
+       "nationality": "Cambodia",
+       "from": "2022-02-09",
+       "to": "Indefinitely",
+       "grounds": "Violated ADB's Integrity Principles and Guidelines 2A (ii) and (vii).",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "asia pacific consultant joint stock",
+     "idb": [
+      {
+       "firm": "Asia Pacific Consultant Joint Stock Company",
+       "country": "Vietnam",
+       "nationality": "Vietnam",
+       "from": "2018-12-19",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "ASIA PACIFIC CONSULTANT JOINT STOCK COMPANY",
+       "nationality": "Socialist Republic of Viet Nam",
+       "from": "2018-12-20",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "vn1 industrial group",
+     "idb": [
+      {
+       "firm": "VN1 Industrial Group JSC",
+       "country": "Vietnam",
+       "nationality": "Vietnam",
+       "from": "2021-01-21",
+       "to": "Ongoing",
+       "practice": "Corruption",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "VN1 INDUSTRIAL GROUP JSC",
+       "nationality": "Socialist Republic of Viet Nam",
+       "from": "2021-02-11",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "al thuhat general contracting and trade",
+     "idb": [
+      {
+       "firm": "Al Thuhat Company, General Contracting and Trade (Al Thuhat)",
+       "country": "Iraq",
+       "nationality": "Iraq",
+       "from": "2013-01-29",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "AL THUHAT COMPANY, GENERAL CONTRACTING AND TRADE (AL THUHAT)",
+       "nationality": "Non ADB Member Country *2",
+       "from": "2013-02-05",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "grupo cesa holdings",
+     "idb": [
+      {
+       "firm": "Grupo Cesa Corporation Holdings S.A.",
+       "country": "Guatemala",
+       "nationality": "Costa Rica",
+       "from": "2020-07-28",
+       "to": "2030-07-27",
+       "practice": "Corruption, Collusion",
+       "source": "IDB"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Grupo Cesa Corporation Holdings S.A.",
+       "nationality": "Costa Rica-Non ADB Member Country *2",
+       "from": "2020-09-14",
+       "to": "2030-07-27",
+       "grounds": "Cross-Debarment: IDB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "hebei construction group tianchen construction engineering",
+     "idb": [
+      {
+       "firm": "Hebei Construction Group Tianchen Construction Engineering Co., Ltd.",
+       "country": "China",
+       "nationality": "China",
+       "from": "2024-09-13",
+       "to": "2027-07-22",
+       "practice": "Fraud",
+       "source": "ADB cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Hebei Construction Group Tianchen Construction Engineering Co., Ltd.",
+       "nationality": "People's Republic of China",
+       "from": "2024-07-22",
+       "to": "2027-07-22",
+       "grounds": "Affiliate of a debarred entity",
+       "sanction": "Accepted Proposed Sanction"
+      }
+     ]
+    },
+    {
+     "normalised": "hebei construction group infrastructure construction",
+     "idb": [
+      {
+       "firm": "Hebei Construction Group Infrastructure Construction Co., Ltd.",
+       "country": "China",
+       "nationality": "China",
+       "from": "2024-09-13",
+       "to": "2027-07-22",
+       "practice": "Fraud",
+       "source": "ADB cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Hebei Construction Group Infrastructure Construction Co., Ltd.",
+       "nationality": "People's Republic of China",
+       "from": "2024-07-22",
+       "to": "2027-07-22",
+       "grounds": "Affiliate of a debarred entity",
+       "sanction": "Accepted Proposed Sanction"
+      }
+     ]
+    },
+    {
+     "normalised": "jv kogonremstroykomplekt",
+     "idb": [
+      {
+       "firm": "JV KogonRemStroyKomplekt LLC",
+       "country": "Uzbekistan",
+       "nationality": "Uzbekistan",
+       "from": "2022-02-01",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "JV “KogonRemStroyKomplekt” LLC",
+       "nationality": "Uzbekistan, Rep. of",
+       "from": "2022-03-10",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "speedtech energy burkina faso",
+     "idb": [
+      {
+       "firm": "Speedtech Energy Burkina Faso S.A.",
+       "country": "Burkina Faso",
+       "nationality": "Burkina Faso",
+       "from": "2021-01-04",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "SPEEDTECH ENERGY BURKINA FASO S.A.",
+       "nationality": "Non ADB Member Country *2",
+       "from": "2021-01-04",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "hebei tianrui project management",
+     "idb": [
+      {
+       "firm": "Hebei Tianrui Project Management Co., Ltd.",
+       "country": "China",
+       "nationality": "China",
+       "from": "2024-09-13",
+       "to": "2027-07-22",
+       "practice": "Fraud",
+       "source": "ADB cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Hebei Tianrui Project Management Co., Ltd.",
+       "nationality": "People's Republic of China",
+       "from": "2024-07-22",
+       "to": "2027-07-22",
+       "grounds": "Affiliate of a debarred entity",
+       "sanction": "Accepted Proposed Sanction"
+      }
+     ]
+    },
+    {
+     "normalised": "sonyachna enerhiya solobkivtsi",
+     "idb": [
+      {
+       "firm": "SONYACHNA ENERHIYA SOLOBKIVTSI LLC ТОВ \"СОНЯЧНА ЕНЕРГІЯ СОЛОБКІВЦІ\"",
+       "country": "Ukraine",
+       "nationality": "Ukraine",
+       "from": "2026-07-24",
+       "to": "2027-08-20",
+       "practice": "Collusion",
+       "source": "EBRD cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "SONYACHNA ENERHIYA SOLOBKIVTSI LLC ТОВ \"СОНЯЧНА ЕНЕРГІЯ СОЛОБКІВЦІ\"",
+       "nationality": "Ukraine-Non ADB Member Country *2",
+       "from": "2026-08-11",
+       "to": "2027-08-20",
+       "grounds": "Cross-Debarment: EBRD; Affiliate of a cross debarred entity",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "eastern builders and engineers",
+     "idb": [
+      {
+       "firm": "Eastern Builders and Engineers Limited",
+       "country": "Uganda",
+       "nationality": "Uganda",
+       "from": "2012-01-31",
+       "to": "Ongoing",
+       "practice": "Fraud, Corruption",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "EASTERN BUILDERS AND ENGINEERS LIMITED",
+       "nationality": "Non ADB Member Country *2",
+       "from": "2013-08-16",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "gol cevre teknolojiler mimarlk muhendislik insaat turizm tekstil temizlik proje musavirlik sanayi ve ticaret sirketi",
+     "idb": [
+      {
+       "firm": "Göl Çevre Teknolojiler Mimarlık Mühendislik İnşaat Turizm Tekstil Temizlik Proje Müşavirlik Sanayi Ve Ticaret Limited Şirketi",
+       "country": "Belarus, Georgia, Kazakhstan, Kyrgyzstan, Republic of Moldova, Serbia, Ukraine",
+       "nationality": "Turkey",
+       "from": "2026-02-12",
+       "to": "2029-11-11",
+       "practice": "Corruption, Fraud, Collusion",
+       "source": "EBRD cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Göl Çevre Teknolojiler Mimarlık Mühendislik İnşaat Turizm Tekstil Temizlik Proje Müşavirlik Sanayi Ve Ticaret Limited Şirketi",
+       "nationality": "Türkiye",
+       "from": "2026-02-19",
+       "to": "2029-11-11",
+       "grounds": "Cross-Debarment: EBRD",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "shenzhen zhuoda technology",
+     "idb": [
+      {
+       "firm": "Shenzhen Zhuoda Technology Co., Limited",
+       "country": "China",
+       "nationality": "China",
+       "from": "2018-06-08",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "ADB cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Shenzhen Zhuoda Technology Co., Limited",
+       "nationality": "Hong Kong, China",
+       "from": "2017-12-27",
+       "to": "Until Further Notice",
+       "grounds": "Violated ADB's Integrity Principles and Guidelines 2.A(ii).",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "a2z infraservices",
+     "idb": [
+      {
+       "firm": "A2Z Infraservices Ltd.",
+       "country": "India",
+       "nationality": "India",
+       "from": "2021-03-25",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "A2Z INFRASERVICES LTD.",
+       "nationality": "India",
+       "from": "2021-06-23",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "guoji construction group",
+     "idb": [
+      {
+       "firm": "Guoji Construction Group Co., Ltd.",
+       "country": "China",
+       "nationality": "China",
+       "from": "2018-02-13",
+       "to": "Ongoing",
+       "practice": "Fraud",
+       "source": "WBG cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "GUOJI CONSTRUCTION GROUP CO., LTD.",
+       "nationality": "People's Republic of China",
+       "from": "2018-02-07",
+       "to": "Until Further Notice",
+       "grounds": "Cross-Debarment: WB",
+       "sanction": "Debarred"
+      },
+      {
+       "firm": "Guoji Construction Group Co., Ltd.",
+       "nationality": "People's Republic of China",
+       "from": "2022-02-09",
+       "to": "Until Further Notice",
+       "grounds": "Sanction violation.",
+       "sanction": "Debarred"
+      }
+     ]
+    },
+    {
+     "normalised": "marko polo",
+     "idb": [
+      {
+       "firm": "Marko Polo LLC",
+       "country": "Mongolia",
+       "nationality": "Mongolia",
+       "from": "2025-11-26",
+       "to": "2030-05-25",
+       "practice": "Corruption",
+       "source": "EBRD cross debarment"
+      }
+     ],
+     "adb": [
+      {
+       "firm": "Marko Polo LLC",
+       "nationality": "Mongolia",
+       "from": "2026-01-05",
+       "to": "2030-05-25",
+       "grounds": "Cross-Debarment: EBRD; Affiliate of a cross debarred entity",
+       "sanction": "Debarred"
+      }
+     ]
+    }
+   ]
+  },
+  "idb_aiib_name": {
+   "mode": "candidate",
+   "note": "AIIB is parked (terms); counts only",
+   "idb_distinct_firm_names": 1052,
+   "matched_distinct_names": 736,
+   "matched_with_same_declared_origin": 736
+  },
+  "cited_decision_or_case_number": {
+   "mode": "declared",
+   "idb_firm_rows_citing": 0,
+   "adb_firm_rows_citing": 0,
+   "aiib_rows_citing": 0,
+   "note": "no list entry cites a Sanctions Board decision number or case number; CEIS carries the sanctioning body's own process number only"
+  }
+ },
+ "exploration_probes_2026_11_18": [
+  {
+   "url": "https://www.iadb.org/en/who-we-are/transparency/sanctions-system/sanctioned-firms-and-individuals",
+   "status": 403,
+   "note": "Cloudflare 'Attention Required' on two probes before the final run"
+  },
+  {
+   "url": "https://lnadbg4.adb.org/oga0009p.nsf/sancALLPublic?OpenView&count=999",
+   "status": 500,
+   "note": "HCL Notes: You are not authorized to access that database"
+  },
+  {
+   "url": "https://commission.europa.eu/strategy-and-policy/eu-budget/how-it-works/annual-lifecycle/implementation/anti-fraud-measures/edes/database_en",
+   "status": 429,
+   "note": "twice"
+  },
+  {
+   "url": "https://datacatalogapi.worldbank.org/ddhxext/Search?qname=dataset&q=debarred&$top=10",
+   "status": 429,
+   "note": "three probes, minutes apart"
+  },
+  {
+   "url": "https://portaldatransparencia.gov.br/dados-abertos",
+   "status": 405,
+   "note": "AWS WAF Human Verification page; also /api-de-dados, /origem-dos-dados, /sobre/o-que-e-e-como-funciona"
+  },
+  {
+   "url": "https://open.canada.ca/data/api/3/action/package_search?q=ineligible+suspended+suppliers&rows=5",
+   "status": 200,
+   "note": "1 hit, a service-standard indicator, not the supplier list: the list is not an Open Government Licence dataset"
+  }
+ ],
+ "requests": 49
+}

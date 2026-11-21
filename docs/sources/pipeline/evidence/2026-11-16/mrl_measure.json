@@ -1,0 +1,1136 @@
+{
+ "run_date": "2026-11-16",
+ "eu_download_list": {
+  "status": 200,
+  "files": [
+   {
+    "file": "Publication1.xml",
+    "modified": "14/11/2026"
+   },
+   {
+    "file": "Publication2.xml",
+    "modified": "05/11/2026"
+   },
+   {
+    "file": "Publication3.xml",
+    "modified": "05/11/2026"
+   },
+   {
+    "file": "Publication4.xml",
+    "modified": "05/11/2026"
+   },
+   {
+    "file": "Publication5.xml",
+    "modified": "05/11/2026"
+   },
+   {
+    "file": "Publication6.xml",
+    "modified": "05/11/2026"
+   },
+   {
+    "file": "Publication7.xml",
+    "modified": "05/11/2026"
+   },
+   {
+    "file": "Publication8.xml",
+    "modified": "09/11/2026"
+   }
+  ]
+ },
+ "eu_residue_definitions": 684,
+ "eu_mrl_rows": 252464,
+ "eu_rows_with_mrl_footnote_text": 6269,
+ "eu_newest_application_date_le_run": "2026-11-05",
+ "eu_future_application_dates": 0,
+ "eu_distinct_product_codes": 381,
+ "eu_regulations_cited": 193,
+ "eu_sample": [
+  {
+   "pest_res_id": "1",
+   "name": "1,1-dichloro-2,2-bis(4-ethylphenyl)ethane  (F)",
+   "regulation": "Reg. (EC) No 149/2008",
+   "entry_force": "01/09/2008",
+   "first_product": [
+    "0100000",
+    "FRUITS, FRESH or FROZEN; TREE NUTS",
+    "0.01*",
+    "01/09/2008"
+   ]
+  },
+  {
+   "pest_res_id": "2",
+   "name": "1,2-dibromoethane (ethylene dibromide) (F)",
+   "regulation": "Reg. (EC) No 149/2008",
+   "entry_force": "01/09/2008",
+   "first_product": [
+    "0100000",
+    "FRUITS, FRESH or FROZEN; TREE NUTS",
+    "0.01*",
+    "01/09/2008"
+   ]
+  },
+  {
+   "pest_res_id": "3",
+   "name": "1,2-dichloroethane (ethylene dichloride) (F)",
+   "regulation": "Reg. (EC) No 149/2008",
+   "entry_force": "01/09/2008",
+   "first_product": [
+    "0100000",
+    "FRUITS, FRESH or FROZEN; TREE NUTS",
+    "0.01*",
+    "01/09/2008"
+   ]
+  }
+ ],
+ "eu_active_substances": {
+  "count": 1485,
+  "by_status": {
+   "Pending": 84,
+   "Not approved": 980,
+   "Approved": 421
+  },
+  "fields": [
+   "APPROVAL_DT",
+   "AS_COLOR",
+   "AS_ID",
+   "AS_MICRO_ORG",
+   "AS_NAME",
+   "AS_PUBLIC",
+   "AS_STATUS",
+   "AS_STATUS_ID",
+   "AS_TYPE_ID",
+   "DEL_FLG",
+   "EXPIRY_DT",
+   "EXPIRY_OF_APPROVAL_DT",
+   "EXTENSION_OF_APPROVAL_DT",
+   "INITIAL_EXPIRY_OF_APPROVAL_DT"
+  ],
+  "has_cas_field": false
+ },
+ "eu_details_sample": {
+  "basicDetails_fields": [
+   "AS_COLOR",
+   "AS_DISPLAY_TOX_SEP",
+   "AS_ECHA_URL_ID",
+   "AS_ID",
+   "AS_IS_GROUP",
+   "AS_MICRO_ORG",
+   "AS_NAME",
+   "AS_PUBLIC",
+   "AS_REMARK",
+   "AS_STATUS",
+   "AS_STATUS_ID",
+   "AS_TYPE_CODE",
+   "AS_TYPE_ID",
+   "AS_TYPE_NAME",
+   "ECHA_ID"
+  ],
+  "ECHA_ID": "100.018.969",
+  "status": "Not approved",
+  "mrl_legislation_rows": 5
+ },
+ "eu_datalake_api_v3_probe": {
+  "status": 500,
+  "body": "{ \"statusCode\": 500, \"message\": \"Internal server error\", \"activityId\": \"074b7237-29c3-421f-9de7-92886a73a5cd\" }"
+ },
+ "us_title40": {
+  "number": 40,
+  "name": "Protection of Environment",
+  "latest_amended_on": "2026-11-12",
+  "latest_issue_date": "2026-11-12",
+  "up_to_date_as_of": "2026-11-12",
+  "reserved": false
+ },
+ "us_part180_versions": {
+  "result_count": "2505",
+  "latest_amendment_date": "2026-10-30",
+  "first_page_oldest": "2016-12-29"
+ },
+ "us_sections_total": 758,
+ "us_tolerance_sections": 428,
+ "us_tolerance_rows": 15482,
+ "us_sections_citing_cas": 29,
+ "us_tolerance_sections_citing_cas": 7,
+ "us_distinct_cas_cited": 2120,
+ "us_sections_with_expiration_column": 40,
+ "us_sample": {
+  "180.342": {
+   "chemical": "Chlorpyrifos",
+   "rows": 82,
+   "cas": []
+  },
+  "180.589": {
+   "chemical": "Boscalid",
+   "rows": 98,
+   "cas": []
+  }
+ },
+ "ca_mrl_extract": {
+  "status": 200,
+  "rows": 25473,
+  "columns": [
+   "Chemical Common Name",
+   "Food Commodity",
+   "MRL Value (ppm)",
+   "Comments",
+   "Established Via"
+  ],
+  "chemicals": 339
+ },
+ "ca_mrl_newest_established_date": "2026-09-10",
+ "ca_mrl_rows_with_dated_basis": 23606,
+ "ca_mrl_basis_kinds": {
+  "MRL": 15986,
+  "EMRL": 7736,
+  "Canada": 1748,
+  "?": 3
+ },
+ "ca_ingredient_extract": {
+  "status": 200,
+  "rows": 1332,
+  "columns": [
+   "Active ingredient name - English",
+   "Active ingredient name - French",
+   "Reevaluation status",
+   "CAS number"
+  ],
+  "with_cas": 986
+ },
+ "ca_mrl_chemicals_found_in_ingredient_list": "299/339",
+ "au_latest_version": {
+  "registerId": "F2026C01020",
+  "start": "2026-10-06T00:00:00",
+  "registeredAt": "2026-10-15T12:48:50.1738499",
+  "compilationNumber": "93",
+  "status": "InForce"
+ },
+ "au_latest_amended_by": [
+  "F2026L01345"
+ ],
+ "au_schedule20_titles_incl_variations": 83,
+ "au_docx_bytes": 715036,
+ "au_agvet_chemicals": 542,
+ "au_mrl_rows": 8367,
+ "au_temporary_T_rows": 1063,
+ "codex_pesticide_index": {
+  "status": 200,
+  "pesticides": 240
+ },
+ "codex_fao_terms": {
+  "status": 200,
+  "non_commercial_quote_present": true
+ },
+ "terms_checks": {
+  "https://commission.europa.eu/legal-notice_en": {
+   "status": 429,
+   "quote_present": false
+  },
+  "https://www.govinfo.gov/about/policies": {
+   "status": 200,
+   "quote_present": true
+  },
+  "https://open.canada.ca/en/open-government-licence-canada": {
+   "status": 200,
+   "quote_present": true
+  }
+ },
+ "eu_data_europa_distribution_licences": [
+  "CC_BY_4_0"
+ ],
+ "join_us_cas_to_ca_ingredient_cas_by_section": "15/29",
+ "join_us_cas_to_ca_ingredient_cas_by_cas": "112/2120",
+ "join_us_cas_to_ca_mrl_chemical_by_section": "5/29",
+ "join_us_tolerance_sections_cas_to_ca": "5/7",
+ "join_us_tolerance_sections_cas_to_ca_mrl_chemical": "5/7",
+ "us_tolerance_sections_citing_cas_list": {
+  "180.153": {
+   "chemical": "Diazinon",
+   "cas": [
+    "333-41-5"
+   ]
+  },
+  "180.412": {
+   "chemical": "Sethoxydim",
+   "cas": [
+    "74051-80-2"
+   ]
+  },
+  "180.471": {
+   "chemical": "Furilazole",
+   "cas": [
+    "121776-33-8"
+   ]
+  },
+  "180.495": {
+   "chemical": "Spinosad",
+   "cas": [
+    "131929-60-7",
+    "131929-63-0"
+   ]
+  },
+  "180.501": {
+   "chemical": "Hydroprene",
+   "cas": [
+    "65733-18-8"
+   ]
+  },
+  "180.560": {
+   "chemical": "Cloquintocet-mexyl",
+   "cas": [
+    "99607-70-2"
+   ]
+  },
+  "180.570": {
+   "chemical": "Isoxadifen-ethyl",
+   "cas": [
+    "163520-33-0"
+   ]
+  }
+ },
+ "join_us_cas_examples": [
+  {
+   "cfr": "180.153",
+   "us_chemical": "Diazinon",
+   "cas": [
+    "333-41-5"
+   ],
+   "pmra_ingredient": [
+    "DIAZINON"
+   ]
+  },
+  {
+   "cfr": "180.412",
+   "us_chemical": "Sethoxydim",
+   "cas": [
+    "74051-80-2"
+   ],
+   "pmra_ingredient": [
+    "SETHOXYDIM"
+   ]
+  },
+  {
+   "cfr": "180.495",
+   "us_chemical": "Spinosad",
+   "cas": [
+    "131929-60-7"
+   ],
+   "pmra_ingredient": [
+    "SPINOSAD"
+   ]
+  },
+  {
+   "cfr": "180.560",
+   "us_chemical": "Cloquintocet-mexyl",
+   "cas": [
+    "99607-70-2"
+   ],
+   "pmra_ingredient": [
+    "CLOQUINTOCET-MEXYL"
+   ]
+  },
+  {
+   "cfr": "180.570",
+   "us_chemical": "Isoxadifen-ethyl",
+   "cas": [
+    "163520-33-0"
+   ],
+   "pmra_ingredient": [
+    "ISOXADIFEN-ETHYL"
+   ]
+  },
+  {
+   "cfr": "180.910",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "107-21-1",
+    "111-87-5",
+    "112-30-1",
+    "112-72-1",
+    "124-38-9",
+    "1314-13-2",
+    "52-51-7",
+    "5989-27-5",
+    "60828-78-6",
+    "64-18-6",
+    "68002-97-1",
+    "7664-93-9",
+    "7761-88-8",
+    "85408-49-7",
+    "9003-13-8",
+    "9036-19-5",
+    "9043-30-5"
+   ],
+   "pmra_ingredient": [
+    "1,2-ETHANEDIOL",
+    "1-OCTANOL",
+    "1-TETRADECANOL",
+    "ALCOHOLS, C10-16, ETHOXYLATED",
+    "BRONOPOL",
+    "BUTOXYPOLYPROPYLENE GLYCOL",
+    "C12-C16- ALKYLDIMETHYLAMINE OXIDES AND RELATED AMINE OXIDES",
+    "CARBON DIOXIDE GAS",
+    "D-LIMONENE",
+    "FORMIC ACID",
+    "LIQUID CARBON DIOXIDE",
+    "N-DECANOL",
+    "OCTYLPHENOXYPOLYETHOXYETHANOL",
+    "POLYOXYETHYLENE ISOTRIDECYL ETHER",
+    "SILVER NITRATE",
+    "SULFURIC ACID",
+    "TRIMETHYLNONYLPOLYETHOXYETHANOL",
+    "ZINC (PRESENT AS ZINC OXIDE)"
+   ]
+  },
+  {
+   "cfr": "180.920",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "107-21-1",
+    "1328-53-6",
+    "61791-26-2",
+    "76-22-2",
+    "7783-28-0"
+   ],
+   "pmra_ingredient": [
+    "1,2-ETHANEDIOL",
+    "DIAMMONIUM PHOSPHATE",
+    "PHTHALO GREEN PIGMENT",
+    "RACEMIC CAMPHOR",
+    "TALLOW FATTY ACID AMINE ETHOXYLATE"
+   ]
+  },
+  {
+   "cfr": "180.930",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "112-72-1",
+    "124-38-9",
+    "52-51-7",
+    "5989-27-5",
+    "60828-78-6",
+    "61791-26-2",
+    "64-18-6",
+    "64-19-7",
+    "68002-97-1",
+    "7704-34-9",
+    "9003-13-8",
+    "9043-30-5"
+   ],
+   "pmra_ingredient": [
+    "1-TETRADECANOL",
+    "ACETIC ACID",
+    "ALCOHOLS, C10-16, ETHOXYLATED",
+    "BRONOPOL",
+    "BUTOXYPOLYPROPYLENE GLYCOL",
+    "CARBON DIOXIDE GAS",
+    "D-LIMONENE",
+    "FORMIC ACID",
+    "LIQUID CARBON DIOXIDE",
+    "POLYOXYETHYLENE ISOTRIDECYL ETHER",
+    "SULPHUR",
+    "TALLOW FATTY ACID AMINE ETHOXYLATE",
+    "TRIMETHYLNONYLPOLYETHOXYETHANOL"
+   ]
+  },
+  {
+   "cfr": "180.940",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "106-24-1",
+    "111-62-6",
+    "111-87-5",
+    "112-05-0",
+    "112-12-9",
+    "112-27-6",
+    "112-30-1",
+    "112-38-9",
+    "112-53-8",
+    "112-72-1",
+    "119-36-8",
+    "120-32-1",
+    "120-51-4",
+    "120-72-9",
+    "122-40-7",
+    "122-70-3",
+    "124-07-2",
+    "134-20-3",
+    "13840-33-0",
+    "142-62-1",
+    "151-21-3",
+    "2244-21-5",
+    "25155-30-0",
+    "2893-78-9",
+    "3184-65-4",
+    "334-48-5",
+    "3391-86-4",
+    "488-10-8",
+    "50-21-5",
+    "57-55-6",
+    "577-11-7",
+    "5989-27-5",
+    "60828-78-6",
+    "61789-30-8",
+    "64-02-8",
+    "64-17-5",
+    "64-19-7",
+    "65-85-0",
+    "68002-97-1",
+    "68424-85-1",
+    "68439-57-6",
+    "68917-18-0",
+    "68917-75-9",
+    "7173-51-5",
+    "7553-56-2",
+    "7647-15-6",
+    "7664-38-2",
+    "7664-93-9",
+    "7681-52-9",
+    "7722-84-1",
+    "7758-99-8",
+    "7775-19-1",
+    "7778-54-3",
+    "7790-92-3",
+    "78-70-6",
+    "79-21-0",
+    "79-33-4",
+    "80-46-6",
+    "8000-25-7",
+    "8000-26-8",
+    "8000-28-0",
+    "8000-29-1",
+    "8000-34-8",
+    "8000-46-2",
+    "8000-48-4",
+    "8006-82-4",
+    "8006-90-4",
+    "8007-02-1",
+    "8007-46-3",
+    "8008-51-3",
+    "8008-56-8",
+    "8008-57-9",
+    "85408-49-7",
+    "87-90-1",
+    "89-83-8",
+    "90-43-7",
+    "9043-30-5",
+    "97-53-0"
+   ],
+   "pmra_ingredient": [
+    "1-DODECANOL",
+    "1-OCTANOL",
+    "1-TETRADECANOL",
+    "2-PHENETHYL PROPIONATE",
+    "2-PHENYLPHENOL",
+    "3,7-DIMETHYL-1,6-OCTADIEN-3-OL",
+    "ACETIC ACID",
+    "ALCOHOLS, C10-16, ETHOXYLATED",
+    "ALKYL(40% C12, 50% C14, 10% C16)DIMETHYLBENZYLAMMONIUM CHLORIDE",
+    "ALPHA-AMYLCINNAMALDEHYDE",
+    "AVAILABLE CHLORINE (PRESENT AS CALCIUM HYPOCHLORITE)",
+    "AVAILABLE CHLORINE (PRESENT AS LITHIUM HYPOCHLORITE)",
+    "AVAILABLE CHLORINE (PRESENT AS SODIUM DICHLORO-S-TRIAZINETRIONE)",
+    "AVAILABLE CHLORINE (PRESENT AS SODIUM HYPOCHLORITE)",
+    "AVAILABLE CHLORINE (PRESENT AS TRICHLORO-S-TRIAZINETRIONE)",
+    "AVAILABLE CHLORINE, PRESENT AS HYPOCHLOROUS ACID",
+    "BENZOIC ACID",
+    "BENZYL BENZOATE",
+    "C12-C16- ALKYLDIMETHYLAMINE OXIDES AND RELATED AMINE OXIDES",
+    "CALCIUM HYPOCHLORITE",
+    "CAMPHOR OIL",
+    "CAPRIC ACID",
+    "CAPROIC ACID",
+    "CAPRYLIC ACID",
+    "CIS-JASMONE",
+    "CITRONELLA OIL",
+    "CLOVE OIL",
+    "COLD PRESSED ORANGE OIL",
+    "COPPER (PRESENT AS COPPER SULFATE PENTAHYDRATE)",
+    "CORNMINT OIL",
+    "D-LIMONENE",
+    "DENATURED ETHANOL",
+    "DIDECYLDIMETHYLAMMONIUM CHLORIDE",
+    "DIOCTYL SODIUM SUCCINATE OR DOCUSATE SODIUM",
+    "EUCALYPTUS OIL",
+    "EUGENOL",
+    "GERANIOL",
+    "GERANIUM OIL",
+    "HYDROGEN PEROXIDE",
+    "INDOLE",
+    "IODINE",
+    "L-(+)-LACTIC ACID",
+    "LACTIC ACID",
+    "LEMON OIL",
+    "LEMONGRASS OIL",
+    "LITHIUM HYPOCHLORITE",
+    "METHYL ANTHRANILATE",
+    "METHYL NONYL KETONE",
+    "METHYL SALICYLATE",
+    "N-DECANOL",
+    "O-BENZYL-P-CHLOROPHENOL",
+    "OCTADEC-9-ENOIC ACID, ETHYL ESTER",
+    "OCTENOL",
+    "OIL OF BLACK PEPPER",
+    "OIL OF LAVENDER",
+    "P-TERT AMYL PHENOL",
+    "PELARGONIC ACID",
+    "PEPPERMINT OIL",
+    "PEROXYACETIC ACID",
+    "PHOSPHORIC ACID",
+    "PINE NEEDLE OIL",
+    "POLYOXYETHYLENE ISOTRIDECYL ETHER",
+    "POTASSIUM COCOATE",
+    "POTASSIUM DICHLORO-S-TRIAZINETRIONE",
+    "PROPYLENE GLYCOL",
+    "ROSEMARY OIL",
+    "SODIUM ALPHA-OLEFIN SULFONATE",
+    "SODIUM BROMIDE",
+    "SODIUM DICHLORO-S-TRIAZINETRIONE",
+    "SODIUM DODECYLBENZENESULFONATE",
+    "SODIUM HYPOCHLORITE",
+    "SODIUM LAURYL SULFATE",
+    "SODIUM METABORATE",
+    "SODIUM O-BENZYL-P-CHLOROPHENATE",
+    "SULFURIC ACID",
+    "TETRASODIUM ETHYLENEDIAMINETETRAACETATE",
+    "THYME OIL",
+    "THYMOL",
+    "TRICHLORO-S-TRIAZINETRIONE",
+    "TRIETHYLENE GLYCOL",
+    "TRIMETHYLNONYLPOLYETHOXYETHANOL",
+    "UNDECYLENIC ACID",
+    "WINTERGREEN OIL"
+   ]
+  },
+  {
+   "cfr": "180.950",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "298-14-6",
+    "57-13-6",
+    "67-63-0",
+    "7447-40-7",
+    "7647-14-5",
+    "77-92-9",
+    "8001-79-4",
+    "9004-34-6",
+    "9050-36-6"
+   ],
+   "pmra_ingredient": [
+    "CASTOR OIL",
+    "CELLULOSE (FROM POWDERED CORN COBS)",
+    "CITRIC ACID",
+    "ISOPROPYL ALCOHOL",
+    "MALTODEXTRIN",
+    "POTASSIUM BICARBONATE",
+    "POTASSIUM CHLORIDE",
+    "SODIUM CHLORIDE",
+    "UREA"
+   ]
+  },
+  {
+   "cfr": "180.960",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "25213-24-5",
+    "60828-78-6",
+    "61791-23-9",
+    "68002-97-1",
+    "9036-19-5",
+    "9043-30-5"
+   ],
+   "pmra_ingredient": [
+    "ALCOHOLS, C10-16, ETHOXYLATED",
+    "OCTYLPHENOXYPOLYETHOXYETHANOL",
+    "POLYOXYETHYLENE ISOTRIDECYL ETHER",
+    "POLYVINYL ALCOHOL",
+    "TRIGLYCERIDE ETHOXYLATE 10 POE",
+    "TRIMETHYLNONYLPOLYETHOXYETHANOL"
+   ]
+  },
+  {
+   "cfr": "180.1021",
+   "us_chemical": "(exemption section)",
+   "cas": [
+    "1344-73-6",
+    "20427-59-2",
+    "20543-04-8",
+    "7758-99-8"
+   ],
+   "pmra_ingredient": [
+    "COPPER (PRESENT AS BASIC COPPER SULFATE)",
+    "COPPER (PRESENT AS COPPER HYDROXIDE)",
+    "COPPER (PRESENT AS COPPER OCTANOATE)",
+    "COPPER (PRESENT AS COPPER SULFATE PENTAHYDRATE)"
+   ]
+  }
+ ],
+ "join_us_name_to_eu": "261/428 distinct eCFR tolerance chemicals",
+ "join_au_name_to_eu": "300/541 FSANZ agvet chemicals",
+ "join_ca_name_to_eu": "240/339 Health Canada MRL chemicals",
+ "join_au_name_to_us": "290/541 FSANZ agvet chemicals",
+ "substances_in_all_four": 179,
+ "example_chlorpyrifos_apples": {
+  "US 40 CFR 180.342": [
+   [
+    "Apple",
+    "0.01"
+   ],
+   [
+    "Apple, wet pomace",
+    "0.02"
+   ]
+  ],
+  "EU pest_res_id 56": [
+   [
+    "0130010",
+    "Apples",
+    "0.01*",
+    "13/11/2020"
+   ]
+  ],
+  "CA Health Canada": [
+   [
+    "Apples",
+    "0.01",
+    "Canada Gazette II Prior to 16 June 2008"
+   ]
+  ],
+  "AU FSANZ Schedule 20": [
+   [
+    "Pineapple",
+    "T0.5"
+   ],
+   [
+    "Pome fruits [except Persimmon, Japanese]",
+    "T0.5"
+   ],
+   [
+    "Star apple",
+    "T*0.05"
+   ]
+  ]
+ },
+ "handcheck_pairs": [
+  {
+   "join": "us-eu",
+   "a_id": "180.462",
+   "a_name": "Pyridate",
+   "eu_pest_res_id": "198",
+   "eu_name": "Pyridate (sum of pyridate, its hydrolysis product CL 9673 (6-chloro-4-hydroxy-3-phenylpyridazin) and hydrolysable conjugates of CL 9673 expressed as pyridate)"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.466",
+   "a_name": "Fenpropathrin",
+   "eu_pest_res_id": "777",
+   "eu_name": "Fenpropathrin"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.633",
+   "a_name": "Florasulam",
+   "eu_pest_res_id": "108",
+   "eu_name": "Florasulam"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.587",
+   "a_name": "Famoxadone",
+   "eu_pest_res_id": "93",
+   "eu_name": "Famoxadone  (F)"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.721",
+   "a_name": "Isoprothiolane",
+   "eu_pest_res_id": "2285",
+   "eu_name": "Isoprothiolane"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.578",
+   "a_name": "Acetamiprid",
+   "eu_pest_res_id": "10",
+   "eu_name": "Acetamiprid  (R)"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.116",
+   "a_name": "Ziram",
+   "eu_pest_res_id": "226",
+   "eu_name": "Ziram"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.726",
+   "a_name": "Metamitron",
+   "eu_pest_res_id": "333",
+   "eu_name": "Metamitron"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.443",
+   "a_name": "Myclobutanil",
+   "eu_pest_res_id": "166",
+   "eu_name": "Myclobutanil  (sum of  constituent isomers) (R)"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.108",
+   "a_name": "Acephate",
+   "eu_pest_res_id": "9",
+   "eu_name": "Acephate"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.710",
+   "a_name": "Pethoxamid",
+   "eu_pest_res_id": "177",
+   "eu_name": "Pethoxamid"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.605",
+   "a_name": "Penoxsulam",
+   "eu_pest_res_id": "797",
+   "eu_name": "Penoxsulam"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.495",
+   "a_name": "Spinosad",
+   "eu_pest_res_id": "373",
+   "eu_name": "Spinosad (spinosad, sum of spinosyn A and spinosyn D) (F)"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.656",
+   "a_name": "Amisulbrom",
+   "eu_pest_res_id": "2080",
+   "eu_name": "Amisulbrom"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.601",
+   "a_name": "Cyazofamid",
+   "eu_pest_res_id": "61",
+   "eu_name": "Cyazofamid"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.510",
+   "a_name": "Pyriproxyfen",
+   "eu_pest_res_id": "368",
+   "eu_name": "Pyriproxyfen  (F)"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.184",
+   "a_name": "Linuron",
+   "eu_pest_res_id": "142",
+   "eu_name": "Linuron"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.475",
+   "a_name": "Difenoconazole",
+   "eu_pest_res_id": "276",
+   "eu_name": "Difenoconazole"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.655",
+   "a_name": "Flazasulfuron",
+   "eu_pest_res_id": "107",
+   "eu_name": "Flazasulfuron"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.632",
+   "a_name": "Fenazaquin",
+   "eu_pest_res_id": "2692",
+   "eu_name": "Fenazaquin (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Propyzamide",
+   "a_name": "Propyzamide",
+   "eu_pest_res_id": "192",
+   "eu_name": "Propyzamide (R)(F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Cypermethrin",
+   "a_name": "Cypermethrin",
+   "eu_pest_res_id": "65",
+   "eu_name": "Cypermethrin (cypermethrin including other mixtures of constituent isomers (sum of isomers)) (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Pyraclostrobin",
+   "a_name": "Pyraclostrobin",
+   "eu_pest_res_id": "195",
+   "eu_name": "Pyraclostrobin  (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fenbuconazole",
+   "a_name": "Fenbuconazole",
+   "eu_pest_res_id": "297",
+   "eu_name": "Fenbuconazole (sum of constituent enantiomers)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Ethofumesate",
+   "a_name": "Ethofumesate",
+   "eu_pest_res_id": "89",
+   "eu_name": "Ethofumesate (Sum of ethofumesate, 2-keto–ethofumesate, open-ring-2-keto-ethofumesate and its conjugate, expressed as ethofumesate)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fipronil",
+   "a_name": "Fipronil",
+   "eu_pest_res_id": "302",
+   "eu_name": "Fipronil (sum fipronil + sulfone metabolite (MB46136) expressed as fipronil) (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Valifenalate",
+   "a_name": "Valifenalate",
+   "eu_pest_res_id": "2850",
+   "eu_name": "Valifenalate (R)(A)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Acequinocyl",
+   "a_name": "Acequinocyl",
+   "eu_pest_res_id": "2930",
+   "eu_name": "Acequinocyl (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Acetamiprid",
+   "a_name": "Acetamiprid",
+   "eu_pest_res_id": "10",
+   "eu_name": "Acetamiprid  (R)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fenpicoxamid",
+   "a_name": "Fenpicoxamid",
+   "eu_pest_res_id": "2513",
+   "eu_name": "Fenpicoxamid  (R)(F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Oxadixyl",
+   "a_name": "Oxadixyl",
+   "eu_pest_res_id": "796",
+   "eu_name": "Oxadixyl"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Quinclorac",
+   "a_name": "Quinclorac",
+   "eu_pest_res_id": "804",
+   "eu_name": "Quinclorac"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Dimethomorph",
+   "a_name": "Dimethomorph",
+   "eu_pest_res_id": "281",
+   "eu_name": "Dimethomorph (sum of isomers)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Etofenprox",
+   "a_name": "Etofenprox",
+   "eu_pest_res_id": "294",
+   "eu_name": "Etofenprox  (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Dicamba",
+   "a_name": "Dicamba",
+   "eu_pest_res_id": "270",
+   "eu_name": "Dicamba"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fluoxastrobin",
+   "a_name": "Fluoxastrobin",
+   "eu_pest_res_id": "310",
+   "eu_name": "Fluoxastrobin (sum of fluoxastrobin and its Z-isomer) (R)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Thiobencarb",
+   "a_name": "Thiobencarb",
+   "eu_pest_res_id": "389",
+   "eu_name": "Thiobencarb (4-chlorobenzyl methyl sulfone) (A)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Triadimefon",
+   "a_name": "Triadimefon",
+   "eu_pest_res_id": "2416",
+   "eu_name": "Triadimefon  (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fluazinam",
+   "a_name": "Fluazinam",
+   "eu_pest_res_id": "305",
+   "eu_name": "Fluazinam  (F)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Oryzalin",
+   "a_name": "Oryzalin",
+   "eu_pest_res_id": "795",
+   "eu_name": "Oryzalin  (F)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "captan",
+   "a_name": "Captan",
+   "eu_pest_res_id": "36",
+   "eu_name": "Captan (Sum of captan and THPI, expressed as captan) (R)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "clethodim",
+   "a_name": "Clethodim",
+   "eu_pest_res_id": "259",
+   "eu_name": "Clethodim (sum of Sethoxydim and Clethodim including degradation products calculated as Sethoxydim)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "metconazole",
+   "a_name": "Metconazole",
+   "eu_pest_res_id": "335",
+   "eu_name": "Metconazole (sum of isomers) (F)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "benzovindiflupyr",
+   "a_name": "Benzovindiflupyr",
+   "eu_pest_res_id": "2415",
+   "eu_name": "Benzovindiflupyr"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "cyflumetofen",
+   "a_name": "Cyflumetofen",
+   "eu_pest_res_id": "3031",
+   "eu_name": "Cyflumetofen (sum of isomers)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "flutolanil",
+   "a_name": "Flutolanil",
+   "eu_pest_res_id": "314",
+   "eu_name": "Flutolanil  (R)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "cyfluthrin",
+   "a_name": "Cyfluthrin",
+   "eu_pest_res_id": "63",
+   "eu_name": "Cyfluthrin (cyfluthrin including other mixtures of constituent isomers (sum of isomers)) (F)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "imazalil",
+   "a_name": "Imazalil",
+   "eu_pest_res_id": "129",
+   "eu_name": "Imazalil (any ratio of constituent isomers) (R)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "mevinphos",
+   "a_name": "Mevinphos",
+   "eu_pest_res_id": "161",
+   "eu_name": "Mevinphos (sum of E- and Z-isomers)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "13dichloropropene",
+   "a_name": "1,3-Dichloropropene",
+   "eu_pest_res_id": "228",
+   "eu_name": "1,3-Dichloropropene"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "fludioxonil",
+   "a_name": "Fludioxonil",
+   "eu_pest_res_id": "307",
+   "eu_name": "Fludioxonil  (R)(F)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "spiroxamine",
+   "a_name": "Spiroxamine",
+   "eu_pest_res_id": "206",
+   "eu_name": "Spiroxamine (sum of isomers) (R)(A)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "carbaryl",
+   "a_name": "Carbaryl",
+   "eu_pest_res_id": "37",
+   "eu_name": "Carbaryl  (F)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "triflumezopyrim",
+   "a_name": "Triflumezopyrim",
+   "eu_pest_res_id": "2537",
+   "eu_name": "Triflumezopyrim"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "coumaphos",
+   "a_name": "Coumaphos",
+   "eu_pest_res_id": "2465",
+   "eu_name": "Coumaphos"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "metsulfuronmethyl",
+   "a_name": "Metsulfuron-methyl",
+   "eu_pest_res_id": "160",
+   "eu_name": "Metsulfuron-methyl"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "ethametsulfuronmethyl",
+   "a_name": "Ethametsulfuron-methyl",
+   "eu_pest_res_id": "2228",
+   "eu_name": "Ethametsulfuron-methyl"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "dithianon",
+   "a_name": "Dithianon",
+   "eu_pest_res_id": "285",
+   "eu_name": "Dithianon"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "flufenoxuron",
+   "a_name": "Flufenoxuron",
+   "eu_pest_res_id": "308",
+   "eu_name": "Flufenoxuron  (F)"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "tebufenozide",
+   "a_name": "Tebufenozide",
+   "eu_pest_res_id": "380",
+   "eu_name": "Tebufenozide  (F)"
+  }
+ ],
+ "requests": 27
+}

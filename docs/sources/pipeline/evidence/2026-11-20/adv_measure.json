@@ -1,0 +1,440 @@
+{
+ "fsis": {
+  "any_200": false,
+  "probes": [
+   {
+    "bytes": 408,
+    "content_type": "text/html",
+    "final_url": "https://www.fsis.usda.gov/fsis/api/recall/v/1",
+    "marker_present": {
+     "Access Denied": true,
+     "errors.edgesuite.net": false
+    },
+    "status": 403,
+    "url": "https://www.fsis.usda.gov/fsis/api/recall/v/1"
+   },
+   {
+    "bytes": 380,
+    "content_type": "text/html",
+    "final_url": "https://www.fsis.usda.gov/recalls",
+    "marker_present": {
+     "Access Denied": true,
+     "errors.edgesuite.net": false
+    },
+    "status": 403,
+    "url": "https://www.fsis.usda.gov/recalls"
+   },
+   {
+    "bytes": 379,
+    "content_type": "text/html",
+    "final_url": "https://www.fsis.usda.gov/policy",
+    "marker_present": {
+     "Access Denied": true,
+     "errors.edgesuite.net": false
+    },
+    "status": 403,
+    "url": "https://www.fsis.usda.gov/policy"
+   },
+   {
+    "bytes": 387,
+    "content_type": "text/html",
+    "final_url": "https://www.fsis.usda.gov/robots.txt",
+    "marker_present": {
+     "Access Denied": true,
+     "errors.edgesuite.net": false
+    },
+    "status": 403,
+    "url": "https://www.fsis.usda.gov/robots.txt"
+   }
+  ]
+ },
+ "open_charge_map": {
+  "api_without_key": {
+   "body": "You must specify an API key using the key query parameter or x-api-key header.",
+   "bytes": 78,
+   "content_type": "text/plain;charset=UTF-8",
+   "final_url": "https://api.openchargemap.io/v3/poi?maxresults=1",
+   "status": 403,
+   "url": "https://api.openchargemap.io/v3/poi?maxresults=1"
+  },
+  "ocm_data_readme": {
+   "bytes": 1103,
+   "needles_present": [
+    true
+   ],
+   "status": 200
+  },
+  "ocm_data_repo_page": {
+   "bytes": 378,
+   "content_type": "application/json; charset=utf-8",
+   "final_url": "https://github.com/openchargemap/ocm-data",
+   "status": 403,
+   "url": "https://github.com/openchargemap/ocm-data"
+  },
+  "ocm_export_readme": {
+   "bytes": 1553,
+   "needles_present": [
+    true
+   ],
+   "status": 200
+  },
+  "ocm_export_tarball": {
+   "bytes": 378,
+   "content_type": "application/json; charset=utf-8",
+   "final_url": "https://codeload.github.com/openchargemap/ocm-export/tar.gz/refs/heads/main",
+   "status": 403,
+   "url": "https://codeload.github.com/openchargemap/ocm-export/tar.gz/refs/heads/main"
+  },
+  "poi_snapshot": {
+   "by_data_provider": [
+    {
+     "id": 1,
+     "is_open_data_licensed": true,
+     "license": "Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)",
+     "pois": 65565,
+     "title": "Open Charge Map Contributors"
+    },
+    {
+     "id": 2,
+     "is_open_data_licensed": true,
+     "license": "This data is provided by the National Renewable Energy Laboratory (\"NREL\"), which is operated by the Alliance for Sustainable Energy, LLC (\"Alliance\"), for the U.S. Department of Energy (\"DOE\"), and may be used for any purpose whatsoever.",
+     "pois": 28688,
+     "title": "afdc.energy.gov"
+    },
+    {
+     "id": 29,
+     "is_open_data_licensed": true,
+     "license": "Provided by Bundesnetzagentur.de under the CC-BY 4.0 license",
+     "pois": 11007,
+     "title": "Bundesnetzagentur.de"
+    },
+    {
+     "id": 26,
+     "is_open_data_licensed": true,
+     "license": "Licensed under Attribution-NonCommercial-ShareAlike 3.0 : http://creativecommons.org/licenses/by-nc-sa/3.0/",
+     "pois": 9503,
+     "title": "Oplaadpalen.nl"
+    },
+    {
+     "id": 28,
+     "is_open_data_licensed": true,
+     "license": "Open License: https://www.etalab.gouv.fr/wp-content/uploads/2014/05/Licence_Ouverte.pdf",
+     "pois": 5999,
+     "title": "data.gouv.fr"
+    },
+    {
+     "id": 18,
+     "is_open_data_licensed": true,
+     "license": "Contains public sector information licensed under the Open Government Licence v2.0.",
+     "pois": 5392,
+     "title": "UK National Charge Point Registry"
+    },
+    {
+     "id": 15,
+     "is_open_data_licensed": false,
+     "license": "",
+     "pois": 2858,
+     "title": "CarStations.com"
+    },
+    {
+     "id": 19,
+     "is_open_data_licensed": true,
+     "license": "NOBIL by Enova is licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0) License.",
+     "pois": 1838,
+     "title": "NOBIL"
+    },
+    {
+     "id": 22,
+     "is_open_data_licensed": false,
+     "license": "",
+     "pois": 1269,
+     "title": "CHAdeMO.com"
+    },
+    {
+     "id": 23,
+     "is_open_data_licensed": false,
+     "license": "",
+     "pois": 347,
+     "title": "ESB eCars"
+    },
+    {
+     "id": 27,
+     "is_open_data_licensed": false,
+     "license": "",
+     "pois": 282,
+     "title": "Place To Plug"
+    },
+    {
+     "id": 7,
+     "is_open_data_licensed": true,
+     "license": "Public Data redistributed by agreement",
+     "pois": 183,
+     "title": "Mobie.pt"
+    },
+    {
+     "id": 25,
+     "is_open_data_licensed": true,
+     "license": "General public data",
+     "pois": 65,
+     "title": "Catalan Energy Institute (ICAEN)"
+    },
+    {
+     "id": 24,
+     "is_open_data_licensed": true,
+     "license": "http://creativecommons.org/licenses/by/3.0",
+     "pois": 30,
+     "title": "Add\u00c9nergie Technologies Inc."
+    }
+   ],
+   "by_status": [
+    [
+     "Operational",
+     93421
+    ],
+    [
+     "?",
+     21610
+    ],
+    [
+     "Unknown",
+     15452
+    ],
+    [
+     "Planned For Future Date",
+     1200
+    ],
+    [
+     "Not Operational",
+     657
+    ],
+    [
+     "Partly Operational (Mixed)",
+     458
+    ],
+    [
+     "Temporarily Unavailable",
+     184
+    ],
+    [
+     "Removed (Duplicate Listing)",
+     39
+    ],
+    [
+     "Currently Available (Automated Status)",
+     4
+    ],
+    [
+     "Currently In Use (Automated Status)",
+     1
+    ]
+   ],
+   "bytes": 30334160,
+   "countries": 117,
+   "created_by_year": [
+    [
+     "2010",
+     373
+    ],
+    [
+     "2011",
+     2626
+    ],
+    [
+     "2012",
+     2511
+    ],
+    [
+     "2013",
+     4165
+    ],
+    [
+     "2014",
+     4689
+    ],
+    [
+     "2015",
+     18856
+    ],
+    [
+     "2016",
+     13189
+    ],
+    [
+     "2017",
+     12900
+    ],
+    [
+     "2018",
+     11824
+    ],
+    [
+     "2019",
+     25483
+    ],
+    [
+     "2020",
+     19357
+    ],
+    [
+     "2021",
+     17053
+    ]
+   ],
+   "general_comments_nonempty": 29991,
+   "newest_date_created": "2021-08-13",
+   "newest_status_update": "2021-08-13",
+   "pois": 133026,
+   "pois_from_open_licensed_providers": 128270,
+   "pois_with_user_comments_counted_not_written": 7375,
+   "sha256": "8df79547b78920a36d25d16ecc2ab85328f1f4498b9107a79a4378dd0eee8ea6",
+   "status": 200,
+   "top_countries": [
+    [
+     "US",
+     35303
+    ],
+    [
+     "DE",
+     25348
+    ],
+    [
+     "GB",
+     16808
+    ],
+    [
+     "FR",
+     8947
+    ],
+    [
+     "NL",
+     8169
+    ],
+    [
+     "IT",
+     7791
+    ],
+    [
+     "CA",
+     5824
+    ],
+    [
+     "NO",
+     2965
+    ],
+    [
+     "SE",
+     2527
+    ],
+    [
+     "ES",
+     2382
+    ]
+   ],
+   "usage_cost_free_word": 11922,
+   "usage_cost_median_chars": 17,
+   "usage_cost_nonempty": 40227,
+   "usage_cost_with_digit": 26226,
+   "with_connections": 131307,
+   "with_named_operator": 103070
+  },
+  "reference_export": {
+   "bytes": 563770,
+   "connection_types": 43,
+   "countries": 250,
+   "data_providers": 49,
+   "operators": 968,
+   "status": 200
+  },
+  "terms_page": {
+   "bytes": 20727,
+   "quotes_present": [
+    true,
+    true,
+    true
+   ],
+   "sha256": "3f5232c46d53cadf8965fea570ee4df29a91cc030abcb424c83ae21f78027281",
+   "status": 200
+  }
+ },
+ "osha": {
+  "dol_copyright_page": {
+   "bytes": 67898,
+   "quote_present": true,
+   "sha256": "8ea76063aee15f71ac6b2217822e993527539bf393e74c815826bfd5e33396ce",
+   "status": 200
+  },
+  "keyless_bulk_route_found": false,
+  "probes": [
+   {
+    "body": "The API key is either incorrect or missing from your query. If you are using the API Query Builder in the Open Data Portal, please Sign in and try again, otherwise please correct your key.",
+    "bytes": 188,
+    "content_type": "application/json",
+    "final_url": "https://apiprod.dol.gov/v4/get/OSHA/inspection/json",
+    "marker_present": {
+     "PK\u0003\u0004": false,
+     "Request blocked": false
+    },
+    "status": 401,
+    "url": "https://apiprod.dol.gov/v4/get/OSHA/inspection/json"
+   },
+   {
+    "bytes": 9768,
+    "content_type": "text/html",
+    "final_url": "https://data.dol.gov:443/",
+    "marker_present": {
+     "PK\u0003\u0004": false,
+     "Request blocked": false
+    },
+    "status": 200,
+    "url": "https://enforcedata.dol.gov/views/data_catalogs.php"
+   },
+   {
+    "bytes": 9768,
+    "content_type": "text/html",
+    "final_url": "https://data.dol.gov:443/",
+    "marker_present": {
+     "PK\u0003\u0004": false,
+     "Request blocked": false
+    },
+    "status": 200,
+    "url": "https://enfxfr.dol.gov/data_catalog/OSHA/osha_inspection_20261119.csv.zip"
+   },
+   {
+    "bytes": 919,
+    "content_type": "text/html",
+    "final_url": "https://www.osha.gov/ords/imis/establishment.html",
+    "marker_present": {
+     "PK\u0003\u0004": false,
+     "Request blocked": true
+    },
+    "status": 403,
+    "url": "https://www.osha.gov/ords/imis/establishment.html"
+   },
+   {
+    "bytes": 919,
+    "content_type": "text/html",
+    "final_url": "https://www.osha.gov/robots.txt",
+    "marker_present": {
+     "PK\u0003\u0004": false,
+     "Request blocked": true
+    },
+    "status": 403,
+    "url": "https://www.osha.gov/robots.txt"
+   },
+   {
+    "bytes": 9768,
+    "content_type": "text/html",
+    "final_url": "https://data.dol.gov/datasets",
+    "marker_present": {
+     "PK\u0003\u0004": false,
+     "Request blocked": false
+    },
+    "status": 200,
+    "url": "https://data.dol.gov/datasets"
+   }
+  ]
+ },
+ "requests": 19,
+ "run_date": "2026-11-20",
+ "user_agent": "data-foundry-scout/1.0 (data@mail.proviciency.com)"
+}

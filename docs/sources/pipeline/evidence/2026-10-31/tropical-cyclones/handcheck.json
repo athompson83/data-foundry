@@ -1,0 +1,81 @@
+{
+ "note": "Read of the 9 reports where the deaths regex fired, against section_excerpt in extract.json (240 characters, not the full report). A verdict is a read of the excerpt only; 'unverified' means the excerpt did not contain the sentence.",
+ "deaths_regex": {
+  "checked": 9,
+  "correct": 4,
+  "wrong": 4,
+  "unverified": 1
+ },
+ "no_casualty_statement": {
+  "count": 12,
+  "reports": [
+   "AL072024_Gordon.pdf",
+   "AL062023_Gert.pdf",
+   "AL112025_Karen.pdf",
+   "AL012025_Andrea.pdf",
+   "AL112023_Jose.pdf",
+   "AL032023_Bret.pdf",
+   "AL062025_Fernand.pdf",
+   "AL122024_Kirk.pdf",
+   "AL152023_Nigel.pdf",
+   "AL122023_Katia.pdf",
+   "AL182023_Rina.pdf",
+   "AL052023_Don.pdf"
+  ]
+ },
+ "toc_instead_of_section": {
+  "count": 3,
+  "reports": [
+   "AL022024_Beryl.pdf",
+   "AL042024_Debby.pdf",
+   "AL142024_Milton.pdf"
+  ]
+ },
+ "rows": [
+  {
+   "pdf": "AL172024_Patty.pdf",
+   "verdict": "correct",
+   "basis": "No direct fatalities reported"
+  },
+  {
+   "pdf": "AL092023_Harold.pdf",
+   "verdict": "correct",
+   "basis": "no direct deaths"
+  },
+  {
+   "pdf": "AL022025_Barry.pdf",
+   "verdict": "correct",
+   "basis": "at least 8 direct fatalities in Mexico (footnote digit 2 ignored)"
+  },
+  {
+   "pdf": "AL162024_Oscar.pdf",
+   "verdict": "correct",
+   "basis": "at least 8 deaths in Cuba (footnote digit 4 ignored)"
+  },
+  {
+   "pdf": "AL182024_Rafael.pdf",
+   "verdict": "wrong",
+   "basis": "excerpt reads 'at least 2 direct [footnote 4] fatalities'; regex returned the footnote digit 4 beside 'fatalities', not the count 2"
+  },
+  {
+   "pdf": "AL192024_Sara.pdf",
+   "verdict": "wrong",
+   "basis": "excerpt reads 'at least 9 direct [footnote 2] fatalities'; regex returned 2, the footnote"
+  },
+  {
+   "pdf": "AL052025_Erin.pdf",
+   "verdict": "wrong",
+   "basis": "excerpt reads 'Thirteen fatalities are directly attributed to Erin[3]'; regex returned the first numeric match 3"
+  },
+  {
+   "pdf": "AL132023_Lee.pdf",
+   "verdict": "wrong",
+   "basis": "excerpt reads 'four direct deaths[3]'; regex returned the footnote 3 beside 'Deaths' from a later table"
+  },
+  {
+   "pdf": "AL052024_Ernesto.pdf",
+   "verdict": "unverified",
+   "basis": "excerpt does not show the count sentence"
+  }
+ ]
+}

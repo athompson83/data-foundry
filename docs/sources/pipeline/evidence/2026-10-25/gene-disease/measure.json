@@ -1,0 +1,612 @@
+{
+ "clingen_curations": 3714,
+ "clingen_genes": 3065,
+ "sampled_genes": 60,
+ "found_in_uniprot": 60,
+ "hgnc_xref_matches": 60,
+ "symbol_agrees": 60,
+ "with_function_text": 60,
+ "with_disease_text": 60,
+ "rows": [
+  {
+   "hgnc": "HGNC:20",
+   "clingen_symbol": "AARS1",
+   "curations": 3,
+   "uniprot": "P49588",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:89",
+   "clingen_symbol": "ACADM",
+   "curations": 1,
+   "uniprot": "P11310",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:171",
+   "clingen_symbol": "ACVR1",
+   "curations": 2,
+   "uniprot": "Q04771",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:28762",
+   "clingen_symbol": "AFG2B",
+   "curations": 1,
+   "uniprot": "Q9BVQ7",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:393",
+   "clingen_symbol": "AKT3",
+   "curations": 2,
+   "uniprot": "Q9Y243",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:26837",
+   "clingen_symbol": "AMER1",
+   "curations": 1,
+   "uniprot": "Q5JTC6",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:555",
+   "clingen_symbol": "AP1G1",
+   "curations": 2,
+   "uniprot": "O43747",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:18040",
+   "clingen_symbol": "ARID1B",
+   "curations": 1,
+   "uniprot": "Q8NFD5",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:791",
+   "clingen_symbol": "ATF6",
+   "curations": 1,
+   "uniprot": "P18850",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:10555",
+   "clingen_symbol": "ATXN2",
+   "curations": 1,
+   "uniprot": "Q99700",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:986",
+   "clingen_symbol": "BCKDHA",
+   "curations": 1,
+   "uniprot": "P12694",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:1076",
+   "clingen_symbol": "BMPR1A",
+   "curations": 2,
+   "uniprot": "P36894",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:1133",
+   "clingen_symbol": "BTK",
+   "curations": 2,
+   "uniprot": "Q06187",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:1400",
+   "clingen_symbol": "CACNA2D2",
+   "curations": 1,
+   "uniprot": "Q9NY47",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:1527",
+   "clingen_symbol": "CAV1",
+   "curations": 4,
+   "uniprot": "Q03135",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:14258",
+   "clingen_symbol": "CD2AP",
+   "curations": 2,
+   "uniprot": "Q9Y5K6",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:1754",
+   "clingen_symbol": "CDH15",
+   "curations": 1,
+   "uniprot": "P55291",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:1856",
+   "clingen_symbol": "CENPE",
+   "curations": 1,
+   "uniprot": "Q02224",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:5394",
+   "clingen_symbol": "CFI",
+   "curations": 2,
+   "uniprot": "P05156",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:2023",
+   "clingen_symbol": "CLCN5",
+   "curations": 1,
+   "uniprot": "P51795",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:103",
+   "clingen_symbol": "CNNM2",
+   "curations": 1,
+   "uniprot": "Q9H8M5",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:2195",
+   "clingen_symbol": "COL18A1",
+   "curations": 1,
+   "uniprot": "P39060",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:28722",
+   "clingen_symbol": "COQ5",
+   "curations": 1,
+   "uniprot": "Q5HYK3",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:2328",
+   "clingen_symbol": "CPT1A",
+   "curations": 1,
+   "uniprot": "P50416",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:2460",
+   "clingen_symbol": "CSNK2B",
+   "curations": 1,
+   "uniprot": "P67870",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:2536",
+   "clingen_symbol": "CTSK",
+   "curations": 1,
+   "uniprot": "P43235",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:25784",
+   "clingen_symbol": "DCAF17",
+   "curations": 1,
+   "uniprot": "Q5H9S7",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:23537",
+   "clingen_symbol": "DHTKD1",
+   "curations": 1,
+   "uniprot": "Q96HY7",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:26013",
+   "clingen_symbol": "DNAAF5",
+   "curations": 1,
+   "uniprot": "Q86Y56",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:2988",
+   "clingen_symbol": "DOCK2",
+   "curations": 1,
+   "uniprot": "Q92608",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3057",
+   "clingen_symbol": "DTNA",
+   "curations": 2,
+   "uniprot": "Q9Y4J8",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3239",
+   "clingen_symbol": "EGR2",
+   "curations": 1,
+   "uniprot": "P11161",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3363",
+   "clingen_symbol": "ENTPD1",
+   "curations": 1,
+   "uniprot": "P49961",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3439",
+   "clingen_symbol": "ERCC8",
+   "curations": 1,
+   "uniprot": "Q13216",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3528",
+   "clingen_symbol": "F10",
+   "curations": 1,
+   "uniprot": "P00742",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3585",
+   "clingen_symbol": "FANCD2",
+   "curations": 1,
+   "uniprot": "Q9BXW9",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:3662",
+   "clingen_symbol": "FGB",
+   "curations": 1,
+   "uniprot": "P02675",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:24682",
+   "clingen_symbol": "FLVCR1",
+   "curations": 1,
+   "uniprot": "Q9Y5Y0",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:13254",
+   "clingen_symbol": "FTSJ1",
+   "curations": 1,
+   "uniprot": "Q9UET6",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:4118",
+   "clingen_symbol": "GALK1",
+   "curations": 1,
+   "uniprot": "P51570",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:4235",
+   "clingen_symbol": "GFAP",
+   "curations": 1,
+   "uniprot": "P14136",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:4298",
+   "clingen_symbol": "GLB1",
+   "curations": 2,
+   "uniprot": "P16278",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:14388",
+   "clingen_symbol": "GP6",
+   "curations": 1,
+   "uniprot": "Q9HCN6",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:4601",
+   "clingen_symbol": "GRN",
+   "curations": 2,
+   "uniprot": "P28799",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:4803",
+   "clingen_symbol": "HADHB",
+   "curations": 1,
+   "uniprot": "P55084",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:26527",
+   "clingen_symbol": "HGSNAT",
+   "curations": 2,
+   "uniprot": "Q68CP4",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:28242",
+   "clingen_symbol": "HPDL",
+   "curations": 1,
+   "uniprot": "Q96IR7",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:30892",
+   "clingen_symbol": "HUWE1",
+   "curations": 1,
+   "uniprot": "Q7Z6Z7",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:5466",
+   "clingen_symbol": "IGF2",
+   "curations": 1,
+   "uniprot": "P01344",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6024",
+   "clingen_symbol": "IL7R",
+   "curations": 1,
+   "uniprot": "P16871",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6139",
+   "clingen_symbol": "ITGA3",
+   "curations": 1,
+   "uniprot": "P26006",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6242",
+   "clingen_symbol": "KCNE2",
+   "curations": 1,
+   "uniprot": "Q9Y6J6",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:21957",
+   "clingen_symbol": "KCTD7",
+   "curations": 1,
+   "uniprot": "Q96MP8",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:23419",
+   "clingen_symbol": "KIFBP",
+   "curations": 1,
+   "uniprot": "Q96EK5",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6383",
+   "clingen_symbol": "KNG1",
+   "curations": 1,
+   "uniprot": "P01042",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6572",
+   "clingen_symbol": "LGI1",
+   "curations": 1,
+   "uniprot": "O95970",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:13345",
+   "clingen_symbol": "LPIN1",
+   "curations": 1,
+   "uniprot": "Q14693",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6819",
+   "clingen_symbol": "MALT1",
+   "curations": 1,
+   "uniprot": "Q9UDY8",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6937",
+   "clingen_symbol": "MCCC2",
+   "curations": 1,
+   "uniprot": "Q9HCC0",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  },
+  {
+   "hgnc": "HGNC:6998",
+   "clingen_symbol": "MEFV",
+   "curations": 1,
+   "uniprot": "O15553",
+   "hgnc_xref_matches": true,
+   "symbol_agrees": true,
+   "function_text": true,
+   "disease_text": true
+  }
+ ]
+}
