@@ -131,6 +131,8 @@ describe('product-recall ingestion', () => {
     const results = await scheduledProductSync(env, { full: false, today: '2026-09-27', fetcher: fetcher as unknown as typeof fetch });
     expect(results.map((result) => result.error)).toEqual([undefined, undefined]);
     expect(String(fetcher.mock.calls[0]?.[0])).toContain('LastPublishDateStart=2026-08-28');
+    // The Health Canada CDN served the plain URL a day stale; the read carries an hourly query string.
+    expect(String(fetcher.mock.calls[1]?.[0])).toMatch(/HCRSAMOpenData\.json\?retrieved=\d{10}$/);
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall').first()).toEqual({ n: MIN_FULL_HC_CONSUMER + 2 });
   });
 
