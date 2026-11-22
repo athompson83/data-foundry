@@ -18,7 +18,7 @@
 import { PARSER_VERSION } from '@data-foundry/product-recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
-import { isPublishable, prepareProductRecall, touchProductRecallsStatement, writeProductGroups, type PreparedProductRecall, type ProductAgency } from './product-store.js';
+import { isPublishable, markDelistedStatement, prepareProductRecall, touchProductRecallsStatement, writeProductGroups, type PreparedProductRecall, type ProductAgency } from './product-store.js';
 import { ndjsonBundle, rawRef, sha256Hex, type Statement } from './store.js';
 import { USER_AGENT, addDays } from './sync.js';
 
@@ -237,7 +237,10 @@ export async function scheduledProductSync(env: ProductSyncEnv, options: { full:
       if (!Array.isArray(records)) throw new Error('Health Canada response is not a JSON array');
       const inScope = records.filter((record) => isPublishable('HC', record));
       if (inScope.length < MIN_FULL_HC_CONSUMER) throw new Error(`Health Canada index has only ${inScope.length} consumer-product records`);
-      return ingestRecords(env, 'HC', inScope, 'full', now, key);
+      const result = await ingestRecords(env, 'HC', inScope, 'full', now, key);
+      // A notice the index has dropped for more than a day becomes a change that `changed_since` readers receive.
+      await runStatements(env.DB, [markDelistedStatement(now)]);
+      return result;
     }),
   );
   return results;

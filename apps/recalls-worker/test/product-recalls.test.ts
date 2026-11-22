@@ -6,7 +6,7 @@ import worker from '../src/index.js';
 import { renderLiteral, sha256Hex } from '../src/store.js';
 import { ingestRecords, MIN_FULL_CPSC, MIN_FULL_HC_CONSUMER,
   cpscFullWindows, scheduledProductSync } from '../src/product-sync.js';
-import { isIndexableNotice, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
+import { isIndexableNotice, markDelistedStatement, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
 import { PRODUCT_INDEXNOW_FEED, productIndexableStats } from '../src/product-pages.js';
 import { pingChanged } from '../src/seo.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
@@ -365,6 +365,19 @@ describe('notices an agency stops listing', () => {
     // CPSC notices are not judged by the Health Canada index, however old their last read.
     expect((await detail(env, 'cpsc-25203', apiKey)).data.source_listing).toBeUndefined();
 
+    // The transition is a change: an incremental reader asking for changes since the withdrawal receives it, once.
+    const changedSince = async (since: string): Promise<string[]> =>
+      ((await (await worker.fetch(api(`/v1/product-recalls?changed_since=${since}`, apiKey), env)).json()) as { data: Array<{ id: string }> }).data.map((item) => item.id);
+    const mark = async (now: string): Promise<void> => {
+      const statement = markDelistedStatement(now);
+      await env.DB.prepare(statement.sql).bind(...statement.params).run();
+    };
+    expect(await changedSince('2026-09-28T00:00:00.000Z')).toEqual([]);
+    await mark('2026-09-29T12:00:00.000Z');
+    expect(await changedSince('2026-09-28T00:00:00.000Z')).toEqual(['hc-82659']);
+    await mark('2026-09-29T18:00:00.000Z');
+    expect(await changedSince('2026-09-29T13:00:00.000Z')).toEqual([]);
+
     const row = await env.DB.prepare("SELECT raw_ref FROM product_recall WHERE id = 'hc-82659'").first<{ raw_ref: string }>();
     expect(row?.raw_ref).toBeTruthy();
     const stats = (await (await worker.fetch(api('/v1/product-recalls/stats'), env)).json()) as { agencies: Array<{ agency: string; notices: number; no_longer_listed: number }> };
@@ -380,6 +393,8 @@ describe('notices an agency stops listing', () => {
     await ingestRecords(env, 'HC', [HC, HC_ONLY], 'full', '2026-09-30T12:00:00.000Z');
     expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
     expect((await productIndexableStats(env.DB)).n).toBe(2);
+    // Re-listing unchanged bytes is also a change for incremental readers; the notice that never left is not.
+    expect(await changedSince('2026-09-30T00:00:00.000Z')).toEqual(['hc-82659']);
   });
 
   it('marks nothing when no full Health Canada read has succeeded', async () => {

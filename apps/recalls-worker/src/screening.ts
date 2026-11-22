@@ -110,10 +110,10 @@ export function csvCell(value: unknown): string {
 }
 
 export function reportCsv(result: ScreeningResult): string {
-  const rows: unknown[][] = [['item', 'gtin', 'model', 'outcome', 'explanation', 'notice_id', 'official_notice', 'published_remedies', 'evidence_sha256', 'checked_at', 'coverage_limits', 'notice', 'source_sync_at_check', 'source_attribution']];
+  const rows: unknown[][] = [['item', 'gtin', 'model', 'outcome', 'explanation', 'notice_id', 'official_notice', 'published_remedies', 'evidence_sha256', 'checked_at', 'coverage_limits', 'notice', 'source_sync_at_check', 'source_attribution', 'source_listing', 'last_listed_at']];
   const attribution = result.attribution.sources.map(source => `${source.source}. ${source.license}`).join(' | ') + ' | ' + result.attribution.disclaimer;
   for (const item of result.items) for (const notice of item.notices.length ? item.notices : [null]) {
-    rows.push([item.item, item.gtin, item.model, item.outcome, item.explanation + (item.truncated ? ' Additional matches may exist; lookup truncated.' : ''), notice?.id, notice?.url, notice?.remedy.classes.join('; '), notice?.provenance.raw_sha256, result.checked_at, result.coverage_note, result.note, JSON.stringify(result.coverage['last_successful_sync']), attribution]);
+    rows.push([item.item, item.gtin, item.model, item.outcome, item.explanation + (item.truncated ? ' Additional matches may exist; lookup truncated.' : ''), notice?.id, notice?.url, notice?.remedy.classes.join('; '), notice?.provenance.raw_sha256, result.checked_at, result.coverage_note, result.note, JSON.stringify(result.coverage['last_successful_sync']), attribution, notice ? (notice.source_listing?.status ?? 'listed_or_not_checked') : '', notice?.source_listing?.last_listed_at ?? '']);
   }
   return rows.map(row => row.map(csvCell).join(',')).join('\r\n');
 }

@@ -185,6 +185,24 @@ export function writeProductGroups(writes: readonly ProductRecallWrite[], now: s
   return groups;
 }
 
+/**
+ * An unchanged notice is only touched. `changed_at` never exceeds `last_seen_at` for a listed notice (a write
+ * sets both, a touch moves only `last_seen_at`), so `changed_at > last_seen_at` identifies a notice that
+ * `markDelistedStatement` stamped: when such a notice is read again it has been re-listed, and that is a
+ * change a `changed_since` reader must see.
+ */
 export function touchProductRecallsStatement(ids: readonly string[], now: string): Statement {
-  return { sql: 'UPDATE product_recall SET last_seen_at = ? WHERE id IN (SELECT value FROM json_each(?))', params: [now, JSON.stringify(ids)] };
+  return {
+    sql: 'UPDATE product_recall SET changed_at = CASE WHEN changed_at > last_seen_at THEN ? ELSE changed_at END, last_seen_at = ? WHERE id IN (SELECT value FROM json_each(?))',
+    params: [now, now, JSON.stringify(ids)],
+  };
+}
+
+/**
+ * Stamp `changed_at` once on each notice that has just become no longer listed, so `changed_since` readers
+ * receive the transition. Run after a successful full Health Canada read. The `changed_at <= last_seen_at`
+ * guard makes it a no-op for notices already stamped.
+ */
+export function markDelistedStatement(now: string): Statement {
+  return { sql: `UPDATE product_recall SET changed_at = ? WHERE ${NO_LONGER_LISTED_SQL} AND changed_at <= last_seen_at`, params: [now] };
 }
