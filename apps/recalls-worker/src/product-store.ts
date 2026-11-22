@@ -42,6 +42,19 @@ export function urlKey(url: string): string {
   return canonicalHcUrl(url) ?? url.trim().toLowerCase().replace(/^http:\/\//, 'https://').replace(/\/+$/, '');
 }
 
+/**
+ * Whether the publisher has stopped listing a notice. Health Canada's index is read whole on every run and
+ * every notice in it has its `last_seen_at` set to that run's start, so a Health Canada notice last seen more
+ * than a day before the newest successful full read (four scheduled runs) is one the agency removed from its
+ * index: withdrawn, or re-filed under another organisation. Measured 2026-11-22: notice 82932 left the index
+ * and its page answered 404 while we still served it as a current recall. Nothing is deleted (rule 10): the
+ * row and its raw evidence stay, and readers are told the source no longer lists it. With no successful full
+ * read the cutoff is the empty string, so nothing is marked. CPSC is not judged this way: its full pass reads
+ * RecallDate windows, which a notice with no recall date never falls in. The newest run is found by walking
+ * sync_run_started_idx from the top, so the check reads a handful of rows however long the run history is.
+ */
+export const NO_LONGER_LISTED_SQL = `(agency = 'HC' AND last_seen_at < COALESCE(strftime('%Y-%m-%dT%H:%M:%fZ', (SELECT started_at FROM sync_run WHERE status = 'SUCCEEDED' AND category = 'product:HC' AND window_from = 'full' ORDER BY started_at DESC LIMIT 1), '-1 day'), ''))`;
+
 /** Rule 8: a public page is indexable only when the agency published a substantive description and hazard statement. */
 export const MIN_INDEXABLE_DESCRIPTION = 120;
 export function isIndexableNotice(recall: StructuredProductRecall): boolean {

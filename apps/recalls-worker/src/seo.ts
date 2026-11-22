@@ -406,7 +406,7 @@ Trade facets: appliance, hvac, plumbing-water-heating, electrical, building-prod
 
 ### GET /v1/product-recalls/<id>
 
-One notice. Fields: id, agency, jurisdiction, source_id, title, url, published_on, updated_on, archived, recall_class, product_category, products[{name, type, units}], title_firm, firms[{name, role}], sold_at[], manufacturer_countries[], description, hazard{classes[], text}, remedy{classes[], text}, injuries, units{us, canada, mexico, text}, identifiers{gtins[], model_numbers[], model_keys[]}, trade_facets[], cross_references[{agency, url}], joint_with[], linked_notices[{id, agency, title, url, relation, basis}], provenance{source, source_url, parser_version, derived_fields, raw_sha256, raw_evidence, first_seen_at, last_seen_at, changed_at}.
+One notice. Fields: id, agency, jurisdiction, source_id, title, url, published_on, updated_on, archived, recall_class, product_category, products[{name, type, units}], title_firm, firms[{name, role}], sold_at[], manufacturer_countries[], description, hazard{classes[], text}, remedy{classes[], text}, injuries, units{us, canada, mexico, text}, identifiers{gtins[], model_numbers[], model_keys[]}, trade_facets[], cross_references[{agency, url}], joint_with[], linked_notices[{id, agency, title, url, relation, basis}], source_listing{status, last_listed_at} (only when the agency no longer lists the notice: withdrawn or replaced, kept as a record), provenance{source, source_url, parser_version, derived_fields, raw_sha256, raw_evidence, first_seen_at, last_seen_at, changed_at}.
 
 ### GET /v1/product-recalls/stats (no key)
 

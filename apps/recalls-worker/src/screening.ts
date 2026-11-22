@@ -15,6 +15,8 @@ export interface ScreeningNotice {
   id: string; agency: string; title: string; url: string; published_on: string | null;
   matched_on: Array<{ kind: string; value: string }>;
   remedy: { classes: readonly string[]; text: string | null };
+  /** Present when the agency no longer lists the notice (withdrawn or replaced); see the product-recall API. */
+  source_listing?: PresentedProductRecall['source_listing'];
   provenance: PresentedProductRecall['provenance'];
 }
 export interface ScreeningItem extends InventoryItem {
@@ -85,7 +87,7 @@ export async function screenInventory(env: Env, items: InventoryItem[], now = ne
         const previous = notices.get(recall.id);
         notices.set(recall.id, { id: recall.id, agency: recall.agency, title: recall.title, url: recall.url,
           published_on: recall.published_on, matched_on: [...(previous?.matched_on ?? []), ...on],
-          remedy: recall.remedy, provenance: recall.provenance });
+          remedy: recall.remedy, ...(recall.source_listing ? { source_listing: recall.source_listing } : {}), provenance: recall.provenance });
       }
     }
     // Show every returned concern in the free preview. The canonical lookup explicitly caps each query at 100.

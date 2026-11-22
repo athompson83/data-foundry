@@ -7,7 +7,8 @@
 
 import type { D1Database } from './env.js';
 import { escapeHtml, layout, type PageContext } from './pages.js';
-import { presentRows, type PresentedProductRecall } from './product-api.js';
+import { PRODUCT_ROW_COLUMNS, presentRows, type PresentedProductRecall } from './product-api.js';
+import { NO_LONGER_LISTED_SQL } from './product-store.js';
 import { type IndexNowFeed, organization, productDataset } from './seo.js';
 
 export const PRODUCT_PAGE_PATTERN = /^\/product-recalls\/(cpsc-\d{5}[a-z]?|hc-\d{1,8})$/;
@@ -20,7 +21,7 @@ export const FIRST_PRODUCT_YEAR = 1973;
 /** IndexNow feed for the product-recall notice pages: the rows the product sitemap lists, with their own watermark. */
 export const PRODUCT_INDEXNOW_FEED: IndexNowFeed = {
   watermarkKey: 'state/indexnow-product-recalls-watermark.json',
-  changedSql: 'SELECT id FROM product_recall WHERE changed_at >= ? AND changed_at < ? AND indexable = 1 ORDER BY id',
+  changedSql: `SELECT id FROM product_recall WHERE changed_at >= ? AND changed_at < ? AND indexable = 1 AND NOT ${NO_LONGER_LISTED_SQL} ORDER BY id`,
   pathPrefix: '/product-recalls/',
   routable: (id) => PRODUCT_PAGE_PATTERN.test(`/product-recalls/${id}`),
 };
@@ -60,6 +61,7 @@ export function noticePage(ctx: PageContext, recall: PresentedProductRecall, ind
   add('Last updated', recall.updated_on);
   add('Recall class', recall.recall_class ? escapeHtml(recall.recall_class) : null);
   add('Archived by the agency', recall.archived === null ? null : recall.archived ? 'Yes' : 'No');
+  add('Listed by the agency', recall.source_listing ? `No longer listed (last read there ${escapeHtml(recall.source_listing.last_listed_at.slice(0, 10))})` : null);
   add('Product category', recall.product_category ? escapeHtml(recall.product_category) : null);
   add('Products', recall.products.length ? escapeHtml(recall.products.map((product) => product.name).join('; ')) : null);
   add('Firm named in the title', recall.title_firm ? escapeHtml(recall.title_firm) : null);
@@ -104,9 +106,12 @@ export function noticePage(ctx: PageContext, recall: PresentedProductRecall, ind
     recall.agency === 'CPSC'
       ? `Source: <a href="${escapeHtml(recall.provenance.source_url)}">U.S. Consumer Product Safety Commission recall notice</a> (US Government work). Not affiliated with or endorsed by CPSC.`
       : `Source: <a href="${escapeHtml(recall.provenance.source_url)}">Health Canada recall notice</a>. Contains information licensed under the <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence – Canada</a>. Not affiliated with or endorsed by Health Canada or the Government of Canada.`;
+  const delisted = recall.source_listing
+    ? `<p class="notice"><strong>${escapeHtml(AGENCY_SHORT[recall.agency] ?? recall.agency)} no longer lists this notice.</strong> It was last in the agency’s index on ${escapeHtml(recall.source_listing.last_listed_at.slice(0, 10))}; the agency may have withdrawn or replaced it. This page is kept as a record of what was published, not as a current recall.</p>\n`
+    : '';
   const body = `<p class="small muted"><a href="/product-recalls/browse/${recall.agency.toLowerCase()}/${escapeHtml(year || 'all')}">${escapeHtml(AGENCY_SHORT[recall.agency] ?? '')} recalls ${escapeHtml(year)}</a></p>
 <h1>${escapeHtml(recall.title)}</h1>
-<p class="lede">${escapeHtml(noticeDescription(recall))}</p>
+${delisted}<p class="lede">${escapeHtml(noticeDescription(recall))}</p>
 <div class="table-wrap"><table>${rows.map(([name, value]) => `<tr><th scope="row">${name}</th><td>${value}</td></tr>`).join('')}</table></div>
 ${text('Description', recall.description)}${text('Hazard', recall.hazard.text)}${text('Remedy', recall.remedy.text)}${text('Incidents and injuries', recall.injuries)}${linked}
 <h2>Machine access</h2>
@@ -118,12 +123,13 @@ ${text('Description', recall.description)}${text('Hazard', recall.hazard.text)}$
 /** The page for one notice id, or null when it does not exist. */
 export async function productNoticePage(ctx: PageContext, db: D1Database, id: string): Promise<string | null> {
   const row = await db
-    .prepare('SELECT id, agency, url_key, structured, raw_ref, raw_sha256, first_seen_at, last_seen_at, changed_at, sort_date, indexable FROM product_recall WHERE id = ?')
+    .prepare(`SELECT ${PRODUCT_ROW_COLUMNS}, indexable FROM product_recall WHERE id = ?`)
     .bind(id)
     .first<Parameters<typeof presentRows>[2][number] & { indexable: number }>();
   if (!row) return null;
   const [recall] = await presentRows(db, { get: async () => null, put: async () => undefined }, [row], false);
-  return noticePage(ctx, recall as PresentedProductRecall, row.indexable === 1);
+  // A notice the agency no longer lists stays reachable as evidence but is never offered for indexing.
+  return noticePage(ctx, recall as PresentedProductRecall, row.indexable === 1 && !row.no_longer_listed);
 }
 
 export async function productBrowseIndex(ctx: PageContext, db: D1Database): Promise<string> {
@@ -162,13 +168,13 @@ export async function productBrowsePage(ctx: PageContext, db: D1Database, agency
 }
 
 export async function productIndexableStats(db: D1Database): Promise<{ n: number; last: string | null }> {
-  const row = await db.prepare('SELECT COUNT(*) AS n, MAX(changed_at) AS last FROM product_recall WHERE indexable = 1').first<{ n: number; last: string | null }>();
+  const row = await db.prepare(`SELECT COUNT(*) AS n, MAX(changed_at) AS last FROM product_recall WHERE indexable = 1 AND NOT ${NO_LONGER_LISTED_SQL}`).first<{ n: number; last: string | null }>();
   return { n: row?.n ?? 0, last: row?.last ?? null };
 }
 
 export async function productSitemap(ctx: PageContext, db: D1Database, page: number): Promise<string | null> {
   const rows = await db
-    .prepare('SELECT id, changed_at FROM product_recall WHERE indexable = 1 ORDER BY id LIMIT ? OFFSET ?')
+    .prepare(`SELECT id, changed_at FROM product_recall WHERE indexable = 1 AND NOT ${NO_LONGER_LISTED_SQL} ORDER BY id LIMIT ? OFFSET ?`)
     .bind(PRODUCT_SITEMAP_PAGE_SIZE, (page - 1) * PRODUCT_SITEMAP_PAGE_SIZE)
     .all<{ id: string; changed_at: string }>();
   if (rows.results.length === 0) return null;
