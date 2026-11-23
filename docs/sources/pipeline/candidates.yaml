@@ -4598,8 +4598,8 @@ candidates:
     structuring: normalization
     format: structured
     publisher: FEMA
-    stage: PARKED
-    rights: UNKNOWN
+    stage: SCREENED
+    rights: AMBER
     sources: [ 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries' ]
     scores:
       {
@@ -4614,9 +4614,11 @@ candidates:
     terms:
       - url: 'https://www.fema.gov/api/open/v1/OpenFemaDataSets'
         quote: "Citation: FEMA's citation requirements for datasets (API usage or file downloads) can be found on the OpenFEMA Terms and Conditions page, Citing Data section"
-    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
-    next_action: Parked UNKNOWN; the API answers 200 (70,423 rows, refreshed every 20 minutes) but the OpenFEMA terms page returns 403 from our egress, so terms are unread. Reopen when the terms are readable; then GREEN or AMBER (US government data, citation required) and FIPS-join to roofing-ncei-storm-events (128/543).
-
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md, docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/dis_measure.py, docs/sources/pipeline/evidence/2026-11-22/dis_measure.json, docs/sources/pipeline/evidence/2026-11-22/dis_handcheck.json ]
+    conditions:
+      - "Terms not read: https://www.fema.gov/about/openfema/terms-conditions answered HTTP 403 on 2026-10-01, 2026-11-22 and 2026-11-23. Read and quote them before EVIDENCED; until then cite FEMA and the dataset as the catalogue description asks, and stop on any express prohibition (ADR-0018)."
+      - "The catalogue calls this raw, unedited data subject to a small percentage of human error: serve each row with its lastRefresh time."
+    next_action: 'Reopened 2026-11-23 under ADR-0018 (a free open API whose terms page could not be read is AMBER, not UNKNOWN). Measured 2026-11-22: 70,599 rows for 5,286 disaster numbers (DR 2,948, FM 1,678, EM 660), declarations from 1953-05-02 to 2026-10-27, 68,982 rows with a county FIPS code; refreshed every 20 minutes; the FemaWeb declarations table lists 5,291 numbers, 5 of them not in the summaries. Next: read the terms page from another egress, add the 8 pages to tooling/snapshots/plans.json, and keep the FIPS join to roofing-ncei-storm-events (128/543).'
   - key: hazard-nws-active-alerts
     name: NWS api.weather.gov active watches, warnings and advisories (CAP text with SAME and UGC geocodes)
     category: natural-hazards
@@ -4624,7 +4626,7 @@ candidates:
     format: free-text
     publisher: NOAA National Weather Service
     stage: SCREENED
-    rights: GREEN
+    rights: AMBER
     sources: [ 'https://api.weather.gov/alerts/active' ]
     scores:
       {
@@ -4639,9 +4641,12 @@ candidates:
     terms:
       - url: https://www.weather.gov/disclaimer
         quote: "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own"
-    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
-    next_action: The API holds only active alerts (347 now; a 2026-06-01 history query returned 0), so build means polling and archiving every alert to R2 to create history; join to NCEI by UGC zone and SAME county codes (place level).
-
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md, docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/alert_measure.py, docs/sources/pipeline/evidence/2026-11-22/alert_measure.json, docs/sources/pipeline/evidence/2026-11-22/alert_handcheck.json ]
+    conditions:
+      - "Do not present NWS information as our own, imply NOAA/NWS endorsement, or present modified content as official (the NWS disclaimer)."
+      - "api.weather.gov/robots.txt says Disallow: / while the API documentation says the information is intended to be open data, free to use for any purpose: read alerts through the documented API with the declared User-Agent only, at its stated limits, and never crawl pages."
+      - "An alert is time-critical: serve it with its sent and expires instants, and never as current after it expires."
+    next_action: 'Measured 2026-11-22: 463 active alerts (26 event types, median description 553 characters, 176 with an instruction, 441 with a VTEC string); 1,475 alerts sent on 2026-11-19 (659 Alert, 741 Update, 75 Cancel; 145 with status Test), 16 of them flagged for Wireless Emergency Alerts. The API serves about a week of history: no alert sent before 2026-11-15 resolved. Next: poll and archive every alert to R2 to build history; join to NCEI by UGC zone and SAME county codes (place level).'
   - key: hazard-usgs-earthquakes
     name: USGS ComCat earthquake GeoJSON feeds and FDSN event service
     category: natural-hazards
@@ -13274,6 +13279,60 @@ candidates:
       - url: https://open.fda.gov/license/
         quote: "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication."
     next_action: 'Measured 2026-11-23: 59,705 records, last updated 2026-11-19 (device enforcement: 40,535, last updated 2026-11-11). On the 1,000 most recently posted (2026-07-09 to 2026-11-05, 377 recall events): every record has a root cause (Under Investigation by firm 286, Process control 143, Nonconforming Material/Component 129), a corrective action text (1,009,312 characters, median 968) and an FEI number; 805 carry a 510(k) number, 102 a PMA number, and 695 a 14-digit UDI-DI in code information. 13 fields are not in the enforcement report: action, additional_info_contact, cfres_id, event_date_initiated, event_date_posted, firm_fei_number, k_numbers, pma_numbers, product_code, product_res_number, recall_status, res_event_number, root_cause_description. Capture gap: the LIVE FDA dataset reads only the enforcement endpoint, so none of these is acquired or archived yet. Next: add a device-recall read to the recalls Worker sync (raw bytes to R2 first), extend the openFDA rights record to this endpoint, and serve root cause, action and UDI-DI on device recalls; do not serve additional_info_contact, which names a person.'
+  - key: dis-federal-register-disaster-notices
+    name: "Federal Register disaster notices: FEMA major disaster and emergency declarations and amendments, and SBA disaster declarations (free-text notices citing the FEMA disaster number)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Office of the Federal Register (NARA) and US Government Publishing Office
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.federalregister.gov/api/v1/documents.json', 'https://www.govinfo.gov/about/policies' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/dis_measure.py, docs/sources/pipeline/evidence/2026-11-22/dis_measure.json, docs/sources/pipeline/evidence/2026-11-22/dis_handcheck.json ]
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "Copyright protection under this title is not available for any work of the United States Government"
+    conditions:
+      - "The Federal Register full-text pages and its legal-status page answered with a Request Access CAPTCHA page on 2026-11-22: never fetch them. Read notice metadata and abstracts from the documented API and notice text from GovInfo only."
+      - "Notices name federal officials acting in office; no private person's data is taken."
+    next_action: 'Measured 2026-11-22: 442 FEMA notices published 2025-01-06 to 2026-11-20, all with an abstract, 134 citing a FEMA disaster number (30 major disaster declarations, 13 emergency declarations, 91 amendments); 619 SBA notices from 2025-01-02, 167 citing a FEMA disaster number; the text of 20 sampled notices was read from GovInfo (median 2,423 characters) and all 20 state the number. Next: read every notice text from GovInfo and measure extraction of the incident, the incident period, the designated counties and the programs authorised.'
+  - key: alert-fema-ipaws-archived-alerts
+    name: "FEMA IPAWS archived alerts on OpenFEMA (Common Alerting Protocol messages from all alerting authorities since 2012: identifier, sender, event, area, description and Wireless Emergency Alert text)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: structured
+    publisher: FEMA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.fema.gov/api/open/v1/IpawsArchivedAlerts', 'https://www.fema.gov/api/open/v1/OpenFemaDataSets' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/alert_measure.py, docs/sources/pipeline/evidence/2026-11-22/alert_measure.json, docs/sources/pipeline/evidence/2026-11-22/alert_handcheck.json ]
+    conditions:
+      - "Terms not read: https://www.fema.gov/about/openfema/terms-conditions and the dataset page answered HTTP 403. Read and quote them before EVIDENCED; stop on any express prohibition (ADR-0018)."
+      - "Unresolved personal data: missing-person and abduction alerts name private individuals (28 of 430 alerts in the window read), and 40 senders are written as an email address. Exclude those alert types and the sender address from anything stored for serving until a personal-data rule is written; the candidate cannot pass the rights gate before that."
+      - "FEMA does not validate message content: serve each alert as the originator's statement, with its status (Actual, Test) and message type."
+    next_action: 'Measured 2026-11-22: catalogue record count 4,887,958 from 2012-06-01, updated every 2 minutes; 430 alerts sent 2026-11-08 to 2026-11-20 from 125 senders (335 Alert, 79 Cancel, 16 Update; Local Area Emergency 114, Required Weekly Test 84, Flash Flood Warning 26), 284 with a description and 229 with Wireless Emergency Alert text; 469 NWS-originated alerts since 2026-10-01 (Flash Flood Warning 261, Tornado Warning 133). Next: read the terms from another egress, write the personal-data exclusion, and page the archive by month.'
+  - key: alert-eccc-cap-alerts
+    name: "Environment and Climate Change Canada public weather alerts (bilingual Common Alerting Protocol files on the MSC Datamart)"
+    category: natural-hazards
+    structuring: event-extraction
+    format: free-text
+    publisher: Environment and Climate Change Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/', 'https://eccc-msc.github.io/open-data/licence/readme_en/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/alert_measure.py, docs/sources/pipeline/evidence/2026-11-22/alert_measure.json, docs/sources/pipeline/evidence/2026-11-22/alert_handcheck.json ]
+    terms:
+      - url: https://eccc-msc.github.io/open-data/licence/readme_en/
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+      - url: https://eccc-msc.github.io/open-data/licence/readme_en/
+        quote: "In the case of weather alerts (i.e. watches/warnings), any information shall be reproduced in such a way that there is no alteration of the content or intent of the alert."
+    conditions:
+      - "Reproduce every alert without altering its content or intent, as the licence requires for watches and warnings: serve the English and French text verbatim, with structured fields added beside it."
+      - "Attribute Environment and Climate Change Canada as the licence asks."
+    next_action: 'Measured 2026-11-22: one day of files (2026-11-21): 72 alerts from 5 offices, all with English and French text (median English description 296 characters), a polygon and a location geocode; 14 Alert and 58 Update; 557 references cited, 491 resolving to a file of the same day; no identifier is shared with the NWS or IPAWS sets. The Datamart keeps a rolling window of days. Next: archive each day to R2 and measure how many days the Datamart retains.'
 
 datasets:
   - key: home-product-recalls-global
@@ -17700,3 +17759,55 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.py, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.json, docs/sources/pipeline/evidence/2026-11-23/pgx_handcheck.json ]
     next_action: 'Read the ClinPGx data usage policy in a browser session; resolve FDA drug wording to RxNorm ids through chem-fda-gsrs-unii or RxNorm so the link can rest on an identifier; add the Dutch DPWG guidelines and FDA label biomarker table as members; add the five responses to tooling/snapshots/plans.json.'
+  - key: federal-disaster-declarations
+    name: "US federal disaster declarations and their Federal Register notices (OpenFEMA, Federal Register and GovInfo)"
+    category: natural-hazards
+    entity: "federal disaster declaration, identified by its FEMA disaster number and type (major disaster, emergency, fire management): state, declaration date, incident type and period, designated counties, programs declared, and the FEMA and SBA notices that declare and amend it"
+    stage: SCREENED
+    description: "One record per declaration. OpenFEMA gives 5,286 disaster numbers in 70,599 county rows from 1953. The Federal Register gives the free-text notices that declare and amend them, and SBA's parallel loan declarations. The link is the FEMA-number-type citation in the notice, resolved to an OpenFEMA disaster number of the same type: 134 of 135 FEMA citations and 167 of 167 SBA citations resolve. A notice is attached to the declaration it cites and is never matched by state or date alone."
+    sources: [ hazard-fema-disaster-declarations, dis-federal-register-disaster-notices ]
+    join_keys:
+      - key: FEMA disaster number cited in the Federal Register notice
+        between: [ dis-federal-register-disaster-notices, hazard-fema-disaster-declarations ]
+        measured: "134/135 FEMA notice citations resolve to an OpenFEMA disaster number of the same declaration type (FEMA-4893-EM does not) and 167/167 SBA notice citations; 20/20 hand-checked FEMA notices are the same declaration and 19/20 carry the same declaration date; 77 of the 103 major disasters declared in 2025 and 2026 are cited by a FEMA or SBA notice"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - "declaration type: DR major disaster | EM emergency | FM fire management"
+      - "notice kind: declaration | amendment | SBA declaration | SBA amendment"
+      - "incident type (OpenFEMA): Fire | Severe Storm | Flood | Hurricane | Tornado | Snowstorm | Biological | other"
+      - "program declared: individual assistance | public assistance | hazard mitigation | individuals and households"
+    agent_questions:
+      - "Is this county under a federal disaster declaration, for what incident and since when? (measured: 68,982 rows with a county FIPS code)"
+      - "What did the latest amendment to this declaration change? (measured: 91 FEMA amendment notices citing a disaster number since 2025-01-06)"
+      - "Which SBA disaster loan declaration goes with this FEMA disaster? (measured: 167/167 SBA citations resolve)"
+      - "Which recent major disasters have no Federal Register notice yet? (measured: 26 of 103 declared in 2025 and 2026)"
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/dis_measure.py, docs/sources/pipeline/evidence/2026-11-22/dis_measure.json, docs/sources/pipeline/evidence/2026-11-22/dis_handcheck.json ]
+    next_action: 'Read the OpenFEMA terms page from another egress; read every notice text from GovInfo and measure extraction of counties, incident period and programs with hand-checked precision; add the OpenFEMA pages and the notice list to tooling/snapshots/plans.json; link hurricane declarations to tropical-cyclones.'
+  - key: public-emergency-alerts
+    name: "Public emergency alerts in the Common Alerting Protocol (NWS alerts API, FEMA IPAWS archive, Environment and Climate Change Canada)"
+    category: natural-hazards
+    entity: "public alert message, identified by its CAP alert identifier: sender, event, severity, urgency, sent and expiry instants, area (county codes, zones, polygon), free-text description and instruction, and the messages it updates or cancels"
+    stage: SCREENED
+    description: "One record per alert message. The NWS API gives every US weather alert for about a week (1,475 sent on one day). The FEMA IPAWS archive gives the alerts sent through the national system since 2012 from all authorities. Environment and Climate Change Canada gives bilingual Canadian weather alerts. The link is the CAP identifier: an IPAWS identifier with its trailing .IPAWS removed equals the NWS alert id, and all 28 NWS-originated IPAWS alerts sent on or after 2026-11-15 resolve. The link covers only the NWS alerts flagged for Wireless Emergency Alerts (16 of 1,475 on one day). The Canadian member shares no identifier with the others and is a separate jurisdiction under the same schema."
+    sources: [ hazard-nws-active-alerts, alert-fema-ipaws-archived-alerts, alert-eccc-cap-alerts ]
+    join_keys:
+      - key: CAP alert identifier (IPAWS identifier without its .IPAWS ending equals the NWS alert id)
+        between: [ alert-fema-ipaws-archived-alerts, hazard-nws-active-alerts ]
+        measured: "28/35 NWS-originated IPAWS alerts sent since 2026-11-08 resolve at the NWS API: all 28 sent on or after 2026-11-15 and none of the 7 sent earlier, which the API no longer serves; the 28 pairs agree on event, sent and expiry instants, county codes, VTEC string and description text; 20/20 hand-checked pairs are the same alert"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - "message type: Alert | Update | Cancel"
+      - "status: Actual | Test | Exercise"
+      - "severity: Extreme | Severe | Moderate | Minor | Unknown"
+      - "originator kind: national weather service | state or local authority | tribal authority | test"
+    agent_questions:
+      - "What alerts are in effect for this county now, and what do they tell people to do? (measured: 463 active NWS alerts, 176 with an instruction)"
+      - "Was a Wireless Emergency Alert sent for this warning, and with what text? (measured: 16 of 1,475 NWS alerts on 2026-11-19 flagged; 229 of 430 IPAWS alerts with WEA text)"
+      - "Which alert does this update or cancel? (measured: 1,195 references cited on one day, 826 resolving the same day)"
+      - "What weather alerts are in effect in this Canadian region, in both languages? (measured: 72 alerts on 2026-11-21, all bilingual)"
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/alert_measure.py, docs/sources/pipeline/evidence/2026-11-22/alert_measure.json, docs/sources/pipeline/evidence/2026-11-22/alert_handcheck.json ]
+    next_action: 'Write the personal-data exclusion for missing-person and abduction alerts before any IPAWS record is stored for serving; read the OpenFEMA terms from another egress; start polling and archiving NWS and ECCC alerts to R2, because both keep only a short window; add MeteoAlarm and the UK Met Office warnings as members.'

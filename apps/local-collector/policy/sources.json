@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "89e01cbddcb27ed6dac1429a6d337f8c2796d3122ee1dc6f72d20f1f9b1518d7",
+  "registry_sha256": "bf75e25d44f6efc947902c31b7a26346cfcb2673549c4539f6f64b11ff6d03d2",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -1054,6 +1054,23 @@
         "pgx-cpic-gene-drug-pairs",
         "pgx-cpic-recommendations",
         "pgx-fda-pharmacogenetic-associations"
+      ]
+    },
+    "federal-disaster-declarations": {
+      "name": "US federal disaster declarations and their Federal Register notices (OpenFEMA, Federal Register and GovInfo)",
+      "stage": "SCREENED",
+      "sources": [
+        "hazard-fema-disaster-declarations",
+        "dis-federal-register-disaster-notices"
+      ]
+    },
+    "public-emergency-alerts": {
+      "name": "Public emergency alerts in the Common Alerting Protocol (NWS alerts API, FEMA IPAWS archive, Environment and Climate Change Canada)",
+      "stage": "SCREENED",
+      "sources": [
+        "hazard-nws-active-alerts",
+        "alert-fema-ipaws-archived-alerts",
+        "alert-eccc-cap-alerts"
       ]
     }
   },
@@ -2973,20 +2990,20 @@
     },
     "hazard-fema-disaster-declarations": {
       "name": "FEMA OpenFEMA DisasterDeclarationsSummaries (federal disaster declarations by county, 1953 to date)",
-      "rights": "UNKNOWN",
-      "stage": "PARKED",
+      "rights": "AMBER",
+      "stage": "SCREENED",
       "format": "structured",
       "publisher": "FEMA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "hazard-nws-active-alerts": {
       "name": "NWS api.weather.gov active watches, warnings and advisories (CAP text with SAME and UGC geocodes)",
-      "rights": "GREEN",
+      "rights": "AMBER",
       "stage": "SCREENED",
       "format": "free-text",
       "publisher": "NOAA National Weather Service",
@@ -9241,6 +9258,45 @@
       "stage": "SCREENED",
       "format": "structured",
       "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "dis-federal-register-disaster-notices": {
+      "name": "Federal Register disaster notices: FEMA major disaster and emergency declarations and amendments, and SBA disaster declarations (free-text notices citing the FEMA disaster number)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Office of the Federal Register (NARA) and US Government Publishing Office",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "alert-fema-ipaws-archived-alerts": {
+      "name": "FEMA IPAWS archived alerts on OpenFEMA (Common Alerting Protocol messages from all alerting authorities since 2012: identifier, sender, event, area, description and Wireless Emergency Alert text)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "FEMA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "alert-eccc-cap-alerts": {
+      "name": "Environment and Climate Change Canada public weather alerts (bilingual Common Alerting Protocol files on the MSC Datamart)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Environment and Climate Change Canada",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
