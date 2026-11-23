@@ -1,0 +1,1637 @@
+{
+ "cap_identifier_join": {
+  "by_sent_day_matched_total": {
+   "2026-11-08": [
+    0,
+    1
+   ],
+   "2026-11-09": [
+    0,
+    1
+   ],
+   "2026-11-11": [
+    0,
+    1
+   ],
+   "2026-11-12": [
+    0,
+    4
+   ],
+   "2026-11-16": [
+    2,
+    2
+   ],
+   "2026-11-17": [
+    2,
+    2
+   ],
+   "2026-11-18": [
+    5,
+    5
+   ],
+   "2026-11-19": [
+    16,
+    16
+   ],
+   "2026-11-20": [
+    3,
+    3
+   ]
+  },
+  "ipaws_nws_origin_alerts_sent_since_2026_11_08": 35,
+  "matched_pairs_agreeing": {
+   "description_text": 28,
+   "event": 28,
+   "expires_instant": 28,
+   "pairs": 28,
+   "same_codes": 28,
+   "sender_name": 28,
+   "sent_instant": 28,
+   "vtec": 28
+  },
+  "resolved_at_nws_api": 28,
+  "reverse_one_day": {
+   "day_utc": "2026-11-19",
+   "ipaws_nws_origin_alerts_sent_that_day": 16,
+   "nws_alerts_sent": 1475,
+   "nws_alerts_with_wea_handling": 16,
+   "nws_alerts_without_wea_handling_present_in_ipaws_archive": 0,
+   "of_those_present_in_ipaws_archive": 16
+  },
+  "rule": "IPAWS identifier with the trailing '.IPAWS' removed equals the NWS API alert id; resolved with one GET of https://api.weather.gov/alerts/{id} per IPAWS alert",
+  "sent_2026_11_08_to_2026_11_14": {
+   "matched": 0,
+   "total": 7
+  },
+  "sent_2026_11_15_or_later": {
+   "matched": 28,
+   "total": 28
+  }
+ },
+ "eccc_cap_one_day": {
+  "by_event": {
+   "blizzard": 5,
+   "blowing snow": 1,
+   "fog": 46,
+   "météo": 1,
+   "neige": 1,
+   "snowfall": 3,
+   "weather": 11,
+   "wind": 4
+  },
+  "by_headline": {
+   "avertissement jaune - neige - en vigueur": 1,
+   "bulletin météorologique spécial en vigueur": 1,
+   "special weather statement ended": 4,
+   "special weather statement in effect": 7,
+   "yellow advisory - fog - ended": 2,
+   "yellow advisory - fog - in effect": 44,
+   "yellow warning - blizzard - in effect": 5,
+   "yellow warning - snowfall - in effect": 3,
+   "yellow warning - wind - ended": 1,
+   "yellow warning - wind - in effect": 3
+  },
+  "by_msg_type": {
+   "Alert": 14,
+   "Update": 58
+  },
+  "by_status": {
+   "Actual": 72
+  },
+  "day_utc": "20261121",
+  "distinct_identifiers": 72,
+  "distinct_references_cited": 72,
+  "files_listed": 72,
+  "files_parsed": 72,
+  "files_with_english_and_french_info": 72,
+  "files_with_english_description": 72,
+  "files_with_location_geocode": 72,
+  "files_with_polygon": 72,
+  "files_with_references": 58,
+  "identifiers_also_present_in_nws_or_ipaws_sets": 0,
+  "identifiers_starting_urn_oid_2_49_0_1_124": 72,
+  "index_url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/",
+  "median_english_description_characters": 296,
+  "offices": {
+   "CWHX": 2,
+   "CWNT": 8,
+   "CWTO": 59,
+   "CWUL": 2,
+   "CWVR": 1
+  },
+  "references_cited": 557,
+  "references_resolving_to_a_file_of_the_same_day": 491,
+  "sample_identifiers": [
+   "urn:oid:2.49.0.1.124.0360616360.2026",
+   "urn:oid:2.49.0.1.124.0376540723.2026",
+   "urn:oid:2.49.0.1.124.0430460948.2026",
+   "urn:oid:2.49.0.1.124.0568826218.2026",
+   "urn:oid:2.49.0.1.124.0675747266.2026"
+  ],
+  "senders": {
+   "cap-pac@canada.ca": 72
+  },
+  "sent_max": "2026-11-21T23:46:38Z",
+  "sent_min": "2026-11-21T02:37:16Z"
+ },
+ "fetched": {
+  "eccc_20261121_CWHX.html": {
+   "bytes": 743,
+   "sha256": "d8509b22dabaf0c6d57e6369430e92a2da832e2a2e2de90f24f7b2acfd818eaa",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWHX/"
+  },
+  "eccc_20261121_CWHX_19.html": {
+   "bytes": 983,
+   "sha256": "592569d6383d6d016f8db6efcf5468ff6d391919ba8963f63f32f73b989162d6",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWHX/19/"
+  },
+  "eccc_20261121_CWNT.html": {
+   "bytes": 1235,
+   "sha256": "3ad635213a7575f0ae23835f88730302eb527f00537019d31f262e89b25c9358",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/"
+  },
+  "eccc_20261121_CWNT_06.html": {
+   "bytes": 1153,
+   "sha256": "a267f79adf1cdbe17867bd09b29a7737ad537f3703aa043c9327617375e54cd8",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/06/"
+  },
+  "eccc_20261121_CWNT_10.html": {
+   "bytes": 813,
+   "sha256": "7c7c18b2a3d15c50c30d8be27e64ae7663afc82dd10822a675567d2fcee49130",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/10/"
+  },
+  "eccc_20261121_CWNT_12.html": {
+   "bytes": 813,
+   "sha256": "89b88ece95dec9ef469fb6c434b850ef890dc185369a4a000c05893c7ec4a52e",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/12/"
+  },
+  "eccc_20261121_CWNT_13.html": {
+   "bytes": 813,
+   "sha256": "1fa41e09f1f4ad13055a2cbda16309286a12b374ca4834c14ff2c48eb742bbab",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/13/"
+  },
+  "eccc_20261121_CWNT_20.html": {
+   "bytes": 983,
+   "sha256": "33045ac2ac80fbc691e91d9786135a7c69fd8fafcb39678ccc7941e6e717fb82",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/20/"
+  },
+  "eccc_20261121_CWTO.html": {
+   "bytes": 2711,
+   "sha256": "1d2744ff32d3bba0f7f9ebe67d926bb2990ca25fbfdd0d54b8f68c5bbfaf9412",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/"
+  },
+  "eccc_20261121_CWTO_02.html": {
+   "bytes": 1153,
+   "sha256": "165f184f1dd9d3a01505606ae6aaa5daa1648743d9e60068b178732b766c5b1d",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/02/"
+  },
+  "eccc_20261121_CWTO_03.html": {
+   "bytes": 983,
+   "sha256": "4060513dd931e35499dc45535dabe220d7033c63e12cea1f734438f147cc6e5c",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/03/"
+  },
+  "eccc_20261121_CWTO_04.html": {
+   "bytes": 813,
+   "sha256": "7cc6e4e55085924af2875f73995f24522d27bf7520e508bed849d790ff51c65a",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/04/"
+  },
+  "eccc_20261121_CWTO_06.html": {
+   "bytes": 813,
+   "sha256": "5319bba2c3a0fe7bc71c45d90e527b8795d576806785a8b0c1b8a1ff0b1968a5",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/06/"
+  },
+  "eccc_20261121_CWTO_07.html": {
+   "bytes": 983,
+   "sha256": "291f4f899cd7bf353d770c46900fc7d0e56ac0e8b134d20b7ad58798fc32643c",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/07/"
+  },
+  "eccc_20261121_CWTO_08.html": {
+   "bytes": 983,
+   "sha256": "25ba4047b54926007059f093dd7d63376fff510b4351e5786b77d9af87802066",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/08/"
+  },
+  "eccc_20261121_CWTO_09.html": {
+   "bytes": 1833,
+   "sha256": "e4f47ff3e7f110cccf7f566fba2f503f4673d1ca6309605e12502b2b5ef5721b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/"
+  },
+  "eccc_20261121_CWTO_10.html": {
+   "bytes": 983,
+   "sha256": "e18f34872471da12c477bbb032864c07c13d2785775307aa3b615c6f221de05b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/10/"
+  },
+  "eccc_20261121_CWTO_11.html": {
+   "bytes": 2003,
+   "sha256": "ba23a893ff62f6e7fea8768f1e0a806c709ce27209d1da0cd9cca29248c72c26",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/"
+  },
+  "eccc_20261121_CWTO_14.html": {
+   "bytes": 1663,
+   "sha256": "762f07cdd4785c0a7d3ce1507832ce7f7d5a4ea85eb2f361733a186ececc7844",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/"
+  },
+  "eccc_20261121_CWTO_15.html": {
+   "bytes": 1323,
+   "sha256": "9a2002a16e10af94cf359bdeac56a647689f4085d4a681f6e5dd89536ac14638",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/15/"
+  },
+  "eccc_20261121_CWTO_16.html": {
+   "bytes": 1663,
+   "sha256": "cadf59d60c560822d763d2bbe523a8cb77cd07a95afb944a066be7aae51b7e2b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/"
+  },
+  "eccc_20261121_CWTO_17.html": {
+   "bytes": 1153,
+   "sha256": "b9eab70f17c3036b977fa9c93d4a5d2f3033e734d5f99943e3b9061987fcbb56",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/17/"
+  },
+  "eccc_20261121_CWTO_18.html": {
+   "bytes": 813,
+   "sha256": "083b106c0d04bffaea07758672460cdb668a47f60884038dd0adf0e87d5067b7",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/18/"
+  },
+  "eccc_20261121_CWTO_21.html": {
+   "bytes": 1663,
+   "sha256": "38bcc9b740e08546c3c57e12dd01143bad707f680682a18b9e43dd35346422da",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/"
+  },
+  "eccc_20261121_CWTO_22.html": {
+   "bytes": 813,
+   "sha256": "c48aaa73168f544bd930d7b6609215cdfd6e5559d6a6a14069e66a39ea63b803",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/22/"
+  },
+  "eccc_20261121_CWTO_23.html": {
+   "bytes": 1323,
+   "sha256": "afab8ff582e8fba17035afa794c95c6405e78229e07e70cceadf61e3c92364e0",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/23/"
+  },
+  "eccc_20261121_CWUL.html": {
+   "bytes": 743,
+   "sha256": "eccbd299864ad19994e050d27aac273b0bec10530afb47803a60f93e1f834ef3",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWUL/"
+  },
+  "eccc_20261121_CWUL_20.html": {
+   "bytes": 983,
+   "sha256": "84806d912f99dad9b9942fa85d81668a2dc3717c0178c519181904ae0ae82a04",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWUL/20/"
+  },
+  "eccc_20261121_CWVR.html": {
+   "bytes": 743,
+   "sha256": "45aa166145b58b55fb0a6fac64e2a2694800587ec2c197163f975cef635c2522",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWVR/"
+  },
+  "eccc_20261121_CWVR_04.html": {
+   "bytes": 813,
+   "sha256": "d301d9b7f2ef282b8c0dd615210b6ede07528503ada7b906769abe147f6581ad",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWVR/04/"
+  },
+  "eccc_20261121_T_WOCN19_C_CWVR_202611210454_1542781010.cap": {
+   "bytes": 14215,
+   "sha256": "c08d2604ea4bfd483d812144f508da184fc533fdb8a4fb1ffb9f8fcb24e9cd27",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWVR/04/T_WOCN19_C_CWVR_202611210454_1542781010.cap"
+  },
+  "eccc_20261121_T_WSCN10_C_CWUL_202611212058_0751643456.cap": {
+   "bytes": 18077,
+   "sha256": "440c82c4233264c114989d3c9c314adc86c187879e713134f8631b4a9b296443",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWUL/20/T_WSCN10_C_CWUL_202611212058_0751643456.cap"
+  },
+  "eccc_20261121_T_WSCN12_C_CWTO_202611211036_1319941702.cap": {
+   "bytes": 22460,
+   "sha256": "40d3d0d586e70106e5c764f0f7f1ff4dd02d156a8f5248ab5a1091fe5c179995",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/10/T_WSCN12_C_CWTO_202611211036_1319941702.cap"
+  },
+  "eccc_20261121_T_WSCN12_C_CWTO_202611211546_3729533606.cap": {
+   "bytes": 18030,
+   "sha256": "f1f7093bb40fe4fff39a45123c44fc26e65a6bfa04f42c11733f2265bdc31eea",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/15/T_WSCN12_C_CWTO_202611211546_3729533606.cap"
+  },
+  "eccc_20261121_T_WSCN12_C_CWTO_202611212155_0917016514.cap": {
+   "bytes": 15192,
+   "sha256": "20de5287e1d48d1019f0555818944ea7a422f954bce0f981e2375d38a0975de7",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/T_WSCN12_C_CWTO_202611212155_0917016514.cap"
+  },
+  "eccc_20261121_T_WSCN12_C_CWTO_202611212331_1539897515.cap": {
+   "bytes": 20660,
+   "sha256": "1c8c3342269a17ac81c7e6eebd301b21af5c734a60f7c58131dbc353b8ce5412",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/23/T_WSCN12_C_CWTO_202611212331_1539897515.cap"
+  },
+  "eccc_20261121_T_WSCN12_C_CWTO_202611212331_2121751513.cap": {
+   "bytes": 15754,
+   "sha256": "8785123d338e3f5bab6bde8a76c57e473beb9d479e8e23c74783ad6bf32d3fea",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/23/T_WSCN12_C_CWTO_202611212331_2121751513.cap"
+  },
+  "eccc_20261121_T_WSCN13_C_CWTO_202611210235_3414145694.cap": {
+   "bytes": 20317,
+   "sha256": "ebf33c1710a5a3dfdd47e1941ab6b48afcce427596a987ca5abbaf99330a0956",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/02/T_WSCN13_C_CWTO_202611210235_3414145694.cap"
+  },
+  "eccc_20261121_T_WSCN13_C_CWTO_202611210912_0858695237.cap": {
+   "bytes": 20418,
+   "sha256": "8fc47e60a52e9bef3ef7a7b93f22c9fe3abafb2c6724fd55f36e0bc21ee5a783",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WSCN13_C_CWTO_202611210912_0858695237.cap"
+  },
+  "eccc_20261121_T_WSCN13_C_CWTO_202611211036_2474244187.cap": {
+   "bytes": 16244,
+   "sha256": "7e6da735db9eddcd6f5432890a8af171e0af90b0b65ece4a09a2e07e001bff00",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/10/T_WSCN13_C_CWTO_202611211036_2474244187.cap"
+  },
+  "eccc_20261121_T_WSCN13_C_CWTO_202611211522_2204219922.cap": {
+   "bytes": 18694,
+   "sha256": "bccbc6ae676ba58f735b4a05ea1b45ed37b8e0854d85ce487c8025722aa95d4e",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/15/T_WSCN13_C_CWTO_202611211522_2204219922.cap"
+  },
+  "eccc_20261121_T_WSCN13_C_CWTO_202611212331_0675747266.cap": {
+   "bytes": 14444,
+   "sha256": "6ce7ac86c61851ba278a298153fffe87985e90426825994016e7f05fc4dc16a7",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/23/T_WSCN13_C_CWTO_202611212331_0675747266.cap"
+  },
+  "eccc_20261121_T_WSCN17_C_CWHX_202611211958_1775761436.cap": {
+   "bytes": 21976,
+   "sha256": "2827fa1ca657c4e05069719bf78e07079eb8da0cf59840db908722fea2fa5eee",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWHX/19/T_WSCN17_C_CWHX_202611211958_1775761436.cap"
+  },
+  "eccc_20261121_T_WWCN10_C_CWUL_202611212036_1342004164.cap": {
+   "bytes": 17802,
+   "sha256": "83aeb9ab79bc7ca404dfd60344cbb385ef000d1c0d72531c6853a44a1a0c640b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWUL/20/T_WWCN10_C_CWUL_202611212036_1342004164.cap"
+  },
+  "eccc_20261121_T_WWCN12_C_CWNT_202611211030_0953012202.cap": {
+   "bytes": 16843,
+   "sha256": "1eed711cec713b7c3d76a8bdb18c9712414ddc6780a52c19eb50f016c5fdb9ef",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/10/T_WWCN12_C_CWNT_202611211030_0953012202.cap"
+  },
+  "eccc_20261121_T_WWCN12_C_CWNT_202611211247_3019894831.cap": {
+   "bytes": 16924,
+   "sha256": "d52edbc707d8cf93e49aa8ee7795df09c2fe4f94e01065c317c71465e2472bc4",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/12/T_WWCN12_C_CWNT_202611211247_3019894831.cap"
+  },
+  "eccc_20261121_T_WWCN12_C_CWNT_202611211346_0360616360.cap": {
+   "bytes": 14427,
+   "sha256": "988a5ffed8faf5e6a67bf60b70f2f99129af2205cb6396b9ba0bffbfb42ca5ca",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/13/T_WWCN12_C_CWNT_202611211346_0360616360.cap"
+  },
+  "eccc_20261121_T_WWCN12_C_CWTO_202611212155_2726558970.cap": {
+   "bytes": 19573,
+   "sha256": "33351f300ed3e7492e715ee153e4a9f1674c21a754e846ebbda4633ec673a722",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/T_WWCN12_C_CWTO_202611212155_2726558970.cap"
+  },
+  "eccc_20261121_T_WWCN12_C_CWTO_202611212155_3696938459.cap": {
+   "bytes": 24023,
+   "sha256": "ff91303487af233dab55882be9d3b34f5add45a8fa1cd02e9da3bf0661dc65d2",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/T_WWCN12_C_CWTO_202611212155_3696938459.cap"
+  },
+  "eccc_20261121_T_WWCN13_C_CWTO_202611212155_0758587263.cap": {
+   "bytes": 17765,
+   "sha256": "35923b62275ea8b625533a5bc18a59b7236d0a975df850a8b6a7b41b573c7eb6",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/T_WWCN13_C_CWTO_202611212155_0758587263.cap"
+  },
+  "eccc_20261121_T_WWCN16_C_CWHX_202611211935_0895111792.cap": {
+   "bytes": 19918,
+   "sha256": "3e5d44ad1fcd57cb2b60063891c089754e88ad8f2d708561fa16d429ca32b41d",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWHX/19/T_WWCN16_C_CWHX_202611211935_0895111792.cap"
+  },
+  "eccc_20261121_T_WWCN16_C_CWNT_202611210649_0684670817.cap": {
+   "bytes": 17213,
+   "sha256": "e13ea15ac66bd8f9c0f1bec8b33f54fe181249307dddc853a0bf32315784d16a",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/06/T_WWCN16_C_CWNT_202611210649_0684670817.cap"
+  },
+  "eccc_20261121_T_WWCN16_C_CWNT_202611210649_3508786960.cap": {
+   "bytes": 18160,
+   "sha256": "0f0119b640ef915f50ad30e58bbcb46431012f21837d52458d63c4c8654b56c3",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/06/T_WWCN16_C_CWNT_202611210649_3508786960.cap"
+  },
+  "eccc_20261121_T_WWCN16_C_CWNT_202611210650_3765940498.cap": {
+   "bytes": 17824,
+   "sha256": "78927503a516886548c8246fc307ffd11e335599547f5c58ec4d49198e41caec",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/06/T_WWCN16_C_CWNT_202611210650_3765940498.cap"
+  },
+  "eccc_20261121_T_WWCN16_C_CWNT_202611212024_1344587965.cap": {
+   "bytes": 17295,
+   "sha256": "09a96a6cb47db64fe5b21897e392ed3990291b5db403dbb32f666065df8a47cc",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/20/T_WWCN16_C_CWNT_202611212024_1344587965.cap"
+  },
+  "eccc_20261121_T_WWCN16_C_CWNT_202611212024_3023248819.cap": {
+   "bytes": 18281,
+   "sha256": "4a07178fb1a06c6ce4a59e49e46b2541de464988c17bde307616ff71559ce695",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWNT/20/T_WWCN16_C_CWNT_202611212024_3023248819.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210256_2563760416.cap": {
+   "bytes": 38046,
+   "sha256": "2b62453118319b148fca8934c4236cd64971783f9dcc847e5cdcb49c0c0ca006",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/02/T_WZCN86_C_CWTO_202611210256_2563760416.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210256_3682613438.cap": {
+   "bytes": 37412,
+   "sha256": "44623d40c7d9482107d7dfcfc30c49f16870f4ba7b176f142e897005089a694a",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/02/T_WZCN86_C_CWTO_202611210256_3682613438.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210357_2156396324.cap": {
+   "bytes": 50851,
+   "sha256": "4a632943c5730e9a6593d93371f266ea63e1b3a446b746fcce8a38572f3fc574",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/03/T_WZCN86_C_CWTO_202611210357_2156396324.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210357_3644439228.cap": {
+   "bytes": 50229,
+   "sha256": "e7880dbeaca187773f8e5cd69d284d01848248897ebe8433f9b5565fc6b8c51d",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/03/T_WZCN86_C_CWTO_202611210357_3644439228.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210437_3711843922.cap": {
+   "bytes": 58878,
+   "sha256": "3e8be7fce6d48c0826e162942598f3403de14f5f1a3606deb55ede0955047fc1",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/04/T_WZCN86_C_CWTO_202611210437_3711843922.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210642_0430460948.cap": {
+   "bytes": 66695,
+   "sha256": "bd4cfc5e2e65f060190e5914f1d2e8898d6c92c1f751e7faee3fb2406f4149b5",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/06/T_WZCN86_C_CWTO_202611210642_0430460948.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210728_0568826218.cap": {
+   "bytes": 79709,
+   "sha256": "de08ddc11bd12efce304a40e2ba4be9c422f084e4d2e665f9deb27a045183f69",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/07/T_WZCN86_C_CWTO_202611210728_0568826218.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210728_3174871799.cap": {
+   "bytes": 79098,
+   "sha256": "b52893b7c2c8e57fd04d4b58fa6fdc032f48bb832b7c0f7f432cb0afeea37af7",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/07/T_WZCN86_C_CWTO_202611210728_3174871799.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210842_0376540723.cap": {
+   "bytes": 82949,
+   "sha256": "3ec35788c6e404032d10e277edb87f5e33d3562dc2c32636f767d545035e5379",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/08/T_WZCN86_C_CWTO_202611210842_0376540723.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210842_3009366856.cap": {
+   "bytes": 83437,
+   "sha256": "85505d5537e5bf963db47dc24c27d626cefad23dd1e0199c65646d6c2f6fad9b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/08/T_WZCN86_C_CWTO_202611210842_3009366856.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210914_1759131057.cap": {
+   "bytes": 88194,
+   "sha256": "a43c616843497e248400815aece7ba807cda6e96e43c92f73026dffeb579a584",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WZCN86_C_CWTO_202611210914_1759131057.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210915_1061012831.cap": {
+   "bytes": 102766,
+   "sha256": "2348735a636ef9732802a6922d896182e932c1f2d0da38df9fb7ff49a47b0a0b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WZCN86_C_CWTO_202611210915_1061012831.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210916_1628814149.cap": {
+   "bytes": 104572,
+   "sha256": "5e84632be5b88c1c49c23d61602f22ca20985347bc7dc3cacfc038c16a4ba69b",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WZCN86_C_CWTO_202611210916_1628814149.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210916_3240906588.cap": {
+   "bytes": 105141,
+   "sha256": "4b42a6282b08124d6735a58ced602492f3e48fde626adfcf032e331a1589d72d",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WZCN86_C_CWTO_202611210916_3240906588.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210932_0864111388.cap": {
+   "bytes": 114094,
+   "sha256": "00939b83e7399d7a8795b35febe0d31a31cc1de01b8da1756a2b5580801b9821",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WZCN86_C_CWTO_202611210932_0864111388.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611210932_2505549132.cap": {
+   "bytes": 113606,
+   "sha256": "7938e739124ba75c2deff71755be11b578a75708eaae1bc3c6a3b969f5ae4ade",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/09/T_WZCN86_C_CWTO_202611210932_2505549132.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211102_2909423412.cap": {
+   "bytes": 128045,
+   "sha256": "32fb8877d8869f8fc0d12bdd9bb892add7ed12cf4632c4e07572145e5dd2b6b2",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN86_C_CWTO_202611211102_2909423412.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211102_3576461450.cap": {
+   "bytes": 127557,
+   "sha256": "9ec6c9fe9f9e0ab0d586ab67fe95bde417d41a93ee3a8269af8d146449fb489f",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN86_C_CWTO_202611211102_3576461450.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211142_2322617335.cap": {
+   "bytes": 141999,
+   "sha256": "3e3ec80bf3fa98d70a77298034c8460f5d7a13a4a28fc3b7baf9636a0c9f5faf",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN86_C_CWTO_202611211142_2322617335.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211142_3645146661.cap": {
+   "bytes": 141511,
+   "sha256": "e26fbf3680e1a7ef12f49af8eedee0bbb842d15a26fa8720d10856a6b1d61a55",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN86_C_CWTO_202611211142_3645146661.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211401_4072289345.cap": {
+   "bytes": 146979,
+   "sha256": "2569a640d060d2d7cfac390c097eb6c39fe48825da5d8bd833d3f264642b4562",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/T_WZCN86_C_CWTO_202611211401_4072289345.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211420_3328453676.cap": {
+   "bytes": 121194,
+   "sha256": "329f56d38246229091112479f7b9df7ffa223f066e9b5c039748e4b1a7dbb3de",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/T_WZCN86_C_CWTO_202611211420_3328453676.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211456_1943747538.cap": {
+   "bytes": 103930,
+   "sha256": "48cc957081fdc5dbad06ab8a321e1c669b3bbec4b8c81fcc9b0c3317df349a5c",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/T_WZCN86_C_CWTO_202611211456_1943747538.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211523_3299090914.cap": {
+   "bytes": 93989,
+   "sha256": "f633bbd38994f2311cfe75c08ebffd24559977040bafb0356439447bf98a6e68",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/15/T_WZCN86_C_CWTO_202611211523_3299090914.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211618_2705798502.cap": {
+   "bytes": 80516,
+   "sha256": "7332e49dfc5f4a531d6e33f950089c570cc171a4f023fb5ac3d76d2734bc9caa",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/T_WZCN86_C_CWTO_202611211618_2705798502.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211625_2327856684.cap": {
+   "bytes": 68529,
+   "sha256": "01849dca13deef8820d852db56aca81fcc36e16e46b58b14fdeaae5046c18920",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/T_WZCN86_C_CWTO_202611211625_2327856684.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211646_2240315538.cap": {
+   "bytes": 31948,
+   "sha256": "4c3468d48f51bf80b47b2a47393d0ae28055abb097b3cd4388cb287b3468d57c",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/T_WZCN86_C_CWTO_202611211646_2240315538.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611211711_3577244655.cap": {
+   "bytes": 16857,
+   "sha256": "9c963b764fef7a1a8eabd01b1634ce078b6af50f539e59223b2aa49db2cd36d3",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/17/T_WZCN86_C_CWTO_202611211711_3577244655.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611212123_3429029466.cap": {
+   "bytes": 19235,
+   "sha256": "628e8d415b2df94b51a336c61ded3fd394314559dc10176d9086203ebfdba418",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/T_WZCN86_C_CWTO_202611212123_3429029466.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611212124_2012432638.cap": {
+   "bytes": 24578,
+   "sha256": "65f984e09fa69e65eaedad102308e3aa7f289c81a9f295c460f8bb728747d22c",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/21/T_WZCN86_C_CWTO_202611212124_2012432638.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611212209_2171815827.cap": {
+   "bytes": 27342,
+   "sha256": "335cd475eda8bdc2c55ce15e481a74373dbc279720ce68d4449cce184efcfbc2",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/22/T_WZCN86_C_CWTO_202611212209_2171815827.cap"
+  },
+  "eccc_20261121_T_WZCN86_C_CWTO_202611212344_0815738109.cap": {
+   "bytes": 29338,
+   "sha256": "74ad7a273e71d3d7477fdba89373d689168abb3bbbd12f55485e51765605d696",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/23/T_WZCN86_C_CWTO_202611212344_0815738109.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211102_3522742834.cap": {
+   "bytes": 17523,
+   "sha256": "36098f0ef9dffddf621dbf9c1dc72b851d8612876d63543586acc488e02588d2",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN96_C_CWTO_202611211102_3522742834.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211102_4159627771.cap": {
+   "bytes": 17023,
+   "sha256": "519ddd6b1d26ac32e9839de19f6b5250eba6dd75d1a89f4d6de30896c42ba172",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN96_C_CWTO_202611211102_4159627771.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211142_2961281869.cap": {
+   "bytes": 17678,
+   "sha256": "4322409abc40c7a4ea4ca608a760ffb9d75320ce5c45c0688aae4aa65342adaa",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN96_C_CWTO_202611211142_2961281869.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211142_3784413090.cap": {
+   "bytes": 17190,
+   "sha256": "5aeceab48252569dd31b1951181d75cdbc7948108017c61c2c3d93ae1c126d8d",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/11/T_WZCN96_C_CWTO_202611211142_3784413090.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211401_2971887023.cap": {
+   "bytes": 17471,
+   "sha256": "e5d9f4aa3ec111692d28ebadb5370630675f133ef7625b17f09c312bac941ee7",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/T_WZCN96_C_CWTO_202611211401_2971887023.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211420_1402269610.cap": {
+   "bytes": 17552,
+   "sha256": "082c808bd8233d8c8f028e7a8132a9e0b4a105362027dc4c54772f96b2f4b967",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/T_WZCN96_C_CWTO_202611211420_1402269610.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211456_3326763804.cap": {
+   "bytes": 17633,
+   "sha256": "a963220df69316e12fdf4043a29dbed317764bb9c1e0fbdbc1f2d6712f425ac1",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/14/T_WZCN96_C_CWTO_202611211456_3326763804.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211523_2096755183.cap": {
+   "bytes": 17714,
+   "sha256": "fafb5520e6b1c2191bdd3cea4ff7ac6787df0409deee624f787783f8e70c3db2",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/15/T_WZCN96_C_CWTO_202611211523_2096755183.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211618_2438416548.cap": {
+   "bytes": 17795,
+   "sha256": "b632e6470bbd68e8563fdbfea1c9486f76886d8e113dd25796abd6b81ca60514",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/T_WZCN96_C_CWTO_202611211618_2438416548.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211625_2222781003.cap": {
+   "bytes": 17868,
+   "sha256": "31f173f86bda929d6baa068608a0412223aaf81231bd163638ced400a942c07d",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/T_WZCN96_C_CWTO_202611211625_2222781003.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211646_3876660968.cap": {
+   "bytes": 17949,
+   "sha256": "0f4f41f75606b9636a13c080436094eebddc526aebedc4652d42b4cc3d391399",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/16/T_WZCN96_C_CWTO_202611211646_3876660968.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211711_3619188074.cap": {
+   "bytes": 18030,
+   "sha256": "990d46b7249125b77d4026bd6f7020401bece7d3d6e2f76ad8e23e9adcc4422c",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/17/T_WZCN96_C_CWTO_202611211711_3619188074.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211727_2143307413.cap": {
+   "bytes": 18136,
+   "sha256": "bc0598e807fd05922be4702755d9c6aec1f91dfeb9f4ed7d62db5c3f28aee9fe",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/17/T_WZCN96_C_CWTO_202611211727_2143307413.cap"
+  },
+  "eccc_20261121_T_WZCN96_C_CWTO_202611211855_1959886901.cap": {
+   "bytes": 15789,
+   "sha256": "dfa1deb5f112a371d3e35343e0ddabc912fb6086d9c71a53618ec8bb2a97da85",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/CWTO/18/T_WZCN96_C_CWTO_202611211855_1959886901.cap"
+  },
+  "eccc_20261121_index.html": {
+   "bytes": 1163,
+   "sha256": "28853e8aee6737583f8deb78f90bdcf6b9191b3b3ab8a009d6657a022f76cbb7",
+   "url": "https://dd.weather.gc.ca/20261121/WXO-DD/alerts/cap/20261121/"
+  },
+  "ipaws_all_1108_1120.json": {
+   "bytes": 2019883,
+   "sha256": "37b3e13b7356d3773f356e4676a477f89edb7d368579a82f5c00d9eb013ca545",
+   "url": "https://www.fema.gov/api/open/v1/IpawsArchivedAlerts?$filter=sent%20ge%20%272026-11-08T00%3A00%3A00.000Z%27%20and%20sent%20lt%20%272026-11-21T00%3A00%3A00.000Z%27&$top=5000&$inlinecount=allpages&$orderby=sent&$select=identifier,sender,sent,status,msgType,cogId,info"
+  },
+  "ipaws_newest.json": {
+   "bytes": 438,
+   "sha256": "96d3e1522c5c9291fb3bce2e2637fa43f41c49d06ddedf97bcbe79019892a127",
+   "url": "https://www.fema.gov/api/open/v1/IpawsArchivedAlerts?$top=1&$orderby=sent%20desc&$inlinecount=allpages&$select=identifier,sent"
+  },
+  "ipaws_nws_since_oct.json": {
+   "bytes": 3609086,
+   "sha256": "3fe613c1964a51d4fcffded2315dc55a6cb2ec746bbc94a7999fae4d280d383e",
+   "url": "https://www.fema.gov/api/open/v1/IpawsArchivedAlerts?$filter=sender%20eq%20%27w-nws.webmaster%40noaa.gov%27%20and%20sent%20ge%20%272026-10-01T00%3A00%3A00.000Z%27&$top=1000&$inlinecount=allpages&$orderby=sent%20desc&$select=identifier,sender,sent,status,msgType,cogId,info"
+  },
+  "nws_active.json": {
+   "bytes": 1931311,
+   "sha256": "524d261052cfb30daf9660904fe233f73b907825a9aa90901c5c760c8b4771e6",
+   "url": "https://api.weather.gov/alerts/active"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.0d6198736420da16275aa36de87448b81bb4dd1b.001.1.json": {
+   "bytes": 6886,
+   "sha256": "ebbc46bd17429a8cfee2ada076bd367721567772465a439ca548435a646863bb",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.0d6198736420da16275aa36de87448b81bb4dd1b.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.1340d43c13b66c696ab08c9bf24f72513b16c9ab.001.1.json": {
+   "bytes": 8157,
+   "sha256": "1c8ecd662553160e7069fd558533130ef1141d6f142717823e0be9a9687747c7",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1340d43c13b66c696ab08c9bf24f72513b16c9ab.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.1513886d3513e9c33ced66d2e2a4773ff4b7f813.001.1.json": {
+   "bytes": 5116,
+   "sha256": "99da5ac2306ad354b384a7a38143b9788dd98c77e00ffe71bb8b6f2fbeaaf771",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1513886d3513e9c33ced66d2e2a4773ff4b7f813.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.1659ebb0a6ab03122b5e06c58336de60a995165a.001.1.json": {
+   "bytes": 5076,
+   "sha256": "bcbd5189e674b0954a6932ab7c6a155ff9c28e192aeb377f6ee945cd8356454b",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.1659ebb0a6ab03122b5e06c58336de60a995165a.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.18dc89620786164bf10669ff0ee964ad30532553.001.1.json": {
+   "bytes": 5298,
+   "sha256": "8dd2aba181ce8961ef0cf51b57b2baaaa4741c4f7c1ae877ef25d04a3121edd6",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.18dc89620786164bf10669ff0ee964ad30532553.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.240140616c07c4e765da2d3b101cfee4b7e8064a.001.1.json": {
+   "bytes": 5977,
+   "sha256": "c2dfbc0c5658310a8aa9ce7cb402ef956f87ead797b31b7824e8fae876fa5564",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.240140616c07c4e765da2d3b101cfee4b7e8064a.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.294e0e35d092b271b6bdce4212b3259093070008.001.1.json": {
+   "bytes": 7043,
+   "sha256": "fbf207be1339ea2a693e005ecfa709e7ac983b2aa3907abd24e9f1e123c17cdf",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.294e0e35d092b271b6bdce4212b3259093070008.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.395ba57d4c64fdd4e5ef8a7b6bbcd2a092ccc64a.001.1.json": {
+   "bytes": 8637,
+   "sha256": "196f6e325392e68739ec5a00bdf86caddc22ad441ab78ba3b712c1b036c3038c",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.395ba57d4c64fdd4e5ef8a7b6bbcd2a092ccc64a.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.39d6b96ec86371bf390ab465d9820d4fa15876ce.001.1.json": {
+   "bytes": 5584,
+   "sha256": "f1f7465845fa748a78957b337af0f41a73d17d7ced1e0e1d1ed4241b38eae813",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.39d6b96ec86371bf390ab465d9820d4fa15876ce.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.3a12fb8ef6c72f6c63f9c6a8d71fd86fbbc652f8.001.1.json": {
+   "bytes": 6522,
+   "sha256": "4ff6516224ce96e4a33ed22b190ce4714781dbea6cdb1c5dc7a1deb51a12d64d",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.3a12fb8ef6c72f6c63f9c6a8d71fd86fbbc652f8.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.3bcc3955db371b81636fcb7073de3e8926b87cba.001.1.json": {
+   "bytes": 7322,
+   "sha256": "13609c84ac31d182872b8c33b536d2a5fe95545950660279cc8823e7e4461e6b",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.3bcc3955db371b81636fcb7073de3e8926b87cba.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.3c6f1f51e236f9130ca4fb9a6a4b0cf1789caefb.001.1.json": {
+   "bytes": 8610,
+   "sha256": "ad78f75fca1f2db27daf2a30cc48a16818f0d2348d8e82e328daa8a348f0efb5",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.3c6f1f51e236f9130ca4fb9a6a4b0cf1789caefb.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.3f07ac4f0ec639d1e84ad62d3a66609f144a8106.001.1.json": {
+   "bytes": 5631,
+   "sha256": "c37f5296d0d918f0ddba8550649a06afd4986cc9bc5c715c8925e7c332f51579",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.3f07ac4f0ec639d1e84ad62d3a66609f144a8106.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.559e099db4aea22abb7f939f0e994b216b04b9a6.001.1.json": {
+   "bytes": 6186,
+   "sha256": "061a49b6355c90d9443680e5e804fdea1330288b9fb7287ffa4df6e2b1473f2d",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.559e099db4aea22abb7f939f0e994b216b04b9a6.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.6185678ef0307d6cd8922d4764ad72864281256b.001.1.json": {
+   "bytes": 7755,
+   "sha256": "88e086e55efbc34e9fea30b68ffc8d85afdf502717e4dcfb37d2709e0de86489",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.6185678ef0307d6cd8922d4764ad72864281256b.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.7254d3a523329895fe2098ec920a38ed4ddd5248.001.1.json": {
+   "bytes": 7940,
+   "sha256": "6f1a4fb6e04f3f9f2022b718f8dacd97b52c2988adfc22c4b5938a1972c80ebc",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.7254d3a523329895fe2098ec920a38ed4ddd5248.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.8b06b30c1cee0b8f0feb04e7c34269bea81f582c.001.1.json": {
+   "bytes": 5871,
+   "sha256": "68ee6e32042ba26e08d7e52fe2d1148c87d219bfd6e7057fcab279adaa5e398e",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.8b06b30c1cee0b8f0feb04e7c34269bea81f582c.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.970ae3c2a2ee7809c6cb6bee6106236bfdf9c6e8.001.1.json": {
+   "bytes": 5027,
+   "sha256": "b468741a6a2bc034f7e3e24498a2edc090ba3053fe0f2597cdbf486cf51df128",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.970ae3c2a2ee7809c6cb6bee6106236bfdf9c6e8.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.9c33b9e89815765f26c8d42bc7fe9105e000178d.001.1.json": {
+   "bytes": 6265,
+   "sha256": "5fca540c4d3c7a9f85f32da4c3e3d2df76ae1f6584216517e0eaa7869ffb2e02",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.9c33b9e89815765f26c8d42bc7fe9105e000178d.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.a8727f7ec639948001e1ae52a69968fbe65bab59.001.1.json": {
+   "bytes": 7264,
+   "sha256": "23b715ae9e89863900f90bbec78c61ff02103f8a7910e787a6691f292f5124d0",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.a8727f7ec639948001e1ae52a69968fbe65bab59.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.aad0676b9737d33c6e8ac74ed2839a08e6098d59.001.1.json": {
+   "bytes": 6349,
+   "sha256": "e501843885c3cb4f7e9a37f71cdb7f0f801b41a3833e3f0d38ac5720be600fcb",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.aad0676b9737d33c6e8ac74ed2839a08e6098d59.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.b4575e47e0e3e40037b640f7a1b35ec705fd66fb.001.1.json": {
+   "bytes": 5144,
+   "sha256": "a8ef9920dedba371b826476d217d910e14db19f66b22ca080041e3d26600484f",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.b4575e47e0e3e40037b640f7a1b35ec705fd66fb.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.c992ef5aefa6a9586c06b5fdc1c09d28f2d796e4.001.1.json": {
+   "bytes": 6521,
+   "sha256": "e19b9d96ebb89467192db724029690481fc3a5a718c6b46979f0933cd72a2a93",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.c992ef5aefa6a9586c06b5fdc1c09d28f2d796e4.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.cf0ac37f65ea9a8b81e88bdd1cc448d485569acf.001.1.json": {
+   "bytes": 6077,
+   "sha256": "fa0e3f4423353a25d6aa37f66e7ca83dcb687c0137266c08b553123229e2dadf",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.cf0ac37f65ea9a8b81e88bdd1cc448d485569acf.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.e0064b8072e0fabebf1625e25c6a45983650db6d.001.1.json": {
+   "bytes": 6243,
+   "sha256": "e611c03bf88d8de39739a225cb142c79c18e391dd0711bde17d3ff04e9fe95b1",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.e0064b8072e0fabebf1625e25c6a45983650db6d.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.eee279d996d037a003f70335883466e3b2a5bb96.001.1.json": {
+   "bytes": 5865,
+   "sha256": "72ec9f416d3c1b28eb94559c0793c8b3ee7623d98ac17c04a9c204123aec4ef8",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.eee279d996d037a003f70335883466e3b2a5bb96.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.f48d7447c9c3143df6f73b467d89778cf77aee1e.001.1.json": {
+   "bytes": 6102,
+   "sha256": "c381b4526c2b5da95b8998633996c4f25352494040c72460db04e9e7c92f21a9",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.f48d7447c9c3143df6f73b467d89778cf77aee1e.001.1"
+  },
+  "nws_alert_urn_oid_2.49.0.1.840.0.fec6ff883a331861b5a7163736c95d68dd19c5de.001.1.json": {
+   "bytes": 5022,
+   "sha256": "0306dde0bd083efea0ca278275679ae351d62f0b0194a437ad2d8bfc9a1b5471",
+   "url": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.fec6ff883a331861b5a7163736c95d68dd19c5de.001.1"
+  },
+  "nws_day_2026-11-19_00.json": {
+   "bytes": 2597604,
+   "sha256": "0cd522a5192afbd58fe87e993a823ccd254af7ba688df9bed18c53d525c7f8b3",
+   "url": "https://api.weather.gov/alerts?start=2026-11-19T00:00:00Z&end=2026-11-20T00:00:00Z&limit=500"
+  },
+  "nws_day_2026-11-19_01.json": {
+   "bytes": 2506037,
+   "sha256": "99b03e74ed92134d439662504cc9deb56024848b296c53b465d90f85e42e951d",
+   "url": "https://api.weather.gov/alerts?start=2026-11-19T00:00:00Z&end=2026-11-20T00:00:00Z&limit=500&cursor=eyJ0IjoxNzk1MTA0MzYwLCJpIjoidXJuOm9pZDoyLjQ5LjAuMS44NDAuMC5kNTIyMzRiYjdmZDkxM2MzZWNjYmJhOTYzYTUzMTExOThhMWExYTg1LjAwMS4xIn0%3D"
+  },
+  "nws_day_2026-11-19_02.json": {
+   "bytes": 2355770,
+   "sha256": "bdd17bb647e689f40bfb1160c5d6b812ebe411dfe9275e8bb160b04cf2daa377",
+   "url": "https://api.weather.gov/alerts?start=2026-11-19T00:00:00Z&end=2026-11-20T00:00:00Z&limit=500&cursor=eyJ0IjoxNzk1MDc0ODQwLCJpIjoidXJuOm9pZDoyLjQ5LjAuMS44NDAuMC4yZmQyM2E0YjZkYjhmMDA4NjlmY2Q0MWJmYTlhMjBmOGQ1NTBjYzEzLjAwMS4xIn0%3D"
+  },
+  "nws_day_2026-11-19_03.json": {
+   "bytes": 291,
+   "sha256": "8a556d1b7dcd1444aecce325c6e5921e6442889ac8290e522a16ee8d89567c88",
+   "url": "https://api.weather.gov/alerts?start=2026-11-19T00:00:00Z&end=2026-11-20T00:00:00Z&limit=500&cursor=eyJ0IjoxNzk1MDQ2NTgwLCJpIjoidXJuOm9pZDoyLjQ5LjAuMS44NDAuMC40ZDkxOTQ1YTk1YjkyNjllYTZmM2MzYTJjMmE4ZDBiY2Q5MjUyOGI2LjAwMS4xIn0%3D"
+  },
+  "openfema_datasets.json": {
+   "bytes": 13758,
+   "sha256": "00aeb4fcc4178ad191a78335dd2290de92169eb4d82b2c7c154d20562134a17e",
+   "url": "https://www.fema.gov/api/open/v1/OpenFemaDataSets?$filter=name%20eq%20%27IpawsArchivedAlerts%27%20or%20name%20eq%20%27DisasterDeclarationsSummaries%27%20or%20name%20eq%20%27FemaWebDisasterDeclarations%27"
+  },
+  "robots_api_weather_gov.txt": {
+   "bytes": 26,
+   "sha256": "331ea9090db0c9f6f597bd9840fd5b171830f6e0b3ba1cb24dfa91f0c95aedc1",
+   "url": "https://api.weather.gov/robots.txt"
+  },
+  "terms_eccc.html": {
+   "bytes": 17355,
+   "sha256": "b77b61cda7d2b995f39c6b00467cda27d399a7abd83eea100081e37d8b1abbc9",
+   "url": "https://eccc-msc.github.io/open-data/licence/readme_en/"
+  },
+  "terms_nws_api.html": {
+   "bytes": 50686,
+   "sha256": "65126b58fc2625780d08f46ca36560f1d489d78b825c1349565bcc6117cd194a",
+   "url": "https://www.weather.gov/documentation/services-web-api"
+  },
+  "terms_nws_disclaimer.html": {
+   "bytes": 41679,
+   "sha256": "c08c1597ebd52b31e3ba749f76d2217c290dcd16dc894cb4c109655566ecbbd1",
+   "url": "https://www.weather.gov/disclaimer"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "ipaws_event": "Tornado Warning",
+   "ipaws_expires_utc": "2026-11-16T21:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.9c33b9e89815765f26c8d42bc7fe9105e000178d.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006087"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-16T20:47:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.TO.W.0003.261116T2047Z-261116T2130Z/"
+   ],
+   "nws_event": "Tornado Warning",
+   "nws_expires_utc": "2026-11-16T21:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.9c33b9e89815765f26c8d42bc7fe9105e000178d.001.1",
+   "nws_same": [
+    "006087"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-16T20:47:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.TO.W.0003.261116T2047Z-261116T2130Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T17:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.8b06b30c1cee0b8f0feb04e7c34269bea81f582c.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T14:47:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMLB.FF.W.0029.261119T1447Z-261119T1745Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T17:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.8b06b30c1cee0b8f0feb04e7c34269bea81f582c.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T14:47:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMLB.FF.W.0029.261119T1447Z-261119T1745Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T04:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.395ba57d4c64fdd4e5ef8a7b6bbcd2a092ccc64a.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T03:05:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0430Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T04:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.395ba57d4c64fdd4e5ef8a7b6bbcd2a092ccc64a.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T03:05:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0430Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T16:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.aad0676b9737d33c6e8ac74ed2839a08e6098d59.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T15:02:00Z",
+   "ipaws_vtec": [
+    "/O.CON.KMLB.FF.W.0027.000000T0000Z-261119T1645Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T16:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.aad0676b9737d33c6e8ac74ed2839a08e6098d59.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T15:02:00Z",
+   "nws_vtec": [
+    "/O.CON.KMLB.FF.W.0027.000000T0000Z-261119T1645Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-18T05:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.3f07ac4f0ec639d1e84ad62d3a66609f144a8106.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012011"
+   ],
+   "ipaws_sender_name": "NWS Miami FL",
+   "ipaws_sent_utc": "2026-11-18T04:06:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMFL.FF.W.0017.000000T0000Z-261118T0530Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-18T05:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.3f07ac4f0ec639d1e84ad62d3a66609f144a8106.001.1",
+   "nws_same": [
+    "012011"
+   ],
+   "nws_sender_name": "NWS Miami FL",
+   "nws_sent_utc": "2026-11-18T04:06:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMFL.FF.W.0017.000000T0000Z-261118T0530Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Tornado Warning",
+   "ipaws_expires_utc": "2026-11-20T23:15:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.b4575e47e0e3e40037b640f7a1b35ec705fd66fb.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006069"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-20T22:23:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.TO.W.0004.261120T2223Z-261120T2315Z/"
+   ],
+   "nws_event": "Tornado Warning",
+   "nws_expires_utc": "2026-11-20T23:15:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.b4575e47e0e3e40037b640f7a1b35ec705fd66fb.001.1",
+   "nws_same": [
+    "006069"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-20T22:23:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.TO.W.0004.261120T2223Z-261120T2315Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T03:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.a8727f7ec639948001e1ae52a69968fbe65bab59.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T00:59:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0330Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T03:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.a8727f7ec639948001e1ae52a69968fbe65bab59.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T00:59:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0330Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T06:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.1340d43c13b66c696ab08c9bf24f72513b16c9ab.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T03:47:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0600Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T06:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.1340d43c13b66c696ab08c9bf24f72513b16c9ab.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T03:47:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0600Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T14:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.e0064b8072e0fabebf1625e25c6a45983650db6d.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T12:35:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMLB.FF.W.0026.000000T0000Z-261119T1445Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T14:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.e0064b8072e0fabebf1625e25c6a45983650db6d.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T12:35:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMLB.FF.W.0026.000000T0000Z-261119T1445Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T12:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.cf0ac37f65ea9a8b81e88bdd1cc448d485569acf.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T09:50:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMLB.FF.W.0026.261119T0950Z-261119T1245Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T12:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.cf0ac37f65ea9a8b81e88bdd1cc448d485569acf.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T09:50:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMLB.FF.W.0026.261119T0950Z-261119T1245Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T01:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.0d6198736420da16275aa36de87448b81bb4dd1b.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-18T22:30:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.FF.W.0002.261118T2230Z-261119T0130Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T01:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.0d6198736420da16275aa36de87448b81bb4dd1b.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-18T22:30:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.FF.W.0002.261118T2230Z-261119T0130Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-18T05:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.240140616c07c4e765da2d3b101cfee4b7e8064a.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012011"
+   ],
+   "ipaws_sender_name": "NWS Miami FL",
+   "ipaws_sent_utc": "2026-11-18T04:23:00Z",
+   "ipaws_vtec": [
+    "/O.CON.KMFL.FF.W.0019.000000T0000Z-261118T0545Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-18T05:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.240140616c07c4e765da2d3b101cfee4b7e8064a.001.1",
+   "nws_same": [
+    "012011"
+   ],
+   "nws_sender_name": "NWS Miami FL",
+   "nws_sent_utc": "2026-11-18T04:23:00Z",
+   "nws_vtec": [
+    "/O.CON.KMFL.FF.W.0019.000000T0000Z-261118T0545Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-18T07:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.559e099db4aea22abb7f939f0e994b216b04b9a6.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012011"
+   ],
+   "ipaws_sender_name": "NWS Miami FL",
+   "ipaws_sent_utc": "2026-11-18T05:42:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMFL.FF.W.0019.000000T0000Z-261118T0700Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-18T07:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.559e099db4aea22abb7f939f0e994b216b04b9a6.001.1",
+   "nws_same": [
+    "012011"
+   ],
+   "nws_sender_name": "NWS Miami FL",
+   "nws_sent_utc": "2026-11-18T05:42:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMFL.FF.W.0019.000000T0000Z-261118T0700Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-20T17:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.eee279d996d037a003f70335883466e3b2a5bb96.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012127"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-20T15:04:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMLB.FF.W.0036.261120T1504Z-261120T1730Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-20T17:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.eee279d996d037a003f70335883466e3b2a5bb96.001.1",
+   "nws_same": [
+    "012127"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-20T15:04:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMLB.FF.W.0036.261120T1504Z-261120T1730Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T06:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.3c6f1f51e236f9130ca4fb9a6a4b0cf1789caefb.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T03:46:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0600Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T06:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.3c6f1f51e236f9130ca4fb9a6a4b0cf1789caefb.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T03:46:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0600Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T03:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.6185678ef0307d6cd8922d4764ad72864281256b.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T00:58:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0330Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T03:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.6185678ef0307d6cd8922d4764ad72864281256b.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T00:58:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0330Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T20:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.1659ebb0a6ab03122b5e06c58336de60a995165a.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006037"
+   ],
+   "ipaws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "ipaws_sent_utc": "2026-11-19T16:03:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KLOX.FF.W.0024.261119T1603Z-261119T2000Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T20:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.1659ebb0a6ab03122b5e06c58336de60a995165a.001.1",
+   "nws_same": [
+    "006037"
+   ],
+   "nws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "nws_sent_utc": "2026-11-19T16:03:00Z",
+   "nws_vtec": [
+    "/O.NEW.KLOX.FF.W.0024.261119T1603Z-261119T2000Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T01:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.3bcc3955db371b81636fcb7073de3e8926b87cba.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-18T22:30:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.FF.W.0001.261118T2230Z-261119T0130Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T01:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.3bcc3955db371b81636fcb7073de3e8926b87cba.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-18T22:30:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.FF.W.0001.261118T2230Z-261119T0130Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T19:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.f48d7447c9c3143df6f73b467d89778cf77aee1e.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T17:31:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMLB.FF.W.0029.000000T0000Z-261119T1945Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T19:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.f48d7447c9c3143df6f73b467d89778cf77aee1e.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T17:31:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMLB.FF.W.0029.000000T0000Z-261119T1945Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T10:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.18dc89620786164bf10669ff0ee964ad30532553.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006083"
+   ],
+   "ipaws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "ipaws_sent_utc": "2026-11-19T08:44:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KLOX.FF.W.0019.261119T0844Z-261119T1045Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T10:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.18dc89620786164bf10669ff0ee964ad30532553.001.1",
+   "nws_same": [
+    "006083"
+   ],
+   "nws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "nws_sent_utc": "2026-11-19T08:44:00Z",
+   "nws_vtec": [
+    "/O.NEW.KLOX.FF.W.0019.261119T0844Z-261119T1045Z/"
+   ],
+   "same_description_text": true
+  }
+ ],
+ "ipaws_archive": {
+  "api_run_time": "2026-11-22T14:00:34.681Z",
+  "catalog_accrual_periodicity": "R/PT2M",
+  "catalog_license_field": null,
+  "catalog_record_count": 4887958,
+  "catalog_temporal": "2012-06-01/",
+  "newest_sent": "2026-11-21T13:01:25.000Z",
+  "newest_sent_in_window": "2026-11-20T23:56:40.000Z",
+  "total_count_reported": 4870228,
+  "window": [
+   "2026-11-08T00:00:00.000Z",
+   "2026-11-21T00:00:00.000Z"
+  ],
+  "window_by_msg_type": {
+   "Alert": 335,
+   "Cancel": 79,
+   "Update": 16
+  },
+  "window_by_status": {
+   "Actual": 430
+  },
+  "window_count_reported": 430,
+  "window_distinct_cog_ids": 112,
+  "window_distinct_identifiers": 430,
+  "window_distinct_senders": 125,
+  "window_from_nws_sender": 35,
+  "window_missing_person_or_abduction_alerts": 28,
+  "window_rows_returned": 430,
+  "window_senders_written_as_an_email_address_other_than_nws": 40,
+  "window_top_events": {
+   "": 71,
+   "Demo Warning": 13,
+   "Flash Flood Warning": 26,
+   "Law Enforcement Warning": 7,
+   "Local Area Emergency": 114,
+   "Missing and Endangered Persons": 20,
+   "REQUIRED WEEKLY TEST": 13,
+   "Required Monthly Test": 13,
+   "Required Weekly Test": 84,
+   "Tornado Warning": 9
+  },
+  "window_with_description": 284,
+  "window_with_wea_text": 229
+ },
+ "ipaws_nws_origin_since_2026_10_01": {
+  "by_event": {
+   "Dust Storm Warning": 5,
+   "Extreme Wind Warning": 3,
+   "Flash Flood Warning": 261,
+   "Hurricane Warning": 30,
+   "Severe Thunderstorm Warning": 12,
+   "Storm Surge Warning": 22,
+   "Tornado Warning": 133,
+   "Typhoon Warning": 3
+  },
+  "count_reported": 469,
+  "identifiers_ending_dot_IPAWS": 469,
+  "identifiers_starting_urn_oid_2_49_0_1_840_0": 469,
+  "rows_returned": 469,
+  "sent_max": "2026-11-20T22:23:00.000Z",
+  "sent_min": "2026-10-01T00:05:00.000Z"
+ },
+ "nws_active": {
+  "alerts": 463,
+  "by_message_type": {
+   "Alert": 332,
+   "Update": 131
+  },
+  "by_severity": {
+   "Minor": 233,
+   "Moderate": 195,
+   "Severe": 29,
+   "Unknown": 6
+  },
+  "by_status": {
+   "Actual": 462,
+   "Test": 1
+  },
+  "distinct_events": 26,
+  "distinct_ids": 463,
+  "ids_matching_urn_oid_2_49_0_1_840": 462,
+  "median_description_characters": 553,
+  "sent_max": "2026-11-22T13:54:55Z",
+  "sent_min": "2026-11-19T00:45:00Z",
+  "top_events": {
+   "Coastal Flood Advisory": 12,
+   "Coastal Flood Watch": 8,
+   "Dense Fog Advisory": 8,
+   "Gale Warning": 146,
+   "Gale Watch": 11,
+   "High Surf Advisory": 9,
+   "Small Craft Advisory": 204,
+   "Special Weather Statement": 13
+  },
+  "with_description": 463,
+  "with_geometry": 7,
+  "with_instruction": 176,
+  "with_references": 131,
+  "with_vtec": 441,
+  "with_wea_handling": 0
+ },
+ "nws_one_day": {
+  "alerts": 1475,
+  "by_message_type": {
+   "Alert": 659,
+   "Cancel": 75,
+   "Update": 741
+  },
+  "by_severity": {
+   "Extreme": 1,
+   "Minor": 701,
+   "Moderate": 477,
+   "Severe": 150,
+   "Unknown": 146
+  },
+  "by_status": {
+   "Actual": 1330,
+   "Test": 145
+  },
+  "day_utc": "2026-11-19",
+  "distinct_events": 35,
+  "distinct_ids": 1475,
+  "ids_matching_urn_oid_2_49_0_1_840": 1331,
+  "median_description_characters": 380,
+  "pages": 4,
+  "references_cited": 1195,
+  "references_resolving_to_an_alert_sent_the_same_day": 826,
+  "sent_max": "2026-11-19T23:57:00Z",
+  "sent_min": "2026-11-19T00:03:00Z",
+  "top_events": {
+   "Dense Fog Advisory": 86,
+   "Flash Flood Warning": 60,
+   "Flood Advisory": 121,
+   "Gale Warning": 203,
+   "Small Craft Advisory": 458,
+   "Test Message": 144,
+   "Wind Advisory": 58,
+   "Winter Weather Advisory": 50
+  },
+  "with_description": 1471,
+  "with_geometry": 279,
+  "with_instruction": 1107,
+  "with_references": 816,
+  "with_vtec": 1277,
+  "with_wea_handling": 16
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 145,
+  "made_this_run": 11,
+  "source_bodies": 144
+ },
+ "robots": {
+  "https://api.weather.gov/robots.txt": {
+   "body": "User-agent: *\nDisallow: /",
+   "http_status": 200
+  },
+  "https://dd.weather.gc.ca/robots.txt": {
+   "http_status": 404
+  },
+  "https://www.fema.gov/robots.txt": {
+   "http_status": 403
+  }
+ },
+ "run_date": "2026-11-22",
+ "terms": [
+  {
+   "quote": "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://www.weather.gov/disclaimer"
+  },
+  {
+   "quote": "All of the information presented via the API is intended to be open data, free to use for any purpose.",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://www.weather.gov/documentation/services-web-api"
+  },
+  {
+   "quote": "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://eccc-msc.github.io/open-data/licence/readme_en/"
+  },
+  {
+   "quote": "In the case of weather alerts (i.e. watches/warnings), any information shall be reproduced in such a way that there is no alteration of the content or intent of the alert.",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://eccc-msc.github.io/open-data/licence/readme_en/"
+  },
+  {
+   "note": "dataset description in the OpenFEMA catalogue API; it is a description, not a licence",
+   "quote": "This is raw, unedited data with no personally identifiable information from the IPAWS Alert Aggregator from June 2012 to the present created by over 1450 Alert Originators across the country. FEMA does not validate the content of each message.",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://www.fema.gov/api/open/v1/OpenFemaDataSets"
+  }
+ ],
+ "terms_not_readable": {
+  "https://www.fema.gov/about/openfema/terms-conditions": 403,
+  "https://www.fema.gov/openfema-data-page/ipaws-archived-alerts-v1": 403
+ }
+}
