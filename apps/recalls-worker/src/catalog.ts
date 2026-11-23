@@ -231,6 +231,7 @@ export const DATASETS: Readonly<Record<DatasetKey, DatasetEntry>> = {
       { name: 'hazard / remedy', meaning: 'Hazard and remedy classes from one taxonomy shared by both agencies.' },
       { name: 'trade_facets', meaning: 'appliance, hvac, plumbing-water-heating, electrical, building-products.' },
       { name: 'linked_notices', meaning: 'The other agency’s notice, when one notice cites it (declared citation).' },
+      { name: 'source_listing', meaning: 'Present only when Health Canada has removed the notice from its index (withdrawn or replaced); the record is kept as evidence.' },
     ],
     sample: {
       request: 'curl "https://api.data.aroqon.com/v1/product-recalls/cpsc-25203" \\\n  -H "Authorization: Bearer $DATA_FOUNDRY_KEY"',

@@ -6,8 +6,8 @@ import worker from '../src/index.js';
 import { renderLiteral, sha256Hex } from '../src/store.js';
 import { ingestRecords, MIN_FULL_CPSC, MIN_FULL_HC_CONSUMER,
   cpscFullWindows, scheduledProductSync } from '../src/product-sync.js';
-import { isIndexableNotice, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
-import { PRODUCT_INDEXNOW_FEED } from '../src/product-pages.js';
+import { isIndexableNotice, markDelistedStatement, prepareProductRecall, writeProductGroups, MAX_LITERAL_JSON_BYTES } from '../src/product-store.js';
+import { PRODUCT_INDEXNOW_FEED, productIndexableStats } from '../src/product-pages.js';
 import { pingChanged } from '../src/seo.js';
 import { createTestBucket, createTestDatabase } from './d1-sqlite.js';
 import { CPSC, HC, HC_ONLY, MEDICAL } from './fixtures.js';
@@ -131,6 +131,8 @@ describe('product-recall ingestion', () => {
     const results = await scheduledProductSync(env, { full: false, today: '2026-09-27', fetcher: fetcher as unknown as typeof fetch });
     expect(results.map((result) => result.error)).toEqual([undefined, undefined]);
     expect(String(fetcher.mock.calls[0]?.[0])).toContain('LastPublishDateStart=2026-08-28');
+    // The Health Canada CDN served the plain URL a day stale; the read carries an hourly query string.
+    expect(String(fetcher.mock.calls[1]?.[0])).toMatch(/HCRSAMOpenData\.json\?retrieved=\d{10}$/);
     expect(await env.DB.prepare('SELECT COUNT(*) AS n FROM product_recall').first()).toEqual({ n: MIN_FULL_HC_CONSUMER + 2 });
   });
 
@@ -337,6 +339,86 @@ describe('product-recall API', () => {
       expect((await worker.fetch(site('/product-recalls'), closed)).status).toBe(503);
       expect(await (await worker.fetch(site('/llms.txt'), closed)).text()).not.toContain('product-recalls');
     }
+  });
+});
+
+describe('notices an agency stops listing', () => {
+  type Detail = { data: { source_listing?: { status: string; last_listed_at: string } } };
+  const detail = async (env: Env, id: string, apiKey: string): Promise<Detail> => (await (await worker.fetch(api(`/v1/product-recalls/${id}`, apiKey), env)).json()) as Detail;
+
+  it('keeps a withdrawn Health Canada notice as evidence, marked and out of the index, and unmarks it if it returns', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const apiKey = await key(env);
+    // Make the notice indexable so the sitemap count can show it leaving.
+    await env.DB.prepare("UPDATE product_recall SET indexable = 1 WHERE id = 'hc-82659'").run();
+    expect((await productIndexableStats(env.DB)).n).toBe(2);
+
+    // One read without it, six hours later, is inside the grace period: a single short file must not mark anything.
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-09-27T18:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
+
+    // Still absent two days later: the agency no longer lists it.
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-09-29T12:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toEqual({ status: 'no_longer_listed', last_listed_at: NOW });
+    expect((await detail(env, 'hc-77184', apiKey)).data.source_listing).toBeUndefined();
+    // CPSC notices are not judged by the Health Canada index, however old their last read.
+    expect((await detail(env, 'cpsc-25203', apiKey)).data.source_listing).toBeUndefined();
+
+    // The transition is a change: an incremental reader asking for changes since the withdrawal receives it, once.
+    const changedSince = async (since: string): Promise<string[]> =>
+      ((await (await worker.fetch(api(`/v1/product-recalls?changed_since=${since}`, apiKey), env)).json()) as { data: Array<{ id: string }> }).data.map((item) => item.id);
+    const mark = async (now: string): Promise<void> => {
+      const statement = markDelistedStatement(now);
+      await env.DB.prepare(statement.sql).bind(...statement.params).run();
+    };
+    expect(await changedSince('2026-09-28T00:00:00.000Z')).toEqual([]);
+    await mark('2026-09-29T12:00:00.000Z');
+    expect(await changedSince('2026-09-28T00:00:00.000Z')).toEqual(['hc-82659']);
+    await mark('2026-09-29T18:00:00.000Z');
+    expect(await changedSince('2026-09-29T13:00:00.000Z')).toEqual([]);
+
+    const row = await env.DB.prepare("SELECT raw_ref FROM product_recall WHERE id = 'hc-82659'").first<{ raw_ref: string }>();
+    expect(row?.raw_ref).toBeTruthy();
+    const stats = (await (await worker.fetch(api('/v1/product-recalls/stats'), env)).json()) as { agencies: Array<{ agency: string; notices: number; no_longer_listed: number }> };
+    expect(stats.agencies).toEqual([expect.objectContaining({ agency: 'CPSC', notices: 1, no_longer_listed: 0 }), expect.objectContaining({ agency: 'HC', notices: 2, no_longer_listed: 1 })]);
+    expect((await productIndexableStats(env.DB)).n).toBe(1);
+    const changed = await env.DB.prepare(PRODUCT_INDEXNOW_FEED.changedSql).bind('2000-01-01', '2100-01-01').all<{ id: string }>();
+    expect(changed.results.map((item) => item.id)).toEqual(['cpsc-25203']);
+    const page = await (await worker.fetch(site('/product-recalls/hc-82659'), env)).text();
+    expect(page).toContain('Health Canada no longer lists this notice');
+    expect(page).toContain('noindex, follow');
+
+    // The notice is listed again: the mark goes away with the next read.
+    await ingestRecords(env, 'HC', [HC, HC_ONLY], 'full', '2026-09-30T12:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
+    expect((await productIndexableStats(env.DB)).n).toBe(2);
+    // Re-listing unchanged bytes is also a change for incremental readers; the notice that never left is not.
+    expect(await changedSince('2026-09-30T00:00:00.000Z')).toEqual(['hc-82659']);
+  });
+
+  it('measures the grace period between successful reads, so the first read after an outage marks nothing', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const apiKey = await key(env);
+    // Every run for three days fails or never starts; the first successful read then omits the notice.
+    await env.DB.prepare("INSERT INTO sync_run (category, window_from, window_to, started_at, status) VALUES ('product:HC', 'full', '2026-09-29', '2026-09-29T12:00:00.000Z', 'FAILED')").run();
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-09-30T12:00:00.000Z');
+    // Three days since the last sighting, but only one successful observation of its absence.
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-09-30T18:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
+    // Absent from successful reads spanning more than a day: now it is marked.
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-10-01T18:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toEqual({ status: 'no_longer_listed', last_listed_at: NOW });
+  });
+
+  it('marks nothing when no full Health Canada read has succeeded', async () => {
+    const env = makeEnv();
+    await seed(env);
+    await env.DB.prepare("UPDATE sync_run SET status = 'FAILED' WHERE category = 'product:HC'").run();
+    const apiKey = await key(env);
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
   });
 });
 

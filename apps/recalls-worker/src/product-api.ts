@@ -9,6 +9,7 @@ import { HAZARD_CLASSES, REMEDY_CLASSES, TRADE_FACETS, modelKey, type Structured
 
 import { BadRequest, gtinCandidates } from './api.js';
 import type { D1Database, R2Bucket } from './env.js';
+import { NO_LONGER_LISTED_SQL } from './product-store.js';
 import { parseRawRef, sha256Hex } from './store.js';
 import { publishableExtractorClause } from './intake.js';
 import { sourceSync } from './source-sync.js';
@@ -41,9 +42,12 @@ interface ProductRow {
   last_seen_at: string;
   changed_at: string;
   sort_date: string;
+  /** 1 when the publisher no longer lists the notice (NO_LONGER_LISTED_SQL). */
+  no_longer_listed?: number;
 }
 
-const COLUMNS = 'id, agency, url_key, structured, raw_ref, raw_sha256, first_seen_at, last_seen_at, changed_at, sort_date';
+export const PRODUCT_ROW_COLUMNS = `id, agency, url_key, structured, raw_ref, raw_sha256, first_seen_at, last_seen_at, changed_at, sort_date, ${NO_LONGER_LISTED_SQL} AS no_longer_listed`;
+const COLUMNS = PRODUCT_ROW_COLUMNS;
 
 export interface LinkedNotice {
   readonly id: string;
@@ -57,6 +61,11 @@ export interface LinkedNotice {
 
 export type PresentedProductRecall = Omit<StructuredProductRecall, 'provenance'> & {
   readonly linked_notices: LinkedNotice[];
+  /**
+   * Present only when the agency has stopped listing the notice in its own index (withdrawn or re-filed).
+   * The record is kept as evidence of what was published; `last_listed_at` is when we last read it there.
+   */
+  readonly source_listing?: { readonly status: 'no_longer_listed'; readonly last_listed_at: string };
   readonly provenance: StructuredProductRecall['provenance'] & {
     readonly raw_sha256: string;
     readonly raw_evidence: string;
@@ -198,6 +207,7 @@ export async function presentRows(db: D1Database, bucket: R2Bucket, rows: readon
     return {
       ...recall,
       linked_notices: links.get(row.id) ?? [],
+      ...(row.no_longer_listed ? { source_listing: { status: 'no_longer_listed' as const, last_listed_at: row.last_seen_at } } : {}),
       provenance: {
         ...recall.provenance,
         raw_sha256: row.raw_sha256,
@@ -397,7 +407,7 @@ export async function lookupProductCode(db: D1Database, bucket: R2Bucket, code: 
 /** Page coverage and full stats share the same counts and successful-source clocks. */
 export async function productCoverageStats(db: D1Database) {
   const [agencies, lastSync] = await Promise.all([
-    db.prepare('SELECT agency, COUNT(*) AS notices, MAX(sort_date) AS latest FROM product_recall GROUP BY agency ORDER BY agency').all<{ agency: string; notices: number; latest: string }>(),
+    db.prepare(`SELECT agency, COUNT(*) AS notices, MAX(sort_date) AS latest, SUM(${NO_LONGER_LISTED_SQL}) AS no_longer_listed FROM product_recall GROUP BY agency ORDER BY agency`).all<{ agency: string; notices: number; latest: string; no_longer_listed: number }>(),
     db.prepare("SELECT category AS source, MAX(finished_at) AS finished_at FROM sync_run WHERE status = 'SUCCEEDED' AND category LIKE 'product:%' GROUP BY category").all<{ source: string; finished_at: string }>(),
   ]);
   return {

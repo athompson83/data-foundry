@@ -204,6 +204,12 @@ const PRODUCT_RECALL_SCHEMA = {
     identifiers: { type: 'object', properties: { gtins: { type: 'array', items: { type: 'string' } }, model_numbers: { type: 'array', items: { type: 'string' } }, model_keys: { type: 'array', items: { type: 'string' } } } },
     trade_facets: { type: 'array', items: { type: 'string', enum: [...TRADE_FACETS] } },
     linked_notices: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, agency: { type: 'string' }, relation: { type: 'string', enum: ['cites', 'cited_by'] }, basis: { type: 'string', enum: ['declared_citation'] } } } },
+    source_listing: {
+      type: 'object',
+      description:
+        'Present only when the agency has stopped listing the notice in its own index (withdrawn, or re-filed elsewhere). The record is kept as evidence of what was published and should not be treated as a current recall. Checked for Health Canada, whose whole index is read on every run; a notice is marked after it has been absent for more than a day of successful reads.',
+      properties: { status: { type: 'string', enum: ['no_longer_listed'] }, last_listed_at: { type: 'string', description: 'When the notice was last read in the agency index.' } },
+    },
     extracted_identifiers: {
       type: 'array',
       description:

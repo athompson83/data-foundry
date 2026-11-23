@@ -96,6 +96,17 @@ describe('inventory screening', () => {
     expect(download).toContain('Open Government Licence'); expect(download).toContain('Not affiliated with or endorsed'); expect(download).toContain('source_sync_at_check');
     expect(() => new Function(SCREENING_JS)).not.toThrow();
   });
+  it('carries a no-longer-listed warning into the printable report, the CSV and the browser preview', async () => {
+    const report = await create();
+    const notice = report.result.items[0]?.notices[0];
+    expect(notice).toBeDefined();
+    expect(reportCsv(report.result).split('\r\n')[0]).toMatch(/"source_attribution","source_listing","last_listed_at"$/);
+    expect(reportCsv(report.result)).toContain('"listed_or_not_checked",""');
+    const withdrawn = { ...report.result, items: report.result.items.map((item, index) => (index === 0 ? { ...item, notices: [{ ...notice!, source_listing: { status: 'no_longer_listed' as const, last_listed_at: '2026-11-21T12:18:14.000Z' } }] } : item)) };
+    expect(reportCsv(withdrawn)).toContain('"no_longer_listed","2026-11-21T12:18:14.000Z"');
+    expect(printableReport(withdrawn, 'standard', '', report.id)).toContain('The agency no longer lists this notice</strong> (last in its index 2026-11-21)');
+    expect(SCREENING_JS).toContain('notice.source_listing');
+  });
   it('deletes and expires only private report content', async () => {
     const report = await create(); expect((await request('/screening/reports/' + report.id + '/delete', 'POST')).status).toBe(200);
     expect((await request('/screening/reports/' + report.id)).status).toBe(404);

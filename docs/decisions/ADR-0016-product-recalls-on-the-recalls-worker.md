@@ -42,6 +42,13 @@ The remaining members (EU Safety Gate, UK OPSS, ACCC, MBIE, SaferProducts incide
 
    The FDA `SOURCE_KILL_SWITCH` no longer withdraws this dataset, and this dataset's gates do not touch FDA's.
 6. **Freshness:** every six hours, the Cron reads CPSC notices published or updated in the last 30 days and the whole Health Canada index. The first run of each UTC day re-reads the full CPSC list. A full list below a floor (9,000 CPSC; 4,500 Health Canada consumer records) is treated as a failed fetch, never as deletions. Unchanged records are only touched.
+7. **Notices an agency stops listing (2026-11-22):** nothing is deleted, but a Health Canada notice that has been absent from the index for more than a day of successful full reads is marked. Measured on 2026-11-22: Health Canada removed notice 82932 from its index and its page answered 404, while the dataset still served it as a current recall. The mark is derived at read time from `last_seen_at` and the newest successful full Health Canada run (`NO_LONGER_LISTED_SQL` in `product-store.ts`), so it needs no migration and clears itself if the notice returns; the only write is the `changed_at` stamp after each successful full Health Canada read. A marked notice:
+   - carries `source_listing: { status: "no_longer_listed", last_listed_at }` in the API, the lookup and the screening result, with the warning shown in the browser preview and the printable report and two columns (`source_listing`, `last_listed_at`) appended to the report CSV;
+   - has its `changed_at` stamped once when it becomes marked, and again if it is listed anew, so `changed_since` readers receive both transitions;
+   - shows a notice on its page, which is `noindex` and leaves the sitemap and the IndexNow feed;
+   - is counted per agency in `/v1/product-recalls/stats` as `no_longer_listed` (`notices` still counts every record held).
+
+   The row and its raw evidence in R2 stay (rule 10). CPSC notices are not judged this way: the full CPSC pass reads RecallDate windows, which a notice with no recall date never falls in.
 
 ## Consequences
 

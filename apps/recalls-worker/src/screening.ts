@@ -15,6 +15,8 @@ export interface ScreeningNotice {
   id: string; agency: string; title: string; url: string; published_on: string | null;
   matched_on: Array<{ kind: string; value: string }>;
   remedy: { classes: readonly string[]; text: string | null };
+  /** Present when the agency no longer lists the notice (withdrawn or replaced); see the product-recall API. */
+  source_listing?: PresentedProductRecall['source_listing'];
   provenance: PresentedProductRecall['provenance'];
 }
 export interface ScreeningItem extends InventoryItem {
@@ -85,7 +87,7 @@ export async function screenInventory(env: Env, items: InventoryItem[], now = ne
         const previous = notices.get(recall.id);
         notices.set(recall.id, { id: recall.id, agency: recall.agency, title: recall.title, url: recall.url,
           published_on: recall.published_on, matched_on: [...(previous?.matched_on ?? []), ...on],
-          remedy: recall.remedy, provenance: recall.provenance });
+          remedy: recall.remedy, ...(recall.source_listing ? { source_listing: recall.source_listing } : {}), provenance: recall.provenance });
       }
     }
     // Show every returned concern in the free preview. The canonical lookup explicitly caps each query at 100.
@@ -108,10 +110,10 @@ export function csvCell(value: unknown): string {
 }
 
 export function reportCsv(result: ScreeningResult): string {
-  const rows: unknown[][] = [['item', 'gtin', 'model', 'outcome', 'explanation', 'notice_id', 'official_notice', 'published_remedies', 'evidence_sha256', 'checked_at', 'coverage_limits', 'notice', 'source_sync_at_check', 'source_attribution']];
+  const rows: unknown[][] = [['item', 'gtin', 'model', 'outcome', 'explanation', 'notice_id', 'official_notice', 'published_remedies', 'evidence_sha256', 'checked_at', 'coverage_limits', 'notice', 'source_sync_at_check', 'source_attribution', 'source_listing', 'last_listed_at']];
   const attribution = result.attribution.sources.map(source => `${source.source}. ${source.license}`).join(' | ') + ' | ' + result.attribution.disclaimer;
   for (const item of result.items) for (const notice of item.notices.length ? item.notices : [null]) {
-    rows.push([item.item, item.gtin, item.model, item.outcome, item.explanation + (item.truncated ? ' Additional matches may exist; lookup truncated.' : ''), notice?.id, notice?.url, notice?.remedy.classes.join('; '), notice?.provenance.raw_sha256, result.checked_at, result.coverage_note, result.note, JSON.stringify(result.coverage['last_successful_sync']), attribution]);
+    rows.push([item.item, item.gtin, item.model, item.outcome, item.explanation + (item.truncated ? ' Additional matches may exist; lookup truncated.' : ''), notice?.id, notice?.url, notice?.remedy.classes.join('; '), notice?.provenance.raw_sha256, result.checked_at, result.coverage_note, result.note, JSON.stringify(result.coverage['last_successful_sync']), attribution, notice ? (notice.source_listing?.status ?? 'listed_or_not_checked') : '', notice?.source_listing?.last_listed_at ?? '']);
   }
   return rows.map(row => row.map(csvCell).join(',')).join('\r\n');
 }

@@ -18,7 +18,7 @@
 import { PARSER_VERSION } from '@data-foundry/product-recall-structuring';
 
 import type { D1Database, R2Bucket } from './env.js';
-import { isPublishable, prepareProductRecall, touchProductRecallsStatement, writeProductGroups, type PreparedProductRecall, type ProductAgency } from './product-store.js';
+import { isPublishable, markDelistedStatement, prepareProductRecall, touchProductRecallsStatement, writeProductGroups, type PreparedProductRecall, type ProductAgency } from './product-store.js';
 import { ndjsonBundle, rawRef, sha256Hex, type Statement } from './store.js';
 import { USER_AGENT, addDays } from './sync.js';
 
@@ -67,6 +67,16 @@ async function fetchSource(url: string, agency: ProductAgency, bucket: R2Bucket,
     await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** attempt));
   }
   throw new Error(`${new URL(url).host} unavailable after retries`);
+}
+
+/**
+ * The Health Canada index is served through a CDN that kept answering the plain URL with the previous
+ * day's file (measured 2026-11-20 and 2026-11-21: the plain URL returned the file last modified a day
+ * earlier, while the same URL with an unused query string returned the current one). A query string that
+ * changes every hour makes each scheduled read fetch the publisher's current file.
+ */
+export function hcUrl(now: string): string {
+  return `${HC_ENDPOINT}?retrieved=${now.slice(0, 13).replace(/[^0-9]/g, '')}`;
 }
 
 export function cpscUrl(from?: string): string {
@@ -223,11 +233,14 @@ export async function scheduledProductSync(env: ProductSyncEnv, options: { full:
   );
   results.push(
     await attempt('product:HC', async () => {
-      const { key, records } = await fetchSource(HC_ENDPOINT, 'HC', env.RAW_ARTIFACTS, fetcher, now);
+      const { key, records } = await fetchSource(hcUrl(now), 'HC', env.RAW_ARTIFACTS, fetcher, now);
       if (!Array.isArray(records)) throw new Error('Health Canada response is not a JSON array');
       const inScope = records.filter((record) => isPublishable('HC', record));
       if (inScope.length < MIN_FULL_HC_CONSUMER) throw new Error(`Health Canada index has only ${inScope.length} consumer-product records`);
-      return ingestRecords(env, 'HC', inScope, 'full', now, key);
+      const result = await ingestRecords(env, 'HC', inScope, 'full', now, key);
+      // A notice the index has dropped for more than a day becomes a change that `changed_since` readers receive.
+      await runStatements(env.DB, [markDelistedStatement(now)]);
+      return result;
     }),
   );
   return results;
