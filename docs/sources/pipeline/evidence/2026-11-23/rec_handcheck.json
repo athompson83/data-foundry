@@ -1,0 +1,149 @@
+{
+ "checked_on": "2026-11-23",
+ "method": "20 Forest Service facilities in the RIDB export whose agency id resolves to a rec area in the USFS Recreation Opportunities layer, drawn with seed 20261123 by rec_measure.py; names on both sides were read.",
+ "checked": 20,
+ "same_site": 20,
+ "note": "All 20 name the same site. 18 names are identical; 'Neota Wilderness: Arapaho & Roosevelt' / 'Neota Wilderness' and 'Carbonate Creek #1971' / 'Carbonate Creek TH #1971' differ only by a suffix.",
+ "pairs": [
+  {
+   "ridb_facility_id": "251200",
+   "ridb_name": "Hennessey Meadows / Riordan Trailhead",
+   "usfs_forest": "Boise National Forest",
+   "usfs_name": "Hennessey Meadows / Riordan Trailhead",
+   "usfs_rec_area_id": "81305"
+  },
+  {
+   "ridb_facility_id": "245995",
+   "ridb_name": "Kelly Prairie",
+   "usfs_forest": "Umatilla National Forest",
+   "usfs_name": "Kelly Prairie",
+   "usfs_rec_area_id": "56433"
+  },
+  {
+   "ridb_facility_id": "259502",
+   "ridb_name": "El Jebel Area",
+   "usfs_forest": "White River National Forest",
+   "usfs_name": "El Jebel Area",
+   "usfs_rec_area_id": "40425"
+  },
+  {
+   "ridb_facility_id": "271390",
+   "ridb_name": "Red Tail Rim Trail North Trailhead",
+   "usfs_forest": "Modoc National Forest",
+   "usfs_name": "Red Tail Rim Trail North Trailhead",
+   "usfs_rec_area_id": "71338"
+  },
+  {
+   "ridb_facility_id": "248991",
+   "ridb_name": "Soldier Meadows Campground",
+   "usfs_forest": "Lassen National Forest",
+   "usfs_name": "Soldier Meadows Campground",
+   "usfs_rec_area_id": "11372"
+  },
+  {
+   "ridb_facility_id": "243928",
+   "ridb_name": "Fletcher Canyon Trailhead",
+   "usfs_forest": "Humboldt-Toiyabe National Forest",
+   "usfs_name": "Fletcher Canyon Trailhead",
+   "usfs_rec_area_id": "65368"
+  },
+  {
+   "ridb_facility_id": "237166",
+   "ridb_name": "Spar Lake Campground",
+   "usfs_forest": "Kootenai National Forest",
+   "usfs_name": "Spar Lake Campground",
+   "usfs_rec_area_id": "49911"
+  },
+  {
+   "ridb_facility_id": "237842",
+   "ridb_name": "Crawfish Basin Trailhead",
+   "usfs_forest": "Wallowa Whitman National Forest",
+   "usfs_name": "Crawfish Basin Trailhead",
+   "usfs_rec_area_id": "52341"
+  },
+  {
+   "ridb_facility_id": "253498",
+   "ridb_name": "Trabuco Creek Picnic Site",
+   "usfs_forest": "Cleveland National Forest",
+   "usfs_name": "Trabuco Creek Picnic Site",
+   "usfs_rec_area_id": "81927"
+  },
+  {
+   "ridb_facility_id": "245479",
+   "ridb_name": "Highway 108 Corridor",
+   "usfs_forest": "Stanislaus National Forest",
+   "usfs_name": "Highway 108 Corridor",
+   "usfs_rec_area_id": "21873"
+  },
+  {
+   "ridb_facility_id": "234936",
+   "ridb_name": "Pebble Beach Picnic Area",
+   "usfs_forest": "Beaverhead-Deerlodge National Forest",
+   "usfs_name": "Pebble Beach Picnic Area",
+   "usfs_rec_area_id": "5754"
+  },
+  {
+   "ridb_facility_id": "245149",
+   "ridb_name": "Champion Creek Cutoff Trailhead",
+   "usfs_forest": "Sawtooth National Forest",
+   "usfs_name": "Champion Creek Cutoff Trailhead",
+   "usfs_rec_area_id": "5961"
+  },
+  {
+   "ridb_facility_id": "255140",
+   "ridb_name": "Custer Peak Fire Lookout",
+   "usfs_forest": "Black Hills National Forest",
+   "usfs_name": "Custer Peak Fire Lookout",
+   "usfs_rec_area_id": "82116"
+  },
+  {
+   "ridb_facility_id": "241732",
+   "ridb_name": "Keller Trailhead (#619) Trailhead",
+   "usfs_forest": "Apache-Sitgreaves National Forest",
+   "usfs_name": "Keller Trailhead (#619) Trailhead",
+   "usfs_rec_area_id": "45099"
+  },
+  {
+   "ridb_facility_id": "241790",
+   "ridb_name": "Skalkaho  Snowpark",
+   "usfs_forest": "Bitterroot National Forest",
+   "usfs_name": "Skalkaho  Snowpark",
+   "usfs_rec_area_id": "60236"
+  },
+  {
+   "ridb_facility_id": "250787",
+   "ridb_name": "Neota Wilderness: Arapaho & Roosevelt",
+   "usfs_forest": "Arapaho & Roosevelt National Forests Pawnee NG",
+   "usfs_name": "Neota Wilderness",
+   "usfs_rec_area_id": "80806"
+  },
+  {
+   "ridb_facility_id": "238004",
+   "ridb_name": "Williams & Forest Service Visitor Center",
+   "usfs_forest": "Kaibab National Forest",
+   "usfs_name": "Williams & Forest Service Visitor Center",
+   "usfs_rec_area_id": "11654"
+  },
+  {
+   "ridb_facility_id": "10070555",
+   "ridb_name": "Carbonate Creek #1971",
+   "usfs_forest": "White River National Forest",
+   "usfs_name": "Carbonate Creek TH #1971",
+   "usfs_rec_area_id": "40987"
+  },
+  {
+   "ridb_facility_id": "248985",
+   "ridb_name": "Eagle Lake Ranger District",
+   "usfs_forest": "Lassen National Forest",
+   "usfs_name": "Eagle Lake Ranger District",
+   "usfs_rec_area_id": "11389"
+  },
+  {
+   "ridb_facility_id": "271986",
+   "ridb_name": "Marias Pass Historic Site Interpretive Site",
+   "usfs_forest": "Helena-Lewis and Clark National Forest",
+   "usfs_name": "Marias Pass Historic Site Interpretive Site",
+   "usfs_rec_area_id": "61682"
+  }
+ ]
+}

@@ -1,0 +1,109 @@
+{
+ "checked_on": "2026-11-23",
+ "method": "20 EIA utility ids present in both the URDB export and the EIA-861 2024 tables, drawn with seed 20261123 by urdb_measure.py; the utility named on each side was read.",
+ "checked": 20,
+ "same_utility": 20,
+ "note": "All 20 name the same utility. URDB writes municipal utilities as 'City of X, State (Utility Company)' and EIA-861 as 'City of X - (ST)', so only 1,009 of 2,774 matched ids have equal normalised names; the id, not the name, is the link.",
+ "pairs": [
+  {
+   "eia861_utility_name": "City of Frankfort - (KY)",
+   "eia_id": "6708",
+   "urdb_utility": "City of Frankfort, Kentucky (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Aspen- (CO)",
+   "eia_id": "918",
+   "urdb_utility": "City of Aspen, Colorado (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Altamont - (IL)",
+   "eia_id": "406",
+   "urdb_utility": "City of Altamont, Illinois (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Osage City - (KS)",
+   "eia_id": "14199",
+   "urdb_utility": "City of Osage City, Kansas (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Parowan City Corporation",
+   "eia_id": "14512",
+   "urdb_utility": "Parowan City Corporation (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Farmer City - (IL)",
+   "eia_id": "6192",
+   "urdb_utility": "City of Farmer City, Illinois (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Midwest Electric, Inc - (OH)",
+   "eia_id": "12515",
+   "urdb_utility": "Midwest Electric, Inc"
+  },
+  {
+   "eia861_utility_name": "Edgecombe-Martin County E M C",
+   "eia_id": "5656",
+   "urdb_utility": "Edgecombe-Martin County E M C"
+  },
+  {
+   "eia861_utility_name": "City of West Point - (NE)",
+   "eia_id": "20397",
+   "urdb_utility": "City of West Point, Nebraska (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Winchester - (TN)",
+   "eia_id": "20793",
+   "urdb_utility": "City of Winchester, Tennessee (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Adrian Public Utilities Comm",
+   "eia_id": "150",
+   "urdb_utility": "Adrian Public Utilities Comm"
+  },
+  {
+   "eia861_utility_name": "City of Las Animas - (CO)",
+   "eia_id": "10730",
+   "urdb_utility": "City of Las Animas, Colorado (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Village of Hyde Park - (VT)",
+   "eia_id": "9144",
+   "urdb_utility": "Village of Hyde Park, Vermont (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Village of Baraga - (MI)",
+   "eia_id": "1196",
+   "urdb_utility": "Village of Baraga, Michigan (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Montezuma - (IA)",
+   "eia_id": "12839",
+   "urdb_utility": "City of Montezuma, Iowa (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Burwell - (NE)",
+   "eia_id": "2609",
+   "urdb_utility": "City of Burwell, Nebraska (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Huntingburg - (IN)",
+   "eia_id": "9088",
+   "urdb_utility": "City of Huntingburg, Indiana (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "South Plains Electric Coop Inc",
+   "eia_id": "17561",
+   "urdb_utility": "South Plains Electric Coop Inc"
+  },
+  {
+   "eia861_utility_name": "City of Mountain Lake - (MN)",
+   "eia_id": "13048",
+   "urdb_utility": "City of Mountain Lake, Minnesota (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of King Cove",
+   "eia_id": "9897",
+   "urdb_utility": "City of King Cove, Alaska (Utility Company)"
+  }
+ ]
+}

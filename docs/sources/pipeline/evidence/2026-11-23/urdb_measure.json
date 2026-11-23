@@ -1,0 +1,344 @@
+{
+ "eia861": {
+  "distinct_utility_numbers_across_the_four_tables": 3415,
+  "members": {
+   "2024 EIA-861 Form.xlsx": 153899,
+   "2024 EIA-861 Instructions.pdf": 406784,
+   "Advanced_Meters_2024.xlsx": 693844,
+   "Balancing_Authority_2024.xlsx": 17774,
+   "Delivery_Companies_2024.xlsx": 13545,
+   "Demand_Response_2024.xlsx": 90322,
+   "Distribution_Systems_2024.xlsx": 74672,
+   "Dynamic_Pricing_2024.xlsx": 138897,
+   "Energy_Efficiency_2024.xlsx": 175702,
+   "Frame_2024.xlsx": 342331,
+   "Mergers_2024.xlsx": 11564,
+   "Net_Metering_2024.xlsx": 617846,
+   "Non_Net_Metering_Distributed_2024.xlsx": 215349,
+   "Operational_Data_2024.xlsx": 372583,
+   "Reliability_2024.xlsx": 203298,
+   "Sales_Ult_Cust_2024.xlsx": 472434,
+   "Sales_Ult_Cust_CS_2024.xlsx": 99941,
+   "Service_Territory_2024.xlsx": 440753,
+   "Short_Form_2024.xlsx": 154179,
+   "Utility_Data_2024.xlsx": 260483
+  },
+  "tables": {
+   "Frame_2024.xlsx": {
+    "columns": [
+     "Data Year",
+     "Utility Number",
+     "Utility Name",
+     "Short Form",
+     "Ownership Code",
+     "Ownership",
+     "Monthly",
+     "Advanced Metering",
+     "Delivery Company",
+     "Demand Response",
+     "Distribution Systems",
+     "Dynamic Pricing",
+     "Energy Efficiency",
+     "Mergers",
+     "Net Metering",
+     "Non Net Metering Distributed",
+     "Operational Data",
+     "Reliablity",
+     "Sales to Ultimate Customers",
+     "Service Territory",
+     "Utility Data"
+    ],
+    "distinct_utility_numbers": 3413,
+    "rows": 3413
+   },
+   "Sales_Ult_Cust_2024.xlsx": {
+    "columns": [
+     "Data Year",
+     "Utility Number",
+     "Utility Name",
+     "Part",
+     "Service Type",
+     "Data Type\nO = Observed\nI = Imputed",
+     "State",
+     "Ownership",
+     "BA Code",
+     "Thousand Dollars",
+     "Megawatthours",
+     "Count",
+     "Thousand Dollars",
+     "Megawatthours",
+     "Count",
+     "Thousand Dollars",
+     "Megawatthours",
+     "Count",
+     "Thousand Dollars",
+     "Megawatthours",
+     "Count",
+     "Thousand Dollars",
+     "Megawatthours",
+     "Count"
+    ],
+    "distinct_utility_numbers": 1518,
+    "rows": 2815
+   },
+   "Short_Form_2024.xlsx": {
+    "columns": [
+     "Data Year",
+     "Utility Number",
+     "Utility Name",
+     "Ownership",
+     "State",
+     "BA Code",
+     "Total Revenue (Thousand Dollars)",
+     "Total Sales (MWh)",
+     "Total Customers",
+     "Water Heater",
+     "Net Metering",
+     "Demand Side Management",
+     "Time Based Programs"
+    ],
+    "distinct_utility_numbers": 1687,
+    "rows": 1724
+   },
+   "Utility_Data_2024.xlsx": {
+    "by_ownership_type": {
+     "Behind the Meter": 11,
+     "Community Choice Aggregator": 26,
+     "Cooperative": 602,
+     "Federal": 8,
+     "Investor Owned": 163,
+     "Municipal": 458,
+     "Municipal Mktg Authority": 14,
+     "Political Subdivision": 88,
+     "Retail Power Marketer": 250,
+     "State": 18,
+     "Transmission": 29,
+     "Wholesale Power Marketer": 34
+    },
+    "columns": [
+     "Data Year",
+     "Utility Number",
+     "Utility Name",
+     "State",
+     "Ownership Type",
+     "NERC Region",
+     "TRE",
+     "FRCC",
+     "MRO",
+     "NPCC",
+     "RFC",
+     "SERC",
+     "SPP",
+     "WECC",
+     "CAISO",
+     "ERCOT",
+     "PJM",
+     "NYISO",
+     "SPP",
+     "MISO",
+     "ISONE",
+     "Other",
+     "Generation",
+     "Transmission",
+     "Buying Transmission",
+     "Distribution",
+     "Buying Distribution",
+     "Wholesale Marketing",
+     "Retail Marketing",
+     "Bundled",
+     "Alt Fuel Vehicle",
+     "Alt Fuel Vehicle 2"
+    ],
+    "distinct_utility_numbers": 1699,
+    "rows": 1701
+   }
+  }
+ },
+ "fetched": {
+  "eia861_zip": {
+   "bytes": 4568208,
+   "sha256": "77ce49c60ac5a6bad50c442fc401aad5404a21da875dc5cbaba353af5ede54de",
+   "url": "https://www.eia.gov/electricity/data/eia861/zip/f8612024.zip"
+  },
+  "urdb_csv": {
+   "bytes": 12218252,
+   "sha256": "436d1bb54b62d0365b3511c20b6747a5099e5285cce0f63399911ba853e3407e",
+   "url": "https://openei.org/apps/USURDB/download/usurdb.csv.gz"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "eia861_utility_name": "City of Frankfort - (KY)",
+   "eia_id": "6708",
+   "urdb_utility": "City of Frankfort, Kentucky (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Aspen- (CO)",
+   "eia_id": "918",
+   "urdb_utility": "City of Aspen, Colorado (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Altamont - (IL)",
+   "eia_id": "406",
+   "urdb_utility": "City of Altamont, Illinois (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Osage City - (KS)",
+   "eia_id": "14199",
+   "urdb_utility": "City of Osage City, Kansas (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Parowan City Corporation",
+   "eia_id": "14512",
+   "urdb_utility": "Parowan City Corporation (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Farmer City - (IL)",
+   "eia_id": "6192",
+   "urdb_utility": "City of Farmer City, Illinois (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Midwest Electric, Inc - (OH)",
+   "eia_id": "12515",
+   "urdb_utility": "Midwest Electric, Inc"
+  },
+  {
+   "eia861_utility_name": "Edgecombe-Martin County E M C",
+   "eia_id": "5656",
+   "urdb_utility": "Edgecombe-Martin County E M C"
+  },
+  {
+   "eia861_utility_name": "City of West Point - (NE)",
+   "eia_id": "20397",
+   "urdb_utility": "City of West Point, Nebraska (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Winchester - (TN)",
+   "eia_id": "20793",
+   "urdb_utility": "City of Winchester, Tennessee (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Adrian Public Utilities Comm",
+   "eia_id": "150",
+   "urdb_utility": "Adrian Public Utilities Comm"
+  },
+  {
+   "eia861_utility_name": "City of Las Animas - (CO)",
+   "eia_id": "10730",
+   "urdb_utility": "City of Las Animas, Colorado (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Village of Hyde Park - (VT)",
+   "eia_id": "9144",
+   "urdb_utility": "Village of Hyde Park, Vermont (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "Village of Baraga - (MI)",
+   "eia_id": "1196",
+   "urdb_utility": "Village of Baraga, Michigan (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Montezuma - (IA)",
+   "eia_id": "12839",
+   "urdb_utility": "City of Montezuma, Iowa (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Burwell - (NE)",
+   "eia_id": "2609",
+   "urdb_utility": "City of Burwell, Nebraska (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of Huntingburg - (IN)",
+   "eia_id": "9088",
+   "urdb_utility": "City of Huntingburg, Indiana (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "South Plains Electric Coop Inc",
+   "eia_id": "17561",
+   "urdb_utility": "South Plains Electric Coop Inc"
+  },
+  {
+   "eia861_utility_name": "City of Mountain Lake - (MN)",
+   "eia_id": "13048",
+   "urdb_utility": "City of Mountain Lake, Minnesota (Utility Company)"
+  },
+  {
+   "eia861_utility_name": "City of King Cove",
+   "eia_id": "9897",
+   "urdb_utility": "City of King Cove, Alaska (Utility Company)"
+  }
+ ],
+ "join_eia_utility_id": {
+  "eia861_utilities_with_a_urdb_rate": 2774,
+  "eia861_utilities_without_a_urdb_rate": 641,
+  "found_in_eia861_2024": 2774,
+  "ids_with_a_rate_that_has_no_end_date": 2805,
+  "matched_pairs_with_the_same_normalised_name": 1009,
+  "not_found": 54,
+  "not_found_sample": [
+   "10375",
+   "10801",
+   "11334",
+   "11522",
+   "12390",
+   "13119",
+   "13681",
+   "14272",
+   "14405",
+   "14557",
+   "14588",
+   "14711",
+   "14716",
+   "15050",
+   "15075",
+   "15132",
+   "15943",
+   "1651",
+   "16699",
+   "16954",
+   "18368",
+   "19443",
+   "196",
+   "19804",
+   "19887"
+  ],
+  "of_those_found_in_eia861_2024": 2753,
+  "urdb_distinct_eia_ids": 2828,
+  "urdb_rows_with_a_matched_id": 57927,
+  "urdb_rows_with_an_id": 58920
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 2,
+  "made_this_run": 0,
+  "source_bodies": 2
+ },
+ "run_date": "2026-11-23",
+ "urdb": {
+  "by_sector": {
+   "": 11,
+   "Commercial": 27978,
+   "Industrial": 10752,
+   "Lighting": 6344,
+   "Residential": 13835
+  },
+  "columns": 737,
+  "description_characters": 15304906,
+  "description_median_characters": 275,
+  "descriptions_stating_a_dollar_amount": 6434,
+  "distinct_eia_ids": 2828,
+  "distinct_labels": 58920,
+  "distinct_utility_names": 2938,
+  "newest_latest_update": "2026-08-17 16:31:05",
+  "rows": 58920,
+  "rows_updated_in_2026": 2923,
+  "rows_updated_since_2026_11_01": 0,
+  "rows_with_a_demand_rate_tier": 25468,
+  "rows_with_an_energy_rate_tier": 52085,
+  "rows_with_basic_information_comments": 6419,
+  "rows_with_description": 39703,
+  "rows_with_fixed_charge": 53714,
+  "rows_with_source_url": 58387,
+  "rows_without_eia_id": 0,
+  "rows_without_end_date": 30852
+ }
+}

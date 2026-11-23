@@ -1,0 +1,575 @@
+{
+ "device_enforcement": {
+  "fields": [
+   "address_1",
+   "address_2",
+   "center_classification_date",
+   "city",
+   "classification",
+   "code_info",
+   "country",
+   "distribution_pattern",
+   "event_id",
+   "initial_firm_notification",
+   "more_code_info",
+   "openfda",
+   "postal_code",
+   "product_description",
+   "product_quantity",
+   "product_type",
+   "reason_for_recall",
+   "recall_initiation_date",
+   "recall_number",
+   "recalling_firm",
+   "report_date",
+   "state",
+   "status",
+   "voluntary_mandated"
+  ],
+  "last_updated": "2026-11-11",
+  "newest_report_date": "20261111",
+  "total": 40535
+ },
+ "device_recall": {
+  "action_characters": 1009312,
+  "action_median_characters": 968.0,
+  "by_recall_status": {
+   "Open, Classified": 1000
+  },
+  "by_root_cause": {
+   "Device Design": 63,
+   "Labeling design": 24,
+   "Material/Component Contamination": 29,
+   "Nonconforming Material/Component": 129,
+   "Process change control": 82,
+   "Process control": 143,
+   "Radiation Control for Health and Safety Act": 18,
+   "Software Design Change": 21,
+   "Software design": 84,
+   "Under Investigation by firm": 286
+  },
+  "code_info_with_a_14_digit_udi_di": 695,
+  "distinct_product_res_numbers": 1000,
+  "distinct_res_event_numbers": 377,
+  "last_updated": "2026-11-19",
+  "licence_url": "https://open.fda.gov/license/",
+  "newest_event_date_posted": "2026-11-05",
+  "oldest_event_date_posted_read": "2026-07-09",
+  "read": 1000,
+  "reason_characters": 239448,
+  "records_with_field": {
+   "action": 1000,
+   "additional_info_contact": 906,
+   "address_1": 1000,
+   "address_2": 71,
+   "cfres_id": 1000,
+   "city": 988,
+   "code_info": 1000,
+   "country": 149,
+   "distribution_pattern": 1000,
+   "event_date_initiated": 1000,
+   "event_date_posted": 1000,
+   "firm_fei_number": 1000,
+   "k_numbers": 524,
+   "openfda": 998,
+   "pma_numbers": 35,
+   "postal_code": 852,
+   "product_code": 1000,
+   "product_description": 1000,
+   "product_quantity": 965,
+   "product_res_number": 1000,
+   "reason_for_recall": 1000,
+   "recall_status": 1000,
+   "recalling_firm": 1000,
+   "res_event_number": 1000,
+   "root_cause_description": 1000,
+   "state": 857
+  },
+  "terms_url": "https://open.fda.gov/terms/",
+  "total": 59705,
+  "with_k_number": 805,
+  "with_pma_number": 102
+ },
+ "fetched": {
+  "fda_device_enforcement_meta": {
+   "bytes": 1934,
+   "sha256": "3bc7e88a17656bbf67fb3a57efb76404535a5810f78d6c4106907d36fa15fcbb",
+   "url": "https://api.fda.gov/device/enforcement.json?sort=report_date:desc&limit=1"
+  },
+  "fda_device_recall_latest": {
+   "bytes": 21600582,
+   "sha256": "a2e4a43188141d216f05ba28da6912ae5bfa990ea96c8bfd493191d3642abb06",
+   "url": "https://api.fda.gov/device/recall.json?sort=event_date_posted:desc&limit=1000"
+  },
+  "fda_enf_Z-0031-2027": {
+   "bytes": 2508,
+   "sha256": "5b3493bea59f9325b4251a96e6db46d7b9a3a37c2150c88b0b805887c2429a36",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0031-2027%22"
+  },
+  "fda_enf_Z-0047-2027": {
+   "bytes": 2512,
+   "sha256": "1258c42fecb63634c699f4083b2b3c3c99f2be948059192d2fa268f169213be4",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0047-2027%22"
+  },
+  "fda_enf_Z-0052-2027": {
+   "bytes": 2425,
+   "sha256": "a4de73205ac98dabb41c8365a3f73fb762fde65e7c8897f32a47ad437d613a02",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0052-2027%22"
+  },
+  "fda_enf_Z-0055-2027": {
+   "bytes": 2415,
+   "sha256": "8751777eeda72b9a1b880867d1c0a4c85c2b9be8ca334749fac802eeb6c8f583",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0055-2027%22"
+  },
+  "fda_enf_Z-0063-2027": {
+   "bytes": 2387,
+   "sha256": "7c91bdfb9c9cd3b5af5a29a5846e8934757906e296a0d34a0aa45575acff7578",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0063-2027%22"
+  },
+  "fda_enf_Z-0076-2027": {
+   "bytes": 4428,
+   "sha256": "e9762b7f9f90522444bef19114bfddf32a01c06df744f2e2bdc772c46256c7b3",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0076-2027%22"
+  },
+  "fda_enf_Z-0091-2027": {
+   "bytes": 1635,
+   "sha256": "11e7eeda113127659cb890eafa37ebcef227dbd7b28671c6e7a3d1a9ef220ec3",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0091-2027%22"
+  },
+  "fda_enf_Z-0104-2027": {
+   "bytes": 1719,
+   "sha256": "362b029e939d55e1cf7fbf4bff6ba1db3bff35d42bd6813e78c7456185754b24",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0104-2027%22"
+  },
+  "fda_enf_Z-0114-2027": {
+   "bytes": 1994,
+   "sha256": "00697b6f6eb724c15093f08cd722e2322ab96d93434f3766fbaef564259793a7",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0114-2027%22"
+  },
+  "fda_enf_Z-0164-2027": {
+   "bytes": 2008,
+   "sha256": "f8248be8fc9e2ac68ce461871c0a2112febe83dce6bb3bd4cc4d2fd3413f0fba",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0164-2027%22"
+  },
+  "fda_enf_Z-0178-2027": {
+   "bytes": 1826,
+   "sha256": "9f11a46836c481068b057459a6e59b7957efcf9e1dd47df7c52f347b6f5c131f",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0178-2027%22"
+  },
+  "fda_enf_Z-0191-2027": {
+   "bytes": 1869,
+   "sha256": "e75422f62563697c1d4ebb14b1318779547438c51a35f44460969e6cf482b5fd",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0191-2027%22"
+  },
+  "fda_enf_Z-0279-2027": {
+   "bytes": 1803,
+   "sha256": "e90ce7942099f8abc8806de81073f1b122fa566be2fdac435cf9f1426cbcb644",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0279-2027%22"
+  },
+  "fda_enf_Z-0289-2027": {
+   "bytes": 1733,
+   "sha256": "35184f3ddc1ed5e6e40bec9ac226720421aa95004d56b2234ee8e3cc3ffe4c66",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0289-2027%22"
+  },
+  "fda_enf_Z-0340-2027": {
+   "bytes": 1899,
+   "sha256": "68470bd2d8577f1977dfef3c8601d10339c14e4cfe7aa6e78c9ce9dc88ed1846",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0340-2027%22"
+  },
+  "fda_enf_Z-0356-2027": {
+   "bytes": 1931,
+   "sha256": "e51074b87678e2b4ae63624e9f3184a5892de95871ca07c9e222fa9529183371",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-0356-2027%22"
+  },
+  "fda_enf_Z-2722-2026": {
+   "bytes": 2496,
+   "sha256": "33360f22e4a8a77a22c71e72cb0b109566056f59662c8584f60c9e323ca640d5",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2722-2026%22"
+  },
+  "fda_enf_Z-2733-2026": {
+   "bytes": 1799,
+   "sha256": "9397676998bc519d27d5b0e9edcc1cfbc04777743185493d79c6ca2821c7f407",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2733-2026%22"
+  },
+  "fda_enf_Z-2770-2026": {
+   "bytes": 1948,
+   "sha256": "126de568b2ded14bf327d814faa0d5d688d301e7a6fb0b385d4ffda6cd2d9bd4",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2770-2026%22"
+  },
+  "fda_enf_Z-2813-2026": {
+   "bytes": 2694,
+   "sha256": "5528a5d096bb5009b18537a3b12cc41e1cc3bba09346c0626f4ebf8dee95bdff",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2813-2026%22"
+  },
+  "fda_enf_Z-2818-2026": {
+   "bytes": 4590,
+   "sha256": "4ebb8c1d1aa707b3a7c575e7dcb92b26bd7d2dfebe4e146caf55993c8c792829",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2818-2026%22"
+  },
+  "fda_enf_Z-2841-2026": {
+   "bytes": 2341,
+   "sha256": "84fba82e03528035c1ea09b6e5419f3dec838b01dcf699354a39f1a45184f838",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2841-2026%22"
+  },
+  "fda_enf_Z-2888-2026": {
+   "bytes": 2114,
+   "sha256": "c4be1b402433b5eacb38b7afdbc6a004f872fcddd93775de3595ac0a5465f5fd",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2888-2026%22"
+  },
+  "fda_enf_Z-2909-2026": {
+   "bytes": 1798,
+   "sha256": "663abccf1d66eeece9a8956ece6f76d010c1b78bcf5f60b93fe540a31296b725",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2909-2026%22"
+  },
+  "fda_enf_Z-2925-2026": {
+   "bytes": 2006,
+   "sha256": "1828e0002afe96136fdce7ad7a8495f00bf21d7f1c3a1014713018989a46d4bc",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-2925-2026%22"
+  },
+  "fda_enf_Z-3004-2026": {
+   "bytes": 1712,
+   "sha256": "c6013de428a4b14db0fc5a08c0eb17030dd7c8753723a7001b1b2762b2c93529",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3004-2026%22"
+  },
+  "fda_enf_Z-3006-2026": {
+   "bytes": 1603,
+   "sha256": "864cf598ab357f35a24aaa549150123345f759c29db46279ddab33c0ef7ebb2f",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3006-2026%22"
+  },
+  "fda_enf_Z-3012-2026": {
+   "bytes": 2147,
+   "sha256": "c9ce87c53574883634695baab137bc416fa6649d6d9bc24f0284fbafe5e1ef31",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3012-2026%22"
+  },
+  "fda_enf_Z-3026-2026": {
+   "bytes": 2403,
+   "sha256": "66e5a4ee8b084ee9b06192ee184dd417d4c2286ef0719339faf1d9b20ab27070",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3026-2026%22"
+  },
+  "fda_enf_Z-3080-2026": {
+   "bytes": 12153,
+   "sha256": "c01c38a14ec629e3e4d0d7f80bdab7f31ced05238469509472fff2a2bafa6d14",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3080-2026%22"
+  },
+  "fda_enf_Z-3089-2026": {
+   "bytes": 1809,
+   "sha256": "25175a88da1f5f5991e8720c538e012cdf859b8c21dd8d710cd446673e1271f7",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3089-2026%22"
+  },
+  "fda_enf_Z-3108-2026": {
+   "bytes": 1631,
+   "sha256": "c8fd6282888e777acef704a85d94cb5a35a92b87d3003e1d72e18c5798830b69",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3108-2026%22"
+  },
+  "fda_enf_Z-3112-2026": {
+   "bytes": 1994,
+   "sha256": "3fca05266657843b06739e342587381ae7d22ddaa386a02b70b0c50e0ca5a953",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3112-2026%22"
+  },
+  "fda_enf_Z-3159-2026": {
+   "bytes": 2202,
+   "sha256": "b0e8e88edb5a18e4a9bfd01bd29283908eca13f847209aa35135baea4202a1dc",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3159-2026%22"
+  },
+  "fda_enf_Z-3168-2026": {
+   "bytes": 19996,
+   "sha256": "8cc27bcdd1866d56454bec99640c85ac1582473a6d87639e47a7a4875367ee57",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3168-2026%22"
+  },
+  "fda_enf_Z-3178-2026": {
+   "bytes": 1845,
+   "sha256": "53ca68cf9236960fb87a171812d6d1e8c2edb18ee8154fc8fe57c4890af828b7",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3178-2026%22"
+  },
+  "fda_enf_Z-3209-2026": {
+   "bytes": 1759,
+   "sha256": "6f6448ca249f9958fc29a663f329496232e29fc645ac80b2c6cbc09c4180d472",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3209-2026%22"
+  },
+  "fda_enf_Z-3255-2026": {
+   "bytes": 5043,
+   "sha256": "a41b85f2f9b4c915a2ba5941d9d1d8763afa3e526a6baecab7aae1a09092a11d",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3255-2026%22"
+  },
+  "fda_enf_Z-3307-2026": {
+   "bytes": 2978,
+   "sha256": "8f3883adfe5a64b80978f0a43cbcc49ce92aa56a6778de8d4da8fd193816a9fc",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3307-2026%22"
+  },
+  "fda_enf_Z-3323-2026": {
+   "bytes": 2492,
+   "sha256": "3d96f9f89c1c95204b08d0971e89a910353b8a724726c047cf91ebfe21dd6776",
+   "url": "https://api.fda.gov/device/enforcement.json?limit=2&search=recall_number%3A%22Z-3323-2026%22"
+  }
+ },
+ "fields_in_device_recall_not_in_enforcement": [
+  "action",
+  "additional_info_contact",
+  "cfres_id",
+  "event_date_initiated",
+  "event_date_posted",
+  "firm_fei_number",
+  "k_numbers",
+  "pma_numbers",
+  "product_code",
+  "product_res_number",
+  "recall_status",
+  "res_event_number",
+  "root_cause_description"
+ ],
+ "handcheck_sample": [
+  {
+   "device_recall_firm": "AVID Medical, Inc.",
+   "device_recall_product": "Halyard IV START KIT NON-STERILE\nREF: KRIV26-02",
+   "enforcement_event_id": "99672",
+   "enforcement_firm": "AVID Medical, Inc.",
+   "enforcement_hits": 1,
+   "enforcement_product": "Halyard IV START KIT NON-STERILE  REF: KRIV26-02",
+   "recall_number": "Z-3108-2026",
+   "res_event_number": "99672",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Medline Industries, LP",
+   "device_recall_product": "Medline Micro-Kill Bleach Germicidal Bleach Wipes, 12\" x 12\", 110 Count, Product Number MSC351450AN",
+   "enforcement_event_id": "99432",
+   "enforcement_firm": "Medline Industries, LP",
+   "enforcement_hits": 1,
+   "enforcement_product": "Medline Micro-Kill Bleach Germicidal Bleach Wipes, 12\" x 12\", 110 Count, Product Number MSC351450AN",
+   "recall_number": "Z-2925-2026",
+   "res_event_number": "99432",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Cardinal Health 200, LLC",
+   "device_recall_product": "Presource Convenience Kits:\n1) KIT, USGPIV                   , Catalog Number: PVMHIVMHD; \n2) KIT, USGPIV               ",
+   "enforcement_event_id": "99710",
+   "enforcement_firm": "Cardinal Health 200, LLC",
+   "enforcement_hits": 1,
+   "enforcement_product": "Presource Convenience Kits:  1) KIT, USGPIV                   , Catalog Number: PVMHIVMHD;   2) KIT, USGPIV             ",
+   "recall_number": "Z-3255-2026",
+   "res_event_number": "99710",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Percussionaire Corporation",
+   "device_recall_product": "Impulsator, Product Number: S00010,  Phasitron 5, Product Number: P5 used with Instruction Manual",
+   "enforcement_event_id": "99617",
+   "enforcement_firm": "Percussionaire Corporation",
+   "enforcement_hits": 1,
+   "enforcement_product": "Impulsator, Product Number: S00010,  Phasitron 5, Product Number: P5 used with Instruction Manual",
+   "recall_number": "Z-3323-2026",
+   "res_event_number": "99617",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "AVID Medical, Inc.",
+   "device_recall_product": "Halyard TOTAL JOINT\nModel/Catalog Number: MSBM036-03",
+   "enforcement_event_id": "99527",
+   "enforcement_firm": "AVID Medical, Inc.",
+   "enforcement_hits": 1,
+   "enforcement_product": "Halyard TOTAL JOINT  Model/Catalog Number: MSBM036-03",
+   "recall_number": "Z-3006-2026",
+   "res_event_number": "99527",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Pride Mobility Products Corp.",
+   "device_recall_product": "Brand Name: Quantum Rehab\nProduct Name: Quantum 4Front 2\nModel/Catalog Number: Quantum 4Front 2\nSoftware Version: 2.0.11",
+   "enforcement_event_id": "99286",
+   "enforcement_firm": "Pride Mobility Products Corp.",
+   "enforcement_hits": 1,
+   "enforcement_product": "Brand Name: Quantum Rehab  Product Name: Quantum 4Front 2  Model/Catalog Number: Quantum 4Front 2  Software Version: 2.0",
+   "recall_number": "Z-2841-2026",
+   "res_event_number": "99286",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Howmedica Osteonics Corp.",
+   "device_recall_product": "TS Universal Baseplate Finishing Tray, Triathlon. Catalog Number: 6543-6-506.",
+   "enforcement_event_id": "99883",
+   "enforcement_firm": "Howmedica Osteonics Corp.",
+   "enforcement_hits": 1,
+   "enforcement_product": "TS Universal Baseplate Finishing Tray, Triathlon. Catalog Number: 6543-6-506.",
+   "recall_number": "Z-0164-2027",
+   "res_event_number": "99883",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Medline Industries, LP",
+   "device_recall_product": "Medline surgical convenience kits labeled as:  OPEN HEART, Medline Product Number/SKU DYNJ902898D",
+   "enforcement_event_id": "99886",
+   "enforcement_firm": "Medline Industries, LP",
+   "enforcement_hits": 1,
+   "enforcement_product": "Medline surgical convenience kits labeled as:  OPEN HEART, Medline Product Number/SKU DYNJ902898D",
+   "recall_number": "Z-0178-2027",
+   "res_event_number": "99886",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "GE Healthcare",
+   "device_recall_product": "Centricity PACS V2, V3, V4, V6, V7, software product is intended for the storage, reading, diagnostic review, analysis, ",
+   "enforcement_event_id": "99661",
+   "enforcement_firm": "GE Healthcare",
+   "enforcement_hits": 1,
+   "enforcement_product": "Centricity PACS V2, V3, V4, V6, V7, software product is intended for the storage, reading, diagnostic review, analysis, ",
+   "recall_number": "Z-3168-2026",
+   "res_event_number": "99661",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Freudenberg Medical, LLC",
+   "device_recall_product": "Blom-Singer Classic Indwelling Voice Prosthesis, 16Fr/10 mm\nREF: 1610-LEF",
+   "enforcement_event_id": "99299",
+   "enforcement_firm": "Freudenberg Medical, LLC",
+   "enforcement_hits": 1,
+   "enforcement_product": "Blom-Singer Classic Indwelling Voice Prosthesis, 16Fr/10 mm  REF: 1610-LEF",
+   "recall_number": "Z-2909-2026",
+   "res_event_number": "99299",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Onkos Surgical, Inc.",
+   "device_recall_product": "Onkos Surgical Inc. My3D Personalized Pelvic Implant, Porous, Left\nREF PV-ACREC-04M",
+   "enforcement_event_id": "99692",
+   "enforcement_firm": "Onkos Surgical, Inc.",
+   "enforcement_hits": 1,
+   "enforcement_product": "Onkos Surgical Inc. My3D Personalized Pelvic Implant, Porous, Left  REF PV-ACREC-04M",
+   "recall_number": "Z-0091-2027",
+   "res_event_number": "99692",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Beckman Coulter Inc.",
+   "device_recall_product": "REF # D23352, MicroScan LabPro V5.03 Panel Update 11 (US), Electronic installed  on the following instruments: \n- B1018-",
+   "enforcement_event_id": "99349",
+   "enforcement_firm": "Beckman Coulter Inc.",
+   "enforcement_hits": 1,
+   "enforcement_product": "REF # D23352, MicroScan LabPro V5.03 Panel Update 11 (US), Electronic installed  on the following instruments:   - B1018",
+   "recall_number": "Z-2888-2026",
+   "res_event_number": "99349",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Medline Industries, LP",
+   "device_recall_product": "Convenience kits\n\nMYRINGOTOMY PACK-LF\t\n\tDYNJ59097A",
+   "enforcement_event_id": "99667",
+   "enforcement_firm": "Medline Industries, LP",
+   "enforcement_hits": 1,
+   "enforcement_product": "Convenience kits    MYRINGOTOMY PACK-LF\t  \tDYNJ59097A",
+   "recall_number": "Z-3209-2026",
+   "res_event_number": "99667",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Intuitive Surgical, Inc.",
+   "device_recall_product": "da Vinci SP Instrument Arm Drape, SP, 1-PACK, Part Number: 430013-13, 430013-15",
+   "enforcement_event_id": "98890",
+   "enforcement_firm": "Intuitive Surgical, Inc.",
+   "enforcement_hits": 1,
+   "enforcement_product": "da Vinci SP Instrument Arm Drape, SP, 1-PACK, Part Number: 430013-13, 430013-15",
+   "recall_number": "Z-2722-2026",
+   "res_event_number": "98890",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Papablic Inc",
+   "device_recall_product": "Papablic Replacement Brush Heads. Model Number: Papablic18B",
+   "enforcement_event_id": "98898",
+   "enforcement_firm": "Papablic Inc",
+   "enforcement_hits": 1,
+   "enforcement_product": "Papablic Replacement Brush Heads. Model Number: Papablic18B",
+   "recall_number": "Z-2733-2026",
+   "res_event_number": "98898",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "B Braun Medical Inc",
+   "device_recall_product": "Brand Name: Extension Set\nProduct Name: DISCOFIX FOUR WAY STOPCOCK\nModel/Catalog Number: 456025",
+   "enforcement_event_id": "99550",
+   "enforcement_firm": "B Braun Medical Inc",
+   "enforcement_hits": 1,
+   "enforcement_product": "Brand Name: Extension Set  Product Name: DISCOFIX FOUR WAY STOPCOCK  Model/Catalog Number: 456025",
+   "recall_number": "Z-3089-2026",
+   "res_event_number": "99550",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "Abbott",
+   "device_recall_product": "Amplatzer Amulet Left Atrial Appendage Occluder\n\nModel Numbers\n1. 9-ACP2-007-016\n2. 9-ACP2-007-018\n3. 9-ACP2-007-020\n4. ",
+   "enforcement_event_id": "99844",
+   "enforcement_firm": "Abbott",
+   "enforcement_hits": 1,
+   "enforcement_product": "Amplatzer Amulet Left Atrial Appendage Occluder    Model Numbers  1. 9-ACP2-007-016  2. 9-ACP2-007-018  3. 9-ACP2-007-02",
+   "recall_number": "Z-0191-2027",
+   "res_event_number": "99844",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "ASP Global, LLC.",
+   "device_recall_product": "Brand Name: Expressaire\nProduct Name:DISPOSABLE TOURNIQUET CUFF, 34\" X 4\" 1-LINE (CS 18) BLUE\nModel/Catalog Number: A701",
+   "enforcement_event_id": "99676",
+   "enforcement_firm": "ASP Global, LLC.",
+   "enforcement_hits": 1,
+   "enforcement_product": "Brand Name: Expressaire  Product Name:DISPOSABLE TOURNIQUET CUFF, 34\" X 4\" 1-LINE (CS 18) BLUE  Model/Catalog Number: A7",
+   "recall_number": "Z-0031-2027",
+   "res_event_number": "99676",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "QUANTUM OPS Inc",
+   "device_recall_product": "Brand Name: ADAPTABLE Beach Chair\nProduct Name: Beach Chair   surgical patient positioner\nModel/Catalog Number: 804-33-3",
+   "enforcement_event_id": "99384",
+   "enforcement_firm": "QUANTUM OPS Inc",
+   "enforcement_hits": 1,
+   "enforcement_product": "Brand Name: ADAPTABLE Beach Chair  Product Name: Beach Chair   surgical patient positioner  Model/Catalog Number: 804-33",
+   "recall_number": "Z-0076-2027",
+   "res_event_number": "99384",
+   "same_event_id": true,
+   "same_firm": true
+  },
+  {
+   "device_recall_firm": "AVID Medical, Inc.",
+   "device_recall_product": "MAJOR PACK;\nModel/Item Number (Kit): NIHB0018-11;",
+   "enforcement_event_id": "99808",
+   "enforcement_firm": "AVID Medical, Inc.",
+   "enforcement_hits": 1,
+   "enforcement_product": "MAJOR PACK;  Model/Item Number (Kit): NIHB0018-11;",
+   "recall_number": "Z-0104-2027",
+   "res_event_number": "99808",
+   "same_event_id": true,
+   "same_firm": true
+  }
+ ],
+ "join_recall_number": {
+  "found_in_device_enforcement": 40,
+  "found_with_the_same_event_number": 40,
+  "found_with_the_same_firm_name": 40,
+  "not_found": [],
+  "sampled_device_recall_records": 40
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 42,
+  "source_bodies": 42
+ },
+ "run_date": "2026-11-23"
+}

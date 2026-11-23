@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "7cd8538c21d751ac5051be7dc1c784194094eb82fd02bdaa1f3467fff75bf640",
+  "registry_sha256": "89e01cbddcb27ed6dac1429a6d337f8c2796d3122ee1dc6f72d20f1f9b1518d7",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -185,7 +185,8 @@
         "au-nz-fsanz-food-recalls",
         "fsai-food-alerts",
         "hk-cfs-food-alerts-datagovhk",
-        "widen-uk-mhra-drug-device-alerts"
+        "widen-uk-mhra-drug-device-alerts",
+        "fda-openfda-device-recalls"
       ]
     },
     "public-procurement-notices": {
@@ -999,6 +1000,60 @@
         "icd-cdc-icd10cm-code-set",
         "icd-cdc-icd10cm-tabular-notes",
         "rd-mondo-disease-ontology"
+      ]
+    },
+    "electric-utility-rate-schedules": {
+      "name": "US electric utility rate schedules: rate structures, eligibility text and the utilities that offer them (OpenEI URDB, EIA Form 861)",
+      "stage": "SCREENED",
+      "sources": [
+        "urdb-openei-rate-schedules",
+        "urdb-openei-rate-descriptions",
+        "urdb-eia-form-861"
+      ]
+    },
+    "river-gauges-flood-stages": {
+      "name": "US river gauges: flood stage thresholds, flood impact statements and historic crests (NOAA NWPS, USGS NWIS)",
+      "stage": "SCREENED",
+      "sources": [
+        "gauge-noaa-nwps-gauges",
+        "gauge-noaa-nwps-flood-impact-statements",
+        "gauge-usgs-nwis-sites"
+      ]
+    },
+    "federal-recreation-facilities": {
+      "name": "US federal recreation areas and facilities: campgrounds, trailheads, permits, access and fees (Recreation.gov RIDB, USDA Forest Service)",
+      "stage": "SCREENED",
+      "sources": [
+        "rec-ridb-recreation-areas-facilities",
+        "rec-ridb-facility-descriptions",
+        "rec-usfs-recreation-opportunities"
+      ]
+    },
+    "phenotype-terms": {
+      "name": "Human phenotype terms and their rare-disease annotations (Human Phenotype Ontology, Orphadata product 4)",
+      "stage": "SCREENED",
+      "sources": [
+        "hpo-jax-human-phenotype-ontology",
+        "hpo-jax-term-definitions",
+        "hpo-orphadata-phenotype-annotations"
+      ]
+    },
+    "chemical-substances": {
+      "name": "Chemical substance identity: ChEBI entities and FDA UNII substances linked on structure (EMBL-EBI ChEBI, FDA GSRS)",
+      "stage": "SCREENED",
+      "sources": [
+        "chem-ebi-chebi-ontology",
+        "chem-ebi-chebi-definitions",
+        "chem-fda-gsrs-unii"
+      ]
+    },
+    "pharmacogenomic-gene-drug-guidance": {
+      "name": "Pharmacogenomic gene-drug guidance: CPIC pairs and recommendations alongside the FDA Table of Pharmacogenetic Associations",
+      "stage": "SCREENED",
+      "sources": [
+        "pgx-cpic-gene-drug-pairs",
+        "pgx-cpic-recommendations",
+        "pgx-fda-pharmacogenetic-associations"
       ]
     }
   },
@@ -8689,14 +8744,14 @@
     "hei-nces-ipeds-mission-statements": {
       "name": "NCES IPEDS institutional mission statements (free-text statement or its URL, table ICyyyymission in the IPEDS Access database)",
       "rights": "AMBER",
-      "stage": "DISCOVERED",
+      "stage": "SCREENED",
       "format": "free-text",
       "publisher": "US National Center for Education Statistics (IPEDS)",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
         "no ADR-0013 rights record in the registry evidence",
-        "stage DISCOVERED is before PROTOTYPED"
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "hei-ed-college-scorecard": {
@@ -8944,6 +8999,253 @@
       "blocked_because": [
         "rights verdict is UNKNOWN",
         "stage PARKED is before PROTOTYPED"
+      ]
+    },
+    "urdb-openei-rate-schedules": {
+      "name": "OpenEI U.S. Utility Rate Database: electric rate schedules (utility, EIA id, sector, fixed charges, energy and demand rate tiers by period, effective dates, source tariff URL)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "OpenEI (National Laboratory of the Rockies, US DOE)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "urdb-openei-rate-descriptions": {
+      "name": "OpenEI U.S. Utility Rate Database: free-text rate descriptions and comments (eligibility, minimum charges, riders and adjustments written from the tariff sheet)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "OpenEI (National Laboratory of the Rockies, US DOE)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "urdb-eia-form-861": {
+      "name": "EIA Form 861 annual electric power industry report, detailed data files (utility number, name, ownership, states served, sales, revenue and customers by sector, service territory)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Energy Information Administration",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gauge-noaa-nwps-gauges": {
+      "name": "NOAA National Water Prediction Service river gauges (location id, USGS site number, NWM reach id, flood stage categories, historic crests, observed and forecast stage)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "NOAA National Weather Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gauge-noaa-nwps-flood-impact-statements": {
+      "name": "NOAA National Water Prediction Service flood impact statements (free-text description of what floods at each river stage, per gauge)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "NOAA National Weather Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "gauge-usgs-nwis-sites": {
+      "name": "USGS National Water Information System site service (site number, station name, site type, coordinates, datum, altitude, hydrologic unit code)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Geological Survey",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "rec-ridb-recreation-areas-facilities": {
+      "name": "Recreation Information Database full export: federal recreation areas, facilities, campsites, activities, permits and tours of 12 agencies (ids, type, coordinates, reservability, agency ids)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Recreation.gov (Recreation One Stop interagency program)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "rec-ridb-facility-descriptions": {
+      "name": "Recreation Information Database free-text facility and rec area descriptions, directions and fee descriptions",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Recreation.gov (Recreation One Stop interagency program)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "rec-usfs-recreation-opportunities": {
+      "name": "USDA Forest Service Recreation Opportunities layer (rec area id, name, forest, activity group, open status, season, fees, restrictions, description)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "USDA Forest Service",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hpo-jax-human-phenotype-ontology": {
+      "name": "Human Phenotype Ontology (hp.obo): phenotype terms, hierarchy, synonyms including layperson terms, alternative and obsolete ids with replacements",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Human Phenotype Ontology Consortium (The Jackson Laboratory, Monarch Initiative)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hpo-jax-term-definitions": {
+      "name": "Human Phenotype Ontology free-text term definitions and comments",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Human Phenotype Ontology Consortium (The Jackson Laboratory, Monarch Initiative)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "hpo-orphadata-phenotype-annotations": {
+      "name": "Orphadata product 4: rare diseases annotated with HPO phenotypes, their frequency band and diagnostic-criterion flags",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Orphanet (INSERM US14)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "chem-ebi-chebi-ontology": {
+      "name": "ChEBI ontology: chemical entities of biological interest (ChEBI id, name, synonyms, InChIKey, formula, mass, CAS and database cross-references, roles and classes)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "EMBL-EBI (ChEBI)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "chem-ebi-chebi-definitions": {
+      "name": "ChEBI free-text entity definitions (what a compound is, its parent structure, substituents and biological role)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "EMBL-EBI (ChEBI)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "chem-fda-gsrs-unii": {
+      "name": "FDA Global Substance Registration System UNII list (UNII, preferred name, CAS number, InChIKey, SMILES, RxCUI, PubChem, EPA CompTox, NCI Thesaurus and EMA substance ids, substance type)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pgx-cpic-gene-drug-pairs": {
+      "name": "CPIC gene-drug pairs, drugs and guidelines (gene symbol, RxNorm drug id, CPIC level, guideline, FDA label testing note, PubMed citations)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Clinical Pharmacogenetics Implementation Consortium (CPIC)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pgx-cpic-recommendations": {
+      "name": "CPIC prescribing recommendations (free-text recommendation and implication per drug, gene phenotype or allele status and population, with strength classification)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Clinical Pharmacogenetics Implementation Consortium (CPIC)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pgx-fda-pharmacogenetic-associations": {
+      "name": "FDA Table of Pharmacogenetic Associations (drug, gene, affected subgroup and a free-text description of the gene-drug interaction, in three evidence sections)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "fda-openfda-device-recalls": {
+      "name": "openFDA device recall records (CDRH recall database: recall number, event number, root cause, corrective action text, product code, FEI, 510(k) and PMA numbers, UDI in code information)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US FDA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     }
   },

@@ -1,0 +1,548 @@
+{
+ "fetched": {
+  "nwps_gauge_AUGP1": {
+   "bytes": 4274,
+   "sha256": "1815f0a2ca0fb00329362800ce16b026114d582f0a110c143cee8b2317afc534",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/AUGP1"
+  },
+  "nwps_gauge_BCVV2": {
+   "bytes": 19443,
+   "sha256": "b867d701a006f5b0f2a2d56e88674bd5ab3f7a9432793e92cc8eb41f1250feb3",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BCVV2"
+  },
+  "nwps_gauge_BDWV2": {
+   "bytes": 7563,
+   "sha256": "e9f50e902691f3d1d39b246ba396c559481a36930bcacc7887588133a7927bce",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BDWV2"
+  },
+  "nwps_gauge_BELM2": {
+   "bytes": 14396,
+   "sha256": "94a6c587200bdb73b9d0420f242c5cb6fb8058c159b4e4d633446e6ed84fd153",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BELM2"
+  },
+  "nwps_gauge_BGCV2": {
+   "bytes": 17303,
+   "sha256": "65be6a5895f6f0ed73913b09058159eb2c5a07af8b256a40dc68fba9bc1dfc28",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BGCV2"
+  },
+  "nwps_gauge_BKYM2": {
+   "bytes": 6311,
+   "sha256": "77a2d866cd691fd4f3ad2cfcb4469ed7eefe2005cb4e06e298632ba2474aadc0",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BKYM2"
+  },
+  "nwps_gauge_BMRP1": {
+   "bytes": 7337,
+   "sha256": "29a1f08a47aa7cc8cd1d0c4f155be6106cdeef7d424b93b86d9517dc7f73816c",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BMRP1"
+  },
+  "nwps_gauge_BREP1": {
+   "bytes": 17389,
+   "sha256": "97228e9f7b15fa82867d34680d728eeb3550864f747147430831034033b6fd94",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BREP1"
+  },
+  "nwps_gauge_BRTM2": {
+   "bytes": 4156,
+   "sha256": "bd6fe142bf2882e6c18ad6e4a68061d073122af923dc55c8f96845caea74e937",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BRTM2"
+  },
+  "nwps_gauge_BRWM2": {
+   "bytes": 3598,
+   "sha256": "f4a18c9525af495fc6ec9901c0ab490cf8914e9ac5ae5404127767dfd465aa4c",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/BRWM2"
+  },
+  "nwps_gauge_CFYN7": {
+   "bytes": 3812,
+   "sha256": "624a1d0950738e57a73002e8029b0f0fc49d47ce7df1635add4e696a721c2a5a",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/CFYN7"
+  },
+  "nwps_gauge_CKHV2": {
+   "bytes": 43545,
+   "sha256": "3b996306095c197817845b0bb508601a267d726a111ca1d6f11e03ab528b78a0",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/CKHV2"
+  },
+  "nwps_gauge_CLSM2": {
+   "bytes": 6288,
+   "sha256": "00bb94c649f96793db37690b7b22af9fb8bd55f4361f9fabb4b8b056fb679d2c",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/CLSM2"
+  },
+  "nwps_gauge_COWV2": {
+   "bytes": 42609,
+   "sha256": "1c1bde2fd8904c9e79ae76e712136aa093631c7ecdefc6cef93192db5dae227e",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/COWV2"
+  },
+  "nwps_gauge_DELD1": {
+   "bytes": 14743,
+   "sha256": "d961208a7a1a3221da04df7103feb4451b6951f3ec071d6ce482b0fdf7ab41ad",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/DELD1"
+  },
+  "nwps_gauge_EDMM2": {
+   "bytes": 2915,
+   "sha256": "00a8593bc9d527419937cb146df68d17d5353caab98d5dace7d1f6907e0181a5",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/EDMM2"
+  },
+  "nwps_gauge_ELZP1": {
+   "bytes": 25210,
+   "sha256": "73f6c8c4c48dc1d41d0dc2e59cd69993eb10104a24b3de68db60e04bca68d800",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/ELZP1"
+  },
+  "nwps_gauge_FREN4": {
+   "bytes": 11358,
+   "sha256": "0c443f726cb499ac42183713de04d1cdd58efaf6a77faf1f17071ee2245ea780",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/FREN4"
+  },
+  "nwps_gauge_FRPP1": {
+   "bytes": 4500,
+   "sha256": "8052c95825d57d0c0ed8893b74f5b945de04061b248e69ff66dad565e60b6e60",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/FRPP1"
+  },
+  "nwps_gauge_GDDP1": {
+   "bytes": 3177,
+   "sha256": "478aff6886d6ee0714ad6789e242b93f189613dd305c0b2c00ec67411f4af656",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/GDDP1"
+  },
+  "nwps_gauge_GYLP1": {
+   "bytes": 17548,
+   "sha256": "0c54dd61d8a9b6d970d227b22521fb4abeaea1b228fce5a8da7ed6620bca52d9",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/GYLP1"
+  },
+  "nwps_gauge_HBSN7": {
+   "bytes": 6788,
+   "sha256": "97762eda8324c1a38c9474dcebdfa15c42d8a365690216a8645ddcb8212b15a8",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/HBSN7"
+  },
+  "nwps_gauge_HERP1": {
+   "bytes": 29120,
+   "sha256": "a5dcd1ed43ab7ed6b3ced75eedb29b04196402bbecdac5adce24debc54bc0c2d",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/HERP1"
+  },
+  "nwps_gauge_HOYM2": {
+   "bytes": 6398,
+   "sha256": "74e679bd5a6d505b6472b4cb6360cc9cb5347c64db0283e82ad188f29792c863",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/HOYM2"
+  },
+  "nwps_gauge_HPNN7": {
+   "bytes": 5190,
+   "sha256": "a9e73f1eaad6c00194963addd9dcb88f0b4266541fe889bcab1279e50495967a",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/HPNN7"
+  },
+  "nwps_gauge_HUJP1": {
+   "bytes": 14899,
+   "sha256": "196b3849a3f005af469b4965d1f076952d2de7f7eda991c4e506b5e71c5d351c",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/HUJP1"
+  },
+  "nwps_gauge_KTTP1": {
+   "bytes": 12766,
+   "sha256": "47ddee5e67a82e0e0f60f76bf3edfb888be26187ab0e8cbb07d0f3de4b8436ca",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/KTTP1"
+  },
+  "nwps_gauge_LATP1": {
+   "bytes": 8739,
+   "sha256": "6249eda8841e0893514fb423a2fb120199702dce403a23a11f619d1999848105",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/LATP1"
+  },
+  "nwps_gauge_LCCP1": {
+   "bytes": 3519,
+   "sha256": "ec355c6d8d08b1e8dc4976b06b70ba927d2813168ba7a515dee5942c29366789",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/LCCP1"
+  },
+  "nwps_gauge_LIRV2": {
+   "bytes": 41837,
+   "sha256": "3e14a29379a464df874e40df2fa3dae4fc9e1a96a07c7119c14392f16fb06482",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/LIRV2"
+  },
+  "nwps_gauge_LSPV2": {
+   "bytes": 4150,
+   "sha256": "05a662bfc486722eae9d741a2a026e533a07ab2aac6e55be31f3588ad21e6077",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/LSPV2"
+  },
+  "nwps_gauge_MBOM2": {
+   "bytes": 2916,
+   "sha256": "be174315ac11e039ea7a96a2a625fb345a3f22a4125f78117956fa9addfdbe63",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/MBOM2"
+  },
+  "nwps_gauge_MLLW2": {
+   "bytes": 13372,
+   "sha256": "b69645d91124214c0e83869cd1dbfad714eda4ea39faca958d2bee376af52ec8",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/MLLW2"
+  },
+  "nwps_gauge_MNBV2": {
+   "bytes": 12608,
+   "sha256": "612fde2e7148e7d4717f8c3ed6125b425f2ed838a96895c01fc2e76370c8f421",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/MNBV2"
+  },
+  "nwps_gauge_MOZW2": {
+   "bytes": 4974,
+   "sha256": "f3c14a4dcaf5cc11c9544f1302db9d90661e0a2f2db4848623d7b0a9f1410fd5",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/MOZW2"
+  },
+  "nwps_gauge_MRFW2": {
+   "bytes": 5314,
+   "sha256": "5974cbb91c9d13d02aa500fe1895ab43f38930e4c1059c00f1c5cb4761e3aaf7",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/MRFW2"
+  },
+  "nwps_gauge_MSLV2": {
+   "bytes": 2871,
+   "sha256": "6b11d1b95bd2a798f8653de4e51cc635d429be57472e6ba7211b676cf7d4d69e",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/MSLV2"
+  },
+  "nwps_gauge_OBCN7": {
+   "bytes": 6727,
+   "sha256": "300d7ec0367d5e8276a91865588fe001c320234405ac6e385848cb11ec683293",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/OBCN7"
+  },
+  "nwps_gauge_PARV2": {
+   "bytes": 19086,
+   "sha256": "03e9e75fafc97585ae285d5ec4979c7788ac0ce97ac3d1fa32e84922ee7839ca",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/PARV2"
+  },
+  "nwps_gauge_PAWW2": {
+   "bytes": 21531,
+   "sha256": "b213f5dd0de10d2b81aa1e1e450a8a48f1010e1023c743d1ff2e302da3e97137",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/PAWW2"
+  },
+  "nwps_gauge_PCCV2": {
+   "bytes": 7562,
+   "sha256": "bda43936a0f93178df7e9139323d16d82c32a6f759327dba40558cc50723e3c6",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/PCCV2"
+  },
+  "nwps_gauge_PCWV2": {
+   "bytes": 3115,
+   "sha256": "af3f11776b91cf837eced2f47447184a1e78f0617f23b74ad7e6e9ec0fb51954",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/PCWV2"
+  },
+  "nwps_gauge_PMBM2": {
+   "bytes": 21525,
+   "sha256": "91377af9354e0faccceda2cff62eca72d1b54e380e62bd7722e08e4476ff96ae",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/PMBM2"
+  },
+  "nwps_gauge_RGIV2": {
+   "bytes": 4609,
+   "sha256": "4021f47d325e81effd40b5c95fe87b8cb050ee171f4e29fa1e94e058801b3ea0",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RGIV2"
+  },
+  "nwps_gauge_RGLN4": {
+   "bytes": 17210,
+   "sha256": "b19b85cb9310cbae2d54af02e0577dc1415045d0caafd7561ad900882972d2a0",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RGLN4"
+  },
+  "nwps_gauge_RMCV2": {
+   "bytes": 4252,
+   "sha256": "6df55173903f4feb08bc546957c204e0176f4607437ebcdf71374973a490068b",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RMCV2"
+  },
+  "nwps_gauge_RMMV2": {
+   "bytes": 4239,
+   "sha256": "ee1e7157d15193b7696a550800a62d42f77c53c554c34a8325ea96c5ef154fb0",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RMMV2"
+  },
+  "nwps_gauge_RTRV2": {
+   "bytes": 4613,
+   "sha256": "b07dc961c910e1e7151cd422d1a2cc9780d539a9eecf7f1e71bad8a26d2d13f5",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RTRV2"
+  },
+  "nwps_gauge_RVDV2": {
+   "bytes": 8089,
+   "sha256": "1d26967585eea35093eda0d28749ef626712c61ee833a3f8bab63d8d08a4ee36",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RVDV2"
+  },
+  "nwps_gauge_RWHV2": {
+   "bytes": 3956,
+   "sha256": "7ce2805342ee997e604f6b88ed5a526e698d2ea2f513cfdcdd31f1790cd2a360",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/RWHV2"
+  },
+  "nwps_gauge_SLRM2": {
+   "bytes": 6662,
+   "sha256": "44eec05070a16aa8a77371d03ecdd9a5068f1101e45fc38cd95330af64108262",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/SLRM2"
+  },
+  "nwps_gauge_SMIV2": {
+   "bytes": 4895,
+   "sha256": "14634070259fed8bdc013763cd2d91a94946fcd600112b8f84078d90453d979f",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/SMIV2"
+  },
+  "nwps_gauge_SOHV2": {
+   "bytes": 23535,
+   "sha256": "47ade774c637a88fbc1526ec1b58f8edb0f90913212a6c312c0178b24794af11",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/SOHV2"
+  },
+  "nwps_gauge_SRLV2": {
+   "bytes": 2961,
+   "sha256": "b25c9086ed40a192ead263fc700af8779e03a50d7ccc580ebe6affab94b593cb",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/SRLV2"
+  },
+  "nwps_gauge_STND1": {
+   "bytes": 12876,
+   "sha256": "63371b4286615e5e60ace1f7a0ca312461908d38b6afab4dd0efabfb3ade490a",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/STND1"
+  },
+  "nwps_gauge_TKSV2": {
+   "bytes": 4234,
+   "sha256": "cce0a0ec196ebef1fb8e70ac9dcdd103aa38118d7ebab26ea3b19e34e76afd75",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/TKSV2"
+  },
+  "nwps_gauge_TTDM2": {
+   "bytes": 6495,
+   "sha256": "f04e4ce3e41dad0c6f6a99594b4cdc065bc6a020c6dfea853eb2d70d42b088dc",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/TTDM2"
+  },
+  "nwps_gauge_WCCV2": {
+   "bytes": 9869,
+   "sha256": "54fbad10cfb565508cb15d5642fe6c261aa1a2cc510aa14d792e970a8f985b8c",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/WCCV2"
+  },
+  "nwps_gauge_WDVN7": {
+   "bytes": 12102,
+   "sha256": "81f70a127e2d6085717885c59b541d039bf2d3d8565c8a2589147e7c59845bb0",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/WDVN7"
+  },
+  "nwps_gauge_WIMD1": {
+   "bytes": 13828,
+   "sha256": "6eef2f2917ecf2e9e813773e6f88f3100dd7abaeb643a7f4fb41a68e71d57b6d",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges/WIMD1"
+  },
+  "nwps_t1": {
+   "bytes": 978397,
+   "sha256": "d42bf375b8beef5c6c5875f1f268c5466249f2bfd24e1ed20e2c149f1822f8bd",
+   "url": "https://api.water.noaa.gov/nwps/v1/gauges?bbox.xmin=-80&bbox.ymin=36&bbox.xmax=-75&bbox.ymax=41&srid=EPSG_4326"
+  },
+  "usgs_sites": {
+   "bytes": 5698,
+   "sha256": "1131eaebe640f1f1d5b34aa5ac9aea3d5aebad2626f0a69de85ce0cf86cfa26c",
+   "url": "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites=01457500,01458500,01470500,01470960,01480015,01480120,01541340,01559000,01564500,01573560,01573684,01581830,01589290,01589317,01606900,01608070,01610000,01610155,01632082,01634500,01643500,01649150,01670400,02011400,02016000,02016500,02040892,02042500,0204300267,02043433,02047370,02051190,02085039,0209399200,03036500,03045010,03049000,03072655,03075070,03076100"
+  }
+ },
+ "full_list_status": 504,
+ "handcheck_sample": [
+  {
+   "distance_degrees": 0.0002,
+   "lid": "MOZW2",
+   "nwps_name": "South Mill Creek near Mozer",
+   "usgs_id": "01606900",
+   "usgs_site_type": "LK",
+   "usgs_station_name": "SOUTH MILL CREEK NEAR MOZER, WV"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "WIMD1",
+   "nwps_name": "Christina River at Wilmington (IN MLLW)",
+   "usgs_id": "01480120",
+   "usgs_site_type": "ST-TS",
+   "usgs_station_name": "CHRISTINA RIVER AT WILMINGTON, DE"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "LIRV2",
+   "nwps_name": "James River (VA) at Lick Run",
+   "usgs_id": "02016500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "JAMES RIVER AT LICK RUN, VA"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "CKHV2",
+   "nwps_name": "Chickahominy River near Providence Forge",
+   "usgs_id": "02042500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "CHICKAHOMINY RIVER NEAR PROVIDENCE FORGE, VA"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "SOHV2",
+   "nwps_name": "Meherrin River near SOUTH HILL",
+   "usgs_id": "02051190",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "MEHERRIN RIVER AT RT 637 NEAR SOUTH HILL, VA"
+  },
+  {
+   "distance_degrees": 0.0004,
+   "lid": "BMRP1",
+   "nwps_name": "Tulpehocken Creek below Blue Marsh Dam",
+   "usgs_id": "01470960",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Tulpehocken Cr at Blue Marsh Damsite near Reading"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "HBSN7",
+   "nwps_name": "Eno River near Huckleberry Springs",
+   "usgs_id": "02085039",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "ENO RIVER AT COLE MILL RD NR HUCKLEBERRY SPRING"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "HERP1",
+   "nwps_name": "Swatara Creek near Hershey",
+   "usgs_id": "01573560",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Swatara Creek near Hershey, PA"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "CLSM2",
+   "nwps_name": "Paint Branch Tributary Near Colesville, MD",
+   "usgs_id": "01649150",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "PAINT BRANCH TRIBUTARY NEAR COLESVILLE, MD"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "AUGP1",
+   "nwps_name": "Aughwick Creek near Three Springs",
+   "usgs_id": "01564500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Aughwick Creek near Three Springs, PA"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "BKYM2",
+   "nwps_name": "Grave Run near Beckleysville",
+   "usgs_id": "01581830",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "GRAVE RUN NEAR BECKLEYSVILLE, MD"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "BREP1",
+   "nwps_name": "Schuylkill River at Berne",
+   "usgs_id": "01470500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Schuylkill River at Berne, PA"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "HUJP1",
+   "nwps_name": "Juniata River at Huntingdon",
+   "usgs_id": "01559000",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Juniata River at Huntingdon, PA"
+  },
+  {
+   "distance_degrees": 0.0008,
+   "lid": "PAWW2",
+   "nwps_name": "Potomac River at Paw Paw",
+   "usgs_id": "01610000",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "POTOMAC RIVER AT PAW PAW, WV"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "RGLN4",
+   "nwps_name": "Delaware River at Riegelsville",
+   "usgs_id": "01457500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Delaware River at Riegelsville NJ"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "PMBM2",
+   "nwps_name": "Bennett Creek at Park Mills",
+   "usgs_id": "01643500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "BENNETT CREEK AT PARK MILLS, MD"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "BELM2",
+   "nwps_name": "Sideling Hill Creek near Bellegrove",
+   "usgs_id": "01610155",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "SIDELING HILL CREEK NEAR BELLEGROVE, MD"
+  },
+  {
+   "distance_degrees": 0.0002,
+   "lid": "ELZP1",
+   "nwps_name": "Monongahela River at Elizabeth Lock and Dam",
+   "usgs_id": "03075070",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Monongahela River at Elizabeth, PA"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "GDDP1",
+   "nwps_name": "Central PA Dams at Glendale Lake",
+   "usgs_id": "01541340",
+   "usgs_site_type": "LK",
+   "usgs_station_name": "Glendale Lake near Flinton, PA"
+  },
+  {
+   "distance_degrees": 0.0002,
+   "lid": "KTTP1",
+   "nwps_name": "Allegheny River at Kittanning Lock and Dam",
+   "usgs_id": "03036500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Allegheny River at Kittanning, PA"
+  }
+ ],
+ "join_usgs_site_number": {
+  "largest_distance_degrees": 0.001,
+  "nwps_sample_gauges_citing_a_usgs_id": 40,
+  "pairs_within_0_01_degrees": 40,
+  "resolved_by_the_usgs_site_service": 40,
+  "unresolved": [],
+  "usgs_site_types": {
+   "ES": 1,
+   "LK": 2,
+   "ST": 35,
+   "ST-TS": 2
+  }
+ },
+ "nwps_sample": {
+  "failed": [],
+  "historic_crests": 1082,
+  "impact_example": {
+   "first_statement": {
+    "stage": 9.91,
+    "statement": "(Mean Lower Low Water (MLLW)) The level reached on October 30, 2012 during Post Tropical Cyclone Sandy."
+   },
+   "lid": "WIMD1"
+  },
+  "impact_statement_characters": 16080,
+  "impact_statement_median_characters": 70,
+  "impact_statements": 173,
+  "impact_statements_with_a_stage": 173,
+  "read": 60,
+  "requested": 60,
+  "with_a_major_flood_stage": 32,
+  "with_a_minor_flood_stage": 40,
+  "with_flood_impact_statements": 36,
+  "with_historic_crests": 48,
+  "with_reach_id": 48,
+  "with_usgs_id": 40
+ },
+ "nwps_tile": {
+  "bbox": "lon -80..-75, lat 36..41",
+  "by_state": {
+   "DC": 8,
+   "DE": 19,
+   "LA": 1,
+   "MD": 213,
+   "NC": 83,
+   "NJ": 15,
+   "PA": 184,
+   "VA": 381,
+   "WV": 52
+  },
+  "distinct_lids": 956,
+  "gauges": 956,
+  "list_rows_carrying_a_usgs_id": 0,
+  "newest_observed_valid_time": "2026-11-23T13:36:00Z",
+  "observed_flood_category": {
+   "action": 4,
+   "low_threshold": 1,
+   "minor": 5,
+   "no_flooding": 611,
+   "not_defined": 238,
+   "obs_not_current": 53,
+   "out_of_service": 44
+  },
+  "observed_valid_on_2026_11_23": 866,
+  "with_forecast_series": 564
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 61,
+  "made_this_run": 2,
+  "source_bodies": 62
+ },
+ "run_date": "2026-11-23"
+}

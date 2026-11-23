@@ -1,0 +1,109 @@
+{
+ "checked_on": "2026-11-23",
+ "method": "20 IC2023Mission rows that carry mission text, drawn with seed 20261123 by adv_measure.py; the institution name from HD2023 and the opening of the text were read.",
+ "checked": 20,
+ "text_is_a_mission_statement": 20,
+ "note": "All 20 are mission or purpose statements. 19 name or plainly describe the institution in HD2023; unitid 207102 (Eves College of Hairstyling) carries a statement that names 'Elite Academy of Cosmetology', so the text can lag a change of name. Only the first 160 characters are committed.",
+ "pairs": [
+  {
+   "institution": "Health-Tech Institute of Memphis",
+   "mission_first_160_characters": "Health-Tech Institute of Memphis provides educational opportunities to the general public in demand occupations of Allied Health and Business Services with cert",
+   "unitid": "493752"
+  },
+  {
+   "institution": "Eves College of Hairstyling",
+   "mission_first_160_characters": "The staff at Elite Academy of Cosmetology strive on a daily basis to provide its students with a solid foundation in the arts and sciences of the many branches ",
+   "unitid": "207102"
+  },
+  {
+   "institution": "Pennsylvania College of Art and Design",
+   "mission_first_160_characters": "At Pennsylvania College of Art & Design, our mission is to spark creativity within everyone. Welcoming learners of all kinds in a vibrant, inclusive community, ",
+   "unitid": "215053"
+  },
+  {
+   "institution": "Massachusetts Bay Community College",
+   "mission_first_160_characters": "Massachusetts Bay Community College fosters educational excellence and student success, prepares students for local and global citizenship, anticipates and resp",
+   "unitid": "166647"
+  },
+  {
+   "institution": "Ross Medical Education Center-Granger",
+   "mission_first_160_characters": "The staff of Ross Medical Education Center and Ross College believe our purpose is to make available to students, quality training and student services necessar",
+   "unitid": "460109"
+  },
+  {
+   "institution": "Lindsey Institute of Cosmetology",
+   "mission_first_160_characters": "The mission of Lindsey Institute of Cosmetology is to educate students in the art of cosmetology,esthetics, or in instruction of these programs and encourage th",
+   "unitid": "461722"
+  },
+  {
+   "institution": "The Hair Academy LLC",
+   "mission_first_160_characters": "The prime objective of The Hair Academy is to prepare our students to become members of the cosmetology profession through quality education. We also prepare st",
+   "unitid": "220163"
+  },
+  {
+   "institution": "Trinity Law School",
+   "mission_first_160_characters": "Preparing students to flourish as attorneys dedicated to advocate for justice, serve the church, and pursue the truth throughout the world for Christ.",
+   "unitid": "123448"
+  },
+  {
+   "institution": "Hays Academy of Hair Design",
+   "mission_first_160_characters": "Hays Academy of Hair Design strives to provide a progressive post-secondary education  that will prepare students for a career in the salon and spa profession, ",
+   "unitid": "155159"
+  },
+  {
+   "institution": "Copiah-Lincoln Community College",
+   "mission_first_160_characters": "The mission of Copiah-Lincoln Community College is to provide educational programs, economic development services, cultural and recreational opportunities throu",
+   "unitid": "175573"
+  },
+  {
+   "institution": "DeVry University-Nevada",
+   "mission_first_160_characters": "DeVry University strives to close our society’s opportunity gap by preparing learners to thrive in careers shaped by continuous technological change. Through in",
+   "unitid": "482547"
+  },
+  {
+   "institution": "Greater Johnstown Career and Technology Center",
+   "mission_first_160_characters": "Ensure Student Success",
+   "unitid": "418454"
+  },
+  {
+   "institution": "Academy of Hair Design-Las Vegas",
+   "mission_first_160_characters": "We, Academy of Hair Design, together are on a mission of \"Graduating to Success\" by preparing our students to successfully pass the Nevada State Board of Cosmet",
+   "unitid": "181880"
+  },
+  {
+   "institution": "Paul Mitchell the School-Tinley Park",
+   "mission_first_160_characters": "Our Mission: To provide a quality educational system to prepare students to pass the state board examination and gain employment within their chosen field of st",
+   "unitid": "143376"
+  },
+  {
+   "institution": "American College of Acupuncture and Oriental Med",
+   "mission_first_160_characters": "American College of Acupuncture & Oriental Medicine (ACAOM) is a post baccalaureate academic institution dedicated to educating and conferring degrees upon grad",
+   "unitid": "429085"
+  },
+  {
+   "institution": "The Hair Academy",
+   "mission_first_160_characters": "To prepare stylist to pursue their dream career through a positive atmosphere, empowered learning, and professional experience.",
+   "unitid": "452009"
+  },
+  {
+   "institution": "Nashville Film Institute",
+   "mission_first_160_characters": "To train students for careers in the film industry",
+   "unitid": "490115"
+  },
+  {
+   "institution": "The College of Health Care Professions-San Antonio",
+   "mission_first_160_characters": "The College of Health Care Professions (CHCP) is dedicated to providing quality training to individuals interested in the allied health care fields.  Knowledge ",
+   "unitid": "449250"
+  },
+  {
+   "institution": "Tallahassee Community College",
+   "mission_first_160_characters": "The mission of the college is to provide a learning environment that prepares students for success in a global economy by offering higher education pathways, wo",
+   "unitid": "137759"
+  },
+  {
+   "institution": "Olivet Nazarene University",
+   "mission_first_160_characters": "Olivet Nazarene University, a denominational university in the Wesleyan tradition, exists to provide a university-level liberal arts ”Education With a Christian",
+   "unitid": "147828"
+  }
+ ]
+}

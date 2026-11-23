@@ -1,0 +1,169 @@
+{
+ "checked_on": "2026-11-23",
+ "method": "The first 20 of the 40 sampled NWPS gauges that cite a USGS site number, in sample order (seed 20261123, gauge_measure.py); station names and coordinates on both sides were read.",
+ "checked": 20,
+ "same_station": 20,
+ "note": "All 20 name the same river and place, and every pair is within 0.0008 degrees. MOZW2 and GDDP1 resolve to USGS sites typed LK (lake or reservoir) and WIMD1 to a tidal stream site (ST-TS): the same location, a different site type.",
+ "pairs": [
+  {
+   "distance_degrees": 0.0002,
+   "lid": "MOZW2",
+   "nwps_name": "South Mill Creek near Mozer",
+   "usgs_id": "01606900",
+   "usgs_site_type": "LK",
+   "usgs_station_name": "SOUTH MILL CREEK NEAR MOZER, WV"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "WIMD1",
+   "nwps_name": "Christina River at Wilmington (IN MLLW)",
+   "usgs_id": "01480120",
+   "usgs_site_type": "ST-TS",
+   "usgs_station_name": "CHRISTINA RIVER AT WILMINGTON, DE"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "LIRV2",
+   "nwps_name": "James River (VA) at Lick Run",
+   "usgs_id": "02016500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "JAMES RIVER AT LICK RUN, VA"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "CKHV2",
+   "nwps_name": "Chickahominy River near Providence Forge",
+   "usgs_id": "02042500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "CHICKAHOMINY RIVER NEAR PROVIDENCE FORGE, VA"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "SOHV2",
+   "nwps_name": "Meherrin River near SOUTH HILL",
+   "usgs_id": "02051190",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "MEHERRIN RIVER AT RT 637 NEAR SOUTH HILL, VA"
+  },
+  {
+   "distance_degrees": 0.0004,
+   "lid": "BMRP1",
+   "nwps_name": "Tulpehocken Creek below Blue Marsh Dam",
+   "usgs_id": "01470960",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Tulpehocken Cr at Blue Marsh Damsite near Reading"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "HBSN7",
+   "nwps_name": "Eno River near Huckleberry Springs",
+   "usgs_id": "02085039",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "ENO RIVER AT COLE MILL RD NR HUCKLEBERRY SPRING"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "HERP1",
+   "nwps_name": "Swatara Creek near Hershey",
+   "usgs_id": "01573560",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Swatara Creek near Hershey, PA"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "CLSM2",
+   "nwps_name": "Paint Branch Tributary Near Colesville, MD",
+   "usgs_id": "01649150",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "PAINT BRANCH TRIBUTARY NEAR COLESVILLE, MD"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "AUGP1",
+   "nwps_name": "Aughwick Creek near Three Springs",
+   "usgs_id": "01564500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Aughwick Creek near Three Springs, PA"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "BKYM2",
+   "nwps_name": "Grave Run near Beckleysville",
+   "usgs_id": "01581830",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "GRAVE RUN NEAR BECKLEYSVILLE, MD"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "BREP1",
+   "nwps_name": "Schuylkill River at Berne",
+   "usgs_id": "01470500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Schuylkill River at Berne, PA"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "HUJP1",
+   "nwps_name": "Juniata River at Huntingdon",
+   "usgs_id": "01559000",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Juniata River at Huntingdon, PA"
+  },
+  {
+   "distance_degrees": 0.0008,
+   "lid": "PAWW2",
+   "nwps_name": "Potomac River at Paw Paw",
+   "usgs_id": "01610000",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "POTOMAC RIVER AT PAW PAW, WV"
+  },
+  {
+   "distance_degrees": 0.0,
+   "lid": "RGLN4",
+   "nwps_name": "Delaware River at Riegelsville",
+   "usgs_id": "01457500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Delaware River at Riegelsville NJ"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "PMBM2",
+   "nwps_name": "Bennett Creek at Park Mills",
+   "usgs_id": "01643500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "BENNETT CREEK AT PARK MILLS, MD"
+  },
+  {
+   "distance_degrees": 0.0001,
+   "lid": "BELM2",
+   "nwps_name": "Sideling Hill Creek near Bellegrove",
+   "usgs_id": "01610155",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "SIDELING HILL CREEK NEAR BELLEGROVE, MD"
+  },
+  {
+   "distance_degrees": 0.0002,
+   "lid": "ELZP1",
+   "nwps_name": "Monongahela River at Elizabeth Lock and Dam",
+   "usgs_id": "03075070",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Monongahela River at Elizabeth, PA"
+  },
+  {
+   "distance_degrees": 0.0003,
+   "lid": "GDDP1",
+   "nwps_name": "Central PA Dams at Glendale Lake",
+   "usgs_id": "01541340",
+   "usgs_site_type": "LK",
+   "usgs_station_name": "Glendale Lake near Flinton, PA"
+  },
+  {
+   "distance_degrees": 0.0002,
+   "lid": "KTTP1",
+   "nwps_name": "Allegheny River at Kittanning Lock and Dam",
+   "usgs_id": "03036500",
+   "usgs_site_type": "ST",
+   "usgs_station_name": "Allegheny River at Kittanning, PA"
+  }
+ ]
+}

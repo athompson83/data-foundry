@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-21
+updated: 2026-11-23
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -12621,15 +12621,15 @@ candidates:
     structuring: identifier-extraction
     format: free-text
     publisher: US National Center for Education Statistics (IPEDS)
-    stage: DISCOVERED
+    stage: SCREENED
     rights: AMBER
     sources: [ 'https://nces.ed.gov/ipeds/tablefiles/zipfiles/IPEDS_2023-24_Final.zip', 'https://nces.ed.gov/ipeds/tablefiles/zipfiles/IPEDS_2024-25_Provisional.zip', 'https://nces.ed.gov/ipeds/use-the-data/download-access-database' ]
     scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 2, structuring_value: 4, freshness: 2, low_onboarding_cost: 3, poor_existing_access: 4 }
-    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json ]
+    evidence: [ docs/sources/pipeline/research-2026-11-20.md, docs/sources/pipeline/evidence/2026-11-20/hei_measure.py, docs/sources/pipeline/evidence/2026-11-20/hei_measure.json, docs/sources/pipeline/evidence/2026-11-20/hei_handcheck.json, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/adv_measure.py, docs/sources/pipeline/evidence/2026-11-23/adv_measure.json, docs/sources/pipeline/evidence/2026-11-23/adv_handcheck.json ]
     conditions:
-      - "Not yet screened: the text sits only inside a Microsoft Access database (IPEDS202324.accdb, 1,002,446,848 bytes unzipped) and the scout session had no Access reader, so row counts and text coverage are not measured."
       - "Mission statements are written by each institution and reported to NCES: treat the text as third-party prose (short evidence spans and a link, no bulk verbatim republication) until the NCES/ED reuse notice has been read."
-    next_action: 'Seen 2026-11-20: IPEDS_2023-24_Final.zip (94,499,516 bytes, last modified 2026-03-02) and IPEDS_2024-25_Provisional.zip (67,487,516 bytes) answer 200; the table documentation workbook names table IC2023mission with a mission statement field (entered text is limited to 2,000 characters) and a mission statement URL field. Next: read the table with an Access reader (mdbtools) in CI, measure how many of the 6,072 units carry text or a URL and the text length, then move to SCREENED.'
+      - "A statement can lag a change of institution name (unitid 207102 names a different school): serve it with the IPEDS collection year."
+    next_action: 'Measured 2026-11-23 with a pure-Python Access reader: table IC2023Mission has 6,049 rows, one per unitid, all present in HD2023 (6,163 institutions; 114 have no mission row); 2,160 carry mission text (905,079 characters, median 324.5, longest 1,992), 3,818 carry a mission URL instead, none carries both and 71 neither; 241 texts name a religious affiliation and 111 a degree level. Next: read the NCES reuse notice, read the 2024-25 provisional table, and measure whether the 3,818 mission URLs still answer.'
   - key: hei-ed-college-scorecard
     name: "US Department of Education College Scorecard institution-level file (UNITID, OPEID, accrediting agency, 3,379 outcome and cost columns)"
     category: education
@@ -12961,6 +12961,319 @@ candidates:
     scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 5, structuring_value: 1, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 1 }
     evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json ]
     next_action: 'PARKED 2026-11-21 as a mirror, not an independent source: the CMS order file is byte-identical to the CDC NCHS one (both SHA-256 38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f; 98,403 codes), so it adds no fact and no independent link. Its terms were not read. Reopen only as a fallback download path, or for the CMS-maintained ICD-10-PCS procedure codes, which are a different entity type.'
+  - key: urdb-openei-rate-schedules
+    name: "OpenEI U.S. Utility Rate Database: electric rate schedules (utility, EIA id, sector, fixed charges, energy and demand rate tiers by period, effective dates, source tariff URL)"
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: OpenEI (National Laboratory of the Rockies, US DOE)
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://openei.org/apps/USURDB/download/usurdb.csv.gz', 'https://openei.org/wiki/Utility_Rate_Database' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.py, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.json, docs/sources/pipeline/evidence/2026-11-23/urdb_handcheck.json ]
+    terms:
+      - url: https://openei.org/wiki/Utility_Rate_Database
+        quote: "Content is available under Creative Commons Zero unless otherwise noted."
+    next_action: 'Measured 2026-11-23: 58,920 rate rows in 737 columns (12,218,252 bytes compressed), every one with an EIA utility id (2,828 distinct ids, 2,938 utility names); Commercial 27,978, Residential 13,835, Industrial 10,752, Lighting 6,344; 30,852 have no end date; 53,714 state a fixed charge, 52,085 an energy rate tier, 25,468 a demand rate tier; 58,387 cite a source URL. Newest latest_update 2026-08-17; 2,923 rows updated in 2026 and none since 2026-11-01, so the file is rebuilt daily but edited in bursts. The CC0 statement is the OpenEI wiki footer, not a notice on the download itself. Next: read the URDB download page notice, add the file to tooling/snapshots/plans.json, and measure how many no-end-date rates are stale against the cited tariff URL.'
+  - key: urdb-openei-rate-descriptions
+    name: "OpenEI U.S. Utility Rate Database: free-text rate descriptions and comments (eligibility, minimum charges, riders and adjustments written from the tariff sheet)"
+    category: energy
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: OpenEI (National Laboratory of the Rockies, US DOE)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://openei.org/apps/USURDB/download/usurdb.csv.gz', 'https://openei.org/wiki/Utility_Rate_Database' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.py, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.json, docs/sources/pipeline/evidence/2026-11-23/urdb_handcheck.json ]
+    terms:
+      - url: https://openei.org/wiki/Utility_Rate_Database
+        quote: "Content is available under Creative Commons Zero unless otherwise noted."
+    conditions:
+      - "Descriptions are written by URDB contributors from utility tariff sheets and can quote them: serve extracted values with the cited tariff URL, and short evidence spans rather than the whole description, until the URDB download notice has been read."
+      - "Attribute OpenEI URDB with the row's latest_update date."
+    next_action: 'Measured 2026-11-23: 39,703 of 58,920 rows carry a description (15,304,906 characters, median 275) and 6,419 a basic-information comment; 6,434 descriptions state a dollar amount. Next: measure deterministic extraction of eligibility thresholds (kW, kWh, voltage), minimum charges and named riders on 200 seeded descriptions, with hand-checked precision.'
+  - key: urdb-eia-form-861
+    name: "EIA Form 861 annual electric power industry report, detailed data files (utility number, name, ownership, states served, sales, revenue and customers by sector, service territory)"
+    category: energy
+    structuring: normalization
+    format: structured
+    publisher: US Energy Information Administration
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.eia.gov/electricity/data/eia861/zip/f8612024.zip', 'https://www.eia.gov/about/copyrights_reuse.php' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 2, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.py, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.json, docs/sources/pipeline/evidence/2026-11-23/urdb_handcheck.json ]
+    terms:
+      - url: https://www.eia.gov/about/copyrights_reuse.php
+        quote: "U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website or that you receive through our email distribution service."
+    next_action: 'Measured 2026-11-23: the 2024 archive (4,568,208 bytes) holds 17 xlsx tables, a form and its instructions; Frame lists 3,413 utilities, Utility_Data 1,699 (602 cooperatives, 458 municipal, 250 retail power marketers, 163 investor owned), Sales to Ultimate Customers 1,518 and the Short Form 1,687; 3,415 distinct utility numbers across the four tables read. Annual: the 2024 data year is the newest. Next: add the yearly archives back to 1990 to tooling/snapshots/plans.json and read Service_Territory (utility to county) so a rate can be offered by county.'
+  - key: gauge-noaa-nwps-gauges
+    name: "NOAA National Water Prediction Service river gauges (location id, USGS site number, NWM reach id, flood stage categories, historic crests, observed and forecast stage)"
+    category: hydrology
+    structuring: normalization
+    format: structured
+    publisher: NOAA National Weather Service
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.water.noaa.gov/nwps/v1/gauges', 'https://www.weather.gov/disclaimer' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 3, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.py, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.json, docs/sources/pipeline/evidence/2026-11-23/gauge_handcheck.json ]
+    terms:
+      - url: https://www.weather.gov/disclaimer
+        quote: "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own (e.g., by claiming copyright for NWS information -- see below), 2) use it in a manner that implies an endorsement or affiliation with NOAA/NWS, or 3) modify its content and then present it as official government material."
+    conditions:
+      - "Do not present NWS information as our own, imply NOAA/NWS endorsement, or present modified content as official (the three conditions of the NWS disclaimer); show the gauge id and retrieval time with every value."
+      - "Observed and forecast stages change by the hour: serve them with their valid time, never as current without it."
+    next_action: 'Measured 2026-11-23: the unfiltered gauge list answered HTTP 504, so one 5 by 5 degree tile was read (lon -80 to -75, lat 36 to 41): 956 gauges, 564 with a forecast series, 866 with an observation dated today. Of 60 seeded gauge records, 40 cite a USGS site number, 48 an NWM reach id, 40 a minor flood stage, 32 a major flood stage, and 48 carry historic crests (1,082 crests). The list rows carry no USGS id; it is only on the gauge record. Next: tile the whole service area (about 60 tiles), count every gauge, and add the tiles and gauge records to tooling/snapshots/plans.json.'
+  - key: gauge-noaa-nwps-flood-impact-statements
+    name: "NOAA National Water Prediction Service flood impact statements (free-text description of what floods at each river stage, per gauge)"
+    category: hydrology
+    structuring: event-extraction
+    format: free-text
+    publisher: NOAA National Weather Service
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.water.noaa.gov/nwps/v1/gauges/BRKM2', 'https://www.weather.gov/disclaimer' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 2, low_onboarding_cost: 4, poor_existing_access: 5 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.py, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.json, docs/sources/pipeline/evidence/2026-11-23/gauge_handcheck.json ]
+    terms:
+      - url: https://www.weather.gov/disclaimer
+        quote: "The information on National Weather Service (NWS) Web pages are in the public domain, unless specifically noted otherwise, and may be used without charge for any lawful purpose so long as you do not: 1) claim it is your own (e.g., by claiming copyright for NWS information -- see below), 2) use it in a manner that implies an endorsement or affiliation with NOAA/NWS, or 3) modify its content and then present it as official government material."
+    conditions:
+      - "Do not present NWS information as our own, imply NOAA/NWS endorsement, or present modified content as official; quote each statement with its gauge id and stage."
+      - "Impact statements are written by local forecast offices and can be years old: carry the gauge record retrieval date, and never present a statement as a forecast."
+    next_action: 'Measured 2026-11-23 on 60 seeded gauge records from one tile: 36 carry flood impact statements, 173 statements in all (16,080 characters, median 70), every one with a numeric stage. Example (WIMD1, stage 9.91): the level reached on October 30, 2012 during Post Tropical Cyclone Sandy. Next: read every gauge record, then measure deterministic extraction of the affected object (road, bridge, building, farmland), place names and referenced past events on 200 seeded statements.'
+  - key: gauge-usgs-nwis-sites
+    name: "USGS National Water Information System site service (site number, station name, site type, coordinates, datum, altitude, hydrologic unit code)"
+    category: hydrology
+    structuring: normalization
+    format: structured
+    publisher: US Geological Survey
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://waterservices.usgs.gov/nwis/site/?format=rdb&stateCd=md&siteType=ST&siteStatus=active', 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 4, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.py, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.json, docs/sources/pipeline/evidence/2026-11-23/gauge_handcheck.json ]
+    terms:
+      - url: https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits
+        quote: "USGS-authored or produced data and information are considered to be in the U.S. Public Domain"
+    next_action: 'Measured 2026-11-23: the site service answered a 40-site lookup in one request with station name, site type, coordinates, datum, altitude and hydrologic unit code for all 40 (35 stream, 2 lake, 2 tidal stream, 1 estuary); one earlier attempt was reset at the TLS handshake and the retry succeeded. Total site counts were not measured. Next: page the site service by state for stream, lake and estuary sites, count them, and add the state pages to tooling/snapshots/plans.json.'
+  - key: rec-ridb-recreation-areas-facilities
+    name: "Recreation Information Database full export: federal recreation areas, facilities, campsites, activities, permits and tours of 12 agencies (ids, type, coordinates, reservability, agency ids)"
+    category: recreation
+    structuring: normalization
+    format: structured
+    publisher: Recreation.gov (Recreation One Stop interagency program)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ridb.recreation.gov/downloads/RIDBFullExport_V1_CSV.zip', 'https://www.recreation.gov/use-our-data' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/rec_measure.py, docs/sources/pipeline/evidence/2026-11-23/rec_measure.json, docs/sources/pipeline/evidence/2026-11-23/rec_handcheck.json ]
+    terms:
+      - url: https://www.recreation.gov/use-our-data
+        quote: "As stated earlier, the data in Recreation.gov is provided for free, and there's no need to contact us before incorporating Recreation.gov data into your system. In exchange, we encourage you to provide a link to Recreation.gov and acknowledge credit"
+    conditions:
+      - "Credit the source as the page asks (Data Source: Recreation.gov) and link to Recreation.gov."
+      - "The export includes a Media file of image URLs: do not cache or republish the images (AGENTS.md rule 9)."
+      - "Facility phone and email fields are office contacts; do not serve an email address that names a person."
+    next_action: 'Measured 2026-11-23: one zip (248,629,928 bytes, 21 CSV files): 3,651 rec areas (BLM 1,347, NPS 519, FWS 508, USACE 456), 15,440 facilities (8,207 typed Facility, 5,808 Campground, 262 Visitor Center), 131,046 campsites, 154 activities, 31 organisations; 6,087 facilities are reservable and 12,702 have coordinates; newest LastUpdatedDate 2026-11-22. In the Facilities file the organisation id sits in the column headed OrgFacilityID and the agency facility id in the column headed ParentOrgID (11,390 rows), so the header order does not match the data. Next: add the zip to tooling/snapshots/plans.json and read the campsite attribute and permitted equipment tables.'
+  - key: rec-ridb-facility-descriptions
+    name: "Recreation Information Database free-text facility and rec area descriptions, directions and fee descriptions"
+    category: recreation
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: Recreation.gov (Recreation One Stop interagency program)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ridb.recreation.gov/downloads/RIDBFullExport_V1_CSV.zip', 'https://www.recreation.gov/use-our-data' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 5, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/rec_measure.py, docs/sources/pipeline/evidence/2026-11-23/rec_measure.json, docs/sources/pipeline/evidence/2026-11-23/rec_handcheck.json ]
+    terms:
+      - url: https://www.recreation.gov/use-our-data
+        quote: "As stated earlier, the data in Recreation.gov is provided for free, and there's no need to contact us before incorporating Recreation.gov data into your system. In exchange, we encourage you to provide a link to Recreation.gov and acknowledge credit"
+    conditions:
+      - "Credit the source as the page asks (Data Source: Recreation.gov) and link to Recreation.gov."
+      - "Descriptions are written by each managing agency and its concessionaires: serve extracted facts with the source facility id and a short evidence span."
+    next_action: 'Measured 2026-11-23: 14,565 of 15,440 facilities carry a description (16,093,990 characters after removing markup, median 556) and 8,447 carry directions (2,911,886 characters); 3,548 of 3,651 rec areas carry a description (3,207,346 characters, median 590). Next: measure deterministic extraction of season dates, elevation, vehicle length limits, water and hookup availability and fees on 200 seeded descriptions, with hand-checked precision.'
+  - key: rec-usfs-recreation-opportunities
+    name: "USDA Forest Service Recreation Opportunities layer (rec area id, name, forest, activity group, open status, season, fees, restrictions, description)"
+    category: recreation
+    structuring: normalization
+    format: structured
+    publisher: USDA Forest Service
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/rec_measure.py, docs/sources/pipeline/evidence/2026-11-23/rec_measure.json, docs/sources/pipeline/evidence/2026-11-23/rec_handcheck.json ]
+    conditions:
+      - "Terms not read: the layer states only the copyright text USDA Forest Service. Read and quote them before EVIDENCED; until then serve with attribution, at the publisher's stated rate limits, and stop on any express prohibition (ADR-0018)."
+    next_action: 'Measured 2026-11-23: 14,211 rows read in 8 pages of 2,000, 14,211 distinct rec area ids in 110 forests; open status: open 5,939, none 5,149, closed 2,694, temporarily closed 305; 14,177 carry a description (7,358,620 characters after removing markup). The layer description says the Forest Service shares this data with RIDB, so the two are one chain of custody, not two observations of a site. Next: read the Forest Service data terms, and add the 8 pages to tooling/snapshots/plans.json.'
+  - key: hpo-jax-human-phenotype-ontology
+    name: "Human Phenotype Ontology (hp.obo): phenotype terms, hierarchy, synonyms including layperson terms, alternative and obsolete ids with replacements"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Human Phenotype Ontology Consortium (The Jackson Laboratory, Monarch Initiative)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://purl.obolibrary.org/obo/hp.obo', 'https://hpo.jax.org/app/license' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.py, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.json, docs/sources/pipeline/evidence/2026-11-23/hpo_handcheck.json ]
+    conditions:
+      - "Terms not read: the hp.obo header points to https://hpo.jax.org/app/license, which could not be read. Read and quote them before EVIDENCED; until then serve with attribution, at the publisher's stated rate limits, and stop on any express prohibition (ADR-0018)."
+      - "Serve terms and ids unaltered with the release version, as an ontology licence commonly requires, until the text has been read."
+    next_action: 'Measured 2026-11-23: release 2026-09-01 (10,863,613 bytes): 20,482 terms, 19,894 live and 588 obsolete (507 with a replacement), 3,974 alternative ids; 11,505 live terms have synonyms (26,260, of them 8,073 layperson terms). The header names its licence only by URL (https://hpo.jax.org/app/license); that page is a script application and its text could not be read (the static fetch answered HTTP 404). Next: read the licence text in a browser session and record it; archive each release.'
+  - key: hpo-jax-term-definitions
+    name: "Human Phenotype Ontology free-text term definitions and comments"
+    category: health
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Human Phenotype Ontology Consortium (The Jackson Laboratory, Monarch Initiative)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://purl.obolibrary.org/obo/hp.obo', 'https://hpo.jax.org/app/license' ]
+    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.py, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.json, docs/sources/pipeline/evidence/2026-11-23/hpo_handcheck.json ]
+    conditions:
+      - "Terms not read: the hp.obo header points to https://hpo.jax.org/app/license, which could not be read. Read and quote them before EVIDENCED; until then serve with attribution, at the publisher's stated rate limits, and stop on any express prohibition (ADR-0018)."
+      - "Definitions are quoted verbatim with the term id and release version; none is rewritten."
+    next_action: 'Measured 2026-11-23: 17,432 of 19,894 live terms carry a definition (2,438,606 characters, median 105) and 4,726 a comment. Next: read the licence text, then measure extraction of the anatomical site and the direction of change (increased, decreased, absent, abnormal morphology) from 200 seeded definitions.'
+  - key: hpo-orphadata-phenotype-annotations
+    name: "Orphadata product 4: rare diseases annotated with HPO phenotypes, their frequency band and diagnostic-criterion flags"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Orphanet (INSERM US14)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.orphadata.com/data/xml/en_product4.xml', 'https://www.orphadata.com/legal-notice/' ]
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.py, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.json, docs/sources/pipeline/evidence/2026-11-23/hpo_handcheck.json ]
+    terms:
+      - url: https://www.orphadata.com/legal-notice/
+        quote: "Users may download the data made available on www.orphadata.com in the Orphadata Science section and use them as they wish (including use in other information systems) according to the Commons Attribution 4.0 International (CC BY 4.0) licence."
+    conditions:
+      - "Attribute Orphadata with the file date and say that the data was restructured, as CC BY 4.0 and the legal notice require."
+      - "Take nothing from orpha.net pages: the legal notice reserves the rest of the site."
+    next_action: 'Measured 2026-11-23: file dated 2026-06-23 (47,893,357 bytes), licence element Creative Commons Attribution 4.0 International: 4,357 disorders, 4,355 with annotations, 116,664 associations citing 8,758 distinct HPO ids (median 22 per disorder); frequency bands: Occasional 43,064, Frequent 39,975, Very frequent 25,662, Very rare 6,602, Excluded 733, Obligate 628; 1,133 flagged as a diagnostic criterion and 19 as a pathognomonic sign. Next: link the ORPHAcodes to rd-orphadata-nomenclature (same publisher) and archive each half-yearly release.'
+  - key: chem-ebi-chebi-ontology
+    name: "ChEBI ontology: chemical entities of biological interest (ChEBI id, name, synonyms, InChIKey, formula, mass, CAS and database cross-references, roles and classes)"
+    category: chemistry
+    structuring: normalization
+    format: structured
+    publisher: EMBL-EBI (ChEBI)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ftp.ebi.ac.uk/pub/databases/chebi/ontology/chebi.obo.gz', 'https://www.ebi.ac.uk/chebi/about/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 1 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/chem_measure.py, docs/sources/pipeline/evidence/2026-11-23/chem_measure.json, docs/sources/pipeline/evidence/2026-11-23/chem_handcheck.json ]
+    terms:
+      - url: https://www.ebi.ac.uk/chebi/about/
+        quote: "All data in the ChEBI database is non-proprietary or is derived from a non-proprietary source. It is thus freely accessible and available to anyone."
+    conditions:
+      - "Attribute ChEBI with the release number and cite the ChEBI publication, as CC BY 4.0 requires; say that the data was restructured."
+      - "Follow the EMBL-EBI terms of use that the About page says govern the data; they were not read today."
+    next_action: 'Measured 2026-11-23: release 257 dated 2026-11-05 (47,744,176 bytes compressed): 219,121 terms, 1 obsolete; 62,135 manually annotated (3-star), 153,792 annotated by a third party, 2,905 preliminary; 190,183 carry an InChIKey (188,644 distinct), 30,044 a CAS cross-reference, 168,231 a synonym. The file header declares https://creativecommons.org/licenses/by/4.0/. Next: add the monthly release to tooling/snapshots/plans.json.'
+  - key: chem-ebi-chebi-definitions
+    name: "ChEBI free-text entity definitions (what a compound is, its parent structure, substituents and biological role)"
+    category: chemistry
+    structuring: identifier-extraction
+    format: free-text
+    publisher: EMBL-EBI (ChEBI)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ftp.ebi.ac.uk/pub/databases/chebi/ontology/chebi.obo.gz', 'https://www.ebi.ac.uk/chebi/about/' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/chem_measure.py, docs/sources/pipeline/evidence/2026-11-23/chem_measure.json, docs/sources/pipeline/evidence/2026-11-23/chem_handcheck.json ]
+    terms:
+      - url: https://www.ebi.ac.uk/chebi/about/
+        quote: "All data in the ChEBI database is non-proprietary or is derived from a non-proprietary source. It is thus freely accessible and available to anyone."
+    conditions:
+      - "Attribute ChEBI with the release number, as CC BY 4.0 requires; definitions are quoted verbatim with the ChEBI id."
+    next_action: 'Measured 2026-11-23: 55,536 of 219,120 live terms carry a definition (8,920,340 characters, median 140). Next: measure extraction of the parent compound, substituent positions and stated natural source from 200 seeded definitions.'
+  - key: chem-fda-gsrs-unii
+    name: "FDA Global Substance Registration System UNII list (UNII, preferred name, CAS number, InChIKey, SMILES, RxCUI, PubChem, EPA CompTox, NCI Thesaurus and EMA substance ids, substance type)"
+    category: chemistry
+    structuring: normalization
+    format: structured
+    publisher: US FDA
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://precision.fda.gov/uniisearch/archive/latest/UNII_Data.zip', 'https://www.fda.gov/about-fda/about-website/website-policies' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 2, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/chem_measure.py, docs/sources/pipeline/evidence/2026-11-23/chem_measure.json, docs/sources/pipeline/evidence/2026-11-23/chem_handcheck.json ]
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    conditions:
+      - "The public-domain statement read is for www.fda.gov; the file is served from precision.fda.gov, whose own notice was not read. Read it before EVIDENCED."
+      - "The INN and USAN id columns reproduce WHO and AMA identifiers (the READ ME carries a WHO adaptation notice): hold those two columns back until their terms are read."
+      - "CAS numbers are served as FDA states them, as identifiers only."
+    next_action: 'Measured 2026-11-23: UNII_Records_4Aug2026.txt (38,047,851 bytes in a 14,477,857-byte zip): 171,912 records in 25 columns; chemical 129,475, structurally diverse 28,055, protein 7,659, mixture 3,030, polymer 2,696; 129,398 carry an InChIKey (129,019 distinct), 132,070 a CAS number, 126,672 a PubChem id, 85,983 an EPA CompTox id, 29,265 an EMA substance id, 24,102 an NCI Thesaurus code, 13,709 an RxCUI; 15,146 are associated with a DailyMed label; 164 legacy UNIIs are listed with their replacement. Next: add the archive to tooling/snapshots/plans.json and link RxCUI and DailyMed columns to drug-product-labeling.'
+  - key: pgx-cpic-gene-drug-pairs
+    name: "CPIC gene-drug pairs, drugs and guidelines (gene symbol, RxNorm drug id, CPIC level, guideline, FDA label testing note, PubMed citations)"
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Clinical Pharmacogenetics Implementation Consortium (CPIC)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.cpicpgx.org/v1/pair', 'https://api.cpicpgx.org/v1/drug', 'https://api.cpicpgx.org/v1/guideline' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 2, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.py, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.json, docs/sources/pipeline/evidence/2026-11-23/pgx_handcheck.json ]
+    conditions:
+      - "Terms not read: cpicpgx.org/license redirects to https://www.clinpgx.org/page/dataUsagePolicy, which could not be read. Read and quote them before EVIDENCED; until then serve with attribution, at the publisher's stated rate limits, and stop on any express prohibition (ADR-0018)."
+      - "Do not serve the ATC code column: WHO ATC classification has its own restrictive terms."
+      - "This is clinical guidance: serve it with its guideline version and citation, and never as a prescribing instruction."
+    next_action: 'Measured 2026-11-23: 29 guidelines covering 31 genes; 635 pairs, 574 not removed (level A 96, A/B 7, B 32, B/C 56, C 272, C/D 5, D 102, Retired 4) across 121 genes and 301 drugs; 319 pairs point to a guideline and 296 cite a PubMed id; 324 drugs, 306 with an RxNorm id, 292 a DrugBank id, 291 an ATC code. The licence page cpicpgx.org/license now redirects to clinpgx.org/page/dataUsagePolicy, a script application whose text could not be read. Next: read the data usage policy in a browser session; hold back the ATC column (WHO ATC is restricted) until then.'
+  - key: pgx-cpic-recommendations
+    name: "CPIC prescribing recommendations (free-text recommendation and implication per drug, gene phenotype or allele status and population, with strength classification)"
+    category: health
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: Clinical Pharmacogenetics Implementation Consortium (CPIC)
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://api.cpicpgx.org/v1/recommendation' ]
+    scores: { agent_demand: 5, rights_clarity: 2, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.py, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.json, docs/sources/pipeline/evidence/2026-11-23/pgx_handcheck.json ]
+    conditions:
+      - "Terms not read: cpicpgx.org/license redirects to https://www.clinpgx.org/page/dataUsagePolicy, which could not be read. Read and quote them before EVIDENCED; until then serve with attribution, at the publisher's stated rate limits, and stop on any express prohibition (ADR-0018)."
+      - "Quote each recommendation verbatim with its guideline, classification and version; never summarise it into a different instruction."
+    next_action: 'Measured 2026-11-23: 2,159 recommendations for 109 drugs (2,398,185 bytes): Optional 1,047, Strong 601, Moderate 379, No Recommendation 120; recommendation and implication text 804,882 characters, median 399. Next: read the data usage policy, then measure extraction of the action (avoid, reduce dose by a stated percentage, use alternative, standard dosing) from all 2,159 texts.'
+  - key: pgx-fda-pharmacogenetic-associations
+    name: "FDA Table of Pharmacogenetic Associations (drug, gene, affected subgroup and a free-text description of the gene-drug interaction, in three evidence sections)"
+    category: health
+    structuring: eligibility-criteria
+    format: free-text
+    publisher: US FDA
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.fda.gov/medical-devices/precision-medicine/table-pharmacogenetic-associations', 'https://www.fda.gov/about-fda/about-website/website-policies' ]
+    scores: { agent_demand: 5, rights_clarity: 5, acquisition_ease: 4, structuring_value: 4, freshness: 2, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.py, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.json, docs/sources/pipeline/evidence/2026-11-23/pgx_handcheck.json ]
+    terms:
+      - url: https://www.fda.gov/about-fda/about-website/website-policies
+        quote: "Unless otherwise noted, the contents of the FDA website (www.fda.gov) — both text and graphics — are not copyrighted. They are in the public domain and may be republished, reprinted and otherwise used freely by anyone without the need to obtain permission from FDA."
+    next_action: 'Measured 2026-11-23: page content current as of 09/10/2026 (83,311 bytes), 3 tables, 147 rows: 82 where the data support therapeutic management recommendations, 25 indicating a potential impact on safety or response, 40 on pharmacokinetics only; 136 drugs, 23 gene entries, 145 distinct drug and gene rows; descriptions 21,806 characters, median 118; 86 name an action and 22 refer to FDA labeling. Next: archive the page on each change of its content-current date and parse the descriptions into effect, risk and action.'
+  - key: fda-openfda-device-recalls
+    name: "openFDA device recall records (CDRH recall database: recall number, event number, root cause, corrective action text, product code, FEI, 510(k) and PMA numbers, UDI in code information)"
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: US FDA
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://api.fda.gov/device/recall.json', 'https://open.fda.gov/license/' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/widen_measure.py, docs/sources/pipeline/evidence/2026-11-23/widen_measure.json, docs/sources/pipeline/evidence/2026-11-23/widen_handcheck.json ]
+    terms:
+      - url: https://open.fda.gov/license/
+        quote: "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication."
+    next_action: 'Measured 2026-11-23: 59,705 records, last updated 2026-11-19 (device enforcement: 40,535, last updated 2026-11-11). On the 1,000 most recently posted (2026-07-09 to 2026-11-05, 377 recall events): every record has a root cause (Under Investigation by firm 286, Process control 143, Nonconforming Material/Component 129), a corrective action text (1,009,312 characters, median 968) and an FEI number; 805 carry a 510(k) number, 102 a PMA number, and 695 a 14-digit UDI-DI in code information. 13 fields are not in the enforcement report: action, additional_info_contact, cfres_id, event_date_initiated, event_date_posted, firm_fei_number, k_numbers, pma_numbers, product_code, product_res_number, recall_status, res_event_number, root_cause_description. Capture gap: the LIVE FDA dataset reads only the enforcement endpoint, so none of these is acquired or archived yet. Next: add a device-recall read to the recalls Worker sync (raw bytes to R2 first), extend the openFDA rights record to this endpoint, and serve root cause, action and UDI-DI on device recalls; do not serve additional_info_contact, which names a person.'
 
 datasets:
   - key: home-product-recalls-global
@@ -13910,7 +14223,15 @@ datasets:
       - fsai-food-alerts
       - hk-cfs-food-alerts-datagovhk
       - widen-uk-mhra-drug-device-alerts
+      - fda-openfda-device-recalls
     join_keys:
+      - key: FDA recall number (openFDA device recall product_res_number vs device enforcement recall_number; same publisher, not an independent link)
+        between:
+          - fda-openfda-device-recalls
+          - fda-recalls
+        measured: '40/40 seeded device recall records posted 2026-07-09 to 2026-11-05 are found in the device enforcement endpoint by recall number, all 40 with the same event number and firm; 20/20 read pairs carry the same product description (evidence/2026-11-23/widen_handcheck.json)'
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
       - key: agency cited in the CFS Source of Information field, then product, hazard and date compared by hand (Hong Kong CFS alert vs FDA enforcement report)
         between:
           - hk-cfs-food-alerts-datagovhk
@@ -17199,3 +17520,183 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-21.md, docs/sources/pipeline/evidence/2026-11-21/icd_measure.py, docs/sources/pipeline/evidence/2026-11-21/icd_measure.json, docs/sources/pipeline/evidence/2026-11-21/icd_handcheck.json ]
     next_action: 'Read the NCHS and WHO statements on ICD-10-CM reuse and write the rights record; archive every fiscal year back to FY2016 and build the per-code history; parse the notes into typed rule rows and the alphabetic index XML (9,707,127 bytes) into term-to-code rows; screen CMS ICD-10-PCS (procedures) and the CMS NCCI and MS-DRG tables as separate data types; link rare-diseases through the Orphadata ICD mappings only after checking they are WHO ICD-10, not ICD-10-CM.'
+  - key: electric-utility-rate-schedules
+    name: "US electric utility rate schedules: rate structures, eligibility text and the utilities that offer them (OpenEI URDB, EIA Form 861)"
+    category: energy
+    entity: "electric rate schedule of one utility for one customer sector: fixed charges, energy and demand rate tiers by period, effective dates, eligibility and rider text, the cited tariff URL, and the utility (EIA utility number, ownership, states served, customers and sales)"
+    stage: SCREENED
+    description: "One record per rate schedule. URDB gives 58,920 rate rows for 2,828 EIA utility ids with tiered rate structures, 39,703 free-text descriptions and a cited tariff URL. EIA Form 861 gives the utility itself: 3,415 utility numbers with ownership, states, customers, sales and revenue. The link is the EIA utility id that every URDB row states. A rate is never attached to a utility by name: only 1,009 of 2,774 matched ids have equal normalised names."
+    sources: [ urdb-openei-rate-schedules, urdb-openei-rate-descriptions, urdb-eia-form-861 ]
+    join_keys:
+      - key: EIA utility id stated on every URDB rate row
+        between: [ urdb-openei-rate-schedules, urdb-eia-form-861 ]
+        measured: "2,774/2,828 distinct EIA utility ids in URDB are utility numbers in the EIA-861 2024 tables (57,927 of 58,920 rate rows); the 54 not found were not traced to earlier data years; 20/20 seeded pairs name the same utility; 641 EIA-861 utilities have no URDB rate"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: URDB rate row id (same publisher, not an independent link)
+        between: [ urdb-openei-rate-descriptions, urdb-openei-rate-schedules ]
+        measured: "39,703/58,920 rate rows carry a description in the same row"
+        mode: declared
+    taxonomy:
+      - "sector (URDB): Residential | Commercial | Industrial | Lighting"
+      - "rate component: fixed charge | energy rate tier | demand rate tier | minimum charge | adjustment"
+      - "rate status: no end date | ended (end date stated) | superseded"
+      - "ownership (EIA-861): Investor Owned | Cooperative | Municipal | Political Subdivision | State | Federal | Retail Power Marketer | Community Choice Aggregator"
+    agent_questions:
+      - "What residential rate schedules does this utility publish, and what are the fixed charge and energy tiers? (measured: 13,835 residential rows; 53,714 rows with a fixed charge; 52,085 with an energy rate tier)"
+      - "Who is eligible for this rate, in the tariff's own words? (measured: 39,703 descriptions, median 275 characters)"
+      - "Is this utility investor owned, a cooperative or municipal, and how many customers does it serve? (measured: 2,774 URDB utility ids resolve in EIA-861)"
+      - "Which utilities have no machine-readable rate at all? (measured: 641 EIA-861 utilities without a URDB rate)"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.py, docs/sources/pipeline/evidence/2026-11-23/urdb_measure.json, docs/sources/pipeline/evidence/2026-11-23/urdb_handcheck.json ]
+    next_action: 'Read the URDB download notice; add both files to tooling/snapshots/plans.json; trace the 54 unmatched ids through earlier EIA-861 years; read EIA-861 Service_Territory to offer rates by county; measure description extraction with hand-checked precision.'
+  - key: river-gauges-flood-stages
+    name: "US river gauges: flood stage thresholds, flood impact statements and historic crests (NOAA NWPS, USGS NWIS)"
+    category: hydrology
+    entity: "river gauge, identified by its NWS location id and its USGS site number: location, flood stage categories (action, minor, moderate, major), free-text flood impact statements by stage, historic crests, and the USGS site description (station name, site type, datum, hydrologic unit)"
+    stage: SCREENED
+    description: "One record per gauge. The NOAA National Water Prediction Service gives flood categories, historic crests and the impact statements local forecast offices wrote for each stage. The USGS site service gives the station itself. The link is the USGS site number that the NWPS gauge record cites. Measured on one mid-Atlantic tile of 956 gauges and 60 seeded gauge records: 40 cite a USGS site number and all 40 resolve, each within 0.001 degrees of the USGS coordinates."
+    sources: [ gauge-noaa-nwps-gauges, gauge-noaa-nwps-flood-impact-statements, gauge-usgs-nwis-sites ]
+    join_keys:
+      - key: USGS site number cited in the NWPS gauge record
+        between: [ gauge-noaa-nwps-gauges, gauge-usgs-nwis-sites ]
+        measured: "40/40 USGS site numbers cited by 60 seeded NWPS gauge records resolve in the USGS site service, all within 0.01 degrees of the NWPS coordinates (largest difference 0.001); 20 of 60 gauges cite no USGS site; 20/20 read pairs name the same river and place"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: NWS location id of the gauge record (same publisher, not an independent link)
+        between: [ gauge-noaa-nwps-flood-impact-statements, gauge-noaa-nwps-gauges ]
+        measured: "36/60 seeded gauge records carry impact statements (173 statements, each with a numeric stage)"
+        mode: declared
+    taxonomy:
+      - "flood category: action | minor | moderate | major"
+      - "impacted object (to be extracted): road | bridge | building | farmland | park or campground | levee | other"
+      - "USGS site type: stream | tidal stream | lake or reservoir | estuary"
+      - "record kind: threshold | impact statement | historic crest"
+    agent_questions:
+      - "At what river stage does this gauge reach minor, moderate and major flooding? (measured: 40 of 60 sampled gauges state a minor stage, 32 a major stage)"
+      - "What floods at 12 feet here, in the forecast office's words? (measured: 173 impact statements on 36 of 60 sampled gauges, every one with a stage)"
+      - "What were the highest crests on record at this gauge? (measured: 1,082 historic crests on 48 of 60 sampled gauges)"
+      - "Which USGS site is this NWS gauge, and what is its datum and hydrologic unit? (measured: 40/40 cited site numbers resolve)"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.py, docs/sources/pipeline/evidence/2026-11-23/gauge_measure.json, docs/sources/pipeline/evidence/2026-11-23/gauge_handcheck.json ]
+    next_action: 'Tile the whole NWPS service area and read every gauge record (the unfiltered list answers 504); page the USGS site service by state; add both to tooling/snapshots/plans.json; measure impact-statement extraction with hand-checked precision; add Environment Canada and UK Environment Agency flood stations as further members.'
+  - key: federal-recreation-facilities
+    name: "US federal recreation areas and facilities: campgrounds, trailheads, permits, access and fees (Recreation.gov RIDB, USDA Forest Service)"
+    category: recreation
+    entity: "federal recreation facility or rec area, identified by its RIDB id and the managing agency's own id: type, coordinates, reservability, campsites, activities, free-text description, directions and fees, and for Forest Service sites the open status, season and restrictions"
+    stage: SCREENED
+    description: "One record per facility or rec area. The RIDB export gives 15,440 facilities, 3,651 rec areas and 131,046 campsites of 12 agencies with long free-text descriptions. The Forest Service layer gives 14,211 rec areas with open status and season. The link is the Forest Service rec area id that RIDB carries for Forest Service facilities: 4,084 of 8,405 resolve. The Forest Service says it feeds RIDB, so a matched pair is one chain of custody: the layer adds fields (open status, restrictions), it does not confirm the RIDB record independently."
+    sources: [ rec-ridb-recreation-areas-facilities, rec-ridb-facility-descriptions, rec-usfs-recreation-opportunities ]
+    join_keys:
+      - key: USFS rec area id carried by RIDB Forest Service facilities
+        between: [ rec-ridb-recreation-areas-facilities, rec-usfs-recreation-opportunities ]
+        measured: "4,084/8,405 RIDB Forest Service facilities that carry an agency id resolve to a rec area id in the USFS layer (3,777 with the same normalised name); 0/115 Forest Service rec areas resolve through OrgRecAreaID, which holds a different number; 10,130 USFS rec areas are not cited by RIDB; 20/20 seeded pairs name the same site"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: RIDB facility id (same publisher, not an independent link)
+        between: [ rec-ridb-facility-descriptions, rec-ridb-recreation-areas-facilities ]
+        measured: "14,565/15,440 facilities carry a description in the same row"
+        mode: declared
+    taxonomy:
+      - "facility type (RIDB): Campground | Facility | Visitor Center | Activity Pass | Permit | Ticket Facility | Tree Permit | Timed Entry"
+      - "managing agency: FS | USACE | NPS | BLM | FWS | BOR | TVA | other"
+      - "open status (USFS): open | closed | temporarily closed | unreachable | not stated"
+      - "activity group (USFS): Camping and Cabins | Trailhead | Hiking | Picnicking | Water Activities | Winter Sports | other"
+    agent_questions:
+      - "Which federal campgrounds near this point take reservations, and what does the agency say about access? (measured: 5,808 campgrounds, 6,087 reservable facilities, 8,447 with directions)"
+      - "Is this Forest Service site open now, and when is its season? (measured: 14,211 USFS rec areas, 5,939 open, 2,694 closed)"
+      - "What are the vehicle length limit, water and fee at this campground? (to be extracted from 14,565 descriptions, median 556 characters)"
+      - "Which Forest Service sites are missing from Recreation.gov? (measured: 10,130 USFS rec areas not cited by RIDB)"
+    scores: { agent_demand: 5, rights_clarity: 4, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/rec_measure.py, docs/sources/pipeline/evidence/2026-11-23/rec_measure.json, docs/sources/pipeline/evidence/2026-11-23/rec_handcheck.json ]
+    next_action: 'Read the Forest Service data terms; explain the 4,321 Forest Service facilities whose agency id is not in the layer; add the zip and the 8 layer pages to tooling/snapshots/plans.json; find an agency id for NPS and USACE facilities so a second independent join exists; measure description extraction.'
+  - key: phenotype-terms
+    name: "Human phenotype terms and their rare-disease annotations (Human Phenotype Ontology, Orphadata product 4)"
+    category: health
+    entity: "human phenotypic abnormality, identified by its HPO id: name, definition, synonyms including layperson terms, hierarchy, obsolete and alternative ids, and the rare diseases annotated with it and how frequently it occurs in each"
+    stage: SCREENED
+    description: "One record per phenotype term. The Human Phenotype Ontology gives 19,894 live terms, 17,432 with a definition and 8,073 layperson synonyms. Orphadata product 4 annotates 4,355 rare diseases with 116,664 phenotype associations, each with a frequency band. The link is the HPO id that every Orphadata association cites: 8,714 of 8,758 cited ids are live terms, 43 are alternative ids of a live term and 1 is obsolete. An association that cites an alternative or obsolete id is resolved through the ontology's own replacement, never by its label."
+    sources: [ hpo-jax-human-phenotype-ontology, hpo-jax-term-definitions, hpo-orphadata-phenotype-annotations ]
+    join_keys:
+      - key: HPO id cited by each Orphadata phenotype association
+        between: [ hpo-orphadata-phenotype-annotations, hpo-jax-human-phenotype-ontology ]
+        measured: "8,714/8,758 distinct HPO ids cited by Orphadata are live terms in hp.obo release 2026-09-01 (43 are alternative ids of a live term, 1 is obsolete); 116,507 of 116,664 associations cite a live term and 111,342 carry the identical term text; of 20 seeded associations whose text differs, 19 read as the same phenotype under an older wording"
+        mode: declared
+        reviewed: { correct: 19, checked: 20 }
+      - key: HPO id of the defined term (same publisher, not an independent link)
+        between: [ hpo-jax-term-definitions, hpo-jax-human-phenotype-ontology ]
+        measured: "17,432/19,894 live terms carry a definition"
+        mode: declared
+    taxonomy:
+      - "term status: live | obsolete with replacement | obsolete without replacement | alternative id"
+      - "frequency band (Orphadata): Obligate (100%) | Very frequent (99-80%) | Frequent (79-30%) | Occasional (29-5%) | Very rare (<4-1%) | Excluded (0%)"
+      - "diagnostic weight (Orphadata): diagnostic criterion | pathognomonic sign | not flagged"
+      - "synonym type: exact | layperson | abbreviation | obsolete"
+    agent_questions:
+      - "What is the HPO id for this clinical finding, and what do patients call it? (measured: 19,894 live terms, 8,073 layperson synonyms)"
+      - "Which rare diseases have this phenotype, and how often? (measured: 116,664 associations on 4,355 diseases in six frequency bands)"
+      - "This record cites an old HPO id: what replaced it? (measured: 3,974 alternative ids, 507 obsolete terms with a replacement)"
+      - "Which phenotypes are diagnostic criteria for this disease? (measured: 1,133 associations flagged)"
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 3, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.py, docs/sources/pipeline/evidence/2026-11-23/hpo_measure.json, docs/sources/pipeline/evidence/2026-11-23/hpo_handcheck.json ]
+    next_action: 'Read the HPO licence text in a browser session (the dataset cannot pass the rights gate until then); add phenotype.hpoa (the HPO consortium annotation file) and link ORPHAcodes to rare-diseases; add both files to tooling/snapshots/plans.json.'
+  - key: chemical-substances
+    name: "Chemical substance identity: ChEBI entities and FDA UNII substances linked on structure (EMBL-EBI ChEBI, FDA GSRS)"
+    category: chemistry
+    entity: "chemical substance, identified by its InChIKey with its ChEBI id and FDA UNII: names and synonyms, formula, CAS number, definition, roles and classes, and cross-references to RxNorm, PubChem, EPA CompTox, NCI Thesaurus and EMA substance ids"
+    stage: SCREENED
+    description: "One record per substance. ChEBI gives 219,120 live entities, 190,183 with an InChIKey and 55,536 with a free-text definition. The FDA UNII list gives 171,912 regulated substances, 129,398 with an InChIKey, with regulatory cross-references. The link is the InChIKey, a key computed from the structure that both publishers state: 30,303 keys are shared, 29,489 one to one. A key held by several ChEBI terms (737) or several UNIIs (83) is kept as a group for review and never collapsed. Names are not used: only 17,533 of the one-to-one pairs have the same lowercased name."
+    sources: [ chem-ebi-chebi-ontology, chem-ebi-chebi-definitions, chem-fda-gsrs-unii ]
+    join_keys:
+      - key: InChIKey stated by both ChEBI and the FDA UNII list
+        between: [ chem-fda-gsrs-unii, chem-ebi-chebi-ontology ]
+        measured: "30,303/129,019 distinct UNII InChIKeys are also ChEBI InChIKeys, 29,489 of them one to one; of 18,591 one-to-one pairs where both state a CAS number, 18,045 state the same one; 20/20 seeded one-to-one pairs are the same substance"
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
+      - key: ChEBI id of the defined entity (same publisher, not an independent link)
+        between: [ chem-ebi-chebi-definitions, chem-ebi-chebi-ontology ]
+        measured: "55,536/219,120 live ChEBI terms carry a definition; 10,859 of the 29,489 one-to-one linked substances have one"
+        mode: declared
+    taxonomy:
+      - "substance type (FDA): chemical | structurally diverse | protein | mixture | polymer | nucleic acid"
+      - "curation level (ChEBI): manually annotated | annotated by a third party | preliminary"
+      - "link status: one to one | several ChEBI terms for one key | several UNIIs for one key | CAS numbers disagree"
+      - "identifier kind: InChIKey | CAS number | UNII | ChEBI id | RxCUI | PubChem CID | EPA DTXSID"
+    agent_questions:
+      - "What are the UNII, ChEBI id, CAS number and RxCUI of this compound? (measured: 29,489 substances linked one to one; 13,709 UNIIs with an RxCUI)"
+      - "What is this substance, in one sentence, and what is it derived from? (measured: 55,536 definitions, 10,859 on linked substances)"
+      - "Do FDA and ChEBI agree on this CAS number? (measured: 546 of 18,591 linked pairs state different CAS numbers)"
+      - "Is this ingredient on an FDA drug label? (measured: 15,146 UNIIs associated with a DailyMed label)"
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 5, poor_existing_access: 2 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/chem_measure.py, docs/sources/pipeline/evidence/2026-11-23/chem_measure.json, docs/sources/pipeline/evidence/2026-11-23/chem_handcheck.json ]
+    next_action: 'Read the precision.fda.gov notice and the EMBL-EBI terms of use; review a sample of the 546 CAS disagreements and the 737 shared-key groups; add both files to tooling/snapshots/plans.json; link UNII to drug-product-labeling and dietary-supplement-product-labels.'
+  - key: pharmacogenomic-gene-drug-guidance
+    name: "Pharmacogenomic gene-drug guidance: CPIC pairs and recommendations alongside the FDA Table of Pharmacogenetic Associations"
+    category: health
+    entity: "gene-drug pair: gene symbol, drug (RxNorm id), CPIC evidence level and guideline, CPIC prescribing recommendations by phenotype, and the FDA table entry (affected subgroup, section and description of the interaction)"
+    stage: SCREENED
+    description: "One record per gene and drug. CPIC gives 574 current pairs with evidence levels and 2,159 free-text prescribing recommendations. The FDA table gives 147 rows of drug, gene, affected subgroup and a description. No identifier is shared: the FDA table states a drug by its label wording and a gene by symbol. 129 of the 153 FDA pairs match a CPIC pair on lowercased drug wording and gene symbol; the match is a review candidate and a pair is linked only after review. The two sources are shown side by side with their own wording and are never merged into one recommendation."
+    sources: [ pgx-cpic-gene-drug-pairs, pgx-cpic-recommendations, pgx-fda-pharmacogenetic-associations ]
+    join_keys:
+      - key: drug name and gene symbol (FDA table row vs CPIC pair)
+        between: [ pgx-fda-pharmacogenetic-associations, pgx-cpic-gene-drug-pairs ]
+        measured: "129/153 FDA drug and gene pairs match a CPIC pair on lowercased drug wording and gene symbol (CPIC level A 62, B/C 38, B 14, C 11, A/B 4; 74 with a CPIC guideline); 20/20 seeded matches are the same drug and gene; 34 CPIC level A pairs are not in the FDA table"
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+      - key: RxNorm drug id shared by CPIC pairs and recommendations (same publisher, not an independent link)
+        between: [ pgx-cpic-recommendations, pgx-cpic-gene-drug-pairs ]
+        measured: "109/301 drugs that appear in a CPIC pair have recommendations (2,159 recommendations)"
+        mode: declared
+    taxonomy:
+      - "CPIC level: A | A/B | B | B/C | C | C/D | D"
+      - "FDA table section: therapeutic management recommendations supported | potential impact on safety or response | pharmacokinetic impact only"
+      - "CPIC recommendation strength: Strong | Moderate | Optional | No Recommendation"
+      - "agreement: in both sources | FDA only | CPIC only"
+    agent_questions:
+      - "Is there pharmacogenomic guidance for this drug, and for which gene? (measured: 574 CPIC pairs across 121 genes and 301 drugs; 147 FDA rows)"
+      - "What does CPIC recommend for a CYP2D6 poor metabolizer on this drug, verbatim? (measured: 2,159 recommendations, 601 Strong)"
+      - "Does the FDA table list this pair, and in which evidence section? (measured: 82, 25 and 40 rows in the three sections)"
+      - "Where do CPIC and the FDA table differ in coverage? (measured: 24 FDA pairs without a CPIC match; 34 CPIC level A pairs not in the FDA table)"
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 5, structuring_value: 4, freshness: 3, low_onboarding_cost: 5, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.py, docs/sources/pipeline/evidence/2026-11-23/pgx_measure.json, docs/sources/pipeline/evidence/2026-11-23/pgx_handcheck.json ]
+    next_action: 'Read the ClinPGx data usage policy in a browser session; resolve FDA drug wording to RxNorm ids through chem-fda-gsrs-unii or RxNorm so the link can rest on an identifier; add the Dutch DPWG guidelines and FDA label biomarker table as members; add the five responses to tooling/snapshots/plans.json.'
