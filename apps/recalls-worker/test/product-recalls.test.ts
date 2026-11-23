@@ -397,6 +397,22 @@ describe('notices an agency stops listing', () => {
     expect(await changedSince('2026-09-30T00:00:00.000Z')).toEqual(['hc-82659']);
   });
 
+  it('measures the grace period between successful reads, so the first read after an outage marks nothing', async () => {
+    const env = makeEnv();
+    await seed(env);
+    const apiKey = await key(env);
+    // Every run for three days fails or never starts; the first successful read then omits the notice.
+    await env.DB.prepare("INSERT INTO sync_run (category, window_from, window_to, started_at, status) VALUES ('product:HC', 'full', '2026-09-29', '2026-09-29T12:00:00.000Z', 'FAILED')").run();
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-09-30T12:00:00.000Z');
+    // Three days since the last sighting, but only one successful observation of its absence.
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-09-30T18:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toBeUndefined();
+    // Absent from successful reads spanning more than a day: now it is marked.
+    await ingestRecords(env, 'HC', [HC], 'full', '2026-10-01T18:00:00.000Z');
+    expect((await detail(env, 'hc-82659', apiKey)).data.source_listing).toEqual({ status: 'no_longer_listed', last_listed_at: NOW });
+  });
+
   it('marks nothing when no full Health Canada read has succeeded', async () => {
     const env = makeEnv();
     await seed(env);
