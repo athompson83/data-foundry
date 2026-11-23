@@ -288,6 +288,19 @@
    "gene": "UGT1A1"
   }
  ],
+ "join_cpic_recommendation_to_pair": {
+  "distinct_drug_gene_links": 130,
+  "distinct_links_resolving": 130,
+  "links_resolving_to_a_current_pair": 3591,
+  "pair_drugs_with_more_than_one_current_gene_pair": 110,
+  "recommendation_drug_gene_links": 3591,
+  "recommendation_drugs_with_more_than_one_current_gene_pair": 50,
+  "recommendations": 2159,
+  "recommendations_naming_more_than_one_gene": 1432,
+  "recommendations_naming_no_gene": 0,
+  "recommendations_with_every_gene_resolved": 2159,
+  "unresolved_distinct_links": []
+ },
  "join_drug_name_and_gene_symbol": {
   "cpic_drug_gene_pairs": 574,
   "cpic_level_a_pairs_not_in_the_fda_table": 34,

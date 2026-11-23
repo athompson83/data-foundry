@@ -17742,9 +17742,9 @@ datasets:
         measured: "129/153 FDA drug and gene pairs match a CPIC pair on lowercased drug wording and gene symbol (CPIC level A 62, B/C 38, B 14, C 11, A/B 4; 74 with a CPIC guideline); 20/20 seeded matches are the same drug and gene; 34 CPIC level A pairs are not in the FDA table"
         mode: candidate
         reviewed: { correct: 20, checked: 20 }
-      - key: RxNorm drug id shared by CPIC pairs and recommendations (same publisher, not an independent link)
+      - key: RxNorm drug id together with each gene symbol in the recommendation lookup key (same publisher, not an independent link)
         between: [ pgx-cpic-recommendations, pgx-cpic-gene-drug-pairs ]
-        measured: "109/301 drugs that appear in a CPIC pair have recommendations (2,159 recommendations)"
+        measured: "3,591/3,591 drug and gene links stated by the 2,159 recommendations resolve to a current CPIC pair (130 distinct drug and gene links, all resolved); 1,432 recommendations name more than one gene and attach to each of those pairs, never to another gene pair of the same drug (50 of the 109 recommendation drugs have more than one current gene pair)"
         mode: declared
     taxonomy:
       - "CPIC level: A | A/B | B | B/C | C | C/D | D"

@@ -59,6 +59,22 @@ out["join_drug_name_and_gene_symbol"] = {
     "fda_only_sample": [list(k) for k in sorted(set(fda_pairs) - set(cp))[:15]],
     "cpic_level_a_pairs_not_in_the_fda_table": sum(1 for k, v in cp.items() if v[0]["cpiclevel"] == "A" and k not in fda_pairs),
 }
+# A recommendation applies to a drug and to the gene or genes named in its lookup key, so it is linked to a
+# pair on both, never on the drug alone (one drug can have several gene pairs).
+pair_keys = {(p["drugid"], p["genesymbol"]) for p in live_pairs}
+rec_genes = [(r["drugid"], sorted((r.get("lookupkey") or {}).keys())) for r in rec]
+rec_links = [(d, g) for d, genes in rec_genes for g in genes]
+drugs_per_pair_count = collections.Counter(p["drugid"] for p in live_pairs)
+out["join_cpic_recommendation_to_pair"] = {
+    "recommendations": len(rec), "recommendations_naming_no_gene": sum(1 for _, g in rec_genes if not g),
+    "recommendations_naming_more_than_one_gene": sum(1 for _, g in rec_genes if len(g) > 1),
+    "recommendation_drug_gene_links": len(rec_links), "links_resolving_to_a_current_pair": sum(1 for k in rec_links if k in pair_keys),
+    "recommendations_with_every_gene_resolved": sum(1 for d, genes in rec_genes if genes and all((d, g) in pair_keys for g in genes)),
+    "distinct_drug_gene_links": len(set(rec_links)), "distinct_links_resolving": len(set(rec_links) & pair_keys),
+    "unresolved_distinct_links": sorted(map(list, set(rec_links) - pair_keys))[:20],
+    "pair_drugs_with_more_than_one_current_gene_pair": sum(1 for n in drugs_per_pair_count.values() if n > 1),
+    "recommendation_drugs_with_more_than_one_current_gene_pair": sum(1 for d in {r["drugid"] for r in rec} if drugs_per_pair_count[d] > 1),
+}
 random.seed(20261123)
 out["handcheck_sample"] = [{"drug": k[0], "gene": k[1], "cpic_drug_id": cp[k][0]["drugid"], "cpic_level": cp[k][0]["cpiclevel"], "cpic_guideline_id": cp[k][0]["guidelineid"],
                             "fda_section": fda_pairs[k][0]["section"], "fda_subgroup": fda_pairs[k][0]["subgroup"], "fda_description": fda_pairs[k][0]["description"]} for k in random.sample(shared, min(20, len(shared)))]
