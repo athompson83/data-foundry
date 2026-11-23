@@ -1,0 +1,596 @@
+{
+ "checked_on": "2026-11-22",
+ "method": "20 pairs of an IPAWS archive record (sender w-nws.webmaster@noaa.gov) and the NWS API alert whose id equals the IPAWS identifier without its '.IPAWS' ending, drawn with seed 20261122 by alert_measure.py from the 28 resolved pairs; event, sent instant, expiry instant, SAME county codes, VTEC string, issuing office and description text of the two records compared.",
+ "checked": 20,
+ "same_alert": 20,
+ "same_event": 20,
+ "same_sent_instant": 20,
+ "same_expires_instant": 20,
+ "same_same_codes": 20,
+ "same_vtec": 20,
+ "same_issuing_office": 20,
+ "same_description_text": 20,
+ "note": "All 20 IPAWS records carry an en-US and an es-US info block; the description compared is the first (en-US) block. The sample holds 18 Flash Flood Warnings and 2 Tornado Warnings: the archive holds only the NWS alerts flagged for Wireless Emergency Alerts, so the link says nothing about the other NWS alert types.",
+ "pairs": [
+  {
+   "ipaws_event": "Tornado Warning",
+   "ipaws_expires_utc": "2026-11-16T21:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.9c33b9e89815765f26c8d42bc7fe9105e000178d.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006087"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-16T20:47:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.TO.W.0003.261116T2047Z-261116T2130Z/"
+   ],
+   "nws_event": "Tornado Warning",
+   "nws_expires_utc": "2026-11-16T21:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.9c33b9e89815765f26c8d42bc7fe9105e000178d.001.1",
+   "nws_same": [
+    "006087"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-16T20:47:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.TO.W.0003.261116T2047Z-261116T2130Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T17:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.8b06b30c1cee0b8f0feb04e7c34269bea81f582c.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T14:47:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMLB.FF.W.0029.261119T1447Z-261119T1745Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T17:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.8b06b30c1cee0b8f0feb04e7c34269bea81f582c.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T14:47:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMLB.FF.W.0029.261119T1447Z-261119T1745Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T04:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.395ba57d4c64fdd4e5ef8a7b6bbcd2a092ccc64a.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T03:05:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0430Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T04:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.395ba57d4c64fdd4e5ef8a7b6bbcd2a092ccc64a.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T03:05:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0430Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T16:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.aad0676b9737d33c6e8ac74ed2839a08e6098d59.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T15:02:00Z",
+   "ipaws_vtec": [
+    "/O.CON.KMLB.FF.W.0027.000000T0000Z-261119T1645Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T16:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.aad0676b9737d33c6e8ac74ed2839a08e6098d59.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T15:02:00Z",
+   "nws_vtec": [
+    "/O.CON.KMLB.FF.W.0027.000000T0000Z-261119T1645Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-18T05:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.3f07ac4f0ec639d1e84ad62d3a66609f144a8106.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012011"
+   ],
+   "ipaws_sender_name": "NWS Miami FL",
+   "ipaws_sent_utc": "2026-11-18T04:06:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMFL.FF.W.0017.000000T0000Z-261118T0530Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-18T05:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.3f07ac4f0ec639d1e84ad62d3a66609f144a8106.001.1",
+   "nws_same": [
+    "012011"
+   ],
+   "nws_sender_name": "NWS Miami FL",
+   "nws_sent_utc": "2026-11-18T04:06:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMFL.FF.W.0017.000000T0000Z-261118T0530Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Tornado Warning",
+   "ipaws_expires_utc": "2026-11-20T23:15:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.b4575e47e0e3e40037b640f7a1b35ec705fd66fb.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006069"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-20T22:23:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.TO.W.0004.261120T2223Z-261120T2315Z/"
+   ],
+   "nws_event": "Tornado Warning",
+   "nws_expires_utc": "2026-11-20T23:15:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.b4575e47e0e3e40037b640f7a1b35ec705fd66fb.001.1",
+   "nws_same": [
+    "006069"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-20T22:23:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.TO.W.0004.261120T2223Z-261120T2315Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T03:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.a8727f7ec639948001e1ae52a69968fbe65bab59.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T00:59:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0330Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T03:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.a8727f7ec639948001e1ae52a69968fbe65bab59.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T00:59:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0330Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T06:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.1340d43c13b66c696ab08c9bf24f72513b16c9ab.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T03:47:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0600Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T06:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.1340d43c13b66c696ab08c9bf24f72513b16c9ab.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T03:47:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0600Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T14:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.e0064b8072e0fabebf1625e25c6a45983650db6d.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T12:35:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMLB.FF.W.0026.000000T0000Z-261119T1445Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T14:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.e0064b8072e0fabebf1625e25c6a45983650db6d.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T12:35:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMLB.FF.W.0026.000000T0000Z-261119T1445Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T12:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.cf0ac37f65ea9a8b81e88bdd1cc448d485569acf.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T09:50:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMLB.FF.W.0026.261119T0950Z-261119T1245Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T12:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.cf0ac37f65ea9a8b81e88bdd1cc448d485569acf.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T09:50:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMLB.FF.W.0026.261119T0950Z-261119T1245Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T01:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.0d6198736420da16275aa36de87448b81bb4dd1b.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-18T22:30:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.FF.W.0002.261118T2230Z-261119T0130Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T01:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.0d6198736420da16275aa36de87448b81bb4dd1b.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-18T22:30:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.FF.W.0002.261118T2230Z-261119T0130Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-18T05:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.240140616c07c4e765da2d3b101cfee4b7e8064a.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012011"
+   ],
+   "ipaws_sender_name": "NWS Miami FL",
+   "ipaws_sent_utc": "2026-11-18T04:23:00Z",
+   "ipaws_vtec": [
+    "/O.CON.KMFL.FF.W.0019.000000T0000Z-261118T0545Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-18T05:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.240140616c07c4e765da2d3b101cfee4b7e8064a.001.1",
+   "nws_same": [
+    "012011"
+   ],
+   "nws_sender_name": "NWS Miami FL",
+   "nws_sent_utc": "2026-11-18T04:23:00Z",
+   "nws_vtec": [
+    "/O.CON.KMFL.FF.W.0019.000000T0000Z-261118T0545Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-18T07:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.559e099db4aea22abb7f939f0e994b216b04b9a6.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012011"
+   ],
+   "ipaws_sender_name": "NWS Miami FL",
+   "ipaws_sent_utc": "2026-11-18T05:42:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMFL.FF.W.0019.000000T0000Z-261118T0700Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-18T07:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.559e099db4aea22abb7f939f0e994b216b04b9a6.001.1",
+   "nws_same": [
+    "012011"
+   ],
+   "nws_sender_name": "NWS Miami FL",
+   "nws_sent_utc": "2026-11-18T05:42:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMFL.FF.W.0019.000000T0000Z-261118T0700Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-20T17:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.eee279d996d037a003f70335883466e3b2a5bb96.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012127"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-20T15:04:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMLB.FF.W.0036.261120T1504Z-261120T1730Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-20T17:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.eee279d996d037a003f70335883466e3b2a5bb96.001.1",
+   "nws_same": [
+    "012127"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-20T15:04:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMLB.FF.W.0036.261120T1504Z-261120T1730Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T06:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.3c6f1f51e236f9130ca4fb9a6a4b0cf1789caefb.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T03:46:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0600Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T06:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.3c6f1f51e236f9130ca4fb9a6a4b0cf1789caefb.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T03:46:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0002.000000T0000Z-261119T0600Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T03:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.6185678ef0307d6cd8922d4764ad72864281256b.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-19T00:58:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0330Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T03:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.6185678ef0307d6cd8922d4764ad72864281256b.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-19T00:58:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMTR.FF.W.0001.000000T0000Z-261119T0330Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T20:00:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.1659ebb0a6ab03122b5e06c58336de60a995165a.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006037"
+   ],
+   "ipaws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "ipaws_sent_utc": "2026-11-19T16:03:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KLOX.FF.W.0024.261119T1603Z-261119T2000Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T20:00:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.1659ebb0a6ab03122b5e06c58336de60a995165a.001.1",
+   "nws_same": [
+    "006037"
+   ],
+   "nws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "nws_sent_utc": "2026-11-19T16:03:00Z",
+   "nws_vtec": [
+    "/O.NEW.KLOX.FF.W.0024.261119T1603Z-261119T2000Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T01:30:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.3bcc3955db371b81636fcb7073de3e8926b87cba.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006053"
+   ],
+   "ipaws_sender_name": "NWS San Francisco CA",
+   "ipaws_sent_utc": "2026-11-18T22:30:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KMTR.FF.W.0001.261118T2230Z-261119T0130Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T01:30:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.3bcc3955db371b81636fcb7073de3e8926b87cba.001.1",
+   "nws_same": [
+    "006053"
+   ],
+   "nws_sender_name": "NWS San Francisco CA",
+   "nws_sent_utc": "2026-11-18T22:30:00Z",
+   "nws_vtec": [
+    "/O.NEW.KMTR.FF.W.0001.261118T2230Z-261119T0130Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T19:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.f48d7447c9c3143df6f73b467d89778cf77aee1e.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "012009"
+   ],
+   "ipaws_sender_name": "NWS Melbourne FL",
+   "ipaws_sent_utc": "2026-11-19T17:31:00Z",
+   "ipaws_vtec": [
+    "/O.EXT.KMLB.FF.W.0029.000000T0000Z-261119T1945Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T19:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.f48d7447c9c3143df6f73b467d89778cf77aee1e.001.1",
+   "nws_same": [
+    "012009"
+   ],
+   "nws_sender_name": "NWS Melbourne FL",
+   "nws_sent_utc": "2026-11-19T17:31:00Z",
+   "nws_vtec": [
+    "/O.EXT.KMLB.FF.W.0029.000000T0000Z-261119T1945Z/"
+   ],
+   "same_description_text": true
+  },
+  {
+   "ipaws_event": "Flash Flood Warning",
+   "ipaws_expires_utc": "2026-11-19T10:45:00Z",
+   "ipaws_identifier": "urn:oid:2.49.0.1.840.0.18dc89620786164bf10669ff0ee964ad30532553.001.1.IPAWS",
+   "ipaws_info_languages": [
+    "en-US",
+    "es-US"
+   ],
+   "ipaws_same": [
+    "006083"
+   ],
+   "ipaws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "ipaws_sent_utc": "2026-11-19T08:44:00Z",
+   "ipaws_vtec": [
+    "/O.NEW.KLOX.FF.W.0019.261119T0844Z-261119T1045Z/"
+   ],
+   "nws_event": "Flash Flood Warning",
+   "nws_expires_utc": "2026-11-19T10:45:00Z",
+   "nws_id": "urn:oid:2.49.0.1.840.0.18dc89620786164bf10669ff0ee964ad30532553.001.1",
+   "nws_same": [
+    "006083"
+   ],
+   "nws_sender_name": "NWS Los Angeles/Oxnard CA",
+   "nws_sent_utc": "2026-11-19T08:44:00Z",
+   "nws_vtec": [
+    "/O.NEW.KLOX.FF.W.0019.261119T0844Z-261119T1045Z/"
+   ],
+   "same_description_text": true
+  }
+ ]
+}
