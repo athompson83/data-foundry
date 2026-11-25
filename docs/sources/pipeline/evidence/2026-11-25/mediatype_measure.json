@@ -1,0 +1,609 @@
+{
+ "fetched": {
+  "iana_media_types.xml": {
+   "bytes": 620999,
+   "sha256": "fd830b4bf7586db2bf8791385c827d5f3b002c705b5beba9c17d0ff6d9ce27d5",
+   "url": "https://www.iana.org/assignments/media-types/media-types.xml"
+  },
+  "iana_template_application__EDIFACT": {
+   "bytes": 1105,
+   "sha256": "4af03cebd944f29dc5eebd3d8d8c1dbe37181d4f0f1238505e70325e3743e3fc",
+   "url": "https://www.iana.org/assignments/media-types/application/EDIFACT"
+  },
+  "iana_template_application__PDX": {
+   "bytes": 1391,
+   "sha256": "0562e34ecf0959d110fd22818600a8e8203a9f0983676463ea383b2bdcb09a42",
+   "url": "https://www.iana.org/assignments/media-types/application/PDX"
+  },
+  "iana_template_application__applefile": {
+   "bytes": 20054,
+   "sha256": "d6e83f658e317ac5400af6cdf3e80b5abb662d2ea40994ba55083fbe4f942e17",
+   "url": "https://www.iana.org/assignments/media-types/application/applefile"
+  },
+  "iana_template_application__concise-problem-details+cbor": {
+   "bytes": 1054,
+   "sha256": "5f7234a81e3eec8d213ad01a8273d31ca54de859355f48fd5416954411307439",
+   "url": "https://www.iana.org/assignments/media-types/application/concise-problem-details+cbor"
+  },
+  "iana_template_application__fastsoap": {
+   "bytes": 3234,
+   "sha256": "82a0bba92793556e54676c5a52ab6cb1e620da70ca8bf05db3cfaae8bafae229",
+   "url": "https://www.iana.org/assignments/media-types/application/fastsoap"
+  },
+  "iana_template_application__its+xml": {
+   "bytes": 3169,
+   "sha256": "45fa278cf0b301c166918ab746271800d5c0774b9976e68d41887d0133c7afac",
+   "url": "https://www.iana.org/assignments/media-types/application/its+xml"
+  },
+  "iana_template_application__toc+cbor": {
+   "bytes": 4483,
+   "sha256": "fbf0a15bbac4456f9504e729973a15c3196d8c0bf692d6a40361e968d888272f",
+   "url": "https://www.iana.org/assignments/media-types/application/toc+cbor"
+  },
+  "iana_template_application__vnd.cloanto.rp9": {
+   "bytes": 1289,
+   "sha256": "4d38acd5432069166408ccd274d33a31acc52c6fd4f4075eb7ae2ecc31473316",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.cloanto.rp9"
+  },
+  "iana_template_application__vnd.commerce-battelle": {
+   "bytes": 2214,
+   "sha256": "4f4a37e01042362928a2772a11643c379769e819648dfd1c645e3e2afeed7cb7",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.commerce-battelle"
+  },
+  "iana_template_application__vnd.immervision-ivp": {
+   "bytes": 1561,
+   "sha256": "bd06b8cf6e47faf4adab57b80a2902a7d76670dde67070309b02968c41667df8",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.immervision-ivp"
+  },
+  "iana_template_application__vnd.innopath.wamp.notification": {
+   "bytes": 1101,
+   "sha256": "c9fb92da650a7b8090a5b1af07cdee984fdd3d2c39e3a2fa01099952bfffeac4",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.innopath.wamp.notification"
+  },
+  "iana_template_application__vnd.msign": {
+   "bytes": 1820,
+   "sha256": "3138f8eb9716885567bb6848da3b4e2fc0d1b59b0ae319b0e61ee83cba18d1e5",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.msign"
+  },
+  "iana_template_application__vnd.oai.workflows+json": {
+   "bytes": 1984,
+   "sha256": "56630789184e0914d79bb3ed63bff88b0bb134d4d739d7102fa871b83f2218eb",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.oai.workflows+json"
+  },
+  "iana_template_application__vnd.oma.dd2+xml": {
+   "bytes": 2851,
+   "sha256": "25eef999c2f674c85e0a52073c866c9ba2d1747f30c82649c1951b9e8f8d214c",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.oma.dd2+xml"
+  },
+  "iana_template_application__vnd.omads-file+xml": {
+   "bytes": 1888,
+   "sha256": "51639be2d5f11aa07ad0dd5d43c97629c1af1ef8f43a8a684c8123c3b8aa7ac0",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.omads-file+xml"
+  },
+  "iana_template_application__vnd.yamaha.hv-script": {
+   "bytes": 1746,
+   "sha256": "32329441e7e8df49becf0ee287de533c22c1d21a51b313984fbd5220f0c02d37",
+   "url": "https://www.iana.org/assignments/media-types/application/vnd.yamaha.hv-script"
+  },
+  "iana_template_audio__vnd.vmx.cvsd": {
+   "bytes": 2032,
+   "sha256": "46b126c976ef6e0f67750efcc384a08040620ebf7d65c71ed456677cb3aada0e",
+   "url": "https://www.iana.org/assignments/media-types/audio/vnd.vmx.cvsd"
+  },
+  "iana_template_audio__vorbis": {
+   "bytes": 1339,
+   "sha256": "b4b52f3d72161f245bc9b7629e6252ffec3b59775ecc83b5130b7d1b77e637e0",
+   "url": "https://www.iana.org/assignments/media-types/audio/vorbis"
+  },
+  "iana_template_model__3mf": {
+   "bytes": 2172,
+   "sha256": "3788e1ebbb5c18ed8a741ef25aac4505c0a5aeabdbac95f0619be5767e5518a1",
+   "url": "https://www.iana.org/assignments/media-types/model/3mf"
+  },
+  "iana_template_video__H265": {
+   "bytes": 46167,
+   "sha256": "214a84445ed8d80e31e5715554f4fd03b81e152ef8bc5a17eda536de89e9df0e",
+   "url": "https://www.iana.org/assignments/media-types/video/H265"
+  },
+  "mime_db.json": {
+   "bytes": 209696,
+   "sha256": "63217b4e2a6816c23a8c025b953b3f78993cc85c7253e395a07de3200f659d42",
+   "url": "https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/db.json"
+  },
+  "terms_iana.html": {
+   "bytes": 8488,
+   "sha256": "16887b36c23739ae51b44d02cfd4e909302ece8325f815a763287afcbd589ae3",
+   "url": "https://www.iana.org/help/licensing-terms"
+  },
+  "terms_mime_db_license.txt": {
+   "bytes": 1172,
+   "sha256": "cc1dfd4dafa27271e8212cd3b274eeb3f262e40a6fdab36ddc3f9696f706f58b",
+   "url": "https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/LICENSE"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "characters": 20054,
+   "has_contact_line": false,
+   "has_file_extension_line": false,
+   "has_required_parameters": false,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Patrik_Faltstrom"
+    ]
+   ],
+   "media_type": "application/applefile",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/applefile"
+  },
+  {
+   "characters": 1888,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "OMA_Data_Synchronization_WG"
+    ]
+   ],
+   "media_type": "application/vnd.omads-file+xml",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/vnd.omads-file+xml"
+  },
+  {
+   "characters": 1339,
+   "has_contact_line": true,
+   "has_file_extension_line": false,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "rfc",
+     "rfc5215"
+    ]
+   ],
+   "media_type": "audio/vorbis",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "audio/vorbis"
+  },
+  {
+   "characters": 1101,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Takanori_Sudo"
+    ]
+   ],
+   "media_type": "application/vnd.innopath.wamp.notification",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/vnd.innopath.wamp.notification"
+  },
+  {
+   "characters": 1105,
+   "has_contact_line": true,
+   "has_file_extension_line": false,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "rfc",
+     "rfc1767"
+    ]
+   ],
+   "media_type": "application/edifact",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/EDIFACT"
+  },
+  {
+   "characters": 46167,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "rfc",
+     "rfc7798"
+    ]
+   ],
+   "media_type": "video/h265",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "video/H265"
+  },
+  {
+   "characters": 1746,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Tomohiro_Yamamoto"
+    ]
+   ],
+   "media_type": "application/vnd.yamaha.hv-script",
+   "mime_db_extensions": [
+    "hvs"
+   ],
+   "states_the_subtype": true,
+   "template": "application/vnd.yamaha.hv-script"
+  },
+  {
+   "characters": 2214,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "David_Applebaum"
+    ]
+   ],
+   "media_type": "application/vnd.commerce-battelle",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/vnd.commerce-battelle"
+  },
+  {
+   "characters": 2172,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "uri",
+     "http://www.3mf.io/specification"
+    ],
+    [
+     "person",
+     "_3MF"
+    ]
+   ],
+   "media_type": "model/3mf",
+   "mime_db_extensions": [
+    "3mf"
+   ],
+   "states_the_subtype": true,
+   "template": "model/3mf"
+  },
+  {
+   "characters": 4465,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "uri",
+     "https://trustedcomputinggroup.org/wp-content/uploads/TCG-DICE-Concise-Evidence-Binding-for-SPDM-Version-1.1-RC1_10April25.pdf"
+    ],
+    [
+     "person",
+     "TCG_DICE_WG"
+    ]
+   ],
+   "media_type": "application/toc+cbor",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/toc+cbor"
+  },
+  {
+   "characters": 1984,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Frank_Kilcommins"
+    ]
+   ],
+   "media_type": "application/vnd.oai.workflows+json",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/vnd.oai.workflows+json"
+  },
+  {
+   "characters": 2032,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Greg_Vaudreuil"
+    ]
+   ],
+   "media_type": "audio/vnd.vmx.cvsd",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "audio/vnd.vmx.cvsd"
+  },
+  {
+   "characters": 3169,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "W3C"
+    ],
+    [
+     "person",
+     "ITS-IG-W3C"
+    ]
+   ],
+   "media_type": "application/its+xml",
+   "mime_db_extensions": [
+    "its"
+   ],
+   "states_the_subtype": true,
+   "template": "application/its+xml"
+  },
+  {
+   "characters": 2851,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Jun_Sato"
+    ],
+    [
+     "person",
+     "Open_Mobile_Alliance_BAC_DLDRM_WG"
+    ]
+   ],
+   "media_type": "application/vnd.oma.dd2+xml",
+   "mime_db_extensions": [
+    "dd2"
+   ],
+   "states_the_subtype": true,
+   "template": "application/vnd.oma.dd2+xml"
+  },
+  {
+   "characters": 3234,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "ITU-T_ASN.1_Rapporteur"
+    ],
+    [
+     "person",
+     "ISO-IEC_JTC_1_SC_6_ASN.1_Rapporteur"
+    ]
+   ],
+   "media_type": "application/fastsoap",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/fastsoap"
+  },
+  {
+   "characters": 1054,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "rfc",
+     "rfc9290"
+    ]
+   ],
+   "media_type": "application/concise-problem-details+cbor",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/concise-problem-details+cbor"
+  },
+  {
+   "characters": 1820,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Malte_Borcherding"
+    ]
+   ],
+   "media_type": "application/vnd.msign",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/vnd.msign"
+  },
+  {
+   "characters": 1289,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Mike_Labatt"
+    ]
+   ],
+   "media_type": "application/vnd.cloanto.rp9",
+   "mime_db_extensions": [
+    "rp9"
+   ],
+   "states_the_subtype": true,
+   "template": "application/vnd.cloanto.rp9"
+  },
+  {
+   "characters": 1391,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "ASAM"
+    ],
+    [
+     "person",
+     "Bernd_Wenzel"
+    ]
+   ],
+   "media_type": "application/pdx",
+   "mime_db_extensions": null,
+   "states_the_subtype": true,
+   "template": "application/PDX"
+  },
+  {
+   "characters": 1561,
+   "has_contact_line": true,
+   "has_file_extension_line": true,
+   "has_required_parameters": true,
+   "has_security_considerations": true,
+   "iana_reference": [
+    [
+     "person",
+     "Mathieu_Villegas"
+    ]
+   ],
+   "media_type": "application/vnd.immervision-ivp",
+   "mime_db_extensions": [
+    "ivp"
+   ],
+   "states_the_subtype": true,
+   "template": "application/vnd.immervision-ivp"
+  }
+ ],
+ "iana_registry": {
+  "by_top_level_type": {
+   "application": 1830,
+   "audio": 166,
+   "font": 6,
+   "haptics": 3,
+   "image": 89,
+   "message": 27,
+   "model": 46,
+   "multipart": 17,
+   "text": 110,
+   "video": 97
+  },
+  "citing_a_person": 1724,
+  "citing_an_rfc": 650,
+  "marked_obsolete_or_deprecated": 32,
+  "records": 2391,
+  "registry_updated": "2026-11-18",
+  "structured_syntax_suffixes": {
+   "cbor": 35,
+   "json": 184,
+   "jwt": 22,
+   "xml": 459,
+   "yaml": 9,
+   "zip": 48
+  },
+  "with_registration_date": 954,
+  "with_template_file": 2391
+ },
+ "iana_templates_sample": {
+  "characters": 102636,
+  "median_characters": 1984,
+  "read": 20,
+  "requested": 20,
+  "stating_the_subtype": 20,
+  "with_a_contact_line": 19,
+  "with_file_extension_line": 17,
+  "with_security_considerations": 20
+ },
+ "join_media_type_string": {
+  "found_in_the_iana_registry": 2208,
+  "iana_records": 2391,
+  "iana_records_found_in_mime_db": 2231,
+  "iana_records_missing_from_mime_db_sample": [
+   "application/client-authentication+jwt",
+   "application/cloudevents+json",
+   "application/cloudevents-batch+json",
+   "application/cmcd",
+   "application/cose-c509+cbor",
+   "application/cose-c509-cert+cbor",
+   "application/cose-c509-crtemplate+cbor",
+   "application/cose-c509-pem+cbor"
+  ],
+  "matched_entries_adding_a_file_extension": 700,
+  "mime_db_entries_attributed_to_iana": 2215,
+  "not_found_sample": [
+   "application/font-sfnt",
+   "application/font-woff",
+   "application/vnd.gmx",
+   "image/x-emf",
+   "image/x-wmf",
+   "model/vnd.gs.gdl",
+   "text/directory"
+  ]
+ },
+ "mime_db": {
+  "by_source": {
+   "apache": 275,
+   "iana": 2215,
+   "nginx": 13,
+   "none": 98
+  },
+  "entries": 2601,
+  "extensions": 1302,
+  "with_charset": 41,
+  "with_compressible_flag": 846,
+  "with_extensions": 1025
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 24,
+  "source_bodies": 24
+ },
+ "run_date": "2026-11-25",
+ "terms": {
+  "iana": {
+   "bytes": 8488,
+   "http_status": 200,
+   "keyword_sentences": [
+    "However, for additional clarity, and to avoid any potential confusion about applicable rights, both IANA and IETF desire to (a) dedicate any applicable copyright rights that they may own in the Protocol Registries to the public domain, and (b) license any copyright or related rights for which they are a licensee (with a right to sublicense) to the broadest extent that they are permitted to do so.",
+    "Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication found at https://creativecommons.org/publicdomain/zero/1.0/legalcode .",
+    "The limitations and disclaimers found in the CC0 1.0 dedication are an integral part of this joint statement.",
+    "For example, in no way are the patent or trademark rights of any person affected by CC0, nor are the rights that other persons may have in the work or in how the work is used, including data protection rights."
+   ],
+   "quotes": {},
+   "url": "https://www.iana.org/help/licensing-terms"
+  },
+  "mime_db": {
+   "bytes": 1172,
+   "http_status": 200,
+   "keyword_sentences": [
+    "THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT."
+   ],
+   "quotes": {},
+   "url": "https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/LICENSE"
+  }
+ }
+}

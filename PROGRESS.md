@@ -1,6 +1,16 @@
 # Progress
 
-## Current session — 2026-11-23: daily dataset scout (round 32)
+## Current session — 2026-11-25: daily dataset scout (round 34)
+
+- Health: both LIVE recall datasets synced 2026-11-25 at about 12:18Z and hold the newest source records (FDA report week 2026-11-18; CPSC 10,098 = 10,098, newest 2026-11-19; Health Canada newest notice 2026-11-20). No sync failed. Two freshness observations: the gap to the openFDA totals grew from 2/2/1 to 8/13/3, because openFDA added 13 food, 20 drug and 2 device records with earlier report dates and the sync has picked up only some of them so far (the rest wait for the slow pass over older windows; not verified record by record); and Health Canada updated notice 82874 on 2026-11-24, which our page does not show yet. `hc-82932` is still served as current until PR #118 is merged and deployed.
+- Added 6 data types at SCREENED: `industry-classification-codes` (declared NAICS code, SBA size-standards table to Census 978/978), `biological-pathways` (declared GO term id, Reactome to Gene Ontology 811/811), `medical-subject-headings` (declared MeSH unique id, Disease Ontology to NLM MeSH 2,923/2,923), `unicode-characters` (declared Unicode code point, WHATWG entities to the Unicode Character Database 1,454/1,454), `media-types` (declared IANA media type, mime-db to the IANA registry 2,208/2,215) and `airworthiness-directives` (declared EASA AD number, 48/60, measured on 2026-11-22 and hand-checked today 20/20). 17 new source candidates. Every declared join has a 20-pair hand check.
+- Widening: `widen-hc-cannabis-recalls` (104 Health Canada cannabis and controlled-substance recall notices, in the index the LIVE sync already archives) added to `food-and-health-recalls-global`. No link to the existing members was found (0/104). Capture is complete (whole index archived in R2 on every run); the 104 notices are not served.
+- Stage advance: `directives-easa` PARKED → SCREENED (AMBER, attribution). Nothing past SCREENED: the archive workflow reads `plans.json` on `main`, and the staged plans are on the unmerged PR #88.
+- Round 33 (2026-11-24) recorded the health check only; see `research-2026-11-24.md`.
+- Blocker: PR #88 (the rolling scout PR, open since 2026-10-01), PR #117 and PR #118 are green and reviewed and need the owner's merge; #117 and #118 then need a deploy of the recalls Worker.
+- Verification: `npx vitest run tooling/test/source-pipeline.test.ts tooling/test/repository-policy.test.ts tooling/test/local-collector.test.ts` 6,357 passed; `pnpm typecheck` clean. Nothing deployed. See `docs/sources/pipeline/research-2026-11-25.md`.
+
+## Previous session — 2026-11-23: daily dataset scout (round 32)
 
 - Health: both LIVE recall datasets synced 2026-11-23 at about 12:18Z. FDA matches openFDA (2026-11-11; the known 2/2/1 total gap); CPSC matches (10,098 = 10,098, newest 2026-11-19); Health Canada newest date matches (2026-11-20). No new regression. We still hold 5,241 Health Canada notices against 5,240 listed: the withdrawn notice `hc-82932` found on 2026-11-22 is served as current until PR #118 is merged and deployed.
 - PR #118: its one open Codex finding is fixed in `6c112d9` (the delisting grace period is now measured between successful Health Canada reads, so one read after an outage marks nothing; regression test added). `apps/recalls-worker` 266 tests passed, typecheck clean, Codex found nothing on the new commit, CI finished without a failure.

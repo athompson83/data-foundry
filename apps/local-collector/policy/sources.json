@@ -1,7 +1,7 @@
 {
   "generated_by": "tooling/scripts/local-collector-policy.ts",
   "registry": "docs/sources/pipeline/candidates.yaml",
-  "registry_sha256": "8333c4d69282bac79795a7687301c5586e52f03df3e760a4e6b340ba81de248b",
+  "registry_sha256": "51042216f538cf69b73e00e14a288e35044d6a5edb4a9565845072e8f7cc949b",
   "tasks": [
     {
       "task": "health-canada-product-identifiers@1",
@@ -186,7 +186,8 @@
         "fsai-food-alerts",
         "hk-cfs-food-alerts-datagovhk",
         "widen-uk-mhra-drug-device-alerts",
-        "fda-openfda-device-recalls"
+        "fda-openfda-device-recalls",
+        "widen-hc-cannabis-recalls"
       ]
     },
     "public-procurement-notices": {
@@ -1071,6 +1072,60 @@
         "hazard-nws-active-alerts",
         "alert-fema-ipaws-archived-alerts",
         "alert-eccc-cap-alerts"
+      ]
+    },
+    "industry-classification-codes": {
+      "name": "Industry classification codes: NAICS United States and Canada, with BLS titles and SBA size standards",
+      "stage": "SCREENED",
+      "sources": [
+        "naics-census-2022-descriptions",
+        "naics-statcan-naics-canada-2022",
+        "naics-bls-qcew-industry-titles",
+        "naics-ecfr-sba-size-standards"
+      ]
+    },
+    "biological-pathways": {
+      "name": "Biological pathways: Reactome pathways with their descriptions, linked to Gene Ontology processes",
+      "stage": "SCREENED",
+      "sources": [
+        "pathway-reactome-pathways",
+        "pathway-reactome-summations",
+        "pathway-gene-ontology-terms"
+      ]
+    },
+    "medical-subject-headings": {
+      "name": "Medical subject headings: NLM MeSH descriptors and scope notes, linked to Disease Ontology terms",
+      "stage": "SCREENED",
+      "sources": [
+        "mesh-nlm-descriptors",
+        "mesh-nlm-scope-notes",
+        "mesh-disease-ontology-xrefs"
+      ]
+    },
+    "unicode-characters": {
+      "name": "Unicode characters: the character database with its annotations, emoji sequences and HTML named character references",
+      "stage": "SCREENED",
+      "sources": [
+        "uni-unicode-character-database",
+        "uni-unicode-names-list-annotations",
+        "uni-whatwg-named-character-references"
+      ]
+    },
+    "media-types": {
+      "name": "Media types: the IANA registry and registration templates, with file extensions from mime-db",
+      "stage": "SCREENED",
+      "sources": [
+        "mime-iana-media-types-registry",
+        "mime-iana-registration-templates",
+        "mime-jshttp-mime-db"
+      ]
+    },
+    "airworthiness-directives": {
+      "name": "Airworthiness directives: FAA final rules linked to the EASA directives they adopt",
+      "stage": "SCREENED",
+      "sources": [
+        "faa-airworthiness-directives",
+        "directives-easa"
       ]
     }
   },
@@ -2729,16 +2784,16 @@
       ]
     },
     "directives-easa": {
-      "name": "EASA airworthiness directives",
-      "rights": "UNKNOWN",
-      "stage": "PARKED",
-      "format": "free-text",
+      "name": "EASA Safety Publications Tool airworthiness directive records (number, issuing authority, issue and effective dates, type-certificate holder, type, ATA chapter, supersedure, attached directive)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
       "publisher": "EASA",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [
-        "rights verdict is UNKNOWN",
-        "stage PARKED is before PROTOTYPED"
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
       ]
     },
     "food-open-food-facts": {
@@ -9297,6 +9352,227 @@
       "stage": "SCREENED",
       "format": "free-text",
       "publisher": "Environment and Climate Change Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "naics-census-2022-descriptions": {
+      "name": "US Census Bureau 2022 NAICS descriptions workbook (code, title, prose description with cross-references and illustrative examples)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US Census Bureau",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "naics-statcan-naics-canada-2022": {
+      "name": "Statistics Canada NAICS Canada 2022 structure file (level, code, parent, class title, class definition)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Statistics Canada",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "naics-bls-qcew-industry-titles": {
+      "name": "BLS Quarterly Census of Employment and Wages industry titles (industry code and title, including aggregate and legacy codes)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US Bureau of Labor Statistics",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "naics-ecfr-sba-size-standards": {
+      "name": "SBA small business size standards by NAICS code, as codified in 13 CFR 121.201 (eCFR: code, industry, dollar or employee standard, footnotes)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Office of the Federal Register and Government Publishing Office (eCFR)",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pathway-reactome-pathways": {
+      "name": "Reactome pathway download files (stable id, name, species, hierarchy, pathway to GO term)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Reactome",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pathway-reactome-summations": {
+      "name": "Reactome pathway summations (prose description of each pathway with literature references, ContentService)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Reactome",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "pathway-gene-ontology-terms": {
+      "name": "Gene Ontology go-basic.obo (term id, name, namespace, prose definition, relations, alternate and obsolete ids)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Gene Ontology Consortium",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mesh-nlm-descriptors": {
+      "name": "NLM Medical Subject Headings 2026 descriptor file (unique id, heading, tree numbers, entry terms, pharmacological actions)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "US National Library of Medicine",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mesh-nlm-scope-notes": {
+      "name": "NLM Medical Subject Headings scope notes (prose definition of each heading, with cross-referenced headings in capitals)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "US National Library of Medicine",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mesh-disease-ontology-xrefs": {
+      "name": "Human Disease Ontology doid.obo (disease terms with definitions and cross-references to MeSH, among other vocabularies)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Human Disease Ontology project",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uni-unicode-character-database": {
+      "name": "Unicode Character Database UnicodeData.txt and emoji-test.txt (code point, name, category, decomposition, emoji sequences and status)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "Unicode Consortium",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uni-unicode-names-list-annotations": {
+      "name": "Unicode NamesList.txt annotations (aliases, informative notes and cross-references written for each character)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Unicode Consortium",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "uni-whatwg-named-character-references": {
+      "name": "WHATWG HTML named character references (entities.json: entity, code points, characters)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "WHATWG",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mime-iana-media-types-registry": {
+      "name": "IANA media types registry (type, subtype, template, reference, registration date)",
+      "rights": "GREEN",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "IANA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mime-iana-registration-templates": {
+      "name": "IANA media type registration templates (free-text form per media type: parameters, encoding, security and interoperability considerations, file extensions, intended usage)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "IANA",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "mime-jshttp-mime-db": {
+      "name": "jshttp mime-db (media type to source, file extensions, compressible flag and charset, compiled from IANA, Apache and nginx)",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "structured",
+      "publisher": "jshttp project",
+      "acquisition": "blocked",
+      "tasks": [],
+      "blocked_because": [
+        "no ADR-0013 rights record in the registry evidence",
+        "stage SCREENED is before PROTOTYPED"
+      ]
+    },
+    "widen-hc-cannabis-recalls": {
+      "name": "Health Canada cannabis and controlled-substance recall notices (rows of the recalls open-data index under \"Controlled substances and cannabis\")",
+      "rights": "AMBER",
+      "stage": "SCREENED",
+      "format": "free-text",
+      "publisher": "Health Canada",
       "acquisition": "blocked",
       "tasks": [],
       "blocked_because": [

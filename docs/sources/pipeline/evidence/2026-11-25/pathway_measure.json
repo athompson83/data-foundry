@@ -1,0 +1,506 @@
+{
+ "fetched": {
+  "go_basic.obo": {
+   "bytes": 32227785,
+   "sha256": "b08d45b268b8c24ccb2513dbbbc7d4df9f6521c099b413f79eb31e06e0fa3bcc",
+   "url": "https://current.geneontology.org/ontology/go-basic.obo"
+  },
+  "reactome_pathways.txt": {
+   "bytes": 1596703,
+   "sha256": "b8103a50d625ffb6acd18cddffcce0ceb0fdf36b19392d104c32bb1fcc7e2f9f",
+   "url": "https://reactome.org/download/current/ReactomePathways.txt"
+  },
+  "reactome_pathways2go_human.txt": {
+   "bytes": 61415,
+   "sha256": "68b307d8b25cd33d9c7df67b312e1b388fb9325d32aa6b8f87db2b2f781ac122",
+   "url": "https://reactome.org/download/current/Pathways2GoTerms_human.txt"
+  },
+  "reactome_query_R-HSA-1483191.json": {
+   "bytes": 15411,
+   "sha256": "751beaafd1ceb36c2307131514c707d8442c86ed61460895bac8ff062bbf066c",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-1483191"
+  },
+  "reactome_query_R-HSA-1592230.json": {
+   "bytes": 17942,
+   "sha256": "2606271fc7f1443c173c4dda859ad6be630a6fe7dc9c197f63fe759bcfba6bfe",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-1592230"
+  },
+  "reactome_query_R-HSA-162588.json": {
+   "bytes": 9595,
+   "sha256": "295dc1d99479f16b2a16ed93f1f253fb8891e9e29ec765b6a6eb8df76b724214",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-162588"
+  },
+  "reactome_query_R-HSA-168255.json": {
+   "bytes": 10743,
+   "sha256": "8bc3d8b64de887fe1f05219653a57dac04f0bcdfb918759d171748e66dc101c3",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-168255"
+  },
+  "reactome_query_R-HSA-174143.json": {
+   "bytes": 13805,
+   "sha256": "537a428211a90799431e0aa4844aea2941d6846ae9b9224746f8b795f8f01082",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-174143"
+  },
+  "reactome_query_R-HSA-2142691.json": {
+   "bytes": 19511,
+   "sha256": "409d558912458f742e339c3e98e0ebcc5aeb10f71699e03887a8046492063deb",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-2142691"
+  },
+  "reactome_query_R-HSA-2173795.json": {
+   "bytes": 28421,
+   "sha256": "85e41ab98bb1a234bbce236fd3b5bf4b8ab8f49ff71e7a0c71c9db644309804a",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-2173795"
+  },
+  "reactome_query_R-HSA-451307.json": {
+   "bytes": 9091,
+   "sha256": "bc506499b77c82b9ce4c0b4d817321996b258acd18404cd5c1fe1d7939915436",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-451307"
+  },
+  "reactome_query_R-HSA-5617833.json": {
+   "bytes": 15597,
+   "sha256": "0b333172f89430da6f6965b675bd677a213f2defeb0b9bc074ff5d5a98e0ca39",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-5617833"
+  },
+  "reactome_query_R-HSA-69206.json": {
+   "bytes": 9714,
+   "sha256": "b9304e74814ea6f9cd4bb4193d1726f8fd04c92b9163bff8d17ea78fb29d6569",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-69206"
+  },
+  "reactome_query_R-HSA-72086.json": {
+   "bytes": 14103,
+   "sha256": "16a16da5c396b3972abb341a1f3ec66825b2bf761464f7aa63580750816e89a8",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-72086"
+  },
+  "reactome_query_R-HSA-73817.json": {
+   "bytes": 19036,
+   "sha256": "a206bd80569b5465c2e31c61824eadf59df4c8ba45b467b42d3ddadd44adb882",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-73817"
+  },
+  "reactome_query_R-HSA-8963684.json": {
+   "bytes": 9684,
+   "sha256": "600e4f8b55be5c980d779a0ef038a6537adb7e62506f6c5f8426207f0454a195",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-8963684"
+  },
+  "reactome_query_R-HSA-9037628.json": {
+   "bytes": 7627,
+   "sha256": "cc98beb570abf767ebfbcc7cac5400643f88299ad9dddfbd8d5c9b338e8c819b",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-9037628"
+  },
+  "reactome_query_R-HSA-9603505.json": {
+   "bytes": 4678,
+   "sha256": "256adc5a8018fe7460480007e10c6775c8a505b36531990ace3062a33232323a",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-9603505"
+  },
+  "reactome_query_R-HSA-9664407.json": {
+   "bytes": 4114,
+   "sha256": "19e5c6a0c2b3138219037cc2990a43bcca0a72f3f06ba6879e15915d31a77667",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-9664407"
+  },
+  "reactome_query_R-HSA-9683610.json": {
+   "bytes": 8464,
+   "sha256": "c53170d6b6ed4f981dbe2b9fa8daa028c0830732cbfa589c5480309b6a9ebbf5",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-9683610"
+  },
+  "reactome_query_R-HSA-9690406.json": {
+   "bytes": 17722,
+   "sha256": "1d6a5f04e6993810bd4b469738b2398a6456100e54c1b9c0fa5ca0a41bf23a92",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-9690406"
+  },
+  "reactome_query_R-HSA-9793380.json": {
+   "bytes": 9494,
+   "sha256": "5a8d4f395e7b87460fe7dc216210d2d0f09bfa1fa018540a63e367a46b6862d4",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-9793380"
+  },
+  "reactome_query_R-HSA-983189.json": {
+   "bytes": 13695,
+   "sha256": "4c583aa4adb6cb84c812890cf103fbe48be03343dd8d03443823b746f741ce82",
+   "url": "https://reactome.org/ContentService/data/query/R-HSA-983189"
+  },
+  "reactome_relation.txt": {
+   "bytes": 635604,
+   "sha256": "aa3609ee852442899b400bf4817b36311d820883ecd75259ed77531d93d8f1dc",
+   "url": "https://reactome.org/download/current/ReactomePathwaysRelation.txt"
+  },
+  "terms_go.html": {
+   "bytes": 24216,
+   "sha256": "3544396f3a878bc6eabd6de5f4224c174a4454db4e8248fbd45e89016bd06af1",
+   "url": "https://geneontology.org/docs/go-citation-policy/"
+  },
+  "terms_reactome.html": {
+   "bytes": 58869,
+   "sha256": "9655d1fb6a3e7f94c88af2a4342bfac7d83fe9c6417cf10d01385c386a87ff19",
+   "url": "https://reactome.org/license"
+  }
+ },
+ "gene_ontology": {
+  "alternate_ids": 3646,
+  "current_by_namespace": {
+   "biological_process": 23974,
+   "cellular_component": 4077,
+   "molecular_function": 10041
+  },
+  "current_with_definition": 38092,
+  "data_version": "releases/2026-07-26",
+  "definition_characters": 6153817,
+  "obsolete": 10248,
+  "terms": 48340
+ },
+ "handcheck_sample": [
+  {
+   "doi": null,
+   "go_id": "GO:0006656",
+   "go_in_record": "0006656",
+   "go_name": "phosphatidylcholine biosynthetic process",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 2,
+   "pathway": "R-HSA-1483191",
+   "pathway_name": "Synthesis of PC",
+   "release_date": "2012-06-12",
+   "summation_characters": 455,
+   "summation_start": "De novo (Kennedy pathway) synthesis of phosphatidylcholine (PC) involves phosphorylation of choline (Cho) to phosphocholine (PCho) followed by condensing with c"
+  },
+  {
+   "doi": "10.3180/R-HSA-9690406.1",
+   "go_id": "GO:0008584",
+   "go_in_record": "0008584",
+   "go_name": "male gonad development",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 15,
+   "pathway": "R-HSA-9690406",
+   "pathway_name": "Transcriptional regulation of testis differentiation",
+   "release_date": "2020-12-08",
+   "summation_characters": 2773,
+   "summation_start": "In humans, primordial germ cells (PGCs) are specified about 2 weeks after fertilization, a time before gastrulation (reviewed in Svingen and Koopman 2013, Mäkel"
+  },
+  {
+   "doi": "10.3180/REACT_6828.1",
+   "go_id": "GO:0031145",
+   "go_in_record": "0031145",
+   "go_name": "anaphase-promoting complex-dependent catabolic process",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 2,
+   "pathway": "R-HSA-174143",
+   "pathway_name": "APC/C-mediated degradation of cell cycle proteins",
+   "release_date": "2006-04-24",
+   "summation_characters": 2899,
+   "summation_start": "The Anaphase Promoting Complex or Cyclosome (APC/C) functions during mitosis to promote sister chromatid separation and mitotic exit through the degradation of "
+  },
+  {
+   "doi": "10.3180/REACT_1783.2",
+   "go_id": "GO:0000082",
+   "go_in_record": "0000082",
+   "go_name": "G1/S transition of mitotic cell cycle",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 0,
+   "pathway": "R-HSA-69206",
+   "pathway_name": "G1/S Transition",
+   "release_date": "2004-07-06",
+   "summation_characters": 779,
+   "summation_start": "Cyclin E - Cdk2 complexes control the transition from G1 into S-phase. In this case, the binding of p21Cip1/Waf1 or p27kip1 is inhibitory. Important substrates "
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0007018",
+   "go_in_record": "0007018",
+   "go_name": "microtubule-based movement",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 5,
+   "pathway": "R-HSA-983189",
+   "pathway_name": "Kinesins",
+   "release_date": "2010-12-14",
+   "summation_characters": 309,
+   "summation_start": "Kinesins are a superfamily of microtubule-based motor proteins that have diverse functions in transport of vesicles, organelles and chromosomes, and regulate mi"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:2001241",
+   "go_in_record": "2001241",
+   "go_name": "positive regulation of extrinsic apoptotic signaling pathway in absence of ligand",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 2,
+   "pathway": "R-HSA-9603505",
+   "pathway_name": "NTRK3 as a dependence receptor",
+   "release_date": "2018-06-12",
+   "summation_characters": 646,
+   "summation_start": "When neuronal cells are deprived of the NTRK3 (TRKC) ligand NTF3 (NT-3), NTRK3 functions as a dependence receptor, promoting apoptosis. The pro-apoptotic activi"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0000122",
+   "go_in_record": "0000122",
+   "go_name": "negative regulation of transcription by RNA polymerase II",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 13,
+   "pathway": "R-HSA-2173795",
+   "pathway_name": "Downregulation of SMAD2/3:SMAD4 transcriptional activity",
+   "release_date": "2012-06-12",
+   "summation_characters": 2254,
+   "summation_start": "Transcriptional activity of SMAD2/3:SMAD4 heterotrimer can be inhibited by formation of a complex with SKI or SKIL (SNO), where SKI or SKIL recruit NCOR and pos"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0006572",
+   "go_in_record": "0006572",
+   "go_name": "L-tyrosine catabolic process",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 2,
+   "pathway": "R-HSA-8963684",
+   "pathway_name": "Tyrosine catabolism",
+   "release_date": "2004-07-06",
+   "summation_characters": 370,
+   "summation_start": "Cytosolic tyrosine is transaminated to form 3-(4-hydroxyphenyl)pyruvate which in four further reactions is converted to fumarate and acetoacetate. Tyrosine is t"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0007268",
+   "go_in_record": "0007268",
+   "go_name": "chemical synaptic transmission",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 1,
+   "pathway": "R-HSA-451307",
+   "pathway_name": "Activation of Na-permeable kainate receptors",
+   "release_date": "2010-03-16",
+   "summation_characters": 602,
+   "summation_start": "Kainate receptors that are formed by subunits GRIK1 and or GRIK2 that are edited at the Q/R and other editing sites in GRIK2 are Ca2+ impermeable. They permit t"
+  },
+  {
+   "doi": "10.3180/REACT_200788.1",
+   "go_id": "GO:0007005",
+   "go_in_record": "0007005",
+   "go_name": "mitochondrion organization",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 17,
+   "pathway": "R-HSA-1592230",
+   "pathway_name": "Mitochondrial biogenesis",
+   "release_date": "2014-03-12",
+   "summation_characters": 1805,
+   "summation_start": "Mitochondrial biogenesis and remodeling occur in response to exercise and redox state (reviewed in Scarpulla et al. 2012, Handy and Loscalzo 2012, Piantadosi an"
+  },
+  {
+   "doi": "10.3180/REACT_6145.3",
+   "go_id": "GO:0019058",
+   "go_in_record": "0019058",
+   "go_name": "viral life cycle",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 1,
+   "pathway": "R-HSA-168255",
+   "pathway_name": "Influenza Infection",
+   "release_date": "2006-01-23",
+   "summation_characters": 3222,
+   "summation_start": "For centuries influenza epidemics have plagued man; with influenza probably being the disease described by Hippocrates in 412 BC. Today it remains a major cause"
+  },
+  {
+   "doi": "10.3180/REACT_268265.1",
+   "go_id": "GO:0060271",
+   "go_in_record": "0060271",
+   "go_name": "cilium assembly",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 13,
+   "pathway": "R-HSA-5617833",
+   "pathway_name": "Cilium Assembly",
+   "release_date": "2014-12-11",
+   "summation_characters": 2739,
+   "summation_start": "Cilia are membrane-covered organelles that extend from the surface of eukaryotic cells. Cilia may be motile, such as respiratory cilia) or non-motile (such as t"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0009168",
+   "go_in_record": "0009168",
+   "go_name": "purine ribonucleoside monophosphate biosynthetic process",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 1,
+   "pathway": "R-HSA-73817",
+   "pathway_name": "Purine ribonucleoside monophosphate biosynthesis",
+   "release_date": "2004-07-06",
+   "summation_characters": 638,
+   "summation_start": "The purine ribonucleotide inosine 5'-monophosphate (IMP) is assembled on 5-phospho-alpha-D-ribose 1-diphosphate (PRPP), with atoms derived from aspartate, gluta"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0019082",
+   "go_in_record": "0019082",
+   "go_name": "viral protein processing",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 2,
+   "pathway": "R-HSA-9683610",
+   "pathway_name": "Maturation of nucleoprotein",
+   "release_date": "2020-06-10",
+   "summation_characters": 260,
+   "summation_start": "Nucleoprotein, the most abundant viral protein expressed during infection, is found in the cytosol and plasma membrane. After phosphorylation and sumoylation it"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0043043",
+   "go_in_record": "0043043",
+   "go_name": "peptide biosynthetic process",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 6,
+   "pathway": "R-HSA-9037628",
+   "pathway_name": "Rhesus blood group biosynthesis",
+   "release_date": "2019-03-20",
+   "summation_characters": 2701,
+   "summation_start": "The Rhesus (Rh) blood group system (including the Rh factor) is the second most important blood group system after the ABO blood group system. The Rh blood type"
+  },
+  {
+   "doi": "10.3180/REACT_1470.1",
+   "go_id": "GO:0006370",
+   "go_in_record": "0006370",
+   "go_name": "7-methylguanosine mRNA capping",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 4,
+   "pathway": "R-HSA-72086",
+   "pathway_name": "mRNA Capping",
+   "release_date": "2004-07-06",
+   "summation_characters": 1029,
+   "summation_start": "The 5'-ends of all eukaryotic pre-mRNAs studied thus far are converted to cap structures. The cap is thought to influence splicing of the first intron, and is b"
+  },
+  {
+   "doi": "10.3180/REACT_6359.6",
+   "go_id": "GO:0019058",
+   "go_in_record": "0019058",
+   "go_name": "viral life cycle",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 1,
+   "pathway": "R-HSA-162588",
+   "pathway_name": "Budding and maturation of HIV virion",
+   "release_date": "2013-06-11",
+   "summation_characters": 493,
+   "summation_start": "With the virus components precariously assembled on the inner leaflet of the plasma membrane, the host cell machinery is required for viral budding. The virus t"
+  },
+  {
+   "doi": "10.3180/R-HSA-9793380.1",
+   "go_id": "GO:0048341",
+   "go_in_record": "0048341",
+   "go_name": "paraxial mesoderm formation",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 4,
+   "pathway": "R-HSA-9793380",
+   "pathway_name": "Formation of paraxial mesoderm",
+   "release_date": "2022-12-07",
+   "summation_characters": 1988,
+   "summation_start": "Skeletal tissues originate from paraxial mesoderm, lateral plate mesoderm, and neural crest. Paraxial mesoderm is produced by invagination of cells through the "
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0075001",
+   "go_in_record": "0075001",
+   "go_name": "adhesion of symbiont infection structure to host",
+   "go_namespace": "biological_process",
+   "has_diagram": true,
+   "literature_references": 1,
+   "pathway": "R-HSA-9664407",
+   "pathway_name": "Parasite infection",
+   "release_date": "2020-03-17",
+   "summation_characters": 635,
+   "summation_start": "Leishmania parasites are dimorphic protozoa, being extracellular and flagellated (promastigotes) in the vector insect, and intracellular and aflagellated (amast"
+  },
+  {
+   "doi": null,
+   "go_id": "GO:0006691",
+   "go_in_record": "0006691",
+   "go_name": "leukotriene metabolic process",
+   "go_namespace": "biological_process",
+   "has_diagram": false,
+   "literature_references": 5,
+   "pathway": "R-HSA-2142691",
+   "pathway_name": "Synthesis of Leukotrienes (LT) and Eoxins (EX)",
+   "release_date": "2012-12-04",
+   "summation_characters": 830,
+   "summation_start": "Leukotrienes (LTs) are biologically active molecules formed in response to inflammatory stimuli. They cause contraction of bronchial smooth muscles, stimulation"
+  }
+ ],
+ "join_go_term_id": {
+  "by_resolution": {
+   "current": 811
+  },
+  "cited_terms_by_namespace": {
+   "biological_process": 811
+  },
+  "distinct_go_ids_cited_by_reactome": 811,
+  "not_current": [],
+  "pairs_resolving_to_a_current_term": 1022,
+  "pathway_to_go_pairs": 1022,
+  "resolved_to_a_current_go_term": 811
+ },
+ "reactome_content_service_sample": {
+  "go_accession_in_record_equals_file": 20,
+  "median_summation_characters": 830,
+  "read": 20,
+  "requested": 20,
+  "summation_characters": 27427,
+  "with_summation_text": 20
+ },
+ "reactome_pathways": {
+  "distinct_stable_ids": 23652,
+  "hierarchy_rows": 23762,
+  "human_pathways": 2889,
+  "human_top_level_pathways": 29,
+  "rows": 23652,
+  "species": 16,
+  "top_species": {
+   "Bos taurus": 1825,
+   "Gallus gallus": 1845,
+   "Homo sapiens": 2889,
+   "Mus musculus": 1849,
+   "Rattus norvegicus": 1836
+  }
+ },
+ "reactome_pathways2go_human": {
+  "distinct_go_terms": 811,
+  "distinct_pathways": 1022,
+  "human_pathways_citing_a_go_term": 1022,
+  "human_pathways_total": 2889,
+  "pathways_in_the_human_list": 1022,
+  "rows": 1022
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 26,
+  "source_bodies": 26
+ },
+ "run_date": "2026-11-25",
+ "terms": {
+  "gene_ontology": {
+   "bytes": 24216,
+   "http_status": 200,
+   "keyword_sentences": [
+    "License Gene Ontology Consortium data and data products are licensed under the Creative Commons Attribution 4.0 Unported License .",
+    "A human-readable version and explanation is available at the Creative Commons website .",
+    "For information about how to properly credit data use, please review the Creative Commons FAQ or contact the GO Helpdesk.",
+    "For example, if you are offering downloads containing GO data, have a data licensing page in your application, or refer to licensed data in your documentation, an appropriate notice may be: Gene Ontology data from the 2024-01-17 release ( DOI:10.5281/zenodo.10536401 ) is made available under the terms of the CC BY 4.0 license .",
+    "For further reading, suggest: Creative Commons Recommended Practices for Attribution Creative Commons FAQ Software GOC software and tools are under their own licenses; please see their respective homepages for further details.",
+    "The logo is subject to our use and license."
+   ],
+   "quotes": {},
+   "url": "https://geneontology.org/docs/go-citation-policy/"
+  },
+  "reactome": {
+   "bytes": 58869,
+   "http_status": 200,
+   "keyword_sentences": [
+    "This Reactome content is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0) .",
+    "For information on how to properly credit data use, please review the Creative Commons FAQ or contact the This email address is being protected from spambots.",
+    "c) Data : All data in the Reactome database and files derived from that data are licensed under the Creative Commons Public Domain Dedication (CC0) ."
+   ],
+   "quotes": {},
+   "url": "https://reactome.org/license"
+  }
+ }
+}

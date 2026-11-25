@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-23
+updated: 2026-11-25
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -4085,17 +4085,24 @@ candidates:
     evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/screening.json ]
     next_action: Pair with EASA or Transport Canada airworthiness directives that supersede or cite an FAA AD; measure on real samples. The API reports count 10000, which is a cap, not a total.
   - key: directives-easa
-    name: EASA airworthiness directives
+    name: EASA Safety Publications Tool airworthiness directive records (number, issuing authority, issue and effective dates, type-certificate holder, type, ATA chapter, supersedure, attached directive)
     category: aviation
     structuring: obligation-timeline
-    format: free-text
+    format: structured
     publisher: EASA
-    stage: PARKED
-    rights: UNKNOWN
-    sources: [ 'https://ad.easa.europa.eu/ad-list' ]
-    scores: { agent_demand: 4, rights_clarity: 2, acquisition_ease: 2, structuring_value: 5, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
-    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt ]
-    next_action: Parked - the guessed list path is 404 and the advanced-search page is HTML only; find the documented download and terms.
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://ad.easa.europa.eu/', 'https://ad.easa.europa.eu/disclaimer' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 2, structuring_value: 4, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-09-30.md, docs/sources/pipeline/evidence/2026-09-30/probe-reachability.txt, docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-25.md, docs/sources/pipeline/evidence/2026-11-22/awd_measure.py, docs/sources/pipeline/evidence/2026-11-22/awd_measure.json, docs/sources/pipeline/evidence/2026-11-25/awd_handcheck.json ]
+    terms:
+      - url: https://ad.easa.europa.eu/disclaimer
+        quote: Reproduction is authorised, provided the source is acknowledged, save where otherwise stated.
+    conditions:
+      - Acknowledge EASA as the source on every record.
+      - 'The tool also lists directives of other authorities (20 US and 12 Canadian among 100 list rows); the disclaimer is EASA''s, so serve only records EASA issued until the other authorities'' terms are read.'
+      - The tool has no bulk download; read one page at a time with pauses, and stop on repeated HTTP 500.
+    next_action: 'Reopened 2026-11-25 (PARKED on 2026-09-30 for a guessed list path that answered 404). Measured 2026-11-22: the tool states 17,487 publications; 100 list rows parsed from 5 pages, all with issue date, subject, type-certificate holder and type; 48 of 60 directive pages looked up by number resolved, all 48 with effective date, holder and type, 47 with an ATA chapter, 14 stating a supersedure; 12 lookups answered HTTP 500. The format label is now structured because the tool page gives typed fields; the directive itself is an attached PDF, which was not read. Next: retry the 12 failed lookups, page the whole list, and read the attached PDF text for 50 directives.'
   - key: food-open-food-facts
     name: Open Food Facts product search API
     category: food
@@ -13334,6 +13341,512 @@ candidates:
       - "Attribute Environment and Climate Change Canada as the licence asks."
     next_action: 'Measured 2026-11-22: one day of files (2026-11-21): 72 alerts from 5 offices, all with English and French text (median English description 296 characters), a polygon and a location geocode; 14 Alert and 58 Update; 557 references cited, 491 resolving to a file of the same day; no identifier is shared with the NWS or IPAWS sets. The Datamart keeps a rolling window of days. Next: archive each day to R2 and measure how many days the Datamart retains.'
 
+  - key: naics-census-2022-descriptions
+    name: US Census Bureau 2022 NAICS descriptions workbook (code, title, prose description with cross-references and illustrative examples)
+    category: economy
+    structuring: normalization
+    format: free-text
+    publisher: US Census Bureau
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.census.gov/naics/2022NAICS/2022_NAICS_Descriptions.xlsx
+      - https://www.census.gov/about/policies/citation.html
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/naics_handcheck.json
+    conditions:
+      - Cite the US Census Bureau and the 2022 NAICS edition.
+      - The Census citation page yielded no sentence on reuse on 2026-11-25; quote the governing terms before EVIDENCED.
+    next_action: "Measured 2026-11-25: 2,125 codes (20 sectors, 96 three-digit, 308 four-digit, 689 five-digit, 1,012 six-digit), 1,971 with a description (750,988 characters, median 302); 1,091 descriptions carry a Cross-References section and 381 list Illustrative Examples. Next: add the workbook, the index file and the 2017 to 2022 concordance to tooling/snapshots/plans.json; measure extraction of the cross-referenced codes from the description text; quote the terms."
+  - key: naics-statcan-naics-canada-2022
+    name: Statistics Canada NAICS Canada 2022 structure file (level, code, parent, class title, class definition)
+    category: economy
+    structuring: normalization
+    format: free-text
+    publisher: Statistics Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.statcan.gc.ca/en/statistical-programs/document/naics-scian-2022-structure-v1-eng.csv
+      - https://www.statcan.gc.ca/en/reference/licence
+    scores:
+      agent_demand: 3
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/naics_handcheck.json
+    terms:
+      - url: https://www.statcan.gc.ca/en/reference/licence
+        quote: "Subject to this licence, Statistics Canada grants you a worldwide, royalty-free, non-exclusive licence to: use, reproduce, publish, freely distribute, or sell the Information"
+    conditions:
+      - 'Carry the notice the licence requires: "Source: Statistics Canada, name of product, reference date. Reproduced and distributed on an "as is" basis with the permission of Statistics Canada."'
+      - Mark any value-added product "Adapted from Statistics Canada" and state that this is not an endorsement.
+    next_action: "Measured 2026-11-25: 2,059 classes (20 sectors, 99 subsectors, 323 industry groups, 694 industries, 923 Canadian industries), every one with a prose definition (538,512 characters). Next: add the English and French structure files to tooling/snapshots/plans.json and compare definitions, not only titles, for the 938 shared three- to five-digit codes."
+  - key: naics-bls-qcew-industry-titles
+    name: BLS Quarterly Census of Employment and Wages industry titles (industry code and title, including aggregate and legacy codes)
+    category: economy
+    structuring: normalization
+    format: structured
+    publisher: US Bureau of Labor Statistics
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://data.bls.gov/cew/doc/titles/industry/industry_titles.csv
+      - https://www.bls.gov/bls/linksite.htm
+    scores:
+      agent_demand: 3
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/naics_handcheck.json
+    terms:
+      - url: https://www.bls.gov/bls/linksite.htm
+        quote: You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.
+    next_action: "Measured 2026-11-25: 2,678 rows, 1,394 of them six-digit numeric codes; 991 are in the Census 2022 list (which has 1,012), and 403 are not (211111 and 212111, for example), so the file mixes editions. Next: tell the edition of each code from the Census concordances before any title is served, and add the file to tooling/snapshots/plans.json."
+  - key: naics-ecfr-sba-size-standards
+    name: "SBA small business size standards by NAICS code, as codified in 13 CFR 121.201 (eCFR: code, industry, dollar or employee standard, footnotes)"
+    category: economy
+    structuring: eligibility-criteria
+    format: structured
+    publisher: Office of the Federal Register and Government Publishing Office (eCFR)
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.ecfr.gov/api/versioner/v1/full/2026-11-23/title-13.xml?part=121&section=121.201
+      - https://www.govinfo.gov/about/policies
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 4
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/naics_handcheck.json
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: By virtue of the foregoing, public documents can generally be reprinted without legal restriction.
+    next_action: "Measured 2026-11-25 on the section as of 2026-11-23 (title last amended 2026-11-17): 252,917 characters, 1,102 table rows, 978 distinct six-digit codes with a size standard (500 in millions of dollars, 478 in employees) and 13,470 characters of footnotes. The API refuses uncompressed responses (HTTP 406 without Accept-Encoding). Next: parse the footnote exceptions, which change the standard for parts of some industries; read the eCFR site terms; add the dated section URL to tooling/snapshots/plans.json."
+  - key: pathway-reactome-pathways
+    name: Reactome pathway download files (stable id, name, species, hierarchy, pathway to GO term)
+    category: biology
+    structuring: normalization
+    format: structured
+    publisher: Reactome
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://reactome.org/download/current/ReactomePathways.txt
+      - https://reactome.org/download/current/ReactomePathwaysRelation.txt
+      - https://reactome.org/download/current/Pathways2GoTerms_human.txt
+      - https://reactome.org/license
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_handcheck.json
+    terms:
+      - url: https://reactome.org/license
+        quote: All data in the Reactome database and files derived from that data are licensed under the Creative Commons Public Domain Dedication (CC0)
+    next_action: "Measured 2026-11-25: 23,652 pathways across 16 species, 2,889 human (29 top-level), 23,762 hierarchy rows; 1,022 human pathways cite a GO term (811 distinct). Release cadence was not measured. Next: add the three files plus the gene and ChEBI mapping files to tooling/snapshots/plans.json and record the release number."
+  - key: pathway-reactome-summations
+    name: Reactome pathway summations (prose description of each pathway with literature references, ContentService)
+    category: biology
+    structuring: event-extraction
+    format: free-text
+    publisher: Reactome
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://reactome.org/ContentService/data/query/R-HSA-69206
+      - https://reactome.org/license
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 3
+      structuring_value: 4
+      freshness: 3
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_handcheck.json
+    terms:
+      - url: https://reactome.org/license
+        quote: This Reactome content is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0)
+    conditions:
+      - The licence page puts data files under CC0 and other Reactome content under CC BY 4.0; treat summation text as CC BY 4.0 and attribute Reactome with the release, until the page is read in full.
+      - Literature references name authors; serve the citation identifier, not an author list.
+    next_action: "Measured 2026-11-25 on 20 seeded human pathways: all 20 records carry summation text (27,427 characters, median 830) and the same GO accession as the download file. Next: read all 2,889 human pathway records one at a time, archive them, and measure extraction of the genes, compounds and diseases named in the text against the mapping files."
+  - key: pathway-gene-ontology-terms
+    name: Gene Ontology go-basic.obo (term id, name, namespace, prose definition, relations, alternate and obsolete ids)
+    category: biology
+    structuring: normalization
+    format: structured
+    publisher: Gene Ontology Consortium
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://current.geneontology.org/ontology/go-basic.obo
+      - https://geneontology.org/docs/go-citation-policy/
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 4
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_handcheck.json
+    terms:
+      - url: https://geneontology.org/docs/go-citation-policy/
+        quote: Gene Ontology Consortium data and data products are licensed under the Creative Commons Attribution 4.0 Unported License
+    conditions:
+      - Attribute the Gene Ontology Consortium and state the release date of the data served (CC BY 4.0).
+    next_action: "Measured 2026-11-25 on release 2026-07-26: 48,340 terms, 10,248 obsolete, 38,092 current (23,974 biological process, 10,041 molecular function, 4,077 cellular component), every current term with a definition (6,153,817 characters) and 3,646 alternate ids. Next: add the file to tooling/snapshots/plans.json and carry obsolete and alternate ids as redirects, never as merges."
+  - key: mesh-nlm-descriptors
+    name: NLM Medical Subject Headings 2026 descriptor file (unique id, heading, tree numbers, entry terms, pharmacological actions)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: US National Library of Medicine
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.gz
+      - https://www.nlm.nih.gov/databases/download/terms_and_conditions_mesh.html
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_handcheck.json
+    terms:
+      - &a1
+        url: https://www.nlm.nih.gov/databases/download/terms_and_conditions_mesh.html
+        quote: "Users of the data agree to: acknowledge NLM as the source of the data in a clear and conspicuous manner, not indicate or imply that NLM has endorsed its products/services/applications."
+    conditions: &a2
+      - Acknowledge NLM as the source, clearly and conspicuously, and do not imply NLM endorsement.
+      - Serve the current MeSH year or state which MeSH version is served.
+      - Do not use the MeSH translation (MTMS) files, which these terms do not cover.
+    next_action: "Measured 2026-11-25: desc2026.gz is 16,812,612 bytes and holds 31,110 descriptors with 65,360 tree numbers across 16 categories (chemicals and drugs 10,688, diseases 5,069) and 235,902 entry terms beyond the heading. Next: add desc2026.gz, supp2026.gz and qual2026.xml to tooling/snapshots/plans.json; the 1,167 Disease Ontology references to supplementary records wait for supp2026."
+  - key: mesh-nlm-scope-notes
+    name: NLM Medical Subject Headings scope notes (prose definition of each heading, with cross-referenced headings in capitals)
+    category: health
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Library of Medicine
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.gz
+      - https://www.nlm.nih.gov/databases/download/terms_and_conditions_mesh.html
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_handcheck.json
+    terms:
+      - *a1
+    conditions: *a2
+    next_action: "Measured 2026-11-25: every one of the 31,110 descriptors has a scope note (6,133,086 characters, median 168); 1,096 notes name a year. Headings cited inside a note are written in capitals (Asthma: RESPIRATORY HYPERSENSITIVITY, INFLAMMATION, AIRWAY OBSTRUCTION). Next: measure resolution of those capitalised references to descriptor ids on 200 seeded notes, with hand-checked precision."
+  - key: mesh-disease-ontology-xrefs
+    name: Human Disease Ontology doid.obo (disease terms with definitions and cross-references to MeSH, among other vocabularies)
+    category: health
+    structuring: normalization
+    format: structured
+    publisher: Human Disease Ontology project
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/src/ontology/doid.obo
+    scores:
+      agent_demand: 3
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 4
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_handcheck.json
+    conditions:
+      - No licence text was read on 2026-11-25 (the repository README fetched names none); read the licence file and quote it before EVIDENCED, and attribute the Disease Ontology with its release.
+    next_action: "Measured 2026-11-25 on release 2026-10-29: 12,419 current terms, 10,149 with a definition, 4,014 citing a MeSH id (4,090 references: 2,923 to descriptors, 1,167 to supplementary records). Next: read the licence; add the file to tooling/snapshots/plans.json; measure the same references in Mondo, which the rare-diseases dataset already holds."
+  - key: uni-unicode-character-database
+    name: Unicode Character Database UnicodeData.txt and emoji-test.txt (code point, name, category, decomposition, emoji sequences and status)
+    category: reference
+    structuring: normalization
+    format: structured
+    publisher: Unicode Consortium
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt
+      - https://unicode.org/Public/emoji/latest/emoji-test.txt
+      - https://www.unicode.org/license.txt
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 1
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_handcheck.json
+    terms:
+      - &a3
+        url: https://www.unicode.org/license.txt
+        quote: Permission is hereby granted, free of charge, to any person obtaining a copy of data files and any associated documentation (the "Data Files") or software and any associated documentation (the "Software") to deal in the Data Files or Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, and/or sell copies of the Data Files or Software
+    conditions: &a4
+      - Keep the Unicode copyright and permission notice with the data files or in the accompanying documentation.
+      - Do not use the Unicode name or marks to promote the product.
+    next_action: "Measured 2026-11-25 on Unicode 18.0.0: 41,297 individually listed code points and 22 ranges covering 271,092 more; 5,982 with a decomposition mapping. emoji-test.txt (version 18.0): 5,244 sequences in 10 groups, 3,963 fully qualified, and all 1,460 code points in them resolve. Next: add the UCD zip and the emoji files to tooling/snapshots/plans.json, pinned to the version directory instead of latest."
+  - key: uni-unicode-names-list-annotations
+    name: Unicode NamesList.txt annotations (aliases, informative notes and cross-references written for each character)
+    category: reference
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Unicode Consortium
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt
+      - https://www.unicode.org/license.txt
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_handcheck.json
+    terms:
+      - *a3
+    conditions: *a4
+    next_action: "Measured 2026-11-25: 68,089 lines, 41,406 character entries in 367 blocks; 8,916 informative notes on 8,079 characters (259,580 characters of prose), 2,784 aliases on 2,579 characters and 4,443 cross-references on 3,104. 41,297 of the entries are in UnicodeData.txt; the other 109 were not examined. Next: explain the 109, and measure extraction of the languages and uses named in the notes on 200 seeded notes."
+  - key: uni-whatwg-named-character-references
+    name: "WHATWG HTML named character references (entities.json: entity, code points, characters)"
+    category: reference
+    structuring: normalization
+    format: structured
+    publisher: WHATWG
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://html.spec.whatwg.org/entities.json
+      - https://html.spec.whatwg.org/multipage/
+    scores:
+      agent_demand: 3
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 1
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 1
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_handcheck.json
+    conditions:
+      - The licence statement was not found on the specification page fetched on 2026-11-25; read and quote it before EVIDENCED, and attribute WHATWG.
+    next_action: "Measured 2026-11-25: 2,231 entities (2,125 ending in a semicolon), 93 mapping to two code points, 1,454 distinct code points. Next: read the licence; add entities.json to tooling/snapshots/plans.json."
+  - key: mime-iana-media-types-registry
+    name: IANA media types registry (type, subtype, template, reference, registration date)
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: IANA
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.iana.org/assignments/media-types/media-types.xml
+      - https://www.iana.org/help/licensing-terms
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 4
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_handcheck.json
+    terms:
+      - &a5
+        url: https://www.iana.org/help/licensing-terms
+        quote: Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication
+    conditions:
+      - 1,724 records cite a person as the reference; serve the RFC or organisation reference and leave personal names out.
+    next_action: "Measured 2026-11-25 on the registry updated 2026-11-18: 2,391 records in 10 top-level types (application 1,830, audio 166, text 110, video 97, image 89), every one with a template file, 650 citing an RFC, 954 with a registration date and 32 marked obsolete or deprecated. Next: add the XML to tooling/snapshots/plans.json and record registrations and deprecations as dated events."
+  - key: mime-iana-registration-templates
+    name: "IANA media type registration templates (free-text form per media type: parameters, encoding, security and interoperability considerations, file extensions, intended usage)"
+    category: software
+    structuring: identifier-extraction
+    format: free-text
+    publisher: IANA
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.iana.org/assignments/media-types/application/vnd.oai.workflows+json
+      - https://www.iana.org/help/licensing-terms
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 3
+      structuring_value: 5
+      freshness: 3
+      low_onboarding_cost: 4
+      poor_existing_access: 4
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_handcheck.json
+    terms:
+      - *a5
+    conditions:
+      - Templates carry a contact line with a person and an email address (19 of 20 sampled); never store or serve that line.
+      - Some templates are the text of an RFC or of a third-party specification; the CC0 statement covers only rights IANA and the IETF hold, so serve extracted facts (extensions, parameters) and not the template text until that is settled.
+    next_action: "Measured 2026-11-25 on 20 seeded templates: all 20 read (102,636 characters, median 1,984), all state the subtype and a security-considerations section, 17 a file-extension line, 19 a contact line. Next: fetch all 2,391 one at a time, archive them, and measure deterministic extraction of file extensions, required parameters and intended usage with hand-checked precision."
+  - key: mime-jshttp-mime-db
+    name: jshttp mime-db (media type to source, file extensions, compressible flag and charset, compiled from IANA, Apache and nginx)
+    category: software
+    structuring: normalization
+    format: structured
+    publisher: jshttp project
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/db.json
+      - https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/LICENSE
+    scores:
+      agent_demand: 3
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 1
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 1
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_handcheck.json
+    terms:
+      - url: https://cdn.jsdelivr.net/gh/jshttp/mime-db@master/LICENSE
+        quote: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files
+    conditions:
+      - "MIT licence: keep the copyright notice and the permission notice with any copy of the data."
+      - The extension lists come from Apache and nginx configuration files; record the per-entry source and do not present an extension as an IANA registration.
+    next_action: "Measured 2026-11-25: 2,601 entries (2,215 attributed to IANA, 275 to Apache, 13 to nginx, 98 with no source), 1,025 with extensions (1,302 extensions), 846 with a compressible flag. 7 entries attributed to IANA are not in the registry today (application/font-woff, text/directory and others). Next: pin a tagged release instead of master and add it to tooling/snapshots/plans.json."
+  - key: widen-hc-cannabis-recalls
+    name: Health Canada cannabis and controlled-substance recall notices (rows of the recalls open-data index under "Controlled substances and cannabis")
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json
+      - https://open.canada.ca/en/open-government-licence-canada
+    scores:
+      agent_demand: 3
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 4
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/widen_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/widen_measure.json
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.
+    conditions:
+      - Attribute with "Contains information licensed under the Open Government Licence – Canada" and link the licence.
+      - Never republish the "What you should do" text (contact details).
+      - Use only the open-data resource for served facts; the notice pages were read for screening only. Say Data Foundry is not endorsed by Health Canada.
+      - "Cannabis is an age-restricted product: decide under rule 8 whether these notices get public pages before any is indexed."
+    next_action: "Measured 2026-11-25: 104 rows (Cannabis 95, Consumer products 5, Drugs 3, Household items 1), last updated 2018-11-30 to 2026-11-23, 99 with an Issue value (Labelling and packaging 70, Suspected quality concern 10, Microbial contamination 7), 83 titles naming a lot. On 12 seeded notice pages all 12 have an affected-products table with a lot-number column and state units sold; 9 state THC or CBD values. None of 10 sampled notices is served by our pages (HTTP 404). Capture: the sync already archives the whole index in R2 on every run, so the raw rows are preserved; only serving is missing. Next: extend the Health Canada rights record to this slice and decide where it is served (the consumer-product dataset filters on one organisation value)."
+
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -14283,7 +14796,14 @@ datasets:
       - hk-cfs-food-alerts-datagovhk
       - widen-uk-mhra-drug-device-alerts
       - fda-openfda-device-recalls
+      - widen-hc-cannabis-recalls
     join_keys:
+      - key: Health Canada index NID shared between the cannabis rows and the food and health rows (same file and publisher, not an independent link)
+        between:
+          - widen-hc-cannabis-recalls
+          - ca-recalls-food-health-open-data
+        measured: '0/104 cannabis and controlled-substance rows share a NID with any other row of the index: they are further notices of the same register, not second copies, and no notice-to-notice link was found (evidence/2026-11-25/widen_measure.json)'
+        mode: candidate
       - key: FDA recall number (openFDA device recall product_res_number vs device enforcement recall_number; same publisher, not an independent link)
         between:
           - fda-openfda-device-recalls
@@ -17811,3 +18331,296 @@ datasets:
     scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 3, poor_existing_access: 3 }
     evidence: [ docs/sources/pipeline/research-2026-11-22.md, docs/sources/pipeline/research-2026-11-23.md, docs/sources/pipeline/evidence/2026-11-22/alert_measure.py, docs/sources/pipeline/evidence/2026-11-22/alert_measure.json, docs/sources/pipeline/evidence/2026-11-22/alert_handcheck.json ]
     next_action: 'Write the personal-data exclusion for missing-person and abduction alerts before any IPAWS record is stored for serving; read the OpenFEMA terms from another egress; start polling and archiving NWS and ECCC alerts to R2, because both keep only a short window; add MeteoAlarm and the UK Met Office warnings as members.'
+
+  - key: industry-classification-codes
+    name: "Industry classification codes: NAICS United States and Canada, with BLS titles and SBA size standards"
+    category: economy
+    entity: "industry class, identified by its NAICS code and edition: title, prose definition, cross-references to other classes, illustrative examples, parent class, and the SBA small business size standard that applies to it"
+    stage: SCREENED
+    description: "One record per NAICS class. The Census Bureau workbook gives the US definition, Statistics Canada the Canadian one, the BLS file the titles used in employment statistics, and 13 CFR 121.201 the size standard for each six-digit industry. Measured: all 978 codes in the size-standards table are in the Census 2022 list, 991 of 1,394 BLS six-digit codes are, and 938 of 1,096 US three- to five-digit codes exist in NAICS Canada."
+    sources:
+      - naics-census-2022-descriptions
+      - naics-statcan-naics-canada-2022
+      - naics-bls-qcew-industry-titles
+      - naics-ecfr-sba-size-standards
+    join_keys:
+      - key: NAICS code (six-digit code in the SBA size-standards table of 13 CFR 121.201 vs the Census 2022 NAICS list)
+        between:
+          - naics-ecfr-sba-size-standards
+          - naics-census-2022-descriptions
+        measured: 978/978 codes in the size-standards table are in the Census 2022 list, 952 with an identical industry heading; 34 Census six-digit codes have no size standard; 20/20 read pairs are the same industry (evidence/2026-11-25/naics_handcheck.json)
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: NAICS code (BLS QCEW six-digit industry code vs the Census 2022 NAICS list)
+        between:
+          - naics-bls-qcew-industry-titles
+          - naics-census-2022-descriptions
+        measured: 991/1,394 BLS six-digit codes are in the Census 2022 list (which has 1,012); the other 403 are not in the 2022 edition, so the edition must be resolved before a link is used
+        mode: declared
+      - key: NAICS code at three to five digits (Census 2022 vs NAICS Canada 2022; the two national editions can differ, so reviewed)
+        between:
+          - naics-census-2022-descriptions
+          - naics-statcan-naics-canada-2022
+        measured: 938/1,096 US three- to five-digit codes exist in NAICS Canada 2022, 763 with an identical heading after case and punctuation are removed; at six digits only 492 of 1,012 do; 20/20 read pairs are the same class
+        mode: candidate
+        reviewed:
+          correct: 20
+          checked: 20
+    taxonomy:
+      - "level: sector | subsector | industry group | industry | national industry"
+      - "edition: NAICS 2022 United States | NAICS 2022 Canada | earlier edition"
+      - "size standard basis: annual receipts | number of employees | none"
+      - "description part: definition | cross-reference | illustrative example"
+    agent_questions:
+      - "What does NAICS 311811 cover, and which neighbouring codes does its definition send me to? (measured: 1,971 of 2,125 codes have a description, 1,091 with cross-references)"
+      - "Is a firm in this industry a small business, and is the test receipts or employees? (measured: 978 six-digit codes with a standard, 500 in dollars and 478 in employees)"
+      - "Does this US industry code mean the same in Canada? (measured: 938 of 1,096 three- to five-digit codes exist in both; 492 of 1,012 at six digits)"
+      - "Is this six-digit code from the current edition? (measured: 403 of 1,394 BLS six-digit codes are not in the 2022 list)"
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/naics_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/naics_handcheck.json
+    next_action: Add the four files and the Census concordances to tooling/snapshots/plans.json; parse the 13 CFR 121.201 footnotes; quote the Census terms; add NAICS Mexico (INEGI SCIAN), ISIC Rev. 4 (UN) and NACE Rev. 2.1 (Eurostat) with their official correspondence tables as further members.
+  - key: biological-pathways
+    name: "Biological pathways: Reactome pathways with their descriptions, linked to Gene Ontology processes"
+    category: biology
+    entity: "biological pathway, identified by its Reactome stable id: name, species, place in the pathway hierarchy, prose summation with literature references, and the Gene Ontology biological process it is annotated with"
+    stage: SCREENED
+    description: "One record per pathway. Reactome download files give the pathway, its species and hierarchy; the ContentService record gives the prose summation; the Gene Ontology file gives the process term the pathway cites. Measured: 1,022 of 2,889 human pathways cite a GO term, and all 811 distinct ids resolve to a current term."
+    sources:
+      - pathway-reactome-pathways
+      - pathway-reactome-summations
+      - pathway-gene-ontology-terms
+    join_keys:
+      - key: GO term id cited by a Reactome pathway (Pathways2GoTerms_human vs go-basic.obo)
+        between:
+          - pathway-reactome-pathways
+          - pathway-gene-ontology-terms
+        measured: 811/811 distinct GO ids cited by 1,022 human pathways resolve to a current, non-obsolete biological-process term; 20/20 read pairs describe the pathway's process or a broader one, 9 of them the same process
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: Reactome stable id (download file vs ContentService record; same publisher, not an independent link)
+        between:
+          - pathway-reactome-pathways
+          - pathway-reactome-summations
+        measured: 20/20 seeded human pathways answer in the ContentService with summation text and the same GO accession as the download file
+        mode: candidate
+        reviewed:
+          correct: 20
+          checked: 20
+    taxonomy:
+      - species (16 in the pathway list)
+      - "hierarchy level: top-level pathway | sub-pathway"
+      - "GO namespace of the annotation: biological process"
+      - "relation of the GO term to the pathway: same process | broader process"
+    agent_questions:
+      - "What happens in this pathway, in a paragraph, and which papers support it? (measured: 20 of 20 sampled records carry a summation, median 830 characters)"
+      - "Which Gene Ontology process is this pathway annotated with? (measured: 1,022 of 2,889 human pathways cite one)"
+      - "Which pathways sit under this top-level pathway? (measured: 23,762 hierarchy rows, 29 human top-level pathways)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 3
+      freshness: 3
+      low_onboarding_cost: 4
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/pathway_handcheck.json
+    next_action: Read every human pathway record and archive it; add the Reactome gene, protein and ChEBI mapping files; add WikiPathways and the GO annotation file as members; measure the stable-id join as a declared link once an allow-list phrase for it is agreed.
+  - key: medical-subject-headings
+    name: "Medical subject headings: NLM MeSH descriptors and scope notes, linked to Disease Ontology terms"
+    category: health
+    entity: "subject heading, identified by its MeSH unique id: heading, tree numbers, entry terms, prose scope note, and the disease ontology terms that cite it"
+    stage: SCREENED
+    description: "One record per MeSH descriptor. The NLM descriptor file gives the heading, its place in the tree and its entry terms; the scope note is its prose definition; the Disease Ontology cites MeSH ids as cross-references. Measured: all 2,923 descriptor ids cited by the Disease Ontology resolve in the 2026 file. Of 20 read pairs, 15 are the same concept and 5 point at a broader heading."
+    sources:
+      - mesh-nlm-descriptors
+      - mesh-nlm-scope-notes
+      - mesh-disease-ontology-xrefs
+    join_keys:
+      - key: MeSH unique id cited as a cross-reference by a Disease Ontology term
+        between:
+          - mesh-disease-ontology-xrefs
+          - mesh-nlm-descriptors
+        measured: 2,923/2,923 descriptor ids cited by Disease Ontology terms resolve in the 2026 descriptor file (2,569 distinct descriptors, 2,920 in the disease or psychiatry trees); 1,167 further references cite supplementary records and were not checked; 20/20 read pairs are the same or a broader disease concept, 15 the same
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+    taxonomy:
+      - "tree category (16: anatomy, organisms, diseases, chemicals and drugs, and others)"
+      - "descriptor class: topical | publication type | check tag | geographic"
+      - "cross-reference relation: same concept | broader heading"
+      - "record kind: descriptor | supplementary record"
+    agent_questions:
+      - "What does this MeSH heading mean, and which headings does its scope note refer to? (measured: 31,110 of 31,110 descriptors have a scope note)"
+      - "Which MeSH heading should I search PubMed with for this disease term? (measured: 4,014 of 12,419 Disease Ontology terms cite a MeSH id)"
+      - "Where does this heading sit in the tree, and what are its entry terms? (measured: 235,902 entry terms beyond the headings)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mesh_handcheck.json
+    next_action: Add the descriptor, supplementary and qualifier files to tooling/snapshots/plans.json; check the 1,167 supplementary-record references; read the Disease Ontology licence; add the MeSH ids cited by Mondo and by the HPO, which the registry already holds.
+  - key: unicode-characters
+    name: "Unicode characters: the character database with its annotations, emoji sequences and HTML named character references"
+    category: reference
+    entity: "character, identified by its Unicode code point: name, general category, decomposition, aliases, informative notes, cross-references, emoji status, and the HTML entities that produce it"
+    stage: SCREENED
+    description: "One record per code point. UnicodeData.txt gives the character properties, NamesList.txt the aliases and notes written for it, emoji-test.txt its emoji sequences, and the WHATWG table the HTML entities that cite it. Measured: all 1,454 code points cited by the 2,231 HTML entities resolve in Unicode 18.0.0, and 922 of them carry an annotation."
+    sources:
+      - uni-unicode-character-database
+      - uni-unicode-names-list-annotations
+      - uni-whatwg-named-character-references
+    join_keys:
+      - key: Unicode code point cited by an HTML character reference entity (entities.json vs UnicodeData.txt)
+        between:
+          - uni-whatwg-named-character-references
+          - uni-unicode-character-database
+        measured: 1,454/1,454 distinct code points cited by 2,231 entities resolve in UnicodeData.txt for Unicode 18.0.0; 20/20 read entities denote the character at the cited code point
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: Unicode code point (annotation file entry vs UnicodeData.txt; same publisher, not an independent link)
+        between:
+          - uni-unicode-names-list-annotations
+          - uni-unicode-character-database
+        measured: 41,297/41,406 NamesList entries are individually listed in UnicodeData.txt; the other 109 were not examined
+        mode: declared
+    taxonomy:
+      - general category (letter, mark, number, punctuation, symbol, separator, other)
+      - "annotation kind: alias | informative note | cross-reference | decomposition | variation sequence"
+      - "emoji status: fully-qualified | minimally-qualified | unqualified | component"
+      - "entity form: with semicolon | legacy without semicolon"
+    agent_questions:
+      - "Which character is this code point, and what is it used for? (measured: 8,916 informative notes on 8,079 characters)"
+      - "Which HTML entity produces this character, and is the form without a semicolon valid? (measured: 2,231 entities, 2,125 with a semicolon)"
+      - "Which characters is this one easily confused with or related to? (measured: 4,443 cross-references on 3,104 characters)"
+      - "Is this emoji sequence fully qualified? (measured: 5,244 sequences, 3,963 fully qualified)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/unicode_handcheck.json
+    next_action: Pin every file to the Unicode version directory and add them to tooling/snapshots/plans.json; read the WHATWG licence; add the CLDR annotations (short names and keywords per language) and the confusables file as members.
+  - key: media-types
+    name: "Media types: the IANA registry and registration templates, with file extensions from mime-db"
+    category: software
+    entity: "media type, identified by its registered type and subtype: registration reference and date, required and optional parameters, security considerations, file extensions, intended usage, and whether it is obsolete or deprecated"
+    stage: SCREENED
+    description: "One record per media type. The IANA registry lists each registered type with its reference; the registration template is the free-text form that states parameters, security considerations and file extensions; mime-db adds extensions and a compressible flag from Apache and nginx. Measured: 2,208 of the 2,215 mime-db entries attributed to IANA are in the registry, and 700 of them carry a file extension."
+    sources:
+      - mime-iana-media-types-registry
+      - mime-iana-registration-templates
+      - mime-jshttp-mime-db
+    join_keys:
+      - key: IANA media type string (type/subtype) that a mime-db entry attributes to IANA
+        between:
+          - mime-jshttp-mime-db
+          - mime-iana-media-types-registry
+        measured: 2,208/2,215 mime-db entries attributed to IANA are in the IANA registry of 2026-11-18, compared without regard to case; the registry holds 2,391 records, 2,231 of them in mime-db; 20/20 read registration templates register the same type
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+    taxonomy:
+      - "top-level type: application | audio | font | haptics | image | message | model | multipart | text | video"
+      - "structured syntax suffix: +json | +xml | +zip | +cbor | other | none"
+      - "status: current | obsolete | deprecated"
+      - "source of a file extension: IANA template | Apache | nginx"
+    agent_questions:
+      - "Is this media type registered with IANA, and under which RFC or organisation? (measured: 2,391 records, 650 citing an RFC)"
+      - "Which file extensions go with this media type, and who says so? (measured: 1,025 mime-db entries with extensions; 17 of 20 sampled templates state one)"
+      - "What are the security considerations for accepting this type? (measured: 20 of 20 sampled templates have that section)"
+      - "Is this type obsolete or deprecated? (measured: 32 records are marked)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 4
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.py
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/mediatype_handcheck.json
+    next_action: Fetch and archive every registration template; measure extraction of extensions, parameters and intended usage; settle which template text may be served; add the Apache httpd mime.types file and the WHATWG MIME Sniffing table as members.
+  - key: airworthiness-directives
+    name: "Airworthiness directives: FAA final rules linked to the EASA directives they adopt"
+    category: aviation
+    entity: "airworthiness directive, identified by its authority and AD number: affected manufacturer and aircraft or engine type, effective date, compliance actions and times, the directives it supersedes, and the foreign directive it adopts"
+    stage: SCREENED
+    description: "One record per directive. FAA directives are read from the Federal Register API and GovInfo text; EASA directives from the EASA Safety Publications Tool. The link is the EASA AD number an FAA directive cites. Measured on 2026-11-22: 74 of 150 FAA directives cite an EASA AD, and 48 of 60 looked-up numbers resolved (the other 12 lookups answered HTTP 500). Hand check 2026-11-25: 20 of 20 pairs name the same manufacturer and type."
+    sources:
+      - faa-airworthiness-directives
+      - directives-easa
+    join_keys:
+      - key: EASA AD number cited in the text of an FAA airworthiness directive
+        between:
+          - faa-airworthiness-directives
+          - directives-easa
+        measured: 48/60 EASA AD numbers cited by FAA directives of 2026-06-16 to 2026-11-20 resolve to an EASA tool page stating that number (12 lookups answered HTTP 500); 20/20 read pairs name the same type-certificate holder and aircraft or engine type, and 14 of the 15 with a comparable subject line describe the same defect (evidence/2026-11-25/awd_handcheck.json)
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+    taxonomy:
+      - "issuing authority: FAA | EASA | Transport Canada | other"
+      - "product: airplane | helicopter | engine | propeller | glider | appliance"
+      - "action: inspection | modification | replacement | flight manual revision | airworthiness limitation"
+      - "status: current | superseded | emergency"
+    agent_questions:
+      - "Which airworthiness directives apply to this aircraft type, and when must each be complied with? (measured: 150 of 150 FAA directives have an applicability paragraph; 188 numeric compliance-time phrases)"
+      - "Which EASA directive does this FAA directive adopt? (measured: 74 of 150 cite one)"
+      - "Has this directive been superseded? (measured: 47 of 150 FAA directives name one they supersede; 14 of 48 EASA pages state a supersedure)"
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 3
+      structuring_value: 5
+      freshness: 5
+      low_onboarding_cost: 3
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-25.md
+      - docs/sources/pipeline/research-2026-11-22.md
+      - docs/sources/pipeline/evidence/2026-11-22/awd_measure.py
+      - docs/sources/pipeline/evidence/2026-11-22/awd_measure.json
+      - docs/sources/pipeline/evidence/2026-11-25/awd_handcheck.json
+    next_action: "Retry the 12 EASA lookups that answered HTTP 500 and find out whether those directives are withdrawn; measure extraction of compliance times and applicability with hand-checked precision on 200 directives; add the Federal Register query and the GovInfo text to tooling/snapshots/plans.json. Transport Canada CAWIS stays out: its robots.txt disallows everything."

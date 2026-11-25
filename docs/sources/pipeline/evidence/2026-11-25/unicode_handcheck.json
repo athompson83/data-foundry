@@ -1,0 +1,152 @@
+{
+ "checked_on": "2026-11-25",
+ "method": "20 single-code-point HTML named character references drawn with seed 20261125 by unicode_measure.py; the entity name was read against the Unicode character name and NamesList annotations of the code point it cites.",
+ "checked": 20,
+ "entity_denotes_the_cited_character": 20,
+ "note": "All 20 entity names are consistent with the character at the cited code point (&Ucirc; / LATIN CAPITAL LETTER U WITH CIRCUMFLEX; &hbar; / PLANCK CONSTANT OVER TWO PI; &Del; / NABLA; &kcy; / CYRILLIC SMALL LETTER KA). Two entities can cite one code point (&trianglelefteq; and &LeftTriangleEqual; both U+22B4), so the code point links an entity to a character, never two entities to each other.",
+ "pairs": [
+  {
+   "annotations": [
+    "varies with (proportional to)",
+    "difference between"
+   ],
+   "code_point": "U+223C",
+   "entity": "&sim;",
+   "unicode_name": "TILDE OPERATOR"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22B4",
+   "entity": "&trianglelefteq;",
+   "unicode_name": "NORMAL SUBGROUP OF OR EQUAL TO"
+  },
+  {
+   "annotations": [
+    "(reverse solidus - 005C)",
+    "(mathematical falling diagonal - 27CD)"
+   ],
+   "code_point": "U+2216",
+   "entity": "&Backslash;",
+   "unicode_name": "SET MINUS"
+  },
+  {
+   "annotations": [
+    "(nand - 22BC)"
+   ],
+   "code_point": "U+2305",
+   "entity": "&barwedge;",
+   "unicode_name": "PROJECTIVE"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+2A97",
+   "entity": "&elsdot;",
+   "unicode_name": "SLANTED EQUAL TO OR LESS-THAN WITH DOT INSIDE"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+043A",
+   "entity": "&kcy;",
+   "unicode_name": "CYRILLIC SMALL LETTER KA"
+  },
+  {
+   "annotations": [
+    "0055 0302"
+   ],
+   "code_point": "U+00DB",
+   "entity": "&Ucirc;",
+   "unicode_name": "LATIN CAPITAL LETTER U WITH CIRCUMFLEX"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+231D",
+   "entity": "&urcorn;",
+   "unicode_name": "TOP RIGHT CORNER"
+  },
+  {
+   "annotations": [
+    "backward difference",
+    "gradient, del"
+   ],
+   "code_point": "U+2207",
+   "entity": "&Del;",
+   "unicode_name": "NABLA"
+  },
+  {
+   "annotations": [
+    "reduced Planck constant, Dirac constant",
+    "(cyrillic small letter tshe - 045B)"
+   ],
+   "code_point": "U+210F",
+   "entity": "&hbar;",
+   "unicode_name": "PLANCK CONSTANT OVER TWO PI"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+2AD1",
+   "entity": "&csube;",
+   "unicode_name": "CLOSED SUBSET OR EQUAL TO"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+03A6",
+   "entity": "&Phi;",
+   "unicode_name": "GREEK CAPITAL LETTER PHI"
+  },
+  {
+   "annotations": [
+    "2203 0338"
+   ],
+   "code_point": "U+2204",
+   "entity": "&nexists;",
+   "unicode_name": "THERE DOES NOT EXIST"
+  },
+  {
+   "annotations": [
+    "proper intersection"
+   ],
+   "code_point": "U+22D4",
+   "entity": "&fork;",
+   "unicode_name": "PITCHFORK"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22E8",
+   "entity": "&prnsim;",
+   "unicode_name": "PRECEDES BUT NOT EQUIVALENT TO"
+  },
+  {
+   "annotations": [
+    "(circled dot operator - 2299)",
+    "(fisheye - 25C9)"
+   ],
+   "code_point": "U+2A00",
+   "entity": "&xodot;",
+   "unicode_name": "N-ARY CIRCLED DOT OPERATOR"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22B4",
+   "entity": "&LeftTriangleEqual;",
+   "unicode_name": "NORMAL SUBGROUP OF OR EQUAL TO"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+29AC",
+   "entity": "&angmsdae;",
+   "unicode_name": "MEASURED ANGLE WITH OPEN ARM ENDING IN ARROW POINTING RIGHT AND UP"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+231D",
+   "entity": "&urcorner;",
+   "unicode_name": "TOP RIGHT CORNER"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22BF",
+   "entity": "&lrtri;",
+   "unicode_name": "RIGHT TRIANGLE"
+  }
+ ]
+}

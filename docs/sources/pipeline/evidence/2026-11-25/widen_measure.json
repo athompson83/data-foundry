@@ -1,0 +1,338 @@
+{
+ "fetched": {
+  "hc_index.json": {
+   "bytes": 15903678,
+   "sha256": "989273f384e0e5dc967da8ab0ffe542b13d306446538dc2c5cfa171afb9ef76c",
+   "url": "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json?scout=20261125w"
+  },
+  "hc_notice_58581.html": {
+   "bytes": 26454,
+   "sha256": "18c79f2325fd431acf55760f14fc75ed8ebeb4aaecfb717639534cf9c9844197",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/cannabis-inc-recalls-one-lot-eldo-dried-cannabis"
+  },
+  "hc_notice_58692.html": {
+   "bytes": 28858,
+   "sha256": "a2a1f0d93d2046217f47f636c9e9b8b21f7867e9ae6f628c4fc1944a0c295132",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/tweed-inc-recalls-one-lot-lbs-sunset-indica-dried-cannabis"
+  },
+  "hc_notice_61987.html": {
+   "bytes": 29293,
+   "sha256": "e2864fd026b4a7061ee842c839ba27c7e54ad582afe5758f605c0e2d809737d7",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/agro-greens-natural-products-ltd-recalls-one-lot-north-40-black-cherry-punch-dried"
+  },
+  "hc_notice_62259.html": {
+   "bytes": 27741,
+   "sha256": "5d7e87b4fb46e691c95947478d7410cb8beb0f30d27a6f8284a45660fb04ce8e",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/mediwanna-recalls-one-lot-elios-pink-lemonade-dried-cannabis-pre-rolls"
+  },
+  "hc_notice_62944.html": {
+   "bytes": 28322,
+   "sha256": "fd13e2f58b475cca59588150e53314fa41538f919984e5770264ed37347c2703",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/trichome-jwc-acquisition-corp-dba-jwc-recalls-one-lot-wagners-blue-lime-pie-dried"
+  },
+  "hc_notice_64410.html": {
+   "bytes": 41487,
+   "sha256": "c69f7c9773bb57a11ca25fbfeef941d7992892c6885f2eb1629401e94d769e6f",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/purileaf-brands-corporation-recalls-eight-lots-nightnight-pomegranate-sunset-cbncbd"
+  },
+  "hc_notice_72671.html": {
+   "bytes": 44743,
+   "sha256": "2f4b9ba86136151acecd7ebc72cef6355386f2fc40d9948be09563f8e8d0663c",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/peace-naturals-project-inc-recalls-two-lots-spinach-gmo-cookies-dried-cannabis-pre"
+  },
+  "hc_notice_73779.html": {
+   "bytes": 51727,
+   "sha256": "d97e2cdfeddfa97f7e50f53e6082228e79edf3d3db3c7f2a17b5decae37adee3",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/aaron-s-bcbud-inc-recalls-one-lot-lindsay-og-dried-cannabis-and-one-lot-island-mku"
+  },
+  "hc_notice_74759.html": {
+   "bytes": 39039,
+   "sha256": "7dcf2bf47c76fd469c9eeb216f0afb8f170bce014144b68937ec4f200b4ed555",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/auxly-ottawa-inc-recalls-one-lot-back-forty-sativa-mandarin-cookies-dried-cannabis"
+  },
+  "hc_notice_75499.html": {
+   "bytes": 42847,
+   "sha256": "55f85d575c11b9bfc5854321039fd8ae5c8212e7bc07cea305dd58718cedb303",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/organigram-inc-recalls-one-lot-big-bag-o-buds-comboz-gmo-cookies-ultra-sour-dried"
+  },
+  "hc_notice_78168.html": {
+   "bytes": 48512,
+   "sha256": "c25c4504d86cd311c5c509d187631d274ec0de43e8a1563a191e6c96b7c29a87",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/sensi-brands-ltd-recalls-wintermint-chillows-and-cinnamon-chillows-due-product-quality"
+  },
+  "hc_notice_82393.html": {
+   "bytes": 63225,
+   "sha256": "cce6c456b4d1e65b8779117b683e1f025377f94702be3d21b623a44c43197c71",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/10392804-canada-inc-dba-sweet-vengeance-recalls-certain-edible-cannabis-products-due"
+  },
+  "terms_ogl_canada.html": {
+   "bytes": 23088,
+   "sha256": "e62c3211e4bdc94fa4b6ca6bf541749c18b468c994ccae55e32603fafe7204cd",
+   "url": "https://open.canada.ca/en/open-government-licence-canada"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2019-01-11",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": false,
+   "names_licence_holder": false,
+   "nid": "58581",
+   "page_characters": 3340,
+   "states_units_sold": true,
+   "title": "Up Cannabis Inc. recalls one lot of Eldo dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 1
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2021-10-28",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": false,
+   "names_licence_holder": false,
+   "nid": "62944",
+   "page_characters": 3208,
+   "states_units_sold": true,
+   "title": "Trichome JWC Acquisition Corp. d.b.a. JWC recalls one lot of Wagners Blue Lime Pie dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2023-02-08",
+   "lots_named_in_issue_text": 2,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "72671",
+   "page_characters": 3743,
+   "states_units_sold": true,
+   "title": "Peace Naturals Project Inc. recalls two lots of Spinach GMO Cookies dried cannabis pre-rolls",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2024-05-10",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "75499",
+   "page_characters": 3051,
+   "states_units_sold": true,
+   "title": "ORGANIGRAM Inc. recalls one lot of Big Bag o Buds CombOz GMO Cookies + Ultra Sour dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2021-03-26",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "62259",
+   "page_characters": 3043,
+   "states_units_sold": true,
+   "title": "Mediwanna recalls one lot of ELIOS Pink Lemonade dried cannabis pre-rolls",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2019-03-07",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "58692",
+   "page_characters": 3723,
+   "states_units_sold": true,
+   "title": "Tweed Inc. recalls one lot of LBS Sunset (Indica) dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2023-12-19",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "74759",
+   "page_characters": 3110,
+   "states_units_sold": true,
+   "title": "Auxly Ottawa Inc. recalls one lot of Back Forty Sativa Mandarin Cookies dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2022-07-27",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "64410",
+   "page_characters": 4537,
+   "states_units_sold": true,
+   "title": "Purileaf Brands Corporation recalls eight lots of NightNight Pomegranate Sunset CBN+CBD Shot edible cannabis d",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2021-01-07",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": false,
+   "names_licence_holder": false,
+   "nid": "61987",
+   "page_characters": 3444,
+   "states_units_sold": true,
+   "title": "Agro-Greens Natural Products Ltd. recalls one lot of North 40 Black Cherry Punch dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2025-10-02",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "78168",
+   "page_characters": 4246,
+   "states_units_sold": true,
+   "title": "Sensi Brands Ltd. recalls Wintermint Chillows and Cinnamon Chillows due to product quality issue",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2023-06-12",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "73779",
+   "page_characters": 4267,
+   "states_units_sold": true,
+   "title": "Aaron’s BCBUD Inc. recalls one lot of Lindsay OG dried cannabis and one lot of Island MKU dried cannabis",
+   "upc_or_gtin_12_to_14_digits": 0
+  },
+  {
+   "category": "Cannabis",
+   "has_affected_products_section": true,
+   "has_lot_number_column": true,
+   "last_updated": "2026-07-22",
+   "lots_named_in_issue_text": 0,
+   "mentions_thc_or_cbd": true,
+   "names_licence_holder": false,
+   "nid": "82393",
+   "page_characters": 5049,
+   "states_units_sold": true,
+   "title": "10392804 Canada Inc. d.b.a Sweet Vengeance recalls certain edible cannabis products due to undeclared milk and",
+   "upc_or_gtin_12_to_14_digits": 0
+  }
+ ],
+ "index": {
+  "archived_flag": {
+   "0": 104
+  },
+  "by_category": {
+   "Cannabis": 95,
+   "Consumer products": 5,
+   "Drugs": 3,
+   "Household items": 1
+  },
+  "by_last_updated_year": {
+   "2018": 4,
+   "2019": 14,
+   "2020": 7,
+   "2021": 21,
+   "2022": 10,
+   "2023": 11,
+   "2024": 11,
+   "2025": 12,
+   "2026": 14
+  },
+  "by_recall_class": {
+   "(blank)": 104
+  },
+  "controlled_substances_and_cannabis_rows": 104,
+  "distinct_nids": 104,
+  "issue_values": {
+   "": 5,
+   "Impact hazard - Injury hazard": 1,
+   "Labelling and packaging": 70,
+   "Microbial contamination": 7,
+   "Suspected quality concern": 10,
+   "Unauthorized product": 1,
+   "Unauthorized product - Contamination": 2,
+   "Undeclared food allergen - Labelling and packaging - Suspected quality concern": 1
+  },
+  "last_updated_range": [
+   "2018-11-30",
+   "2026-11-23"
+  ],
+  "nids_shared_with_served_rows": 0,
+  "rows": 34423,
+  "rows_served_today_consumer_product_safety": 5240,
+  "titles_naming_a_lot": 83,
+  "with_issue": 99,
+  "with_product": 61,
+  "with_what_you_should_do": 61
+ },
+ "notice_pages": {
+  "mentioning_thc_or_cbd": 9,
+  "naming_a_lot_in_the_issue_text": 1,
+  "page_characters": 44761,
+  "read": 12,
+  "requested": 12,
+  "stating_units_sold": 12,
+  "with_a_12_to_14_digit_code": 1,
+  "with_a_lot_number_column": 12,
+  "with_affected_products_section": 12
+ },
+ "our_public_pages_for_10_of_these_notices": {
+  "http_status_by_nid": {
+   "58886": 404,
+   "59759": 404,
+   "62600": 404,
+   "62906": 404,
+   "72671": 404,
+   "76951": 404,
+   "77017": 404,
+   "77712": 404,
+   "82138": 404,
+   "82187": 404
+  },
+  "served": 0
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 14,
+  "made_this_run": 10,
+  "source_bodies": 14
+ },
+ "run_date": "2026-11-25",
+ "terms": {
+  "open_government_licence_canada": {
+   "bytes": 23088,
+   "http_status": 200,
+   "keyword_sentences": [
+    "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.",
+    "You must, where you do any of the above: Acknowledge the source of the Information by including any attribution statement specified by the Information Provider(s) and, where possible, provide a link to this licence.",
+    "Exemptions This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license; the names, crests, logos, or other official symbols of the Information Provider; and Information subject to other intellectual property rights, including patents, trade-marks and official marks.",
+    "Non-endorsement This licence does not grant you any right to use the Information in a way that suggests any official status or that the Information Provider endorses you or your use of the Information."
+   ],
+   "quotes": {},
+   "url": "https://open.canada.ca/en/open-government-licence-canada"
+  }
+ }
+}

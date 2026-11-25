@@ -1,0 +1,500 @@
+{
+ "bls_qcew_industry_titles": {
+  "other_codes": 1284,
+  "rows": 2678,
+  "sample": [
+   {
+    "industry_code": "10",
+    "industry_title": "10 Total, all industries"
+   },
+   {
+    "industry_code": "101",
+    "industry_title": "101 Goods-producing"
+   },
+   {
+    "industry_code": "1011",
+    "industry_title": "1011 Natural resources and mining"
+   },
+   {
+    "industry_code": "99999",
+    "industry_title": "NAICS 99999 Unclassified"
+   },
+   {
+    "industry_code": "999999",
+    "industry_title": "NAICS 999999 Unclassified"
+   }
+  ],
+  "six_digit_numeric_codes": 1394
+ },
+ "census_naics_2022": {
+  "by_code_length": {
+   "2": 20,
+   "3": 96,
+   "4": 308,
+   "5": 689,
+   "6": 1012
+  },
+  "description_characters": 750988,
+  "descriptions_with_cross_references": 1091,
+  "descriptions_with_illustrative_examples": 381,
+  "distinct_codes": 2125,
+  "example": {
+   "code": "311811",
+   "description": "This U.S. industry comprises establishments primarily engaged in retailing bread and other bakery products not for immediate consumption made on the premises from flour, not from prepared dough.\n\nCross-References. Establishments primarily engaged in--",
+   "title": "Retail Bakeries"
+  },
+  "header": {
+   "A": "Code",
+   "B": "Title",
+   "C": "Description"
+  },
+  "median_description_characters": 302,
+  "rows": 2125,
+  "with_description": 1971
+ },
+ "ecfr_13cfr_121_201": {
+  "distinct_six_digit_codes_with_a_size_standard": 978,
+  "example": {
+   "code": "311811",
+   "employees": "500",
+   "millions_of_dollars": "",
+   "title": "Retail Bakeries"
+  },
+  "footnote_paragraph_characters": 13470,
+  "latest_amended_on": "2026-11-17",
+  "section_characters": 252917,
+  "table_rows": 1102,
+  "title_13_up_to_date_as_of": "2026-11-23",
+  "with_a_dollar_standard": 500,
+  "with_an_employee_standard": 478
+ },
+ "fetched": {
+  "bls_qcew_industry_titles.csv": {
+   "bytes": 164248,
+   "sha256": "facc122ef582f3efdbb5294f103331894d8fdab694de38e4ee7bff1b941ab8e1",
+   "url": "https://data.bls.gov/cew/doc/titles/industry/industry_titles.csv"
+  },
+  "census_2022_naics_descriptions.xlsx": {
+   "bytes": 263810,
+   "sha256": "6222c4d87dcf984970e0ff8a49862ed54b546b089d03956be3f285900cd3d66c",
+   "url": "https://www.census.gov/naics/2022NAICS/2022_NAICS_Descriptions.xlsx"
+  },
+  "ecfr_13cfr121_201.xml": {
+   "bytes": 253211,
+   "sha256": "d6845ae9605cd769c221fa3a6cf162b1050f70ffae138214dfe73a6d194b5fd2",
+   "url": "https://www.ecfr.gov/api/versioner/v1/full/2026-11-23/title-13.xml?part=121&section=121.201"
+  },
+  "ecfr_titles.json": {
+   "bytes": 8033,
+   "sha256": "f4ab489c330599c0b5e6b6f08801913eebdd2b5c33a76ddbda6673733863e8dd",
+   "url": "https://www.ecfr.gov/api/versioner/v1/titles.json"
+  },
+  "statcan_naics_2022_structure.csv": {
+   "bytes": 684721,
+   "sha256": "b141a22f08a9b825e55c7eebc49fcc842d3b2f3734a672052b7ae8fdb27eff80",
+   "url": "https://www.statcan.gc.ca/en/statistical-programs/document/naics-scian-2022-structure-v1-eng.csv"
+  },
+  "terms_bls.html": {
+   "bytes": 46844,
+   "sha256": "4083120d2f633012b0822a57d324a69a35a9dfa2ae02b74376efea9234f6f835",
+   "url": "https://www.bls.gov/bls/linksite.htm"
+  },
+  "terms_census.html": {
+   "bytes": 368895,
+   "sha256": "bebdb93f98218e896587c8b7c6732924d0084e5add27a533407305cf89cd475d",
+   "url": "https://www.census.gov/about/policies/citation.html"
+  },
+  "terms_govinfo.html": {
+   "bytes": 64169,
+   "sha256": "d9e3a2f1cb4486ab4ecc4eff640f94f9a9bb8655ca71ff00694b236e7011ad1c",
+   "url": "https://www.govinfo.gov/about/policies"
+  },
+  "terms_statcan.html": {
+   "bytes": 26451,
+   "sha256": "889f346c65c85f51d217b3a40be56b33e59e4c4788728c71080a4f18e9d26228",
+   "url": "https://www.statcan.gc.ca/en/reference/licence"
+  }
+ },
+ "handcheck_sample_sba_census": [
+  {
+   "bls_title": "NAICS 621399 Offices of all other miscellaneous health practitioners",
+   "census_title": "Offices of All Other Miscellaneous Health Practitioners",
+   "code": "621399",
+   "ecfr_row_title": "Offices of All Other Miscellaneous Health Practitioners",
+   "size_standard": "$10.0"
+  },
+  {
+   "bls_title": "NAICS 811122 Automotive glass replacement shops",
+   "census_title": "Automotive Glass Replacement Shops",
+   "code": "811122",
+   "ecfr_row_title": "Automotive Glass Replacement Shops",
+   "size_standard": "$17.5"
+  },
+  {
+   "bls_title": "NAICS 111219 Other vegetable (except potato) and melon farming",
+   "census_title": "Other Vegetable (except Potato) and Melon Farming",
+   "code": "111219",
+   "ecfr_row_title": "Other Vegetable (except Potato) and Melon Farming",
+   "size_standard": "$3.75"
+  },
+  {
+   "bls_title": "NAICS 332321 Metal window and door manufacturing",
+   "census_title": "Metal Window and Door Manufacturing",
+   "code": "332321",
+   "ecfr_row_title": "Metal Window and Door Manufacturing",
+   "size_standard": "750"
+  },
+  {
+   "bls_title": "NAICS 339116 Dental laboratories",
+   "census_title": "Dental Laboratories",
+   "code": "339116",
+   "ecfr_row_title": "Dental Laboratories",
+   "size_standard": "500"
+  },
+  {
+   "bls_title": "NAICS 455219 All other general merchandise retailers",
+   "census_title": "All Other General Merchandise Retailers",
+   "code": "455219",
+   "ecfr_row_title": "All Other General Merchandise Retailers",
+   "size_standard": "$40.0"
+  },
+  {
+   "bls_title": "NAICS 325520 Adhesive manufacturing",
+   "census_title": "Adhesive Manufacturing",
+   "code": "325520",
+   "ecfr_row_title": "Adhesive Manufacturing",
+   "size_standard": "550"
+  },
+  {
+   "bls_title": "NAICS 812990 All other personal services",
+   "census_title": "All Other Personal Services",
+   "code": "812990",
+   "ecfr_row_title": "All Other Personal Services",
+   "size_standard": "$15.0"
+  },
+  {
+   "bls_title": "NAICS 112340 Poultry hatcheries",
+   "census_title": "Poultry Hatcheries",
+   "code": "112340",
+   "ecfr_row_title": "Poultry Hatcheries",
+   "size_standard": "$4.0"
+  },
+  {
+   "bls_title": "NAICS 424710 Petroleum bulk stations and terminals",
+   "census_title": "Petroleum Bulk Stations and Terminals",
+   "code": "424710",
+   "ecfr_row_title": "Petroleum Bulk Stations and Terminals",
+   "size_standard": "225"
+  },
+  {
+   "bls_title": "NAICS 335131 Residential electric lighting fixture manufacturing",
+   "census_title": "Residential Electric Lighting Fixture Manufacturing",
+   "code": "335131",
+   "ecfr_row_title": "Residential Electric Lighting Fixture Manufacturing",
+   "size_standard": "750"
+  },
+  {
+   "bls_title": "NAICS 313320 Fabric coating mills",
+   "census_title": "Fabric Coating Mills",
+   "code": "313320",
+   "ecfr_row_title": "Fabric Coating Mills",
+   "size_standard": "1,000"
+  },
+  {
+   "bls_title": "NAICS 518210 Computing infrastructure providers, data processing, web hosting, and related services",
+   "census_title": "Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services",
+   "code": "518210",
+   "ecfr_row_title": "Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services",
+   "size_standard": "$40.0"
+  },
+  {
+   "bls_title": "NAICS 423490 Other professional equipment and supplies merchant wholesalers",
+   "census_title": "Other Professional Equipment and Supplies Merchant Wholesalers",
+   "code": "423490",
+   "ecfr_row_title": "Other Professional Equipment and Supplies Merchant Wholesalers",
+   "size_standard": "150"
+  },
+  {
+   "bls_title": "NAICS 541850 Indoor and outdoor display advertising",
+   "census_title": "Indoor and Outdoor Display Advertising",
+   "code": "541850",
+   "ecfr_row_title": "Indoor and Outdoor Display Advertising",
+   "size_standard": "$34.5"
+  },
+  {
+   "bls_title": null,
+   "census_title": "Other Building Finishing Contractors",
+   "code": "238390",
+   "ecfr_row_title": "Other Building Finishing Contractors",
+   "size_standard": "$19.0"
+  },
+  {
+   "bls_title": "NAICS 331491 Nonferrous metal (except copper and aluminum) rolling, drawing, and extruding",
+   "census_title": "Nonferrous Metal (except Copper and Aluminum) Rolling, Drawing, and Extruding",
+   "code": "331491",
+   "ecfr_row_title": "Nonferrous Metal (except Copper and Aluminum) Rolling, Drawing, and Extruding",
+   "size_standard": "900"
+  },
+  {
+   "bls_title": "NAICS 488119 Other airport operations",
+   "census_title": "Other Airport Operations",
+   "code": "488119",
+   "ecfr_row_title": "Other Airport Operations",
+   "size_standard": "$40.0"
+  },
+  {
+   "bls_title": "NAICS 621340 Offices of physical, occupational and speech therapists, and audiologists",
+   "census_title": "Offices of Physical, Occupational and Speech Therapists, and Audiologists",
+   "code": "621340",
+   "ecfr_row_title": "Offices of Physical, Occupational and Speech Therapists and Audiologists",
+   "size_standard": "$12.5"
+  },
+  {
+   "bls_title": "NAICS 541612 Human resources consulting services",
+   "census_title": "Human Resources Consulting Services",
+   "code": "541612",
+   "ecfr_row_title": "Human Resources Consulting Services",
+   "size_standard": "$29.0"
+  }
+ ],
+ "handcheck_sample_statcan_census": [
+  {
+   "census_title": "FishingT",
+   "code": "11411",
+   "statcan_title": "Fishing"
+  },
+  {
+   "census_title": "Automotive Repair and MaintenanceT",
+   "code": "8111",
+   "statcan_title": "Automotive repair and maintenance"
+  },
+  {
+   "census_title": "Sales Financing",
+   "code": "52222",
+   "statcan_title": "Sales financing"
+  },
+  {
+   "census_title": "Grantmaking and Giving Services",
+   "code": "8132",
+   "statcan_title": "Grant-making and giving services"
+  },
+  {
+   "census_title": "All Other Amusement and Recreation IndustriesT",
+   "code": "71399",
+   "statcan_title": "Other amusement and recreation industries"
+  },
+  {
+   "census_title": "Lessors of Residential Buildings and Dwellings",
+   "code": "53111",
+   "statcan_title": "Lessors of residential buildings and dwellings"
+  },
+  {
+   "census_title": "Computer TrainingT",
+   "code": "61142",
+   "statcan_title": "Computer training"
+  },
+  {
+   "census_title": "Spring and Wire Product ManufacturingT",
+   "code": "33261",
+   "statcan_title": "Spring and wire product manufacturing"
+  },
+  {
+   "census_title": "CaterersT",
+   "code": "72232",
+   "statcan_title": "Caterers"
+  },
+  {
+   "census_title": "Offices of Real Estate Agents and BrokersT",
+   "code": "53121",
+   "statcan_title": "Offices of real estate agents and brokers"
+  },
+  {
+   "census_title": "Hotels (except Casino Hotels) and MotelsT",
+   "code": "72111",
+   "statcan_title": "Hotels (except casino hotels) and motels"
+  },
+  {
+   "census_title": "Waste Treatment and Disposal",
+   "code": "56221",
+   "statcan_title": "Waste treatment and disposal"
+  },
+  {
+   "census_title": "Fur-Bearing Animal and Rabbit ProductionT",
+   "code": "11293",
+   "statcan_title": "Fur-bearing animal and rabbit production"
+  },
+  {
+   "census_title": "Cattle Ranching and FarmingT",
+   "code": "1121",
+   "statcan_title": "Cattle ranching and farming"
+  },
+  {
+   "census_title": "Securities, Commodity Contracts, and Other Financial Investments and Related ActivitiesT",
+   "code": "523",
+   "statcan_title": "Securities, commodity contracts, and other financial investment and related activities"
+  },
+  {
+   "census_title": "Steel Product Manufacturing from Purchased SteelT",
+   "code": "3312",
+   "statcan_title": "Steel product manufacturing from purchased steel"
+  },
+  {
+   "census_title": "Private HouseholdsT",
+   "code": "8141",
+   "statcan_title": "Private households"
+  },
+  {
+   "census_title": "Other Travel Arrangement and Reservation ServicesT",
+   "code": "56159",
+   "statcan_title": "Other travel arrangement and reservation services"
+  },
+  {
+   "census_title": "Other Commercial and Industrial Machinery and Equipment Rental and LeasingT",
+   "code": "53249",
+   "statcan_title": "Other commercial and industrial machinery and equipment rental and leasing"
+  },
+  {
+   "census_title": "Farm Product Warehousing and StorageT",
+   "code": "49313",
+   "statcan_title": "Farm product warehousing and storage"
+  }
+ ],
+ "join_bls_census_six_digit": {
+  "bls_codes_not_in_census_2022_sample": [
+   "211111",
+   "211112",
+   "212111",
+   "212112",
+   "212113",
+   "212221",
+   "212222",
+   "212231",
+   "212234",
+   "212291"
+  ],
+  "bls_six_digit_codes": 1394,
+  "census_2022_six_digit_codes": 1012,
+  "census_codes_found_in_bls": 991,
+  "found_in_census_2022": 991
+ },
+ "join_census_statcan_3_to_5_digits": {
+  "found_in_naics_canada": 938,
+  "identical_normalised_title": 763,
+  "us_codes": 1096
+ },
+ "join_census_statcan_by_code_length": {
+  "2": {
+   "canada_codes": 17,
+   "shared_codes": 15,
+   "shared_with_identical_normalised_title": 13,
+   "us_codes": 17
+  },
+  "3": {
+   "canada_codes": 99,
+   "shared_codes": 84,
+   "shared_with_identical_normalised_title": 71,
+   "us_codes": 96
+  },
+  "4": {
+   "canada_codes": 323,
+   "shared_codes": 277,
+   "shared_with_identical_normalised_title": 227,
+   "us_codes": 308
+  },
+  "5": {
+   "canada_codes": 694,
+   "shared_codes": 574,
+   "shared_with_identical_normalised_title": 462,
+   "us_codes": 689
+  },
+  "6": {
+   "canada_codes": 923,
+   "shared_codes": 492,
+   "shared_with_identical_normalised_title": 374,
+   "us_codes": 1012
+  }
+ },
+ "join_sba_table_census_six_digit": {
+  "census_six_digit_codes_without_a_size_standard": 34,
+  "census_without_standard_sample": [
+   "112130",
+   "521110",
+   "541120",
+   "551114",
+   "814110",
+   "921110",
+   "921120",
+   "921130"
+  ],
+  "found_in_census_2022": 978,
+  "identical_normalised_title": 952,
+  "not_found": [],
+  "sba_table_codes": 978
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 9,
+  "made_this_run": 0,
+  "source_bodies": 9
+ },
+ "run_date": "2026-11-25",
+ "statcan_naics_canada_2022": {
+  "by_level": {
+   "Canadian industry": 923,
+   "Industry": 694,
+   "Industry group": 323,
+   "Sector": 20,
+   "Subsector": 99
+  },
+  "columns": [
+   "Level",
+   "Hierarchical structure",
+   "Code",
+   "Parent",
+   "Class title",
+   "Superscript",
+   "Class definition"
+  ],
+  "definition_characters": 538512,
+  "rows": 2059,
+  "with_definition": 2059
+ },
+ "terms": {
+  "bls": {
+   "bytes": 46844,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Linking and Copyright Information : U.S.",
+    "You are free to use our public domain material without specific permission, although we do ask that you cite the Bureau of Labor Statistics as the source.",
+    "Links to BLS.gov The public domain use of our materials includes linking to our website.",
+    "You do not need to obtain special permission from the BLS to link to our site."
+   ],
+   "quotes": {},
+   "url": "https://www.bls.gov/bls/linksite.htm"
+  },
+  "census": {
+   "bytes": 368895,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://www.census.gov/about/policies/citation.html"
+  },
+  "ecfr": {
+   "bytes": 64169,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {
+    "By virtue of the foregoing, public documents can generally be reprinted without legal restriction.": true
+   },
+   "url": "https://www.govinfo.gov/about/policies"
+  },
+  "statcan": {
+   "bytes": 26451,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Licence Grant Subject to this licence, Statistics Canada grants you a worldwide, royalty-free, non-exclusive licence to: use, reproduce, publish, freely distribute, or sell the Information; use, reproduce, publish, freely distribute, or sell Value-added Products; and, sublicence any or all such rights, under terms consistent with this licence."
+   ],
+   "quotes": {},
+   "url": "https://www.statcan.gc.ca/en/reference/licence"
+  }
+ }
+}

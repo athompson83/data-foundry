@@ -1,0 +1,287 @@
+{
+ "emoji_test": {
+  "by_status": {
+   "component": 9,
+   "fully-qualified": 3963,
+   "minimally-qualified": 1029,
+   "unqualified": 243
+  },
+  "distinct_code_points": 1460,
+  "groups": 10,
+  "header": [
+   "# Date: 2026-04-30, 22:40:18 GMT",
+   "# Version: 18.0"
+  ],
+  "resolved_in_unicode_data": 1460,
+  "sequences": 5244,
+  "unresolved": []
+ },
+ "fetched": {
+  "NamesList.txt": {
+   "bytes": 2113504,
+   "sha256": "e0732f7cb47a08ee2186c83a18a91ae277126e8099b53c432b4c3e32488dac9b",
+   "url": "https://www.unicode.org/Public/UCD/latest/ucd/NamesList.txt"
+  },
+  "UnicodeData.txt": {
+   "bytes": 2243593,
+   "sha256": "0736451de439ae7baf1425136617da495e09ee5afbe6e394374db7009ea08950",
+   "url": "https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt"
+  },
+  "emoji-test.txt": {
+   "bytes": 671655,
+   "sha256": "8f3735cda1f92a779d78af67cf86066bb1f07143dc22f2ac29394d9bc57ab21a",
+   "url": "https://unicode.org/Public/emoji/latest/emoji-test.txt"
+  },
+  "terms_unicode_license.txt": {
+   "bytes": 1995,
+   "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96",
+   "url": "https://www.unicode.org/license.txt"
+  },
+  "terms_whatwg.html": {
+   "bytes": 155303,
+   "sha256": "640f1789ea99668309ebb32f945512f0c600bdc9b3e7e7b471133c493d322668",
+   "url": "https://html.spec.whatwg.org/multipage/"
+  },
+  "whatwg_entities.json": {
+   "bytes": 145897,
+   "sha256": "d741d877ac77c4194c4ad526b5b4a19aef8dfe411ab840a466891cdbb9f362e6",
+   "url": "https://html.spec.whatwg.org/entities.json"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "annotations": [
+    "varies with (proportional to)",
+    "difference between"
+   ],
+   "code_point": "U+223C",
+   "entity": "&sim;",
+   "unicode_name": "TILDE OPERATOR"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22B4",
+   "entity": "&trianglelefteq;",
+   "unicode_name": "NORMAL SUBGROUP OF OR EQUAL TO"
+  },
+  {
+   "annotations": [
+    "(reverse solidus - 005C)",
+    "(mathematical falling diagonal - 27CD)"
+   ],
+   "code_point": "U+2216",
+   "entity": "&Backslash;",
+   "unicode_name": "SET MINUS"
+  },
+  {
+   "annotations": [
+    "(nand - 22BC)"
+   ],
+   "code_point": "U+2305",
+   "entity": "&barwedge;",
+   "unicode_name": "PROJECTIVE"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+2A97",
+   "entity": "&elsdot;",
+   "unicode_name": "SLANTED EQUAL TO OR LESS-THAN WITH DOT INSIDE"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+043A",
+   "entity": "&kcy;",
+   "unicode_name": "CYRILLIC SMALL LETTER KA"
+  },
+  {
+   "annotations": [
+    "0055 0302"
+   ],
+   "code_point": "U+00DB",
+   "entity": "&Ucirc;",
+   "unicode_name": "LATIN CAPITAL LETTER U WITH CIRCUMFLEX"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+231D",
+   "entity": "&urcorn;",
+   "unicode_name": "TOP RIGHT CORNER"
+  },
+  {
+   "annotations": [
+    "backward difference",
+    "gradient, del"
+   ],
+   "code_point": "U+2207",
+   "entity": "&Del;",
+   "unicode_name": "NABLA"
+  },
+  {
+   "annotations": [
+    "reduced Planck constant, Dirac constant",
+    "(cyrillic small letter tshe - 045B)"
+   ],
+   "code_point": "U+210F",
+   "entity": "&hbar;",
+   "unicode_name": "PLANCK CONSTANT OVER TWO PI"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+2AD1",
+   "entity": "&csube;",
+   "unicode_name": "CLOSED SUBSET OR EQUAL TO"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+03A6",
+   "entity": "&Phi;",
+   "unicode_name": "GREEK CAPITAL LETTER PHI"
+  },
+  {
+   "annotations": [
+    "2203 0338"
+   ],
+   "code_point": "U+2204",
+   "entity": "&nexists;",
+   "unicode_name": "THERE DOES NOT EXIST"
+  },
+  {
+   "annotations": [
+    "proper intersection"
+   ],
+   "code_point": "U+22D4",
+   "entity": "&fork;",
+   "unicode_name": "PITCHFORK"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22E8",
+   "entity": "&prnsim;",
+   "unicode_name": "PRECEDES BUT NOT EQUIVALENT TO"
+  },
+  {
+   "annotations": [
+    "(circled dot operator - 2299)",
+    "(fisheye - 25C9)"
+   ],
+   "code_point": "U+2A00",
+   "entity": "&xodot;",
+   "unicode_name": "N-ARY CIRCLED DOT OPERATOR"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22B4",
+   "entity": "&LeftTriangleEqual;",
+   "unicode_name": "NORMAL SUBGROUP OF OR EQUAL TO"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+29AC",
+   "entity": "&angmsdae;",
+   "unicode_name": "MEASURED ANGLE WITH OPEN ARM ENDING IN ARROW POINTING RIGHT AND UP"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+231D",
+   "entity": "&urcorner;",
+   "unicode_name": "TOP RIGHT CORNER"
+  },
+  {
+   "annotations": [],
+   "code_point": "U+22BF",
+   "entity": "&lrtri;",
+   "unicode_name": "RIGHT TRIANGLE"
+  }
+ ],
+ "join_code_point_whatwg": {
+  "distinct_code_points_cited_by_entities": 1454,
+  "resolved_by_category": {
+   "Ll": 265,
+   "Lu": 242,
+   "No": 18,
+   "Pe": 17,
+   "Po": 37,
+   "Ps": 19,
+   "Sm": 605,
+   "So": 181
+  },
+  "resolved_in_unicode_data": 1454,
+  "resolved_with_a_names_list_annotation": 922,
+  "unresolved": []
+ },
+ "names_list": {
+  "annotation_lines_by_kind": {
+   "alias (=)": 2784,
+   "canonical decomposition (:)": 2081,
+   "compatibility decomposition (#)": 3901,
+   "cross reference (x)": 4443,
+   "formal alias (%)": 40,
+   "informative note (*)": 8916,
+   "variation sequence (~)": 319
+  },
+  "block_headers": 367,
+  "code_point_entries": 41406,
+  "entries_found_in_unicode_data": 41297,
+  "entries_with_a_cross_reference": 3104,
+  "entries_with_an_alias": 2579,
+  "entries_with_an_informative_note": 8079,
+  "example": {
+   "annotations": [
+    [
+     "#",
+     "03BC greek small letter mu"
+    ]
+   ],
+   "code_point": "U+00B5",
+   "name": "MICRO SIGN"
+  },
+  "informative_note_characters": 259580,
+  "lines": 68089,
+  "version_line": "@@@\tThe Unicode Standard 18.0.0"
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 6,
+  "source_bodies": 6
+ },
+ "run_date": "2026-11-25",
+ "terms": {
+  "unicode": {
+   "bytes": 1995,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://www.unicode.org/license.txt"
+  },
+  "whatwg": {
+   "bytes": 155303,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://html.spec.whatwg.org/multipage/"
+  }
+ },
+ "unicode_data": {
+  "by_major_category": {
+   "C": 235,
+   "L": 26596,
+   "M": 2580,
+   "N": 2247,
+   "P": 860,
+   "S": 8760,
+   "Z": 19
+  },
+  "code_points_inside_ranges": 271092,
+  "individually_listed_code_points": 41297,
+  "lines": 41341,
+  "ranges": 22,
+  "with_decomposition_mapping": 5982,
+  "with_unicode_1_name": 1978
+ },
+ "whatwg_named_character_references": {
+  "distinct_code_points": 1454,
+  "entities": 2231,
+  "mapping_to_two_code_points": 93,
+  "with_trailing_semicolon": 2125
+ }
+}

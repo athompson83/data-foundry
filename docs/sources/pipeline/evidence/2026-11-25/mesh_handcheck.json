@@ -1,0 +1,226 @@
+{
+ "checked_on": "2026-11-25",
+ "method": "20 Disease Ontology term to MeSH descriptor pairs drawn with seed 20261125 by mesh_measure.py from the 2,923 resolved cross-references; both names were read.",
+ "checked": 20,
+ "same_or_broader_disease_concept": 20,
+ "same_concept": 15,
+ "broader_heading": 5,
+ "broader_heading_terms": [
+  "DOID:4447",
+  "DOID:3861",
+  "DOID:784",
+  "DOID:0070212",
+  "DOID:8508"
+ ],
+ "note": "15 pairs name the same disease (Noonan syndrome / Noonan Syndrome; cancer / Neoplasms). 5 point at a broader or neighbouring heading (cystoid macular edema / Macular Edema; medullomyoblastoma / Medulloblastoma; chronic kidney disease / Kidney Failure, Chronic; hereditary lymphedema I / Lymphedema; subcorneal pustular dermatosis / Skin Diseases, Vesiculobullous). The cross-reference links a term to a heading; it does not say the two are the same concept.",
+ "pairs": [
+  {
+   "do_name": "Usher syndrome",
+   "doid": "DOID:0050439",
+   "mesh_heading": "Usher Syndromes",
+   "mesh_trees": [
+    "C09.218.458.341.186.500.500",
+    "C09.218.458.341.887.886",
+    "C10.597.751.418.341.186.500.500"
+   ],
+   "mesh_ui": "D052245"
+  },
+  {
+   "do_name": "ichthyosis",
+   "doid": "DOID:1697",
+   "mesh_heading": "Ichthyosis",
+   "mesh_trees": [
+    "C16.131.831.512",
+    "C16.614.492",
+    "C17.800.428.333"
+   ],
+   "mesh_ui": "D007057"
+  },
+  {
+   "do_name": "Noonan syndrome",
+   "doid": "DOID:3490",
+   "mesh_heading": "Noonan Syndrome",
+   "mesh_trees": [
+    "C05.660.207.690",
+    "C14.240.400.787",
+    "C14.280.400.787"
+   ],
+   "mesh_ui": "D009634"
+  },
+  {
+   "do_name": "borna disease",
+   "doid": "DOID:5154",
+   "mesh_heading": "Borna Disease",
+   "mesh_trees": [
+    "C01.925.782.580.124",
+    "C22.152"
+   ],
+   "mesh_ui": "D001890"
+  },
+  {
+   "do_name": "alpha 1-antitrypsin deficiency",
+   "doid": "DOID:13372",
+   "mesh_heading": "alpha 1-Antitrypsin Deficiency",
+   "mesh_trees": [
+    "C06.552.074",
+    "C08.381.112",
+    "C16.320.060"
+   ],
+   "mesh_ui": "D019896"
+  },
+  {
+   "do_name": "seasonal affective disorder",
+   "doid": "DOID:0060167",
+   "mesh_heading": "Seasonal Affective Disorder",
+   "mesh_trees": [
+    "F03.600.300.775"
+   ],
+   "mesh_ui": "D016574"
+  },
+  {
+   "do_name": "cystoid macular edema",
+   "doid": "DOID:4447",
+   "mesh_heading": "Macular Edema",
+   "mesh_trees": [
+    "C11.768.585.439.245"
+   ],
+   "mesh_ui": "D008269"
+  },
+  {
+   "do_name": "hemoglobin C disease",
+   "doid": "DOID:2859",
+   "mesh_heading": "Hemoglobin C Disease",
+   "mesh_trees": [
+    "C15.378.050.141.150.490",
+    "C15.378.420.463",
+    "C16.320.070.490"
+   ],
+   "mesh_ui": "D006445"
+  },
+  {
+   "do_name": "botulism",
+   "doid": "DOID:11976",
+   "mesh_heading": "Botulism",
+   "mesh_trees": [
+    "C01.150.252.410.222.151",
+    "C10.668.758.200",
+    "C10.720.150"
+   ],
+   "mesh_ui": "D001906"
+  },
+  {
+   "do_name": "mucocutaneous leishmaniasis",
+   "doid": "DOID:9155",
+   "mesh_heading": "Leishmaniasis, Mucocutaneous",
+   "mesh_trees": [
+    "C01.610.752.300.500.400.385",
+    "C01.610.858.560.400.385",
+    "C01.920.813.400.385"
+   ],
+   "mesh_ui": "D007897"
+  },
+  {
+   "do_name": "medullomyoblastoma",
+   "doid": "DOID:3861",
+   "mesh_heading": "Medulloblastoma",
+   "mesh_trees": [
+    "C04.557.465.625.600.380.515",
+    "C04.557.465.625.600.590.500",
+    "C04.557.470.670.380.515"
+   ],
+   "mesh_ui": "D008527"
+  },
+  {
+   "do_name": "St. Louis encephalitis",
+   "doid": "DOID:10845",
+   "mesh_heading": "Encephalitis, St. Louis",
+   "mesh_trees": [
+    "C01.207.245.340.300.550",
+    "C01.207.399.750.300.550",
+    "C01.920.313.156.350"
+   ],
+   "mesh_ui": "D004674"
+  },
+  {
+   "do_name": "Silver-Russell syndrome",
+   "doid": "DOID:14681",
+   "mesh_heading": "Silver-Russell Syndrome",
+   "mesh_trees": [
+    "C05.660.207.925",
+    "C16.131.077.855",
+    "C16.131.260.870"
+   ],
+   "mesh_ui": "D056730"
+  },
+  {
+   "do_name": "chronic kidney disease",
+   "doid": "DOID:784",
+   "mesh_heading": "Kidney Failure, Chronic",
+   "mesh_trees": [
+    "C12.050.351.968.419.780.750.500",
+    "C12.200.777.419.780.750.500",
+    "C12.950.419.780.750.500"
+   ],
+   "mesh_ui": "D007676"
+  },
+  {
+   "do_name": "systemic mastocytosis",
+   "doid": "DOID:349",
+   "mesh_heading": "Mastocytosis, Systemic",
+   "mesh_trees": [
+    "C04.557.450.565.465.750",
+    "C20.762.750.750"
+   ],
+   "mesh_ui": "D034721"
+  },
+  {
+   "do_name": "hereditary lymphedema I",
+   "doid": "DOID:0070212",
+   "mesh_heading": "Lymphedema",
+   "mesh_trees": [
+    "C15.604.496"
+   ],
+   "mesh_ui": "D008209"
+  },
+  {
+   "do_name": "dentin dysplasia",
+   "doid": "DOID:701",
+   "mesh_heading": "Dentin Dysplasia",
+   "mesh_trees": [
+    "C07.650.800.260",
+    "C07.793.700.260",
+    "C16.131.850.800.260"
+   ],
+   "mesh_ui": "D003805"
+  },
+  {
+   "do_name": "corneal ulcer",
+   "doid": "DOID:8463",
+   "mesh_heading": "Corneal Ulcer",
+   "mesh_trees": [
+    "C01.375.177",
+    "C11.204.564.225",
+    "C11.294.177"
+   ],
+   "mesh_ui": "D003320"
+  },
+  {
+   "do_name": "cancer",
+   "doid": "DOID:162",
+   "mesh_heading": "Neoplasms",
+   "mesh_trees": [
+    "C04"
+   ],
+   "mesh_ui": "D009369"
+  },
+  {
+   "do_name": "subcorneal pustular dermatosis",
+   "doid": "DOID:8508",
+   "mesh_heading": "Skin Diseases, Vesiculobullous",
+   "mesh_trees": [
+    "C17.800.865"
+   ],
+   "mesh_ui": "D012872"
+  }
+ ]
+}

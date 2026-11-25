@@ -1,0 +1,161 @@
+{
+ "checked_on": "2026-11-25",
+ "method": "20 mime-db entries attributed to IANA and found in the IANA registry, drawn with seed 20261125 by mediatype_measure.py; each registry record's registration template was fetched and read for the subtype it registers.",
+ "checked": 20,
+ "template_registers_the_same_media_type": 20,
+ "note": "All 20 templates state the subtype of the mime-db entry. Case differs in three (application/EDIFACT, video/H265, application/PDX in the registry; lower case in mime-db), so the comparison is case-insensitive. 19 templates carry a contact line with a person's name and email address; that line is personal data and is not copied here. One template (application/applefile) is the text of an RFC, not a form.",
+ "pairs": [
+  {
+   "media_type": "application/applefile",
+   "template": "application/applefile",
+   "characters": 20054,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.omads-file+xml",
+   "template": "application/vnd.omads-file+xml",
+   "characters": 1888,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "audio/vorbis",
+   "template": "audio/vorbis",
+   "characters": 1339,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.innopath.wamp.notification",
+   "template": "application/vnd.innopath.wamp.notification",
+   "characters": 1101,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/edifact",
+   "template": "application/EDIFACT",
+   "characters": 1105,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "video/h265",
+   "template": "video/H265",
+   "characters": 46167,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.yamaha.hv-script",
+   "template": "application/vnd.yamaha.hv-script",
+   "characters": 1746,
+   "states_the_subtype": true,
+   "mime_db_extensions": [
+    "hvs"
+   ]
+  },
+  {
+   "media_type": "application/vnd.commerce-battelle",
+   "template": "application/vnd.commerce-battelle",
+   "characters": 2214,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "model/3mf",
+   "template": "model/3mf",
+   "characters": 2172,
+   "states_the_subtype": true,
+   "mime_db_extensions": [
+    "3mf"
+   ]
+  },
+  {
+   "media_type": "application/toc+cbor",
+   "template": "application/toc+cbor",
+   "characters": 4465,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.oai.workflows+json",
+   "template": "application/vnd.oai.workflows+json",
+   "characters": 1984,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "audio/vnd.vmx.cvsd",
+   "template": "audio/vnd.vmx.cvsd",
+   "characters": 2032,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/its+xml",
+   "template": "application/its+xml",
+   "characters": 3169,
+   "states_the_subtype": true,
+   "mime_db_extensions": [
+    "its"
+   ]
+  },
+  {
+   "media_type": "application/vnd.oma.dd2+xml",
+   "template": "application/vnd.oma.dd2+xml",
+   "characters": 2851,
+   "states_the_subtype": true,
+   "mime_db_extensions": [
+    "dd2"
+   ]
+  },
+  {
+   "media_type": "application/fastsoap",
+   "template": "application/fastsoap",
+   "characters": 3234,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/concise-problem-details+cbor",
+   "template": "application/concise-problem-details+cbor",
+   "characters": 1054,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.msign",
+   "template": "application/vnd.msign",
+   "characters": 1820,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.cloanto.rp9",
+   "template": "application/vnd.cloanto.rp9",
+   "characters": 1289,
+   "states_the_subtype": true,
+   "mime_db_extensions": [
+    "rp9"
+   ]
+  },
+  {
+   "media_type": "application/pdx",
+   "template": "application/PDX",
+   "characters": 1391,
+   "states_the_subtype": true,
+   "mime_db_extensions": null
+  },
+  {
+   "media_type": "application/vnd.immervision-ivp",
+   "template": "application/vnd.immervision-ivp",
+   "characters": 1561,
+   "states_the_subtype": true,
+   "mime_db_extensions": [
+    "ivp"
+   ]
+  }
+ ]
+}

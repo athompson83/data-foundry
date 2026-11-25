@@ -1,0 +1,162 @@
+{
+ "checked_on": "2026-11-25",
+ "method": "20 Reactome human pathway to GO term pairs drawn with seed 20261125 by pathway_measure.py; the pathway name, its summation text and the GO term name were read, and the GO accession in the ContentService record was compared with the download file.",
+ "checked": 20,
+ "go_accession_in_record_equals_file": 20,
+ "go_term_is_the_pathway_process_or_a_broader_one": 20,
+ "go_term_names_the_same_process": 9,
+ "same_process_pathways": [
+  "R-HSA-1483191",
+  "R-HSA-69206",
+  "R-HSA-8963684",
+  "R-HSA-1592230",
+  "R-HSA-5617833",
+  "R-HSA-73817",
+  "R-HSA-72086",
+  "R-HSA-9793380",
+  "R-HSA-174143"
+ ],
+ "note": "Every cited GO term describes the pathway's process. In 9 pairs it is the same process (Synthesis of PC / phosphatidylcholine biosynthetic process). In 11 it is broader or one aspect of the pathway (Kinesins / microtubule-based movement; Influenza Infection / viral life cycle; Rhesus blood group biosynthesis / peptide biosynthetic process). The id is therefore an annotation of the pathway, not an identity between two records.",
+ "pairs": [
+  {
+   "pathway": "R-HSA-1483191",
+   "pathway_name": "Synthesis of PC",
+   "go_id": "GO:0006656",
+   "go_name": "phosphatidylcholine biosynthetic process",
+   "summation_characters": 455
+  },
+  {
+   "pathway": "R-HSA-9690406",
+   "pathway_name": "Transcriptional regulation of testis differentiation",
+   "go_id": "GO:0008584",
+   "go_name": "male gonad development",
+   "summation_characters": 2773
+  },
+  {
+   "pathway": "R-HSA-174143",
+   "pathway_name": "APC/C-mediated degradation of cell cycle proteins",
+   "go_id": "GO:0031145",
+   "go_name": "anaphase-promoting complex-dependent catabolic process",
+   "summation_characters": 2899
+  },
+  {
+   "pathway": "R-HSA-69206",
+   "pathway_name": "G1/S Transition",
+   "go_id": "GO:0000082",
+   "go_name": "G1/S transition of mitotic cell cycle",
+   "summation_characters": 779
+  },
+  {
+   "pathway": "R-HSA-983189",
+   "pathway_name": "Kinesins",
+   "go_id": "GO:0007018",
+   "go_name": "microtubule-based movement",
+   "summation_characters": 309
+  },
+  {
+   "pathway": "R-HSA-9603505",
+   "pathway_name": "NTRK3 as a dependence receptor",
+   "go_id": "GO:2001241",
+   "go_name": "positive regulation of extrinsic apoptotic signaling pathway in absence of ligand",
+   "summation_characters": 646
+  },
+  {
+   "pathway": "R-HSA-2173795",
+   "pathway_name": "Downregulation of SMAD2/3:SMAD4 transcriptional activity",
+   "go_id": "GO:0000122",
+   "go_name": "negative regulation of transcription by RNA polymerase II",
+   "summation_characters": 2254
+  },
+  {
+   "pathway": "R-HSA-8963684",
+   "pathway_name": "Tyrosine catabolism",
+   "go_id": "GO:0006572",
+   "go_name": "L-tyrosine catabolic process",
+   "summation_characters": 370
+  },
+  {
+   "pathway": "R-HSA-451307",
+   "pathway_name": "Activation of Na-permeable kainate receptors",
+   "go_id": "GO:0007268",
+   "go_name": "chemical synaptic transmission",
+   "summation_characters": 602
+  },
+  {
+   "pathway": "R-HSA-1592230",
+   "pathway_name": "Mitochondrial biogenesis",
+   "go_id": "GO:0007005",
+   "go_name": "mitochondrion organization",
+   "summation_characters": 1805
+  },
+  {
+   "pathway": "R-HSA-168255",
+   "pathway_name": "Influenza Infection",
+   "go_id": "GO:0019058",
+   "go_name": "viral life cycle",
+   "summation_characters": 3222
+  },
+  {
+   "pathway": "R-HSA-5617833",
+   "pathway_name": "Cilium Assembly",
+   "go_id": "GO:0060271",
+   "go_name": "cilium assembly",
+   "summation_characters": 2739
+  },
+  {
+   "pathway": "R-HSA-73817",
+   "pathway_name": "Purine ribonucleoside monophosphate biosynthesis",
+   "go_id": "GO:0009168",
+   "go_name": "purine ribonucleoside monophosphate biosynthetic process",
+   "summation_characters": 638
+  },
+  {
+   "pathway": "R-HSA-9683610",
+   "pathway_name": "Maturation of nucleoprotein",
+   "go_id": "GO:0019082",
+   "go_name": "viral protein processing",
+   "summation_characters": 260
+  },
+  {
+   "pathway": "R-HSA-9037628",
+   "pathway_name": "Rhesus blood group biosynthesis",
+   "go_id": "GO:0043043",
+   "go_name": "peptide biosynthetic process",
+   "summation_characters": 2701
+  },
+  {
+   "pathway": "R-HSA-72086",
+   "pathway_name": "mRNA Capping",
+   "go_id": "GO:0006370",
+   "go_name": "7-methylguanosine mRNA capping",
+   "summation_characters": 1029
+  },
+  {
+   "pathway": "R-HSA-162588",
+   "pathway_name": "Budding and maturation of HIV virion",
+   "go_id": "GO:0019058",
+   "go_name": "viral life cycle",
+   "summation_characters": 493
+  },
+  {
+   "pathway": "R-HSA-9793380",
+   "pathway_name": "Formation of paraxial mesoderm",
+   "go_id": "GO:0048341",
+   "go_name": "paraxial mesoderm formation",
+   "summation_characters": 1988
+  },
+  {
+   "pathway": "R-HSA-9664407",
+   "pathway_name": "Parasite infection",
+   "go_id": "GO:0075001",
+   "go_name": "adhesion of symbiont infection structure to host",
+   "summation_characters": 635
+  },
+  {
+   "pathway": "R-HSA-2142691",
+   "pathway_name": "Synthesis of Leukotrienes (LT) and Eoxins (EX)",
+   "go_id": "GO:0006691",
+   "go_name": "leukotriene metabolic process",
+   "summation_characters": 830
+  }
+ ]
+}
