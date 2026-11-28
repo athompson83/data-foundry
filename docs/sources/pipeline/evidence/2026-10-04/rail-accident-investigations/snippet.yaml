@@ -1,0 +1,130 @@
+# Paste candidates under `candidates:` and the dataset under `datasets:` in docs/sources/pipeline/candidates.yaml.
+candidates:
+  - key: rail-us-fra-form54-accidents
+    name: FRA Rail Equipment Accident/Incident Data (Form 54), data.transportation.gov
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: US Federal Railroad Administration
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.transportation.gov/resource/85tf-25kj.json', 'https://data.transportation.gov/api/views/85tf-25kj.json' ]
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 5, structuring_value: 3, freshness: 4, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: 'https://www.usa.gov/government-copyright'
+        quote: 'Government work is something created by a U.S. government officer or employee as part of their official duties.'
+    conditions:
+      - 'The dataset metadata names the licence USGOV_WORKS ("Public Domain U.S. Government"), but the narrative text is submitted by the reporting railroad, not written by FRA; keep narrative redistribution under the same free-public-data presumption and drop it if a railroad claim appears.'
+      - Attribute FRA (metadata attribution "FRA Safe Team") and state the data lag; the newest record is 2026-07-31 while the dataset refreshed 2026-10-04.
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Re-measure from an archived snapshot with the Form 55a casualty and Form 57 crossing datasets as extra members; confirm the narrative holds no personal data beyond train and car identifiers.
+  - key: rail-us-ntsb-railroad-investigation-reports
+    name: NTSB Railroad Investigation Reports (RIR PDFs and case numbers)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: US National Transportation Safety Board
+    stage: SCREENED
+    rights: GREEN
+    sources: [ 'https://www.ntsb.gov/investigations/AccidentReports/Reports/RIR2301.pdf', 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 2, structuring_value: 5, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 4 }
+    terms:
+      - url: 'https://www.ntsb.gov/about/Pages/Website-Policies.aspx'
+        quote: 'By publishing its reports and recommendations and opening public dockets, the NTSB has placed the contents prepared by its staff in the public domain.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Find a stable listing for RIR reports (the CAROL POST API rejects a guessed schema, see accidents-ntsb-carol) or enumerate RIRyynn.pdf under a recorded method; extract cause, probable-cause and recommendation sections and the RRD case number deterministically.
+  - key: rail-uk-raib-reports
+    name: UK Rail Accident Investigation Branch reports (GOV.UK search and content API)
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: UK Rail Accident Investigation Branch
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.gov.uk/api/search.json?filter_format=raib_report', 'https://www.gov.uk/api/content/raib-reports' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 4, freshness: 3, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: 'https://www.gov.uk/raib-reports/report-10-slash-2026-collision-between-a-tram-and-two-pedestrians-at-staniforth-road'
+        quote: 'All content is available under the Open Government Licence v3.0'
+      - url: 'https://assets.publishing.service.gov.uk/media/6a6756e7f02dfa8e78093918/R102026_260728_Staniforth_Road.pdf'
+        quote: 'You may reuse this document/publication (not including departmental or agency logos) free of charge in any format or medium.'
+    conditions:
+      - 'Acknowledge the material as Crown copyright, give the title of the source publication and reuse it accurately and not in a misleading context (report PDF notice).'
+      - 'Attribute under OGL v3.0: "Contains public sector information licensed under the Open Government Licence v3.0"; third-party copyright material identified in a report needs its holder''s permission, so images stay excluded (rule 9).'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Pull the 446 investigation-report PDFs into R2 and extract cause, causal factors and recommendations; map RAIB occurrence classes to the shared taxonomy.
+  - key: rail-ca-tsb-rods-occurrences
+    name: Transportation Safety Board of Canada RODS rail occurrence data (open.canada.ca)
+    category: transport-safety
+    structuring: normalization
+    format: structured
+    publisher: Transportation Safety Board of Canada
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.tsb.gc.ca/sites/default/files/stats/RODSdb_MDOTW_VW_OCCURRENCE_PUBLIC.csv', 'https://open.canada.ca/data/api/3/action/package_show?id=4f8d9b0d-c4af-4be2-b751-3f5a403993ff' ]
+    scores: { agent_demand: 3, rights_clarity: 3, acquisition_ease: 1, structuring_value: 3, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked - the TSB CSV, the data dictionary and the TSB rail data page all answer 403 from this egress (a 403 is not permission). The CKAN record names the Open Government Licence - Canada with monthly updates; retry from another egress and read the dictionary for the identifier columns.
+  - key: rail-au-atsb-rail-investigations
+    name: Australian Transport Safety Bureau rail investigations
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: Australian Transport Safety Bureau
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.atsb.gov.au/rail-investigations' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked - atsb.gov.au gives no HTTP response from this egress on any URL (status 0), so nothing was measured and no terms were read; retry later or from another egress.
+  - key: rail-eu-era-erail-investigations
+    name: European Union Agency for Railways ERAIL investigation reports database
+    category: transport-safety
+    structuring: event-extraction
+    format: free-text
+    publisher: European Union Agency for Railways
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://erail.era.europa.eu/' ]
+    scores: { agent_demand: 3, rights_clarity: 1, acquisition_ease: 1, structuring_value: 4, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Parked - the egress proxy refused the connection to erail.era.europa.eu (policy block, status 0), and www.era.europa.eu legal-notice URLs tried answer 404; nothing measured and no terms read. Revisit if the host becomes reachable.
+datasets:
+  - key: rail-accident-investigations
+    name: Rail accident and incident investigations
+    category: transport-safety
+    entity: rail accident or incident investigation with findings and causes
+    stage: SCREENED
+    description: "One record per rail accident or serious incident, assembled from the FRA Form 54 railroad-reported accident
+      data (structured: railroad, cause codes, damage, casualties, coordinates, railroad narrative), the NTSB Railroad
+      Investigation Reports (free-text findings, probable cause and recommendations, with the RRD case number) and the UK RAIB
+      reports (free-text investigation reports and summaries, a second jurisdiction). Within the US, an NTSB investigation
+      links to its FRA Form 54 record by occurrence date and state, then railroad, place and train identifier; this is a
+      reviewed candidate link because FRA records never cite an NTSB case number. RAIB covers Great Britain and joins only
+      through the shared taxonomy. Every fact carries its source; personal data is excluded."
+    sources:
+      - rail-us-fra-form54-accidents
+      - rail-us-ntsb-railroad-investigation-reports
+      - rail-uk-raib-reports
+    join_keys:
+      - key: occurrence date + state, then railroad reporting mark, place and train identifier (NTSB case to FRA accident number)
+        between:
+          - rail-us-ntsb-railroad-investigation-reports
+          - rail-us-fra-form54-accidents
+        measured: 12/33 NTSB RIRs (2021 to 2026 occurrences, date and state parsed) have an FRA Form 54 record on the same date in the same state; 9/12 are the same accident on hand check (3 rejected on place or railroad); 0 of the 36 FRA narratives that mention NTSB cite a case number, so no declared join exists; 21 NTSB reports match no same-day same-state FRA record (many are transit or non-FRA-reportable, or the date differs)
+        mode: candidate
+        reviewed: { correct: 9, checked: 12 }
+    taxonomy:
+      - accident type (derailment, collision, grade-crossing, fatality, other impact)
+      - primary and contributing cause (FRA cause code, NTSB probable cause, RAIB causal factor)
+      - railroad and operation type (freight, passenger, transit, yard, heritage)
+      - consequence (fatalities, injuries, damage cost, hazmat release)
+      - investigating authority and jurisdiction
+    agent_questions:
+      - Which NTSB-investigated railroad accidents involved a conductor fatality in a shoving movement, and what did the railroad report to FRA?
+      - What probable causes did the NTSB and the FRA cause codes assign to derailments on a given railroad in the last five years?
+      - Which RAIB investigations of level-crossing or tram collisions list the same causal factor as a US collision investigation?
+      - What safety recommendations followed an accident, and has the same railroad had repeat Form 54 reports at that location?
+    scores: { agent_demand: 4, rights_clarity: 4, acquisition_ease: 3, structuring_value: 5, freshness: 4, low_onboarding_cost: 3, poor_existing_access: 4 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
+    next_action: Archive the FRA dataset snapshot and the NTSB RIR set to R2, extract probable cause and recommendations deterministically, and re-measure the date, state, railroad and train link on the full set before EVIDENCED.

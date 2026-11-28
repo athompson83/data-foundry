@@ -1,0 +1,325 @@
+{
+ "checked_on": "2026-11-25",
+ "method": "The 20 FAA AD to EASA AD pairs that round 31 drew with seed 20261122 (evidence/2026-11-22/awd_measure.json, handcheck_sample) were read today: the manufacturer and model in the FAA title and abstract against the type-certificate holder and type on the EASA tool page, and the defect in the FAA abstract against the EASA subject line. Nothing was fetched again for this check.",
+ "source_measurement": "docs/sources/pipeline/evidence/2026-11-22/awd_measure.json",
+ "checked": 20,
+ "same_type_certificate_holder_and_aircraft_type": 20,
+ "subject_comparable": 15,
+ "subject_agrees": 14,
+ "subject_not_confirmable": [
+  "2026-0125R1"
+ ],
+ "easa_pages_whose_subject_line_only_says_superseded": [
+  "2022-0181",
+  "2024-0133R1",
+  "2024-0134",
+  "2026-0172-E",
+  "2023-0149"
+ ],
+ "note": "All 20 pairs name the same manufacturer and aircraft or engine type (Leonardo AW189 / AW189; Pilatus PC-24 / PC-24; Rolls-Royce Deutschland Trent 700 / RB211 TRENT 700). 5 EASA pages show only 'SUPERSEDED BY ...' as the subject, so the defect could not be compared. Of the other 15, 14 describe the same defect or action. One (FAA 2026-14-08 / EASA 2026-0125R1, Diamond DA 42) could not be confirmed from the 200 abstract characters kept: the FAA abstract speaks of uncommanded rudder deflection, the EASA subject of a nose landing gear actuator rod end.",
+ "pairs": [
+  {
+   "easa_ad": "2026-0165",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Engine Exhaust – Nozzle Exhaust Duct Clamp Assembly – Inspection",
+   "easa_tc_holders": [
+    "LEONARDO S.p.A. HELICOPTERS"
+   ],
+   "easa_types": [
+    "AB139/AW139"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Leonardo S.p.a. Model AB139 and AW139 helicopters. This AD was prompted by a report of a nozzle exhaust duct clamp separating from the engine nozzle duct and coming to rest on the tail rotor (T",
+   "faa_ad": "2026-20-07",
+   "faa_title": "Airworthiness Directives; Leonardo S.p.a. Helicopters",
+   "fr_document_number": "2026-20100"
+  },
+  {
+   "easa_ad": "2025-0062",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Main Rotor – Main Rotor Blades – Replacement",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "AS 350 / EC 130"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus Helicopters Model EC 130 T2 helicopters. This AD was prompted by the determination that helicopter operators received main rotor blades (MRB) that are not certified to be installed on th",
+   "faa_ad": "2026-19-02",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-19758"
+  },
+  {
+   "easa_ad": "2025-0064",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Engine Exhaust – Ejector Duct – Inspection",
+   "easa_tc_holders": [
+    "LEONARDO S.p.A. HELICOPTERS"
+   ],
+   "easa_types": [
+    "AW189"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Leonardo S.p.a. Model AW189 helicopters. This AD was prompted by reports of cracking on the ejector ducts. This AD requires repetitively inspecting the left-hand (LH) side and right-hand (RH) side ",
+   "faa_ad": "2026-15-15",
+   "faa_title": "Airworthiness Directives; Leonardo S.p.a. Helicopters",
+   "fr_document_number": "2026-15370"
+  },
+  {
+   "easa_ad": "2026-0152",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Air Conditioning – Vapor Cycle Air Conditioning System – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS DEUTSCHLAND"
+   ],
+   "easa_types": [
+    "MBB-BK 117"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Airbus Helicopters Deutschland GmbH (AHD) Model MBB-BK 117 C-1 helicopters. This AD was prompted by a report of a louver box assembly detaching in flight due to incorrect installation. This AD requ",
+   "faa_ad": "2026-21-02",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters Deutschland GmbH (AHD) Helicopters",
+   "fr_document_number": "2026-20722"
+  },
+  {
+   "easa_ad": "2026-0008",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Ice and Rain Protection – Windows, Windshields and Doors / Left-Hand Windshield Heating Solid State Relay – Modification / Replacement",
+   "easa_tc_holders": [
+    "PILATUS AIRCRAFT LTD"
+   ],
+   "easa_types": [
+    "PC-24"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Pilatus Aircraft Ltd. (Pilatus) Model PC-24 airplanes. This AD was prompted by a report that a solid-state relay (SSR) used in the left-hand (LH) windshield heating system may allow reverse cur",
+   "faa_ad": "2026-17-11",
+   "faa_title": "Airworthiness Directives; Pilatus Aircraft Ltd. Airplanes",
+   "fr_document_number": "2026-18848"
+  },
+  {
+   "easa_ad": "2026-0029",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Tail Rotor Drive – Tail Gear Box Input Flange – Functional Checks",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "SA/AS 365 / EC 155"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Airbus Helicopters Model SA 365 N helicopters. This AD was prompted by reports of tightening torque loss on the input flange nut due to circular wear on the faces of the flange, the slip ring, and ",
+   "faa_ad": "2026-21-10",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-21854"
+  },
+  {
+   "easa_ad": "2022-0181",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2022-0227",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A330"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2025-04- 05, which applied to all Airbus SAS Model A330-841 and -941 airplanes. AD 2025-04-05 required a revision of the existing airplane flight manual (AFM) and removal of the previously required limitation",
+   "faa_ad": "2026-20-15",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-21331"
+  },
+  {
+   "easa_ad": "2024-0133R1",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2026-0102",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "AS 350 / EC 130"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2022-11- 08, which applied to all Airbus Helicopters Model AS350B, AS350BA, AS350B1, AS350B2, AS350B3, AS350D, EC130B4, and EC130T2 helicopters. AD 2022-11-08 required incorporating into maintenance records c",
+   "faa_ad": "2026-12-09",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-12052"
+  },
+  {
+   "easa_ad": "2025-0067",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Fuselage – Centre Fuselage Frame Foot Joint – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A321"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus SAS Model A321-251NX, -252NX, -253NX, -271NX, and -272NX airplanes. This AD was prompted by a review of the cold working process on the assembly line that detected a deviation to the man",
+   "faa_ad": "2026-12-11",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-13062"
+  },
+  {
+   "easa_ad": "2025-0208",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Flight Controls – Flight Control Primary Computer – Modification",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A330"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus SAS Model A330-941 airplanes. This AD was prompted by an occurrence of a triple \"PRIM FAULT\" in the Flight Control Primary Computer (FCPC) at touchdown. This AD requires the installation",
+   "faa_ad": "2026-22-02",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-21861"
+  },
+  {
+   "easa_ad": "2024-0134",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2026-0103",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "AS 355"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2022-19- 13, which applied to all Airbus Helicopters Model AS355E, AS355F, AS355F1, AS355F2, AS355N, and AS355NP helicopters. AD 2022-19-13 required incorporating into existing maintenance records certain req",
+   "faa_ad": "2026-10-16",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-12051"
+  },
+  {
+   "easa_ad": "2026-0125R1",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Landing Gear – Nose landing Gear Hydraulic Actuator Rod End – Inspection",
+   "easa_tc_holders": [
+    "DIAMOND AIRCRAFT INDUSTRIES"
+   ],
+   "easa_types": [
+    "DA 42"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Diamond Aircraft Industries GmbH (DAI) Model DA 42, DA 42 NG, and DA 42 M-NG airplanes. This AD was prompted by occurrences of uncommanded rudder deflection caused by a cracked nose landing gear (N",
+   "faa_ad": "2026-14-08",
+   "faa_title": "Airworthiness Directives; Diamond Aircraft Industries GmbH",
+   "fr_document_number": "2026-14511"
+  },
+  {
+   "easa_ad": "2025-0135",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Time Limits / Maintenance Checks – Airworthiness Limitations and Certification Maintenance Requirements – Amendment",
+   "easa_tc_holders": [
+    "ATR"
+   ],
+   "easa_types": [
+    "ATR42"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain ATR-GIE Avions de Transport R[eacute]gional Model ATR42-500 airplanes. This AD was prompted by a determination that a new airworthiness limitation is necessary. This AD requires revising the ex",
+   "faa_ad": "2026-18-01",
+   "faa_title": "Airworthiness Directives; ATR-GIE Avions de Transport Régional Airplanes",
+   "fr_document_number": "2026-18053"
+  },
+  {
+   "easa_ad": "2026-0172-E",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY AD 2026-0189",
+   "easa_tc_holders": [
+    "ROLLS-ROYCE DEUTSCHLAND Ltd & Co KG"
+   ],
+   "easa_types": [
+    "RB211 TRENT 700"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Rolls-Royce Deutschland Ltd. & Co. KG (RRD) Model RB211 Trent 768-60, 772-60, and 772B-60 engines. The FAA previously sent this AD as an emergency AD to all known U.S. owners and operators of these",
+   "faa_ad": "2026-18-51",
+   "faa_title": "Airworthiness Directives; Rolls-Royce Deutschland Ltd. & Co. KG Engines",
+   "fr_document_number": "2026-19172"
+  },
+  {
+   "easa_ad": "2025-0073",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Stabilizers – Horizontal Tail Plane Lateral Load Fitting Bushings – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A350"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2021-03- 08, which applied to certain Airbus SAS Model A350-941 and -1041 airplanes. AD 2021-03-08 required repetitive inspections for migration of the bushings of the horizontal tail plane (HTP) lateral load",
+   "faa_ad": "2026-20-05",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-20119"
+  },
+  {
+   "easa_ad": "2023-0149",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2025-0064",
+   "easa_tc_holders": [
+    "LEONARDO S.p.A. HELICOPTERS"
+   ],
+   "easa_types": [
+    "AW189"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Leonardo S.p.a. Model AW189 helicopters. This AD was prompted by reports of cracking on the ejector ducts. This AD requires repetitively inspecting the left-hand (LH) side and right-hand (RH) side ",
+   "faa_ad": "2026-15-15",
+   "faa_title": "Airworthiness Directives; Leonardo S.p.a. Helicopters",
+   "fr_document_number": "2026-15370"
+  },
+  {
+   "easa_ad": "2025-0106",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Wings – Pylon Primary Structure – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A350"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus SAS Model A350-1041 airplanes. This AD was prompted by the detection of missing chamfers under the heads of critical fasteners on the primary structure of both pylons. This AD requires a",
+   "faa_ad": "2026-17-09",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-18055"
+  },
+  {
+   "easa_ad": "2025-0118R1",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Aircraft Flight Manual – Amendment / Communications – Digital Radio and Audio Integrating Management System – Modification",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A319",
+    "A320",
+    "A321"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2025-11- 02, which applied to certain Airbus SAS Model A319-151N, -153N, -171N, and -173N airplanes; A320-251N, -252N, -253N, -271N, -272N, and -273N airplanes; A321-251N, -251NX, -252N, -252NX, -253N, -253NX",
+   "faa_ad": "2026-14-05",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-13983"
+  },
+  {
+   "easa_ad": "2026-0108-E",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Fuel – Fuel Pump(s) – Inspection",
+   "easa_tc_holders": [
+    "STEMME AG"
+   ],
+   "easa_types": [
+    "S12",
+    "TSA-M"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Stemme GmbH (Stemme) TSA-M Model S6-RT and Stemme S 12 gliders. This AD was prompted by a report of a leaking electrical fuel transfer pump. This AD requires inspecting affected electrical fuel tra",
+   "faa_ad": "2026-15-04",
+   "faa_title": "Airworthiness Directives; Stemme GmbH Gliders",
+   "fr_document_number": "2026-15004"
+  },
+  {
+   "easa_ad": "2025-0191",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Time Limits / Maintenance Checks – Airworthiness Limitations Section – Amendment",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "SA/AS 365 / EC 155"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Airbus Helicopters Model EC 155 B and EC 155 B1 helicopters. This AD was prompted by a determination that new or more restrictive airworthiness limitations are necessary. This AD requires revising ",
+   "faa_ad": "2026-16-04",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-16506"
+  }
+ ]
+}

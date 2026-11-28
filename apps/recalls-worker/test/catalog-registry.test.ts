@@ -23,7 +23,9 @@ interface RegistryEntry {
 const registry = parseYaml(readFileSync(REGISTRY, 'utf8')) as { candidates: RegistryEntry[]; datasets: RegistryEntry[] };
 const entries: DatasetEntry[] = Object.values(DATASETS);
 const byKey = new Map([...registry.candidates, ...registry.datasets].map((entry) => [entry.key, entry]));
-const memberOfDataset = new Set(registry.datasets.flatMap((dataset) => dataset.sources ?? []));
+// A feed is adopted only by a dataset that is itself built: a SCREENED dataset is not catalogued, so its LIVE member
+// must still be listed on its own (food-and-health-recalls-global is SCREENED while fda-recalls is LIVE).
+const memberOfDataset = new Set(registry.datasets.filter((dataset) => ['BUILDING', 'LIVE'].includes(dataset.stage)).flatMap((dataset) => dataset.sources ?? []));
 
 describe('public catalog and pipeline registry', () => {
   it('lists every LIVE registry dataset, and every LIVE feed no dataset has adopted', () => {

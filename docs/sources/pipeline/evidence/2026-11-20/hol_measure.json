@@ -1,0 +1,440 @@
+{
+ "au_public_holidays": {
+  "combined_csv": {
+   "by_jurisdiction": {
+    "act": 70,
+    "nsw": 65,
+    "nt": 76,
+    "qld": 68,
+    "sa": 70,
+    "tas": 54,
+    "vic": 70,
+    "wa": 59
+   },
+   "columns": [
+    "ID",
+    "Date",
+    "Holiday Name",
+    "Information",
+    "More Information",
+    "Jurisdiction"
+   ],
+   "first": "20210101",
+   "last": "20251231",
+   "name": "Australian public holidays combined (2021-2025)",
+   "rows": 532,
+   "rows_with_information_text": 449,
+   "rows_without_date": 1
+  },
+  "license_id": "cc-by",
+  "license_title": "Creative Commons Attribution 3.0 Australia",
+  "metadata_modified": "2026-01-16T04:44:57.285547",
+  "newest_resource": {
+   "last_modified": "2024-09-24T00:00:00",
+   "name": "Australian Public Holidays 2025"
+  },
+  "organization": "Department of the Prime Minister and Cabinet",
+  "resources": 12
+ },
+ "fr_jours_feries": {
+  "api_zones_fetched": {
+   "alsace-moselle": {
+    "days": 337,
+    "distinct_names": 13,
+    "first": "2006-01-01",
+    "last": "2031-12-26",
+    "per_year_2026": 13
+   },
+   "metropole": {
+    "days": 285,
+    "distinct_names": 11,
+    "first": "2006-01-01",
+    "last": "2031-12-25",
+    "per_year_2026": 11
+   }
+  },
+  "csv_metropole": {
+   "columns": [
+    "date",
+    "annee",
+    "zone",
+    "nom_jour_ferie"
+   ],
+   "first": "2006-01-01",
+   "last": "2031-12-25",
+   "rows": 286
+  },
+  "datagouv": {
+   "last_modified": "2025-05-12T10:26:21.194000+00:00",
+   "license": "lov2",
+   "organization": "data.gouv.fr",
+   "resources": 4
+  },
+  "open_licence_mentions_commercial_use": true
+ },
+ "handcheck_sample": [
+  {
+   "jurisdiction": "US",
+   "list_date": "2020-05-25",
+   "list_notes": "",
+   "list_title": "Memorial Day",
+   "statute_item": "Memorial Day, the last Monday in May."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2017-12-25",
+   "list_notes": "",
+   "list_title": "Christmas Day",
+   "statute_item": "Christmas Day, December 25."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2018-02-19",
+   "list_notes": "footnoted",
+   "list_title": "Washington’s Birthday",
+   "statute_item": "Washington's Birthday, the third Monday in February."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2022-12-26",
+   "list_notes": "footnoted",
+   "list_title": "Christmas Day",
+   "statute_item": "Christmas Day, December 25."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2030-11-28",
+   "list_notes": "",
+   "list_title": "Thanksgiving Day",
+   "statute_item": "Thanksgiving Day, the fourth Thursday in November."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2013-07-04",
+   "list_notes": "",
+   "list_title": "Independence Day",
+   "statute_item": "Independence Day, July 4."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2028-12-25",
+   "list_notes": "",
+   "list_title": "Christmas Day",
+   "statute_item": "Christmas Day, December 25."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2013-02-18",
+   "list_notes": "footnoted",
+   "list_title": "Washington's Birthday",
+   "statute_item": "Washington's Birthday, the third Monday in February."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2027-02-15",
+   "list_notes": "footnoted",
+   "list_title": "Washington’s Birthday",
+   "statute_item": "Washington's Birthday, the third Monday in February."
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2021-10-11",
+   "list_notes": "",
+   "list_title": "Columbus Day",
+   "statute_item": "Columbus Day, the second Monday in October."
+  },
+  {
+   "jurisdiction": "GB/england-and-wales",
+   "list_date": "2026-04-06",
+   "list_notes": "",
+   "list_title": "Easter Monday",
+   "statute_item": "Easter Monday."
+  },
+  {
+   "jurisdiction": "GB/northern-ireland",
+   "list_date": "2020-05-25",
+   "list_notes": "",
+   "list_title": "Spring bank holiday",
+   "statute_item": "The last Monday in May."
+  },
+  {
+   "jurisdiction": "GB/england-and-wales",
+   "list_date": "2028-04-17",
+   "list_notes": "",
+   "list_title": "Easter Monday",
+   "statute_item": "Easter Monday."
+  },
+  {
+   "jurisdiction": "GB/england-and-wales",
+   "list_date": "2027-08-30",
+   "list_notes": "",
+   "list_title": "Summer bank holiday",
+   "statute_item": "The last Monday in August."
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2025-05-05",
+   "list_notes": "",
+   "list_title": "Early May bank holiday",
+   "statute_item": "The first Monday in May."
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2021-11-30",
+   "list_notes": "",
+   "list_title": "St Andrew’s Day",
+   "statute_item": "30th November, if it is not a Saturday or Sunday or, if it is a Saturday or Sunday, the first Monday following that day."
+  },
+  {
+   "jurisdiction": "GB/northern-ireland",
+   "list_date": "2022-12-27",
+   "list_notes": "Substitute day",
+   "list_title": "Christmas Day",
+   "statute_item": "27th December in a year in which 25th or 26th December is a Sunday."
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2027-11-30",
+   "list_notes": "",
+   "list_title": "St Andrew’s Day",
+   "statute_item": "30th November, if it is not a Saturday or Sunday or, if it is a Saturday or Sunday, the first Monday following that day."
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2026-01-02",
+   "list_notes": "",
+   "list_title": "2nd January",
+   "statute_item": "2nd January, if it be not a Sunday or, if it be a Sunday, 3rd January."
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2019-04-19",
+   "list_notes": "",
+   "list_title": "Good Friday",
+   "statute_item": "Good Friday."
+  }
+ ],
+ "join_uk_statute_rule_to_list": {
+  "matched": 149,
+  "per_division": {
+   "england-and-wales": {
+    "matched": 38,
+    "total": 83
+   },
+   "northern-ireland": {
+    "matched": 48,
+    "total": 103
+   },
+   "scotland": {
+    "matched": 63,
+    "total": 94
+   }
+  },
+  "total": 280,
+  "unmatched_titles": {
+   "2nd january": 4,
+   "bank holiday for the coronation of king charles iii": 3,
+   "bank holiday for the state funeral of queen elizabeth ii": 3,
+   "battle of the boyne orangemens day": 10,
+   "boxing day": 17,
+   "christmas day": 17,
+   "early may bank holiday": 18,
+   "early may bank holiday ve day": 3,
+   "good friday": 20,
+   "new years day": 20,
+   "platinum jubilee bank holiday": 3,
+   "spring bank holiday": 12,
+   "world cup bank holiday": 1
+  }
+ },
+ "join_us_statute_rule_to_list": {
+  "matched": 209,
+  "rows_whose_name_equals_a_statute_name": 209,
+  "total": 212,
+  "unmatched_holidays": {
+   "Christmas Day (date not resolved)": 1,
+   "Inauguration Day": 2
+  }
+ },
+ "nager_date": {
+  "note": "API not called by this script",
+  "robots_disallows_api": true,
+  "terms_forbid_own_holiday_portal": true,
+  "terms_last_updated": "2023-09-15",
+  "terms_require_sponsorship_for_commercial_use": true
+ },
+ "requests": 18,
+ "run_date": "2026-11-20",
+ "uk_gov_bank_holidays": {
+  "distinct_titles": 17,
+  "divisions": {
+   "england-and-wales": {
+    "events": 83,
+    "first": "2019-01-01",
+    "last": "2028-12-26",
+    "substitute_day_notes": 10,
+    "with_notes": 10
+   },
+   "northern-ireland": {
+    "events": 103,
+    "first": "2019-01-01",
+    "last": "2028-12-26",
+    "substitute_day_notes": 15,
+    "with_notes": 15
+   },
+   "scotland": {
+    "events": 94,
+    "first": "2019-01-01",
+    "last": "2028-12-26",
+    "substitute_day_notes": 18,
+    "with_notes": 18
+   }
+  },
+  "events_total": 280,
+  "fields": [
+   "bunting",
+   "date",
+   "notes",
+   "title"
+  ],
+  "page_states_ogl_v3": true
+ },
+ "uk_statute_schedule_1": {
+  "bytes": 9804,
+  "characters": 1716,
+  "items": {
+   "england-and-wales": [
+    "Easter Monday.",
+    "The last Monday in May.",
+    "The last Monday in August.",
+    "26th December, if it be not a Sunday.",
+    "27th December in a year in which 25th or 26th December is a Sunday."
+   ],
+   "northern-ireland": [
+    "17th March, if it be not a Sunday or, if it be a Sunday, 18th March.",
+    "Easter Monday.",
+    "The last Monday in May.",
+    "The last Monday in August.",
+    "26th December, if it be not a Sunday.",
+    "27th December in a year in which 25th or 26th December is a Sunday."
+   ],
+   "scotland": [
+    "New Year's Day, if it be not a Sunday or, if it be a Sunday, 3rd January.",
+    "2nd January, if it be not a Sunday or, if it be a Sunday, 3rd January.",
+    "Good Friday.",
+    "The first Monday in May.",
+    "The first Monday in August.",
+    "30th November, if it is not a Saturday or Sunday or, if it is a Saturday or Sunday, the first Monday following that day.",
+    "Christmas Day, if it be not a Sunday or, if it be a Sunday, 26th December."
+   ]
+  },
+  "items_per_division": {
+   "england-and-wales": 5,
+   "northern-ireland": 6,
+   "scotland": 7
+  },
+  "page_states_ogl_v3": true,
+  "sha256": "3c65d732d4af3a853f9404128de5463a7034296850f531946de68707146ffdc1"
+ },
+ "us_opm_federal_holidays": {
+  "bytes": 152335,
+  "distinct_holiday_names": [
+   "Birthday of Martin Luther King, Jr.",
+   "Christmas Day",
+   "Columbus Day",
+   "Inauguration Day",
+   "Independence Day",
+   "Juneteenth National Independence Day",
+   "Labor Day",
+   "Memorial Day",
+   "New Year's Day",
+   "Thanksgiving Day",
+   "Veterans Day",
+   "Washington's Birthday"
+  ],
+  "footnoted_rows": 47,
+  "ics_link_present": true,
+  "rows": 212,
+  "rows_without_resolved_date": 1,
+  "schedule_years": [
+   2011,
+   2030
+  ],
+  "schedules": 20
+ },
+ "us_statute_5usc6103": {
+  "bytes": 17224,
+  "characters": 11541,
+  "edition": "2024",
+  "govinfo_policy_quote_present": true,
+  "mentions_inauguration_day": true,
+  "mentions_saturday_rule": true,
+  "sha256": "6909183aef19c2e16b1540ff3058f3a1bbb2c5ca13f249dee494f059604ea28f",
+  "subsection_a_holidays": [
+   {
+    "name": "New Year's Day",
+    "rule": "January 1"
+   },
+   {
+    "name": "Birthday of Martin Luther King, Jr.",
+    "rule": "the third Monday in January"
+   },
+   {
+    "name": "Washington's Birthday",
+    "rule": "the third Monday in February"
+   },
+   {
+    "name": "Memorial Day",
+    "rule": "the last Monday in May"
+   },
+   {
+    "name": "Juneteenth National Independence Day",
+    "rule": "June 19"
+   },
+   {
+    "name": "Independence Day",
+    "rule": "July 4"
+   },
+   {
+    "name": "Labor Day",
+    "rule": "the first Monday in September"
+   },
+   {
+    "name": "Columbus Day",
+    "rule": "the second Monday in October"
+   },
+   {
+    "name": "Veterans Day",
+    "rule": "November 11"
+   },
+   {
+    "name": "Thanksgiving Day",
+    "rule": "the fourth Thursday in November"
+   },
+   {
+    "name": "Christmas Day",
+    "rule": "December 25"
+   }
+  ]
+ },
+ "user_agent": "data-foundry-scout/1.0 (data@mail.proviciency.com)",
+ "vacanza_holidays_library": {
+  "license": "MIT",
+  "license_file_grants_sublicense_and_sell": true,
+  "newest_stable": [
+   "2026-11-17",
+   "0.109"
+  ],
+  "note": "metadata only; the package was not downloaded or executed, so its dates were not compared",
+  "stable_releases": 131,
+  "stable_releases_last_365_days": 24,
+  "version": "0.109",
+  "wheel": [
+   {
+    "bytes": 1744125,
+    "filename": "holidays-0.109-py3-none-any.whl",
+    "sha256": "7d39c910167116d41fa6aae18d5e72b4541700cdd37743d799c83db3419201b0"
+   }
+  ]
+ }
+}

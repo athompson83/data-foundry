@@ -1,0 +1,1730 @@
+{
+ "easa_ad_number_join": {
+  "distinct_easa_ad_numbers_cited": 110,
+  "easa_ad_numbers_looked_up": 60,
+  "faa_ad_to_easa_ad_pairs": 110,
+  "faa_ads_citing_an_easa_ad": 74,
+  "faa_ads_read": 150,
+  "faa_ads_with_at_least_one_resolved_easa_ad": 42,
+  "pairs_with_both_sides_read": 48,
+  "resolved_by_issuer": {
+   "Europe": 48
+  },
+  "resolved_issue_year": {
+   "2017": 1,
+   "2021": 1,
+   "2022": 1,
+   "2023": 2,
+   "2024": 9,
+   "2025": 24,
+   "2026": 10
+  },
+  "resolved_stating_a_supersedure": 14,
+  "resolved_to_an_easa_tool_page_stating_that_number": 48,
+  "resolved_with_ata_chapter": 47,
+  "resolved_with_effective_date": 48,
+  "resolved_with_tc_holder_and_type": 48,
+  "unresolved": [
+   {
+    "easa_ad": "2021-0139",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2023-0111",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2023-0190-E",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2024-0028-E",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2024-0182",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2025-0051",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2025-0104",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2025-0128",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2025-0158",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2025-0159",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2026-0060",
+    "http_status": 500
+   },
+   {
+    "easa_ad": "2026-0125-E",
+    "http_status": 500
+   }
+  ]
+ },
+ "easa_tool_list": {
+  "by_issuer_flag": {
+   "BR": 1,
+   "CA": 12,
+   "EU": 66,
+   "UK": 1,
+   "US": 20
+  },
+  "by_kind": {
+   "EASA AD": 50,
+   "EASA proposed AD (PAD)": 16,
+   "foreign AD (CF-)": 12,
+   "foreign AD (US-)": 20,
+   "other": 2
+  },
+  "distinct_numbers": 100,
+  "issue_date_range": [
+   "2026-09-23",
+   "2026-11-20"
+  ],
+  "list_pages_read": 5,
+  "rows_parsed": 100,
+  "sample": [
+   {
+    "attachments": 1,
+    "issue_date": "2026-11-20",
+    "issued_by": "US",
+    "models": 12,
+    "number": "US-2026-21-11",
+    "subject": "Turbine Engine Compressor Section - Variable Geometry System Actuator - Replacement",
+    "tc_holders": [
+     "GENERAL ELECTRIC"
+    ],
+    "types": [
+     "CF34-8"
+    ]
+   },
+   {
+    "attachments": 2,
+    "issue_date": "2026-11-20",
+    "issued_by": "EU",
+    "models": 3,
+    "number": "2026-0223",
+    "subject": "Pneumatic – Pylon / Wing Interface Bleed Duct and Fuel Pipe – Inspection / Modification / Replacement",
+    "tc_holders": [
+     "AIRBUS S.A.S."
+    ],
+    "types": [
+     "A380"
+    ]
+   },
+   {
+    "attachments": 2,
+    "issue_date": "2026-11-20",
+    "issued_by": "EU",
+    "models": 1,
+    "number": "2026-0224",
+    "subject": "Fire Protection – Fire-extinguishing Pipes – Replacement",
+    "tc_holders": [
+     "AIRBUS S.A.S."
+    ],
+    "types": [
+     "A380"
+    ]
+   },
+   {
+    "attachments": 1,
+    "issue_date": "2026-11-19",
+    "issued_by": "US",
+    "models": 2,
+    "number": "US-2026-22-04",
+    "subject": "Fuel - Horizontal Stabilizer Fuel Tank - Inspection",
+    "tc_holders": [
+     "BOEING"
+    ],
+    "types": [
+     "747"
+    ]
+   },
+   {
+    "attachments": 2,
+    "issue_date": "2026-11-19",
+    "issued_by": "EU",
+    "models": 2,
+    "number": "2026-0222",
+    "subject": "Time Limits / Maintenance Checks – Airworthiness Limitations Section / Part 4, System Equipment Maintenance Requirements – Amendment",
+    "tc_holders": [
+     "AIRBUS S.A.S."
+    ],
+    "types": [
+     "A350"
+    ]
+   }
+  ],
+  "total_publications_stated": 17487,
+  "with_attachment": 100,
+  "with_issue_date": 100,
+  "with_model": 86,
+  "with_subject": 100,
+  "with_tc_holder": 100,
+  "with_type": 100
+ },
+ "faa_ad_number_in_easa_tool": {
+  "cf_numbers_also_cited_by_an_faa_ad_in_the_sample": [],
+  "cf_prefixed_rows_on_list_pages": 12,
+  "not_in_sample": [],
+  "us_prefixed_rows_on_list_pages": 20,
+  "whose_faa_ad_number_is_in_the_govinfo_sample": 20
+ },
+ "faa_drs_probe": {
+  "ad_doctype_path_bytes": 22875,
+  "api_data_pull_status_without_key": 403,
+  "has_app_root_element": true,
+  "home_bytes": 22876,
+  "home_title": "Dynamic Regulatory System",
+  "same_body_on_both_paths": false,
+  "visible_text_characters": 29
+ },
+ "federal_register_api": {
+  "api_count": 313,
+  "by_publication_month": {
+   "2026-01": 29,
+   "2026-02": 18,
+   "2026-03": 31,
+   "2026-04": 29,
+   "2026-05": 35,
+   "2026-06": 35,
+   "2026-07": 34,
+   "2026-08": 26,
+   "2026-09": 26,
+   "2026-10": 29,
+   "2026-11": 19
+  },
+  "distinct_document_numbers": 311,
+  "fields_requested": [
+   "document_number",
+   "title",
+   "publication_date",
+   "abstract",
+   "effective_on",
+   "docket_ids",
+   "raw_text_url",
+   "html_url"
+  ],
+  "newest_publication_date": "2026-11-20",
+  "oldest_publication_date": "2026-01-02",
+  "other_titles_sample": [
+   "Miscellaneous Technical Amendments; Technical Amendment",
+   "Requirements for Interference-Tolerant Radio Altimeter Systems"
+  ],
+  "pages_read": 1,
+  "query": "agency federal-aviation-administration, type RULE, term \"Airworthiness Directives\", publication_date >= 2026-01-01",
+  "results_read": 313,
+  "title_starts_with_airworthiness_directives": 311,
+  "top_title_subjects": {
+   "Airbus Canada Limited Partnership (Type Certificate Previously Held by C Series Aircraft Limited Partnership (CSALP); Bombardier, Inc.) Airplanes": 9,
+   "Airbus Helicopters": 44,
+   "Airbus Helicopters Deutschland GmbH (AHD) Helicopters": 10,
+   "Airbus SAS Airplanes": 41,
+   "Bell Textron Canada Limited Helicopters": 10,
+   "Bombardier, Inc., Airplanes": 9,
+   "Rolls-Royce Deutschland Ltd & Co KG Engines": 11,
+   "The Boeing Company Airplanes": 50
+  },
+  "with_abstract": 310,
+  "with_docket_id": 311,
+  "with_effective_on": 310
+ },
+ "federal_register_full_text_probe": {
+  "http_status": 429,
+  "url": "https://www.federalregister.gov/documents/full_text/text/2026/11/20/2026-23697.txt"
+ },
+ "fetched": {
+  "canada_terms.html": {
+   "bytes": 35421,
+   "sha256": "b2b229c1d928c15016dfdfc8bd7684af1bcd6c0b2ba80661271c8850801b1bf7",
+   "url": "https://www.canada.ca/en/transparency/terms.html"
+  },
+  "drs_ad_doctype.html": {
+   "bytes": 22875,
+   "sha256": "87db9aeb620463737fcce8fa40df1a98c16b0a79b3e542fd7dd3b167040494bb",
+   "url": "https://drs.faa.gov/browse/ADFRAWD/doctypeDetails"
+  },
+  "drs_home.html": {
+   "bytes": 22876,
+   "sha256": "36e7f5d07d8e1ae2dbda8896e83ac4b1a051fb57a56e0d5ba7432ada1d774d7a",
+   "url": "https://drs.faa.gov/"
+  },
+  "easa_ad_2017-0022.html": {
+   "bytes": 20032,
+   "sha256": "2239c4dce74791008f13c0916df8e3340b0447d5d0b2d929cafd954948ad9737",
+   "url": "https://ad.easa.europa.eu/ad/2017-0022"
+  },
+  "easa_ad_2021-0193.html": {
+   "bytes": 22173,
+   "sha256": "802a75ee8bea02396968f5d492e7994b936e3bfccc62d9623ca31fe8cad0b876",
+   "url": "https://ad.easa.europa.eu/ad/2021-0193"
+  },
+  "easa_ad_2022-0181.html": {
+   "bytes": 20343,
+   "sha256": "fedcccad5dca04b4f4295dd1340effa66622406fcdb36e14d4649cf23914a574",
+   "url": "https://ad.easa.europa.eu/ad/2022-0181"
+  },
+  "easa_ad_2023-0100.html": {
+   "bytes": 20632,
+   "sha256": "bb18e0d623d38a62e9207bb1f1971c6112f770195f7b800c4733a1698adbaa25",
+   "url": "https://ad.easa.europa.eu/ad/2023-0100"
+  },
+  "easa_ad_2023-0149.html": {
+   "bytes": 19656,
+   "sha256": "4ee5fdc4f7e1b6bd8802a53b4e6bf22499f62e766e7b79f8c71c7286e5edd244",
+   "url": "https://ad.easa.europa.eu/ad/2023-0149"
+  },
+  "easa_ad_2024-0052.html": {
+   "bytes": 20847,
+   "sha256": "72ff544163a0e518c57150c4624ff36845aea119db67ce3706ade644630b42f8",
+   "url": "https://ad.easa.europa.eu/ad/2024-0052"
+  },
+  "easa_ad_2024-0110.html": {
+   "bytes": 21702,
+   "sha256": "09b12ad1e0e26df25045510f57bf0c94d6c5416b8a6667e8deb3d46926fbbc84",
+   "url": "https://ad.easa.europa.eu/ad/2024-0110"
+  },
+  "easa_ad_2024-0130.html": {
+   "bytes": 20746,
+   "sha256": "af4f753e1d171de150155d9ab50784ced3a9006b0f311d33bb64839ec2b94ca2",
+   "url": "https://ad.easa.europa.eu/ad/2024-0130"
+  },
+  "easa_ad_2024-0133R1.html": {
+   "bytes": 21902,
+   "sha256": "1a261ecf0067cc328d2487d3ecbf19b742581a75713913e3839a7895ce0c593d",
+   "url": "https://ad.easa.europa.eu/ad/2024-0133R1"
+  },
+  "easa_ad_2024-0134.html": {
+   "bytes": 22049,
+   "sha256": "18c31108423ddde38445224d258ed56232508cf2620414f36bdad51c202af160",
+   "url": "https://ad.easa.europa.eu/ad/2024-0134"
+  },
+  "easa_ad_2024-0136.html": {
+   "bytes": 20092,
+   "sha256": "e3894f2a839edbcaee5f50bb44faa78c8b7bb1353b53cb05fa303ddf747a0a4b",
+   "url": "https://ad.easa.europa.eu/ad/2024-0136"
+  },
+  "easa_ad_2024-0182R1.html": {
+   "bytes": 21840,
+   "sha256": "a4e9b471d3cbbdfc422d384082374c4e1e683b231e0ad9782fca10214f0aaca4",
+   "url": "https://ad.easa.europa.eu/ad/2024-0182R1"
+  },
+  "easa_ad_2024-0216.html": {
+   "bytes": 30848,
+   "sha256": "1d1ad6a6526a122a6ad8f9323feb2c36e0b7908b57b9524ca76557995a93d953",
+   "url": "https://ad.easa.europa.eu/ad/2024-0216"
+  },
+  "easa_ad_2024-0232.html": {
+   "bytes": 20577,
+   "sha256": "9e3592ca30af1c2a777df8ae2bb5b1dca9d430f0b8ccfebc5b006b81db1cd392",
+   "url": "https://ad.easa.europa.eu/ad/2024-0232"
+  },
+  "easa_ad_2025-0005.html": {
+   "bytes": 20876,
+   "sha256": "480edc98744ccfe0a2cc072b138370db4e894e13b0a972aa9361ecc6c50e00f4",
+   "url": "https://ad.easa.europa.eu/ad/2025-0005"
+  },
+  "easa_ad_2025-0051R1.html": {
+   "bytes": 29215,
+   "sha256": "744e8b25c72d07058f1b9dc836ad71ff1e35e0746cd43d71304b58b658455dcf",
+   "url": "https://ad.easa.europa.eu/ad/2025-0051R1"
+  },
+  "easa_ad_2025-0055.html": {
+   "bytes": 23890,
+   "sha256": "17cb487e72babb60ac96435a3474dc5d3863a3e4e677f1a2b29bdee20ee4a737",
+   "url": "https://ad.easa.europa.eu/ad/2025-0055"
+  },
+  "easa_ad_2025-0062.html": {
+   "bytes": 20020,
+   "sha256": "e0ad36c35d950e725ec470890913bc10db480e78ee8e58ccd88e4d4e0e67edb9",
+   "url": "https://ad.easa.europa.eu/ad/2025-0062"
+  },
+  "easa_ad_2025-0064.html": {
+   "bytes": 19799,
+   "sha256": "3b1f93f0cdf1b43635ab0cbcbf2f1aed6c24a215bc4587bc1ac663f77e244644",
+   "url": "https://ad.easa.europa.eu/ad/2025-0064"
+  },
+  "easa_ad_2025-0067.html": {
+   "bytes": 21399,
+   "sha256": "47d95dbc2a4a279e282f5eaad42dc5324a95f068f6fd51bfbe58f276a935fead",
+   "url": "https://ad.easa.europa.eu/ad/2025-0067"
+  },
+  "easa_ad_2025-0073.html": {
+   "bytes": 20227,
+   "sha256": "4ddb476e9f594cb1c1da32ff1f56491e98b467394ef3b770beae03eb320d5338",
+   "url": "https://ad.easa.europa.eu/ad/2025-0073"
+  },
+  "easa_ad_2025-0079.html": {
+   "bytes": 22033,
+   "sha256": "c8eaec08a7e8adec4279b28541a4d2bb5f81c492410e5c5bcbcdf6bd0e02a61d",
+   "url": "https://ad.easa.europa.eu/ad/2025-0079"
+  },
+  "easa_ad_2025-0106.html": {
+   "bytes": 20698,
+   "sha256": "07688af67e08599fc3a70355bc5e2d48b5b55fa6aebbf7bf6d92d75a02eeced1",
+   "url": "https://ad.easa.europa.eu/ad/2025-0106"
+  },
+  "easa_ad_2025-0110.html": {
+   "bytes": 21583,
+   "sha256": "53b0e8b3214f7ddd3f4c8792de8f6820cd122a0dc24109499bdd93254a542b5d",
+   "url": "https://ad.easa.europa.eu/ad/2025-0110"
+  },
+  "easa_ad_2025-0118R1.html": {
+   "bytes": 26067,
+   "sha256": "78d2f219fc3a8c4ab96e7f9af15099b35718ff585612b5d7c2f55c00e469ba1d",
+   "url": "https://ad.easa.europa.eu/ad/2025-0118R1"
+  },
+  "easa_ad_2025-0120.html": {
+   "bytes": 35835,
+   "sha256": "eda4213b247eeb1bb937d85874ab318c6787e7985a5813640bacca4219438608",
+   "url": "https://ad.easa.europa.eu/ad/2025-0120"
+  },
+  "easa_ad_2025-0128R1.html": {
+   "bytes": 22025,
+   "sha256": "a2486848885a1e333bb9195960dd3492fea3602bcf8675a6f9df993764dfbc5c",
+   "url": "https://ad.easa.europa.eu/ad/2025-0128R1"
+  },
+  "easa_ad_2025-0135.html": {
+   "bytes": 20861,
+   "sha256": "5a3e299f7a101f9052e16da6c0b045b80f4c6c06d3d77432ee491213c6caf0f7",
+   "url": "https://ad.easa.europa.eu/ad/2025-0135"
+  },
+  "easa_ad_2025-0144.html": {
+   "bytes": 22207,
+   "sha256": "7d682e7a205ad5b74be69b0f136f753ad04fbe114cdd215d69c18e4d70c90a39",
+   "url": "https://ad.easa.europa.eu/ad/2025-0144"
+  },
+  "easa_ad_2025-0148.html": {
+   "bytes": 23189,
+   "sha256": "91ebde813789110d5469786131c0d271ff00a6a260652e8e0bf68b6831f8f3d7",
+   "url": "https://ad.easa.europa.eu/ad/2025-0148"
+  },
+  "easa_ad_2025-0161.html": {
+   "bytes": 20565,
+   "sha256": "fce1a8aef3d06422883cc783332ae58de1036a700dd52efb5a343b232f59a297",
+   "url": "https://ad.easa.europa.eu/ad/2025-0161"
+  },
+  "easa_ad_2025-0179.html": {
+   "bytes": 20883,
+   "sha256": "5781a8c6636433dae2191505eaa3c110c15b59066e04a15c7cc8694c5b0a7e5b",
+   "url": "https://ad.easa.europa.eu/ad/2025-0179"
+  },
+  "easa_ad_2025-0191.html": {
+   "bytes": 20925,
+   "sha256": "f5683eabb8573ddc24d59ead674a4c6193c2029b292babefb1d43e56c4c6106c",
+   "url": "https://ad.easa.europa.eu/ad/2025-0191"
+  },
+  "easa_ad_2025-0193.html": {
+   "bytes": 24133,
+   "sha256": "db666350e54fba0fa553389d0a1df29dca404db5d56a1a64e1ee10201f96f7e0",
+   "url": "https://ad.easa.europa.eu/ad/2025-0193"
+  },
+  "easa_ad_2025-0208.html": {
+   "bytes": 20898,
+   "sha256": "f9a8cd8a554d9cdb43f21556f6216be2bcf5c8260a121d8bcf24f0dcb8502323",
+   "url": "https://ad.easa.europa.eu/ad/2025-0208"
+  },
+  "easa_ad_2025-0263.html": {
+   "bytes": 20630,
+   "sha256": "897caa3fabf9159f1955d052e29669c78a43e69687e958622d3ee2b886aa7a46",
+   "url": "https://ad.easa.europa.eu/ad/2025-0263"
+  },
+  "easa_ad_2025-0282.html": {
+   "bytes": 20145,
+   "sha256": "d3501f6f48e23e04b83ed472d29ae3c577312ce2043746bd6b05b2ce94f9d0e9",
+   "url": "https://ad.easa.europa.eu/ad/2025-0282"
+  },
+  "easa_ad_2025-0288R1.html": {
+   "bytes": 21472,
+   "sha256": "cb2db42efe52bd34780fb9c70403db0623ab5ee35120949fbb15517f140070fd",
+   "url": "https://ad.easa.europa.eu/ad/2025-0288R1"
+  },
+  "easa_ad_2026-0008.html": {
+   "bytes": 20309,
+   "sha256": "2bc0f6c6a87d5cabd6caf15bbf7d25aaf5402510c74456f3dcaaf94c3f197165",
+   "url": "https://ad.easa.europa.eu/ad/2026-0008"
+  },
+  "easa_ad_2026-0029.html": {
+   "bytes": 20398,
+   "sha256": "762eee2eda877c6ca4e86aa426bc77179bb8ee07675352f2cbfc44ea07d92724",
+   "url": "https://ad.easa.europa.eu/ad/2026-0029"
+  },
+  "easa_ad_2026-0032.html": {
+   "bytes": 22715,
+   "sha256": "31566aedcea38d29ef835ebafbb0d85a6137cad82972c4f9f2bf771221151450",
+   "url": "https://ad.easa.europa.eu/ad/2026-0032"
+  },
+  "easa_ad_2026-0040.html": {
+   "bytes": 20136,
+   "sha256": "51fb27f5f44b9a50b393ce8a0f3f31d854ec2704c4155f9f56eefd269969e408",
+   "url": "https://ad.easa.europa.eu/ad/2026-0040"
+  },
+  "easa_ad_2026-0080.html": {
+   "bytes": 22161,
+   "sha256": "bc128651390685cc44a5f3a82df5a707c2133e6cbad40bad956180067ab79eb4",
+   "url": "https://ad.easa.europa.eu/ad/2026-0080"
+  },
+  "easa_ad_2026-0108-E.html": {
+   "bytes": 20255,
+   "sha256": "2811baee35ab0811d76277cc8bcfbe2c47158a0ccf1baa9bed397606a23b7296",
+   "url": "https://ad.easa.europa.eu/ad/2026-0108-E"
+  },
+  "easa_ad_2026-0125R1.html": {
+   "bytes": 21502,
+   "sha256": "123e2b5899e1036ee6d43903631250e9898656e293f973680445f7880d60296a",
+   "url": "https://ad.easa.europa.eu/ad/2026-0125R1"
+  },
+  "easa_ad_2026-0152.html": {
+   "bytes": 20074,
+   "sha256": "44c70329adedbf24c87e0fe443c8ca2ae98adeb94c9f8d44fb7a44cc8115eba6",
+   "url": "https://ad.easa.europa.eu/ad/2026-0152"
+  },
+  "easa_ad_2026-0165.html": {
+   "bytes": 20121,
+   "sha256": "5de63a0fcd8e057cdf2b2d63d82381ef247fe0400c6caeea63eadedf858eb718",
+   "url": "https://ad.easa.europa.eu/ad/2026-0165"
+  },
+  "easa_ad_2026-0172-E.html": {
+   "bytes": 20786,
+   "sha256": "742f5f03e4a0e383145be75ca4ee6be2e0cf597d821c2f72a8b8841c97577ab6",
+   "url": "https://ad.easa.europa.eu/ad/2026-0172-E"
+  },
+  "easa_disclaimer.html": {
+   "bytes": 16650,
+   "sha256": "0355d983d3faeaecc62c23945d7edf480ae0a8e30aabb4061ab31d20dbea540b",
+   "url": "https://ad.easa.europa.eu/disclaimer"
+  },
+  "easa_list_p1.html": {
+   "bytes": 139538,
+   "sha256": "556aa58e3215b69b4c354aa730159422843662013bc174de4423ee656a815bf0",
+   "url": "https://ad.easa.europa.eu/"
+  },
+  "easa_list_p2.html": {
+   "bytes": 135701,
+   "sha256": "9f3ee60ba80364b6d6c3c6fa810ba7d135856dc8cd4f68214c68c8da4f6e7667",
+   "url": "https://ad.easa.europa.eu/page-2"
+  },
+  "easa_list_p3.html": {
+   "bytes": 108093,
+   "sha256": "26612b2ee55a8c58041fc5a0c70a96157f4cba106ed495bd592dd50433db6b85",
+   "url": "https://ad.easa.europa.eu/page-3"
+  },
+  "easa_list_p4.html": {
+   "bytes": 104439,
+   "sha256": "ac93e6781d343ff68a7281b3c980a03270bd4bd7c99d8005b123c639016f53e7",
+   "url": "https://ad.easa.europa.eu/page-4"
+  },
+  "easa_list_p5.html": {
+   "bytes": 123352,
+   "sha256": "eb15c8ad5be76483fdec366ee15adc3b872c313c90429c98a6ca3cc600ec97cc",
+   "url": "https://ad.easa.europa.eu/page-5"
+  },
+  "fr_api_2026_p1.json": {
+   "bytes": 388713,
+   "sha256": "77f4cb561276108974187dad594660765f56c9ea2e143801ca01b3bf86f02793",
+   "url": "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=federal-aviation-administration&conditions%5Btype%5D%5B%5D=RULE&conditions%5Bterm%5D=%22Airworthiness+Directives%22&conditions%5Bpublication_date%5D%5Bgte%5D=2026-01-01&per_page=1000&order=newest&page=1&fields%5B%5D=document_number&fields%5B%5D=title&fields%5B%5D=publication_date&fields%5B%5D=abstract&fields%5B%5D=effective_on&fields%5B%5D=docket_ids&fields%5B%5D=raw_text_url&fields%5B%5D=html_url"
+  },
+  "fr_legal_status.html": {
+   "bytes": 10596,
+   "sha256": "75b25c0b824a89d44e509931ece408421e75f9165533a4d0c447ae4a117353de",
+   "url": "https://www.federalregister.gov/reader-aids/policy/legal-status"
+  },
+  "govinfo_2026-12050.htm": {
+   "bytes": 20251,
+   "sha256": "1e70aaa58dee96857d8aa9c17eefc541b93aeb7f7690900a864bdcaed817cb88",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-16/html/2026-12050.htm"
+  },
+  "govinfo_2026-12051.htm": {
+   "bytes": 28935,
+   "sha256": "71547d4c58984a09d745c6fd47d595c43fb9b40d985a1b10a3c10fb8724e6084",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-16/html/2026-12051.htm"
+  },
+  "govinfo_2026-12052.htm": {
+   "bytes": 20698,
+   "sha256": "be66851c952715b4fa333a38da90eb7fe6b588aca9e3d4a2472fb02b8702eb19",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-16/html/2026-12052.htm"
+  },
+  "govinfo_2026-13058.htm": {
+   "bytes": 21640,
+   "sha256": "ac15bb408f557f393c517b5d8c767bd588e1c911c8c52a54d432a1c72aaada16",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-29/html/2026-13058.htm"
+  },
+  "govinfo_2026-13060.htm": {
+   "bytes": 38606,
+   "sha256": "2cad61584846859d4abf84ce6701e23d6297ca63f49f212b268b2c6020bd212a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-29/html/2026-13060.htm"
+  },
+  "govinfo_2026-13062.htm": {
+   "bytes": 19894,
+   "sha256": "96b652a95279303a8c96517e2b1b40a06eba3710afd54dd5317ee46b57797d2f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-29/html/2026-13062.htm"
+  },
+  "govinfo_2026-13063.htm": {
+   "bytes": 19641,
+   "sha256": "67a29b7d803d59088ae0887841bcfed3b122049ad4e64059e72c66a70d4e8d4c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-29/html/2026-13063.htm"
+  },
+  "govinfo_2026-13064.htm": {
+   "bytes": 26533,
+   "sha256": "6d5d71b16f209a1f877fa4aafbe74399f35b2f97f20f7ed165fa95f43c6ef059",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-29/html/2026-13064.htm"
+  },
+  "govinfo_2026-13162.htm": {
+   "bytes": 30642,
+   "sha256": "0e49a7aa28bd9f86e42f6eea2f8ee6613bda1da950fedaa522a20f00ea5cbce2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13162.htm"
+  },
+  "govinfo_2026-13205.htm": {
+   "bytes": 36971,
+   "sha256": "37e67007c1c1c9c021718e47d798464048436b8e78bb3384c639b5dfa2794914",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13205.htm"
+  },
+  "govinfo_2026-13206.htm": {
+   "bytes": 31272,
+   "sha256": "de956a58f9146a50675bb2a11912eb4393abe3794c193711cfb5bc73979fb0a6",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13206.htm"
+  },
+  "govinfo_2026-13207.htm": {
+   "bytes": 29954,
+   "sha256": "5f09ed2f441d284a25c744e91c8cb4e6dce2e35fc519e95aa5bd1c0a5cdd5f1c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13207.htm"
+  },
+  "govinfo_2026-13208.htm": {
+   "bytes": 30616,
+   "sha256": "4ce506a82a2da1a9aa29daf05dcfb128bcf5ec8f91aaab5381ec4ce4e2f17f2f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13208.htm"
+  },
+  "govinfo_2026-13216.htm": {
+   "bytes": 29174,
+   "sha256": "a35cedfc75ea78dff131ce3752337c31158f8f473772bacf74f3f29969c43ff4",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13216.htm"
+  },
+  "govinfo_2026-13217.htm": {
+   "bytes": 30296,
+   "sha256": "b399af6392fc72b3e9676bcf31462afb4ece4d2c3317fd3827185034f1dab212",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13217.htm"
+  },
+  "govinfo_2026-13218.htm": {
+   "bytes": 30454,
+   "sha256": "136b462a7c0fd2a087d3b3e84894c995f327fa54ed0f5079928d69b798e41863",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-06-30/html/2026-13218.htm"
+  },
+  "govinfo_2026-13241.htm": {
+   "bytes": 19999,
+   "sha256": "202fbbed78d13a75da5ccaae01ef4c7ac94e2b0101862ecb234d53aaaebb785b",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-01/html/2026-13241.htm"
+  },
+  "govinfo_2026-13474.htm": {
+   "bytes": 22929,
+   "sha256": "e8a757d9ffef46d3fd1955a8b2b04c69c0689a6e74319393c2c2d3366e6ffd7f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-02/html/2026-13474.htm"
+  },
+  "govinfo_2026-13475.htm": {
+   "bytes": 30790,
+   "sha256": "b244255732e15dda6a13bc7bda9fde6a784b36840f881aa4be76f9b36c5885e2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-02/html/2026-13475.htm"
+  },
+  "govinfo_2026-13476.htm": {
+   "bytes": 24511,
+   "sha256": "7a2b5f3ba39206f2402489d13fc626e5dc6e1d484624fca6623a559052026448",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-02/html/2026-13476.htm"
+  },
+  "govinfo_2026-13481.htm": {
+   "bytes": 25449,
+   "sha256": "201696e3e7084b6abf0cd31b65207f627412771b924a5b0805d0244c9b77f5ea",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-02/html/2026-13481.htm"
+  },
+  "govinfo_2026-13538.htm": {
+   "bytes": 25068,
+   "sha256": "3d50c55cc1ac72889f128822ba8e13fdbbdb1ebf120fb526edb594c2a3fbe134",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-06/html/2026-13538.htm"
+  },
+  "govinfo_2026-13540.htm": {
+   "bytes": 15012,
+   "sha256": "6036445ffda48ccf2c0b42b1c49837b554fbc78ad78745a91d7bde9ea124c781",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-06/html/2026-13540.htm"
+  },
+  "govinfo_2026-13655.htm": {
+   "bytes": 20696,
+   "sha256": "95829ca73fb46b5df473bf8dde1d17e9ac415bdba7f40c5f99fc5f92aaa0b2bc",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-07/html/2026-13655.htm"
+  },
+  "govinfo_2026-13685.htm": {
+   "bytes": 22104,
+   "sha256": "a43dc535a24564b65be01b028c2d581e7c31c14adc00489921f4115f5ab461e2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-07/html/2026-13685.htm"
+  },
+  "govinfo_2026-13977.htm": {
+   "bytes": 17353,
+   "sha256": "448c9fcab00463965cddeafec4eae6f67e5fcc798f7916a4684064b0b11cbfbf",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-10/html/2026-13977.htm"
+  },
+  "govinfo_2026-13979.htm": {
+   "bytes": 26012,
+   "sha256": "6e9a808fbdf623a100600dfc08420f9c3552abed66031c4892106e7fb5a1ea16",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-10/html/2026-13979.htm"
+  },
+  "govinfo_2026-13981.htm": {
+   "bytes": 16689,
+   "sha256": "dfe956845180cead2a4b6a9c213bf7ad80ac34262285a5d40f5c3b038a0042b0",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-10/html/2026-13981.htm"
+  },
+  "govinfo_2026-13982.htm": {
+   "bytes": 21756,
+   "sha256": "ff5aa54fd01d7d4193f718dcfe3dad8b2f6a4344eace13f655d14886ed7d24f3",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-10/html/2026-13982.htm"
+  },
+  "govinfo_2026-13983.htm": {
+   "bytes": 22240,
+   "sha256": "be852107ea62a885c6ea231142cfb367e738a0a4781ecd377b1c0cb93d6a07d4",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-10/html/2026-13983.htm"
+  },
+  "govinfo_2026-14090.htm": {
+   "bytes": 19911,
+   "sha256": "4c4d9f1bb8328c564377f7601694063b9de256912cae304a3a5a8982b8a8b4a3",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-13/html/2026-14090.htm"
+  },
+  "govinfo_2026-14109.htm": {
+   "bytes": 12909,
+   "sha256": "1a48291fc989b0e4847962572b354efde4679136a55ec58a0d8caa0141f0933f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-14/html/2026-14109.htm"
+  },
+  "govinfo_2026-14110.htm": {
+   "bytes": 66329,
+   "sha256": "e8bad23bd18021dc46ddf19402277ed667f83f921dd5fea92a63e34edc0b6053",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-14/html/2026-14110.htm"
+  },
+  "govinfo_2026-14478.htm": {
+   "bytes": 22982,
+   "sha256": "751168c979a8b47596bdb2713d59d3feb297d08e3a9b84ea20bda1e0b2e038b2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-17/html/2026-14478.htm"
+  },
+  "govinfo_2026-14481.htm": {
+   "bytes": 44055,
+   "sha256": "c533f8c1ea46ca6009986419af19385774acb60fb755fb51d8b87ebf3c5ef2bf",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-17/html/2026-14481.htm"
+  },
+  "govinfo_2026-14511.htm": {
+   "bytes": 29686,
+   "sha256": "f16eb1cb9a97328e3e23d00103b4e4da8d87bee178aba40c02e6c0a46b229feb",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-17/html/2026-14511.htm"
+  },
+  "govinfo_2026-15004.htm": {
+   "bytes": 20912,
+   "sha256": "e68b542812318377cb1d6c749076520e1121fa0ad05022ed7d793f5087b0ca18",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-24/html/2026-15004.htm"
+  },
+  "govinfo_2026-15006.htm": {
+   "bytes": 26351,
+   "sha256": "f418d8ecd2c9d6862b996b1058413e553b5bf01f891d2ca2ea826cb6e325ac61",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-24/html/2026-15006.htm"
+  },
+  "govinfo_2026-15239.htm": {
+   "bytes": 48755,
+   "sha256": "579772c4a1938c2a641caf91a9ea94acaa2fe8f608171138fc10f35d5a0269f8",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-28/html/2026-15239.htm"
+  },
+  "govinfo_2026-15308.htm": {
+   "bytes": 19486,
+   "sha256": "79929ac731713a3accf997016157978f78db887214eacd79a520e6a6f97da8ce",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-29/html/2026-15308.htm"
+  },
+  "govinfo_2026-15365.htm": {
+   "bytes": 19936,
+   "sha256": "f590116d6c84547cedefaaee330926818e7b30f764c09a44ccd4410c07547dce",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15365.htm"
+  },
+  "govinfo_2026-15369.htm": {
+   "bytes": 29760,
+   "sha256": "9bb00c5ec80354a51ba857958bdc9ac1da4e3524e13652340120ea4c38b4d67a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15369.htm"
+  },
+  "govinfo_2026-15370.htm": {
+   "bytes": 16364,
+   "sha256": "f0cfa353add617a3c555960b6e4a7a8f5548134d9344566d9e43980718b5f204",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15370.htm"
+  },
+  "govinfo_2026-15409.htm": {
+   "bytes": 18044,
+   "sha256": "6cbecb16dfb052e2b379e496d47489a873a13e4807331f5ab2c5cfb436194832",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15409.htm"
+  },
+  "govinfo_2026-15410.htm": {
+   "bytes": 16292,
+   "sha256": "9388db40d4d1a0ba4a1d1169ddb44d2023eb8feeaf59569ab6a6987cc08cfa4f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15410.htm"
+  },
+  "govinfo_2026-15411.htm": {
+   "bytes": 22042,
+   "sha256": "4cd2f8c11444a2d4f48e9d6ba3541e1964f5fd3de9891504a809c13d263a0dc7",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15411.htm"
+  },
+  "govinfo_2026-15412.htm": {
+   "bytes": 17733,
+   "sha256": "4adeb8c700b3c16783538bad8c94ff51c6e1a109c7c22885d4d760369cda2c4c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15412.htm"
+  },
+  "govinfo_2026-15455.htm": {
+   "bytes": 16916,
+   "sha256": "dbe57ef248491ff5a55a8a11ea44983076781d3392886d876a0156d2d5a58fa3",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15455.htm"
+  },
+  "govinfo_2026-15466.htm": {
+   "bytes": 16892,
+   "sha256": "e16553d418c477504381c43d27fd379d324cc6f47a6641121833d21b3693f5ca",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15466.htm"
+  },
+  "govinfo_2026-15467.htm": {
+   "bytes": 21805,
+   "sha256": "eb09ba2afddc3a3e62702b74876940d019467899c1300092e7ee3b9597913e1e",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-07-30/html/2026-15467.htm"
+  },
+  "govinfo_2026-15825.htm": {
+   "bytes": 16169,
+   "sha256": "4ad2ec2c9a2cc6b7984c5df4e5a3d3a825dbc6bb0123ae279ba3b95954d69304",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-04/html/2026-15825.htm"
+  },
+  "govinfo_2026-15936.htm": {
+   "bytes": 18272,
+   "sha256": "3f39a9ff50cbe57ff965fa53a8d220cd4b79848d63a3c9cb59d3d02e88bbe33c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-06/html/2026-15936.htm"
+  },
+  "govinfo_2026-15978.htm": {
+   "bytes": 23802,
+   "sha256": "3e1df87123ff2c4b568e4307e88453da06f0f94e798a928c3d45596f01292019",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-06/html/2026-15978.htm"
+  },
+  "govinfo_2026-16043.htm": {
+   "bytes": 16896,
+   "sha256": "487347711168633839d4cff168a588458d673ab74e40ee566b8736f496a2010a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-06/html/2026-16043.htm"
+  },
+  "govinfo_2026-16047.htm": {
+   "bytes": 17438,
+   "sha256": "528a02fd381bc4aced6ff813c9d3ed271c63e2b257b9d0410cae2ef719043d25",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-06/html/2026-16047.htm"
+  },
+  "govinfo_2026-16504.htm": {
+   "bytes": 73741,
+   "sha256": "53e560bec86b95e0e938b3902370666ac41ceae64a7931732fe0064fedcbe5e1",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-13/html/2026-16504.htm"
+  },
+  "govinfo_2026-16505.htm": {
+   "bytes": 33437,
+   "sha256": "60688b2bad50462a429f32f62056f2002dd5d1b426890149ae88c6a89e182103",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-13/html/2026-16505.htm"
+  },
+  "govinfo_2026-16506.htm": {
+   "bytes": 17154,
+   "sha256": "8152b243c9f3b33b1e9f35105133eed79c3425fdaa44ac68b6a7c0e4bb81137c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-13/html/2026-16506.htm"
+  },
+  "govinfo_2026-16507.htm": {
+   "bytes": 15735,
+   "sha256": "14248dd7a39b483e8bef158843c3d43598b083c927265ed10c4aebbab6506ae8",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-13/html/2026-16507.htm"
+  },
+  "govinfo_2026-16512.htm": {
+   "bytes": 25201,
+   "sha256": "8e082b406e7a970611179c8173302599f98ebf763a073e97578790e3e11b0902",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-13/html/2026-16512.htm"
+  },
+  "govinfo_2026-16636.htm": {
+   "bytes": 18190,
+   "sha256": "837ca0f77a1a82317e4bc00de06ac8da3257ea316187d1b704d46f4e56147d05",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16636.htm"
+  },
+  "govinfo_2026-16641.htm": {
+   "bytes": 19399,
+   "sha256": "2995cbaa783f33b9564a4ce165e6ce38927b2df327163c79859588bb42480f41",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16641.htm"
+  },
+  "govinfo_2026-16655.htm": {
+   "bytes": 23476,
+   "sha256": "074fd7d2c9be8823bea0355d13f8ed86f5fa7700c439bbdfb8fd9f802e8cd92e",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16655.htm"
+  },
+  "govinfo_2026-16657.htm": {
+   "bytes": 20262,
+   "sha256": "55893e4768361f1149b25115e027a5f483d9b669d45e1bda9ab6d3a9670be483",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16657.htm"
+  },
+  "govinfo_2026-16659.htm": {
+   "bytes": 15232,
+   "sha256": "812059390505ee1682124d34763b34921b4627748dc275c72601b411ce92767c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16659.htm"
+  },
+  "govinfo_2026-16672.htm": {
+   "bytes": 28817,
+   "sha256": "79712c4da4e78a66dff5435ee66a013d494483abb34318b678518b9568295ccf",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-14/html/2026-16672.htm"
+  },
+  "govinfo_2026-16954.htm": {
+   "bytes": 32413,
+   "sha256": "55bf4f13753480289f4936c67adddbf8fd1c1fe4653fe9306550141bbe714bb5",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-20/html/2026-16954.htm"
+  },
+  "govinfo_2026-17551.htm": {
+   "bytes": 21368,
+   "sha256": "5ec39d4218591689e7d6d1e14d4fb20ece008bee0d4c6957b4d2d0ea31a8bb01",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-27/html/2026-17551.htm"
+  },
+  "govinfo_2026-17552.htm": {
+   "bytes": 16949,
+   "sha256": "76c22f0b349f5858aebf91390edaff5f7b0b677548c4c512c5e98e472d168a86",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-27/html/2026-17552.htm"
+  },
+  "govinfo_2026-17553.htm": {
+   "bytes": 19158,
+   "sha256": "111b924cbb95766f9c7a9047ab2299194a0cf46cd5adea0d1f1c6e67c84eed1d",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-27/html/2026-17553.htm"
+  },
+  "govinfo_2026-17581.htm": {
+   "bytes": 15892,
+   "sha256": "c31c83b93991787a9619bed03ab95a9a906c8a7194868f121423ed0255702d88",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-28/html/2026-17581.htm"
+  },
+  "govinfo_2026-17582.htm": {
+   "bytes": 18748,
+   "sha256": "d53f145ada5f72a952e9fd5c613c09b9a14ac428969bc7e6c8ae65c106c13c60",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-28/html/2026-17582.htm"
+  },
+  "govinfo_2026-17583.htm": {
+   "bytes": 40980,
+   "sha256": "ef0c1fd193ed627b7a74310fbc106578bcb413702e513ab59afadfa36d8e9f54",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-28/html/2026-17583.htm"
+  },
+  "govinfo_2026-17584.htm": {
+   "bytes": 24085,
+   "sha256": "0c79dd91f93b3437449808c29f53cbe9ab4b0a8f65a9e3b2992646eaccfb7aa0",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-28/html/2026-17584.htm"
+  },
+  "govinfo_2026-17615.htm": {
+   "bytes": 23662,
+   "sha256": "deba6a8940366488d48ec17f3ed5e2c7e6b08e8d0e954db20bd9566016c2fa3c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-28/html/2026-17615.htm"
+  },
+  "govinfo_2026-17639.htm": {
+   "bytes": 15567,
+   "sha256": "8160019c893d75039a46d69ed683a513427fa8bf9565be1c46f9c6949ba9c95e",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-08-28/html/2026-17639.htm"
+  },
+  "govinfo_2026-18019.htm": {
+   "bytes": 20489,
+   "sha256": "526bda7f9f266acb6e7e65fe0341133d430fed5de366398c191b2c05392658ee",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-03/html/2026-18019.htm"
+  },
+  "govinfo_2026-18052.htm": {
+   "bytes": 24936,
+   "sha256": "73f1627fe7e76904d977e4f7efe13b13b18fda43b111eadc3172a76643dc1819",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-03/html/2026-18052.htm"
+  },
+  "govinfo_2026-18053.htm": {
+   "bytes": 23838,
+   "sha256": "c81cef73622c8f36108fd0b3ff9f55f5e72bf9b45c5be3ba1c172b4ff2ba84fe",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-03/html/2026-18053.htm"
+  },
+  "govinfo_2026-18055.htm": {
+   "bytes": 20222,
+   "sha256": "f868ed8c8ee88a9431035fcc715cfa96f87d2bb2ec984007d545d555f15d7fc4",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-03/html/2026-18055.htm"
+  },
+  "govinfo_2026-18423.htm": {
+   "bytes": 8769,
+   "sha256": "4ae2d24d4df11efbd24d186fe0e13258649efce9bfea5be1f6226a75d62cfc2a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-10/html/2026-18423.htm"
+  },
+  "govinfo_2026-18559.htm": {
+   "bytes": 21535,
+   "sha256": "07366b0ea51f52d63b2a7228ab799dcc3a9a60fd45f1b20e35f8a81300b5ba2d",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-11/html/2026-18559.htm"
+  },
+  "govinfo_2026-18600.htm": {
+   "bytes": 21820,
+   "sha256": "596036dc893d682dad125d7a57ded10316bc2147cc514a8df1c8fc81640f9392",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-11/html/2026-18600.htm"
+  },
+  "govinfo_2026-18601.htm": {
+   "bytes": 18886,
+   "sha256": "781810eaa02b1ebeec9e388c9ed4aa2e11358ced31b6c05fb471f873da60841b",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-11/html/2026-18601.htm"
+  },
+  "govinfo_2026-18602.htm": {
+   "bytes": 18600,
+   "sha256": "ef629cf394eae6534090e35ea153420559a5e1ba8b7533b3a6f78617829af32f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-11/html/2026-18602.htm"
+  },
+  "govinfo_2026-18848.htm": {
+   "bytes": 14682,
+   "sha256": "8ee7e953a0ee77e3367f29e47852df7b26b3e819dffe2efd8573edaf32b3d8e5",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-15/html/2026-18848.htm"
+  },
+  "govinfo_2026-18927.htm": {
+   "bytes": 60973,
+   "sha256": "2eac57f94540c3cc68bf14608d0747527c272af7bf83e9def97c5831cf519d37",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-15/html/2026-18927.htm"
+  },
+  "govinfo_2026-19052.htm": {
+   "bytes": 17147,
+   "sha256": "3ef49ca4c574bb7f69df0a299a9594355e5c018bc45607769bcb54394c9183d1",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-17/html/2026-19052.htm"
+  },
+  "govinfo_2026-19082.htm": {
+   "bytes": 21595,
+   "sha256": "24707c7a5606ec41d037c3f4e452dc0de0c27aa7c13a7f4bd8055f623ea05f1d",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-17/html/2026-19082.htm"
+  },
+  "govinfo_2026-19083.htm": {
+   "bytes": 19552,
+   "sha256": "35f0115cabda1e6868c8e424c37aa187bd9f58dd2fa95088755db2221bc0c86b",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-17/html/2026-19083.htm"
+  },
+  "govinfo_2026-19084.htm": {
+   "bytes": 18587,
+   "sha256": "8c03924449bd7c754f6c150f2b67b5a8a1094ea283b453c2daee8ad69d62dd30",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-17/html/2026-19084.htm"
+  },
+  "govinfo_2026-19171.htm": {
+   "bytes": 21939,
+   "sha256": "ed6308eef1a2ece8839bc8edb51a68be94b0e81e558f39ba0adcf57a554f04ac",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-18/html/2026-19171.htm"
+  },
+  "govinfo_2026-19172.htm": {
+   "bytes": 22272,
+   "sha256": "4fad6a232b08e5f4db3f34f2563ea9ba36642e0a4e5f8167c0b0a9228ec20b62",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-18/html/2026-19172.htm"
+  },
+  "govinfo_2026-19751.htm": {
+   "bytes": 39236,
+   "sha256": "f9278360113f8a1cc0b31f4afa5f47c70edf336290100c064317f87096b600c1",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19751.htm"
+  },
+  "govinfo_2026-19754.htm": {
+   "bytes": 18313,
+   "sha256": "76915003d4b1468e056f8d43af7571f65c4bc9ff196502e8777d144bfb860728",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19754.htm"
+  },
+  "govinfo_2026-19757.htm": {
+   "bytes": 22565,
+   "sha256": "0f01749a712e6f8b172610ef08125101e77948bee8cdb4dae5bf15d37c462bd6",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19757.htm"
+  },
+  "govinfo_2026-19758.htm": {
+   "bytes": 28866,
+   "sha256": "a30cb726a1e8d9a7f5e6f39699aea8a59f85bbb3e120a8c67a78b96cd268cbde",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19758.htm"
+  },
+  "govinfo_2026-19760.htm": {
+   "bytes": 23406,
+   "sha256": "feee85a482d980bd2d43f5e2bffd5f818c6d47cbebb513268db2557644d1edb8",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19760.htm"
+  },
+  "govinfo_2026-19761.htm": {
+   "bytes": 18495,
+   "sha256": "c5499dce8f52c6d62a1ec9d9cc37b1144db0f2461285708c37b70283023f2751",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19761.htm"
+  },
+  "govinfo_2026-19762.htm": {
+   "bytes": 17001,
+   "sha256": "24fb84ce1b53f0ea839986271f34f7c25efa7ed7117777b6d302993892b41004",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-28/html/2026-19762.htm"
+  },
+  "govinfo_2026-19891.htm": {
+   "bytes": 10501,
+   "sha256": "d566bcb0210ee0c88ac598044c4d03e4d59423428097b0bf3f9c554e287ff7df",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-29/html/2026-19891.htm"
+  },
+  "govinfo_2026-19956.htm": {
+   "bytes": 15983,
+   "sha256": "8eb5863d12d260337d1279b6054dfd85d430adafdbba6bb9da917e54d078805e",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-09-29/html/2026-19956.htm"
+  },
+  "govinfo_2026-20098.htm": {
+   "bytes": 17707,
+   "sha256": "2921b4ca267c1c71278f104f9cc738e9a6e1bb06346119fffb9720e27f8c28bd",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-01/html/2026-20098.htm"
+  },
+  "govinfo_2026-20100.htm": {
+   "bytes": 21820,
+   "sha256": "f1e0d8e1645a4d2d3cb747254a3f0ee98932ac15752e85f9b8604bad36c54527",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-01/html/2026-20100.htm"
+  },
+  "govinfo_2026-20103.htm": {
+   "bytes": 16395,
+   "sha256": "85826d072b0582b93100bf3d45c018fb655dec624839801ea67bc634388bda08",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-01/html/2026-20103.htm"
+  },
+  "govinfo_2026-20119.htm": {
+   "bytes": 20959,
+   "sha256": "07210492b4a9c9bc3b7d0cece16255763a43bfd3e9939427d7ebf969f855d901",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-01/html/2026-20119.htm"
+  },
+  "govinfo_2026-20120.htm": {
+   "bytes": 19325,
+   "sha256": "dfeceaea16ab999d6c022bea7860fce2efd16ac8845d809a2f70de0d56176df9",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-01/html/2026-20120.htm"
+  },
+  "govinfo_2026-20666.htm": {
+   "bytes": 18958,
+   "sha256": "bcbe9de557c1c8c2076720bd5e19e2d24eb559f892f77eeee9d34e285c1d00a8",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-08/html/2026-20666.htm"
+  },
+  "govinfo_2026-20680.htm": {
+   "bytes": 23600,
+   "sha256": "560ea9e47a3150863e7e71c4c82dea11f02a5791b3120faed48ccff605ca0c1c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-08/html/2026-20680.htm"
+  },
+  "govinfo_2026-20722.htm": {
+   "bytes": 17434,
+   "sha256": "ea11a6d28d6a27fb08761ad474460495ba79e5ec866501635aca5c9229748c68",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-09/html/2026-20722.htm"
+  },
+  "govinfo_2026-20818.htm": {
+   "bytes": 15244,
+   "sha256": "9718b64cb34a8f701c90da83f9456f530b8b0fc24f0f42b122b7a18ba82d3da3",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-13/html/2026-20818.htm"
+  },
+  "govinfo_2026-20869.htm": {
+   "bytes": 16389,
+   "sha256": "8e7f4960d75b5768373ed90a83c5de908f3a52e728a201d2af1c492851a87c77",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-13/html/2026-20869.htm"
+  },
+  "govinfo_2026-21010.htm": {
+   "bytes": 23432,
+   "sha256": "4ed49d06f0ca8d71e8908fb702db7bbdb4ce009f2d18f1f84ffd74f94d62902c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-14/html/2026-21010.htm"
+  },
+  "govinfo_2026-21278.htm": {
+   "bytes": 17085,
+   "sha256": "6bb412dce0f67f5074ba6c0aba7656a0aa869ac43fc3b4da63bda1ae9e1f2530",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21278.htm"
+  },
+  "govinfo_2026-21290.htm": {
+   "bytes": 29921,
+   "sha256": "5c2e43e991ade8152bf8451198e2473de5733a26d3adb5c77243e2e06d38d126",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21290.htm"
+  },
+  "govinfo_2026-21325.htm": {
+   "bytes": 17481,
+   "sha256": "444251b940b627a2999c5c6a7fcff29a921c046bb4c7ae2bb583d9887c2f4654",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21325.htm"
+  },
+  "govinfo_2026-21326.htm": {
+   "bytes": 17274,
+   "sha256": "407a7d5d8f5fe91a933c0c151648838eaeab1cd2dff467e1c24389e2208ee39a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21326.htm"
+  },
+  "govinfo_2026-21331.htm": {
+   "bytes": 31049,
+   "sha256": "d6d4171ffc8b580cd115e3b1cbabd05ae60419a1c33639cc4b824bf4917ae65b",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21331.htm"
+  },
+  "govinfo_2026-21332.htm": {
+   "bytes": 26698,
+   "sha256": "bc3de5b2161570e3a5aa51badeb19d4feaf929bf9a8a5bc845c272b2b95ca5e8",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21332.htm"
+  },
+  "govinfo_2026-21333.htm": {
+   "bytes": 22219,
+   "sha256": "ca9e8a247dd5e8721d46a455f6f2c7127028f8d28ae3a5b67f8e0a968a55f0b5",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-19/html/2026-21333.htm"
+  },
+  "govinfo_2026-21590.htm": {
+   "bytes": 30870,
+   "sha256": "eae9d03a849d41da8e49ca004a12c0d8aa3e9b807692a6abe023a9dd88dd814a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-22/html/2026-21590.htm"
+  },
+  "govinfo_2026-21664.htm": {
+   "bytes": 14796,
+   "sha256": "06f573d6ebd3aa70cd3c82c587ee21187f80a39b62990104c154ac14c871c176",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-23/html/2026-21664.htm"
+  },
+  "govinfo_2026-21686.htm": {
+   "bytes": 23610,
+   "sha256": "cf10cbfa21b0459e22c3c980a672982a9820b2e75f3f24c87ef713bfbdbe6738",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-23/html/2026-21686.htm"
+  },
+  "govinfo_2026-21854.htm": {
+   "bytes": 19653,
+   "sha256": "45919e9089fce68c46544b8e9319b777608a11032f1b3d2250a18ceb43277442",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21854.htm"
+  },
+  "govinfo_2026-21855.htm": {
+   "bytes": 23580,
+   "sha256": "683d51e14f35a61c8abb4c12193dfad8450c6c41e1eb13c5979f524d7ac3f5e0",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21855.htm"
+  },
+  "govinfo_2026-21856.htm": {
+   "bytes": 22810,
+   "sha256": "1003896465e238d869aec7cd04d7356148462b464d03c3afd04d285a9af7db08",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21856.htm"
+  },
+  "govinfo_2026-21861.htm": {
+   "bytes": 15426,
+   "sha256": "f7ce580f070407f54d50d7d773b5db4512e248e0691a2cb190350fcdc0f6fa8d",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21861.htm"
+  },
+  "govinfo_2026-21862.htm": {
+   "bytes": 25864,
+   "sha256": "01a727afded0fd84a75194315c4b9351974298659ad3976bfc497698e4868911",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21862.htm"
+  },
+  "govinfo_2026-21863.htm": {
+   "bytes": 24305,
+   "sha256": "4f702b9a3451bbd9c47728c3e5d4dd583175947d248f16e002dfe5d06e4c7ab2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21863.htm"
+  },
+  "govinfo_2026-21864.htm": {
+   "bytes": 25635,
+   "sha256": "f28af789fc65210b3c43c6518c024a84c9e96267291d1d5f1e8b672e33f0bfee",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21864.htm"
+  },
+  "govinfo_2026-21902.htm": {
+   "bytes": 34280,
+   "sha256": "52fa14b9f69486744adfe0664afa1aa1601887342c7d5a2a7f2293b2ade8bbdd",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-10-27/html/2026-21902.htm"
+  },
+  "govinfo_2026-22307.htm": {
+   "bytes": 20682,
+   "sha256": "00a6d2056d6773563627df2e20623d1ca5f25c7919e56c6f403155d5f31e4574",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-02/html/2026-22307.htm"
+  },
+  "govinfo_2026-22310.htm": {
+   "bytes": 30734,
+   "sha256": "538290a9888c375d009727c21de0de9bc53e9c9cc0bc79a51a878ff332ea994c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-02/html/2026-22310.htm"
+  },
+  "govinfo_2026-22317.htm": {
+   "bytes": 21174,
+   "sha256": "a224c95cca1faf24ff92e38e40c3b59b4831df3dab33492c6da229306e5681a0",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-02/html/2026-22317.htm"
+  },
+  "govinfo_2026-22318.htm": {
+   "bytes": 21001,
+   "sha256": "e597dbcfe18994450b12816b3bf4ed81082bf6793cf3f52e8c06b9cf0b8ad2a2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-02/html/2026-22318.htm"
+  },
+  "govinfo_2026-22774.htm": {
+   "bytes": 16820,
+   "sha256": "b28de91a15cb9e42a4f0ad9e38b72636e11bc4499bf1aa7d0d1b9146247c727a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/2026-22774.htm"
+  },
+  "govinfo_2026-22776.htm": {
+   "bytes": 20783,
+   "sha256": "65353f11db313f7410ab2bca9675894a47a1eb14c09c47cf7d69f82715c2f1ac",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/2026-22776.htm"
+  },
+  "govinfo_2026-22780.htm": {
+   "bytes": 15477,
+   "sha256": "1e5990e1257e42c3722028412f62479a2206113f52d39cd342344a7e80ecf27c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/2026-22780.htm"
+  },
+  "govinfo_2026-22785.htm": {
+   "bytes": 26996,
+   "sha256": "c00747b4da2292f9970950357f495d6b5121f5aef52db417b088b541c3a501c4",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/2026-22785.htm"
+  },
+  "govinfo_2026-22817.htm": {
+   "bytes": 21135,
+   "sha256": "3b12e4b2361c2bc2a9847995bc79eb7083434274ee56820a88384fd06c5b57f7",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-09/html/2026-22817.htm"
+  },
+  "govinfo_2026-22897.htm": {
+   "bytes": 21623,
+   "sha256": "629de9b5e7f21540131c6ef7a4fd212da2ccf580eafd8ec8f22cc7286bc3aba5",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-10/html/2026-22897.htm"
+  },
+  "govinfo_2026-22907.htm": {
+   "bytes": 13605,
+   "sha256": "b9d07f483e5f48169a98b89e774b4e65c1889d61ab1a9b9f453a5302885127c0",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-10/html/2026-22907.htm"
+  },
+  "govinfo_2026-23007.htm": {
+   "bytes": 21173,
+   "sha256": "7f8b515d1f582168ee78abf86570e62ea32999627865c705c11545859135d75a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-12/html/2026-23007.htm"
+  },
+  "govinfo_2026-23633.htm": {
+   "bytes": 21815,
+   "sha256": "f9c4f984d114f33f292fde782232c340f33508b21e3f24fe664956f8d46d70eb",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-19/html/2026-23633.htm"
+  },
+  "govinfo_2026-23679.htm": {
+   "bytes": 23306,
+   "sha256": "7f5d0ac624ab5c353bbb062aa4fa1ded52a7f96060fa2d64f79837fe6fcc1042",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-20/html/2026-23679.htm"
+  },
+  "govinfo_2026-23684.htm": {
+   "bytes": 24015,
+   "sha256": "20535aa547061111c7033e03e73988c7128e8af1fd7365081d22b0bfa1fab8a8",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-20/html/2026-23684.htm"
+  },
+  "govinfo_2026-23688.htm": {
+   "bytes": 20733,
+   "sha256": "4d51fd2aade6fae9c785bc4f0dcc3fd09ceab947affe438e525b21579e228df9",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-20/html/2026-23688.htm"
+  },
+  "govinfo_2026-23691.htm": {
+   "bytes": 19436,
+   "sha256": "66d0eff07b05087ef0484cbb63a76778122e05992435f838037eb218be00959b",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-20/html/2026-23691.htm"
+  },
+  "govinfo_2026-23697.htm": {
+   "bytes": 20523,
+   "sha256": "45a4ca18168257106d1cdae7ce2bfaa57bb53884884500d74f4eb27ab6ced267",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-20/html/2026-23697.htm"
+  },
+  "govinfo_C1-2026-22307.htm": {
+   "bytes": 1123,
+   "sha256": "08b5dce708f93703676abeeab685bc4c95a43674d5545860512e07c009f2b249",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-11-18/html/C1-2026-22307.htm"
+  },
+  "govinfo_policies.html": {
+   "bytes": 64169,
+   "sha256": "d9e3a2f1cb4486ab4ecc4eff640f94f9a9bb8655ca71ff00694b236e7011ad1c",
+   "url": "https://www.govinfo.gov/about/policies"
+  },
+  "tc_robots.txt": {
+   "bytes": 28,
+   "sha256": "a8f31103361fca68bef71fc69cff844b7c23bd3d64d2b872d74690cbda656bfc",
+   "url": "https://wwwapps.tc.gc.ca/robots.txt"
+  }
+ },
+ "govinfo_ad_text": {
+  "characters": 3041664,
+  "citing_a_transport_canada_ad": 24,
+  "citing_an_anac_ad": 0,
+  "citing_an_easa_ad": 74,
+  "distinct_ad_numbers": 145,
+  "median_characters": 18963,
+  "mentioning_mcai": 97,
+  "naming_an_faa_ad_they_supersede_replace_or_remove": 47,
+  "newest_ads_requested": 150,
+  "not_available": [],
+  "numeric_compliance_time_phrases": 188,
+  "publication_date_range": [
+   "2026-06-16",
+   "2026-11-20"
+  ],
+  "sample": [
+   {
+    "ad_number": "2026-23-04",
+    "amendment": "39-23521",
+    "docket": "FAA-2026-13812",
+    "document_number": "2026-23697",
+    "easa_ads": [],
+    "tc_ads": [],
+    "title": "Airworthiness Directives; The Boeing Company Airplanes"
+   },
+   {
+    "ad_number": "2026-23-01",
+    "amendment": "39-23518",
+    "docket": "FAA-2026-1331",
+    "document_number": "2026-23691",
+    "easa_ads": [
+     "2025-0034"
+    ],
+    "tc_ads": [],
+    "title": "Airworthiness Directives; Airbus SAS Airplanes"
+   },
+   {
+    "ad_number": "2026-23-05",
+    "amendment": "39-23522",
+    "docket": "FAA-2026-3876",
+    "document_number": "2026-23688",
+    "easa_ads": [],
+    "tc_ads": [],
+    "title": "Airworthiness Directives; The Boeing Company Airplanes"
+   },
+   {
+    "ad_number": "2026-22-15",
+    "amendment": "39-23517",
+    "docket": "FAA-2026-4664",
+    "document_number": "2026-23684",
+    "easa_ads": [
+     "2024-0110",
+     "2025-0239"
+    ],
+    "tc_ads": [],
+    "title": "Airworthiness Directives; Airbus Helicopters"
+   },
+   {
+    "ad_number": "2026-23-03",
+    "amendment": "39-23520",
+    "docket": "FAA-2026-4656",
+    "document_number": "2026-23679",
+    "easa_ads": [
+     "2026-0031"
+    ],
+    "tc_ads": [],
+    "title": "Airworthiness Directives; Airbus Helicopters Deutschland GmbH (AHD) Helicopters"
+   },
+   {
+    "ad_number": "2026-24-01",
+    "amendment": "39-23525",
+    "docket": "FAA-2025-5401",
+    "document_number": "2026-23633",
+    "easa_ads": [],
+    "tc_ads": [],
+    "title": "Airworthiness Directives; General Atomics AeroTec Systems GmbH (Type Certificate Previously Held by RUAG Aerospace Services GmbH) Airplanes"
+   }
+  ],
+  "texts_read": 150,
+  "with_a_numeric_compliance_time_phrase": 62,
+  "with_ad_number_and_amendment_in_heading": 150,
+  "with_applicability_paragraph": 149,
+  "with_compliance_paragraph": 149,
+  "with_docket_number": 150,
+  "with_effective_date_sentence": 145
+ },
+ "handcheck_sample": [
+  {
+   "easa_ad": "2026-0165",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Engine Exhaust – Nozzle Exhaust Duct Clamp Assembly – Inspection",
+   "easa_tc_holders": [
+    "LEONARDO S.p.A. HELICOPTERS"
+   ],
+   "easa_types": [
+    "AB139/AW139"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Leonardo S.p.a. Model AB139 and AW139 helicopters. This AD was prompted by a report of a nozzle exhaust duct clamp separating from the engine nozzle duct and coming to rest on the tail rotor (T",
+   "faa_ad": "2026-20-07",
+   "faa_title": "Airworthiness Directives; Leonardo S.p.a. Helicopters",
+   "fr_document_number": "2026-20100"
+  },
+  {
+   "easa_ad": "2025-0062",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Main Rotor – Main Rotor Blades – Replacement",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "AS 350 / EC 130"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus Helicopters Model EC 130 T2 helicopters. This AD was prompted by the determination that helicopter operators received main rotor blades (MRB) that are not certified to be installed on th",
+   "faa_ad": "2026-19-02",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-19758"
+  },
+  {
+   "easa_ad": "2025-0064",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Engine Exhaust – Ejector Duct – Inspection",
+   "easa_tc_holders": [
+    "LEONARDO S.p.A. HELICOPTERS"
+   ],
+   "easa_types": [
+    "AW189"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Leonardo S.p.a. Model AW189 helicopters. This AD was prompted by reports of cracking on the ejector ducts. This AD requires repetitively inspecting the left-hand (LH) side and right-hand (RH) side ",
+   "faa_ad": "2026-15-15",
+   "faa_title": "Airworthiness Directives; Leonardo S.p.a. Helicopters",
+   "fr_document_number": "2026-15370"
+  },
+  {
+   "easa_ad": "2026-0152",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Air Conditioning – Vapor Cycle Air Conditioning System – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS DEUTSCHLAND"
+   ],
+   "easa_types": [
+    "MBB-BK 117"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Airbus Helicopters Deutschland GmbH (AHD) Model MBB-BK 117 C-1 helicopters. This AD was prompted by a report of a louver box assembly detaching in flight due to incorrect installation. This AD requ",
+   "faa_ad": "2026-21-02",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters Deutschland GmbH (AHD) Helicopters",
+   "fr_document_number": "2026-20722"
+  },
+  {
+   "easa_ad": "2026-0008",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Ice and Rain Protection – Windows, Windshields and Doors / Left-Hand Windshield Heating Solid State Relay – Modification / Replacement",
+   "easa_tc_holders": [
+    "PILATUS AIRCRAFT LTD"
+   ],
+   "easa_types": [
+    "PC-24"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Pilatus Aircraft Ltd. (Pilatus) Model PC-24 airplanes. This AD was prompted by a report that a solid-state relay (SSR) used in the left-hand (LH) windshield heating system may allow reverse cur",
+   "faa_ad": "2026-17-11",
+   "faa_title": "Airworthiness Directives; Pilatus Aircraft Ltd. Airplanes",
+   "fr_document_number": "2026-18848"
+  },
+  {
+   "easa_ad": "2026-0029",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Tail Rotor Drive – Tail Gear Box Input Flange – Functional Checks",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "SA/AS 365 / EC 155"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Airbus Helicopters Model SA 365 N helicopters. This AD was prompted by reports of tightening torque loss on the input flange nut due to circular wear on the faces of the flange, the slip ring, and ",
+   "faa_ad": "2026-21-10",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-21854"
+  },
+  {
+   "easa_ad": "2022-0181",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2022-0227",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A330"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2025-04- 05, which applied to all Airbus SAS Model A330-841 and -941 airplanes. AD 2025-04-05 required a revision of the existing airplane flight manual (AFM) and removal of the previously required limitation",
+   "faa_ad": "2026-20-15",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-21331"
+  },
+  {
+   "easa_ad": "2024-0133R1",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2026-0102",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "AS 350 / EC 130"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2022-11- 08, which applied to all Airbus Helicopters Model AS350B, AS350BA, AS350B1, AS350B2, AS350B3, AS350D, EC130B4, and EC130T2 helicopters. AD 2022-11-08 required incorporating into maintenance records c",
+   "faa_ad": "2026-12-09",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-12052"
+  },
+  {
+   "easa_ad": "2025-0067",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Fuselage – Centre Fuselage Frame Foot Joint – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A321"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus SAS Model A321-251NX, -252NX, -253NX, -271NX, and -272NX airplanes. This AD was prompted by a review of the cold working process on the assembly line that detected a deviation to the man",
+   "faa_ad": "2026-12-11",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-13062"
+  },
+  {
+   "easa_ad": "2025-0208",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Flight Controls – Flight Control Primary Computer – Modification",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A330"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus SAS Model A330-941 airplanes. This AD was prompted by an occurrence of a triple \"PRIM FAULT\" in the Flight Control Primary Computer (FCPC) at touchdown. This AD requires the installation",
+   "faa_ad": "2026-22-02",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-21861"
+  },
+  {
+   "easa_ad": "2024-0134",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2026-0103",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "AS 355"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2022-19- 13, which applied to all Airbus Helicopters Model AS355E, AS355F, AS355F1, AS355F2, AS355N, and AS355NP helicopters. AD 2022-19-13 required incorporating into existing maintenance records certain req",
+   "faa_ad": "2026-10-16",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-12051"
+  },
+  {
+   "easa_ad": "2026-0125R1",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Landing Gear – Nose landing Gear Hydraulic Actuator Rod End – Inspection",
+   "easa_tc_holders": [
+    "DIAMOND AIRCRAFT INDUSTRIES"
+   ],
+   "easa_types": [
+    "DA 42"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Diamond Aircraft Industries GmbH (DAI) Model DA 42, DA 42 NG, and DA 42 M-NG airplanes. This AD was prompted by occurrences of uncommanded rudder deflection caused by a cracked nose landing gear (N",
+   "faa_ad": "2026-14-08",
+   "faa_title": "Airworthiness Directives; Diamond Aircraft Industries GmbH",
+   "fr_document_number": "2026-14511"
+  },
+  {
+   "easa_ad": "2025-0135",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Time Limits / Maintenance Checks – Airworthiness Limitations and Certification Maintenance Requirements – Amendment",
+   "easa_tc_holders": [
+    "ATR"
+   ],
+   "easa_types": [
+    "ATR42"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain ATR-GIE Avions de Transport R[eacute]gional Model ATR42-500 airplanes. This AD was prompted by a determination that a new airworthiness limitation is necessary. This AD requires revising the ex",
+   "faa_ad": "2026-18-01",
+   "faa_title": "Airworthiness Directives; ATR-GIE Avions de Transport Régional Airplanes",
+   "fr_document_number": "2026-18053"
+  },
+  {
+   "easa_ad": "2026-0172-E",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY AD 2026-0189",
+   "easa_tc_holders": [
+    "ROLLS-ROYCE DEUTSCHLAND Ltd & Co KG"
+   ],
+   "easa_types": [
+    "RB211 TRENT 700"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Rolls-Royce Deutschland Ltd. & Co. KG (RRD) Model RB211 Trent 768-60, 772-60, and 772B-60 engines. The FAA previously sent this AD as an emergency AD to all known U.S. owners and operators of these",
+   "faa_ad": "2026-18-51",
+   "faa_title": "Airworthiness Directives; Rolls-Royce Deutschland Ltd. & Co. KG Engines",
+   "fr_document_number": "2026-19172"
+  },
+  {
+   "easa_ad": "2025-0073",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Stabilizers – Horizontal Tail Plane Lateral Load Fitting Bushings – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A350"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2021-03- 08, which applied to certain Airbus SAS Model A350-941 and -1041 airplanes. AD 2021-03-08 required repetitive inspections for migration of the bushings of the horizontal tail plane (HTP) lateral load",
+   "faa_ad": "2026-20-05",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-20119"
+  },
+  {
+   "easa_ad": "2023-0149",
+   "easa_issued_by": "Europe",
+   "easa_subject": "SUPERSEDED BY EASA AD 2025-0064",
+   "easa_tc_holders": [
+    "LEONARDO S.p.A. HELICOPTERS"
+   ],
+   "easa_types": [
+    "AW189"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Leonardo S.p.a. Model AW189 helicopters. This AD was prompted by reports of cracking on the ejector ducts. This AD requires repetitively inspecting the left-hand (LH) side and right-hand (RH) side ",
+   "faa_ad": "2026-15-15",
+   "faa_title": "Airworthiness Directives; Leonardo S.p.a. Helicopters",
+   "fr_document_number": "2026-15370"
+  },
+  {
+   "easa_ad": "2025-0106",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Wings – Pylon Primary Structure – Inspection",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A350"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for certain Airbus SAS Model A350-1041 airplanes. This AD was prompted by the detection of missing chamfers under the heads of critical fasteners on the primary structure of both pylons. This AD requires a",
+   "faa_ad": "2026-17-09",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-18055"
+  },
+  {
+   "easa_ad": "2025-0118R1",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Aircraft Flight Manual – Amendment / Communications – Digital Radio and Audio Integrating Management System – Modification",
+   "easa_tc_holders": [
+    "AIRBUS S.A.S."
+   ],
+   "easa_types": [
+    "A319",
+    "A320",
+    "A321"
+   ],
+   "faa_abstract_start": "The FAA is superseding Airworthiness Directive (AD) 2025-11- 02, which applied to certain Airbus SAS Model A319-151N, -153N, -171N, and -173N airplanes; A320-251N, -252N, -253N, -271N, -272N, and -273N airplanes; A321-251N, -251NX, -252N, -252NX, -253N, -253NX",
+   "faa_ad": "2026-14-05",
+   "faa_title": "Airworthiness Directives; Airbus SAS Airplanes",
+   "fr_document_number": "2026-13983"
+  },
+  {
+   "easa_ad": "2026-0108-E",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Fuel – Fuel Pump(s) – Inspection",
+   "easa_tc_holders": [
+    "STEMME AG"
+   ],
+   "easa_types": [
+    "S12",
+    "TSA-M"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Stemme GmbH (Stemme) TSA-M Model S6-RT and Stemme S 12 gliders. This AD was prompted by a report of a leaking electrical fuel transfer pump. This AD requires inspecting affected electrical fuel tra",
+   "faa_ad": "2026-15-04",
+   "faa_title": "Airworthiness Directives; Stemme GmbH Gliders",
+   "fr_document_number": "2026-15004"
+  },
+  {
+   "easa_ad": "2025-0191",
+   "easa_issued_by": "Europe",
+   "easa_subject": "Time Limits / Maintenance Checks – Airworthiness Limitations Section – Amendment",
+   "easa_tc_holders": [
+    "AIRBUS HELICOPTERS"
+   ],
+   "easa_types": [
+    "SA/AS 365 / EC 155"
+   ],
+   "faa_abstract_start": "The FAA is adopting a new airworthiness directive (AD) for all Airbus Helicopters Model EC 155 B and EC 155 B1 helicopters. This AD was prompted by a determination that new or more restrictive airworthiness limitations are necessary. This AD requires revising ",
+   "faa_ad": "2026-16-04",
+   "faa_title": "Airworthiness Directives; Airbus Helicopters",
+   "fr_document_number": "2026-16506"
+  }
+ ],
+ "requests": {
+  "bodies_reused_from_same_day_cache": 1,
+  "made_this_run": 224,
+  "source_bodies": 211
+ },
+ "run_date": "2026-11-22",
+ "terms": {
+  "https://ad.easa.europa.eu/disclaimer": {
+   "quote": "Reproduction is authorised, provided the source is acknowledged, save where otherwise stated.",
+   "quote_found_verbatim": true
+  },
+  "https://www.canada.ca/en/transparency/terms.html": {
+   "quote": "Unless otherwise specified, you may not reproduce materials on this site, in whole or in part, for the purposes of commercial redistribution without prior written permission from the copyright administrator.",
+   "quote_found_verbatim": true
+  },
+  "https://www.federalregister.gov/reader-aids/policy/legal-status": {
+   "bytes": 10596,
+   "http_status": 200,
+   "page_title": "Federal Register :: Request Access",
+   "url": "https://www.federalregister.gov/reader-aids/policy/legal-status"
+  },
+  "https://www.govinfo.gov/about/policies": {
+   "quote": "By virtue of the foregoing, public documents can generally be reprinted without legal restriction.",
+   "quote_found_verbatim": true
+  }
+ },
+ "transport_canada_cawis_probe": {
+  "note": "Two CAWIS pages (the language chooser and AD_h.aspx?lang=eng, both HTTP 200) were fetched by hand before robots.txt was read; nothing further was requested from the host and neither body is used here.",
+  "robots_disallows_everything": true,
+  "robots_txt": "User-agent: *\r\nDisallow: /"
+ }
+}

@@ -1,0 +1,1057 @@
+{
+ "measured_at": "2026-11-14T14:00:02+00:00",
+ "hc_index": {
+  "url": "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json",
+  "records": 34376,
+  "by_organization": {
+   "TC": 9984,
+   "Medical devices": 8723,
+   "CFIA": 5345,
+   "Consumer product safety": 5237,
+   "Drugs and health products": 1947,
+   "Communications and Public Affairs Branch": 1814,
+   "Marketed health products": 1162,
+   "Controlled substances and cannabis": 102,
+   "HC": 62
+  },
+  "tc_notices": 9984,
+  "tc_with_vrdb_number_in_title": 9971,
+  "tc_last_updated_range": [
+   "2011-01-12",
+   "2026-11-09"
+  ],
+  "tc_category_parts": {
+   "SUV": 2245,
+   "Car": 2172,
+   "Truck": 1143,
+   "Med. & H.D.": 1143,
+   "RV Trailer": 1016,
+   "Light Truck & Van": 957,
+   "Motorhome": 921,
+   "Bus": 629,
+   "Motorcycle": 544,
+   "School Bus": 375,
+   "Minivan": 179,
+   "Equipment": 160,
+   "A.T.V.": 156,
+   "Heavy Trailer": 144,
+   "Tire": 105,
+   "Child Car Seat": 85,
+   "Chassis Cab": 84,
+   "Light Trailer": 72,
+   "Snowmobile": 69,
+   "Restricted-Use Vehicle": 62,
+   "Motor Tricycle": 28,
+   "Three wheeled vehicle": 28,
+   "Minibike/ Moped /Scooter": 21,
+   "Competition Vehicle": 16,
+   "RV chassis": 12,
+   "Booster Seat": 11,
+   "Low Speed Vehicle": 10,
+   "": 8,
+   "Low speed motorcycle": 3,
+   "Boat": 1
+  },
+  "consumer_type_outside_cps_any_part": {
+   "Controlled substances and cannabis": 5,
+   "Communications and Public Affairs Branch": 115,
+   "Marketed health products": 3,
+   "CFIA": 1,
+   "Medical devices": 1
+  },
+  "consumer_type_outside_cps_all_parts": {
+   "Controlled substances and cannabis": 5,
+   "Communications and Public Affairs Branch": 76,
+   "CFIA": 1
+  },
+  "consumer_type_outside_cps_sample_nids": {
+   "Controlled substances and cannabis": [
+    "81720",
+    "78019",
+    "74834",
+    "74325",
+    "58962"
+   ],
+   "Communications and Public Affairs Branch": [
+    "75305",
+    "75058",
+    "25476",
+    "74780",
+    "73653",
+    "64368",
+    "63338",
+    "63361",
+    "64049",
+    "63838",
+    "62846",
+    "62070",
+    "61465",
+    "63254",
+    "63143"
+   ],
+   "CFIA": [
+    "53084"
+   ]
+  }
+ },
+ "cpsc": {
+  "records": 10089,
+  "recall_date_range": [
+   "1973-06-08",
+   "2026-11-12"
+  ],
+  "failed_window_attempts": [],
+  "inconjunction_hosts": {
+   "healthycanadians.gc.ca": 836,
+   "recalls-rappels.canada.ca": 385,
+   "wwwapps.tc.gc.ca": 82,
+   "www.gob.mx": 19,
+   "www.profeco.gob.mx": 12,
+   "alertas.gob.mx": 6,
+   "rsams.prod.cloud.openplus.ca": 4,
+   "www.alertas.gob.mx": 2,
+   "profeco.gob.mx": 1,
+   "www.cpsc.gov": 1,
+   "ca.aiper.com": 1
+  },
+  "recalls_rappels_citations": 380,
+  "recalls_rappels_citations_by_resolved_org": {
+   "Consumer product safety": 351,
+   "NOT_IN_INDEX": 25,
+   "TC": 4
+  },
+  "recalls_rappels_recalls_by_resolved_org": {
+   "Consumer product safety": 350,
+   "NOT_IN_INDEX": 25,
+   "TC": 4
+  },
+  "cpsc_citing_tc_notice_in_index": [
+   {
+    "cpsc": "23258",
+    "hc_nid": "72541"
+   },
+   {
+    "cpsc": "23720",
+    "hc_nid": "72284"
+   },
+   {
+    "cpsc": "24223",
+    "hc_nid": "74777"
+   },
+   {
+    "cpsc": "26710",
+    "hc_nid": "82343"
+   }
+  ],
+  "cpsc_citing_consumer_type_notice_outside_cps": [],
+  "vrdb_citations": 79,
+  "vrdb_citing_recalls": 79,
+  "vrdb_distinct_numbers": 76,
+  "vrdb_numbers_with_tc_notice_in_hc_index": 68,
+  "vrdb_recalls_resolving_in_hc_index": 71,
+  "vrdb_numbers_found_by_tc_api": 72,
+  "vrdb_recalls_resolving_by_tc_api": 74,
+  "vrdb_api_categories": {
+   "A.T.V.": 25,
+   "Equipment": 2,
+   "Motorcycle": 1,
+   "Snowmobile": 19,
+   "Restricted-Use Vehicle": 21,
+   "Competition Vehicle": 4
+  },
+  "vrdb_pairs": [
+   {
+    "cpsc": "18017",
+    "tc_recall_number": "2017510",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 7,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Arctic Cat Recreational Off-Highway Vehicles Recalled by Textron Specialized Vehicles Due to Fire Hazard"
+   },
+   {
+    "cpsc": "18037",
+    "tc_recall_number": "2017541",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Arctic Cat Recreational Off-Highway Vehicles Recalled by Textron Specialized Vehicles Due to Fire Hazard"
+   },
+   {
+    "cpsc": "18051",
+    "tc_recall_number": "2017589",
+    "in_hc_index": true,
+    "hc_nid": "67885",
+    "tc_api_rows": 25,
+    "tc_api_category": "Equipment",
+    "tc_api_make": "CAMSO",
+    "cpsc_title": "Camso Recalls Dirt to Snow Bike Conversion Kits Due to Crash and Impact Hazards"
+   },
+   {
+    "cpsc": "18184",
+    "tc_recall_number": "2018399",
+    "in_hc_index": true,
+    "hc_nid": "78787",
+    "tc_api_rows": 1,
+    "tc_api_category": "Motorcycle",
+    "tc_api_make": "CAMSO",
+    "cpsc_title": "Camso Recalls Dirt to Snow Bike Conversion Kits Due to Crash and Impact Hazards"
+   },
+   {
+    "cpsc": "18735",
+    "tc_recall_number": "2017630",
+    "in_hc_index": true,
+    "hc_nid": "67858",
+    "tc_api_rows": 4,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "CAN-AM",
+    "cpsc_title": "BRP Recalls All-Terrain Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "18766",
+    "tc_recall_number": "2018436",
+    "in_hc_index": true,
+    "hc_nid": "78823",
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "JOHN DEERE",
+    "cpsc_title": "John Deere Recalls Gator Utility Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "19727",
+    "tc_recall_number": "2019007",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Arctic Cat Recalls Textron Off-Highway Utility Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "19740",
+    "tc_recall_number": "2019102",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 8,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Arctic Cat Recalls Snowmobiles Due to Fire Hazard (Recall-Alert)"
+   },
+   {
+    "cpsc": "19776",
+    "tc_recall_number": "2019372",
+    "in_hc_index": true,
+    "hc_nid": "79412",
+    "tc_api_rows": 3,
+    "tc_api_category": "Equipment",
+    "tc_api_make": "JOHN DEERE",
+    "cpsc_title": "Gator Utility Vehicles Recalled by John Deere Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "20713",
+    "tc_recall_number": "2019329",
+    "in_hc_index": true,
+    "hc_nid": "79374",
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Brutus Utility Vehicles (UTVs) Due to Collision and Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "20714",
+    "tc_recall_number": "2019627",
+    "in_hc_index": true,
+    "hc_nid": "79625",
+    "tc_api_rows": 1,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Pro XD Utility Vehicles Due to Collision and Crash Hazards (Recall Alert)"
+   },
+   {
+    "cpsc": "20735",
+    "tc_recall_number": "2019674",
+    "in_hc_index": true,
+    "hc_nid": "79655",
+    "tc_api_rows": 6,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls PRO XD and Ranger Utility Vehicles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "20757",
+    "tc_recall_number": "2020169",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 3,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Phoenix 200 All-Terrain Vehicles ATVs Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "20758",
+    "tc_recall_number": "2020141",
+    "in_hc_index": true,
+    "hc_nid": "79768",
+    "tc_api_rows": 8,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Ranger and General Utility Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "20764",
+    "tc_recall_number": "2020170",
+    "in_hc_index": true,
+    "hc_nid": "79794",
+    "tc_api_rows": 25,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Snowmobiles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "20765",
+    "tc_recall_number": "2020168",
+    "in_hc_index": true,
+    "hc_nid": "79793",
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Ranger Off-Road Vehicles and PRO XD and Bobcat Utility Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21709",
+    "tc_recall_number": "2020469",
+    "in_hc_index": true,
+    "hc_nid": "80014",
+    "tc_api_rows": 8,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR Recreational Off-Highway Vehicles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21715",
+    "tc_recall_number": "2020580",
+    "in_hc_index": true,
+    "hc_nid": "80096",
+    "tc_api_rows": 6,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "CAN-AM",
+    "cpsc_title": "BRP Recalls All-Terrain Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21724",
+    "tc_recall_number": "2021008",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 10,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Ranger Recreational Off-Highway Vehicles and ProXD Utility Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21732",
+    "tc_recall_number": "2020616",
+    "in_hc_index": true,
+    "hc_nid": "80124",
+    "tc_api_rows": 7,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Ranger Recreational Off-Highway Vehicles and ProXD, Gravely and Bobcat Utility Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21746",
+    "tc_recall_number": "2021154",
+    "in_hc_index": true,
+    "hc_nid": "80266",
+    "tc_api_rows": 9,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "SKI-DOO",
+    "cpsc_title": "BRP Recalls Snowmobiles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21765",
+    "tc_recall_number": "2021322",
+    "in_hc_index": true,
+    "hc_nid": "80403",
+    "tc_api_rows": 4,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls GENERAL Recreational Off-Highway Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21766",
+    "tc_recall_number": "2021370",
+    "in_hc_index": true,
+    "hc_nid": "80446",
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR Recreational Off-Road Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "21784",
+    "tc_recall_number": "2021331",
+    "in_hc_index": true,
+    "hc_nid": "80411",
+    "tc_api_rows": 11,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Phoenix 200 All-Terrain Vehicles ATVs Recalled by Polaris Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "22702",
+    "tc_recall_number": "2021543",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 22,
+    "tc_api_category": "Competition Vehicle",
+    "tc_api_make": "HUSQVARNA",
+    "cpsc_title": "KTM North America Recalls Off-Road Motorcycles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "22716",
+    "tc_recall_number": "2021734",
+    "in_hc_index": false,
+    "hc_nid": null,
+    "tc_api_rows": 0,
+    "tc_api_category": null,
+    "tc_api_make": null,
+    "cpsc_title": "Polaris Recalls Youth All-Terrain Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "22729",
+    "tc_recall_number": "2022026",
+    "in_hc_index": true,
+    "hc_nid": "80813",
+    "tc_api_rows": 2,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Snowmobiles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "22732",
+    "tc_recall_number": "2022016",
+    "in_hc_index": true,
+    "hc_nid": "80803",
+    "tc_api_rows": 3,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "SKI-DOO",
+    "cpsc_title": "BRP Recalls Snowmobiles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "22744",
+    "tc_recall_number": "2022165",
+    "in_hc_index": true,
+    "hc_nid": "80927",
+    "tc_api_rows": 1,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR Recreational Off-Road Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "22767",
+    "tc_recall_number": "2022400",
+    "in_hc_index": true,
+    "hc_nid": "81126",
+    "tc_api_rows": 1,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Patriot Boost Snowmobiles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23075",
+    "tc_recall_number": "2022525",
+    "in_hc_index": true,
+    "hc_nid": "72043",
+    "tc_api_rows": 1,
+    "tc_api_category": "Competition Vehicle",
+    "tc_api_make": "GASGAS",
+    "cpsc_title": "KTM North America Recalls GASGAS Off-Road Motorcycles Due to Crash and Injury Hazards"
+   },
+   {
+    "cpsc": "23710",
+    "tc_recall_number": "2022448",
+    "in_hc_index": true,
+    "hc_nid": "81165",
+    "tc_api_rows": 25,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls MATRYX, AXYS and Pro-Ride Snowmobiles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23712",
+    "tc_recall_number": "2022506",
+    "in_hc_index": true,
+    "hc_nid": "72034",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR Recreational Off-Road Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23726",
+    "tc_recall_number": "2022609",
+    "in_hc_index": true,
+    "hc_nid": "72248",
+    "tc_api_rows": 16,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "E-Z GO",
+    "cpsc_title": "Textron Specialized Vehicles Recalls E-Z-GO PTVs Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23734",
+    "tc_recall_number": "2022646",
+    "in_hc_index": true,
+    "hc_nid": "72284",
+    "tc_api_rows": 6,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Sportsman All-Terrain Vehicles Due to Fire and Crash Hazards (Recall Alert)"
+   },
+   {
+    "cpsc": "23739",
+    "tc_recall_number": "2022664",
+    "in_hc_index": true,
+    "hc_nid": "72315",
+    "tc_api_rows": 4,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Recalls Arctic Cat Alterra 600 and Tracker 600 All-Terrain Vehicles (ATVs) Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23740",
+    "tc_recall_number": "2023081",
+    "in_hc_index": true,
+    "hc_nid": "73099",
+    "tc_api_rows": 0,
+    "tc_api_category": null,
+    "tc_api_make": null,
+    "cpsc_title": "Polaris Recalls RZR Recreational Off-Road Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23751",
+    "tc_recall_number": "2022670",
+    "in_hc_index": true,
+    "hc_nid": "72361",
+    "tc_api_rows": 2,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls MATRYX RMK KHAOS and PRO Snowmobiles Due to Fire Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23755",
+    "tc_recall_number": "2023135",
+    "in_hc_index": true,
+    "hc_nid": "73353",
+    "tc_api_rows": 12,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "SKI-DOO",
+    "cpsc_title": "Bombardier Recreational Products (BRP) Expands Recall of Snowmobiles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23760",
+    "tc_recall_number": "2022506",
+    "in_hc_index": true,
+    "hc_nid": "72034",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR Pro XP and Turbo R Recreational Off-Road Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23765",
+    "tc_recall_number": "2023144",
+    "in_hc_index": true,
+    "hc_nid": "73390",
+    "tc_api_rows": 4,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Recalls Arctic Cat 8000 Snowmobiles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23768",
+    "tc_recall_number": "2023272",
+    "in_hc_index": true,
+    "hc_nid": "73690",
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "JOHN DEERE",
+    "cpsc_title": "John Deere Recalls XUV590 Gator Utility Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23772",
+    "tc_recall_number": "2023324",
+    "in_hc_index": true,
+    "hc_nid": "73822",
+    "tc_api_rows": 3,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "YAMAHA",
+    "cpsc_title": "Yamaha Golf Car Company Recalls Model Year 2023 Golf Cars, Personal Transportation Vehicles And Umax Due to Crash and Injury Hazards and Risk of Death (Recall Alert)"
+   },
+   {
+    "cpsc": "23780",
+    "tc_recall_number": "2022519",
+    "in_hc_index": true,
+    "hc_nid": "72062",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR XP Turbo and Turbo S Recreational Off-Road Vehicles Due to Fire and Injury Hazards (Recall Alert)"
+   },
+   {
+    "cpsc": "23790",
+    "tc_recall_number": "2023403",
+    "in_hc_index": true,
+    "hc_nid": "74040",
+    "tc_api_rows": 9,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "ARGO",
+    "cpsc_title": "ARGO Recalls ARGO Xplorer All-Terrain Vehicles (ATVs) Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "23796",
+    "tc_recall_number": "2023458",
+    "in_hc_index": true,
+    "hc_nid": "74200",
+    "tc_api_rows": 0,
+    "tc_api_category": null,
+    "tc_api_make": null,
+    "cpsc_title": "Polaris Recalls Ranger Recreational Off-Highway Vehicles and Pro XD Utility Vehicles, Gravely ATLAS Utility Vehicles, and Bobcat Utility Vehicles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24055",
+    "tc_recall_number": "2023541",
+    "in_hc_index": true,
+    "hc_nid": "74420",
+    "tc_api_rows": 2,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Ranger XP Kinetic Recreational Off-Road Vehicles (ROVs) Due to Crash Hazard"
+   },
+   {
+    "cpsc": "24140",
+    "tc_recall_number": "2024045",
+    "in_hc_index": true,
+    "hc_nid": "75014",
+    "tc_api_rows": 2,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "SKI-DOO",
+    "cpsc_title": "Bombardier Recreational Products (BRP) Recalls Ski-Doo Snowmobiles Due to Risk of Serious Injury and Crash Hazard"
+   },
+   {
+    "cpsc": "24154",
+    "tc_recall_number": "2024010",
+    "in_hc_index": true,
+    "hc_nid": "74952",
+    "tc_api_rows": 3,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Recalls Arctic Cat Catalyst 600 Snowmobiles Due to Injury Hazard"
+   },
+   {
+    "cpsc": "24218",
+    "tc_recall_number": "2024182",
+    "in_hc_index": true,
+    "hc_nid": "75317",
+    "tc_api_rows": 1,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Prostar S4 Titan Adventure Snowmobiles Due to Fire Hazard"
+   },
+   {
+    "cpsc": "24228",
+    "tc_recall_number": "2024136",
+    "in_hc_index": true,
+    "hc_nid": "75225",
+    "tc_api_rows": 3,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Recalls Arctic Cat Model Year 2024 Catalyst Snowmobiles Due to Crash Hazard"
+   },
+   {
+    "cpsc": "24229",
+    "tc_recall_number": "2024142",
+    "in_hc_index": true,
+    "hc_nid": "75196",
+    "tc_api_rows": 16,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Recalls Prowler Pro and Tracker Utility Vehicles (UTVs) Due to Fire Hazard"
+   },
+   {
+    "cpsc": "24369",
+    "tc_recall_number": "2024400",
+    "in_hc_index": true,
+    "hc_nid": "76062",
+    "tc_api_rows": 4,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Sportsman All-Terrain Vehicles Due to Fire Hazard"
+   },
+   {
+    "cpsc": "24374",
+    "tc_recall_number": "2024457",
+    "in_hc_index": true,
+    "hc_nid": "76112",
+    "tc_api_rows": 2,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Ranger XD 1500 Recreational Off-Road Vehicles (ROVs) with Winches Due to Fire Hazard"
+   },
+   {
+    "cpsc": "24704",
+    "tc_recall_number": "2023488",
+    "in_hc_index": true,
+    "hc_nid": "74282",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR PRO XP, PRO XP 4, RZR XP and XP 4 Recreational Off-Road Vehicles (ROVs) Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24709",
+    "tc_recall_number": "2023480",
+    "in_hc_index": true,
+    "hc_nid": "74258",
+    "tc_api_rows": 8,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Recalls Arctic Cat and Tracker Side by Side Recreational Off Highway Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24711",
+    "tc_recall_number": "2023532",
+    "in_hc_index": true,
+    "hc_nid": "74395",
+    "tc_api_rows": 2,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RANGER Off-Road Vehicles Due to Fire and Crash Hazards (Recall Alert)"
+   },
+   {
+    "cpsc": "24720",
+    "tc_recall_number": "2023345",
+    "in_hc_index": true,
+    "hc_nid": "73885",
+    "tc_api_rows": 1,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Patriot 9R MATRYX PRO RMK and Patriot 9R MATRYX RMK KHAOS Snowmobiles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24722",
+    "tc_recall_number": "2023398",
+    "in_hc_index": true,
+    "hc_nid": "74052",
+    "tc_api_rows": 4,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Patriot 850 MATRYX Snowmobiles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24727",
+    "tc_recall_number": "2023418",
+    "in_hc_index": true,
+    "hc_nid": "74074",
+    "tc_api_rows": 1,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "SEGWAY",
+    "cpsc_title": "Segway Powersports Recalls 2022 Fugleman UT10E and UT10X Utility-Terrain Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24735",
+    "tc_recall_number": "2023565",
+    "in_hc_index": true,
+    "hc_nid": "74481",
+    "tc_api_rows": 0,
+    "tc_api_category": null,
+    "tc_api_make": null,
+    "cpsc_title": "BRP US Recalls Side-By-Side Vehicles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24736",
+    "tc_recall_number": "2023565",
+    "in_hc_index": true,
+    "hc_nid": "74481",
+    "tc_api_rows": 0,
+    "tc_api_category": null,
+    "tc_api_make": null,
+    "cpsc_title": "Kubota Tractor Recalls Utility Vehicles Due to Crash and Collision Hazards (Recall Alert)"
+   },
+   {
+    "cpsc": "24740",
+    "tc_recall_number": "2024024",
+    "in_hc_index": true,
+    "hc_nid": "74960",
+    "tc_api_rows": 10,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls MATRYX Snowmobiles Equipped with PATRIOT 650 and 850 Engines Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24741",
+    "tc_recall_number": "2023460",
+    "in_hc_index": true,
+    "hc_nid": "74202",
+    "tc_api_rows": 4,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Snowmobiles Equipped with PATRIOT BOOST Engines Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "25024",
+    "tc_recall_number": "2024571",
+    "in_hc_index": true,
+    "hc_nid": "76316",
+    "tc_api_rows": 2,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Ranger XP Kinetic Recreational Off-Road Vehicles (ROVs) Due to Fire and Crash Hazards"
+   },
+   {
+    "cpsc": "25092",
+    "tc_recall_number": "2024695",
+    "in_hc_index": true,
+    "hc_nid": "76605",
+    "tc_api_rows": 2,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Model Year 2024-2025 Ranger XD 1500 and Crew XD 1500 Recreational Off-Road Vehicles (ROVs) Due to Injury and Crash Hazards"
+   },
+   {
+    "cpsc": "25188",
+    "tc_recall_number": "2025062",
+    "in_hc_index": true,
+    "hc_nid": "77004",
+    "tc_api_rows": 10,
+    "tc_api_category": "Snowmobile",
+    "tc_api_make": "SKI-DOO",
+    "cpsc_title": "Bombardier Recreational Products (BRP) Recalls Ski-Doo and Lynx Snowmobiles Due to Crash Hazard"
+   },
+   {
+    "cpsc": "25208",
+    "tc_recall_number": "2025048",
+    "in_hc_index": true,
+    "hc_nid": "76953",
+    "tc_api_rows": 5,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls RZR Pro R and Pro R 4 Recreational Off-Road Vehicles (ROVs) Due to Injury Hazard"
+   },
+   {
+    "cpsc": "25283",
+    "tc_recall_number": "2025061",
+    "in_hc_index": true,
+    "hc_nid": "77003",
+    "tc_api_rows": 25,
+    "tc_api_category": "Competition Vehicle",
+    "tc_api_make": "HUSQVARNA",
+    "cpsc_title": "KTM Recalls Off-Road Motorcycles Due to Crash Hazard Recall"
+   },
+   {
+    "cpsc": "25284",
+    "tc_recall_number": "2025194",
+    "in_hc_index": true,
+    "hc_nid": "77307",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Ranger XP 1000 NorthStar and Ranger XP 1000 NorthStar Crew Recreational Off-Road Vehicles Due to Injury Hazard"
+   },
+   {
+    "cpsc": "25343",
+    "tc_recall_number": "2025124",
+    "in_hc_index": true,
+    "hc_nid": "77150",
+    "tc_api_rows": 2,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Ranger XP Kinetic and Pro XD Kinetic Recreational Off-Highway Vehicles (ROVs) Due to Fire Hazard"
+   },
+   {
+    "cpsc": "25701",
+    "tc_recall_number": "2023480",
+    "in_hc_index": true,
+    "hc_nid": "74258",
+    "tc_api_rows": 8,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "ARCTIC CAT",
+    "cpsc_title": "Textron Specialized Vehicles Expands Recall of Arctic Cat and Tracker Side by Side Recreational Off Highway Vehicles Due to Crash Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "25702",
+    "tc_recall_number": "2024458",
+    "in_hc_index": true,
+    "hc_nid": "76113",
+    "tc_api_rows": 14,
+    "tc_api_category": "A.T.V.",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls Ranger Recreational Off-Road Vehicles and ProXD and Bobcat Utility Task Vehicles Due to Injury Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "25703",
+    "tc_recall_number": "2024454",
+    "in_hc_index": true,
+    "hc_nid": "76109",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Recalls RZR XP 1000 and XP 4 1000 Recreational Off-Road Vehicles (ROVs) Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "26021",
+    "tc_recall_number": "2025299",
+    "in_hc_index": true,
+    "hc_nid": "77600",
+    "tc_api_rows": 12,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "E-Z GO",
+    "cpsc_title": "Textron E-Z-GO Recalls Personal Transportation Vehicles Due to Risk of Serious Injury and Fire Hazard"
+   },
+   {
+    "cpsc": "26054",
+    "tc_recall_number": "2025466",
+    "in_hc_index": true,
+    "hc_nid": "78196",
+    "tc_api_rows": 4,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "POLARIS",
+    "cpsc_title": "Polaris Industries Recalls Model Year 2025-2026 Ranger XP 1000 NorthStar and Ranger Crew XP 1000 NorthStar Recreational Off-Road Vehicles (ROVs) Due to Risk of Serious Injury from Fire Hazard"
+   },
+   {
+    "cpsc": "26542",
+    "tc_recall_number": "2026193",
+    "in_hc_index": true,
+    "hc_nid": "81976",
+    "tc_api_rows": 2,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "YAMAHA",
+    "cpsc_title": "Yamaha Recalls Model Year 2021-2022 Fleet Golf Cars Due to Risk of Serious Injury or Death from a Crash Hazard"
+   },
+   {
+    "cpsc": "26556",
+    "tc_recall_number": "2026213",
+    "in_hc_index": true,
+    "hc_nid": "82053",
+    "tc_api_rows": 7,
+    "tc_api_category": "Restricted-Use Vehicle",
+    "tc_api_make": "YAMAHA",
+    "cpsc_title": "Yamaha Recalls UMAX Bistro and Bistro Deluxe Vehicles Due to Injury Hazard"
+   },
+   {
+    "cpsc": "26763",
+    "tc_recall_number": "2026378",
+    "in_hc_index": true,
+    "hc_nid": "82545",
+    "tc_api_rows": 4,
+    "tc_api_category": "Competition Vehicle",
+    "tc_api_make": "TRIUMPH",
+    "cpsc_title": "Triumph Motorcycles Recalls Closed Course Competition Motorcycles Due to Risk of Serious Injury or Death from Crash Hazard"
+   }
+  ],
+  "tc_notice_citations_detail": [
+   {
+    "cpsc": "23258",
+    "hc_nid": "72541",
+    "hc_title": "Transport Canada Recall - 2022722 - POLARIS",
+    "cpsc_title": "Recall of Polaris Off-Road Vehicles, Bobcat Utility Vehicles, Gravely Utility Vehicles, and Fuel Pump Kits and Fuel Tank Assemblies Due to Fire Hazard"
+   },
+   {
+    "cpsc": "23720",
+    "hc_nid": "72284",
+    "hc_title": "Transport Canada Recall - 2022646 - POLARIS",
+    "cpsc_title": "Polaris Recalls Sportsman and Scrambler 1000 S All-Terrain Vehicles Due to Fire Hazard (Recall Alert)"
+   },
+   {
+    "cpsc": "24223",
+    "hc_nid": "74777",
+    "hc_title": "Transport Canada Recall - 2023663 - TEXTRON",
+    "cpsc_title": "Arctic Cat Recalls Snowmobiles Due to Laceration Hazard"
+   },
+   {
+    "cpsc": "26710",
+    "hc_nid": "82343",
+    "hc_title": "Transport Canada Recall - 2026313 - KTM",
+    "cpsc_title": "KTM North America Recalls Off-Road Motorcycles Due to Risk of Serious Injury or Death from Crash Hazard"
+   }
+  ],
+  "tc_host_urls_without_rn": 3
+ },
+ "nhtsa": {
+  "cpsc_recalls_citing_nhtsa_url": [],
+  "cpsc_recalls_naming_nhtsa_in_text": 13,
+  "cpsc_recalls_with_campaign_token": [
+   "02164",
+   "99138"
+  ],
+  "campaign_token_api": {
+   "02E027": {
+    "status": 200,
+    "count": 0
+   },
+   "99E022": {
+    "status": 200,
+    "count": 0
+   }
+  },
+  "cpsc_recalls_with_token_resolving": []
+ },
+ "reachability": {
+  "https://ec.europa.eu/safety-gate-alerts/screen/webReport": {
+   "status": 200,
+   "bytes": 2278,
+   "final_url": null,
+   "head": null
+  },
+  "https://ec.europa.eu/safety-gate-alerts/public/api/notification/carousel/?language=en": {
+   "status": 405,
+   "bytes": 733,
+   "final_url": null,
+   "head": "<!DOCTYPE html>\n<html>\n<body><script type=\"text/javascript\" src=\"https://ec.europa.eu/safety-gate-alerts/ruxitagentjs_IC"
+  },
+  "https://ec.europa.eu/safety-gate-alerts/public/api/weeklyReport/list?language=en": {
+   "status": 404,
+   "bytes": 761,
+   "final_url": null,
+   "head": "<!DOCTYPE html>\n<html>\n<body><script type=\"text/javascript\" src=\"https://ec.europa.eu/safety-gate-alerts/ruxitagentjs_IC"
+  },
+  "https://ec.europa.eu/safety-gate-alerts/public/api/notification/search?language=en&page=0&size=1": {
+   "status": 460,
+   "bytes": 29,
+   "final_url": null,
+   "head": "This action is not authorized"
+  },
+  "https://www.fsis.usda.gov/fsis/api/recall/v/1": {
+   "status": 403,
+   "bytes": 406,
+   "final_url": null,
+   "head": "<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD><BODY>\n<H1>Access Denied</H1>\n \nYou don't have permission to access \"ht"
+  },
+  "https://www.fsis.usda.gov/recalls": {
+   "status": 403,
+   "bytes": 382,
+   "final_url": null,
+   "head": "<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD><BODY>\n<H1>Access Denied</H1>\n \nYou don't have permission to access \"ht"
+  },
+  "https://www.productsafety.govt.nz/recalls": {
+   "status": 200,
+   "bytes": 216127,
+   "final_url": null,
+   "head": null
+  },
+  "https://www.productsafety.govt.nz/": {
+   "status": 200,
+   "bytes": 185324,
+   "final_url": null,
+   "head": null
+  },
+  "https://api.nhtsa.gov/recalls/campaignNumber?campaignNumber=24V001000": {
+   "status": 200,
+   "bytes": 2085,
+   "final_url": null,
+   "head": null
+  }
+ }
+}

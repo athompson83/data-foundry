@@ -1,0 +1,269 @@
+{
+ "nga_active": {
+  "n": 386,
+  "navareas": [
+   "12",
+   "4",
+   "A",
+   "C",
+   "P"
+  ],
+  "years": [
+   2021,
+   2022,
+   2023
+  ],
+  "text_median": 143.0,
+  "text_over_200": 165,
+  "keys": [
+   "area",
+   "authority",
+   "cancelDate",
+   "cancelMsgNumber",
+   "cancelMsgYear",
+   "cancelNavArea",
+   "issueDate",
+   "msgNumber",
+   "msgYear",
+   "navArea",
+   "number",
+   "status",
+   "subregion",
+   "text",
+   "year"
+  ],
+  "with_coords_in_text": 369,
+  "sample_ids": [
+   "2024/517/4",
+   "2024/500/4",
+   "2024/498/4",
+   "2024/490/4",
+   "2024/466/4",
+   "2024/460/4",
+   "2024/449/4",
+   "2024/437/4",
+   "2024/403/4",
+   "2024/325/4"
+  ]
+ },
+ "nga_all": {
+  "n": 198034,
+  "years": [
+   1948,
+   2024
+  ]
+ },
+ "avalanche_org": {
+  "zones": 93,
+  "centers": 29,
+  "prop_keys": [
+   "center",
+   "center_id",
+   "center_link",
+   "color",
+   "danger",
+   "danger_level",
+   "end_date",
+   "fillIncrement",
+   "fillOpacity",
+   "font_color",
+   "link",
+   "name",
+   "off_season",
+   "start_date",
+   "state",
+   "stroke",
+   "timezone",
+   "travel_advice",
+   "warning"
+  ],
+  "states": [
+   "AK",
+   "AZ",
+   "CA",
+   "CO",
+   "ID",
+   "MT",
+   "NH",
+   "NM",
+   "NY",
+   "OR",
+   "UT",
+   "WA",
+   "WY"
+  ]
+ },
+ "avalanche_ca": {
+  "areas": 8,
+  "prop_keys": [
+   "centroid",
+   "id"
+  ]
+ },
+ "avalanche_ca_products": {
+  "n": 8,
+  "keys": [
+   "area",
+   "id",
+   "media",
+   "owner",
+   "report",
+   "slug",
+   "type",
+   "url",
+   "version"
+  ],
+  "sample_title": "<p>Avalanche hazard may exist where there is snow. Consider winter conditions in your trip planning and pay close attention to weather forecasts.</p>"
+ },
+ "avalanche_org_product": {
+  "center": "BAC",
+  "zone": 3004,
+  "keys": [
+   "announcement",
+   "author",
+   "avalanche_center",
+   "bottom_line",
+   "created_at",
+   "danger",
+   "expires_time",
+   "forecast_avalanche_problems",
+   "forecast_zone",
+   "hazard_discussion",
+   "id",
+   "json_data",
+   "media",
+   "product_type",
+   "published_time",
+   "status",
+   "updated_at",
+   "weather_data",
+   "weather_discussion"
+  ],
+  "bottom_line_len": 626,
+  "has_danger": false,
+  "published": "2026-04-13T14:00:00+00:00"
+ },
+ "hudoc": {
+  "error": "HTTP Error 403: Forbidden"
+ },
+ "cellar_judg_count": [
+  {
+   "n": {
+    "type": "literal",
+    "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+    "value": "34763"
+   }
+  }
+ ],
+ "cellar_ecli_sample": [
+  {
+   "c": "62024CJ0583_RES",
+   "ecli": "ECLI:EU:C:2026:920",
+   "d": "2026-11-03"
+  },
+  {
+   "c": "62024CJ0583",
+   "ecli": "ECLI:EU:C:2026:920",
+   "d": "2026-11-03"
+  },
+  {
+   "c": "62024CJ0583",
+   "ecli": "ECLI:EU:C:2026:920",
+   "d": "2026-11-03"
+  },
+  {
+   "c": "62025CC0250",
+   "ecli": "ECLI:EU:C:2026:919",
+   "d": "2026-11-03"
+  },
+  {
+   "c": "62026TO0179",
+   "ecli": "ECLI:EU:T:2026:699",
+   "d": "2026-10-26"
+  },
+  {
+   "c": "62025CC0578",
+   "ecli": "ECLI:EU:C:2026:908",
+   "d": "2026-10-22"
+  },
+  {
+   "c": "62025CC0633",
+   "ecli": "ECLI:EU:C:2026:902",
+   "d": "2026-10-22"
+  },
+  {
+   "c": "62024CC0533",
+   "ecli": "ECLI:EU:C:2026:890",
+   "d": "2026-10-22"
+  },
+  {
+   "c": "62024CC0858",
+   "ecli": "ECLI:EU:C:2026:904",
+   "d": "2026-10-22"
+  },
+  {
+   "c": "62025CC0634",
+   "ecli": "ECLI:EU:C:2026:903",
+   "d": "2026-10-22"
+  }
+ ],
+ "tri": {
+  "keys": [
+   "asgn_agency",
+   "asgn_federal_ind",
+   "asgn_partial_ind",
+   "asgn_public_contact",
+   "asgn_public_contact_email",
+   "asgn_public_phone",
+   "asgn_public_phone_ext",
+   "asgn_technical_contact",
+   "asgn_technical_contact_email",
+   "asgn_technical_phone",
+   "asgn_technical_phone_ext",
+   "bia_code",
+   "city_name",
+   "county_name",
+   "epa_registry_id",
+   "fac_closed_ind",
+   "fac_latitude",
+   "fac_longitude",
+   "facility_name",
+   "foreign_parent_co_db_num",
+   "foreign_parent_co_name",
+   "frs_id",
+   "mail",
+   "mail_city",
+   "mail_country",
+   "mail_name",
+   "mail_province",
+   "mail_state_abbr",
+   "mail_street_address",
+   "mail_zip_code",
+   "parent_co_db_num",
+   "parent_co_name",
+   "pref_accuracy",
+   "pref_collect_meth",
+   "pref_desc_category",
+   "pref_horizontal_datum",
+   "pref_latitude",
+   "pref_longitude",
+   "pref_qa_code",
+   "pref_source_scale",
+   "region",
+   "standardized_foreign_parent_company",
+   "standardized_parent_company",
+   "state_abbr",
+   "state_county_fips_code",
+   "street_address",
+   "tri_facility_id",
+   "zip_code"
+  ],
+  "has_free_text": true
+ },
+ "tri_count": "[\n{\n  \"TOTALQUERYRESULTS\": 64990\n}\n]",
+ "nws_afd": {
+  "listed": 4488,
+  "newest": "2026-11-03T13:47:00+00:00",
+  "offices": 123
+ }
+}

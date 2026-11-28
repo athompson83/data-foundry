@@ -1,0 +1,883 @@
+{
+ "run_date": "2026-11-15",
+ "osha_cfr2025_status": {
+  "status": 200,
+  "final_url": "https://www.govinfo.gov/error"
+ },
+ "osha": {
+  "status": 200,
+  "edition_date": "2024-07-01",
+  "bytes": 139131,
+  "table_rows": {
+   "untitled": 5,
+   "Table Z-1\u2014Limits for Air Contaminants": 610,
+   "Table Z-2": 21,
+   "Table Z-3\u2014Mineral Dusts": 28
+  },
+  "z1_rows_with_cas": 417,
+  "z1_cas_checksum_valid": 416,
+  "z1_rows_with_skin": 90
+ },
+ "niosh": {
+  "status": 200,
+  "index_rows": 629,
+  "distinct_cas": 626,
+  "distinct_pages": 627,
+  "sampled_pages": 30,
+  "pages_200": 30,
+  "pages_with_rel": 30,
+  "pages_with_pel": 30,
+  "pages_with_idlh": 30,
+  "last_reviewed_values": [
+   "October 30, 2019"
+  ],
+  "sample": [
+   {
+    "status": 200,
+    "page": "npgd0452",
+    "cas": "100-00-5",
+    "dot_id": "1578",
+    "idlh": "Ca [100 mg/m",
+    "rel": "Ca See Appendix A [skin]",
+    "pel": "TWA 1 mg/m 3 [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "100-00-5"
+   },
+   {
+    "status": 200,
+    "page": "npgd0415",
+    "cas": "101-77-9",
+    "dot_id": "Formula",
+    "idlh": "Ca [N.D.]",
+    "rel": "Ca See Appendix A OSHA PEL",
+    "pel": "[1910.1050] TWA 0.010 ppm ST 0.100 ppm Measurement Methods NIOSH",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "101-77-9"
+   },
+   {
+    "status": 200,
+    "page": "npgd0254",
+    "cas": "106-89-8",
+    "dot_id": "2023",
+    "idlh": "Ca [75 ppm]",
+    "rel": "Ca See Appendix A OSHA PEL",
+    "pel": "TWA 5 ppm (19 mg/m 3 ) [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "106-89-8"
+   },
+   {
+    "status": 200,
+    "page": "npgd0328",
+    "cas": "107-41-5",
+    "dot_id": "Formula",
+    "idlh": "N.D.",
+    "rel": "C 25 ppm (125 mg/m 3 )",
+    "pel": "none See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "107-41-5"
+   },
+   {
+    "status": 200,
+    "page": "npgd0327",
+    "cas": "108-84-9",
+    "dot_id": "1233",
+    "idlh": "500 ppm",
+    "rel": "TWA 50 ppm (300 mg/m 3 )",
+    "pel": "TWA 50 ppm (300 mg/m 3 )",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "108-84-9"
+   },
+   {
+    "status": 200,
+    "page": "npgd0602",
+    "cas": "109-99-9",
+    "dot_id": "2056",
+    "idlh": "2000 ppm [10%LEL]",
+    "rel": "TWA 200 ppm (590 mg/m 3 ) ST 250 ppm (735 mg/m",
+    "pel": "TWA 200 ppm (590 mg/m 3 )",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "109-99-9"
+   },
+   {
+    "status": 200,
+    "page": "npgd0196",
+    "cas": "111-44-4",
+    "dot_id": "1916",
+    "idlh": "Ca [100 ppm]",
+    "rel": "Ca TWA 5 ppm (30 mg/m 3 ) ST 10 ppm (60 mg/m",
+    "pel": "TWA 15 ppm (90 mg/m 3 ) [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "111-44-4"
+   },
+   {
+    "status": 200,
+    "page": "npgd0618",
+    "cas": "119-93-7",
+    "dot_id": "Formula",
+    "idlh": "Ca [N.D.]",
+    "rel": "Ca C 0.02 mg/m 3 [60-minute] [skin]",
+    "pel": "See Appendix C Measurement Methods NIOSH",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "119-93-7"
+   },
+   {
+    "status": 200,
+    "page": "npgd0237",
+    "cas": "123-91-1",
+    "dot_id": "1165",
+    "idlh": "Ca [500 ppm]",
+    "rel": "Ca C 1 ppm (3.6 mg/m 3 ) [30-minute]",
+    "pel": "TWA 100 ppm (360 mg/m 3 ) [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "123-91-1"
+   },
+   {
+    "status": 200,
+    "page": "npgd0228",
+    "cas": "131-11-3",
+    "dot_id": "Formula",
+    "idlh": "2000 mg/m",
+    "rel": "TWA 5 mg/m 3 OSHA PEL",
+    "pel": "TWA 5 mg/m 3 Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "131-11-3"
+   },
+   {
+    "status": 200,
+    "page": "npgd0441",
+    "cas": "134-32-7",
+    "dot_id": "2077",
+    "idlh": "Ca [N.D.]",
+    "rel": "Ca See Appendix A OSHA PEL",
+    "pel": "[1910.1004] See Appendix B Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "134-32-7"
+   },
+   {
+    "status": 200,
+    "page": "npgd0312",
+    "cas": "142-82-5",
+    "dot_id": "1206",
+    "idlh": "750 ppm",
+    "rel": "TWA 85 ppm (350 mg/m 3 ) C 440 ppm (1800 mg/m",
+    "pel": "TWA 500 ppm (2000 mg/m 3 )",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "142-82-5"
+   },
+   {
+    "status": 200,
+    "page": "npgd0279",
+    "cas": "16219-75-3",
+    "dot_id": "Formula",
+    "idlh": "N.D.",
+    "rel": "C 5 ppm (25 mg/m 3 )",
+    "pel": "none See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "16219-75-3"
+   },
+   {
+    "status": 200,
+    "page": "npgd0615",
+    "cas": "21651-19-4",
+    "dot_id": "Formula",
+    "idlh": "N.D.",
+    "rel": "TWA 2 mg/m 3 OSHA PEL",
+    "pel": "none See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "21651-19-4"
+   },
+   {
+    "status": 200,
+    "page": "npgd0143",
+    "cas": "2971-90-6",
+    "dot_id": "Formula",
+    "idlh": "N.D.",
+    "rel": "TWA 10 mg/m 3 (total) ST 20 mg/m",
+    "pel": "TWA 15 mg/m 3 (total) TWA 5 mg/m",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "2971-90-6"
+   },
+   {
+    "status": 200,
+    "page": "npgd0586",
+    "cas": "3689-24-5",
+    "dot_id": "1704",
+    "idlh": "10 mg/m",
+    "rel": "TWA 0.2 mg/m 3 [skin]",
+    "pel": "TWA 0.2 mg/m 3 [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "3689-24-5"
+   },
+   {
+    "status": 200,
+    "page": "npgd0007",
+    "cas": "53-96-3",
+    "dot_id": "Formula",
+    "idlh": "Ca [N.D.]",
+    "rel": "Ca See Appendix A OSHA PEL",
+    "pel": "[1910.1014] See Appendix B Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "53-96-3"
+   },
+   {
+    "status": 200,
+    "page": "npgd0107",
+    "cas": "56-23-5",
+    "dot_id": "1846",
+    "idlh": "Ca [200 ppm]",
+    "rel": "Ca ST 2 ppm (12.6 mg/m 3 ) [60-minute]",
+    "pel": "TWA 10 ppm C 25 ppm 200 ppm (5-minute maximum peak in any 4 hours) See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "56-23-5"
+   },
+   {
+    "status": 200,
+    "page": "npgd0220",
+    "cas": "60-11-7",
+    "dot_id": "Formula",
+    "idlh": "Ca [N.D.]",
+    "rel": "Ca See Appendix A OSHA PEL",
+    "pel": "[1910.1015] See Appendix B Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "60-11-7"
+   },
+   {
+    "status": 200,
+    "page": "npgd0273",
+    "cas": "628-96-6",
+    "dot_id": "Formula",
+    "idlh": "75 mg/m",
+    "rel": "ST 0.1 mg/m 3 [skin]",
+    "pel": "C 0.2 ppm (1 mg/m 3 ) [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "628-96-6"
+   },
+   {
+    "status": 200,
+    "page": "npgd0319",
+    "cas": "684-16-2",
+    "dot_id": "2420",
+    "idlh": "9 ppm",
+    "rel": "TWA 0.1 ppm (0.7 mg/m\u00b3) [skin] OSHA PEL none",
+    "pel": "none See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "684-16-2"
+   },
+   {
+    "status": 200,
+    "page": "npgd0392",
+    "cas": "74-99-7",
+    "dot_id": "Formula",
+    "idlh": "1700 ppm [10%LEL]",
+    "rel": "TWA 1000 ppm (1650 mg/m 3 )",
+    "pel": "TWA 1000 ppm (1650 mg/m 3 )",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "74-99-7"
+   },
+   {
+    "status": 200,
+    "page": "npgd0006",
+    "cas": "75-05-8",
+    "dot_id": "1648",
+    "idlh": "137 ppm",
+    "rel": "TWA 20 ppm (34 mg/m\u00b3) OSHA PEL TWA 40 ppm (70 mg/m\u00b3)",
+    "pel": "TWA 40 ppm (70 mg/m\u00b3) See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "75-05-8"
+   },
+   {
+    "status": 200,
+    "page": "npgd0538",
+    "cas": "75-56-9",
+    "dot_id": "1280",
+    "idlh": "Ca [400 ppm]",
+    "rel": "Ca See Appendix A OSHA PEL",
+    "pel": "TWA 100 ppm (240 mg/m 3 )",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "75-56-9"
+   },
+   {
+    "status": 200,
+    "page": "npgd0096",
+    "cas": "76-22-2",
+    "dot_id": "2717",
+    "idlh": "200 mg/m",
+    "rel": "TWA 2 mg/m 3 OSHA PEL",
+    "pel": "TWA 2 mg/m 3 Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "76-22-2"
+   },
+   {
+    "status": 200,
+    "page": "npgd0611",
+    "cas": "7719-09-7",
+    "dot_id": "1836",
+    "idlh": "N.D.",
+    "rel": "C 1 ppm (5 mg/m 3 )",
+    "pel": "none See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "7719-09-7"
+   },
+   {
+    "status": 200,
+    "page": "npgd0551",
+    "cas": "7783-79-1",
+    "dot_id": "2194",
+    "idlh": "2 ppm",
+    "rel": "TWA 0.05 ppm OSHA PEL TWA 0.05 ppm (0.4 mg/m",
+    "pel": "TWA 0.05 ppm (0.4 mg/m 3 )",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "7783-79-1"
+   },
+   {
+    "status": 200,
+    "page": "npgd0629",
+    "cas": "79-01-6",
+    "dot_id": "1710",
+    "idlh": "Ca [1000 ppm]",
+    "rel": "Ca See Appendix A See Appendix C",
+    "pel": "TWA 100 ppm C 200 ppm 300 ppm (5-minute maximum peak in any 2 hours) See Appendix G Measurement Methods",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "79-01-6"
+   },
+   {
+    "status": 200,
+    "page": "npgd0366",
+    "cas": "8008-20-6",
+    "dot_id": "1223",
+    "idlh": "N.D.",
+    "rel": "TWA 100 mg/m 3 OSHA PEL",
+    "pel": "none Measurement Methods NIOSH",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "8008-20-6"
+   },
+   {
+    "status": 200,
+    "page": "npgd0484",
+    "cas": "87-86-5",
+    "dot_id": "3155",
+    "idlh": "2.5 mg/m",
+    "rel": "TWA 0.5 mg/m 3 [skin]",
+    "pel": "TWA 0.5 mg/m 3 [skin]",
+    "last_reviewed": "October 30, 2019",
+    "index_cas": "87-86-5"
+   }
+  ]
+ },
+ "join_niosh_page_pel_vs_z1": {
+  "pairs_with_ppm_on_both": 10,
+  "equal": 9,
+  "rows": [
+   {
+    "cas": "100-00-5",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "106-89-8",
+    "z1_ppm": "5",
+    "niosh_pel_twa_ppm": "5",
+    "equal": true
+   },
+   {
+    "cas": "108-84-9",
+    "z1_ppm": "50",
+    "niosh_pel_twa_ppm": "50",
+    "equal": true
+   },
+   {
+    "cas": "109-99-9",
+    "z1_ppm": "200",
+    "niosh_pel_twa_ppm": "200",
+    "equal": true
+   },
+   {
+    "cas": "111-44-4",
+    "z1_ppm": "(C)15",
+    "niosh_pel_twa_ppm": "15",
+    "equal": false
+   },
+   {
+    "cas": "123-91-1",
+    "z1_ppm": "100",
+    "niosh_pel_twa_ppm": "100",
+    "equal": true
+   },
+   {
+    "cas": "131-11-3",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "134-32-7",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "142-82-5",
+    "z1_ppm": "500",
+    "niosh_pel_twa_ppm": "500",
+    "equal": true
+   },
+   {
+    "cas": "2971-90-6",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "3689-24-5",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "53-96-3",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "56-23-5",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": "10",
+    "equal": false
+   },
+   {
+    "cas": "60-11-7",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "628-96-6",
+    "z1_ppm": "(C)0.2",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "74-99-7",
+    "z1_ppm": "1000",
+    "niosh_pel_twa_ppm": "1000",
+    "equal": true
+   },
+   {
+    "cas": "75-05-8",
+    "z1_ppm": "40",
+    "niosh_pel_twa_ppm": "40",
+    "equal": true
+   },
+   {
+    "cas": "75-56-9",
+    "z1_ppm": "100",
+    "niosh_pel_twa_ppm": "100",
+    "equal": true
+   },
+   {
+    "cas": "76-22-2",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   },
+   {
+    "cas": "7783-79-1",
+    "z1_ppm": "0.05",
+    "niosh_pel_twa_ppm": "0.05",
+    "equal": true
+   },
+   {
+    "cas": "79-01-6",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": "100",
+    "equal": false
+   },
+   {
+    "cas": "87-86-5",
+    "z1_ppm": "",
+    "niosh_pel_twa_ppm": null,
+    "equal": false
+   }
+  ]
+ },
+ "eh40": {
+  "page_status": 200,
+  "page_published": "January 2020",
+  "pdf_status": 200,
+  "pdf_bytes": 679929,
+  "text_lines": 6398,
+  "distinct_cas": 376,
+  "cas_checksum_valid": 373,
+  "carc_notations": 53,
+  "sk_notations": 114,
+  "sen_notations": 33
+ },
+ "eu": {
+  "eurlex_status": {
+   "status": 202,
+   "bytes": 0
+  },
+  "31991L0322": {
+   "status": 200,
+   "bytes": 29244,
+   "distinct_valid_cas": 24
+  },
+  "32000L0039": {
+   "status": 404,
+   "bytes": 214,
+   "distinct_valid_cas": 0
+  },
+  "32006L0015": {
+   "status": 200,
+   "bytes": 73342,
+   "distinct_valid_cas": 30
+  },
+  "32009L0161": {
+   "status": 200,
+   "bytes": 48815,
+   "distinct_valid_cas": 18
+  },
+  "32017L0164": {
+   "status": 200,
+   "bytes": 80299,
+   "distinct_valid_cas": 30
+  },
+  "32019L1831": {
+   "status": 200,
+   "bytes": 47414,
+   "distinct_valid_cas": 10
+  },
+  "distinct_cas_all_directives": 92
+ },
+ "hcis": {
+  "sampled": 15,
+  "search_200": 15,
+  "found_page": 15,
+  "page_cas_equal": 11,
+  "with_wel_twa": 11,
+  "page_not_on_public_register": 4,
+  "footer": "\u00a9 2026 Safe Work Australia. All rights reserved.",
+  "rows": [
+   {
+    "cas": "100-00-5",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "100-00-5",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "0.1",
+     "0.64"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "106-35-4",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "106-35-4",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "50",
+     "234"
+    ],
+    "wel_stel": [
+     "75",
+     "350"
+    ]
+   },
+   {
+    "cas": "108-18-9",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "108-18-9",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "5",
+     "21"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "110-43-0",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "110-43-0",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "50",
+     "233"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "117-81-7",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "117-81-7",
+    "last_updated": "25 Aug 2026",
+    "wel_twa": [
+     "\u2014",
+     "2"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "1302-74-5",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": true,
+    "search_lists_wel_tag": true,
+    "page_cas": null,
+    "last_updated": null,
+    "wel_twa": null,
+    "wel_stel": null
+   },
+   {
+    "cas": "1344-28-1",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": true,
+    "search_lists_wel_tag": true,
+    "page_cas": null,
+    "last_updated": null,
+    "wel_twa": null,
+    "wel_stel": null
+   },
+   {
+    "cas": "1910-42-5",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "1910-42-5",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "\u2014",
+     "0.05"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "330-54-1",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "330-54-1",
+    "last_updated": "25 Aug 2026",
+    "wel_twa": [
+     "\u2014",
+     "10"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "56-23-5",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "56-23-5",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "0.1",
+     "0.63"
+    ],
+    "wel_stel": [
+     "5",
+     "32"
+    ]
+   },
+   {
+    "cas": "67-64-1",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "67-64-1",
+    "last_updated": "25 Aug 2026",
+    "wel_twa": [
+     "250",
+     "594"
+    ],
+    "wel_stel": [
+     "500",
+     "1187"
+    ]
+   },
+   {
+    "cas": "7440-65-5",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": true,
+    "search_lists_wel_tag": true,
+    "page_cas": null,
+    "last_updated": null,
+    "wel_twa": null,
+    "wel_stel": null
+   },
+   {
+    "cas": "76-06-2",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "76-06-2",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "0.1",
+     "0.67"
+    ],
+    "wel_stel": null
+   },
+   {
+    "cas": "7783-06-4",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": false,
+    "search_lists_wel_tag": true,
+    "page_cas": "7783-06-4",
+    "last_updated": "12 Aug 2026",
+    "wel_twa": [
+     "10",
+     "14"
+    ],
+    "wel_stel": [
+     "15",
+     "21"
+    ]
+   },
+   {
+    "cas": "8002-74-2",
+    "search_status": 200,
+    "hits": 1,
+    "page_status": 200,
+    "not_on_public_register": true,
+    "search_lists_wel_tag": true,
+    "page_cas": null,
+    "last_updated": null,
+    "wel_twa": null,
+    "wel_stel": null
+   }
+  ]
+ },
+ "reachability_only": {
+  "ontario_oel_page": {
+   "status": 200,
+   "bytes": 300848,
+   "valid_cas_in_html": 783
+  },
+  "ontario_elaws_reg833": {
+   "status": 200,
+   "bytes": 54243,
+   "valid_cas_in_html": 0
+  },
+  "worksafebc_guideline_part5": {
+   "status": 200,
+   "bytes": 877568,
+   "valid_cas_in_html": 932
+  },
+  "gestis_ilv_terms": {
+   "status": 200,
+   "bytes": 42292,
+   "valid_cas_in_html": 0
+  }
+ },
+ "joins": {
+  "osha_z1_to_niosh_index": "390/417",
+  "eh40_to_osha_z1": "237/373",
+  "eh40_to_niosh_index": "309/373",
+  "eu_ioelv_to_eh40": "87/92",
+  "eu_ioelv_to_osha_z1": "69/92",
+  "hcis_page_cas_equal_to_eh40_sample": "11/15"
+ },
+ "value_examples": [
+  {
+   "cas": "100-00-5",
+   "osha_z1_ppm": "",
+   "eh40_twa_ppm": "-"
+  },
+  {
+   "cas": "106-93-4",
+   "osha_z1_ppm": "",
+   "eh40_twa_ppm": "0.5"
+  },
+  {
+   "cas": "108-88-3",
+   "osha_z1_ppm": "",
+   "eh40_twa_ppm": "50"
+  },
+  {
+   "cas": "110-86-1",
+   "osha_z1_ppm": "5",
+   "eh40_twa_ppm": "5"
+  },
+  {
+   "cas": "124-40-3",
+   "osha_z1_ppm": "10",
+   "eh40_twa_ppm": "2"
+  },
+  {
+   "cas": "13463-39-3",
+   "osha_z1_ppm": "0.001",
+   "eh40_twa_ppm": "-"
+  },
+  {
+   "cas": "463-51-4",
+   "osha_z1_ppm": "0.5",
+   "eh40_twa_ppm": "0.5"
+  },
+  {
+   "cas": "624-83-9",
+   "osha_z1_ppm": "0.02",
+   "eh40_twa_ppm": "-"
+  },
+  {
+   "cas": "74-90-8",
+   "osha_z1_ppm": "10",
+   "eh40_twa_ppm": "0.9"
+  },
+  {
+   "cas": "75-43-4",
+   "osha_z1_ppm": "1000",
+   "eh40_twa_ppm": "10"
+  },
+  {
+   "cas": "7723-14-0",
+   "osha_z1_ppm": "",
+   "eh40_twa_ppm": "-"
+  },
+  {
+   "cas": "79-24-3",
+   "osha_z1_ppm": "100",
+   "eh40_twa_ppm": "20"
+  }
+ ],
+ "osha_eh40_common_cas": 231
+}

@@ -1,0 +1,73 @@
+{
+ "reviewed_on": "2026-11-14",
+ "method": "reviewer read every check row: same corporate employer in both states; same notice event when notice date and type agree",
+ "key_fields": [
+  "wa_company",
+  "wa_received",
+  "ca_company",
+  "ca_notice_date"
+ ],
+ "notes": "Uber differs by 42 days: same employer, separate notice event.",
+ "wa_ca": [
+  {
+   "key": [
+    "Amazon",
+    "11/2/2026",
+    "Amazon",
+    "2026-11-02"
+   ],
+   "employer": "correct",
+   "same_event": "correct"
+  },
+  {
+   "key": [
+    "Comcast",
+    "10/29/2026",
+    "Comcast",
+    "2026-10-29"
+   ],
+   "employer": "correct",
+   "same_event": "correct"
+  },
+  {
+   "key": [
+    "Oracle America, Inc.",
+    "9/14/2026",
+    "Oracle America, Inc.",
+    "2026-09-14"
+   ],
+   "employer": "correct",
+   "same_event": "correct"
+  },
+  {
+   "key": [
+    "Uber Technologies Inc",
+    "9/2/2026",
+    "Uber Technologies, Inc. (1655 3rd Street)",
+    "2026-07-22"
+   ],
+   "employer": "correct",
+   "same_event": "incorrect"
+  },
+  {
+   "key": [
+    "Salesforce, Inc.",
+    "8/5/2026",
+    "Salesforce, Inc.",
+    "2026-08-05"
+   ],
+   "employer": "correct",
+   "same_event": "correct"
+  },
+  {
+   "key": [
+    "Visa",
+    "7/31/2026",
+    "Visa",
+    "2026-07-31"
+   ],
+   "employer": "correct",
+   "same_event": "correct"
+  }
+ ]
+}

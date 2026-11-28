@@ -1,0 +1,65 @@
+{
+ "fetched": {
+  "browse_hc_2024.html": {
+   "bytes": 45484,
+   "sha256": "d0529f86c43e6436113131850082fea0fa1906a32c41c6e4e9337bf49fcae3f4",
+   "url": "https://data.aroqon.com/product-recalls/browse/hc/2024"
+  },
+  "browse_hc_2025.html": {
+   "bytes": 45197,
+   "sha256": "b3b61ee58c11e05d3741cf5c438c69bbf4539de4bfd0f4e167a083b852e0906b",
+   "url": "https://data.aroqon.com/product-recalls/browse/hc/2025"
+  },
+  "browse_hc_2026.html": {
+   "bytes": 45065,
+   "sha256": "0a99548fb22cb417a918df6de6f3e2591b8a891240346f69def8722eedf5721f",
+   "url": "https://data.aroqon.com/product-recalls/browse/hc/2026"
+  },
+  "hc_index.json": {
+   "bytes": 15897545,
+   "sha256": "d0d3f3366510728ba7aaae3146a191db29ecdbb0c466465dc79dedf82fc8f53a",
+   "url": "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json?scout=20261122"
+  },
+  "ours_hc_82932.html": {
+   "bytes": 15596,
+   "sha256": "6eb329c88ffcd937fd2d0c3be7e687b6eed43194e96e1994c17f0cb0c0b63d4d",
+   "url": "https://data.aroqon.com/product-recalls/hc-82932"
+  }
+ },
+ "hc_index": {
+  "consumer_product_rows": 5240,
+  "rows": 34415
+ },
+ "held_by_us_but_not_listed_by_health_canada": {
+  "82932": {
+   "in_index_under_another_organization": null,
+   "our_page_robots_noindex": true,
+   "our_page_title": "Klean Strip Denatured Alcohol Fuel sold by Joel’s Wholesale (Express Health Supply) on Amazon.ca recalled due to improper labelling — Health Canada recall 82932",
+   "source_page_http_status": 404,
+   "source_url": "https://recalls-rappels.canada.ca/en/alert-recall/klean-strip-denatured-alcohol-fuel-sold-joel-s-wholesale-express-health-supply",
+   "title_found_anywhere_in_index": false
+  }
+ },
+ "our_year_hubs": {
+  "2024": {
+   "not_consumer_product_rows_in_index": [],
+   "notice_ids_on_first_page": 200
+  },
+  "2025": {
+   "not_consumer_product_rows_in_index": [],
+   "notice_ids_on_first_page": 200
+  },
+  "2026": {
+   "not_consumer_product_rows_in_index": [
+    "82932"
+   ],
+   "notice_ids_on_first_page": 200
+  }
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 6,
+  "source_bodies": 5
+ },
+ "run_date": "2026-11-22"
+}

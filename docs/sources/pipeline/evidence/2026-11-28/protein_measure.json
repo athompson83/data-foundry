@@ -1,0 +1,1686 @@
+{
+ "fetched": {
+  "rcsb_entity_1EJS_1.json": {
+   "bytes": 28162,
+   "sha256": "395402c19834d20f274afadd732f82437ab5305b6f2e2f33f4e2013676ed3dce",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/1EJS/1"
+  },
+  "rcsb_entity_1EJS_2.json": {
+   "bytes": 13669,
+   "sha256": "87dee55b3e419b3ef1dee7cd29e00fafffd53b1986f321221076e6772c4ae339",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/1EJS/2"
+  },
+  "rcsb_entity_1EJS_3.json": {
+   "bytes": 13873,
+   "sha256": "60e37dbc99705a65a6a219906c3a93839a8464850426459ac103f9c10664362a",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/1EJS/3"
+  },
+  "rcsb_entity_1LE4_1.json": {
+   "bytes": 159038,
+   "sha256": "78b113953a8c7d32bc66eb33568f84e3d4ebee767160afe1da0154cb4e25a357",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/1LE4/1"
+  },
+  "rcsb_entity_1SWR_1.json": {
+   "bytes": 20253,
+   "sha256": "c743b2077d0b51cb6d96717dc146e7226c0bdd4e04ac6df7fd447cac0280c457",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/1SWR/1"
+  },
+  "rcsb_entity_1XUD_1.json": {
+   "bytes": 47603,
+   "sha256": "1dc5887464fff1cc90fb8cd20915d4540e23f0eb8f563eef822af17d71f29c29",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/1XUD/1"
+  },
+  "rcsb_entity_2JU8_1.json": {
+   "bytes": 82973,
+   "sha256": "3836bbb6be8caf7360363c2bb9a8fb9436bb31825b48a89484f45b2fd1d1d00d",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/2JU8/1"
+  },
+  "rcsb_entity_2O3E_1.json": {
+   "bytes": 40107,
+   "sha256": "9ee10586681a962b49b63c81ec87ba977cf046f4b0dccf2bcef49f97ce760b68",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/2O3E/1"
+  },
+  "rcsb_entity_2OAC_1.json": {
+   "bytes": 77753,
+   "sha256": "3e8cbff4291f0d0e64c124d4d963c585c8d8d77a0ae09a845fd1cec2ca32efbf",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/2OAC/1"
+  },
+  "rcsb_entity_2ZFB_1.json": {
+   "bytes": 15907,
+   "sha256": "f003e9c774c40aaa5f245f3dc0e40a562cce64c861c194c2300185baf87a4e3b",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/2ZFB/1"
+  },
+  "rcsb_entity_2ZFB_2.json": {
+   "bytes": 15051,
+   "sha256": "1b8039cd849cf0d459895f0d952d9089cfcf5aa4ed4dd79577aa9665e4d45aeb",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/2ZFB/2"
+  },
+  "rcsb_entity_3CE9_1.json": {
+   "bytes": 19759,
+   "sha256": "2fe7f656fad73dcbd567de8f03f020d2d35a31d4b81aa7195c9f693f0cfc61fa",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/3CE9/1"
+  },
+  "rcsb_entity_3LUO_1.json": {
+   "bytes": 14346,
+   "sha256": "83d6db95710dca2cd51bb3c568655804c2cd62ad15abbbbab7c36d7934b84407",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/3LUO/1"
+  },
+  "rcsb_entity_3LUO_2.json": {
+   "bytes": 1919,
+   "sha256": "783b5758b42e9174721897dfd60c602e51fa85ea8c66053208e0dc3e01537f96",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/3LUO/2"
+  },
+  "rcsb_entity_3V76_1.json": {
+   "bytes": 22259,
+   "sha256": "cfce1115dab8cccd4d09ccca104fc895ad77f074705766291d7782e9531d50b7",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/3V76/1"
+  },
+  "rcsb_entity_4EMU_1.json": {
+   "bytes": 93227,
+   "sha256": "5737a881ef4404e3dce1f8b32418f681dd4b215284ddc726d5dc30b32d26fa5e",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4EMU/1"
+  },
+  "rcsb_entity_4I24_1.json": {
+   "bytes": 191061,
+   "sha256": "833c3c591211193040ffb631633db51e09bf70bdc71bd7c5a23d509cb04efec5",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4I24/1"
+  },
+  "rcsb_entity_4JK4_1.json": {
+   "bytes": 28519,
+   "sha256": "a6591a37c3f3801ea7eb93332243ff396cfa0581dbd33607268f5405a68a9a01",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4JK4/1"
+  },
+  "rcsb_entity_4YN6_1.json": {
+   "bytes": 2577,
+   "sha256": "ab70ef44e0fa37837513bc36d5de696e32114d8b6443fa184defb98acea6c448",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4YN6/1"
+  },
+  "rcsb_entity_4Z5C_1.json": {
+   "bytes": 20819,
+   "sha256": "2c5f51d099556ca789051d2d7c3354fc57481d9ffae65923b222208abb72eb19",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4Z5C/1"
+  },
+  "rcsb_entity_4Z5C_2.json": {
+   "bytes": 2917,
+   "sha256": "929d1f394658dcb6e0db66c9d4e73e8654a03f9f0b005b414bca7f69ba6944aa",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4Z5C/2"
+  },
+  "rcsb_entity_4Z5C_3.json": {
+   "bytes": 2907,
+   "sha256": "1841dda54c6485f4855ce8f59155f84a4435281e137b97780baa7f9044c32ab3",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/4Z5C/3"
+  },
+  "rcsb_entity_5A4E_1.json": {
+   "bytes": 80025,
+   "sha256": "404e8113153b426f434de5270aae4fdc95284d680da88aba925bf47a21527acd",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5A4E/1"
+  },
+  "rcsb_entity_5AKX_1.json": {
+   "bytes": 47653,
+   "sha256": "2cb4a61a8af4aeda06705e524712094ed91b6b337c38698a9722305c5cee85a5",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5AKX/1"
+  },
+  "rcsb_entity_5DPT_1.json": {
+   "bytes": 41454,
+   "sha256": "c04576e3f17d0348ab37908fb08afebd27377a34a956b1b64f9d43cc25f3a629",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5DPT/1"
+  },
+  "rcsb_entity_5P3T_1.json": {
+   "bytes": 15893,
+   "sha256": "8a2870ee5674d65783b3cd549088218df5cbe14f4e31698732890c25aaa60843",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5P3T/1"
+  },
+  "rcsb_entity_5TDG_1.json": {
+   "bytes": 30459,
+   "sha256": "bb76f4b4f465d97039a821ef963f000169667aae32f8067989ff2ec78f926d53",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5TDG/1"
+  },
+  "rcsb_entity_5TH9_1.json": {
+   "bytes": 19424,
+   "sha256": "3c1303be24c54125aa5da3afcb4ad175a0f5d328c9b55c6924eced2d7cd7ed4d",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5TH9/1"
+  },
+  "rcsb_entity_5TH9_2.json": {
+   "bytes": 24420,
+   "sha256": "f9acede2f9bcfcbefb3295f2e59717824061f1b82552a3f6f3885286bbc90421",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5TH9/2"
+  },
+  "rcsb_entity_5TH9_3.json": {
+   "bytes": 91753,
+   "sha256": "d48e42bb1229b51da941ffa7c1f4a922349c2fa71557b8d781f73cd13f1f2969",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/5TH9/3"
+  },
+  "rcsb_entity_6MEJ_1.json": {
+   "bytes": 19891,
+   "sha256": "3e51261f82bb6c759268ba91c16b12900ef04c0db76cdf76aa0c34d7c489b956",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/6MEJ/1"
+  },
+  "rcsb_entity_6MEJ_2.json": {
+   "bytes": 21893,
+   "sha256": "508c31cbe3232377059ba0a971ff6925ffe7933d8b1e6d95de3f6364b5cffad1",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/6MEJ/2"
+  },
+  "rcsb_entity_6MEJ_3.json": {
+   "bytes": 23290,
+   "sha256": "7a6c58868983c6ee5a964cb27276373888dd2a04759f6376888bdfc6ed18956d",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/6MEJ/3"
+  },
+  "rcsb_entity_6VUF_1.json": {
+   "bytes": 94384,
+   "sha256": "dd5c745d55cd90410cfe7b8d31b17009f50e713a408a091ae1d4ed3bc8e3cf50",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/6VUF/1"
+  },
+  "rcsb_entity_6YUC_1.json": {
+   "bytes": 14608,
+   "sha256": "0b01d6aa6fc5d8e627766e7175f2c7470a3aa5ffd1a8cbf018111a2e5756eba0",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/6YUC/1"
+  },
+  "rcsb_entity_6YUC_2.json": {
+   "bytes": 15500,
+   "sha256": "970e8500d8e60f33569d52fae8b73d16bbe4302212889a76464bf9de4521da9b",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/6YUC/2"
+  },
+  "rcsb_entity_7H8U_1.json": {
+   "bytes": 38500,
+   "sha256": "eb63288e10bedb1f5e2efd36489f455c4dfc8d4d3e1014262315d78a7a1e5629",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7H8U/1"
+  },
+  "rcsb_entity_7HR2_1.json": {
+   "bytes": 21104,
+   "sha256": "979defeae562982729f78051bdaa70c50644bba30089a53473f7680871173f55",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7HR2/1"
+  },
+  "rcsb_entity_7HW6_1.json": {
+   "bytes": 34799,
+   "sha256": "3e7e99f5d369df2462aeb933c304c440cf00fa244540072b6fd1a8976bd4af0b",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7HW6/1"
+  },
+  "rcsb_entity_7PEX_1.json": {
+   "bytes": 21199,
+   "sha256": "c9c47d9e829b650fc3558bcbcd8bafd96a94d5e1a901da4153ffa1860c347286",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7PEX/1"
+  },
+  "rcsb_entity_7PEX_2.json": {
+   "bytes": 29825,
+   "sha256": "f4db83ea4c5add5a5ebcb5c61ad409c81be38a3ae286a76fb78b7e736a11b3f9",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7PEX/2"
+  },
+  "rcsb_entity_7PEX_3.json": {
+   "bytes": 26612,
+   "sha256": "b8b1cd994f13bf4120c9e6e8f6ca6029aa266571f572737d899d47693245786f",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7PEX/3"
+  },
+  "rcsb_entity_7Q1D_1.json": {
+   "bytes": 24004,
+   "sha256": "23ac73635c0cd85fd00890edded9bddc0a357f4a35b8f6185d98f28bf4c69644",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7Q1D/1"
+  },
+  "rcsb_entity_7VGW_1.json": {
+   "bytes": 17393,
+   "sha256": "1fa4d09224e5bc746331cf601ee07ce6f368940ffb9a072a234ea47df4d7a741",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7VGW/1"
+  },
+  "rcsb_entity_7X42_1.json": {
+   "bytes": 8876,
+   "sha256": "25967e7720f180283661a476958d3fda5f76edf80860e15261d53bc696009de2",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7X42/1"
+  },
+  "rcsb_entity_7X42_2.json": {
+   "bytes": 9630,
+   "sha256": "8fa0e6ad3550e5931bee049dcfaffb99bfefb2ed48f2921df619f6c7c6ebfd4f",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7X42/2"
+  },
+  "rcsb_entity_7X42_3.json": {
+   "bytes": 16559,
+   "sha256": "6fcc26921ecc222c9cea1571f146a47bd53f2c526244ef0eae5d00649d26ef8d",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/7X42/3"
+  },
+  "rcsb_entity_8EPT_1.json": {
+   "bytes": 35173,
+   "sha256": "b0cfe46fbf3e1938eb04daa0b4011c10d23401b1e6398cd0702f051110d8a38b",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/8EPT/1"
+  },
+  "rcsb_entity_8IE2_1.json": {
+   "bytes": 20527,
+   "sha256": "056d5576a7e66b7628b6a81aee64cb48533330293bce5f3363685a1a494a70c0",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/8IE2/1"
+  },
+  "rcsb_entity_8IE2_2.json": {
+   "bytes": 31602,
+   "sha256": "72bd3cae0e376f3faa6ad1f8092543f2819db645624762766015d14e76f5e13c",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/8IE2/2"
+  },
+  "rcsb_entity_8IQA_1.json": {
+   "bytes": 14860,
+   "sha256": "7ec5a0b8847981a400df7909075794ee4878d2d3fc16d5aa4b2ff6963d0f33e2",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/8IQA/1"
+  },
+  "rcsb_entity_8OSM_1.json": {
+   "bytes": 68733,
+   "sha256": "c5fa1a859f356e261bc8713facbcaadffb357a86016966d091302a91ad105fb8",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/8OSM/1"
+  },
+  "rcsb_entity_9FBR_1.json": {
+   "bytes": 18194,
+   "sha256": "7b909cccf45ea743314e73e70b879b761105cf222831ac24230c8405b8c5d8d7",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/9FBR/1"
+  },
+  "rcsb_entity_9KFB_1.json": {
+   "bytes": 22727,
+   "sha256": "147c442f8483b0695cbef610f3b9da8794bec7f967d244232cd65f004308c79c",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/9KFB/1"
+  },
+  "rcsb_entity_9KFB_2.json": {
+   "bytes": 13929,
+   "sha256": "5c186714680935b943ebbaf8341ad59f59a1c330bac1ef9d65e49fa8ae78cff9",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/9KFB/2"
+  },
+  "rcsb_entity_9P4M_1.json": {
+   "bytes": 24258,
+   "sha256": "7ac96cfaa07606261d33acdcad9407807ab21ec119f9208f50038fad13bcb821",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/9P4M/1"
+  },
+  "rcsb_entity_9VA1_1.json": {
+   "bytes": 78476,
+   "sha256": "52d23b3fb061710344889aa93dba0246aa4144eb9bb56578919d3ec738461235",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/9VA1/1"
+  },
+  "rcsb_entity_9VA1_2.json": {
+   "bytes": 35623,
+   "sha256": "9d65a8e992a4123d7f77b8c1f95645a1ac933f2262f1ea644982cff35ba1a872",
+   "url": "https://data.rcsb.org/rest/v1/core/polymer_entity/9VA1/2"
+  },
+  "rcsb_entry_1EJS.json": {
+   "bytes": 14389,
+   "sha256": "5e9fea501c5b70fc5375b1de74de104d77d4c01009151559cea36597bdc4f380",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/1EJS"
+  },
+  "rcsb_entry_1LE4.json": {
+   "bytes": 9739,
+   "sha256": "9f4dadee1cbc5c756707cb583573a7ff03f2f2513d32ef9594b19e1a3b7155e2",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/1LE4"
+  },
+  "rcsb_entry_1SWR.json": {
+   "bytes": 17007,
+   "sha256": "7dd878af4fa07e0cba7779b3235de18c750b3c960d1e2f085643044840fd113a",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/1SWR"
+  },
+  "rcsb_entry_1XUD.json": {
+   "bytes": 14996,
+   "sha256": "c0bbbe083ec14edbc01368fa040057e26cb65f5f25dee4d75e7697bbce5749d6",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/1XUD"
+  },
+  "rcsb_entry_2JU8.json": {
+   "bytes": 13721,
+   "sha256": "5d47d45450cf60e2839ccc544bd57647c99ad9fb012be7613ae1f188db8149ef",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/2JU8"
+  },
+  "rcsb_entry_2O3E.json": {
+   "bytes": 18415,
+   "sha256": "2eb1a2ac77abe1251f119307a827aa53a9ce9a5bfb7fe59905dbda30084662bf",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/2O3E"
+  },
+  "rcsb_entry_2OAC.json": {
+   "bytes": 14985,
+   "sha256": "fa20adaf30d6d3f2aaacd4f36f71424a05f514370b5469cb1d44183f47f7958a",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/2OAC"
+  },
+  "rcsb_entry_2ZFB.json": {
+   "bytes": 17022,
+   "sha256": "fc8053385a7480232dfcd404cc7dde1b223fed9ec019caaf2a0305e486304939",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/2ZFB"
+  },
+  "rcsb_entry_3CE9.json": {
+   "bytes": 23012,
+   "sha256": "e5977ca53264e206291cc5d5384c224350822a95e82ef261f3f06df4563abcaf",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/3CE9"
+  },
+  "rcsb_entry_3LUO.json": {
+   "bytes": 16467,
+   "sha256": "053d8f76cdaf3f9cb3159c6e9018073a5af866a19d70e49c096a7f82abb7ab61",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/3LUO"
+  },
+  "rcsb_entry_3V76.json": {
+   "bytes": 13215,
+   "sha256": "e566ab6a0de1bdb9bc9ec3439b62adece61754b2b14b0b4d240c0e1249ef0572",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/3V76"
+  },
+  "rcsb_entry_4EMU.json": {
+   "bytes": 12688,
+   "sha256": "ecd75beae5f9761e40077d09cd446ccdd74b9b382e573890d2605e4f39d0d01b",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/4EMU"
+  },
+  "rcsb_entry_4I24.json": {
+   "bytes": 17539,
+   "sha256": "8023a97c6d5419f5ead5fae6006fe08e580c12cd4189cdcb011a3cc018592df8",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/4I24"
+  },
+  "rcsb_entry_4JK4.json": {
+   "bytes": 17459,
+   "sha256": "c3fb146d4b9e818f9a38520e9febce5f59e11b2332a00a363bab9ecec5c94670",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/4JK4"
+  },
+  "rcsb_entry_4YN6.json": {
+   "bytes": 11067,
+   "sha256": "c4dd4f0c2ea5d0cf54e6e005a5d8cbcc2dca89f6230d887b94cabb2488a67af1",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/4YN6"
+  },
+  "rcsb_entry_4Z5C.json": {
+   "bytes": 15896,
+   "sha256": "c2ac749ba8e50b28aa953dc7fe509271aaf9285187a62201667f381c3c35276b",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/4Z5C"
+  },
+  "rcsb_entry_5A4E.json": {
+   "bytes": 18978,
+   "sha256": "0707ff886351bf4f6b68945affec4cb3b3b3fc995fe77f8a13ab11f6cc43919e",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/5A4E"
+  },
+  "rcsb_entry_5AKX.json": {
+   "bytes": 17855,
+   "sha256": "3b8ede1017a201213f14950419388302d03d992fcc4b9e321e409ac67f207403",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/5AKX"
+  },
+  "rcsb_entry_5DPT.json": {
+   "bytes": 12472,
+   "sha256": "a84e5f69e3cfac4872bec474a7453f0219ef22902eb11890964b07320152a7fd",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/5DPT"
+  },
+  "rcsb_entry_5P3T.json": {
+   "bytes": 17492,
+   "sha256": "5339ead1c107e18ba8efcff5002cec5c7f8878ce5b3fe7a02fd8fb217e090a8b",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/5P3T"
+  },
+  "rcsb_entry_5TDG.json": {
+   "bytes": 14222,
+   "sha256": "4404bad6641a21182a7169c695f688162029fa0c129cd5261ea94d11739235f1",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/5TDG"
+  },
+  "rcsb_entry_5TH9.json": {
+   "bytes": 22016,
+   "sha256": "f843cb31c4214e43328bdbf858a32738c81da94252ead739f7390bab4dbbbb3c",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/5TH9"
+  },
+  "rcsb_entry_6MEJ.json": {
+   "bytes": 20574,
+   "sha256": "a2d8357682b5b7fd3bce93011a34b039309f734a7c753d739ffad661d0bdb632",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/6MEJ"
+  },
+  "rcsb_entry_6VUF.json": {
+   "bytes": 13024,
+   "sha256": "3021f0abe8881b0293236bbb5f93594950a0a701cda88011f226205950ba701b",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/6VUF"
+  },
+  "rcsb_entry_6YUC.json": {
+   "bytes": 15750,
+   "sha256": "b8eab243e50950d6a1875a88101227496928696ba3040c439d8d6b7328f82471",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/6YUC"
+  },
+  "rcsb_entry_7H8U.json": {
+   "bytes": 15148,
+   "sha256": "57f0da6a7e0c1902644a2d6030cdec0f93abf2382bb3e9f80fe9f201c2439ed1",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7H8U"
+  },
+  "rcsb_entry_7HR2.json": {
+   "bytes": 11788,
+   "sha256": "6728a6f643cde46875370938a36481e107c77f68ea104b2aba878b0ad88405b9",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7HR2"
+  },
+  "rcsb_entry_7HW6.json": {
+   "bytes": 12761,
+   "sha256": "dd5dcf46cc707ade6b0b43ddebdaf121061db5b841e430dfdfdd754ea62cc6f4",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7HW6"
+  },
+  "rcsb_entry_7PEX.json": {
+   "bytes": 9393,
+   "sha256": "a5c11ebe6df7b7419ff7c4953a3ea6e17b30a176d46b5e87cf8f823121baa836",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7PEX"
+  },
+  "rcsb_entry_7Q1D.json": {
+   "bytes": 10897,
+   "sha256": "47627605fc679d061914253e7cb3037d636cd3ddc5ff085d0801e96112b849a2",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7Q1D"
+  },
+  "rcsb_entry_7VGW.json": {
+   "bytes": 10261,
+   "sha256": "fdf9897c1515743521ee0646e7232e6e1571a41526c30947db3fd4faafb34867",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7VGW"
+  },
+  "rcsb_entry_7X42.json": {
+   "bytes": 9861,
+   "sha256": "207bca03ce06a3f1b7ce6cd2f645b85d102ae46c8dcef4bc8c1389553b8a2372",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/7X42"
+  },
+  "rcsb_entry_8EPT.json": {
+   "bytes": 12835,
+   "sha256": "036e9f540fdba07f2cbebac44062b538cf5bd8185cde8bcaac1a356bc192d1a3",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/8EPT"
+  },
+  "rcsb_entry_8IE2.json": {
+   "bytes": 14599,
+   "sha256": "245f22b3ebafb025d927a260d976e68f3af600def7c91d54e668c83b9bd24824",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/8IE2"
+  },
+  "rcsb_entry_8IQA.json": {
+   "bytes": 13115,
+   "sha256": "320e1e3124b42f4801e6404afc83ce35ec98670629e48af31952d86d3cc9f494",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/8IQA"
+  },
+  "rcsb_entry_8OSM.json": {
+   "bytes": 11771,
+   "sha256": "21ad157bdf4af84615dc1c876b0295ee355b486fb7fb6eb5b4363b309f91f77b",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/8OSM"
+  },
+  "rcsb_entry_9FBR.json": {
+   "bytes": 15273,
+   "sha256": "2957991f0359d83471d653040b4a2201a0ab9fc03310476d26db2ff1f4c4c7ac",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/9FBR"
+  },
+  "rcsb_entry_9KFB.json": {
+   "bytes": 9792,
+   "sha256": "cb2e97f0132fba9b62515c62d1256aa4715d6f31b0ce3ea4455189a4fb8c401e",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/9KFB"
+  },
+  "rcsb_entry_9P4M.json": {
+   "bytes": 11361,
+   "sha256": "d5159fc9aa5101f15ac4f3af311c01be1a4e94f3484cac6f8cee599ec3105796",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/9P4M"
+  },
+  "rcsb_entry_9VA1.json": {
+   "bytes": 7579,
+   "sha256": "529ceb7a2d07ed8d1c905ec417900d8431014cde83730e62765f8cabac2aba49",
+   "url": "https://data.rcsb.org/rest/v1/core/entry/9VA1"
+  },
+  "rcsb_entry_ids.json": {
+   "bytes": 1847224,
+   "sha256": "722b59b1bbe717dc7acea55a59adbba72b526aba7acaac8b5d18daea909eb5c0",
+   "url": "https://data.rcsb.org/rest/v1/holdings/current/entry_ids"
+  },
+  "terms_rcsb.html": {
+   "bytes": 41993,
+   "sha256": "91cde1f8751625499c254b19539bb2665734c647556f7b8697e900164113e3bd",
+   "url": "https://www.rcsb.org/pages/usage-policy"
+  },
+  "terms_uniprot.html": {
+   "bytes": 5570,
+   "sha256": "14d6c676a1ce3dbf6a3ece3c2e28d2a578ccfef29b2239ef4949d28d7b6c3271",
+   "url": "https://www.uniprot.org/help/license"
+  },
+  "uniprot_A0A0A2N3A3.json": {
+   "bytes": 9125,
+   "sha256": "1b9ca1a4842df9cc3286347e1232858224ed130ed6ca6821d8d8b4341b5e80d4",
+   "url": "https://rest.uniprot.org/uniprotkb/A0A0A2N3A3.json"
+  },
+  "uniprot_A0A7T7KAA0.json": {
+   "bytes": 18223,
+   "sha256": "6fe8bb2e5a1f790fe8ad9b746196515b77322889cff8de0084689321a04df79d",
+   "url": "https://rest.uniprot.org/uniprotkb/A0A7T7KAA0.json"
+  },
+  "uniprot_B1VBB0.json": {
+   "bytes": 16394,
+   "sha256": "ecbe19862a466371cd05a1fd55f6b0927d9b52f5667a444e372ea4bd6cc6e10e",
+   "url": "https://rest.uniprot.org/uniprotkb/B1VBB0.json"
+  },
+  "uniprot_C1KH25.json": {
+   "bytes": 18275,
+   "sha256": "f5c78a59222ac6f6f1ee8954fa50799630a2c6b2881e0f2858bd7955277c26a3",
+   "url": "https://rest.uniprot.org/uniprotkb/C1KH25.json"
+  },
+  "uniprot_G0SC54.json": {
+   "bytes": 258,
+   "sha256": "8c330d33477cbb4d2e870a850dba26fbd2c6b920ca8968e7b26444bc0fbe5b7b",
+   "url": "https://rest.uniprot.org/uniprotkb/G0SC54.json"
+  },
+  "uniprot_G0SE11.json": {
+   "bytes": 13880,
+   "sha256": "981a43353de8f5c786953f3223fe1fc321b8158079a7053f66156d3cfe1e01ed",
+   "url": "https://rest.uniprot.org/uniprotkb/G0SE11.json"
+  },
+  "uniprot_O60885.json": {
+   "bytes": 217792,
+   "sha256": "44b10f17c00a5b28a1222bd14203cfe4748c4e5a025463496d60674a71cfc422",
+   "url": "https://rest.uniprot.org/uniprotkb/O60885.json"
+  },
+  "uniprot_P00533.json": {
+   "bytes": 385210,
+   "sha256": "c7d320b0eed723b77b2fe2e023a5ee4bf0265f8c9deeb03a249703ffbea443dc",
+   "url": "https://rest.uniprot.org/uniprotkb/P00533.json"
+  },
+  "uniprot_P01112.json": {
+   "bytes": 189252,
+   "sha256": "fa311c94ee91e5b19ac6d94089017983df19e6a125a44d349dff47193e6e3ef3",
+   "url": "https://rest.uniprot.org/uniprotkb/P01112.json"
+  },
+  "uniprot_P02649.json": {
+   "bytes": 180671,
+   "sha256": "092114effe4244e54e48c0e220b17dd15e96d65ded46d384238a193a29a83203",
+   "url": "https://rest.uniprot.org/uniprotkb/P02649.json"
+  },
+  "uniprot_P02692.json": {
+   "bytes": 46424,
+   "sha256": "9b9d3861be8d4843328e0fdbf4975a55b91a690e4902992b7d3ba5fc95af831b",
+   "url": "https://rest.uniprot.org/uniprotkb/P02692.json"
+  },
+  "uniprot_P02769.json": {
+   "bytes": 62705,
+   "sha256": "ed6e3dcfdada5565dd056a35fcf2230743352c359eccf18d9846ccb0e3be17e4",
+   "url": "https://rest.uniprot.org/uniprotkb/P02769.json"
+  },
+  "uniprot_P04908.json": {
+   "bytes": 148670,
+   "sha256": "db4f55d7d10e9dc7bb1ca2bfab57e98fc35bd363bbfb964ad578b20330c95b34",
+   "url": "https://rest.uniprot.org/uniprotkb/P04908.json"
+  },
+  "uniprot_P11838.json": {
+   "bytes": 172933,
+   "sha256": "89c0bcf50bba4db81a13224c6f8ae76e5f974126e3849a5a4c4d8d472a2f7513",
+   "url": "https://rest.uniprot.org/uniprotkb/P11838.json"
+  },
+  "uniprot_P14780.json": {
+   "bytes": 104274,
+   "sha256": "8161a1993bb5adad543c20fb33cc03ca46fb4e9a7d83ac41745aefc0afdedbbe",
+   "url": "https://rest.uniprot.org/uniprotkb/P14780.json"
+  },
+  "uniprot_P18314.json": {
+   "bytes": 53460,
+   "sha256": "f0d669dc580bef10055c569cf1d0999d30b315893ffe8575eecf2af6d98ae345",
+   "url": "https://rest.uniprot.org/uniprotkb/P18314.json"
+  },
+  "uniprot_P18315.json": {
+   "bytes": 27470,
+   "sha256": "4c6c79591f042b7a8a7271442de04dfc936bc5b6c458f480416f3a3131e795fa",
+   "url": "https://rest.uniprot.org/uniprotkb/P18315.json"
+  },
+  "uniprot_P18316.json": {
+   "bytes": 26781,
+   "sha256": "45e31886eb8c5e9551be54ea2a58bc6b928bcc2a14a465b31672ecaad08f479e",
+   "url": "https://rest.uniprot.org/uniprotkb/P18316.json"
+  },
+  "uniprot_P19157.json": {
+   "bytes": 50171,
+   "sha256": "4e19d193ba6fac110c7ca6d2e5b26e09bc59dfc8590ba4942779eacc29206c74",
+   "url": "https://rest.uniprot.org/uniprotkb/P19157.json"
+  },
+  "uniprot_P19831.json": {
+   "bytes": 10954,
+   "sha256": "4ba8134b628d4cdfcaebf54d8a51872d364235e2cea8bda8b89b7a5342300e53",
+   "url": "https://rest.uniprot.org/uniprotkb/P19831.json"
+  },
+  "uniprot_P21668.json": {
+   "bytes": 9933,
+   "sha256": "621afa4f4a4c5838ed3cb8ff8f474c7638b54efcf3eec87c22939296ede70257",
+   "url": "https://rest.uniprot.org/uniprotkb/P21668.json"
+  },
+  "uniprot_P22629.json": {
+   "bytes": 67294,
+   "sha256": "df0fbfc84af55fda38e3adc2fad0ccde31fbea7a0dda7883f04cd09a5beb88cb",
+   "url": "https://rest.uniprot.org/uniprotkb/P22629.json"
+  },
+  "uniprot_P23873.json": {
+   "bytes": 27956,
+   "sha256": "ba0b5fea1edcfc7e2112ebf87c221fdd1160b288558ffc94d0c4e5a9b681d9f5",
+   "url": "https://rest.uniprot.org/uniprotkb/P23873.json"
+  },
+  "uniprot_P29808.json": {
+   "bytes": 30444,
+   "sha256": "105ae021cdab2e1a63604a564658e088f9a13ebc66a8dce8951ef1412948e549",
+   "url": "https://rest.uniprot.org/uniprotkb/P29808.json"
+  },
+  "uniprot_P34913.json": {
+   "bytes": 126297,
+   "sha256": "5639176339a1c8de162dfd7f9448e353a0dd54a84837dd58d6ac79523300873d",
+   "url": "https://rest.uniprot.org/uniprotkb/P34913.json"
+  },
+  "uniprot_P42676.json": {
+   "bytes": 30868,
+   "sha256": "efb9fefc1336bfcbdec2b28ac3e21904715c152a18d31c263c0a72d4c2b1b8e9",
+   "url": "https://rest.uniprot.org/uniprotkb/P42676.json"
+  },
+  "uniprot_P45452.json": {
+   "bytes": 115560,
+   "sha256": "2d3827f58d66d7bac5999f431da00dbf97f8ac8de040e38842d952de6b8401c0",
+   "url": "https://rest.uniprot.org/uniprotkb/P45452.json"
+  },
+  "uniprot_P53242.json": {
+   "bytes": 21931,
+   "sha256": "c8cf6a0e28ddca6d4a4017035a4babf9c672a61c95ecff81f5b6da641de2224a",
+   "url": "https://rest.uniprot.org/uniprotkb/P53242.json"
+  },
+  "uniprot_P62805.json": {
+   "bytes": 322036,
+   "sha256": "5d2bcc0890efc41de36b348d86cc726acc366e730df044ab5f08c9a5ebd82cea",
+   "url": "https://rest.uniprot.org/uniprotkb/P62805.json"
+  },
+  "uniprot_Q05086.json": {
+   "bytes": 112473,
+   "sha256": "9c5ddba6a06ab527bc9a9bfc3901442c5f285192a525c0753eeeb868e2ededd9",
+   "url": "https://rest.uniprot.org/uniprotkb/Q05086.json"
+  },
+  "uniprot_Q13627.json": {
+   "bytes": 102573,
+   "sha256": "fbbea2577f2df81505bad4366506a05ab7fec3efeb05543b819e9b58c65cbfa0",
+   "url": "https://rest.uniprot.org/uniprotkb/Q13627.json"
+  },
+  "uniprot_Q42561.json": {
+   "bytes": 42600,
+   "sha256": "7e869b23f88e62514fbad9381a884bd52f6896fa9bc964c7baaaf3424b917581",
+   "url": "https://rest.uniprot.org/uniprotkb/Q42561.json"
+  },
+  "uniprot_Q5SLE7.json": {
+   "bytes": 18280,
+   "sha256": "6b8e70676dac7b4e986afa15a08a584d740eb7202fe3ffea9d6ccb08ce66944d",
+   "url": "https://rest.uniprot.org/uniprotkb/Q5SLE7.json"
+  },
+  "uniprot_Q65900.json": {
+   "bytes": 140568,
+   "sha256": "bcc67e949e9f7084ba024ace25af7aed5ce2ab3bb6eb838c390c34ce967221f4",
+   "url": "https://rest.uniprot.org/uniprotkb/Q65900.json"
+  },
+  "uniprot_Q695T7.json": {
+   "bytes": 69938,
+   "sha256": "799ec5bf6fabea0ac2a82873a2d12efd29da8e878b6dde0f3995552e472bc66c",
+   "url": "https://rest.uniprot.org/uniprotkb/Q695T7.json"
+  },
+  "uniprot_Q6JC22.json": {
+   "bytes": 11263,
+   "sha256": "01e30ce2e262318885317f022d913b85db9fa9d841d7d9d1579df186ab9a4744",
+   "url": "https://rest.uniprot.org/uniprotkb/Q6JC22.json"
+  },
+  "uniprot_Q71DI3.json": {
+   "bytes": 165725,
+   "sha256": "0fb49c96f290996778ad2791e059ea340297d42ae5787c65575ae133817269cc",
+   "url": "https://rest.uniprot.org/uniprotkb/Q71DI3.json"
+  },
+  "uniprot_Q76VI8.json": {
+   "bytes": 7308,
+   "sha256": "0ed2554999fe186500997200f704fcc0aeee2a9b07779b5bc9c088f543c475b0",
+   "url": "https://rest.uniprot.org/uniprotkb/Q76VI8.json"
+  },
+  "uniprot_Q86WV6.json": {
+   "bytes": 234453,
+   "sha256": "cc5c0b938bbd345f42fdabf4c2cd39dd014f5c84bcafbd58d28565a31525b03f",
+   "url": "https://rest.uniprot.org/uniprotkb/Q86WV6.json"
+  },
+  "uniprot_Q88VS2.json": {
+   "bytes": 10182,
+   "sha256": "66fcdf4d8c788daee62578399ee23c63810d9da117bf58ee6f7033cf9c6114c1",
+   "url": "https://rest.uniprot.org/uniprotkb/Q88VS2.json"
+  },
+  "uniprot_Q88VS3.json": {
+   "bytes": 9976,
+   "sha256": "c707efb54a82a2fdd57e8c6f3dc7f488ccf95467bb6127a36459405b8f7b35b7",
+   "url": "https://rest.uniprot.org/uniprotkb/Q88VS3.json"
+  },
+  "uniprot_Q8JUX6.json": {
+   "bytes": 159239,
+   "sha256": "78f836e5b37e232071d3e57b8f948ce2d659d6ecd0abecbc720ef3a4428c0a7b",
+   "url": "https://rest.uniprot.org/uniprotkb/Q8JUX6.json"
+  },
+  "uniprot_Q92RY0.json": {
+   "bytes": 9732,
+   "sha256": "532ef2e42ce151399f0ab947e39c77044aa41c2b9a2efce8c9d3b3980aaa6da4",
+   "url": "https://rest.uniprot.org/uniprotkb/Q92RY0.json"
+  },
+  "uniprot_Q97IL4.json": {
+   "bytes": 12964,
+   "sha256": "cf3046d31c94e5be6c0cf8c0412713ebb9f017fed653c11b356bb0de4176edde",
+   "url": "https://rest.uniprot.org/uniprotkb/Q97IL4.json"
+  },
+  "uniprot_Q9BYF1.json": {
+   "bytes": 257599,
+   "sha256": "ecf93b447e868eb3347f7d38dd4dd47f24d6a64b5a8fd5348036fc0debd7895b",
+   "url": "https://rest.uniprot.org/uniprotkb/Q9BYF1.json"
+  },
+  "uniprot_Q9H0R8.json": {
+   "bytes": 74720,
+   "sha256": "06fcf5c06f58dbbefa640864b5df36a05d52f6f0caeca08f4ec491d8c7dc3d25",
+   "url": "https://rest.uniprot.org/uniprotkb/Q9H0R8.json"
+  },
+  "uniprot_Q9Y4G2.json": {
+   "bytes": 51021,
+   "sha256": "43eb88115f59eb777c2d50dbb86ee1d7865a8e4f9e074d5277cdf47c8321e30c",
+   "url": "https://rest.uniprot.org/uniprotkb/Q9Y4G2.json"
+  },
+  "uniprot_Q9YS24.json": {
+   "bytes": 16591,
+   "sha256": "29e6d0e6f2aa1dac307f103941eccd6be7b22151f79a72b516829903174e30f4",
+   "url": "https://rest.uniprot.org/uniprotkb/Q9YS24.json"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "entity": "1",
+   "pdb_entity_description": "SOLUBLE EPOXIDE HYDROLASE",
+   "pdb_id": "5AKX",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P34913",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_protein_name": "Bifunctional epoxide hydrolase 2"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Non-structural protein 3",
+   "pdb_id": "7H8U",
+   "provenance": "SIFTS",
+   "uniprot_accession": "Q8JUX6",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Chikungunya virus (strain S27-African prototype)",
+   "uniprot_protein_name": "Polyprotein P1234"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Neurolysin",
+   "pdb_id": "2O3E",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P42676",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Rattus norvegicus",
+   "uniprot_protein_name": "Neurolysin, mitochondrial"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Pleckstrin homology domain-containing family M member 1, Gamma-aminobutyric acid receptor-associated protein-like 1,Gamma-aminobutyric acid receptor-associated protein-like 1",
+   "pdb_id": "5DPT",
+   "provenance": "SIFTS",
+   "uniprot_accession": "Q9Y4G2",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_protein_name": "Pleckstrin homology domain-containing family M member 1"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Glutathione S-transferase P 1",
+   "pdb_id": "2OAC",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P19157",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Mus musculus",
+   "uniprot_protein_name": "Glutathione S-transferase P 1"
+  },
+  {
+   "entity": "2",
+   "pdb_entity_description": "UREASE BETA SUBUNIT",
+   "pdb_id": "1EJS",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P18315",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Klebsiella aerogenes",
+   "uniprot_protein_name": "Urease subunit beta"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "UREASE ALPHA SUBUNIT",
+   "pdb_id": "1EJS",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P18314",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Klebsiella aerogenes",
+   "uniprot_protein_name": "Urease subunit alpha"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Aminoglycoside N(3)-acetyltransferase III",
+   "pdb_id": "7Q1D",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P29808",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Pseudomonas aeruginosa",
+   "uniprot_protein_name": "Aminoglycoside N(3)-acetyltransferase III"
+  },
+  {
+   "entity": "3",
+   "pdb_entity_description": "UREASE GAMMA SUBUNIT",
+   "pdb_id": "1EJS",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P18316",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Klebsiella aerogenes",
+   "uniprot_protein_name": "Urease subunit gamma"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Transmembrane protein 173",
+   "pdb_id": "4EMU",
+   "provenance": "SIFTS",
+   "uniprot_accession": "Q86WV6",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_protein_name": "Stimulator of interferon genes protein"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Fusion glycoprotein F0,Fibritin",
+   "pdb_id": "5TDG",
+   "provenance": "SIFTS",
+   "uniprot_accession": "Q9YS24",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Bovine orthopneumovirus",
+   "uniprot_protein_name": "Fusion glycoprotein F0"
+  },
+  {
+   "entity": "3",
+   "pdb_entity_description": "Virion protein 1",
+   "pdb_id": "7X42",
+   "provenance": "SIFTS",
+   "uniprot_accession": "A0A7T7KAA0",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Coxsackievirus B1",
+   "uniprot_protein_name": "Genome polyprotein"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Chitinase 60",
+   "pdb_id": "9FBR",
+   "provenance": "SIFTS",
+   "uniprot_accession": "B1VBB0",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Moritella marina",
+   "uniprot_protein_name": "Chitinase 60"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Glycine--tRNA ligase alpha subunit",
+   "pdb_id": "8IE2",
+   "provenance": "SIFTS",
+   "uniprot_accession": "Q88VS2",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Lactiplantibacillus plantarum (strain ATCC BAA-793 / NCIMB 8826 / WCFS1)",
+   "uniprot_protein_name": "Glycine--tRNA ligase alpha subunit"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "GTPase HRas",
+   "pdb_id": "8OSM",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P01112",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_protein_name": "GTPase HRas"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Capsid protein VP1",
+   "pdb_id": "9P4M",
+   "provenance": "SIFTS",
+   "uniprot_accession": "Q6JC22",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Adeno-associated virus",
+   "uniprot_protein_name": "Capsid protein VP1"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Serum albumin",
+   "pdb_id": "4JK4",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P02769",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Bos taurus",
+   "uniprot_protein_name": "Albumin"
+  },
+  {
+   "entity": "3",
+   "pdb_entity_description": "Matrix metalloproteinase-9,Matrix metalloproteinase-9",
+   "pdb_id": "5TH9",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P14780",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_protein_name": "Matrix metalloproteinase-9"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Epidermal growth factor receptor",
+   "pdb_id": "4I24",
+   "provenance": "SIFTS",
+   "uniprot_accession": "P00533",
+   "uniprot_lists_this_pdb_id": true,
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_protein_name": "Epidermal growth factor receptor"
+  },
+  {
+   "entity": "1",
+   "pdb_entity_description": "Adenylyltransferase and sulfurtransferase uba4",
+   "pdb_id": "6YUC",
+   "provenance": "PDB",
+   "uniprot_accession": "G0SC54",
+   "uniprot_lists_this_pdb_id": false,
+   "uniprot_organism": null,
+   "uniprot_protein_name": null
+  }
+ ],
+ "join_uniprot_accession": {
+  "by_provenance": {
+   "PDB": 1,
+   "SIFTS": 47
+  },
+  "by_uniprot_entry_type": {
+   "UniProtKB reviewed (Swiss-Prot)": 37,
+   "UniProtKB unreviewed (TrEMBL)": 10
+  },
+  "citations": 48,
+  "citations_resolving": 47,
+  "citations_where_uniprot_lists_the_pdb_id_back": 47,
+  "distinct_accessions_cited": 48,
+  "errors_or_inactive": {
+   "G0SC54": "inactive"
+  },
+  "function_characters": 43756,
+  "records_with_function_text": 34,
+  "resolving_to_an_active_uniprotkb_record": 47
+ },
+ "rcsb_entries": [
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "9FBR",
+   "polymer_entities": 1,
+   "release": "2025-05-28",
+   "resolution": [
+    1.743
+   ],
+   "title": "Deletion mutant of chitinase MmChi60",
+   "uniprot": [
+    "B1VBB0"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "2ZFB",
+   "polymer_entities": 2,
+   "release": "2008-02-26",
+   "resolution": [
+    3.0
+   ],
+   "title": "Crystal structure of parrot hemoglobin (Psittacula krameri) at pH 7.5",
+   "uniprot": [
+    "P19831",
+    "P21668"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "2O3E",
+   "polymer_entities": 1,
+   "release": "2007-01-23",
+   "resolution": [
+    2.2
+   ],
+   "title": "Crystal structure of engineered neurolysin with thimet oligopeptidase specificity for neurotensin cleavage site.",
+   "uniprot": [
+    "P42676"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "1EJS",
+   "polymer_entities": 3,
+   "release": "2000-09-08",
+   "resolution": [
+    2.0
+   ],
+   "title": "Crystal Structure of the H219N Variant of Klebsiella Aerogenes Urease",
+   "uniprot": [
+    "P18314",
+    "P18315",
+    "P18316"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "ELECTRON MICROSCOPY"
+   ],
+   "pdb_id": "7X42",
+   "polymer_entities": 6,
+   "release": "2022-09-28",
+   "resolution": [
+    3.88
+   ],
+   "title": "Cryo-EM structure of Coxsackievirus B1 pre-A-particle in complex with nAb 8A10 (classified from CVB1 mature virion in complex with 8A10 and 2E6)",
+   "uniprot": [
+    "A0A7T7KAA0"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "7VGW",
+   "polymer_entities": 1,
+   "release": "2022-07-27",
+   "resolution": [
+    2.8
+   ],
+   "title": "Yeast gid10 with Pro-peptide",
+   "uniprot": [
+    "P53242"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "7HR2",
+   "polymer_entities": 1,
+   "release": "2025-08-13",
+   "resolution": [
+    1.828
+   ],
+   "title": "PanDDA analysis group deposition -- Crystal Structure of FatA in complex with Z56946871",
+   "uniprot": [
+    "Q42561"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "1XUD",
+   "polymer_entities": 1,
+   "release": "2005-10-26",
+   "resolution": [
+    1.8
+   ],
+   "title": "Matrix metalloproteinase-13 complexed with non-zinc binding inhibitor",
+   "uniprot": [
+    "P45452"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "5DPT",
+   "polymer_entities": 1,
+   "release": "2016-09-28",
+   "resolution": [
+    2.9
+   ],
+   "title": "Crystal structure of PLEKHM1 LIR-fused human GABARAPL1_2-117",
+   "uniprot": [
+    "Q9H0R8",
+    "Q9Y4G2"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "7H8U",
+   "polymer_entities": 1,
+   "release": "2024-05-29",
+   "resolution": [
+    1.56
+   ],
+   "title": "Group deposition for crystallographic fragment screening of Chikungunya virus nsP3 macrodomain -- Crystal structure of Chikungunya virus nsP3 macrodomain in complex with Z104473678 (CHIKV_MacB-x1305)",
+   "uniprot": [
+    "Q8JUX6"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "2OAC",
+   "polymer_entities": 1,
+   "release": "2007-01-23",
+   "resolution": [
+    2.2
+   ],
+   "title": "Mouse C14A Glutathione-S-Transferase Mutant in Complex with S-(p-nitrobenzyl) Glutathione",
+   "uniprot": [
+    "P19157"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "ELECTRON MICROSCOPY"
+   ],
+   "pdb_id": "9VA1",
+   "polymer_entities": 2,
+   "release": "2026-05-13",
+   "resolution": [
+    3.24
+   ],
+   "title": "Structure of the ACE2-B0AT1 bound with tryptophan",
+   "uniprot": [
+    "Q9BYF1",
+    "Q695T7"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "4I24",
+   "polymer_entities": 1,
+   "release": "2013-01-16",
+   "resolution": [
+    1.8
+   ],
+   "title": "Structure of T790M EGFR kinase domain co-crystallized with dacomitinib",
+   "uniprot": [
+    "P00533"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "ELECTRON MICROSCOPY"
+   ],
+   "pdb_id": "9P4M",
+   "polymer_entities": 1,
+   "release": "2026-04-15",
+   "resolution": [
+    3.05
+   ],
+   "title": "Cryo-EM structure of AAV9-B10",
+   "uniprot": [
+    "Q6JC22"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "5TH9",
+   "polymer_entities": 3,
+   "release": "2017-03-15",
+   "resolution": [
+    2.999
+   ],
+   "title": "Structure determination of a potent, selective antibody inhibitor of human MMP9 (GS-5745 bound to MMP-9)",
+   "uniprot": [
+    "P14780"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "7HW6",
+   "polymer_entities": 1,
+   "release": "2025-02-26",
+   "resolution": [
+    1.72
+   ],
+   "title": "Group deposition of Coxsackievirus A16 (G-10) 2A protease in complex with inhibitors from the ASAP AViDD centre -- Crystal structure of Coxsackievirus A16 (G-10) 2A protease in complex with ASAP-0032757-001 (A71EV2A-x3868)",
+   "uniprot": [
+    "Q65900"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "1SWR",
+   "polymer_entities": 1,
+   "release": "1999-02-09",
+   "resolution": [
+    1.9
+   ],
+   "title": "CORE-STREPTAVIDIN MUTANT W120A IN COMPLEX WITH BIOTIN AT PH 7.5",
+   "uniprot": [
+    "P22629"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "3CE9",
+   "polymer_entities": 1,
+   "release": "2008-03-11",
+   "resolution": [
+    2.37
+   ],
+   "title": "Crystal structure of glycerol dehydrogenase (NP_348253.1) from Clostridium acetobutylicum at 2.37 A resolution",
+   "uniprot": [
+    "Q97IL4"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "5AKX",
+   "polymer_entities": 1,
+   "release": "2015-05-13",
+   "resolution": [
+    2.09
+   ],
+   "title": "ligand complex structure of soluble epoxide hydrolase",
+   "uniprot": [
+    "P34913"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "SOLUTION NMR"
+   ],
+   "pdb_id": "8EPT",
+   "polymer_entities": 1,
+   "release": "2023-07-05",
+   "resolution": null,
+   "title": "UBE3A isoform 2 AZUL domain",
+   "uniprot": [
+    "Q05086"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "8IE2",
+   "polymer_entities": 2,
+   "release": "2023-06-07",
+   "resolution": [
+    3.6
+   ],
+   "title": "Crystal structure of Lactiplantibacillus plantarum GlyRS",
+   "uniprot": [
+    "Q88VS2",
+    "Q88VS3"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "8IQA",
+   "polymer_entities": 1,
+   "release": "2024-03-20",
+   "resolution": [
+    1.551
+   ],
+   "title": "Crystal structure of Pyruvic Oxime Dioxygenase (POD) from Alcaligenes faecalis deleted N-terminal 18 residues",
+   "uniprot": [
+    "A0A0A2N3A3"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "6YUC",
+   "polymer_entities": 2,
+   "release": "2020-07-22",
+   "resolution": [
+    3.15
+   ],
+   "title": "Crystal structure of Uba4-Urm1 from Chaetomium thermophilum",
+   "uniprot": [
+    "G0SC54",
+    "G0SE11"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "3V76",
+   "polymer_entities": 1,
+   "release": "2012-01-04",
+   "resolution": [
+    2.51
+   ],
+   "title": "The crystal structure of a flavoprotein from Sinorhizobium meliloti",
+   "uniprot": [
+    "Q92RY0"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "SOLUTION NMR"
+   ],
+   "pdb_id": "2JU8",
+   "polymer_entities": 1,
+   "release": "2007-11-20",
+   "resolution": null,
+   "title": "Solution-State Structures of Oleate-Liganded LFABP, Major Form of 1:2 Protein-Ligand Complex",
+   "uniprot": [
+    "P02692"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "6VUF",
+   "polymer_entities": 1,
+   "release": "2020-02-26",
+   "resolution": [
+    1.59
+   ],
+   "title": "Crystal structure of BRD4 bromodomain 1 with N-methylpyrrolidin-2-one (NMP) derivative 7h (4-(1-methyl-5-oxopyrrolidin-3-yl)-N-propylbenzenesulfonamide)",
+   "uniprot": [
+    "O60885"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "4Z5C",
+   "polymer_entities": 3,
+   "release": "2016-07-06",
+   "resolution": [
+    2.5
+   ],
+   "title": "HipB-O3 21mer complex",
+   "uniprot": [
+    "P23873"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "4JK4",
+   "polymer_entities": 1,
+   "release": "2013-07-24",
+   "resolution": [
+    2.653
+   ],
+   "title": "Crystal Structure of Bovine Serum Albumin in complex with 3,5-diiodosalicylic acid",
+   "uniprot": [
+    "P02769"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "8OSM",
+   "polymer_entities": 1,
+   "release": "2024-05-08",
+   "resolution": [
+    2.05
+   ],
+   "title": "GTPASE HRAS IN COMPLEX WITH ZN-CYCLEN AT 200 MPA PRESSURE",
+   "uniprot": [
+    "P01112"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "1LE4",
+   "polymer_entities": 1,
+   "release": "1992-10-15",
+   "resolution": [
+    2.5
+   ],
+   "title": "STRUCTURAL BASIS FOR ALTERED FUNCTION IN THE COMMON MUTANTS OF HUMAN APOLIPOPROTEIN-E",
+   "uniprot": [
+    "P02649"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "3LUO",
+   "polymer_entities": 2,
+   "release": "2010-03-31",
+   "resolution": [
+    2.55
+   ],
+   "title": "Crystal Structure and functional characterization of the thermophilic prolyl isomerase and chaperone SlyD",
+   "uniprot": [
+    "Q5SLE7"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "4EMU",
+   "polymer_entities": 1,
+   "release": "2012-06-13",
+   "resolution": [
+    1.9
+   ],
+   "title": "Crystal structure of ligand free human STING",
+   "uniprot": [
+    "Q86WV6"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "ELECTRON MICROSCOPY"
+   ],
+   "pdb_id": "7PEX",
+   "polymer_entities": 7,
+   "release": "2022-08-03",
+   "resolution": [
+    5.1
+   ],
+   "title": "Nucleosome 2 of the 4x177 nucleosome array containing H1",
+   "uniprot": [
+    "Q71DI3",
+    "P62805",
+    "P04908"
+   ]
+  },
+  {
+   "has_primary_citation_doi": false,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "7Q1D",
+   "polymer_entities": 1,
+   "release": "2022-11-02",
+   "resolution": [
+    1.43
+   ],
+   "title": "Acetyltrasferase(3) type IIIa in complex with 3-N-methyl-nemycin B",
+   "uniprot": [
+    "P29808"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "5P3T",
+   "polymer_entities": 1,
+   "release": "2016-08-03",
+   "resolution": [
+    1.188
+   ],
+   "title": "Automated refinement of diffraction data obtained from an endothiapepsin crystal treated with fragment 182",
+   "uniprot": [
+    "P11838"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "6MEJ",
+   "polymer_entities": 5,
+   "release": "2018-11-21",
+   "resolution": [
+    2.8
+   ],
+   "title": "Crystal structure of Hepatitis C virus envelope glycoprotein E2 ectodomain in complex with human antibodies HEPC3 and HEPC46",
+   "uniprot": [
+    "C1KH25"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "4YN6",
+   "polymer_entities": 1,
+   "release": "2015-04-22",
+   "resolution": [
+    2.301
+   ],
+   "title": "Structural Insight reveals dynamics in repeating r(CAG) transcript found in Huntington's disease (HD) and Spinocerebellar ataxias (SCAs)",
+   "uniprot": []
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "5A4E",
+   "polymer_entities": 1,
+   "release": "2016-06-29",
+   "resolution": [
+    2.68
+   ],
+   "title": "DYRK1A in complex with methoxy benzothiazole fragment",
+   "uniprot": [
+    "Q13627"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "5TDG",
+   "polymer_entities": 1,
+   "release": "2017-08-16",
+   "resolution": [
+    2.65
+   ],
+   "title": "Crystal structure of prefusion-stabilized bovine RSV F (DS-Cav1 variant: strain ATue51908)",
+   "uniprot": [
+    "Q76VI8",
+    "Q9YS24"
+   ]
+  },
+  {
+   "has_primary_citation_doi": true,
+   "method": [
+    "X-RAY DIFFRACTION"
+   ],
+   "pdb_id": "9KFB",
+   "polymer_entities": 2,
+   "release": "2025-04-23",
+   "resolution": [
+    4.3
+   ],
+   "title": "RABV-G-ecto/NM57-scFv complex",
+   "uniprot": []
+  }
+ ],
+ "rcsb_entries_sample": {
+  "by_method": {
+   "ELECTRON MICROSCOPY": 4,
+   "SOLUTION NMR": 2,
+   "X-RAY DIFFRACTION": 34
+  },
+  "entity_to_uniprot_citations": 48,
+  "entries_citing_a_uniprot_accession": 38,
+  "polymer_entities": 67,
+  "read": 40,
+  "release_year_range": [
+   "1992",
+   "2026"
+  ],
+  "requested": 40,
+  "title_characters": 3278,
+  "with_primary_citation_doi": 30,
+  "with_resolution": 38,
+  "with_title": 40
+ },
+ "rcsb_holdings": {
+  "current_entry_ids": 263889,
+  "first": "100D",
+  "last": "9ZZZ"
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 149,
+  "made_this_run": 4,
+  "source_bodies": 149
+ },
+ "run_date": "2026-11-28",
+ "terms": {
+  "rcsb": {
+   "bytes": 41993,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Usage Policies The wwPDB policy states that data files contained in the PDB archive are available under the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication .",
+    "Text can only be reprinted with permission, with attribution, and without the right to manipulate or change its content."
+   ],
+   "quotes": {},
+   "url": "https://www.rcsb.org/pages/usage-policy"
+  },
+  "uniprot": {
+   "bytes": 5570,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://www.uniprot.org/help/license"
+  },
+  "uniprot_ftp_license": {
+   "error": "URLError",
+   "url": "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/LICENSE"
+  }
+ },
+ "uniprot_totals": {
+  "reviewed": {
+   "release": "2026_04",
+   "release_date": "04-November-2026",
+   "total": 576073
+  },
+  "reviewed_with_a_pdb_cross_reference": {
+   "release": "2026_04",
+   "release_date": "04-November-2026",
+   "total": 39891
+  },
+  "with_a_pdb_cross_reference": {
+   "release": "2026_04",
+   "release_date": "04-November-2026",
+   "total": 72258
+  }
+ }
+}

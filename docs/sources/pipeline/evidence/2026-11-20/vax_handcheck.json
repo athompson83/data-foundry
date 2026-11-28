@@ -1,0 +1,210 @@
+{
+ "run_date": "2026-11-20",
+ "join": "normalised trade name: CDC active product trade name vs FDA 'Vaccines Licensed for Use in the United States' trade name",
+ "method": "20 pairs drawn with random.seed(20261120) from the 58 exact normalised matches by vax_measure.py; each pair read by hand, comparing the FDA product name with the CDC CVX short description and manufacturer",
+ "checked": 20,
+ "correct": 20,
+ "note": "Exact matches are clean; the risk is in what does not match: 55 of 113 CDC active names carry a formulation suffix (e.g. 'Afluria quadrivalent, preservative free') and one FDA trade name can cover several CVX codes (SPIKEVAX maps to more than one CVX), so a trade name selects a product family, not one CVX code.",
+ "pairs": [
+  {
+   "cdc_cvx": "334",
+   "cdc_cvx_short": "COVID-19, mRNA, LNP-S, PF, 10 mcg/0.2 mL",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "mNEXSPIKE",
+   "fda_product_name": "COVID-19 Vaccine, mRNA",
+   "fda_trade_name": "MNEXSPIKE",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "216",
+   "cdc_cvx_short": "Pneumococcal conjugate PCV20, polysaccharide CRM197 conjugate, adjuvant, PF",
+   "cdc_manufacturer": "Pfizer, Inc",
+   "cdc_trade_name": "PREVNAR 20",
+   "fda_product_name": "Pneumococcal 20-valent Conjugate Vaccine",
+   "fda_trade_name": "Prevnar 20",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "316",
+   "cdc_cvx_short": "Meningococcal polysaccharide (MenACWY-TT conjugate), (MenB), PF",
+   "cdc_manufacturer": "Pfizer, Inc",
+   "cdc_trade_name": "PENBRAYA",
+   "fda_product_name": "Meningococcal Groups A, B, C, W, and Y Vaccine",
+   "fda_trade_name": "PENBRAYA",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "203",
+   "cdc_cvx_short": "meningococcal conjugate quadrivalent, MenACWY-TT (MCV4)",
+   "cdc_manufacturer": "Sanofi Pasteur",
+   "cdc_trade_name": "MenQuadfi",
+   "fda_product_name": "Meningococcal (Groups A, C, Y, W) Conjugate Vaccine",
+   "fda_trade_name": "MenQuadfi",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "48",
+   "cdc_cvx_short": "Hib (PRP-T)",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "HIBERIX",
+   "fda_product_name": "Haemophilus b Conjugate Vaccine (Tetanus Toxoid Conjugate)",
+   "fda_trade_name": "Hiberix",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "09",
+   "cdc_cvx_short": "Td (adult), 2 Lf tetanus toxoid, preservative free, adsorbed",
+   "cdc_manufacturer": "Massachusetts Biologic Laboratories",
+   "cdc_trade_name": "TDVAX",
+   "fda_product_name": "Tetanus & Diphtheria Toxoids, Adsorbed",
+   "fda_trade_name": "TDVAX",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "205",
+   "cdc_cvx_short": "Influenza, adjuvanted, quadrivalent, PF",
+   "cdc_manufacturer": "Seqirus",
+   "cdc_trade_name": "FLUAD Quadrivalent",
+   "fda_product_name": "Influenza Vaccine, Adjuvanted",
+   "fda_trade_name": "Fluad Quadrivalent",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "311",
+   "cdc_cvx_short": "COVID-19, mRNA, LNP-S, PF, 25 mcg/0.25 mL",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "SPIKEVAX",
+   "fda_product_name": "COVID-19 Vaccine, mRNA",
+   "fda_trade_name": "SPIKEVAX",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "327",
+   "cdc_cvx_short": "Pneumococcal conjugate PCV21, polysaccharide CRM197 conjugate, PF",
+   "cdc_manufacturer": "Merck and Co., Inc.",
+   "cdc_trade_name": "CAPVAXIVE",
+   "fda_product_name": "Pneumococcal 21-valent Conjugate Vaccine",
+   "fda_trade_name": "CAPVAXIVE",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "338",
+   "cdc_cvx_short": "Influenza, mRNA, trivalent, PF",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "mFLUSIVA",
+   "fda_product_name": "Influenza Vaccine, mRNA",
+   "fda_trade_name": "MFLUSIVA",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "24",
+   "cdc_cvx_short": "Anthrax, pre-exposure prophylaxis, post-exposure prophylaxis",
+   "cdc_manufacturer": "Emergent BioSolutions",
+   "cdc_trade_name": "BIOTHRAX",
+   "fda_product_name": "Anthrax Vaccine Adsorbed",
+   "fda_trade_name": "Biothrax",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "03",
+   "cdc_cvx_short": "MMR",
+   "cdc_manufacturer": "Merck and Co., Inc.",
+   "cdc_trade_name": "M-M-R II",
+   "fda_product_name": "Measles, Mumps, and Rubella Virus Vaccine, Live",
+   "fda_trade_name": "M-M-R II",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "162",
+   "cdc_cvx_short": "meningococcal B, recombinant",
+   "cdc_manufacturer": "Pfizer, Inc",
+   "cdc_trade_name": "Trumenba",
+   "fda_product_name": "Meningococcal Group B Vaccine",
+   "fda_trade_name": "TRUMENBA",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "104",
+   "cdc_cvx_short": "Hep A-Hep B",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "TWINRIX",
+   "fda_product_name": "Hepatitis A Inactivated and Hepatitis B (Recombinant) Vaccine",
+   "fda_trade_name": "Twinrix",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "20",
+   "cdc_cvx_short": "DTaP",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "INFANRIX",
+   "fda_product_name": "Diphtheria & Tetanus Toxoids & Acellular Pertussis Vaccine Adsorbed",
+   "fda_trade_name": "Infanrix",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "101",
+   "cdc_cvx_short": "typhoid, ViCPs",
+   "cdc_manufacturer": "Sanofi Pasteur",
+   "cdc_trade_name": "TYPHIM VI",
+   "fda_product_name": "Typhoid Vi Polysaccharide Vaccine",
+   "fda_trade_name": "TYPHIM Vi",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "326",
+   "cdc_cvx_short": "RSV, mRNA, injectable, PF",
+   "cdc_manufacturer": "Moderna US, Inc.",
+   "cdc_trade_name": "mRESVIA",
+   "fda_product_name": "Respiratory Syncytial Virus Vaccine",
+   "fda_trade_name": "MRESVIA",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "130",
+   "cdc_cvx_short": "DTaP-IPV",
+   "cdc_manufacturer": "GlaxoSmithKline",
+   "cdc_trade_name": "KINRIX",
+   "fda_product_name": "Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus Vaccine",
+   "fda_trade_name": "KINRIX",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "134",
+   "cdc_cvx_short": "Japanese Encephalitis IM",
+   "cdc_manufacturer": "Valneva",
+   "cdc_trade_name": "Ixiaro",
+   "fda_product_name": "Japanese Encephalitis Virus Vaccine, Inactivated, Adsorbed",
+   "fda_trade_name": "Ixiaro",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  },
+  {
+   "cdc_cvx": "318",
+   "cdc_cvx_short": "Anthrax, post-exposure prophylaxis",
+   "cdc_manufacturer": "Emergent BioSolutions",
+   "cdc_trade_name": "CYFENDUS",
+   "fda_product_name": "Anthrax Vaccine Adsorbed, Adjuvanted",
+   "fda_trade_name": "CYFENDUS",
+   "verdict": "correct",
+   "basis": "the FDA product name and the CDC CVX description name the same vaccine and formulation family"
+  }
+ ]
+}

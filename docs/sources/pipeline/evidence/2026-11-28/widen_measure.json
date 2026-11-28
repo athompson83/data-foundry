@@ -1,0 +1,598 @@
+{
+ "advisory_pages": {
+  "median_characters": 4309,
+  "mentioning_a_lot": 9,
+  "naming_a_company": 9,
+  "page_characters": 97303,
+  "pages_linking_to_another_notice": 3,
+  "pages_whose_link_resolves_in_the_index": 3,
+  "read": 20,
+  "requested": 20,
+  "with_a_din_or_npn": 3,
+  "with_affected_products_section": 19,
+  "with_what_you_should_do": 20
+ },
+ "fetched": {
+  "hc_advisory_62729.html": {
+   "bytes": 66132,
+   "sha256": "ab0e7a44c777a6d948e238c31187bc0c725f2533f0719ab3201658c88a9df1d6",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/philips-respironics-recalls-several-models-cpap-and-bilevel-pap-machines-and"
+  },
+  "hc_advisory_74162.html": {
+   "bytes": 36903,
+   "sha256": "b8c4cb2c99a5353d6b09e246dee55eeb2644784d690cebad27c6aa8c18e5c99e",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/caffeinated-energy-drinks-what-you-should-know"
+  },
+  "hc_advisory_75058.html": {
+   "bytes": 44038,
+   "sha256": "4d180ac2f3824999c70573b20345db63e02693b5de3a3f92bdb610bfaecac0d7",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/health-canada-warns-about-unregistered-insecticides-marketplace"
+  },
+  "hc_advisory_75110.html": {
+   "bytes": 40777,
+   "sha256": "d5a17a8af12fffc8341e93b5c5940c378ebe83b71a1ef53bc176f5ffb489b23a",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/audrina-28-birth-control-pills-day-week-stickers-some-lots-have-misprint-could-lead"
+  },
+  "hc_advisory_75631.html": {
+   "bytes": 35728,
+   "sha256": "0a6f6c4df0b392d9b87c3653ccc9d27604aae2abf8b25a21753b595a68a513de",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/only-absorbable-threads-authorized-cosmetic-use-should-be-used-thread-lift-procedures"
+  },
+  "hc_advisory_75762.html": {
+   "bytes": 42238,
+   "sha256": "14d3d1110190d1cb8962e0a2a579a22f13ac80823fe8b8b6f83b3faf545729b2",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/unauthorized-korean-labelled-festal-plus-tablets-seized-gd-health-town-coquitlam-bc"
+  },
+  "hc_advisory_75898.html": {
+   "bytes": 36115,
+   "sha256": "0856d312d97dc8a9977e366d037e27cef8a12e69501642fab498c595303b4877",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/jamp-digoxin-00625-mg-and-0125-mg-tablets-recalled-due-possible-incorrect-dose-which"
+  },
+  "hc_advisory_77218.html": {
+   "bytes": 34439,
+   "sha256": "5f4a9c99fd85b2675f9b6905d4a95bf14abea9a4aef944eafd699abe55b8dc6a",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/unauthorized-injectable-peptide-drugs-seized-optimum-wellness-centre-calgary-alberta"
+  },
+  "hc_advisory_77275.html": {
+   "bytes": 45235,
+   "sha256": "ac2604e6421600c11ba44d5542a44fcbe48d972fc01fe2a99cc038389a4f1ad4",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/unauthorized-injectable-peptide-drugs-sold-prime-research-may-pose-serious-health"
+  },
+  "hc_advisory_77384.html": {
+   "bytes": 41001,
+   "sha256": "99787535714b50c61064d8975d3bc192614889113ec3fd59aa3e2924cad3faa8",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/one-lot-seasonique-birth-control-recalled-due-missing-pills"
+  },
+  "hc_advisory_77398.html": {
+   "bytes": 44900,
+   "sha256": "7e867f031d66d47db603a095a349ab3bf5318da57ef501beb56a5cf81cd75e18",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/jamp-pregabalin-50-mg-one-lot-recalled-some-bottles-may-contain-150-mg-capsules"
+  },
+  "hc_advisory_77642.html": {
+   "bytes": 38523,
+   "sha256": "1d9f923e1f28e0e62ceafe096613c180f5daa5649e7d37336fe6b1b539bd18bf",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/buying-health-products-online-know-risks-0"
+  },
+  "hc_advisory_77675.html": {
+   "bytes": 44906,
+   "sha256": "0d2651c61bf949497644b3ff59bc4709865c8f8ff42f641ed03c063d844501a1",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/nra-amlodipine-5-mg-tablets-one-lot-recalled-some-bottles-may-contain-wrong-drug"
+  },
+  "hc_advisory_77807.html": {
+   "bytes": 45558,
+   "sha256": "07a31559107b990d317d618359da28cb06c821985933221b51d0dfcd5fe56a7e",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/unauthorized-injectable-peptide-drugs-seized-and-sold-canada-peptide-may-pose-serious"
+  },
+  "hc_advisory_78118.html": {
+   "bytes": 32287,
+   "sha256": "6611ac362da926f4301757e7e03d019c6504a1ed1822911244ffd7d1cf412138",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/acetaminophen-recommended-treatment-fever-and-pain-during-pregnancy"
+  },
+  "hc_advisory_81602.html": {
+   "bytes": 38605,
+   "sha256": "75fcb4462a9144771057b3b490791f6f6d8f72693aaf42bba31d4f71b31debe3",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/seasonique-and-seasonale-birth-control-pills-are-being-recalled-due-possibility"
+  },
+  "hc_advisory_81792.html": {
+   "bytes": 61882,
+   "sha256": "8ed5672f21614e250e2fc6aa606c74d33bc9da831a8ffb7d30ecc29baa8d35af",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/unauthorized-and-counterfeit-health-products-seized-thumbs-4-shiatsu-mississauga-may"
+  },
+  "hc_advisory_82496.html": {
+   "bytes": 36006,
+   "sha256": "5936204020d34acae3f0665d6cdc42a1a35ef73d77581433555ed35769700aec",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/two-lots-teva-pregabalin-150-mg-capsules-recalled-due-cross-contamination-drug"
+  },
+  "hc_advisory_82615.html": {
+   "bytes": 43356,
+   "sha256": "4677d8c1aa0767f089429293c1a32f23ef2ab419ed1b7d517687ab664f1112e7",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/generic-acetaminophen-teva-recalled-because-it-may-contain-foreign-material"
+  },
+  "hc_advisory_82686.html": {
+   "bytes": 62528,
+   "sha256": "1a0b90585bdf3269491fbfed015c14516f5ec8fba790fcb59eb535a1ad4c17bd",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/sanofi-aventis-canada-inc-recalling-certain-insulin-pens-and-cartridges"
+  },
+  "hc_index.json": {
+   "bytes": 15916646,
+   "sha256": "11e40ed6f619c7d3f5e040e2398df98f7bfa2f9ffb0ee5c9f16e59cdac44fcfd",
+   "url": "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json?scout=20261128w"
+  },
+  "terms_ogl_canada.html": {
+   "bytes": 23088,
+   "sha256": "e62c3211e4bdc94fa4b6ca6bf541749c18b468c994ccae55e32603fafe7204cd",
+   "url": "https://open.canada.ca/en/open-government-licence-canada"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "category": "Drugs - Natural health products - Medical devices",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-06-25",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "77642",
+   "notice_links_on_page": 4,
+   "notice_links_resolving_in_index": 3,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4606,
+   "title": "Buying health products online? Know the risks"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2024-02-20",
+   "lot_mentions": 1,
+   "names_a_company": true,
+   "nid": "75110",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4083,
+   "title": "Audrina 28 birth control pills: Day-of-the-week stickers in some lots have a misprint that could lead to confu"
+  },
+  {
+   "category": "Biologic or vaccine",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2026-09-25",
+   "lot_mentions": 6,
+   "names_a_company": true,
+   "nid": "82686",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 5128,
+   "title": "Sanofi-Aventis Canada Inc. recalling certain insulin pens and cartridges"
+  },
+  {
+   "category": "Specialized products",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2024-02-12",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "75058",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3806,
+   "title": "Health Canada warns about unregistered insecticides in the marketplace"
+  },
+  {
+   "category": "Medical devices",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2024-07-05",
+   "lot_mentions": 0,
+   "names_a_company": true,
+   "nid": "62729",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 14926,
+   "title": "Philips Respironics recalls several models of CPAP and BiLevel PAP machines and mechanical ventilators"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 2,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2026-02-13",
+   "lot_mentions": 2,
+   "names_a_company": true,
+   "nid": "81602",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 5386,
+   "title": "Seasonique and Seasonale birth control pills are being recalled  due to the possibility of a missing blister c"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-05-03",
+   "lot_mentions": 3,
+   "names_a_company": true,
+   "nid": "77398",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4280,
+   "title": "JAMP-Pregabalin 50 mg: One lot recalled as some bottles may contain 150 mg capsules"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 1,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-05-02",
+   "lot_mentions": 3,
+   "names_a_company": true,
+   "nid": "77384",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3952,
+   "title": "One lot of Seasonique birth control recalled due to missing pills"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-04-14",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "77275",
+   "notice_links_on_page": 1,
+   "notice_links_resolving_in_index": 1,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3654,
+   "title": "Unauthorized injectable peptide drugs sold by Prime Research may pose serious health risks"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-09-23",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "78118",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3011,
+   "title": "Acetaminophen is a recommended treatment for fever and pain during pregnancy"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2026-08-15",
+   "lot_mentions": 1,
+   "names_a_company": true,
+   "nid": "82496",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3864,
+   "title": "Two lots of Teva-Pregabalin 150 mg capsules recalled due to cross-contamination with the drug sertraline"
+  },
+  {
+   "category": "Food",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2026-04-29",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "74162",
+   "notice_links_on_page": 1,
+   "notice_links_resolving_in_index": 1,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4602,
+   "title": "Caffeinated energy drinks: what you should know"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2024-06-28",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "75762",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4678,
+   "title": "Unauthorized Korean-labelled Festal Plus tablets, seized from GD Health Town in  Coquitlam, B.C., may pose ser"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-04-02",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "77218",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3807,
+   "title": "Unauthorized injectable peptide drugs seized from Optimum Wellness Centre in Calgary, Alberta may pose serious"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2026-03-25",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "81792",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 7028,
+   "title": "Unauthorized and counterfeit health products seized at Thumbs Up 4 Shiatsu in Mississauga may pose serious hea"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-08-01",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "77807",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 3924,
+   "title": "Unauthorized injectable peptide drugs seized and sold by Canada Peptide may pose serious health risks"
+  },
+  {
+   "category": "Medical devices",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": false,
+   "has_what_you_should_do": true,
+   "last_updated": "2024-06-06",
+   "lot_mentions": 0,
+   "names_a_company": false,
+   "nid": "75631",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 5374,
+   "title": "Only absorbable threads authorized for cosmetic use should be used in thread lift procedures"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 1,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2025-07-07",
+   "lot_mentions": 3,
+   "names_a_company": true,
+   "nid": "77675",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4309,
+   "title": "NRA-Amlodipine 5 mg tablets: One lot recalled as some bottles may contain the wrong drug"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2024-08-02",
+   "lot_mentions": 1,
+   "names_a_company": false,
+   "nid": "75898",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 4371,
+   "title": "JAMP Digoxin 0.0625 mg and 0.125 mg tablets recalled due to possible incorrect dose, which may pose health ris"
+  },
+  {
+   "category": "Drugs",
+   "din_or_npn_numbers": 0,
+   "has_affected_products_section": true,
+   "has_what_you_should_do": true,
+   "last_updated": "2026-09-10",
+   "lot_mentions": 2,
+   "names_a_company": true,
+   "nid": "82615",
+   "notice_links_on_page": 0,
+   "notice_links_resolving_in_index": 0,
+   "organization": "Communications and Public Affairs Branch",
+   "page_characters": 2514,
+   "title": "Generic acetaminophen by Teva recalled because it may contain foreign material"
+  }
+ ],
+ "index": {
+  "advisory_rows": 1876,
+  "advisory_rows_updated_since_2024": 94,
+  "archived_flag": {
+   "0": 438,
+   "1": 1438
+  },
+  "by_advisory_organization": {
+   "Communications and Public Affairs Branch": 1814,
+   "HC": 62
+  },
+  "by_category": {
+   "Biologic or vaccine": 25,
+   "Drugs": 741,
+   "Drugs - Natural health products": 65,
+   "Drugs - Natural health products - Medical devices": 8,
+   "Food": 147,
+   "Health products": 23,
+   "Household items": 21,
+   "Medical devices": 104,
+   "Natural health products": 559,
+   "Other": 62
+  },
+  "by_last_updated_year": {
+   "2003": 2,
+   "2004": 28,
+   "2005": 50,
+   "2006": 82,
+   "2007": 92,
+   "2008": 112,
+   "2009": 115,
+   "2010": 173,
+   "2011": 135,
+   "2012": 129,
+   "2013": 126,
+   "2014": 136,
+   "2015": 86,
+   "2016": 67,
+   "2017": 88,
+   "2018": 78,
+   "2019": 86,
+   "2020": 69,
+   "2021": 53,
+   "2022": 38,
+   "2023": 37,
+   "2024": 36,
+   "2025": 39,
+   "2026": 19
+  },
+  "by_organization": {
+   "CFIA": 5356,
+   "Communications and Public Affairs Branch": 1814,
+   "Consumer product safety": 5241,
+   "Controlled substances and cannabis": 106,
+   "Drugs and health products": 1952,
+   "HC": 62,
+   "Marketed health products": 1164,
+   "Medical devices": 8745,
+   "TC": 10006
+  },
+  "by_recall_class": {
+   "(blank)": 1811,
+   "Type I": 8,
+   "Type II": 41,
+   "Type III": 16
+  },
+  "issue_values": {
+   "": 663,
+   "Contamination": 66,
+   "Labelling": 67,
+   "Product safety": 208,
+   "Unauthorized product": 153,
+   "Undeclared substance": 253,
+   "Undeclared substance - Product safety": 49,
+   "Undeclared substance - Unauthorized product": 76
+  },
+  "last_updated_range": [
+   "2003-07-17",
+   "2026-09-25"
+  ],
+  "rows": 34446,
+  "titles_naming_a_lot": 128,
+  "titles_naming_a_recall": 275,
+  "titles_naming_an_unauthorized_product": 238,
+  "with_issue": 1213,
+  "with_product": 183,
+  "with_what_you_should_do": 172
+ },
+ "join_cited_notice_url": {
+  "by_cited_organization": {
+   "CFIA": 1,
+   "Communications and Public Affairs Branch": 4
+  },
+  "links": [
+   {
+    "advisory_nid": "77642",
+    "advisory_title": "Buying health products online? Know the risks",
+    "cited_category": "Drugs",
+    "cited_nid": "73367",
+    "cited_organization": "Communications and Public Affairs Branch",
+    "cited_title": "Unauthorized workout supplements may pose serious health risks"
+   },
+   {
+    "advisory_nid": "77642",
+    "advisory_title": "Buying health products online? Know the risks",
+    "cited_category": "Drugs",
+    "cited_nid": "78089",
+    "cited_organization": "Communications and Public Affairs Branch",
+    "cited_title": "Unauthorized sexual enhancement products may pose serious health risks"
+   },
+   {
+    "advisory_nid": "77642",
+    "advisory_title": "Buying health products online? Know the risks",
+    "cited_category": "Drugs",
+    "cited_nid": "59109",
+    "cited_organization": "Communications and Public Affairs Branch",
+    "cited_title": "Health Canada seizes a new type of “popper” containing ethyl chloride in Scarborough, ON"
+   },
+   {
+    "advisory_nid": "77275",
+    "advisory_title": "Unauthorized injectable peptide drugs sold by Prime Research may pose serious health risks",
+    "cited_category": "Drugs",
+    "cited_nid": "73367",
+    "cited_organization": "Communications and Public Affairs Branch",
+    "cited_title": "Unauthorized workout supplements may pose serious health risks"
+   },
+   {
+    "advisory_nid": "74162",
+    "advisory_title": "Caffeinated energy drinks: what you should know",
+    "cited_category": "Non-alcoholic",
+    "cited_nid": "73848",
+    "cited_organization": "CFIA",
+    "cited_title": "Various brands of caffeinated energy drinks may be unsafe due to caffeine content and labelling issues"
+   }
+  ],
+  "links_resolving_in_index": 5
+ },
+ "our_public_pages_for_6_of_these_notices": {
+  "http_status_by_nid": {
+   "73615": 404,
+   "75148": 404,
+   "75762": 404,
+   "77946": 404,
+   "81404": 404,
+   "81874": 404
+  },
+  "served": 0
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 28,
+  "source_bodies": 22
+ },
+ "run_date": "2026-11-28",
+ "terms": {
+  "open_government_licence_canada": {
+   "bytes": 23088,
+   "http_status": 200,
+   "keyword_sentences": [
+    "You must, where you do any of the above: Acknowledge the source of the Information by including any attribution statement specified by the Information Provider(s) and, where possible, provide a link to this licence.",
+    "Exemptions This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license; the names, crests, logos, or other official symbols of the Information Provider; and Information subject to other intellectual property rights, including patents, trade-marks and official marks.",
+    "Non-endorsement This licence does not grant you any right to use the Information in a way that suggests any official status or that the Information Provider endorses you or your use of the Information."
+   ],
+   "quotes": {
+    "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.": true
+   },
+   "url": "https://open.canada.ca/en/open-government-licence-canada"
+  }
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "Every link from the 20 advisory pages read by widen_measure.py to another notice of the Health Canada index (5 links on 3 pages) was read: the advisory and the notice it cites.",
+ "checked": 5,
+ "cited_notice_is_about_the_same_products_or_hazard": 5,
+ "links_to_a_notice_of_an_existing_member": 1,
+ "note": "Advisory 74162 (caffeinated energy drinks: what you should know) links to CFIA notice 73848 (various brands of caffeinated energy drinks may be unsafe due to caffeine content and labelling issues), a row of the food and health slice already in the registry. The other 4 links go to other advisories of the same branch (unauthorized workout supplements, sexual enhancement products, poppers), which the new source itself covers. 17 of the 20 pages link to no other notice.",
+ "links": [
+  {
+   "advisory_nid": "77642",
+   "advisory_title": "Buying health products online? Know the risks",
+   "cited_category": "Drugs",
+   "cited_nid": "73367",
+   "cited_organization": "Communications and Public Affairs Branch",
+   "cited_title": "Unauthorized workout supplements may pose serious health risks"
+  },
+  {
+   "advisory_nid": "77642",
+   "advisory_title": "Buying health products online? Know the risks",
+   "cited_category": "Drugs",
+   "cited_nid": "78089",
+   "cited_organization": "Communications and Public Affairs Branch",
+   "cited_title": "Unauthorized sexual enhancement products may pose serious health risks"
+  },
+  {
+   "advisory_nid": "77642",
+   "advisory_title": "Buying health products online? Know the risks",
+   "cited_category": "Drugs",
+   "cited_nid": "59109",
+   "cited_organization": "Communications and Public Affairs Branch",
+   "cited_title": "Health Canada seizes a new type of “popper” containing ethyl chloride in Scarborough, ON"
+  },
+  {
+   "advisory_nid": "77275",
+   "advisory_title": "Unauthorized injectable peptide drugs sold by Prime Research may pose serious health risks",
+   "cited_category": "Drugs",
+   "cited_nid": "73367",
+   "cited_organization": "Communications and Public Affairs Branch",
+   "cited_title": "Unauthorized workout supplements may pose serious health risks"
+  },
+  {
+   "advisory_nid": "74162",
+   "advisory_title": "Caffeinated energy drinks: what you should know",
+   "cited_category": "Non-alcoholic",
+   "cited_nid": "73848",
+   "cited_organization": "CFIA",
+   "cited_title": "Various brands of caffeinated energy drinks may be unsafe due to caffeine content and labelling issues"
+  }
+ ]
+}

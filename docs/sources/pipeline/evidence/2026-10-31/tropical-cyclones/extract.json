@@ -1,0 +1,250 @@
+{
+ "n": 24,
+ "casualty_section": 24,
+ "deaths": 9,
+ "damage": 5,
+ "landfall": 13,
+ "peak_wind_kt": 2,
+ "rows": [
+  {
+   "pdf": "AL072024_Gordon.pdf",
+   "chars": 16886,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Gordon. FORECAST AND WARNING VERIFICATION Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each likeliho"
+  },
+  {
+   "pdf": "AL062023_Gert.pdf",
+   "chars": 22202,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Gert. FORECAST AND WARNING VERIFICATION Gert was in close proximity to three different tropical cyclones during its long-lived lifetime either in the remnant or tropical cyclone "
+  },
+  {
+   "pdf": "AL182024_Rafael.pdf",
+   "chars": 46119,
+   "casualty_section": true,
+   "deaths": "4 fatalities",
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "Rafael is responsible for at least 2 direct 4 fatalities during its time as a tropical cyclone. Two people in Jamaica whose truck washed away from flooding perished. Before Rafael became 3 Several terms are used to describe water levels due"
+  },
+  {
+   "pdf": "AL172024_Patty.pdf",
+   "chars": 22211,
+   "casualty_section": true,
+   "deaths": "No direct fatalities",
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "No direct fatalities 2 were reported in association with Patty. The storm was responsible for isolated minor damage in portions of the Azores. Most notably, on the island of S\u00e3o Miguel, a landslide occurred in Ribeira Grande and some homes "
+  },
+  {
+   "pdf": "AL092023_Harold.pdf",
+   "chars": 41810,
+   "casualty_section": true,
+   "deaths": "no direct deaths",
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no direct deaths 3 due to Harold. Damage in Texas appeared to be minor. More than 35,000 homes and businesses in South Texas reportedly lost power due to the storm. There was some tree damage in portions of South Texas. Damage fi"
+  },
+  {
+   "pdf": "AL022024_Beryl.pdf",
+   "chars": 203534,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "..................................................................... 10 FORECAST AND WARNING CRITIQUE ....................................................................... 13 IMPACT-BASED DECISION SUPPORT SERVICES (IDSS) AND PUBLIC COMMU"
+  },
+  {
+   "pdf": "AL112025_Karen.pdf",
+   "chars": 17591,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": 40,
+   "section_excerpt": "There were no reports of damage or casualties associated with Karen. FORECAST AND WARNING VERIFICATION Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each likelihoo"
+  },
+  {
+   "pdf": "AL012025_Andrea.pdf",
+   "chars": 9531,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Andrea. FORECAST AND WARNING VERIFICATION Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each likeliho"
+  },
+  {
+   "pdf": "AL052024_Ernesto.pdf",
+   "chars": 73982,
+   "casualty_section": true,
+   "deaths": "5 Deaths",
+   "damage": "$520 million",
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "Ernesto\u2019s large wind field generated large swells and life-threatening rip currents along the southeastern United States, and there were 3 rip-current fatalities 5 associated with Ernesto. Two fatalities from drowning, 65- and 73-year-old m"
+  },
+  {
+   "pdf": "AL192024_Sara.pdf",
+   "chars": 36199,
+   "casualty_section": true,
+   "deaths": "2 fatalities",
+   "damage": "$18 million",
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "Reports from media and the government of Honduras indicate Sara caused at least 9 direct 2 fatalities. Two of these deaths occurred in Nicaragua and 7 deaths occurred in Honduras. All deaths were related to the heavy rainfall and river floo"
+  },
+  {
+   "pdf": "AL112023_Jose.pdf",
+   "chars": 20756,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Jose. FORECAST AND WARNING VERIFICATION Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each likelihood"
+  },
+  {
+   "pdf": "AL052025_Erin.pdf",
+   "chars": 72928,
+   "casualty_section": true,
+   "deaths": "3 Deaths",
+   "damage": "$3.1 million",
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "Thirteen fatalities are directly attributed to Erin3. There were seven deaths due to drownings from freshwater flooding reported on S\u00e3o Vicente in the Cabo Verde Islands. Three persons drowned due to rip currents in Puerto Rico. A person dr"
+  },
+  {
+   "pdf": "AL042024_Debby.pdf",
+   "chars": 109055,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "....................................................................... 9 Florida ........................................................................................................................... 10 Georgia ......................."
+  },
+  {
+   "pdf": "AL032023_Bret.pdf",
+   "chars": 39316,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "There have been no reports of deaths or serious injuries in association with Bret. Media reports indicate that downed trees, power outages, and limited damage to homes occurred in Barbados, St. Lucia, and St. Vincent and the Grenadines. Rep"
+  },
+  {
+   "pdf": "AL132023_Lee.pdf",
+   "chars": 52303,
+   "casualty_section": true,
+   "deaths": "3 Deaths",
+   "damage": "$50 million",
+   "landfall": true,
+   "peak_wind_kt": 55,
+   "section_excerpt": "There were four direct deaths3 reported from Lee. One drowning of a 15-year-old boy was reported in Fernandina Beach, Florida, due to a rip current; a large tree limb fell on a 51-year-old man as he was driving near Searsport, Maine; a 21-y"
+  },
+  {
+   "pdf": "AL162024_Oscar.pdf",
+   "chars": 47707,
+   "casualty_section": true,
+   "deaths": "8 deaths",
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "The Cuban government indicated that Oscar was directly responsible for at least 8 deaths 4, all in the Cuban province of Guant\u00e1namo, from excessive rainfall leading to flash flooding and mudslides across the eastern portion of Cuba. Six of "
+  },
+  {
+   "pdf": "AL062025_Fernand.pdf",
+   "chars": 18136,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "\u200b There were no reports of damage or casualties associated with Fernand. \u200b FORECAST AND WARNING VERIFICATION\u200b Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each li"
+  },
+  {
+   "pdf": "AL142024_Milton.pdf",
+   "chars": 195307,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "....................................................................... 9 FORECAST AND WARNING CRITIQUE ....................................................................... 10 Genesis ....................................................."
+  },
+  {
+   "pdf": "AL022025_Barry.pdf",
+   "chars": 23135,
+   "casualty_section": true,
+   "deaths": "8 direct fatalities2",
+   "damage": "$5.64 million",
+   "landfall": true,
+   "peak_wind_kt": null,
+   "section_excerpt": "\u200b Barry is responsible for at least 8 direct fatalities2 in Mexico. Four individuals drowned in vehicles swept away by rainfall-induced inland flooding.3 Of those victims, three were located in Santa Mar\u00eda del R\u00edo and one in Ahualulco. Two "
+  },
+  {
+   "pdf": "AL122024_Kirk.pdf",
+   "chars": 20378,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Kirk while it was a tropical cyclone. The extratropical remnant of the system brought flooding, strong gusty winds, and power outages to portions of Portugal, Spain, and France. "
+  },
+  {
+   "pdf": "AL152023_Nigel.pdf",
+   "chars": 20098,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Nigel. 2 A digital record of the complete best track, including wind radii, can be found on line at ftp://ftp.nhc.noaa.gov/atcf. Data for the current year\u2019s storms are located in"
+  },
+  {
+   "pdf": "AL122023_Katia.pdf",
+   "chars": 20111,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Katia. FORECAST AND WARNING VERIFICATION Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each likelihoo"
+  },
+  {
+   "pdf": "AL182023_Rina.pdf",
+   "chars": 17365,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Rina. FORECAST AND WARNING VERIFICATION Table 2 provides the number of hours in advance of formation with the first NHC Tropical Weather Outlook (TWO) forecast in each likelihood"
+  },
+  {
+   "pdf": "AL052023_Don.pdf",
+   "chars": 19342,
+   "casualty_section": true,
+   "deaths": null,
+   "damage": null,
+   "landfall": false,
+   "peak_wind_kt": null,
+   "section_excerpt": "There were no reports of damage or casualties associated with Don. 2 A digital record of the complete best track, including wind radii, can be found on line at ftp://ftp.nhc.noaa.gov/atcf. Data for the current year\u2019s storms are located in t"
+  }
+ ]
+}

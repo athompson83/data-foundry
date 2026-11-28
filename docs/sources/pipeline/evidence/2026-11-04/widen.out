@@ -1,0 +1,10 @@
+https://www.productsafety.gov.au/rss/feed.xml/psa_recall | 403 419 text/html
+https://www.fsis.usda.gov/fsis/api/recall/v/1 | 403 408 text/html
+https://www.recalls.govt.nz/ | 200 216835 text/html; charset=utf-8
+https://www.gov.uk/api/search.json?filter_format=product_safety_alert_report_recall&count=1 | 200 2297 application/json
+https://ec.europa.eu/safety-gate-alerts/api/download/weeklyReport/list/xml/en | 200 472687 application/xml;charset=UTF-8
+https://api.nhtsa.gov/recalls/recallsByVehicle?make=ford&model=f-150&modelYear=2022 | 200 27486 application/json;charset=UTF-8
+https://www.cpsc.gov/Recalls/CPSC-Recalls-Application-Program-Interface-API-Information | 200 54271 text/html; charset=UTF-8
+https://www.consumerreports.org/ | 200 480287 text/html; charset=utf-8
+https://data.gov.sg/api/action/package_search?q=recall&rows=1 | 404 2 application/json
+https://www.mhlw.go.jp/ | 200 85146 text/html

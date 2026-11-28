@@ -1,0 +1,891 @@
+{
+ "run_at": "2026-10-17T14:05:02+00:00",
+ "requests": [
+  {
+   "url": "https://www.hfpappexternal.fda.gov/scripts/fdcc/cfc/XMLService.cfm?method=downloadxls&set=FoodSubstances",
+   "http": 200,
+   "bytes": 1456113,
+   "at": "2026-10-17T14:04:23+00:00"
+  },
+  {
+   "url": "https://www.govinfo.gov/bulkdata/ECFR/title-21/ECFR-title21.xml",
+   "http": 200,
+   "bytes": 21784011,
+   "at": "2026-10-17T14:04:24+00:00"
+  },
+  {
+   "url": "https://zenodo.org/api/records/19388272/files/OFT3.0%20export%20repository.xlsx/content",
+   "http": 200,
+   "bytes": 22595502,
+   "at": "2026-10-17T14:04:48+00:00"
+  },
+  {
+   "url": "https://ec.europa.eu/food/food-feed-portal/backend/api/policy-items?foodDomain=fin&authorisationType=fad_auth",
+   "http": 200,
+   "bytes": 12545146,
+   "at": "2026-10-17T14:05:01+00:00"
+  }
+ ],
+ "fda_satf": {
+  "records": 3970,
+  "last_updated": "9/8/2026",
+  "with_real_cas_excl_977": 3277,
+  "with_977_internal_code": 691,
+  "with_cfr_cite": 2237,
+  "distinct_cfr_sections_cited": 733
+ },
+ "ecfr_title21": {
+  "amended_through": "Sept. 8, 2026",
+  "sections": 8414
+ },
+ "openfoodtox": {
+  "ref_substances_rows": 7890,
+  "distinct_cas": 5506
+ },
+ "eu_union_list": {
+  "substance_items": 376,
+  "with_e_number": 361,
+  "with_ins_number": 1,
+  "items_with_footnote_text": 91,
+  "food_category_restrictions": 1797
+ },
+ "join_A_fda_cfr_cite_to_ecfr_section": {
+  "matched": 723,
+  "total": 733,
+  "unmatched": [
+   "172.625",
+   "175.3520",
+   "178.38",
+   "178.391",
+   "178.3970",
+   "180.23",
+   "182.6195",
+   "182.80",
+   "186.1343",
+   "240.1051"
+  ]
+ },
+ "join_A2_fda_cas_named_in_cited_cfr_section": {
+  "matched": 203,
+  "total": 1560,
+  "sample_unmatched": [
+   [
+    "105-57-7",
+    "ACETAL"
+   ],
+   [
+    "75-07-0",
+    "ACETALDEHYDE"
+   ],
+   [
+    "7493-57-4",
+    "ACETALDEHYDE PHENETHYL PROPYL ACETAL"
+   ],
+   [
+    "100-06-1",
+    "ACETANISOLE"
+   ],
+   [
+    "108-24-7",
+    "ACETIC ANHYDRIDE"
+   ],
+   [
+    "513-86-0",
+    "ACETOIN"
+   ],
+   [
+    "67-64-1",
+    "ACETONE"
+   ],
+   [
+    "1336-17-0",
+    "ACETONE PEROXIDES"
+   ],
+   [
+    "98-86-2",
+    "ACETOPHENONE"
+   ],
+   [
+    "107-02-8",
+    "ACROLEIN"
+   ],
+   [
+    "9003-06-9",
+    "ACRYLAMIDE-ACRYLIC ACID RESIN"
+   ],
+   [
+    "25085-02-3",
+    "ACRYLAMIDE-SODIUM ACRYLATE RESIN"
+   ],
+   [
+    "2035-75-8",
+    "ADIPIC ANHYDRIDE"
+   ],
+   [
+    "56-41-7",
+    "L-ALANINE"
+   ],
+   [
+    "84082-36-0",
+    "ALFALFA, EXTRACT (MEDICAGO SATIVA L.)"
+   ]
+  ]
+ },
+ "join_B_fda_cas_to_openfoodtox_cas": {
+  "matched": 1859,
+  "total": 3277,
+  "sample_matched": [
+   [
+    "55589-62-3",
+    "ACESULFAME POTASSIUM",
+    "Acesulfame K"
+   ],
+   [
+    "105-57-7",
+    "ACETAL",
+    "1,1-Diethoxyethane"
+   ],
+   [
+    "75-07-0",
+    "ACETALDEHYDE",
+    "Acetaldehyde"
+   ],
+   [
+    "64577-91-9",
+    "ACETALDEHYDE, BUTYL PHENETHYL ACETAL",
+    "1-Butoxy-1-(2-phenylethoxy)ethane"
+   ],
+   [
+    "13002-09-0",
+    "ACETALDEHYDE DIISOAMYL ACETAL",
+    "1,1-Di-isopentyloxyethane"
+   ],
+   [
+    "5669-09-0",
+    "ACETALDEHYDE DI-ISOBUTYLACETAL",
+    "1,1-Di-isobutoxyethane"
+   ],
+   [
+    "28069-74-1",
+    "ACETALDEHYDE ETHYL CIS-3-HEXENYL ACETAL",
+    "1-Ethoxy-1-(3-hexenyloxy)ethane"
+   ],
+   [
+    "6986-51-2",
+    "ACETALDEHYDE ETHYL ISOBUTYL ACETAL",
+    "1-Isobutoxy-1-ethoxyethane"
+   ],
+   [
+    "25334-93-4",
+    "(+/-)-ACETALDEHYDE ETHYL ISOPROPYL ACETAL",
+    "Acetaldehyde ethyl isopropyl acetal"
+   ],
+   [
+    "233665-90-2",
+    "ACETALDEHYDE HEXYL ISOAMYL ACETAL",
+    "1-Hexyloxy-1-isopentyloxyethane"
+   ],
+   [
+    "7493-57-4",
+    "ACETALDEHYDE PHENETHYL PROPYL ACETAL",
+    "1-Phenylethoxy-1-propoxy ethane"
+   ],
+   [
+    "100-06-1",
+    "ACETANISOLE",
+    "4-Methoxyacetophenone"
+   ],
+   [
+    "108-24-7",
+    "ACETIC ANHYDRIDE",
+    "Acetic anhydride"
+   ],
+   [
+    "513-86-0",
+    "ACETOIN",
+    "3-Hydroxybutan-2-one"
+   ],
+   [
+    "67-64-1",
+    "ACETONE",
+    "Acetone"
+   ]
+  ]
+ },
+ "join_C_fda_name_to_eu_name_candidate": {
+  "exact_normalised_name_pairs": 111,
+  "eu_items_total": 376,
+  "pairs": [
+   {
+    "eu_name": "Ascorbic acid",
+    "eu_e": "E 300",
+    "fda_substance": "ASCORBIC ACID",
+    "fda_cas": "50-81-7"
+   },
+   {
+    "eu_name": "Sodium ascorbate",
+    "eu_e": "E 301",
+    "fda_substance": "SODIUM ASCORBATE",
+    "fda_cas": "134-03-2"
+   },
+   {
+    "eu_name": "Malic acid",
+    "eu_e": "E 296",
+    "fda_substance": "MALIC ACID",
+    "fda_cas": "617-48-1"
+   },
+   {
+    "eu_name": "Sodium nitrite",
+    "eu_e": "E 250",
+    "fda_substance": "SODIUM NITRITE",
+    "fda_cas": "7632-00-0"
+   },
+   {
+    "eu_name": "Sodium erythorbate",
+    "eu_e": "E 316",
+    "fda_substance": "SODIUM ERYTHORBATE",
+    "fda_cas": "6381-77-7"
+   },
+   {
+    "eu_name": "Sodium nitrate",
+    "eu_e": "E 251",
+    "fda_substance": "SODIUM NITRATE",
+    "fda_cas": "7631-99-4"
+   },
+   {
+    "eu_name": "Potassium nitrate",
+    "eu_e": "E 252",
+    "fda_substance": "POTASSIUM NITRATE",
+    "fda_cas": "7757-79-1"
+   },
+   {
+    "eu_name": "Acetic acid",
+    "eu_e": "E 260",
+    "fda_substance": "ACETIC ACID",
+    "fda_cas": "64-19-7"
+   },
+   {
+    "eu_name": "Sodium lactate",
+    "eu_e": "E 325",
+    "fda_substance": "SODIUM LACTATE",
+    "fda_cas": "72-17-3"
+   },
+   {
+    "eu_name": "Potassium lactate",
+    "eu_e": "E 326",
+    "fda_substance": "POTASSIUM LACTATE",
+    "fda_cas": "996-31-6"
+   },
+   {
+    "eu_name": "Sodium potassium tartrate",
+    "eu_e": "E 337",
+    "fda_substance": "SODIUM POTASSIUM TARTRATE",
+    "fda_cas": "304-59-6"
+   },
+   {
+    "eu_name": "Phosphoric acid",
+    "eu_e": "E 338",
+    "fda_substance": "PHOSPHORIC ACID",
+    "fda_cas": "7664-38-2"
+   },
+   {
+    "eu_name": "Calcium lactate",
+    "eu_e": "E 327",
+    "fda_substance": "CALCIUM LACTATE",
+    "fda_cas": "814-80-2"
+   },
+   {
+    "eu_name": "Calcium acetate",
+    "eu_e": "E 263",
+    "fda_substance": "CALCIUM ACETATE",
+    "fda_cas": "62-54-4"
+   },
+   {
+    "eu_name": "Citric acid",
+    "eu_e": "E 330",
+    "fda_substance": "CITRIC ACID",
+    "fda_cas": "77-92-9"
+   },
+   {
+    "eu_name": "Lactic acid",
+    "eu_e": "E 270",
+    "fda_substance": "LACTIC ACID",
+    "fda_cas": "50-21-5"
+   },
+   {
+    "eu_name": "Propionic acid",
+    "eu_e": "E 280",
+    "fda_substance": "PROPIONIC ACID",
+    "fda_cas": "79-09-4"
+   },
+   {
+    "eu_name": "Sodium propionate",
+    "eu_e": "E 281",
+    "fda_substance": "SODIUM PROPIONATE",
+    "fda_cas": "137-40-6"
+   },
+   {
+    "eu_name": "Calcium propionate",
+    "eu_e": "E 282",
+    "fda_substance": "CALCIUM PROPIONATE",
+    "fda_cas": "4075-81-4"
+   },
+   {
+    "eu_name": "Propyl gallate",
+    "eu_e": "E 310",
+    "fda_substance": "PROPYL GALLATE",
+    "fda_cas": "121-79-9"
+   },
+   {
+    "eu_name": "Boric acid",
+    "eu_e": "E 284",
+    "fda_substance": "BORIC ACID",
+    "fda_cas": "10043-35-3"
+   },
+   {
+    "eu_name": "Carbon dioxide",
+    "eu_e": "E 290",
+    "fda_substance": "CARBON DIOXIDE",
+    "fda_cas": "124-38-9"
+   },
+   {
+    "eu_name": "Fumaric acid",
+    "eu_e": "E 297",
+    "fda_substance": "FUMARIC ACID",
+    "fda_cas": "110-17-8"
+   },
+   {
+    "eu_name": "Octyl gallate",
+    "eu_e": "E 311/REMOVED FROM UNION LIST",
+    "fda_substance": "OCTYL GALLATE",
+    "fda_cas": "1034-01-1"
+   },
+   {
+    "eu_name": "Dodecyl gallate",
+    "eu_e": "E 312/REMOVED FROM THE UNION LIST",
+    "fda_substance": "DODECYL GALLATE",
+    "fda_cas": "1166-52-5"
+   },
+   {
+    "eu_name": "Erythorbic acid",
+    "eu_e": "E 315",
+    "fda_substance": "ERYTHORBIC ACID",
+    "fda_cas": "89-65-6"
+   },
+   {
+    "eu_name": "Methyl p-hydroxybenzoate",
+    "eu_e": "E 218",
+    "fda_substance": "METHYL P-HYDROXYBENZOATE",
+    "fda_cas": "99-76-3"
+   },
+   {
+    "eu_name": "Canthaxanthin",
+    "eu_e": "E 161g",
+    "fda_substance": "CANTHAXANTHIN",
+    "fda_cas": "514-78-3"
+   },
+   {
+    "eu_name": "Calcium carbonate",
+    "eu_e": "E 170",
+    "fda_substance": "CALCIUM CARBONATE",
+    "fda_cas": "471-34-1"
+   },
+   {
+    "eu_name": "Potassium sorbate",
+    "eu_e": "E 202",
+    "fda_substance": "POTASSIUM SORBATE",
+    "fda_cas": "24634-61-5"
+   },
+   {
+    "eu_name": "Titanium dioxide",
+    "eu_e": "E 171",
+    "fda_substance": "TITANIUM DIOXIDE",
+    "fda_cas": "13463-67-7"
+   },
+   {
+    "eu_name": "Benzoic acid",
+    "eu_e": "E 210",
+    "fda_substance": "BENZOIC ACID",
+    "fda_cas": "65-85-0"
+   },
+   {
+    "eu_name": "Natamycin",
+    "eu_e": "E 235",
+    "fda_substance": "NATAMYCIN",
+    "fda_cas": "7681-93-8"
+   },
+   {
+    "eu_name": "Sorbic acid",
+    "eu_e": "E 200",
+    "fda_substance": "SORBIC ACID",
+    "fda_cas": "110-44-1"
+   },
+   {
+    "eu_name": "Dimethyl dicarbonate",
+    "eu_e": "E 242",
+    "fda_substance": "DIMETHYL DICARBONATE",
+    "fda_cas": "4525-33-1"
+   },
+   {
+    "eu_name": "Sodium benzoate",
+    "eu_e": "E 211",
+    "fda_substance": "SODIUM BENZOATE",
+    "fda_cas": "532-32-1"
+   },
+   {
+    "eu_name": "Potassium benzoate",
+    "eu_e": "E 212",
+    "fda_substance": "POTASSIUM BENZOATE",
+    "fda_cas": "582-25-2"
+   },
+   {
+    "eu_name": "Potassium nitrite",
+    "eu_e": "E 249",
+    "fda_substance": "POTASSIUM NITRITE",
+    "fda_cas": "7758-09-0"
+   },
+   {
+    "eu_name": "Calcium benzoate",
+    "eu_e": "E 213",
+    "fda_substance": "CALCIUM BENZOATE",
+    "fda_cas": "2090-05-3"
+   },
+   {
+    "eu_name": "Aspartame",
+    "eu_e": "E 951",
+    "fda_substance": "ASPARTAME",
+    "fda_cas": "22839-47-0"
+   },
+   {
+    "eu_name": "Thaumatin",
+    "eu_e": "E 957",
+    "fda_substance": "THAUMATIN",
+    "fda_cas": "53850-34-3"
+   },
+   {
+    "eu_name": "Triethyl citrate",
+    "eu_e": "E 1505",
+    "fda_substance": "TRIETHYL CITRATE",
+    "fda_cas": "77-93-0"
+   },
+   {
+    "eu_name": "Benzyl alcohol",
+    "eu_e": "E 1519",
+    "fda_substance": "BENZYL ALCOHOL",
+    "fda_cas": "100-51-6"
+   },
+   {
+    "eu_name": "Xylitol",
+    "eu_e": "E 967",
+    "fda_substance": "XYLITOL",
+    "fda_cas": "87-99-0"
+   },
+   {
+    "eu_name": "Neotame",
+    "eu_e": "E 961",
+    "fda_substance": "NEOTAME",
+    "fda_cas": "165450-17-9"
+   },
+   {
+    "eu_name": "Polydextrose",
+    "eu_e": "E 1200",
+    "fda_substance": "POLYDEXTROSE",
+    "fda_cas": "68424-04-4"
+   },
+   {
+    "eu_name": "Polyvinylpyrrolidone",
+    "eu_e": "E 1201",
+    "fda_substance": "POLYVINYLPYRROLIDONE",
+    "fda_cas": "9003-39-8"
+   },
+   {
+    "eu_name": "Sucralose",
+    "eu_e": "E 955",
+    "fda_substance": "SUCRALOSE",
+    "fda_cas": "56038-13-2"
+   },
+   {
+    "eu_name": "Hydrochloric acid",
+    "eu_e": "E 507",
+    "fda_substance": "HYDROCHLORIC ACID",
+    "fda_cas": "7647-01-0"
+   },
+   {
+    "eu_name": "Potassium chloride",
+    "eu_e": "E 508",
+    "fda_substance": "POTASSIUM CHLORIDE",
+    "fda_cas": "7447-40-7"
+   },
+   {
+    "eu_name": "Bentonite",
+    "eu_e": "E 558",
+    "fda_substance": "BENTONITE",
+    "fda_cas": "1302-78-9"
+   },
+   {
+    "eu_name": "Calcium chloride",
+    "eu_e": "E 509",
+    "fda_substance": "CALCIUM CHLORIDE",
+    "fda_cas": "10035-04-8"
+   },
+   {
+    "eu_name": "Fatty acids",
+    "eu_e": "E 570",
+    "fda_substance": "FATTY ACIDS",
+    "fda_cas": "67254-79-9"
+   },
+   {
+    "eu_name": "Glucono-delta-lactone",
+    "eu_e": "E 575",
+    "fda_substance": "GLUCONO-DELTA LACTONE",
+    "fda_cas": "90-80-2"
+   },
+   {
+    "eu_name": "Magnesium chloride",
+    "eu_e": "E 511",
+    "fda_substance": "MAGNESIUM CHLORIDE",
+    "fda_cas": "7786-30-3"
+   },
+   {
+    "eu_name": "Stannous chloride",
+    "eu_e": "E 512",
+    "fda_substance": "STANNOUS CHLORIDE",
+    "fda_cas": "7772-99-8"
+   },
+   {
+    "eu_name": "Sodium stearoyl-2-lactylate",
+    "eu_e": "E 481",
+    "fda_substance": "SODIUM STEAROYL-2-LACTYLATE",
+    "fda_cas": "25383-99-7"
+   },
+   {
+    "eu_name": "Sodium gluconate",
+    "eu_e": "E 576",
+    "fda_substance": "SODIUM GLUCONATE",
+    "fda_cas": "527-07-1"
+   },
+   {
+    "eu_name": "Potassium gluconate",
+    "eu_e": "E 577",
+    "fda_substance": "POTASSIUM GLUCONATE",
+    "fda_cas": "299-27-4"
+   },
+   {
+    "eu_name": "Calcium gluconate",
+    "eu_e": "E 578",
+    "fda_substance": "CALCIUM GLUCONATE",
+    "fda_cas": "299-28-5"
+   },
+   {
+    "eu_name": "Ferrous gluconate",
+    "eu_e": "E 579",
+    "fda_substance": "FERROUS GLUCONATE",
+    "fda_cas": "6047-12-7"
+   },
+   {
+    "eu_name": "Ferrous lactate",
+    "eu_e": "E 585",
+    "fda_substance": "FERROUS LACTATE",
+    "fda_cas": "5905-52-2"
+   },
+   {
+    "eu_name": "Calcium stearoyl-2-lactylate",
+    "eu_e": "E 482",
+    "fda_substance": "CALCIUM STEAROYL-2-LACTYLATE",
+    "fda_cas": "5793-94-2"
+   },
+   {
+    "eu_name": "Sodium hydroxide",
+    "eu_e": "E 524",
+    "fda_substance": "SODIUM HYDROXIDE",
+    "fda_cas": "1310-73-2"
+   },
+   {
+    "eu_name": "Monosodium glutamate",
+    "eu_e": "E 621",
+    "fda_substance": "MONOSODIUM GLUTAMATE",
+    "fda_cas": "142-47-2"
+   },
+   {
+    "eu_name": "Sorbitan monostearate",
+    "eu_e": "E 491",
+    "fda_substance": "SORBITAN MONOSTEARATE",
+    "fda_cas": "1338-41-6"
+   },
+   {
+    "eu_name": "Potassium hydroxide",
+    "eu_e": "E 525",
+    "fda_substance": "POTASSIUM HYDROXIDE",
+    "fda_cas": "1310-58-3"
+   },
+   {
+    "eu_name": "Monopotassium glutamate",
+    "eu_e": "E 622",
+    "fda_substance": "MONOPOTASSIUM GLUTAMATE",
+    "fda_cas": "19473-49-5"
+   },
+   {
+    "eu_name": "Calcium diglutamate",
+    "eu_e": "E 623",
+    "fda_substance": "CALCIUM DIGLUTAMATE",
+    "fda_cas": "5996-22-5"
+   },
+   {
+    "eu_name": "Calcium hydroxide",
+    "eu_e": "E 526",
+    "fda_substance": "CALCIUM HYDROXIDE",
+    "fda_cas": "1305-62-0"
+   },
+   {
+    "eu_name": "L-cysteine",
+    "eu_e": "E 920",
+    "fda_substance": "L-CYSTEINE",
+    "fda_cas": "52-90-4"
+   },
+   {
+    "eu_name": "Monoammonium glutamate",
+    "eu_e": "E 624",
+    "fda_substance": "MONOAMMONIUM GLUTAMATE",
+    "fda_cas": "7558-63-6"
+   },
+   {
+    "eu_name": "Ammonium hydroxide",
+    "eu_e": "E 527",
+    "fda_substance": "AMMONIUM HYDROXIDE",
+    "fda_cas": "1336-21-6"
+   },
+   {
+    "eu_name": "Magnesium hydroxide",
+    "eu_e": "E 528",
+    "fda_substance": "MAGNESIUM HYDROXIDE",
+    "fda_cas": "1309-42-8"
+   },
+   {
+    "eu_name": "Disodium guanylate",
+    "eu_e": "E 627",
+    "fda_substance": "DISODIUM GUANYLATE",
+    "fda_cas": "5550-12-9"
+   },
+   {
+    "eu_name": "Sorbitan monooleate",
+    "eu_e": "E 494",
+    "fda_substance": "SORBITAN MONOOLEATE",
+    "fda_cas": "1338-43-8"
+   },
+   {
+    "eu_name": "Calcium oxide",
+    "eu_e": "E 529",
+    "fda_substance": "CALCIUM OXIDE",
+    "fda_cas": "1305-78-8"
+   },
+   {
+    "eu_name": "Magnesium oxide",
+    "eu_e": "E 530",
+    "fda_substance": "MAGNESIUM OXIDE",
+    "fda_cas": "1309-48-4"
+   },
+   {
+    "eu_name": "Helium",
+    "eu_e": "E 939",
+    "fda_substance": "HELIUM",
+    "fda_cas": "7440-59-7"
+   },
+   {
+    "eu_name": "Nitrogen",
+    "eu_e": "E 941",
+    "fda_substance": "NITROGEN",
+    "fda_cas": "7727-37-9"
+   },
+   {
+    "eu_name": "Nitrous oxide",
+    "eu_e": "E 942",
+    "fda_substance": "NITROUS OXIDE",
+    "fda_cas": "10024-97-2"
+   },
+   {
+    "eu_name": "Isobutane",
+    "eu_e": "E 943b",
+    "fda_substance": "ISOBUTANE",
+    "fda_cas": "75-28-5"
+   },
+   {
+    "eu_name": "Propane",
+    "eu_e": "E 944",
+    "fda_substance": "PROPANE",
+    "fda_cas": "74-98-6"
+   },
+   {
+    "eu_name": "Disodium inosinate",
+    "eu_e": "E 631",
+    "fda_substance": "DISODIUM INOSINATE",
+    "fda_cas": "4691-65-0"
+   },
+   {
+    "eu_name": "Silicon dioxide",
+    "eu_e": "E 551",
+    "fda_substance": "SILICON DIOXIDE",
+    "fda_cas": "7631-86-9"
+   },
+   {
+    "eu_name": "Potassium carbonate",
+    "eu_e": "E 501",
+    "fda_substance": "POTASSIUM CARBONATE",
+    "fda_cas": "584-08-7"
+   },
+   {
+    "eu_name": "Calcium silicate",
+    "eu_e": "E 552",
+    "fda_substance": "CALCIUM SILICATE",
+    "fda_cas": "1344-95-2"
+   },
+   {
+    "eu_name": "Zinc acetate",
+    "eu_e": "E 650",
+    "fda_substance": "ZINC ACETATE",
+    "fda_cas": "557-34-6"
+   },
+   {
+    "eu_name": "Magnesium silicate ",
+    "eu_e": "E 553a",
+    "fda_substance": "MAGNESIUM SILICATE",
+    "fda_cas": "1343-88-0"
+   },
+   {
+    "eu_name": "Talc",
+    "eu_e": "E 553b",
+    "fda_substance": "TALC",
+    "fda_cas": "14807-96-6"
+   },
+   {
+    "eu_name": "Chlorine dioxide",
+    "eu_e": "E 926",
+    "fda_substance": "CHLORINE DIOXIDE",
+    "fda_cas": "10049-04-4"
+   },
+   {
+    "eu_name": "L-leucine",
+    "eu_e": "E 641",
+    "fda_substance": "L-LEUCINE",
+    "fda_cas": "61-90-5"
+   },
+   {
+    "eu_name": "Hydrogen peroxide",
+    "eu_e": null,
+    "fda_substance": "HYDROGEN PEROXIDE",
+    "fda_cas": "7722-84-1"
+   },
+   {
+    "eu_name": "Sodium diacetate ",
+    "eu_e": "E 262(ii)",
+    "fda_substance": "SODIUM DIACETATE",
+    "fda_cas": "126-96-5"
+   },
+   {
+    "eu_name": "Soy leghemoglobin",
+    "eu_e": null,
+    "fda_substance": "soy leghemoglobin",
+    "fda_cas": "1673586-07-6"
+   },
+   {
+    "eu_name": "Polyglycerol esters of fatty acids",
+    "eu_e": "E 475",
+    "fda_substance": "POLYGLYCEROL ESTERS OF FATTY ACIDS",
+    "fda_cas": "977050-69-3"
+   },
+   {
+    "eu_name": "Hydroxypropyl cellulose",
+    "eu_e": "E 463",
+    "fda_substance": "HYDROXYPROPYL CELLULOSE",
+    "fda_cas": "9004-64-2"
+   },
+   {
+    "eu_name": "Carrageenan",
+    "eu_e": "E 407",
+    "fda_substance": "CARRAGEENAN",
+    "fda_cas": "9000-07-1"
+   },
+   {
+    "eu_name": "Magnesium salts of fatty acids",
+    "eu_e": "E 470b",
+    "fda_substance": "MAGNESIUM SALTS OF FATTY ACIDS",
+    "fda_cas": "977093-38-1"
+   },
+   {
+    "eu_name": "Adipic acid",
+    "eu_e": "E 355",
+    "fda_substance": "ADIPIC ACID",
+    "fda_cas": "124-04-9"
+   },
+   {
+    "eu_name": "Succinic acid",
+    "eu_e": "E 363",
+    "fda_substance": "SUCCINIC ACID",
+    "fda_cas": "110-15-6"
+   },
+   {
+    "eu_name": "Sucrose acetate isobutyrate",
+    "eu_e": "E 444",
+    "fda_substance": "SUCROSE ACETATE ISOBUTYRATE",
+    "fda_cas": "126-13-6"
+   },
+   {
+    "eu_name": "Xanthan gum",
+    "eu_e": "E 415",
+    "fda_substance": "XANTHAN GUM",
+    "fda_cas": "11138-66-2"
+   },
+   {
+    "eu_name": "Beta-cyclodextrin",
+    "eu_e": "E 459",
+    "fda_substance": "BETA-CYCLODEXTRIN",
+    "fda_cas": "7585-39-9"
+   },
+   {
+    "eu_name": "Alginic acid",
+    "eu_e": "E 400",
+    "fda_substance": "ALGINIC ACID",
+    "fda_cas": "9005-32-7"
+   },
+   {
+    "eu_name": "Gellan gum",
+    "eu_e": "E 418",
+    "fda_substance": "GELLAN GUM",
+    "fda_cas": "71010-52-1"
+   },
+   {
+    "eu_name": "Ethyl cellulose",
+    "eu_e": "E 462",
+    "fda_substance": "ETHYL CELLULOSE",
+    "fda_cas": "9004-57-3"
+   },
+   {
+    "eu_name": "Mannitol",
+    "eu_e": "E 421",
+    "fda_substance": "MANNITOL",
+    "fda_cas": "69-65-8"
+   },
+   {
+    "eu_name": "Calcium ascorbate",
+    "eu_e": "E 302",
+    "fda_substance": "CALCIUM ASCORBATE",
+    "fda_cas": "5743-27-1"
+   },
+   {
+    "eu_name": "Tartaric acid (L(+)-)",
+    "eu_e": "E 334",
+    "fda_substance": "TARTARIC ACID, L",
+    "fda_cas": "87-69-4"
+   },
+   {
+    "eu_name": "Advantame",
+    "eu_e": "E 969",
+    "fda_substance": "ADVANTAME",
+    "fda_cas": "714229-20-6"
+   }
+  ],
+  "hand_check": {
+   "checked": 37,
+   "correct": 37
+  }
+ }
+}

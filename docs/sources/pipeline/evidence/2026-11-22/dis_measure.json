@@ -1,0 +1,869 @@
+{
+ "federal_register_fema_notices": {
+  "citations": 135,
+  "citations_resolving_to_a_summaries_disaster_number": 135,
+  "citations_resolving_with_the_same_declaration_type": 134,
+  "cited_by_type": {
+   "DR": 102,
+   "EM": 33
+  },
+  "citing_notices_by_kind": {
+   "Amendment No. N to Notice of a Major Disaster Declaration": 72,
+   "Amendment No. N to Notice of an Emergency Declaration": 15,
+   "Amendment No. N to Notice of an Emergency Disaster Declaration": 4,
+   "Emergency and Related Determinations": 13,
+   "Major Disaster and Related Determinations": 30
+  },
+  "count_reported": 442,
+  "date_differences_sample": [
+   [
+    "2025-17142",
+    "FEMA-4816-DR",
+    "2024-09-10",
+    "2024-09-11"
+   ]
+  ],
+  "distinct_disaster_numbers_cited": 73,
+  "notices_citing_a_fema_disaster_number": 134,
+  "notices_citing_more_than_one": 1,
+  "notices_fetched": 442,
+  "notices_with_abstract": 442,
+  "notices_with_every_cited_number_resolved": 133,
+  "of_those_declaration_date_equal": 133,
+  "of_those_state_equal": 129,
+  "publication_date_max": "2026-11-20",
+  "publication_date_min": "2025-01-06",
+  "resolved_with_a_dated_phrase_in_abstract": 134,
+  "resolved_with_state_named_in_title": 129,
+  "unresolved_citations": [
+   "FEMA-4893-EM"
+  ]
+ },
+ "federal_register_sba_notices": {
+  "citations": 167,
+  "citations_resolving_to_a_summaries_disaster_number": 167,
+  "citations_resolving_with_the_same_declaration_type": 167,
+  "cited_by_type": {
+   "DR": 167
+  },
+  "citing_notices_by_kind": {
+   "Presidential Declaration Amendment of a Major Disaster": 47,
+   "Presidential Declaration Amendment of a Major Disaster for Public Assistance Only": 41,
+   "Presidential Declaration Amendment of a Major Disaster for the Cheyenne River Sioux Tribe": 1,
+   "Presidential Declaration of a Major Disaster": 36,
+   "Presidential Declaration of a Major Disaster for Public Assistance Only": 22,
+   "Presidential Declaration of a Major Disaster for Public Assistance Only for the Native Village of Kwigillingok": 1,
+   "Presidential Declaration of a Major Disaster for Public Assistance Only for the Sisseton-Wahpeton Oyate of the Lake Traverse Reservation": 2,
+   "Presidential Declaration of a Major Disaster for the Sisseton-Wahpeton Oyate of the Lake Traverse Reservation": 1
+  },
+  "citing_notices_with_an_sba_declaration_number_docket": 167,
+  "count_reported": 619,
+  "date_differences_sample": [
+   [
+    "2024-31605",
+    "FEMA-4827-DR",
+    "2024-10-02",
+    "2024-09-28"
+   ],
+   [
+    "2025-02950",
+    "FEMA-4856-DR",
+    "2025-01-15",
+    "2025-01-08"
+   ],
+   [
+    "2025-03767",
+    "FEMA-4860-DR",
+    "2025-03-04",
+    "2025-02-24"
+   ],
+   [
+    "2025-04265",
+    "FEMA-4860-DR",
+    "2025-03-04",
+    "2025-02-24"
+   ],
+   [
+    "2025-04807",
+    "FEMA-4860-DR",
+    "2025-03-04",
+    "2025-02-24"
+   ],
+   [
+    "2025-04884",
+    "FEMA-4860-DR",
+    "2025-03-04",
+    "2025-02-24"
+   ],
+   [
+    "2025-05101",
+    "FEMA-4861-DR",
+    "2025-03-19",
+    "2025-02-26"
+   ],
+   [
+    "2025-05998",
+    "FEMA-4861-DR",
+    "2025-03-19",
+    "2025-02-26"
+   ]
+  ],
+  "distinct_disaster_numbers_cited": 75,
+  "notices_citing_a_fema_disaster_number": 167,
+  "notices_citing_more_than_one": 0,
+  "notices_fetched": 619,
+  "notices_with_abstract": 565,
+  "notices_with_every_cited_number_resolved": 167,
+  "of_those_declaration_date_equal": 143,
+  "of_those_state_equal": 139,
+  "publication_date_max": "2026-11-23",
+  "publication_date_min": "2025-01-02",
+  "resolved_with_a_dated_phrase_in_abstract": 167,
+  "resolved_with_state_named_in_title": 139,
+  "sba_docket_sample": [
+   "Disaster Declaration #20543 and #20544",
+   "Disaster Declaration #20711 and #20712",
+   "Disaster Declaration #20720 and #20721"
+  ],
+  "unresolved_citations": []
+ },
+ "fema_disaster_number_join": {
+  "fema_notices": {
+   "matched": 134,
+   "total": 135
+  },
+  "recent_major_disasters_not_cited_by_any_notice_sample": [
+   "DR-4853-AK",
+   "DR-4854-OR",
+   "DR-4858-SC",
+   "DR-4859-AK",
+   "DR-4862-OK",
+   "DR-4891-KS",
+   "DR-4901-MT",
+   "DR-4904-AK",
+   "DR-4905-ID",
+   "DR-4916-DE",
+   "DR-4917-ID",
+   "DR-4918-NM"
+  ],
+  "reverse_by_type": {
+   "DR": {
+    "cited_by_a_fema_notice": 37,
+    "cited_by_an_sba_notice": 68,
+    "cited_by_either": 77,
+    "disasters_declared_2025_2026": 103
+   },
+   "EM": {
+    "cited_by_a_fema_notice": 19,
+    "cited_by_an_sba_notice": 0,
+    "cited_by_either": 19,
+    "disasters_declared_2025_2026": 37
+   },
+   "FM": {
+    "cited_by_a_fema_notice": 0,
+    "cited_by_an_sba_notice": 0,
+    "cited_by_either": 0,
+    "disasters_declared_2025_2026": 131
+   }
+  },
+  "rule": "FEMA-<number>-<DR|EM|FM> read from the notice title, abstract and docket ids; resolved to OpenFEMA disasterNumber with the same declarationType",
+  "sba_notices": {
+   "matched": 167,
+   "total": 167
+  }
+ },
+ "femaweb_declarations": {
+  "by_type": {
+   "Emergency": 660,
+   "Fire Management": 1215,
+   "Fire Suppression": 463,
+   "Major Disaster": 2953
+  },
+  "count_reported": 5291,
+  "disaster_numbers_also_in_summaries": 5286,
+  "disaster_numbers_only_in_femaweb": 5,
+  "disaster_numbers_only_in_summaries": 0,
+  "distinct_disaster_numbers": 5291,
+  "rows_fetched": 5291
+ },
+ "fetched": {
+  "dds_000000.json": {
+   "bytes": 5991262,
+   "sha256": "606fe184bb7402ca9837df7b8e0bb1696f6440835e7f6cc186aa49cae4cf3dc9",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=0&$inlinecount=allpages"
+  },
+  "dds_010000.json": {
+   "bytes": 5988951,
+   "sha256": "4e5a774f628cb32cff57324b9c5daf8e823881746c9a5d2f38114f5add829646",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=10000&$inlinecount=allpages"
+  },
+  "dds_020000.json": {
+   "bytes": 5991280,
+   "sha256": "a5dbd730c10c20d2f7cbe286abac1c5763058325d4542677a08b2955e40bb475",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=20000&$inlinecount=allpages"
+  },
+  "dds_030000.json": {
+   "bytes": 5988212,
+   "sha256": "839ef9fb5e30687839d9f2c2a8c63bb0fd6afe2b53459532045e9f0ffe07407d",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=30000&$inlinecount=allpages"
+  },
+  "dds_040000.json": {
+   "bytes": 5993413,
+   "sha256": "c394cfcc202586be82b1c82ef05ce8a814131f3787351ab3af3c84d647627ddf",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=40000&$inlinecount=allpages"
+  },
+  "dds_050000.json": {
+   "bytes": 5989914,
+   "sha256": "7fa30a895247ed8de284ac0ab894985315dc3b89c7da78e796740417493b20dc",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=50000&$inlinecount=allpages"
+  },
+  "dds_060000.json": {
+   "bytes": 5987588,
+   "sha256": "de55ea4c898122748884eaed5a0915c7869a072806bca2d4fdb0af44cee699b3",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=60000&$inlinecount=allpages"
+  },
+  "dds_070000.json": {
+   "bytes": 359777,
+   "sha256": "9dd1682ef07701fce3b42cb4bb39a04317cd82396df2de87196202126c3f6917",
+   "url": "https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries?$select=id,femaDeclarationString,disasterNumber,state,declarationType,declarationDate,incidentType,declarationTitle,incidentBeginDate,incidentEndDate,designatedArea,fipsStateCode,fipsCountyCode,ihProgramDeclared,iaProgramDeclared,paProgramDeclared,hmProgramDeclared,tribalRequest,lastRefresh&$orderby=id&$top=10000&$skip=70000&$inlinecount=allpages"
+  },
+  "femaweb_declarations.json": {
+   "bytes": 1190459,
+   "sha256": "43125718c55ab5e4f253234610027f531c6eac278bcc290d8a6374ed93acd055",
+   "url": "https://www.fema.gov/api/open/v1/FemaWebDisasterDeclarations?$top=10000&$inlinecount=allpages&$select=disasterNumber,declarationType,stateCode,declarationDate,incidentType,disasterName,closeoutDate"
+  },
+  "fr_federal_p1.json": {
+   "bytes": 539327,
+   "sha256": "6c3b502b8599146793cee2d45f7d14806406299bd195f7c3b3829f798540d574",
+   "url": "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=federal-emergency-management-agency&conditions%5Btype%5D%5B%5D=NOTICE&conditions%5Bpublication_date%5D%5Bgte%5D=2025-01-01&per_page=1000&order=oldest&page=1&fields%5B%5D=title&fields%5B%5D=abstract&fields%5B%5D=document_number&fields%5B%5D=publication_date&fields%5B%5D=html_url&fields%5B%5D=raw_text_url&fields%5B%5D=full_text_xml_url&fields%5B%5D=docket_ids&fields%5B%5D=type&fields%5B%5D=action&fields%5B%5D=agency_names"
+  },
+  "fr_small_p1.json": {
+   "bytes": 569783,
+   "sha256": "82d46f4601704d18272ea9cd65c0062f4562887e1e9fc55a4245f14cebfea467",
+   "url": "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bagencies%5D%5B%5D=small-business-administration&conditions%5Btype%5D%5B%5D=NOTICE&conditions%5Bpublication_date%5D%5Bgte%5D=2025-01-01&per_page=1000&order=oldest&page=1&fields%5B%5D=title&fields%5B%5D=abstract&fields%5B%5D=document_number&fields%5B%5D=publication_date&fields%5B%5D=html_url&fields%5B%5D=raw_text_url&fields%5B%5D=full_text_xml_url&fields%5B%5D=docket_ids&fields%5B%5D=type&fields%5B%5D=action&fields%5B%5D=agency_names"
+  },
+  "govinfo_2025-17137.htm": {
+   "bytes": 2570,
+   "sha256": "5d3d3d5205cc8056ee5993cf80cff34e9e75f7de03d8e21767cea6405ace2e6b",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17137.htm"
+  },
+  "govinfo_2025-17142.htm": {
+   "bytes": 2572,
+   "sha256": "103ba5f286a8c5a5f7458dedce5594d31569e05042ccca362232dd7cf201c50f",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17142.htm"
+  },
+  "govinfo_2025-17148.htm": {
+   "bytes": 2581,
+   "sha256": "f6e848fa2186a0a003c4fa92f1932a3b6d3dd743caabe064e8813a2fd999b6c7",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17148.htm"
+  },
+  "govinfo_2025-17176.htm": {
+   "bytes": 2746,
+   "sha256": "050273755be0d673f960d24f2c6cc400e80a0126b98a6b817112462539a78f20",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17176.htm"
+  },
+  "govinfo_2025-17192.htm": {
+   "bytes": 2563,
+   "sha256": "667fee59c6c29a000293bad2b4c75ea24b8f97d0ba6b2b70d87633e42139fe10",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17192.htm"
+  },
+  "govinfo_2025-17194.htm": {
+   "bytes": 2485,
+   "sha256": "2cc47d4c59fdff5f3c26d4c3906e7172358727aa8399b90655e51d12012c2648",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17194.htm"
+  },
+  "govinfo_2025-17200.htm": {
+   "bytes": 2554,
+   "sha256": "ce012555870da4293d671cb722b4a893aa4b83aa297a8b5e38d6da24f77317d1",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17200.htm"
+  },
+  "govinfo_2026-08832.htm": {
+   "bytes": 2284,
+   "sha256": "736420a84f0170895986735c3b327353f2c2f2067b8baa43d9d3e44a1e14c1cf",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08832.htm"
+  },
+  "govinfo_2026-08836.htm": {
+   "bytes": 2258,
+   "sha256": "5709bf3e6a97d2255d3ae5188a9404c1b622825974f55a183d06e304f2054da2",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08836.htm"
+  },
+  "govinfo_2026-08846.htm": {
+   "bytes": 2274,
+   "sha256": "a71b0bf09b4249ee2569f1f7db482faf92053536388efde9b75b79d1841a6793",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08846.htm"
+  },
+  "govinfo_2026-08852.htm": {
+   "bytes": 2256,
+   "sha256": "ed40661ca9bdbadbb0cf28ff96cc7ae463a870d621163ef8bb1bd93bd10583d6",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08852.htm"
+  },
+  "govinfo_2026-08860.htm": {
+   "bytes": 2581,
+   "sha256": "90ad50696a57ec5a64fdfef2d00666c44e7416c78fb56dcad93feff39b4e405a",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08860.htm"
+  },
+  "govinfo_2026-08861.htm": {
+   "bytes": 2572,
+   "sha256": "41d502f69ae218cf46bd1eae466935b443d0a057f205fd0d1aedfcacfceb4380",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08861.htm"
+  },
+  "govinfo_2026-08864.htm": {
+   "bytes": 2585,
+   "sha256": "e31da5667bd43ac329cb0ac27e3ba04b89f1f1d58ab6b259b929a9a36b4ea95d",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08864.htm"
+  },
+  "govinfo_2026-08873.htm": {
+   "bytes": 2559,
+   "sha256": "fbaf30391415ca901e594b136c7150ac03ca709eb82f6289db8a37cce06933b9",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08873.htm"
+  },
+  "govinfo_2026-08883.htm": {
+   "bytes": 4642,
+   "sha256": "a9fb2309aa95e1e65a3448805982b14d1aeaa854ffd3452199142943a9b0e186",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08883.htm"
+  },
+  "govinfo_2026-08889.htm": {
+   "bytes": 4558,
+   "sha256": "0a89c62e99c8ab3bdd56326855ae3ab867a72104c9f2b5fdabe7b3add423d5af",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08889.htm"
+  },
+  "govinfo_2026-08890.htm": {
+   "bytes": 2833,
+   "sha256": "584c8d11502515e97e22a9bf77552389bbd2af873b1b3a18e6dc7b9feda56a6c",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08890.htm"
+  },
+  "govinfo_2026-08892.htm": {
+   "bytes": 2757,
+   "sha256": "bb7d580270c444eabf286775493f5937dd58409079c27d0e2296fcfacab3a950",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08892.htm"
+  },
+  "govinfo_2026-08896.htm": {
+   "bytes": 2957,
+   "sha256": "17a21ed69a172ce4d921976eff8028677d6560a66d5a0b043e666ccc16ad9c14",
+   "url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08896.htm"
+  },
+  "openfema_datasets.json": {
+   "bytes": 13758,
+   "sha256": "00aeb4fcc4178ad191a78335dd2290de92169eb4d82b2c7c154d20562134a17e",
+   "url": "https://www.fema.gov/api/open/v1/OpenFemaDataSets?$filter=name%20eq%20%27IpawsArchivedAlerts%27%20or%20name%20eq%20%27DisasterDeclarationsSummaries%27%20or%20name%20eq%20%27FemaWebDisasterDeclarations%27"
+  },
+  "p_fr_raw.txt": {
+   "bytes": 10596,
+   "sha256": "75b25c0b824a89d44e509931ece408421e75f9165533a4d0c447ae4a117353de",
+   "url": "https://www.federalregister.gov/documents/full_text/text/2026/05/06/2026-08897.txt"
+  },
+  "terms_fr_legal.html": {
+   "bytes": 10596,
+   "sha256": "d0c2f371b2f87f1e19c9dd7a32cb7195a17a598419f1ce78a9a629a0317da524",
+   "url": "https://www.federalregister.gov/reader-aids/policy/legal-status"
+  },
+  "terms_govinfo.html": {
+   "bytes": 64169,
+   "sha256": "d9e3a2f1cb4486ab4ecc4eff640f94f9a9bb8655ca71ff00694b236e7011ad1c",
+   "url": "https://www.govinfo.gov/about/policies"
+  }
+ },
+ "govinfo_text_for_sample": {
+  "citing_the_number_in_text": 20,
+  "fetched": 20,
+  "median_characters": 2423,
+  "of": 20
+ },
+ "handcheck_sample": [
+  {
+   "fr_cited": "FEMA-4900-DR",
+   "fr_dated": "2026-02-18",
+   "fr_document_number": "2026-08892",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "LA",
+   "fr_title": "Louisiana; Amendment No. 1 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2601,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08892.htm",
+   "openfema_declaration_date": "2026-02-18",
+   "openfema_declaration_string": "DR-4900-LA",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 18,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "LA"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4868-DR",
+   "fr_dated": "2025-05-21",
+   "fr_document_number": "2025-17194",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "NE",
+   "fr_title": "Nebraska; Amendment No. 1 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2338,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17194.htm",
+   "openfema_declaration_date": "2025-05-21",
+   "openfema_declaration_string": "DR-4868-NE",
+   "openfema_declaration_title": "SEVERE WINTER STORM AND STRAIGHT-LINE WINDS",
+   "openfema_designated_areas": 28,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "NE"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4837-DR",
+   "fr_dated": "2024-10-19",
+   "fr_document_number": "2026-08860",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "NC",
+   "fr_title": "North Carolina; Amendment No. 4 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2432,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08860.htm",
+   "openfema_declaration_date": "2024-10-19",
+   "openfema_declaration_string": "DR-4837-NC",
+   "openfema_declaration_title": "POTENTIAL TROPICAL CYCLONE EIGHT",
+   "openfema_designated_areas": 6,
+   "openfema_incident_type": "Tropical Storm",
+   "openfema_states": [
+    "NC"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4816-DR",
+   "fr_dated": "2024-09-10",
+   "fr_document_number": "2025-17142",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "VT",
+   "fr_title": "Vermont; Amendment No. 1 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2422,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17142.htm",
+   "openfema_declaration_date": "2024-09-11",
+   "openfema_declaration_string": "DR-4816-VT",
+   "openfema_declaration_title": "SEVERE STORMS AND FLOODING",
+   "openfema_designated_areas": 1,
+   "openfema_incident_type": "Flood",
+   "openfema_states": [
+    "VT"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4855-DR",
+   "fr_dated": "2025-01-01",
+   "fr_document_number": "2025-17148",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "MO",
+   "fr_title": "Missouri; Amendment No. 4 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2432,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17148.htm",
+   "openfema_declaration_date": "2025-01-01",
+   "openfema_declaration_string": "DR-4855-MO",
+   "openfema_declaration_title": "SEVERE STORMS, TORNADOES, STRAIGHT-LINE WINDS, AND FLOODING",
+   "openfema_designated_areas": 14,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "MO"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4847-DR",
+   "fr_dated": "2024-11-14",
+   "fr_document_number": "2026-08861",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": null,
+   "fr_title": "Crow Tribe of Montana; Amendment No. 1 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2423,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08861.htm",
+   "openfema_declaration_date": "2024-11-14",
+   "openfema_declaration_string": "DR-4847-MT",
+   "openfema_declaration_title": "SEVERE STORM AND STRAIGHT-LINE WINDS",
+   "openfema_designated_areas": 1,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "MT"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4764-DR",
+   "fr_dated": "2024-03-20",
+   "fr_document_number": "2025-17137",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "ME",
+   "fr_title": "Maine; Amendment No. 3 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2421,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17137.htm",
+   "openfema_declaration_date": "2024-03-20",
+   "openfema_declaration_string": "DR-4764-ME",
+   "openfema_declaration_title": "SEVERE STORMS AND FLOODING",
+   "openfema_designated_areas": 8,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "ME"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4879-DR",
+   "fr_dated": "2025-07-06",
+   "fr_document_number": "2025-17176",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "TX",
+   "fr_title": "Texas; Amendment No. 5 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2588,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17176.htm",
+   "openfema_declaration_date": "2025-07-06",
+   "openfema_declaration_string": "DR-4879-TX",
+   "openfema_declaration_title": "SEVERE STORMS, STRAIGHT-LINE WINDS, AND FLOODING",
+   "openfema_designated_areas": 23,
+   "openfema_incident_type": "Flood",
+   "openfema_states": [
+    "TX"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4877-DR",
+   "fr_dated": "2025-06-09",
+   "fr_document_number": "2026-08873",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "MO",
+   "fr_title": "Missouri; Amendment No. 2 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2411,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08873.htm",
+   "openfema_declaration_date": "2025-06-09",
+   "openfema_declaration_string": "DR-4877-MO",
+   "openfema_declaration_title": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+   "openfema_designated_areas": 3,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "MO"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4899-DR",
+   "fr_dated": "2026-02-06",
+   "fr_document_number": "2026-08890",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "MS",
+   "fr_title": "Mississippi; Amendment No. 1 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2681,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08890.htm",
+   "openfema_declaration_date": "2026-02-06",
+   "openfema_declaration_string": "DR-4899-MS",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 83,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "MS"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4898-DR",
+   "fr_dated": "2026-02-06",
+   "fr_document_number": "2026-08889",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "TN",
+   "fr_title": "Tennessee; Major Disaster and Related Determinations",
+   "govinfo_characters": 4349,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": "a severe winter storm during the period of January 22 to January 27, 2026,",
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08889.htm",
+   "openfema_declaration_date": "2026-02-06",
+   "openfema_declaration_string": "DR-4898-TN",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 95,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "TN"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4867-DR",
+   "fr_dated": "2025-05-21",
+   "fr_document_number": "2025-17192",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "MO",
+   "fr_title": "Missouri; Amendment No. 3 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2415,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17192.htm",
+   "openfema_declaration_date": "2025-05-21",
+   "openfema_declaration_string": "DR-4867-MO",
+   "openfema_declaration_title": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND WILDFIRES",
+   "openfema_designated_areas": 25,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "MO"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-3641-EM",
+   "fr_dated": "2026-01-24",
+   "fr_document_number": "2026-08852",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "IN",
+   "fr_title": "Indiana; Amendment No. 1 to Notice of an Emergency Declaration",
+   "govinfo_characters": 2117,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08852.htm",
+   "openfema_declaration_date": "2026-01-24",
+   "openfema_declaration_string": "EM-3641-IN",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 92,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "IN"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-3634-EM",
+   "fr_dated": "2026-01-24",
+   "fr_document_number": "2026-08836",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "MD",
+   "fr_title": "Maryland; Amendment No. 1 to Notice of an Emergency Declaration",
+   "govinfo_characters": 2119,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08836.htm",
+   "openfema_declaration_date": "2026-01-24",
+   "openfema_declaration_string": "EM-3634-MD",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 24,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "MD"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4861-DR",
+   "fr_dated": "2025-02-26",
+   "fr_document_number": "2026-08864",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "WV",
+   "fr_title": "West Virginia; Amendment No. 6 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2434,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08864.htm",
+   "openfema_declaration_date": "2025-02-26",
+   "openfema_declaration_string": "DR-4861-WV",
+   "openfema_declaration_title": "SEVERE STORM, STRAIGHT-LINE WINDS, FLOODING, LANDSLIDES, AND MUDSLIDES",
+   "openfema_designated_areas": 12,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "WV"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4872-DR",
+   "fr_dated": "2025-05-21",
+   "fr_document_number": "2025-17200",
+   "fr_publication_date": "2025-09-08",
+   "fr_state_in_title": "MO",
+   "fr_title": "Missouri; Amendment No. 2 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2406,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2025-09-08/html/2025-17200.htm",
+   "openfema_declaration_date": "2025-05-21",
+   "openfema_declaration_string": "DR-4872-MO",
+   "openfema_declaration_title": "SEVERE STORMS, STRAIGHT-LINE WINDS, TORNADOES, AND FLOODING",
+   "openfema_designated_areas": 27,
+   "openfema_incident_type": "Severe Storm",
+   "openfema_states": [
+    "MO"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4898-DR",
+   "fr_dated": "2026-02-06",
+   "fr_document_number": "2026-08896",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "TN",
+   "fr_title": "Tennessee; Amendment No. 1 to Notice of a Major Disaster Declaration",
+   "govinfo_characters": 2796,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08896.htm",
+   "openfema_declaration_date": "2026-02-06",
+   "openfema_declaration_string": "DR-4898-TN",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 95,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "TN"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-4893-DR",
+   "fr_dated": "2025-10-22",
+   "fr_document_number": "2026-08883",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "AK",
+   "fr_title": "Alaska; Major Disaster and Related Determinations",
+   "govinfo_characters": 4432,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": "severe storms, flooding, and remnants of Typhoon Halong during the period of October 8 to October 13, 2025,",
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08883.htm",
+   "openfema_declaration_date": "2025-10-22",
+   "openfema_declaration_string": "DR-4893-AK",
+   "openfema_declaration_title": "SEVERE STORMS, FLOODING, AND REMNANTS OF TYPHOON HALONG",
+   "openfema_designated_areas": 10,
+   "openfema_incident_type": "Flood",
+   "openfema_states": [
+    "AK"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-3632-EM",
+   "fr_dated": "2026-01-23",
+   "fr_document_number": "2026-08832",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "SC",
+   "fr_title": "South Carolina; Amendment No. 1 to Notice of an Emergency Disaster Declaration",
+   "govinfo_characters": 2144,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08832.htm",
+   "openfema_declaration_date": "2026-01-23",
+   "openfema_declaration_string": "EM-3632-SC",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 47,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "SC"
+   ]
+  },
+  {
+   "fr_cited": "FEMA-3638-EM",
+   "fr_dated": "2026-01-24",
+   "fr_document_number": "2026-08846",
+   "fr_publication_date": "2026-05-06",
+   "fr_state_in_title": "LA",
+   "fr_title": "Louisiana; Amendment No. 3 to Notice of an Emergency Disaster Declaration",
+   "govinfo_characters": 2134,
+   "govinfo_http_status": 200,
+   "govinfo_incident_phrase": null,
+   "govinfo_text_cites_the_number": true,
+   "govinfo_url": "https://www.govinfo.gov/content/pkg/FR-2026-05-06/html/2026-08846.htm",
+   "openfema_declaration_date": "2026-01-24",
+   "openfema_declaration_string": "EM-3638-LA",
+   "openfema_declaration_title": "SEVERE WINTER STORM",
+   "openfema_designated_areas": 64,
+   "openfema_incident_type": "Winter Storm",
+   "openfema_states": [
+    "LA"
+   ]
+  }
+ ],
+ "openfema_catalog": {
+  "accrual_periodicity": "R/PT20M",
+  "last_dataset_refresh": "2026-11-22T13:46:59.590Z",
+  "license_field": null,
+  "record_count": 70599,
+  "temporal": "1953-05-01/"
+ },
+ "openfema_declarations_summaries": {
+  "count_reported": 70599,
+  "declaration_date_max": "2026-10-27",
+  "declaration_date_min": "1953-05-02",
+  "declared_2025_2026_by_type": {
+   "DR": 103,
+   "EM": 37,
+   "FM": 131
+  },
+  "disasters_by_incident_type_top": {
+   "Biological": 167,
+   "Drought": 46,
+   "Fire": 1787,
+   "Flood": 930,
+   "Hurricane": 458,
+   "Severe Ice Storm": 75,
+   "Severe Storm": 1147,
+   "Snowstorm": 171,
+   "Tornado": 183,
+   "Typhoon": 62
+  },
+  "disasters_by_type": {
+   "DR": 2948,
+   "EM": 660,
+   "FM": 1678
+  },
+  "disasters_declared_2025": 119,
+  "disasters_declared_2026": 152,
+  "disasters_with_more_than_one_declaration_type": 0,
+  "disasters_with_more_than_one_state": 0,
+  "distinct_disaster_numbers": 5286,
+  "distinct_row_ids": 70599,
+  "newest_declaration": "DR-4955-FL",
+  "newest_last_refresh": "2026-11-13T12:24:12.669Z",
+  "rows_fetched": 70599,
+  "rows_for_disasters_declared_2025_2026": 3253,
+  "rows_with_county_fips": 68982,
+  "rows_with_incident_end_date": 69976
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 4,
+  "made_this_run": 32,
+  "source_bodies": 35
+ },
+ "run_date": "2026-11-22",
+ "terms": [
+  {
+   "quote": "Copyright protection under this title is not available for any work of the United States Government",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://www.govinfo.gov/about/policies"
+  },
+  {
+   "note": "dataset description in the OpenFEMA catalogue API; it points to the terms page, which could not be read",
+   "quote": "FEMA's citation requirements for datasets (API usage or file downloads) can be found on the OpenFEMA Terms and Conditions page, Citing Data section: https://www.fema.gov/about/openfema/terms-conditions.",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://www.fema.gov/api/open/v1/OpenFemaDataSets"
+  },
+  {
+   "quote": "This is raw, unedited data from FEMA's National Emergency Management Information System (NEMIS) and as such is subject to a small percentage of human error.",
+   "quote_found_verbatim_in_body": true,
+   "url": "https://www.fema.gov/api/open/v1/OpenFemaDataSets"
+  }
+ ],
+ "terms_not_readable": {
+  "https://www.federalregister.gov/documents/full_text/text/ (raw_text_url)": "HTTP 200 with a 'Request Access' CAPTCHA page",
+  "https://www.federalregister.gov/reader-aids/policy/legal-status": "HTTP 200 with a 'Request Access' CAPTCHA page",
+  "https://www.fema.gov/about/openfema/terms-conditions": 403
+ }
+}

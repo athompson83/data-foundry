@@ -1,0 +1,150 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 distinct (14 CFR part, 49 U.S.C. section) pairs that resolve in the 2024 Code, drawn with seed 20261128 by usc_measure.py; each authority line was re-read to confirm that the number is cited there as a section of 49 U.S.C., alone or as the end of a range.",
+ "checked": 20,
+ "number_is_a_49_usc_section_in_the_authority_line": 20,
+ "of_those_range_endpoints": 6,
+ "note": "All 20 numbers stand in the authority line as sections of 49 U.S.C.; 6 are the first or last section of a cited range. The check confirms the citation was read correctly. It does not judge whether the statute section is the legal basis for every rule in the part: an authority line lists sections for the whole part (14 CFR part 120, drug and alcohol testing, lists 49 U.S.C. 41721, reports on incidents involving animals).",
+ "pairs": [
+  {
+   "cfr_part": "14 CFR part 214",
+   "cfr_part_heading": "PART 214—TERMS, CONDITIONS, AND LIMITATIONS OF FOREIGN AIR CARRIER PERMITS AUTHORIZING CHARTER TRANSPORTATION ONLY",
+   "usc_section": "49 U.S.C. 40113",
+   "usc_section_heading": "Administrative",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 120",
+   "cfr_part_heading": "PART 120—DRUG AND ALCOHOL TESTING PROGRAM",
+   "usc_section": "49 U.S.C. 41721",
+   "usc_section_heading": "Reports by carriers on incidents involving animals during air transport",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 45",
+   "cfr_part_heading": "PART 45—IDENTIFICATION AND REGISTRATION MARKING",
+   "usc_section": "49 U.S.C. 46306",
+   "usc_section_heading": "Registration violations involving aircraft not providing air transportation",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 91",
+   "cfr_part_heading": "PART 91—GENERAL OPERATING AND FLIGHT RULES",
+   "usc_section": "49 U.S.C. 44703",
+   "usc_section_heading": "Airman certificates",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 49",
+   "cfr_part_heading": "PART 49—RECORDING OF AIRCRAFT TITLES AND SECURITY DOCUMENTS",
+   "usc_section": "49 U.S.C. 44713",
+   "usc_section_heading": "Inspection and maintenance",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 119",
+   "cfr_part_heading": "PART 119—CERTIFICATION: AIR CARRIERS AND COMMERCIAL OPERATORS",
+   "usc_section": "49 U.S.C. 44111",
+   "usc_section_heading": "Modifications in registration and recordation system for aircraft not providing air transportation",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 103",
+   "cfr_part_heading": "PART 103—ULTRALIGHT VEHICLES",
+   "usc_section": "49 U.S.C. 106",
+   "usc_section_heading": "Federal Aviation Administration",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 3",
+   "cfr_part_heading": "PART 3—GENERAL REQUIREMENTS",
+   "usc_section": "49 U.S.C. 46301",
+   "usc_section_heading": "Civil penalties",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 171",
+   "cfr_part_heading": "PART 171—NON-FEDERAL NAVIGATION FACILITIES",
+   "usc_section": "49 U.S.C. 44721",
+   "usc_section_heading": "Aeronautical charts and related products and services",
+   "was_range_endpoint": true
+  },
+  {
+   "cfr_part": "14 CFR part 171",
+   "cfr_part_heading": "PART 171—NON-FEDERAL NAVIGATION FACILITIES",
+   "usc_section": "49 U.S.C. 44708",
+   "usc_section_heading": "Inspecting and rating air navigation facilities",
+   "was_range_endpoint": true
+  },
+  {
+   "cfr_part": "14 CFR part 169",
+   "cfr_part_heading": "PART 169—EXPENDITURE OF FEDERAL FUNDS FOR NONMILITARY AIRPORTS OR AIR NAVIGATION FACILITIES THEREON",
+   "usc_section": "49 U.S.C. 47153",
+   "usc_section_heading": "Waiving and adding terms",
+   "was_range_endpoint": true
+  },
+  {
+   "cfr_part": "14 CFR part 99",
+   "cfr_part_heading": "PART 99—SECURITY CONTROL OF AIR TRAFFIC",
+   "usc_section": "49 U.S.C. 40113",
+   "usc_section_heading": "Administrative",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 251",
+   "cfr_part_heading": "PART 251—CARRIAGE OF MUSICAL INSTRUMENTS",
+   "usc_section": "49 U.S.C. 41724",
+   "usc_section_heading": "Musical instruments",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 77",
+   "cfr_part_heading": "PART 77—SAFE, EFFICIENT USE, AND PRESERVATION OF THE NAVIGABLE AIRSPACE",
+   "usc_section": "49 U.S.C. 40114",
+   "usc_section_heading": "Reports and records",
+   "was_range_endpoint": true
+  },
+  {
+   "cfr_part": "14 CFR part 389",
+   "cfr_part_heading": "PART 389—FEES AND CHARGES FOR SPECIAL SERVICES",
+   "usc_section": "49 U.S.C. 40114",
+   "usc_section_heading": "Reports and records",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 110",
+   "cfr_part_heading": "PART 110—GENERAL REQUIREMENTS",
+   "usc_section": "49 U.S.C. 44906",
+   "usc_section_heading": "Foreign air carrier security programs",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 137",
+   "cfr_part_heading": "PART 137—AGRICULTURAL AIRCRAFT OPERATIONS",
+   "usc_section": "49 U.S.C. 40103",
+   "usc_section_heading": "Sovereignty and use of airspace",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 47",
+   "cfr_part_heading": "PART 47—AIRCRAFT REGISTRATION",
+   "usc_section": "49 U.S.C. 44701",
+   "usc_section_heading": "General requirements",
+   "was_range_endpoint": false
+  },
+  {
+   "cfr_part": "14 CFR part 169",
+   "cfr_part_heading": "PART 169—EXPENDITURE OF FEDERAL FUNDS FOR NONMILITARY AIRPORTS OR AIR NAVIGATION FACILITIES THEREON",
+   "usc_section": "49 U.S.C. 47151",
+   "usc_section_heading": "Authority to transfer an interest in surplus property",
+   "was_range_endpoint": true
+  },
+  {
+   "cfr_part": "14 CFR part 119",
+   "cfr_part_heading": "PART 119—CERTIFICATION: AIR CARRIERS AND COMMERCIAL OPERATORS",
+   "usc_section": "49 U.S.C. 44701",
+   "usc_section_heading": "General requirements",
+   "was_range_endpoint": true
+  }
+ ]
+}

@@ -1,0 +1,322 @@
+{
+ "chebi": {
+  "by_subset": {
+   "1:STAR": 2905,
+   "2:STAR": 153792,
+   "3:STAR": 62135,
+   "None": 288
+  },
+  "data_version": "data-version: 257",
+  "date": "date: 05:11:2026 18:04",
+  "definition_characters": 8920340,
+  "definition_median_characters": 140.0,
+  "distinct_inchikeys": 188644,
+  "licence_property": "property_value: terms:license https://creativecommons.org/licenses/by/4.0/",
+  "live": 219120,
+  "obsolete": 1,
+  "terms": 219121,
+  "with_cas_xref": 30044,
+  "with_definition": 55536,
+  "with_inchikey": 190183,
+  "with_synonym": 168231,
+  "xrefs_by_source": {
+   "cas": 30372,
+   "chemspider": 53438,
+   "glygen": 9922,
+   "glytoucan": 10641,
+   "hmdb": 19819,
+   "kegg.compound": 17453,
+   "lincs.smallmolecule": 41390,
+   "lipidmaps": 12670,
+   "pubmed": 189857,
+   "reaxys": 17826
+  }
+ },
+ "fetched": {
+  "chebi_obo": {
+   "bytes": 47744176,
+   "sha256": "fdc1d2d5c4d3e8227891a2eb955aa4d9433449a8f8830a6b68bc567f770bd216",
+   "url": "https://ftp.ebi.ac.uk/pub/databases/chebi/ontology/chebi.obo.gz"
+  },
+  "unii_zip": {
+   "bytes": 14477857,
+   "sha256": "e768525350d17e0eedfa179e62563226e9da0a3d5bda006d27b7b94600a76ee9",
+   "url": "https://precision.fda.gov/uniisearch/archive/latest/UNII_Data.zip"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:749284",
+   "chebi_name": "chlorphentermine hydrochloride",
+   "inchikey": "WEJDYJKJPUPMLH-UHFFFAOYSA-N",
+   "unii": "RL11HOJ7DM",
+   "unii_display_name": "CHLORPHENTERMINE HYDROCHLORIDE",
+   "unii_rn": "151-06-4"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:140566",
+   "chebi_name": "2-Hexyl-1-octanol",
+   "inchikey": "QNMCWJOEQBZQHB-UHFFFAOYSA-N",
+   "unii": "5D8007Z3JI",
+   "unii_display_name": "2-HEXYL-1-OCTANOL",
+   "unii_rn": "19780-79-1"
+  },
+  {
+   "chebi_cas": [
+    "93-15-2"
+   ],
+   "chebi_id": "CHEBI:4918",
+   "chebi_name": "O-methyleugenol",
+   "inchikey": "ZYEMGPIYFIJGTP-UHFFFAOYSA-N",
+   "unii": "29T9VA6R7M",
+   "unii_display_name": "METHYL EUGENOL",
+   "unii_rn": "93-15-2"
+  },
+  {
+   "chebi_cas": [
+    "7774-44-9"
+   ],
+   "chebi_id": "CHEBI:171833",
+   "chebi_name": "Cyclohexyl 3-methylbutanoate",
+   "inchikey": "SQPOKBBCNZIWFI-UHFFFAOYSA-N",
+   "unii": "6SQ3O6ST39",
+   "unii_display_name": "CYCLOHEXYL ISOVALERATE",
+   "unii_rn": "7774-44-9"
+  },
+  {
+   "chebi_cas": [
+    "105798-74-1"
+   ],
+   "chebi_id": "CHEBI:178144",
+   "chebi_name": "Clitocine",
+   "inchikey": "OHEMBWZZEKCBAS-UUOKFMHZSA-N",
+   "unii": "9Z4QXQ98QW",
+   "unii_display_name": "CLITOCINE",
+   "unii_rn": "105798-74-1"
+  },
+  {
+   "chebi_cas": [
+    "696-23-1"
+   ],
+   "chebi_id": "CHEBI:181956",
+   "chebi_name": "2-Methyl-5-nitroimidazole",
+   "inchikey": "FFYTTYVSDVWNMY-UHFFFAOYSA-N",
+   "unii": "24AG2WW15W",
+   "unii_display_name": "2-METHYL-5-NITROIMIDAZOLE",
+   "unii_rn": "696-23-1"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:750319",
+   "chebi_name": "ensaculin",
+   "inchikey": "FQELZLMTAPJJOL-UHFFFAOYSA-N",
+   "unii": "869PGR00AT",
+   "unii_display_name": "ENSACULIN",
+   "unii_rn": "155773-59-4"
+  },
+  {
+   "chebi_cas": [
+    "91-19-0"
+   ],
+   "chebi_id": "CHEBI:36616",
+   "chebi_name": "quinoxaline",
+   "inchikey": "XSCHRSMBECNVNS-UHFFFAOYSA-N",
+   "unii": "QM4AR6M6T8",
+   "unii_display_name": "QUINOXALINE",
+   "unii_rn": "91-19-0"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:62768",
+   "chebi_name": "bis(beta-D-glucosyl) crocetin",
+   "inchikey": "QBZWPZHDUZGTLS-IIDMIUPYSA-N",
+   "unii": "8PF1UU481E",
+   "unii_display_name": "CROCETIN DIGLUCOPYRANOSIDE",
+   "unii_rn": "57710-64-2"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:219298",
+   "chebi_name": "Sporidesmin F",
+   "inchikey": "CHLALSASKWYQEZ-UHFFFAOYSA-N",
+   "unii": "E4MOI6F03Y",
+   "unii_display_name": "SPORIDESMIN F",
+   "unii_rn": "23044-40-8"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:229305",
+   "chebi_name": "n-Propyl acrylate",
+   "inchikey": "PNXMTCDJUBJHQJ-UHFFFAOYSA-N",
+   "unii": "T23G14902U",
+   "unii_display_name": "PROPYL ACRYLATE",
+   "unii_rn": "925-60-0"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:758118",
+   "chebi_name": "mezigdomide",
+   "inchikey": "YTINZZFBHWSAGL-NDEPHWFRSA-N",
+   "unii": "LA88IH4O02",
+   "unii_display_name": "MEZIGDOMIDE",
+   "unii_rn": "2259648-80-9"
+  },
+  {
+   "chebi_cas": [
+    "636-54-4"
+   ],
+   "chebi_id": "CHEBI:94521",
+   "chebi_name": "4-chloro-N-[(2S,6R)-2,6-dimethyl-1-piperidinyl]-3-sulfamoylbenzamide",
+   "inchikey": "LBXHRAWDUMTPSE-AOOOYVTPSA-N",
+   "unii": "17S83WON0I",
+   "unii_display_name": "CLOPAMIDE",
+   "unii_rn": "636-54-4"
+  },
+  {
+   "chebi_cas": [
+    "113299-40-4"
+   ],
+   "chebi_id": "CHEBI:39589",
+   "chebi_name": "(R)-bicalutamide",
+   "inchikey": "LKJPYSCBVHEWIU-KRWDZBQOSA-N",
+   "unii": "Z9DL98I0AF",
+   "unii_display_name": "BICALUTAMIDE, (R)-",
+   "unii_rn": "113299-40-4"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:63453",
+   "chebi_name": "AZD4547",
+   "inchikey": "VRQMAABPASPXMW-HDICACEKSA-N",
+   "unii": "2167OG1EKJ",
+   "unii_display_name": "FEXAGRATINIB",
+   "unii_rn": "1035270-39-3"
+  },
+  {
+   "chebi_cas": [
+    "5578-80-3"
+   ],
+   "chebi_id": "CHEBI:17130",
+   "chebi_name": "10-oxocapric acid",
+   "inchikey": "FYURGFQVSMALOD-UHFFFAOYSA-N",
+   "unii": "43VX3L2AUT",
+   "unii_display_name": "9-FORMYLNONANOIC ACID",
+   "unii_rn": "5578-80-3"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:755709",
+   "chebi_name": "pbf-509",
+   "inchikey": "ATFXVNUWQOXRRU-UHFFFAOYSA-N",
+   "unii": "84I5UEP321",
+   "unii_display_name": "TAMINADENANT",
+   "unii_rn": "1337962-47-6"
+  },
+  {
+   "chebi_cas": [],
+   "chebi_id": "CHEBI:759833",
+   "chebi_name": "ocadusertib",
+   "inchikey": "SQBZJKIINNRUFC-SFHVURJKSA-N",
+   "unii": "S53J4A7ME4",
+   "unii_display_name": "OCADUSERTIB",
+   "unii_rn": "2382811-41-6"
+  },
+  {
+   "chebi_cas": [
+    "61432-55-1"
+   ],
+   "chebi_id": "CHEBI:34713",
+   "chebi_name": "dimepiperate",
+   "inchikey": "BWUPSGJXXPATLU-UHFFFAOYSA-N",
+   "unii": "3WIT88R79X",
+   "unii_display_name": "DIMEPIPERATE",
+   "unii_rn": "61432-55-1"
+  },
+  {
+   "chebi_cas": [
+    "569670-41-3"
+   ],
+   "chebi_id": "CHEBI:168245",
+   "chebi_name": "(-)-Epigallocatechin 3'-glucuronide",
+   "inchikey": "CQDATFYRGVZXLF-ZVHNUXTDSA-N",
+   "unii": "2A0M9HOF8Z",
+   "unii_display_name": "EPIGALLOCATECHIN-3'-GLUCURONIDE",
+   "unii_rn": "569670-41-3"
+  }
+ ],
+ "join_inchikey": {
+  "chebi_distinct_inchikeys": 188644,
+  "of_those_with_the_same_cas_number": 18045,
+  "one_to_one_pairs_where_both_state_a_cas_number": 18591,
+  "one_to_one_pairs_with_a_chebi_definition": 10859,
+  "one_to_one_pairs_with_the_same_lowercased_name": 17533,
+  "shared": 30303,
+  "shared_keys_held_by_more_than_one_chebi_term": 737,
+  "shared_keys_held_by_more_than_one_unii": 83,
+  "shared_one_to_one": 29489,
+  "unii_distinct_inchikeys": 129019
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 2,
+  "made_this_run": 0,
+  "source_bodies": 2
+ },
+ "run_date": "2026-11-23",
+ "unii": {
+  "associated_with_a_dailymed_label": 15146,
+  "by_substance_type": {
+   "chemical": 129475,
+   "mixture": 3030,
+   "nucleicAcid": 797,
+   "polymer": 2696,
+   "protein": 7659,
+   "specifiedSubstanceG1": 200,
+   "structurallyDiverse": 28055
+  },
+  "columns": [
+   "UNII",
+   "DISPLAY_NAME",
+   "RN",
+   "EC",
+   "NCIT",
+   "RXCUI",
+   "PUBCHEM",
+   "SMSID",
+   "EPA_CompTox",
+   "CATALOGUE_OF_LIFE",
+   "ITIS",
+   "NCBI",
+   "PLANTS",
+   "POWO",
+   "GRIN",
+   "MPNS",
+   "INN_ID",
+   "USAN_ID",
+   "DAILYMED",
+   "MF",
+   "INCHIKEY",
+   "SMILES",
+   "INGREDIENT_TYPE",
+   "UTF8_DISPLAY_NAME",
+   "SUBSTANCE_TYPE"
+  ],
+  "distinct_inchikeys": 129019,
+  "distinct_unii": 171912,
+  "members": {
+   "Legacy UNIIs.txt": 7922,
+   "READ ME UNII Lists.txt": 4415,
+   "UNII_Records_4Aug2026.txt": 38047851
+  },
+  "records": 171912,
+  "records_file": "UNII_Records_4Aug2026.txt",
+  "with_cas_rn": 132070,
+  "with_ema_sms_id": 29265,
+  "with_epa_comptox": 85983,
+  "with_inchikey": 129398,
+  "with_ncit": 24102,
+  "with_pubchem": 126672,
+  "with_rxcui": 13709
+ }
+}

@@ -1,0 +1,333 @@
+{
+ "fetched": {
+  "ridb_zip": {
+   "bytes": 248629928,
+   "sha256": "cf77bc01bd3f972afddce1b2b20ef668dc3ef0e304c5505b384b9d52e1745006",
+   "url": "https://ridb.recreation.gov/downloads/RIDBFullExport_V1_CSV.zip"
+  },
+  "usfs_count": {
+   "bytes": 15,
+   "sha256": "ffdb18c569031032c97a370d075642b2df6ab507ac9ceebe37f25c774a75db94",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&returnCountOnly=true&f=json"
+  },
+  "usfs_meta": {
+   "bytes": 205773,
+   "sha256": "7d065613e6d0fb955ece3f0cfe33d5a5883ac5c256fb26642359b94d33190cbb",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0?f=json"
+  },
+  "usfs_page_0": {
+   "bytes": 2165433,
+   "sha256": "629381228c7234a4d9593d9a5d7e8e38b72767049bfb473ba0a23b808f88b5d6",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=0&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_10000": {
+   "bytes": 1990912,
+   "sha256": "d2579891d85c0c99ec938dadf6dd976b9760809b69b3af1ba91e39d5c8096728",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=10000&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_12000": {
+   "bytes": 2139128,
+   "sha256": "2e80e48527f7a6479a5d82fa93cbfca5d619c5613b3be738c084e42f76845525",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=12000&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_14000": {
+   "bytes": 173575,
+   "sha256": "ecf283a46021bd2683af153bbd02491d1a47cd78c9f8cf396a6b93a98ee075d9",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=14000&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_2000": {
+   "bytes": 1801152,
+   "sha256": "3147612865306e42611d9310d9b9f3c9ed6c3b6de84c3ced1adfd7fbea93af48",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=2000&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_4000": {
+   "bytes": 1838710,
+   "sha256": "14c57a7bf5b9fb1e8ddb2df3c17db89d86ee494a1ccbc511b957fb1b36bdcb03",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=4000&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_6000": {
+   "bytes": 1909379,
+   "sha256": "43222056858869934666ca8b01a9551894e97266cbeddd24ea561a0a94226bd3",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=6000&resultRecordCount=2000&f=json"
+  },
+  "usfs_page_8000": {
+   "bytes": 1953336,
+   "sha256": "4f4e16bdff76998b7c795fcdbacc1cb319df0a102be2a6d49bf67220b3068730",
+   "url": "https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_RecreationOpportunities_01/MapServer/0/query?where=1%3D1&outFields=recareaid,recareaname,forestname,markeractivitygroup,openstatus,recareadescription&returnGeometry=false&orderByFields=objectid&resultOffset=8000&resultRecordCount=2000&f=json"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "ridb_facility_id": "251200",
+   "ridb_name": "Hennessey Meadows / Riordan Trailhead",
+   "usfs_forest": "Boise National Forest",
+   "usfs_name": "Hennessey Meadows / Riordan Trailhead",
+   "usfs_rec_area_id": "81305"
+  },
+  {
+   "ridb_facility_id": "245995",
+   "ridb_name": "Kelly Prairie",
+   "usfs_forest": "Umatilla National Forest",
+   "usfs_name": "Kelly Prairie",
+   "usfs_rec_area_id": "56433"
+  },
+  {
+   "ridb_facility_id": "259502",
+   "ridb_name": "El Jebel Area",
+   "usfs_forest": "White River National Forest",
+   "usfs_name": "El Jebel Area",
+   "usfs_rec_area_id": "40425"
+  },
+  {
+   "ridb_facility_id": "271390",
+   "ridb_name": "Red Tail Rim Trail North Trailhead",
+   "usfs_forest": "Modoc National Forest",
+   "usfs_name": "Red Tail Rim Trail North Trailhead",
+   "usfs_rec_area_id": "71338"
+  },
+  {
+   "ridb_facility_id": "248991",
+   "ridb_name": "Soldier Meadows Campground",
+   "usfs_forest": "Lassen National Forest",
+   "usfs_name": "Soldier Meadows Campground",
+   "usfs_rec_area_id": "11372"
+  },
+  {
+   "ridb_facility_id": "243928",
+   "ridb_name": "Fletcher Canyon Trailhead",
+   "usfs_forest": "Humboldt-Toiyabe National Forest",
+   "usfs_name": "Fletcher Canyon Trailhead",
+   "usfs_rec_area_id": "65368"
+  },
+  {
+   "ridb_facility_id": "237166",
+   "ridb_name": "Spar Lake Campground",
+   "usfs_forest": "Kootenai National Forest",
+   "usfs_name": "Spar Lake Campground",
+   "usfs_rec_area_id": "49911"
+  },
+  {
+   "ridb_facility_id": "237842",
+   "ridb_name": "Crawfish Basin Trailhead",
+   "usfs_forest": "Wallowa Whitman National Forest",
+   "usfs_name": "Crawfish Basin Trailhead",
+   "usfs_rec_area_id": "52341"
+  },
+  {
+   "ridb_facility_id": "253498",
+   "ridb_name": "Trabuco Creek Picnic Site",
+   "usfs_forest": "Cleveland National Forest",
+   "usfs_name": "Trabuco Creek Picnic Site",
+   "usfs_rec_area_id": "81927"
+  },
+  {
+   "ridb_facility_id": "245479",
+   "ridb_name": "Highway 108 Corridor",
+   "usfs_forest": "Stanislaus National Forest",
+   "usfs_name": "Highway 108 Corridor",
+   "usfs_rec_area_id": "21873"
+  },
+  {
+   "ridb_facility_id": "234936",
+   "ridb_name": "Pebble Beach Picnic Area",
+   "usfs_forest": "Beaverhead-Deerlodge National Forest",
+   "usfs_name": "Pebble Beach Picnic Area",
+   "usfs_rec_area_id": "5754"
+  },
+  {
+   "ridb_facility_id": "245149",
+   "ridb_name": "Champion Creek Cutoff Trailhead",
+   "usfs_forest": "Sawtooth National Forest",
+   "usfs_name": "Champion Creek Cutoff Trailhead",
+   "usfs_rec_area_id": "5961"
+  },
+  {
+   "ridb_facility_id": "255140",
+   "ridb_name": "Custer Peak Fire Lookout",
+   "usfs_forest": "Black Hills National Forest",
+   "usfs_name": "Custer Peak Fire Lookout",
+   "usfs_rec_area_id": "82116"
+  },
+  {
+   "ridb_facility_id": "241732",
+   "ridb_name": "Keller Trailhead (#619) Trailhead",
+   "usfs_forest": "Apache-Sitgreaves National Forest",
+   "usfs_name": "Keller Trailhead (#619) Trailhead",
+   "usfs_rec_area_id": "45099"
+  },
+  {
+   "ridb_facility_id": "241790",
+   "ridb_name": "Skalkaho  Snowpark",
+   "usfs_forest": "Bitterroot National Forest",
+   "usfs_name": "Skalkaho  Snowpark",
+   "usfs_rec_area_id": "60236"
+  },
+  {
+   "ridb_facility_id": "250787",
+   "ridb_name": "Neota Wilderness: Arapaho & Roosevelt",
+   "usfs_forest": "Arapaho & Roosevelt National Forests Pawnee NG",
+   "usfs_name": "Neota Wilderness",
+   "usfs_rec_area_id": "80806"
+  },
+  {
+   "ridb_facility_id": "238004",
+   "ridb_name": "Williams & Forest Service Visitor Center",
+   "usfs_forest": "Kaibab National Forest",
+   "usfs_name": "Williams & Forest Service Visitor Center",
+   "usfs_rec_area_id": "11654"
+  },
+  {
+   "ridb_facility_id": "10070555",
+   "ridb_name": "Carbonate Creek #1971",
+   "usfs_forest": "White River National Forest",
+   "usfs_name": "Carbonate Creek TH #1971",
+   "usfs_rec_area_id": "40987"
+  },
+  {
+   "ridb_facility_id": "248985",
+   "ridb_name": "Eagle Lake Ranger District",
+   "usfs_forest": "Lassen National Forest",
+   "usfs_name": "Eagle Lake Ranger District",
+   "usfs_rec_area_id": "11389"
+  },
+  {
+   "ridb_facility_id": "271986",
+   "ridb_name": "Marias Pass Historic Site Interpretive Site",
+   "usfs_forest": "Helena-Lewis and Clark National Forest",
+   "usfs_name": "Marias Pass Historic Site Interpretive Site",
+   "usfs_rec_area_id": "61682"
+  }
+ ],
+ "join_usfs_rec_area_id": {
+  "facilities_resolved_in_usfs_layer": 4084,
+  "facilities_resolved_with_the_same_normalised_name": 3777,
+  "resolved_in_usfs_layer": 0,
+  "resolved_with_the_same_normalised_name": 0,
+  "ridb_forest_service_facilities_total": 9761,
+  "ridb_forest_service_facilities_with_an_agency_id": 8405,
+  "ridb_forest_service_rec_areas_with_an_org_id": 115,
+  "usfs_rec_areas_not_cited_by_ridb": 10130
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 3,
+  "made_this_run": 8,
+  "source_bodies": 11
+ },
+ "ridb": {
+  "activities": 154,
+  "campsites": 131046,
+  "facilities": 15440,
+  "facilities_by_type": {
+   "Activity Pass": 673,
+   "Archives": 3,
+   "Campground": 5808,
+   "Cemetery and Memorial": 24,
+   "Facility": 8207,
+   "Library": 9,
+   "Permit": 152,
+   "Ticket Facility": 138,
+   "Timed Entry": 36,
+   "Tree Permit": 83,
+   "Venue Reservations": 36,
+   "Visitor Center": 262
+  },
+  "facilities_by_value_in_column_OrgFacilityID": {
+   "100001": 17,
+   "ABMC": 24,
+   "BLM": 1318,
+   "BOR": 18,
+   "FS": 9761,
+   "FWS": 170,
+   "NPS": 1643,
+   "NRHP": 57,
+   "SIAP": 105,
+   "USACE": 2232
+  },
+  "facilities_reservable": 6087,
+  "facilities_updated_in_2026": 15440,
+  "facilities_with_a_value_in_column_ParentOrgID": 11390,
+  "facilities_with_coordinates": 12702,
+  "facilities_with_description": 14565,
+  "facilities_with_directions": 8447,
+  "facility_description_characters": 16093990,
+  "facility_description_median_characters": 556,
+  "facility_directions_characters": 2911886,
+  "newest_facility_last_updated": "2026-11-22",
+  "organizations": 31,
+  "rec_area_description_characters": 3207346,
+  "rec_area_description_median_characters": 590.0,
+  "rec_areas": 3651,
+  "rec_areas_by_org": {
+   "BLM": 1347,
+   "BOR": 225,
+   "DOT": 301,
+   "FS": 117,
+   "FWS": 508,
+   "NARA": 15,
+   "NM": 34,
+   "NOAA": 43,
+   "NPS": 519,
+   "TVA": 31,
+   "USACE": 456,
+   "UT": 43
+  },
+  "rec_areas_with_description": 3548,
+  "rec_areas_with_org_rec_area_id": 1062
+ },
+ "ridb_members": {
+  "Activities_API_v1.csv": 3929,
+  "CampsiteAttributes_API_v1.csv": 96590176,
+  "Campsites_API_v1.csv": 13856458,
+  "EntityActivities_API_v1.csv": 2787336,
+  "Events_API_v1.csv": 1382,
+  "Facilities_API_v1.csv": 24395213,
+  "FacilityAddresses_API_v1.csv": 1097403,
+  "Links_API_v1.csv": 10428517,
+  "Media_API_v1.csv": 81093309,
+  "MemberTours_API_v1.csv": 927,
+  "OrgEntities_API_v1.csv": 370176,
+  "Organizations_API_v1.csv": 3098,
+  "PermitEntranceAttributes_API_v1.csv": 244385,
+  "PermitEntranceZones_API_v1.csv": 8579,
+  "PermitEntrances_API_v1.csv": 315734,
+  "PermittedEquipment_API_v1.csv": 10568452,
+  "RecAreaAddresses_API_v1.csv": 334452,
+  "RecAreaFacilities_API_v1.csv": 313099,
+  "RecAreas_API_v1.csv": 5560412,
+  "TourAttributes_API_v1.csv": 461609,
+  "Tours_API_v1.csv": 191954
+ },
+ "run_date": "2026-11-23",
+ "usfs": {
+  "by_activity_group": {
+   "Camping & Cabins": 4864,
+   "Fishing": 459,
+   "Hiking": 1187,
+   "Intermediate Parent Group": 702,
+   "Nature Viewing": 376,
+   "Outdoor Learning": 463,
+   "Picnicking": 987,
+   "Trailhead": 2606,
+   "Water Activities": 800,
+   "Winter Sports": 335
+  },
+  "by_open_status": {
+   "closed": 2694,
+   "none": 5149,
+   "not cleared": 34,
+   "open": 5939,
+   "temporarily closed": 305,
+   "unknown": 23,
+   "unreachable": 67
+  },
+  "copyright_text": "USDA Forest Service",
+  "count_reported": 14211,
+  "description_characters": 7358620,
+  "distinct_forests": 110,
+  "distinct_rec_area_ids": 14211,
+  "layer": "Recreation Opportunities",
+  "max_record_count": 2000,
+  "rows_read": 14211,
+  "with_description": 14177
+ }
+}

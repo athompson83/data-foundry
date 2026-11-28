@@ -1,0 +1,76 @@
+{
+ "accc_items": 100,
+ "accc_cite_cpsc_hc": 0,
+ "accc_gtin_like": 6,
+ "accc_dates": [
+  "Fri, 03 Jul 2026 00:00:00 +0000",
+  "Wed, 22 Jul 2026 00:00:00 +0000"
+ ],
+ "lda_total_2025": 109221,
+ "lda_sample_activities": 46,
+ "lda_with_description": 46,
+ "lda_sample_desc": [
+  "FY26 defense appropriations and authorizations",
+  "FY26 defense appropriations and authorizations",
+  "FY26 legislative cycle initiatives associated with Phoenix Ghost program"
+ ],
+ "ca_lobby_files": "HTTP Error 403: Forbidden",
+ "nhle_sample": [
+  {
+   "ListEntry": 1021466,
+   "Name": "20 and 20A Whitbourne Springs",
+   "Grade": "II",
+   "ListDate": 563068800000,
+   "hyperlink": "https://historicengland.org.uk/listing/the-list/list-entry/1021466"
+  },
+  {
+   "ListEntry": 1021467,
+   "Name": "TENNIS CORNER FARMHOUSE WITH GRANARY AND STABLE",
+   "Grade": "II",
+   "ListDate": 563068800000,
+   "hyperlink": "https://historicengland.org.uk/listing/the-list/list-entry/1021467"
+  },
+  {
+   "ListEntry": 1021468,
+   "Name": "CHALCOT HOUSE",
+   "Grade": "II*",
+   "ListDate": -41212800000,
+   "hyperlink": "https://historicengland.org.uk/listing/the-list/list-entry/1021468"
+  }
+ ],
+ "nhle_max_listdate": [
+  {
+   "attributes": {
+    "m": 1793867831000
+   }
+  }
+ ],
+ "nid_columns": 84,
+ "nid_header_sample": [
+  "Dam Name",
+  "Other Names",
+  "Former Names",
+  "NID ID",
+  "Other Structure ID",
+  "Federal ID",
+  "Owner Names",
+  "Owner Types",
+  "Primary Owner Type",
+  "Number of Associated Structures",
+  "Is Associated Structure?",
+  "Designer Names",
+  "Non-Federal Dam on Federal Property",
+  "Primary Purpose",
+  "Purposes",
+  "Source Agency",
+  "State or Federal Agency ID",
+  "Latitude",
+  "Longitude",
+  "State",
+  "County",
+  "City",
+  "Distance to Nearest City (Miles)",
+  "River or Stream Name",
+  "Congressional District"
+ ]
+}

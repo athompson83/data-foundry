@@ -1,0 +1,580 @@
+{
+ "fetched": {
+  "iana_rootdb_alibaba.html": {
+   "bytes": 27614,
+   "sha256": "54c101f266c171f70c7dc26eb524991f3b2703869bff19933fb4197f7a0ca294",
+   "url": "https://www.iana.org/domains/root/db/alibaba.html"
+  },
+  "iana_rootdb_beats.html": {
+   "bytes": 27501,
+   "sha256": "9075154cf0685adfb5d6a7958618ff4a03ae5694a3565d955a797a0449403ff6",
+   "url": "https://www.iana.org/domains/root/db/beats.html"
+  },
+  "iana_rootdb_bmw.html": {
+   "bytes": 27856,
+   "sha256": "f2a371015cd0726e8141e2bbd5e89c2a010dc47f6d4c8a085446cf2de7131377",
+   "url": "https://www.iana.org/domains/root/db/bmw.html"
+  },
+  "iana_rootdb_claims.html": {
+   "bytes": 29110,
+   "sha256": "f3cf43925cd8e73eacd164a825ff0b6739265a9d3328bbdc91a107a5690875ae",
+   "url": "https://www.iana.org/domains/root/db/claims.html"
+  },
+  "iana_rootdb_cleaning.html": {
+   "bytes": 29130,
+   "sha256": "fa45ab56df4df28d12c68b7dbcc8a64d505fdc79e46511e3274fd125077fdee7",
+   "url": "https://www.iana.org/domains/root/db/cleaning.html"
+  },
+  "iana_rootdb_crown.html": {
+   "bytes": 27475,
+   "sha256": "b4874aa11ccfad5e1f7eac570d47ce4275b03f6bf9498f4942f02965c8b72f2e",
+   "url": "https://www.iana.org/domains/root/db/crown.html"
+  },
+  "iana_rootdb_deals.html": {
+   "bytes": 29098,
+   "sha256": "3a1732d74d4d25bf639f4f94ed7294f96be4bd6f82b7d2d88b693348226fa27d",
+   "url": "https://www.iana.org/domains/root/db/deals.html"
+  },
+  "iana_rootdb_glass.html": {
+   "bytes": 29098,
+   "sha256": "78a37db9da4b9a8b76ffa1a3cf86bff94219b5ec329ac46e664bf3f4eeb0ea6a",
+   "url": "https://www.iana.org/domains/root/db/glass.html"
+  },
+  "iana_rootdb_immo.html": {
+   "bytes": 29086,
+   "sha256": "86fae7d205299c1a9bf79a15aabf6ca5072bbe40992a820eae181d680296d593",
+   "url": "https://www.iana.org/domains/root/db/immo.html"
+  },
+  "iana_rootdb_intuit.html": {
+   "bytes": 27952,
+   "sha256": "6e50c8f89d2de7b471735623a65a1a6484249bfba0b95b23c9edb5e84fb6b641",
+   "url": "https://www.iana.org/domains/root/db/intuit.html"
+  },
+  "iana_rootdb_limited.html": {
+   "bytes": 29117,
+   "sha256": "3175855ef1657a3d50b9eed32b069dfeb878c50a221e4625b5c526ac6bbc1544",
+   "url": "https://www.iana.org/domains/root/db/limited.html"
+  },
+  "iana_rootdb_properties.html": {
+   "bytes": 29150,
+   "sha256": "e3112b9e949eb9792e51a6967802baa008728295517ea6703c6baca4bfc14741",
+   "url": "https://www.iana.org/domains/root/db/properties.html"
+  },
+  "iana_rootdb_pru.html": {
+   "bytes": 27865,
+   "sha256": "d0fa470a80c473b2c772e83dc8b8b8b6fcc5a6b5f3668e94dd45519507c96ec0",
+   "url": "https://www.iana.org/domains/root/db/pru.html"
+  },
+  "iana_rootdb_save.html": {
+   "bytes": 29007,
+   "sha256": "846826ea72e9919fd55a5ce495387a0f4fca7d2cbe1f2292336822d2617b7bed",
+   "url": "https://www.iana.org/domains/root/db/save.html"
+  },
+  "iana_rootdb_scholarships.html": {
+   "bytes": 27592,
+   "sha256": "d234a03185fcb61671fbb2822e26048df5ebc75bdd3ef4f4c008f177d5757320",
+   "url": "https://www.iana.org/domains/root/db/scholarships.html"
+  },
+  "iana_rootdb_skype.html": {
+   "bytes": 28987,
+   "sha256": "55f5b1ae392967d784d51f834cbe6c7619147fca66fe3d7a1a248f660b269204",
+   "url": "https://www.iana.org/domains/root/db/skype.html"
+  },
+  "iana_rootdb_ubank.html": {
+   "bytes": 27028,
+   "sha256": "3e5972bb86b96225f181baa1e67b880d2ac80de94114c191cfeb715382603c56",
+   "url": "https://www.iana.org/domains/root/db/ubank.html"
+  },
+  "iana_rootdb_weber.html": {
+   "bytes": 28853,
+   "sha256": "cc29654535996873acf0321c625ce5260ae2abb5b6d01cf93e04db923aaad71c",
+   "url": "https://www.iana.org/domains/root/db/weber.html"
+  },
+  "iana_rootdb_xn--11b4c3d.html": {
+   "bytes": 28516,
+   "sha256": "fc22a13eddd62aa931452edd27ffadd9e7488ea8da62f575cebb7b12ab56e596",
+   "url": "https://www.iana.org/domains/root/db/xn--11b4c3d.html"
+  },
+  "iana_rootdb_xn--nqv7f.html": {
+   "bytes": 28702,
+   "sha256": "2cf45a25033c16ccffd73a85c6da9152216505b28b441d465f05fe2a5ad4f14a",
+   "url": "https://www.iana.org/domains/root/db/xn--nqv7f.html"
+  },
+  "iana_tlds.txt": {
+   "bytes": 9512,
+   "sha256": "e3dacf3e69ce20b14f23414f100e2160ffae6fd343ef52d5a3e8f1aac4e96be5",
+   "url": "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
+  },
+  "icann_gtlds.json": {
+   "bytes": 559727,
+   "sha256": "404333f753bdeccb8f85d67c01ad61d78c2851117e2b6cfc834f7d02d587396b",
+   "url": "https://www.icann.org/resources/registries/gtlds/v2/gtlds.json"
+  },
+  "public_suffix_list.dat": {
+   "bytes": 345873,
+   "sha256": "725151b31a994fb678da4739a47c2cf67241e0fa4430fefa4495e7db6775a4a9",
+   "url": "https://publicsuffix.org/list/public_suffix_list.dat"
+  },
+  "terms_iana.html": {
+   "bytes": 8488,
+   "sha256": "16887b36c23739ae51b44d02cfd4e909302ece8325f815a763287afcbd589ae3",
+   "url": "https://www.iana.org/help/licensing-terms"
+  },
+  "terms_icann.html": {
+   "bytes": 265726,
+   "sha256": "0b9e45fbb8e5ae4c4499d380f475ba22769487cfe078361653f9e19b867db3b9",
+   "url": "https://www.icann.org/privacy/tos"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2016-08-18",
+   "iana_manager_first_90_characters": "National Australia Bank Limited Level 10 700 Bourke Street Docklands, VIC 3008 Australia",
+   "iana_page_characters": 2076,
+   "iana_record_last_updated": "2026-11-25",
+   "icann_delegation_date": "2016-08-18",
+   "icann_registry_operator": "National Australia Bank Limited",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "ubank"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2015-06-19",
+   "iana_manager_first_90_characters": "Crown Equipment Corporation 44 S. Washington Street New Bremen, OH 45869 United States of ",
+   "iana_page_characters": 2036,
+   "iana_record_last_updated": "2026-01-22",
+   "icann_delegation_date": "2015-06-19",
+   "icann_registry_operator": "Crown Equipment Corporation",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "crown"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-05-07",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2273,
+   "iana_record_last_updated": "2026-10-23",
+   "icann_delegation_date": "2014-05-07",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "claims"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2016-01-16",
+   "iana_manager_first_90_characters": "Alibaba Group Holding Limited Fourth Floor, One Capital Place, P.O Box 847 George Town, Gr",
+   "iana_page_characters": 2138,
+   "iana_record_last_updated": "2026-06-29",
+   "icann_delegation_date": "2016-01-16",
+   "icann_registry_operator": "Alibaba Group Holding Limited",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "alibaba"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2015-04-02",
+   "iana_manager_first_90_characters": "Scholarships.com, LLC 513 Central Ave., Suite 300 Highland Park, IL 60035 United States of",
+   "iana_page_characters": 2129,
+   "iana_record_last_updated": "2026-11-23",
+   "icann_delegation_date": "2015-04-02",
+   "icann_registry_operator": "Scholarships.com, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "scholarships"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2016-06-07",
+   "iana_manager_first_90_characters": "Amazon Registry Services, Inc. 410 Terry Avenue North Seattle, WA 98109 United States of A",
+   "iana_page_characters": 2253,
+   "iana_record_last_updated": "2025-02-14",
+   "icann_delegation_date": "2016-06-07",
+   "icann_registry_operator": "Amazon Registry Services, Inc.",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "save"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2016-07-28",
+   "iana_manager_first_90_characters": "Prudential Financial, Inc. 751 Broad Street Newark, NJ 07102 United States of America (the",
+   "iana_page_characters": 2019,
+   "iana_record_last_updated": "2024-05-11",
+   "icann_delegation_date": "2016-07-28",
+   "icann_registry_operator": "Prudential Financial, Inc.",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "pru"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-06-21",
+   "iana_manager_first_90_characters": "Bayerische Motoren Werke Aktiengesellschaft Petuelring 130 Munich, 80809 Germany",
+   "iana_page_characters": 2058,
+   "iana_record_last_updated": "2023-11-06",
+   "icann_delegation_date": "2014-06-21",
+   "icann_registry_operator": "Bayerische Motoren Werke Aktiengesellschaft",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "bmw"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2016-07-12",
+   "iana_manager_first_90_characters": "Intuit Administrative Services, Inc. c/o Intuit Inc., 2632 Marine Way Mountain View, CA 94",
+   "iana_page_characters": 2107,
+   "iana_record_last_updated": "2024-05-11",
+   "icann_delegation_date": "2016-07-12",
+   "icann_registry_operator": "Intuit Administrative Services, Inc.",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "intuit"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-02-04",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2309,
+   "iana_record_last_updated": "2026-11-20",
+   "icann_delegation_date": "2014-02-04",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "properties"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-02-04",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2291,
+   "iana_record_last_updated": "2026-10-23",
+   "icann_delegation_date": "2014-02-04",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "cleaning"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2015-07-28",
+   "iana_manager_first_90_characters": "VeriSign Sarl 3 rue des Pilettes Fribourg, CH-1700 Switzerland",
+   "iana_page_characters": 2136,
+   "iana_record_last_updated": "2026-03-30",
+   "icann_delegation_date": "2015-07-28",
+   "icann_registry_operator": "VeriSign Sarl",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "xn--11b4c3d"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2013-12-28",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2262,
+   "iana_record_last_updated": "2026-11-05",
+   "icann_delegation_date": "2013-12-28",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "glass"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2015-12-22",
+   "iana_manager_first_90_characters": "Saint-Gobain Weber SA Rue de Brie Servon, 77170 France",
+   "iana_page_characters": 2166,
+   "iana_record_last_updated": "2026-11-19",
+   "icann_delegation_date": "2015-12-22",
+   "icann_registry_operator": "Saint-Gobain Weber SA",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "weber"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-04-23",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2279,
+   "iana_record_last_updated": "2026-11-05",
+   "icann_delegation_date": "2014-04-23",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "limited"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2015-11-03",
+   "iana_manager_first_90_characters": "Beats Electronics, LLC 8600 Hayden Place Culver City, CA 90232 United States of America (t",
+   "iana_page_characters": 2045,
+   "iana_record_last_updated": "2026-11-10",
+   "icann_delegation_date": "2015-11-03",
+   "icann_registry_operator": "Beats Electronics, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "beats"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-03-09",
+   "iana_manager_first_90_characters": "Public Interest Registry 11911 Freedom Drive, 10th Floor, Suite 1000 Reston, VA 20190 Unit",
+   "iana_page_characters": 2335,
+   "iana_record_last_updated": "2026-11-13",
+   "icann_delegation_date": "2014-03-09",
+   "icann_registry_operator": "Public Interest Registry",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "xn--nqv7f"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-07-10",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2262,
+   "iana_record_last_updated": "2026-11-03",
+   "icann_delegation_date": "2014-07-10",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "deals"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2014-08-27",
+   "iana_manager_first_90_characters": "Binky Moon, LLC c/o Identity Digital Inc. 10500 NE 8th Street, Suite 750 Bellevue, WA 9800",
+   "iana_page_characters": 2252,
+   "iana_record_last_updated": "2026-11-05",
+   "icann_delegation_date": "2014-08-27",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "immo"
+  },
+  {
+   "has_contacts_block": true,
+   "has_delegation_report": true,
+   "has_dnssec_ds": true,
+   "has_name_servers": true,
+   "has_rdap_base_url": true,
+   "has_whois_server": true,
+   "iana_delegated_since": "2015-06-23",
+   "iana_manager_first_90_characters": "Microsoft Corporation One Microsoft Way Redmond, WA 98052 United States of America (the)",
+   "iana_page_characters": 2227,
+   "iana_record_last_updated": "2026-02-07",
+   "icann_delegation_date": "2015-06-23",
+   "icann_registry_operator": "Microsoft Corporation",
+   "manager_starts_with_icann_operator_name": true,
+   "tld": "skype"
+  }
+ ],
+ "iana_delegation_records_sample": {
+  "characters": 43653,
+  "delegated_since_equals_icann_delegation_date": 20,
+  "manager_starts_with_icann_operator_name": 20,
+  "read": 20,
+  "requested": 20,
+  "with_contacts_block": 20,
+  "with_delegated_since": 20,
+  "with_delegation_report": 20,
+  "with_dnssec_ds": 20,
+  "with_manager": 20,
+  "with_name_servers": 20,
+  "with_rdap_base_url": 20,
+  "with_whois_server": 20
+ },
+ "iana_tld_list": {
+  "header": "# Version 2026112800, Last Updated Sat Nov 28 07:07:01 2026 UTC",
+  "idn_a_labels": 151,
+  "tlds": 1435,
+  "two_letter": 248
+ },
+ "icann_gtlds": {
+  "contract_terminated": 157,
+  "delegated_and_not_removed": 1121,
+  "delegation_date_range": [
+   "1985-01-01",
+   "2026-07-23"
+  ],
+  "distinct_registry_operators": 492,
+  "fields": [
+   "applicationId",
+   "contractTerminated",
+   "dateOfContractSignature",
+   "delegationDate",
+   "gTLD",
+   "registryClassDomainNameList",
+   "registryOperator",
+   "registryOperatorCountryCode",
+   "removalDate",
+   "specification13",
+   "thirdOrLowerLevelRegistration",
+   "uLabel"
+  ],
+  "records": 1276,
+  "specification_13_brand": 369,
+  "updated": "2026-11-28T13:47:13.651+0000",
+  "version": 2,
+  "with_registry_operator": 1119,
+  "with_removal_date": 140
+ },
+ "join_tld_label": {
+  "found_in_iana_list": 1121,
+  "iana_tlds_longer_than_two_letters_not_in_icann_table": [
+   "arpa",
+   "edu",
+   "gov",
+   "int",
+   "mil"
+  ],
+  "icann_delegated_not_removed": 1121,
+  "icann_removed_still_in_iana_list": [],
+  "not_found": []
+ },
+ "public_suffix_list": {
+  "comment_characters": 190012,
+  "comment_lines": 4236,
+  "comment_lines_citing_a_url": 2088,
+  "exception_rules": 8,
+  "iana_tlds_without_a_psl_rule": [],
+  "icann_rules": 6953,
+  "of_those_in_iana_list": 1435,
+  "private_rules": 3556,
+  "psl_tlds_not_in_iana": [
+   "hotel",
+   "onion",
+   "xn--mgb2ddes",
+   "xn--mgba3a4fra",
+   "xn--mgbai9a5eva00b",
+   "xn--mgberp4a5d4a87g",
+   "xn--mgbqly7c0a67fbc",
+   "xn--mgbqly7cvafr",
+   "xn--mgbtf8fl",
+   "xn--mix082f",
+   "xn--nnx388a"
+  ],
+  "tlds_of_icann_rules": 1446,
+  "version_lines": [
+   "// VERSION: 2026-11-28_07-14-22_UTC",
+   "// COMMIT: a2d308560551fc115bc1ffcac4f68992748012c4"
+  ],
+  "wildcard_rules": 321
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 25,
+  "made_this_run": 0,
+  "source_bodies": 25
+ },
+ "run_date": "2026-11-28",
+ "terms": {
+  "iana": {
+   "bytes": 8488,
+   "http_status": 200,
+   "keyword_sentences": [
+    "However, for additional clarity, and to avoid any potential confusion about applicable rights, both IANA and IETF desire to (a) dedicate any applicable copyright rights that they may own in the Protocol Registries to the public domain, and (b) license any copyright or related rights for which they are a licensee (with a right to sublicense) to the broadest extent that they are permitted to do so.",
+    "Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication found at https://creativecommons.org/publicdomain/zero/1.0/legalcode .",
+    "The limitations and disclaimers found in the CC0 1.0 dedication are an integral part of this joint statement.",
+    "For example, in no way are the patent or trademark rights of any person affected by CC0, nor are the rights that other persons may have in the work or in how the work is used, including data protection rights."
+   ],
+   "quotes": {},
+   "url": "https://www.iana.org/help/licensing-terms"
+  },
+  "icann": {
+   "bytes": 265726,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Your use of the Platform grants you no right or license to reproduce or otherwise use any intellectual property belonging to our organization or other third parties."
+   ],
+   "quotes": {},
+   "url": "https://www.icann.org/privacy/tos"
+  },
+  "psl": {
+   "header_lines": [
+    "// This Source Code Form is subject to the terms of the Mozilla Public",
+    "// License, v. 2.0. If a copy of the MPL was not distributed with this",
+    "// file, You can obtain one at https://mozilla.org/MPL/2.0/.",
+    ""
+   ]
+  }
+ }
+}

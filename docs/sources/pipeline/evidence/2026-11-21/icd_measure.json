@@ -1,0 +1,330 @@
+{
+ "cdc_directory_2027": [
+  {
+   "bytes": 170512,
+   "date": "8/13/2026",
+   "file": "ICD-10-CM-CONVERSION-TABLE-FY2027.xlsx"
+  },
+  {
+   "bytes": 830104,
+   "date": "6/8/2026",
+   "file": "ICD-10-CM-October-1-2026-FY27-Guidelines.pdf"
+  },
+  {
+   "bytes": 622955,
+   "date": "6/16/2026",
+   "file": "icd10cm-addenda-2027.zip"
+  },
+  {
+   "bytes": 2192779,
+   "date": "6/16/2026",
+   "file": "icd10cm-code-descriptions-2027.zip"
+  },
+  {
+   "bytes": 20923571,
+   "date": "6/16/2026",
+   "file": "icd10cm-table-and-index-2027.zip"
+  },
+  {
+   "bytes": 29487597,
+   "date": "6/3/2026",
+   "file": "icd10cm-tabular-2027.pdf"
+  },
+  {
+   "bytes": 1654940,
+   "date": "6/8/2026",
+   "file": "POAexemptCodesFY27.zip"
+  },
+  {
+   "bytes": 19387201,
+   "date": "9/30/2026",
+   "file": "september-2026-presentations.zip"
+  }
+ ],
+ "cdc_order_file": {
+  "billable_codes": 74879,
+  "code_lengths": {
+   "3": 1921,
+   "4": 10109,
+   "5": 14631,
+   "6": 20155,
+   "7": 51587
+  },
+  "distinct_codes": 98403,
+  "first_letters": 26,
+  "header_codes": 23524,
+  "long_description_characters": 6950392,
+  "order_addenda_rows": {
+   "additions": 253,
+   "deletions": 36,
+   "revisions": 4
+  },
+  "rows": 98403,
+  "three_character_categories": 1921
+ },
+ "cdc_tabular_xml": {
+  "chapters": 22,
+  "code_citations": 12625,
+  "code_citations_resolving_to_an_order_file_code_or_prefix": 12614,
+  "diag_codes_in_order_file": 47025,
+  "diag_elements": 47025,
+  "diag_elements_with_note_type": {
+   "codeAlso": 326,
+   "codeFirst": 361,
+   "excludes1": 2581,
+   "excludes2": 1092,
+   "includes": 378,
+   "inclusionTerm": 6838,
+   "notes": 57,
+   "sevenChrNote": 508,
+   "useAdditionalCode": 793
+  },
+  "distinct_diag_codes": 47025,
+  "note_characters": 1068625,
+  "note_characters_by_type": {
+   "codeAlso": 26037,
+   "codeFirst": 30407,
+   "excludes1": 232852,
+   "excludes2": 95662,
+   "includes": 37274,
+   "inclusionTerm": 522469,
+   "notes": 11286,
+   "sevenChrNote": 44608,
+   "useAdditionalCode": 68030
+  },
+  "note_rows": 24448,
+  "note_rows_by_type": {
+   "codeAlso": 678,
+   "codeFirst": 801,
+   "excludes1": 5259,
+   "excludes2": 2187,
+   "includes": 917,
+   "inclusionTerm": 12624,
+   "notes": 101,
+   "sevenChrNote": 508,
+   "useAdditionalCode": 1373
+  },
+  "note_rows_citing_a_code": 10222,
+  "order_codes_not_in_tabular": 51378,
+  "sections": 297,
+  "seven_character_definition_blocks": 508,
+  "unresolved_citation_top": {
+   "B12": 7,
+   "I64": 1,
+   "K93": 3
+  },
+  "version": "2027"
+ },
+ "cms_copy": {
+  "distinct_codes": 98403,
+  "order_file_sha256_cdc": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f",
+  "order_file_sha256_cms": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f",
+  "order_files_byte_identical": true,
+  "rows": 98403,
+  "zip_members": [
+   "Code Descriptions/",
+   "Code Descriptions/icd10cm_codes_2027.txt",
+   "Code Descriptions/icd10cm_codes_addenda_2027.txt",
+   "Code Descriptions/icd10cm_order_2027.txt",
+   "Code Descriptions/icd10cm_order_addenda_2027.txt",
+   "Code Descriptions/icd10cmCodesFile.pdf",
+   "Code Descriptions/icd10OrderFiles.pdf"
+  ]
+ },
+ "fetched": {
+  "cdc_dir27.html": {
+   "bytes": 1663,
+   "sha256": "8916756e0d7e90325f0a37719bfc23de091a54022c3a6871c382c2799092e98e",
+   "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/"
+  },
+  "cdc_icd10cm-code-descriptions-2027.zip": {
+   "bytes": 2192779,
+   "sha256": "93e3ad6004badf470c55bfe679b748ae88fd9b2b421851e409eec382c7713b9a",
+   "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/icd10cm-code-descriptions-2027.zip"
+  },
+  "cdc_icd10cm-table-and-index-2027.zip": {
+   "bytes": 20923571,
+   "sha256": "99b5c2be16ff53eab861cc0be4b1dacba27f687b8ff4bc700679944355037ee0",
+   "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/icd10cm-table-and-index-2027.zip"
+  },
+  "cms27.zip": {
+   "bytes": 2208022,
+   "sha256": "91c6c9d1117764ce72375a0f3a5493b1725dafbc1ab283b55799076c9e194965",
+   "url": "https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip"
+  },
+  "mondo.obo": {
+   "bytes": 53442278,
+   "sha256": "b5a3d848578694601dffb1c2866798d4f6f4b4a12c315030c4d4c62ffe4e7e22",
+   "url": "https://purl.obolibrary.org/obo/mondo.obo"
+  }
+ },
+ "icd10cm_code_join": {
+  "cdc_codes": 98403,
+  "cms_codes": 98403,
+  "in_both": 98403,
+  "same_billable_flag": 98403,
+  "same_long_description": 98403
+ },
+ "mondo_handcheck_sample": [
+  {
+   "icd10cm": "C12",
+   "icd10cm_long_description": "Malignant neoplasm of pyriform sinus",
+   "mondo": "MONDO:0004733",
+   "mondo_name": "pyriform sinus cancer"
+  },
+  {
+   "icd10cm": "K04.0",
+   "icd10cm_long_description": "Pulpitis",
+   "mondo": "MONDO:0006937",
+   "mondo_name": "pulpitis"
+  },
+  {
+   "icd10cm": "N98.1",
+   "icd10cm_long_description": "Hyperstimulation of ovaries",
+   "mondo": "MONDO:0011972",
+   "mondo_name": "ovarian hyperstimulation syndrome"
+  },
+  {
+   "icd10cm": "D53.0",
+   "icd10cm_long_description": "Protein deficiency anemia",
+   "mondo": "MONDO:0001638",
+   "mondo_name": "protein-deficiency anemia"
+  },
+  {
+   "icd10cm": "H31.21",
+   "icd10cm_long_description": "Choroideremia",
+   "mondo": "MONDO:0010557",
+   "mondo_name": "choroideremia"
+  },
+  {
+   "icd10cm": "Q60.6",
+   "icd10cm_long_description": "Potter's syndrome",
+   "mondo": "MONDO:0001558",
+   "mondo_name": "Potter sequence"
+  },
+  {
+   "icd10cm": "D30.3",
+   "icd10cm_long_description": "Benign neoplasm of bladder",
+   "mondo": "MONDO:0000384",
+   "mondo_name": "bladder benign neoplasm"
+  },
+  {
+   "icd10cm": "H60.33",
+   "icd10cm_long_description": "Swimmer's ear",
+   "mondo": "MONDO:0004795",
+   "mondo_name": "otitis externa"
+  },
+  {
+   "icd10cm": "C93",
+   "icd10cm_long_description": "Monocytic leukemia",
+   "mondo": "MONDO:0004600",
+   "mondo_name": "monocytic leukemia"
+  },
+  {
+   "icd10cm": "Q75.0",
+   "icd10cm_long_description": "Craniosynostosis",
+   "mondo": "MONDO:0015469",
+   "mondo_name": "craniosynostosis"
+  },
+  {
+   "icd10cm": "Q87.86",
+   "icd10cm_long_description": "Kleefstra syndrome",
+   "mondo": "MONDO:0012455",
+   "mondo_name": "Kleefstra syndrome"
+  },
+  {
+   "icd10cm": "N84.0",
+   "icd10cm_long_description": "Polyp of corpus uteri",
+   "mondo": "MONDO:0004701",
+   "mondo_name": "uterine polyp"
+  },
+  {
+   "icd10cm": "F01",
+   "icd10cm_long_description": "Vascular dementia",
+   "mondo": "MONDO:0004648",
+   "mondo_name": "vascular dementia"
+  },
+  {
+   "icd10cm": "L13.0",
+   "icd10cm_long_description": "Dermatitis herpetiformis",
+   "mondo": "MONDO:0015614",
+   "mondo_name": "dermatitis herpetiformis"
+  },
+  {
+   "icd10cm": "H20.82",
+   "icd10cm_long_description": "Vogt-Koyanagi syndrome",
+   "mondo": "MONDO:0018092",
+   "mondo_name": "Vogt-Koyanagi-Harada disease"
+  },
+  {
+   "icd10cm": "M30.3",
+   "icd10cm_long_description": "Mucocutaneous lymph node syndrome [Kawasaki]",
+   "mondo": "MONDO:0012727",
+   "mondo_name": "Kawasaki disease"
+  },
+  {
+   "icd10cm": "G90.5",
+   "icd10cm_long_description": "Complex regional pain syndrome I (CRPS I)",
+   "mondo": "MONDO:0011441",
+   "mondo_name": "complex regional pain syndrome type 1"
+  },
+  {
+   "icd10cm": "Q21.0",
+   "icd10cm_long_description": "Ventricular septal defect",
+   "mondo": "MONDO:0002070",
+   "mondo_name": "ventricular septal defect"
+  },
+  {
+   "icd10cm": "B50",
+   "icd10cm_long_description": "Plasmodium falciparum malaria",
+   "mondo": "MONDO:0005920",
+   "mondo_name": "Plasmodium falciparum malaria"
+  },
+  {
+   "icd10cm": "G96.191",
+   "icd10cm_long_description": "Perineural cyst",
+   "mondo": "MONDO:0019000",
+   "mondo_name": "perineural cyst"
+  }
+ ],
+ "mondo_icd10cm_xrefs": {
+  "codes_cited_by_more_than_one_term": 20,
+  "distinct_codes_cited": 2148,
+  "distinct_codes_resolving_in_cdc_order_file": 2065,
+  "live_terms_citing_an_icd10cm_code": 2152,
+  "mondo_data_version": "releases/2026-11-03",
+  "resolved_billable": 1236,
+  "unresolved_sample": [
+   "A00-A09",
+   "A00-B99",
+   "A15-A19",
+   "A50-A64",
+   "A70-A74",
+   "A75-A79",
+   "A80-A89",
+   "B15-B19",
+   "B20-B20",
+   "B35-B49",
+   "B50-B64",
+   "B65-B83",
+   "B85-B89",
+   "B90-B94",
+   "C00-C14"
+  ],
+  "xref_rows": 2177,
+  "xref_rows_by_first_source_qualifier": {
+   "MONDO:equivalentTo": 665,
+   "MONDO:mondoIsBroaderThanSource": 3,
+   "MONDO:mondoIsNarrowerThanSource": 66,
+   "MONDO:relatedTo": 17,
+   "https://github.com/monarch-initiative/mondo/issues/4536": 64,
+   "https://orcid.org/0009-0001-6494-4831": 777
+  }
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 5,
+  "made_this_run": 0,
+  "source_bodies": 5
+ },
+ "run_date": "2026-11-21"
+}

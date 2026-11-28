@@ -1,0 +1,914 @@
+{
+ "run_date": "2026-11-16",
+ "requests": 38,
+ "gvp_Smithsonian_VOTW_Holocene_Volcanoes": {
+  "status": 200,
+  "bytes": 2441470,
+  "features": 1214,
+  "fields": [
+   "Country",
+   "Elevation",
+   "Evidence_Category",
+   "Geologic_Epoch",
+   "Geological_Summary",
+   "Last_Eruption_Year",
+   "Latitude",
+   "Longitude",
+   "Major_Rock_Type",
+   "Primary_Photo_Caption",
+   "Primary_Photo_Credit",
+   "Primary_Photo_Link",
+   "Primary_Volcano_Type",
+   "Region",
+   "Subregion",
+   "Tectonic_Setting",
+   "Volcanic_Landform",
+   "Volcano_Name",
+   "Volcano_Number"
+  ],
+  "last_eruption_year_ge_2025": 66,
+  "with_geological_summary": 1214,
+  "countries": 88
+ },
+ "gvp_Smithsonian_VOTW_Pleistocene_Volcanoes": {
+  "status": 200,
+  "bytes": 1293407,
+  "features": 1452,
+  "fields": [
+   "Country",
+   "Elevation",
+   "Geologic_Epoch",
+   "Geological_Summary",
+   "Latitude",
+   "Longitude",
+   "Primary_Volcano_Type",
+   "Region",
+   "Subregion",
+   "Volcanic_Landform",
+   "Volcano_Name",
+   "Volcano_Number"
+  ]
+ },
+ "gvp_volcano_numbers": 2666,
+ "gvp_eruptions_fields": [
+  "ActivityArea",
+  "ActivityUnit",
+  "Activity_Type",
+  "EndDateDay",
+  "EndDateDayModifier",
+  "EndDateDayUncertainty",
+  "EndDateMonth",
+  "EndDateYear",
+  "EndDateYearModifier",
+  "EndDateYearUncertainty",
+  "Eruption_Number",
+  "ExplosivityIndexMax",
+  "ExplosivityIndexModifier",
+  "StartDateDay",
+  "StartDateDayModifier",
+  "StartDateDayUncertainty",
+  "StartDateMonth",
+  "StartDateYear",
+  "StartDateYearModifier",
+  "StartDateYearUncertainty",
+  "StartEvidenceMethod",
+  "Volcano_Name",
+  "Volcano_Number"
+ ],
+ "gvp_holocene_eruptions_count": 11089,
+ "gvp_wfs_capabilities": {
+  "status": 200,
+  "access_constraints": "NONE",
+  "fees": "NONE"
+ },
+ "gvp_terms_pages": [
+  {
+   "url": "https://volcano.si.edu/gvp_terms.cfm",
+   "status": 403,
+   "challenge": true,
+   "title": "Smithsonian request verification"
+  },
+  {
+   "url": "https://www.si.edu/termsofuse",
+   "status": 403,
+   "challenge": true,
+   "title": "Smithsonian request verification"
+  }
+ ],
+ "weekly_rss": {
+  "status": 200,
+  "bytes": 36709,
+  "items": 27,
+  "channel_pubDate": "Thu, 15 Oct 2026 03:11:08 -0500",
+  "kinds": {
+   "New Eruptive Activity": 4,
+   "Continuing Eruptive Activity": 23
+  },
+  "with_alert_level_phrase": 22,
+  "with_source_line": 27,
+  "median_words": 118
+ },
+ "join_weekly_to_gvp": {
+  "items": 27,
+  "with_number": 27,
+  "resolve": 27,
+  "same_name": 26
+ },
+ "weekly_samples": [
+  {
+   "vn": 262000,
+   "name": "Krakatau",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "New Eruptive Activity"
+  },
+  {
+   "vn": 251020,
+   "name": "Manam",
+   "country": "Papua New Guinea",
+   "period": "8 October-14 October 2026",
+   "kind": "New Eruptive Activity"
+  },
+  {
+   "vn": 261140,
+   "name": "Marapi",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "New Eruptive Activity"
+  },
+  {
+   "vn": 357070,
+   "name": "Nevados de Chillan",
+   "country": "Chile",
+   "period": "8 October-14 October 2026",
+   "kind": "New Eruptive Activity"
+  },
+  {
+   "vn": 282080,
+   "name": "Aira",
+   "country": "Japan",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 300250,
+   "name": "Bezymianny",
+   "country": "Russia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 268010,
+   "name": "Dukono",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 211060,
+   "name": "Etna",
+   "country": "Italy",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 342090,
+   "name": "Fuego",
+   "country": "Guatemala",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 311120,
+   "name": "Great Sitkin",
+   "country": "United States",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 268030,
+   "name": "Ibu",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 272020,
+   "name": "Kanlaon",
+   "country": "Philippines",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 267020,
+   "name": "Karangetang",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 332010,
+   "name": "Kilauea",
+   "country": "United States",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 264230,
+   "name": "Lewotolok",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 344100,
+   "name": "Masaya",
+   "country": "Nicaragua",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 273030,
+   "name": "Mayon",
+   "country": "Philippines",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 263250,
+   "name": "Merapi",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 341090,
+   "name": "Popocatepetl",
+   "country": "Mexico",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 351060,
+   "name": "Purace",
+   "country": "Colombia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 354006,
+   "name": "Sabancaya",
+   "country": "Peru",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 342030,
+   "name": "Santa Maria",
+   "country": "Guatemala",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 263300,
+   "name": "Semeru",
+   "country": "Indonesia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 300270,
+   "name": "Sheveluch",
+   "country": "Russia",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 211040,
+   "name": "Stromboli",
+   "country": "Italy",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 282030,
+   "name": "Suwanosejima",
+   "country": "Japan",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  },
+  {
+   "vn": 273070,
+   "name": "Taal",
+   "country": "Philippines",
+   "period": "8 October-14 October 2026",
+   "kind": "Continuing Eruptive Activity"
+  }
+ ],
+ "usgs_us_volcanoes": {
+  "status": 200,
+  "count": 170,
+  "fields": [
+   "boilerplate",
+   "elevation_meters",
+   "icao_coordinates",
+   "latitude",
+   "longitude",
+   "nvews_threat",
+   "obs_abbr",
+   "obs_fullname",
+   "region",
+   "vnum",
+   "volcano_cd",
+   "volcano_image_url",
+   "volcano_name",
+   "volcano_url"
+  ],
+  "observatories": {
+   "avo": 95,
+   "calvo": 12,
+   "cvo": 21,
+   "hvo": 9,
+   "nmi": 19,
+   "yvo": 14
+  }
+ },
+ "join_usgs_to_gvp": {
+  "usgs_volcanoes": 170,
+  "with_vnum": 170,
+  "resolve": 165,
+  "same_name": 127,
+  "within_25km": 163,
+  "unresolved": [
+   {
+    "vnum": "311161",
+    "name": "Korovin"
+   },
+   {
+    "vnum": "999999",
+    "name": "Maclaren River volcanic field"
+   },
+   {
+    "vnum": "312051",
+    "name": "Stepovak Bay group"
+   },
+   {
+    "vnum": "0",
+    "name": "Ungulungwak Hill-Ingrichuak Hill"
+   },
+   {
+    "vnum": "311315",
+    "name": "Wide Bay cone"
+   }
+  ]
+ },
+ "usgs_monitored": {
+  "status": 200,
+  "count": 69,
+  "alert_levels": {
+   "NORMAL": 66,
+   "WATCH": 1,
+   "ADVISORY": 2
+  },
+  "newest_sent_utc": "2026-11-15 18:49:36"
+ },
+ "usgs_elevated": [
+  {
+   "volcano_name": "Great Sitkin",
+   "vnum": "311120",
+   "obs_abbr": "avo",
+   "alert_level": "WATCH",
+   "color_code": "ORANGE",
+   "notice_identifier": "DOI-USGS-AVO-2026-11-13T19:12:01+00:00",
+   "sent_utc": "2026-11-13 21:04:48"
+  },
+  {
+   "volcano_name": "Kilauea",
+   "vnum": "332010",
+   "obs_abbr": "hvo",
+   "alert_level": "ADVISORY",
+   "color_code": "YELLOW",
+   "notice_identifier": "DOI-USGS-HVO-2026-11-15T18:24:00+00:00",
+   "sent_utc": "2026-11-15 18:49:36"
+  },
+  {
+   "volcano_name": "Ahyi Seamount",
+   "vnum": "284141",
+   "obs_abbr": "nmi",
+   "alert_level": "ADVISORY",
+   "color_code": "YELLOW",
+   "notice_identifier": "DOI-USGS-NMI-2026-11-13T01:03:27+00:00",
+   "sent_utc": "2026-11-13 01:04:55"
+  }
+ ],
+ "usgs_newest_or_recent": {
+  "status": 200,
+  "count": 95,
+  "types": {
+   "null": 95
+  },
+  "newest_sent_utc": ""
+ },
+ "usgs_elevated_notices": [
+  {
+   "id": "DOI-USGS-AVO-2026-11-13T19:12:01+00:00",
+   "type": "WU",
+   "words": 611,
+   "vnum_cited": [
+    311120,
+    313020
+   ],
+   "cited_resolve": 2,
+   "sections": [
+    null,
+    null
+   ]
+  },
+  {
+   "id": "DOI-USGS-HVO-2026-11-15T18:24:00+00:00",
+   "type": "DU",
+   "words": 1097,
+   "vnum_cited": [
+    332010
+   ],
+   "cited_resolve": 1,
+   "sections": [
+    null
+   ]
+  },
+  {
+   "id": "DOI-USGS-NMI-2026-11-13T01:03:27+00:00",
+   "type": "WU",
+   "words": 541,
+   "vnum_cited": [
+    284141
+   ],
+   "cited_resolve": 1,
+   "sections": [
+    null,
+    null
+   ]
+  }
+ ],
+ "overlap_usgs_elevated_in_weekly": {
+  "elevated": 3,
+  "in_weekly": 2
+ },
+ "geonet_val": {
+  "status": 200,
+  "content_type": "application/vnd.geo+json;version=2",
+  "count": 12,
+  "levels": {
+   "0": 10,
+   "2": 1,
+   "1": 1
+  },
+  "fields": [
+   "acc",
+   "activity",
+   "hazards",
+   "level",
+   "volcanoID",
+   "volcanoTitle"
+  ]
+ },
+ "join_geonet_to_gvp": {
+  "geonet": 12,
+  "gvp_nz_volcanoes": 70,
+  "name_matched": 8,
+  "pairs": [
+   {
+    "geonet_id": "taupo",
+    "geonet_title": "Taupo",
+    "level": 0,
+    "name_match": [
+     {
+      "vn": 241070,
+      "gvp_name": "Taupo",
+      "km": 0.4
+     }
+    ],
+    "nearest": {
+     "vn": 241070,
+     "gvp_name": "Taupo",
+     "km": 0.4
+    }
+   },
+   {
+    "geonet_id": "tongariro",
+    "geonet_title": "Tongariro",
+    "level": 0,
+    "name_match": [
+     {
+      "vn": 241080,
+      "gvp_name": "Tongariro",
+      "km": 2.8
+     },
+     {
+      "vn": 241819,
+      "gvp_name": "Northern Tongariro Group",
+      "km": 17.8
+     }
+    ],
+    "nearest": {
+     "vn": 241080,
+     "gvp_name": "Tongariro",
+     "km": 2.8
+    }
+   },
+   {
+    "geonet_id": "aucklandvolcanicfield",
+    "geonet_title": "Auckland Volcanic Field",
+    "level": 0,
+    "name_match": [
+     {
+      "vn": 241020,
+      "gvp_name": "Auckland Volcanic Field",
+      "km": 11.1
+     }
+    ],
+    "nearest": {
+     "vn": 241020,
+     "gvp_name": "Auckland Volcanic Field",
+     "km": 11.1
+    }
+   },
+   {
+    "geonet_id": "mayorisland",
+    "geonet_title": "Mayor Island",
+    "level": 0,
+    "name_match": [
+     {
+      "vn": 241021,
+      "gvp_name": "Tuhua/Mayor Island",
+      "km": 0.7
+     }
+    ],
+    "nearest": {
+     "vn": 241021,
+     "gvp_name": "Tuhua/Mayor Island",
+     "km": 0.7
+    }
+   },
+   {
+    "geonet_id": "ngauruhoe",
+    "geonet_title": "Ngauruhoe",
+    "level": 0,
+    "name_match": [],
+    "nearest": {
+     "vn": 241080,
+     "gvp_name": "Tongariro",
+     "km": 0.1
+    }
+   },
+   {
+    "geonet_id": "northland",
+    "geonet_title": "Northland",
+    "level": 0,
+    "name_match": [],
+    "nearest": {
+     "vn": 241010,
+     "gvp_name": "Kaikohe-Bay of Islands",
+     "km": 26.7
+    }
+   },
+   {
+    "geonet_id": "okataina",
+    "geonet_title": "Okataina",
+    "level": 0,
+    "name_match": [
+     {
+      "vn": 241050,
+      "gvp_name": "Okataina",
+      "km": 4.2
+     }
+    ],
+    "nearest": {
+     "vn": 241050,
+     "gvp_name": "Okataina",
+     "km": 4.2
+    }
+   },
+   {
+    "geonet_id": "rotorua",
+    "geonet_title": "Rotorua",
+    "level": 0,
+    "name_match": [
+     {
+      "vn": 241816,
+      "gvp_name": "Rotorua",
+      "km": 1.7
+     }
+    ],
+    "nearest": {
+     "vn": 241816,
+     "gvp_name": "Rotorua",
+     "km": 1.7
+    }
+   },
+   {
+    "geonet_id": "whiteisland",
+    "geonet_title": "White Island",
+    "level": 2,
+    "name_match": [
+     {
+      "vn": 241040,
+      "gvp_name": "Whakaari/White Island",
+      "km": 0.3
+     }
+    ],
+    "nearest": {
+     "vn": 241040,
+     "gvp_name": "Whakaari/White Island",
+     "km": 0.3
+    }
+   },
+   {
+    "geonet_id": "ruapehu",
+    "geonet_title": "Ruapehu",
+    "level": 1,
+    "name_match": [
+     {
+      "vn": 241100,
+      "gvp_name": "Ruapehu",
+      "km": 0.6
+     }
+    ],
+    "nearest": {
+     "vn": 241100,
+     "gvp_name": "Ruapehu",
+     "km": 0.6
+    }
+   },
+   {
+    "geonet_id": "taranakiegmont",
+    "geonet_title": "Taranaki Maunga",
+    "level": 0,
+    "name_match": [],
+    "nearest": {
+     "vn": 241030,
+     "gvp_name": "Taranaki",
+     "km": 0.8
+    }
+   },
+   {
+    "geonet_id": "kermadecislands",
+    "geonet_title": "Rangitāhua/Kermadec Islands",
+    "level": 0,
+    "name_match": [],
+    "nearest": {
+     "vn": 242030,
+     "gvp_name": "Raoul Island",
+     "km": 1.9
+    }
+   }
+  ]
+ },
+ "vaac_list": {
+  "status": 200,
+  "advisories": 178,
+  "oldest": "20261001",
+  "newest": "20261116",
+  "distinct_volcano_numbers": 7,
+  "filename_numbers_resolve": 7
+ },
+ "vaac_texts": [
+  {
+   "file": "20261116_30027000_0375_Text.html",
+   "status": 200,
+   "volcano": "SHEVELUCH",
+   "cited_number": 300270,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Sheveluch",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "RUSSIA"
+   ]
+  },
+  {
+   "file": "20261116_27202000_0274_Text.html",
+   "status": 200,
+   "volcano": "KANLAON",
+   "cited_number": 272020,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Kanlaon",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "PHILIPPINES"
+   ]
+  },
+  {
+   "file": "20261112_28208001_0348_Text.html",
+   "status": 200,
+   "volcano": "SAKURAJIMA (AIRA CALDERA)",
+   "cited_number": 282080,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Aira",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "JAPAN"
+   ]
+  },
+  {
+   "file": "20261112_27303000_0823_Text.html",
+   "status": 200,
+   "volcano": "MAYON",
+   "cited_number": 273030,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Mayon",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "PHILIPPINES"
+   ]
+  },
+  {
+   "file": "20261028_28206000_0002_Text.html",
+   "status": 200,
+   "volcano": "SATSUMA-IOJIMA (KIKAI CALDERA)",
+   "cited_number": 282060,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Kikai",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "JAPAN"
+   ]
+  },
+  {
+   "file": "20261026_29036000_0009_Text.html",
+   "status": 200,
+   "volcano": "CHIKURACHKI",
+   "cited_number": 290360,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Chikurachki",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "KURIL ISLANDS"
+   ]
+  },
+  {
+   "file": "20261021_27307000_0030_Text.html",
+   "status": 200,
+   "volcano": "TAAL",
+   "cited_number": 273070,
+   "matches_filename": true,
+   "resolves": true,
+   "gvp_name": "Taal",
+   "has_eruption_details": true,
+   "area": [
+    "",
+    "PHILIPPINES"
+   ]
+  }
+ ],
+ "join_vaac_to_gvp": {
+  "fetched": 7,
+  "cite_number": 7,
+  "resolve": 7,
+  "number_equals_filename": 7
+ },
+ "overlap_weekly_vs_vaac": {
+  "weekly_numbers": 27,
+  "also_in_vaac_list": 5
+ },
+ "join_ncei_locs_to_gvp": {
+  "totalItems": 1609,
+  "fetched": 1609,
+  "with_gvp_number": 1437,
+  "resolve": 1409,
+  "same_name": 1345,
+  "within_25km": 1407,
+  "unresolved_sample": [
+   {
+    "newNum": null,
+    "name": "Kars Plateau"
+   },
+   {
+    "newNum": null,
+    "name": "Kabargin Oth Group"
+   },
+   {
+    "newNum": null,
+    "name": "Unnamed"
+   },
+   {
+    "newNum": null,
+    "name": "Jalua"
+   },
+   {
+    "newNum": null,
+    "name": "Dalaffilla"
+   },
+   {
+    "newNum": 221240,
+    "name": "Bora-Bericcio"
+   },
+   {
+    "newNum": null,
+    "name": "Tosa Sucha"
+   },
+   {
+    "newNum": null,
+    "name": "Kilimanjaro"
+   },
+   {
+    "newNum": null,
+    "name": "May-ya-moto"
+   },
+   {
+    "newNum": null,
+    "name": "Manengouba"
+   },
+   {
+    "newNum": null,
+    "name": "Ngaoundere Plateau"
+   },
+   {
+    "newNum": null,
+    "name": "Biu Plateau"
+   },
+   {
+    "newNum": null,
+    "name": "Haruj"
+   },
+   {
+    "newNum": null,
+    "name": "Umm Arafieb, Jebel"
+   },
+   {
+    "newNum": null,
+    "name": "Unnamed"
+   }
+  ]
+ },
+ "join_ncei_eruptions_to_gvp": {
+  "totalItems": 903,
+  "fetched": 903,
+  "with_gvp_number": 900,
+  "resolve": 897,
+  "distinct_volcanoes": 276,
+  "newest_eruption": [
+   2026,
+   5,
+   7
+  ],
+  "since_2020": 31,
+  "with_comments": 0,
+  "fields": [
+   "agent",
+   "country",
+   "damageAmountOrder",
+   "damageAmountOrderTotal",
+   "damageMillionsDollars",
+   "damageMillionsDollarsTotal",
+   "day",
+   "deaths",
+   "deathsAmountOrder",
+   "deathsAmountOrderTotal",
+   "deathsTotal",
+   "earthquakeEventId",
+   "elevation",
+   "eruption",
+   "housesDestroyed",
+   "housesDestroyedAmountOrder",
+   "housesDestroyedAmountOrderTotal",
+   "housesDestroyedTotal",
+   "id",
+   "injuries",
+   "injuriesAmountOrder",
+   "injuriesAmountOrderTotal",
+   "injuriesTotal",
+   "latitude",
+   "location",
+   "longitude",
+   "missing",
+   "missingAmountOrder",
+   "missingAmountOrderTotal",
+   "missingTotal",
+   "month",
+   "morphology",
+   "name",
+   "publish",
+   "significant",
+   "status",
+   "timeErupt",
+   "tsunamiEventId",
+   "vei",
+   "volcanoLocationId",
+   "volcanoLocationNewNum",
+   "volcanoLocationNum",
+   "year"
+  ]
+ }
+}

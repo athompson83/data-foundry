@@ -1,0 +1,323 @@
+{
+ "capec": {
+  "attack_patterns": 615,
+  "by_status": {
+   "Deprecated": 56,
+   "Draft": 402,
+   "Obsolete": 1,
+   "Stable": 154,
+   "Usable": 2
+  },
+  "citations_resolving_in_cwe_catalogue": 1214,
+  "citations_to_a_deprecated_weakness": 2,
+  "cwe_citations": 1214,
+  "cwe_to_capec_citations": 1212,
+  "cwe_to_capec_resolving": 1212,
+  "date": "2023-01-24",
+  "patterns_citing_a_cwe": 450,
+  "version": "3.9"
+ },
+ "cwe_catalogue": {
+  "by_abstraction": {
+   "Base": 536,
+   "Class": 131,
+   "Compound": 7,
+   "Pillar": 10,
+   "Variant": 300
+  },
+  "by_status": {
+   "Deprecated": 28,
+   "Draft": 432,
+   "Incomplete": 498,
+   "Stable": 26
+  },
+  "citing_a_capec_pattern": 336,
+  "date": "2026-10-28",
+  "description_characters": 153606,
+  "extended_description_characters": 120284,
+  "file": "cwec_v5.0.xml",
+  "mitigation_characters": 656042,
+  "mitigations": 1751,
+  "observed_example_references": 3183,
+  "observed_example_references_that_are_cve_ids": 3172,
+  "version": "5.0",
+  "views": 62,
+  "weaknesses": 984,
+  "with_common_consequences": 954,
+  "with_demonstrative_examples": 604,
+  "with_description": 984,
+  "with_extended_description": 178,
+  "with_mitigations": 692,
+  "with_observed_examples": 596,
+  "with_related_weaknesses": 948
+ },
+ "fetched": {
+  "capec_latest.xml": {
+   "bytes": 3849998,
+   "sha256": "70279a2dff0cb0ad79e546adb07828335a704ad5210e047e09e986172fc9e34d",
+   "url": "https://capec.mitre.org/data/xml/capec_latest.xml"
+  },
+  "cwec_latest.xml.zip": {
+   "bytes": 2119263,
+   "sha256": "bcda44c9abf61ff977f50c3c6649eea5a97a7b0626b0396c2c3ec4bfb973a3dc",
+   "url": "https://cwe.mitre.org/data/xml/cwec_latest.xml.zip"
+  },
+  "nvd_cves_2026-11-01_2026-11-21_page0.json": {
+   "bytes": 6879742,
+   "sha256": "e6214eb255f87398b4b8e81166dbd4828108778931683a8939d9d764c02e10e5",
+   "url": "https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=2026-11-01T00:00:00.000Z&pubEndDate=2026-11-21T00:00:00.000Z&resultsPerPage=2000&startIndex=0"
+  },
+  "terms_capec.html": {
+   "bytes": 13203,
+   "sha256": "53e9d8bfe72f8110fbd28b3c740414d87c318803ce21e0c619b941291a35dec1",
+   "url": "https://capec.mitre.org/about/termsofuse.html"
+  },
+  "terms_cwe.html": {
+   "bytes": 17670,
+   "sha256": "c572b605b5753cd67b84d12fc64e9ccbfcde0188cf1332118be04c9996a92c45",
+   "url": "https://cwe.mitre.org/about/termsofuse.html"
+  },
+  "terms_nvd.html": {
+   "bytes": 2268,
+   "sha256": "63b910953b6e319a5b4b764c5be715e8eb810bdcbccca73b208ba7098eae3ec9",
+   "url": "https://nvd.nist.gov/general/legal-disclaimer"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "cve": "CVE-2026-81734",
+   "cve_description_first_260_characters": "Missing Authorization in ProductEvents in Apache OFBiz 24.09 before 24.09.08 on all platforms allows a remote authenticated attacker holding only catalog view permission to create, modify, or remove arbitrary product, product feature association, and product c",
+   "cwe": "CWE-862",
+   "cwe_name": "Missing Authorization"
+  },
+  {
+   "cve": "CVE-2026-119625",
+   "cve_description_first_260_characters": "The `/{username}` web route accepted personal access tokens over HTTP Basic authentication without checking their scope. A token confined to an unrelated scope, such as `read:issue`, could read its owner's private activity through the user RSS/Atom feed and th",
+   "cwe": "CWE-863",
+   "cwe_name": "Incorrect Authorization"
+  },
+  {
+   "cve": "CVE-2026-117082",
+   "cve_description_first_260_characters": "An authentication bypass vulnerability in the Universal Plug and Play (UPnP) framework of the Sercomm AOT-4221SR 4.6 Dual Band GPON ONU device allows an attackers to execute arbitrary SOAP requests via port 5555. This flaw exposes 15 administrative, WAN, LAN, ",
+   "cwe": "CWE-287",
+   "cwe_name": "Improper Authentication"
+  },
+  {
+   "cve": "CVE-2026-102280",
+   "cve_description_first_260_characters": "Sandboxie-Plus is an open source sandbox-based isolation software for Windows. Prior to 1.18.6, a process inside a sandbox could send MSGID_FILE_SET_ATTRIBUTES or MSGID_FILE_SET_SHORT_NAME to SbieSvc and cause the SYSTEM service to open and modify an existing ",
+   "cwe": "CWE-390",
+   "cwe_name": "Detection of Error Condition Without Action"
+  },
+  {
+   "cve": "CVE-2026-55262",
+   "cve_description_first_260_characters": "In setNotificationListenerAccessGrantedForUserInternal of NotificationManagerService.java, there is a possible  policy desynchronization due to improper input validation. This could lead to local escalation of privilege with no additional execution privileges ",
+   "cwe": "CWE-20",
+   "cwe_name": "Improper Input Validation"
+  },
+  {
+   "cve": "CVE-2026-54374",
+   "cve_description_first_260_characters": "VitaFit Android application (com.vt.vitafit) before 2.8.1.0 contains a hardcoded credentials vulnerability that allows attackers to extract confidential third-party integration secrets by decompiling the APK. Attackers can retrieve embedded WeChat, Tencent QQ,",
+   "cwe": "CWE-798",
+   "cwe_name": "Use of Hard-coded Credentials"
+  },
+  {
+   "cve": "CVE-2026-20547",
+   "cve_description_first_260_characters": "In Modem, there is a possible out of bounds write due to a missing bounds check. This could lead to remote escalation of privilege, if a UE has connected to a rogue base station controlled by the attacker, with no additional execution privileges needed. User i",
+   "cwe": "CWE-787",
+   "cwe_name": "Out-of-bounds Write"
+  },
+  {
+   "cve": "CVE-2026-111037",
+   "cve_description_first_260_characters": "A reflected Cross-Site Scripting (XSS) vulnerability in the Tenders module of the Coupa Supplier Portal SaaS platform. The vulnerability arises because the `list_item_function` parameter is reflected in the server’s response without proper output encoding or s",
+   "cwe": "CWE-79",
+   "cwe_name": "Improper Neutralization of Input During Web Page Generation"
+  },
+  {
+   "cve": "CVE-2026-121172",
+   "cve_description_first_260_characters": "Incorrect authorization in Isolated in Google Chrome prior to 157.0.8103.38 allowed a remote attacker to spoof UI elements via a crafted HTML page. (Chromium security severity: Low)",
+   "cwe": "CWE-863",
+   "cwe_name": "Incorrect Authorization"
+  },
+  {
+   "cve": "CVE-2026-19731",
+   "cve_description_first_260_characters": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute İmzager allows Path Traversal.\n\nThis issue affects İmzager: from 2.10.5 before 2.10.7.",
+   "cwe": "CWE-22",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory"
+  },
+  {
+   "cve": "CVE-2026-11724",
+   "cve_description_first_260_characters": "IBM MQ 9.2.0.0 through 9.2.0.44 LTS, 9.3.0.0 through 9.3.0.42 LTS, 9.4.0.0 through 9.4.0.26 LTS, 9.4.0.0 through 9.4.5.1 CD, and 10.0.0.0 through 10.0.0.5 LTS and CD could allow an authenticated attacker to execute arbitrary code on a Managed File Transfer age",
+   "cwe": "CWE-20",
+   "cwe_name": "Improper Input Validation"
+  },
+  {
+   "cve": "CVE-2026-92194",
+   "cve_description_first_260_characters": "Quest Foglight for Databases loadManageServerLicense Directory Traversal Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Quest Foglight for Databases. Authentication is requ",
+   "cwe": "CWE-22",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory"
+  },
+  {
+   "cve": "CVE-2026-120650",
+   "cve_description_first_260_characters": "CGI versions before 5.00 for Perl allow memory, CPU and disk exhaustion via missing or unenforced request size, parameter and upload limits.\n\n$CGI::POST_MAX defaults to no limit, and when set is not enforced for chunked multipart bodies or for the boundary lin",
+   "cwe": "CWE-770",
+   "cwe_name": "Allocation of Resources Without Limits or Throttling"
+  },
+  {
+   "cve": "CVE-2026-89292",
+   "cve_description_first_260_characters": "In Eclipse Mnestix Browser versions 1.6.0 up until but excluding 2.3.0 it was possible for an unauthenticated attacker to exfiltrate the MNESTIX_BACKEND_API_KEY for all configured Infrastructures.",
+   "cwe": "CWE-522",
+   "cwe_name": "Insufficiently Protected Credentials"
+  },
+  {
+   "cve": "CVE-2026-121437",
+   "cve_description_first_260_characters": "Mistune from 3.3.0 before 3.3.4 contains a denial of service vulnerability that allows remote attackers to exhaust CPU through quadratic-time emphasis delimiter processing. Attackers can submit small markdown documents with repeated patterns like \"*a_b\" to tri",
+   "cwe": "CWE-407",
+   "cwe_name": "Inefficient Algorithmic Complexity"
+  },
+  {
+   "cve": "CVE-2026-20548",
+   "cve_description_first_260_characters": "In Modem, there is a possible out of bounds write due to an integer overflow. This could lead to remote escalation of privilege, if a UE has connected to a rogue base station controlled by the attacker, with no additional execution privileges needed. User inte",
+   "cwe": "CWE-787",
+   "cwe_name": "Out-of-bounds Write"
+  },
+  {
+   "cve": "CVE-2026-108327",
+   "cve_description_first_260_characters": "Tanium addressed a path traversal vulnerability in Tanium Data Service.",
+   "cwe": "CWE-22",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory"
+  },
+  {
+   "cve": "CVE-2026-120060",
+   "cve_description_first_260_characters": "psqlODBC trusts counts and lengths in server data in three places. SQLBulkOperations uses a server-supplied row count in a size subtraction that can underflow. SQLStatistics iterates index keys using a server-supplied key count without bounding it to the fixed",
+   "cwe": "CWE-125",
+   "cwe_name": "Out-of-bounds Read"
+  },
+  {
+   "cve": "CVE-2026-121141",
+   "cve_description_first_260_characters": "Improper input validation in Editing in Google Chrome prior to 157.0.8103.38 allowed a remote attacker leveraging social engineering to bypass web origin policy via a crafted HTML page. (Chromium security severity: Low)",
+   "cwe": "CWE-20",
+   "cwe_name": "Improper Input Validation"
+  },
+  {
+   "cve": "CVE-2026-58934",
+   "cve_description_first_260_characters": "In prepareWindowToDisplayDuringRelayout of WindowState.java, there is a possible permission bypass due to a logic error in the code. This could lead to local escalation of privilege with no additional execution privileges needed. User interaction is not needed",
+   "cwe": "CWE-693",
+   "cwe_name": "Protection Mechanism Failure"
+  }
+ ],
+ "join_cwe_id": {
+  "citations": 2137,
+  "citations_by_abstraction": {
+   "Base": 1131,
+   "Class": 721,
+   "Compound": 18,
+   "Pillar": 56,
+   "Variant": 202
+  },
+  "citations_resolving": 2128,
+  "citations_to_deprecated_weakness": 10,
+  "distinct_cwe_ids_cited": 228,
+  "found_in_cwe_catalogue_as_weakness": 224,
+  "most_cited": [
+   [
+    "CWE-862",
+    126,
+    "Missing Authorization"
+   ],
+   [
+    "CWE-79",
+    117,
+    "Improper Neutralization of Input During Web Page Generation"
+   ],
+   [
+    "CWE-416",
+    87,
+    "Use After Free"
+   ],
+   [
+    "CWE-863",
+    83,
+    "Incorrect Authorization"
+   ],
+   [
+    "CWE-787",
+    78,
+    "Out-of-bounds Write"
+   ],
+   [
+    "CWE-22",
+    72,
+    "Improper Limitation of a Pathname to a Restricted Directory"
+   ],
+   [
+    "CWE-200",
+    71,
+    "Exposure of Sensitive Information to an Unauthorized Actor"
+   ],
+   [
+    "CWE-20",
+    59,
+    "Improper Input Validation"
+   ]
+  ],
+  "not_found": [
+   "19",
+   "189",
+   "264",
+   "310"
+  ]
+ },
+ "nvd_page": {
+  "by_status": {
+   "Analyzed": 549,
+   "Awaiting Analysis": 461,
+   "Deferred": 825,
+   "Modified": 31,
+   "Received": 44,
+   "Rejected": 83,
+   "Undergoing Analysis": 7
+  },
+  "cve_to_cwe_citations": 2137,
+  "non_cwe_placeholders": 4,
+  "records_citing_a_cwe_id": 1869,
+  "records_read": 2000,
+  "records_with_no_weakness": 131,
+  "total_results_in_window": 12410,
+  "window": "published 2026-11-01 to 2026-11-21"
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 6,
+  "made_this_run": 0,
+  "source_bodies": 6
+ },
+ "run_date": "2026-11-28",
+ "terms": {
+  "capec": {
+   "bytes": 13203,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Any copy you make for such purposes is authorized provided that you reproduce MITRE’s copyright designation and this license in any such copy."
+   ],
+   "quotes": {},
+   "url": "https://capec.mitre.org/about/termsofuse.html"
+  },
+  "cwe": {
+   "bytes": 17670,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Accordingly, The MITRE Corporation hereby grants you a non-exclusive, royalty-free license to use CWE for research, development, and commercial purposes.",
+    "Any copy you make for such purposes is authorized on the condition that you reproduce MITRE’s copyright designation and this license in any such copy.",
+    "Additionally, the contributor hereby grants all users of such information a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable license to reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute such information and all derivative works."
+   ],
+   "quotes": {},
+   "url": "https://cwe.mitre.org/about/termsofuse.html"
+  },
+  "nvd": {
+   "bytes": 2268,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://nvd.nist.gov/general/legal-disclaimer"
+  }
+ }
+}

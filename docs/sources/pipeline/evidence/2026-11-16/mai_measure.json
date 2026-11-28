@@ -1,0 +1,2546 @@
+{
+ "run_date": "2026-11-16",
+ "requests": 247,
+ "maib": {
+  "total": 1106,
+  "newest_published": "2026-10-15",
+  "oldest_occurrence": "1912-04-14",
+  "newest_occurrence": "2026-01-07",
+  "with_date_of_occurrence": 1106,
+  "vessel_type": {
+   "merchant-vessel-100-gross-tons-or-over": 635,
+   "fishing-vessel": 356,
+   "merchant-vessel-under-100-gross-tons": 101,
+   "recreational-craft-power": 94,
+   "recreational-craft-sail": 63
+  },
+  "report_type": {
+   "investigation-report": 724,
+   "completed-preliminary-examination": 286,
+   "safety-bulletin": 65,
+   "overseas-report": 15,
+   "investigation-report-on-behalf-of-red-ensign-group": 12,
+   "discontinued-investigation": 4
+  },
+  "published_per_year": {
+   "2016": 875,
+   "2024": 29,
+   "2017": 27,
+   "2018": 26,
+   "2026": 26,
+   "2020": 23,
+   "2025": 23,
+   "2022": 22,
+   "2019": 19,
+   "2021": 19,
+   "2023": 15,
+   "2015": 2
+  },
+  "merchant_sample": {
+   "checked": 15,
+   "with_pdf": 10,
+   "with_imo": 9,
+   "with_recommendations_in_body": 11,
+   "median_body_chars": 2631,
+   "rows": [
+    {
+     "link": "/maib-reports/fatal-accident-to-a-crew-member-on-board-the-bermuda-registered-passenger-vessel-arvia",
+     "imos": [
+      "9849693"
+     ]
+    },
+    {
+     "link": "/maib-reports/contact-of-the-roll-on-slash-roll-off-passenger-ferry-stena-estrid-with-a-jetty-resulting-in-a-hull-puncture-and-engine-room-flooding",
+     "imos": null
+    },
+    {
+     "link": "/maib-reports/man-overboard-from-the-bulk-carrier-world-prize-with-the-loss-of-1-life",
+     "imos": [
+      "9860403"
+     ]
+    },
+    {
+     "link": "/maib-reports/failure-of-a-tow-rope-and-injury-to-crew-on-board-the-tug-svitzer-avon",
+     "imos": null
+    },
+    {
+     "link": "/maib-reports/catastrophic-engine-failure-and-subsequent-fire-on-board-the-site-investigation-vessel-kommandor-susan",
+     "imos": [
+      "9177844"
+     ]
+    },
+    {
+     "link": "/maib-reports/fatal-accident-to-a-crew-member-on-board-the-roll-on-slash-roll-off-cargo-vessel-laureline",
+     "imos": [
+      "9823352"
+     ]
+    },
+    {
+     "link": "/maib-reports/loss-of-propulsion-in-heavy-weather-experienced-by-the-passenger-vessel-spirit-of-discovery-leading-to-over-100-injuries-and-one-fatality",
+     "imos": [
+      "9802683"
+     ]
+    },
+    {
+     "link": "/maib-reports/girting-and-capsize-of-tug-biter-with-the-loss-of-two-lives-while-assisting-passenger-vessel-hebridean-princess",
+     "imos": [
+      "6409351"
+     ]
+    },
+    {
+     "link": "/maib-reports/safety-warning-video-issued-following-the-capsize-and-sinking-of-the-tug-biter-while-assisting-the-passenger-vessel-hebridean-princess-with-the-loss-of-two-lives",
+     "imos": []
+    },
+    {
+     "link": "/maib-reports/collision-between-the-bulk-carrier-polesie-and-the-general-cargo-ship-verity-resulting-in-the-sinking-of-verity-and-loss-of-five-lives",
+     "imos": [
+      "9229178",
+      "9488097"
+     ]
+    },
+    {
+     "link": "/maib-reports/fall-from-a-pilot-ladder-while-attempting-to-board-the-cargo-vessel-finnhawk-from-the-pilot-vessel-humber-saturn-with-loss-of-1-life",
+     "imos": [
+      "9207895"
+     ]
+    },
+    {
+     "link": "/maib-reports/two-persons-overboard-from-the-standby-safety-vessel-vos-tracker-during-maintenance-of-the-fast-rescue-craft",
+     "imos": null
+    },
+    {
+     "link": "/maib-reports/cargo-hold-fire-on-the-bulk-carrier-altay-while-loading-scrap-metal",
+     "imos": null
+    },
+    {
+     "link": "/maib-reports/uncontrolled-launching-of-fast-rescue-craft-from-lord-of-the-isles-during-a-training-exercise",
+     "imos": null
+    },
+    {
+     "link": "/maib-reports/auxiliary-engine-room-fire-on-board-the-ro-ro-cargo-ship-finnmaster",
+     "imos": [
+      "9132014"
+     ]
+    }
+   ]
+  }
+ },
+ "ntsb": {
+  "total": 567,
+  "series": {
+   "MAB": 288,
+   "MIR": 179,
+   "MAR": 90,
+   "MSR": 3,
+   "MBR": 2,
+   "ASR": 1,
+   "PAR": 1,
+   "RAR": 1,
+   "HAR": 1,
+   "SPC": 1
+  },
+  "with_case_number": 561,
+  "with_accident_date": 482,
+  "with_pdf": 567,
+  "with_vessel_name_in_title": 379,
+  "newest_adopted": "2026-10-30",
+  "oldest_adopted": "1974-07-22",
+  "newest_modified": "2026-11-12",
+  "adopted_per_year_recent": {
+   "2022": 29,
+   "2023": 30,
+   "2024": 38,
+   "2025": 47,
+   "2026": 35
+  },
+  "mir_sample": {
+   "checked": 15,
+   "with_imo": 8,
+   "rows": [
+    {
+     "report": "MIR-26-35",
+     "case": "DCA25FM009",
+     "imos": [
+      "9318515"
+     ]
+    },
+    {
+     "report": "MIR-26-33",
+     "case": "DCA25FM033",
+     "imos": [
+      "9767235"
+     ]
+    },
+    {
+     "report": "MIR-26-34",
+     "case": "DCA25FM018",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-32",
+     "case": "DCA24PM057",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-31",
+     "case": "DCA25FM027",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-30",
+     "case": "DCA25FM011",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-29",
+     "case": "DCA25FM040",
+     "imos": [
+      "9274549"
+     ]
+    },
+    {
+     "report": "MIR-26-28",
+     "case": "DCA24FM059",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-27",
+     "case": "DCA25FM054",
+     "imos": [
+      "9585089"
+     ]
+    },
+    {
+     "report": "MIR-26-26",
+     "case": "DCA25FM005",
+     "imos": [
+      "9897951"
+     ]
+    },
+    {
+     "report": "MIR-26-25",
+     "case": "DCA25FM051",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-24",
+     "case": "DCA24FM051",
+     "imos": [
+      "9718911"
+     ]
+    },
+    {
+     "report": "MIR-26-23",
+     "case": "DCA24FM055",
+     "imos": []
+    },
+    {
+     "report": "MIR-26-22",
+     "case": "DCA25FM045",
+     "imos": [
+      "9648049"
+     ]
+    },
+    {
+     "report": "MIR-26-21",
+     "case": "DCA25FM032",
+     "imos": [
+      "8992807"
+     ]
+    }
+   ]
+  }
+ },
+ "nsia": {
+  "total": 130,
+  "ok": 130,
+  "with_facts_table": 130,
+  "with_valid_imo": 66,
+  "imo_field_present_but_invalid": 4,
+  "distinct_imos": 65,
+  "with_occurrence_date": 130,
+  "with_report_pdf": 127,
+  "with_safety_recommendations": 6,
+  "safety_recommendations_total": 18,
+  "newest_published": "2026-04-29",
+  "oldest_published": "2020-09-24",
+  "category": {
+   "Personal injury": 57,
+   "Foundering": 22,
+   "Capsize": 12,
+   "Grounding": 12,
+   "Collision": 10,
+   "Misc. accidents": 8,
+   "Lost ship": 3,
+   "Technical failure": 2,
+   "Weather damage": 2,
+   "Allision": 1,
+   "(none)": 1
+  },
+  "register": {
+   "The Norwegian Ship Register": 49,
+   "(none)": 26,
+   "The Norwegian International Ship Register": 20,
+   "The Norwegian Fishing Vessel Register": 15,
+   "Not registered": 6,
+   "Other Flag State": 6,
+   "The Norwegian Ship Register / Other Flag State": 3,
+   "The Norwegian International Ship Register / Other Flag State": 2,
+   "The Norwegian Ship Register / Not registered": 1,
+   "The Norwegian Ship Register / The Norwegian Ship Register": 1,
+   "The Norwegian International Ship Register / Not registered": 1
+  },
+  "area": {
+   "Norwegian Territorial Waters": 100,
+   "Other Nation's Territorial Waters": 13,
+   "International Waters": 10,
+   "Norwegian Economic Zone": 6,
+   "(none)": 1
+  }
+ },
+ "bsu": {
+  "rows": 325,
+  "with_pdf": 323,
+  "with_case_number": 315,
+  "distinct_case_numbers": 267,
+  "with_vessel_name_in_capitals": 317,
+  "with_occurrence_date_in_text": 282,
+  "newest_issued": "2026-09-24",
+  "oldest_issued": "2003-01-01",
+  "issued_per_year_recent": {
+   "2022": 12,
+   "2023": 16,
+   "2024": 8,
+   "2025": 9,
+   "2026": 12
+  },
+  "maib_report_files_hosted": [
+   "Interim investigation report MAIB",
+   "Supplementary statement by the BSU on the Report No 5/2026 of the Marine Accident Investigation Branch (MAIB)",
+   "Investigation Report MAIB"
+  ]
+ },
+ "probes": {
+  "tsb_marsis_csv": {
+   "status": 403,
+   "server": "Microsoft-Azure-Application-Gateway/v2"
+  },
+  "tsb_ckan_record": {
+   "status": 200,
+   "final_url": "https://open.canada.ca/data/api/action/package_show?id=ad8d1b73-df09-4521-9bdb-61c529328218",
+   "bytes": 18374,
+   "license": "Open Government Licence - Canada",
+   "frequency": "P1M",
+   "resources": 14,
+   "resource_hosts": [
+    "www.tsb.gc.ca"
+   ]
+  },
+  "ntsb_carol_old_url": {
+   "status": 200,
+   "final_url": "https://my.ntsb.gov/basic",
+   "bytes": 477
+  },
+  "imo_gisis_casualties": {
+   "status": 200,
+   "final_url": "https://webaccounts.imo.org/Common/WebLogin.aspx?App=GISISPublic&ReturnUrl=https%3a%2f%2fgisis.imo.org%2fPublic%2fMCI%2fDefault.aspx",
+   "bytes": 18748,
+   "login_redirect": true
+  },
+  "bma_legal_notice": {
+   "status": 200,
+   "final_url": "https://www.bahamasmaritime.com/information/legal-notice/",
+   "bytes": 91680,
+   "forbids_copying": true
+  }
+ },
+ "join_nsia_maib": {
+  "nsia_reports": 130,
+  "nsia_with_imo": 66,
+  "name_pairs": 4,
+  "pairs_checked_against_pdf": 0,
+  "imo_matches": 0,
+  "same_event_within_3_days": 0,
+  "pairs": [
+   {
+    "nsia": "2019/02",
+    "nsia_vessel": "Recreational craft",
+    "nsia_imo": [],
+    "nsia_occurrence": "2018-01-01",
+    "maib_link": "/maib-reports/capsize-of-recreational-craft-wheelyboat-123-with-the-loss-of-2-lives",
+    "maib_title": "Capsize of recreational craft Wheelyboat 123 with the loss of 2 lives",
+    "maib_occurrence": "2022-06-08",
+    "days_apart": 1619
+   },
+   {
+    "nsia": "2017/11",
+    "nsia_vessel": "Alexander",
+    "nsia_imo": [],
+    "nsia_occurrence": "2016-12-23",
+    "maib_link": "/maib-reports/contact-made-by-multi-purpose-dry-cargo-vessel-alexander-tvardovskiy-with-dredger-ukd-bluefin-pushing-the-dredger-into-general-cargo-vessel-wilson-hawk-in-immingham-england",
+    "maib_title": "Contact made by dry cargo vessel Alexander Tvardovskiy with dredger UKD Bluefin, pushing dredger into general cargo vessel Wilson Hawk",
+    "maib_occurrence": "2012-08-01",
+    "days_apart": 1605
+   },
+   {
+    "nsia": "2014/03",
+    "nsia_vessel": "Maria",
+    "nsia_imo": [],
+    "nsia_occurrence": "2012-07-03",
+    "maib_link": "/maib-reports/contact-made-by-general-cargo-vessel-maria-h-with-keadby-railway-bridge-on-the-river-trent-england-with-1-person-injured",
+    "maib_title": "Contact made by general cargo vessel Maria H with railway bridge with 1 person injured",
+    "maib_occurrence": "2002-05-29",
+    "days_apart": 3688
+   },
+   {
+    "nsia": "2014/03",
+    "nsia_vessel": "Maria",
+    "nsia_imo": [],
+    "nsia_occurrence": "2012-07-03",
+    "maib_link": "/maib-reports/sinking-of-twin-beam-trawler-margaretha-maria-off-lizard-point-england-with-loss-of-4-lives",
+    "maib_title": "Capsize and sinking of twin beam trawler Margaretha Maria with loss of 4 lives",
+    "maib_occurrence": "1997-11-11",
+    "days_apart": 5348
+   }
+  ]
+ },
+ "join_nsia_ntsb": {
+  "name_pairs": 9,
+  "imo_matches": 0,
+  "same_event_within_3_days": 0,
+  "pairs": [
+   {
+    "nsia": "2025/02",
+    "nsia_vessel": "Maya",
+    "nsia_imo": [],
+    "nsia_occurrence": "2024-02-15",
+    "ntsb_report": "MAB1717",
+    "ntsb_case": "DCA16FM053",
+    "ntsb_title": "Marine Accident Brief: Capsizing and Sinking of Fishing Vessel LYDIA & MAYA",
+    "ntsb_occurrence": "2016-08-17",
+    "days_apart": 2738
+   },
+   {
+    "nsia": "2024/01",
+    "nsia_vessel": "Hunter",
+    "nsia_imo": [
+     "8906949"
+    ],
+    "nsia_occurrence": "2023-01-30",
+    "ntsb_report": "MAB-18-17",
+    "ntsb_case": "DCA17FM015",
+    "ntsb_title": "​Marine Accident Brief: Allision of JAMES H HUNTER Tow with Dock and Fire Boat",
+    "ntsb_occurrence": "",
+    "days_apart": null
+   },
+   {
+    "nsia": "2017/11",
+    "nsia_vessel": "Alexander",
+    "nsia_imo": [],
+    "nsia_occurrence": "2016-12-23",
+    "ntsb_report": "MAB1414",
+    "ntsb_case": "DCA13LM029",
+    "ntsb_title": "Fire On Board Motor Yacht Ocean Alexander 85E06",
+    "ntsb_occurrence": "2013-07-10",
+    "days_apart": 1262
+   },
+   {
+    "nsia": "2014/06",
+    "nsia_vessel": "Ocean Princess",
+    "nsia_imo": [
+     "9187899"
+    ],
+    "nsia_occurrence": "2013-06-10",
+    "ntsb_report": "MIR-22-18",
+    "ntsb_case": "DCA21FM013",
+    "ntsb_title": "Contact of Bulk Carrier Ocean Princess with Oil and Gas Production Platform SP-83A",
+    "ntsb_occurrence": "2021-01-07",
+    "days_apart": 2768
+   },
+   {
+    "nsia": "2014/03",
+    "nsia_vessel": "Maria",
+    "nsia_imo": [],
+    "nsia_occurrence": "2012-07-03",
+    "ntsb_report": "MAB-20-17",
+    "ntsb_case": "DCA19FM030",
+    "ntsb_title": "Contact of Towing Vessel DEJEANNE MARIA with Submerged Dredge Pipe",
+    "ntsb_occurrence": "",
+    "days_apart": null
+   },
+   {
+    "nsia": "2009/05",
+    "nsia_vessel": "Marina",
+    "nsia_imo": [],
+    "nsia_occurrence": "2009-03-02",
+    "ntsb_report": "MIR-26-31",
+    "ntsb_case": "DCA25FM027",
+    "ntsb_title": "Breakaway of Barge MPC 1056 and Subsequent Contact with Marina Docks",
+    "ntsb_occurrence": "2025-03-19",
+    "days_apart": 5861
+   },
+   {
+    "nsia": "2009/05",
+    "nsia_vessel": "Marina",
+    "nsia_imo": [],
+    "nsia_occurrence": "2009-03-02",
+    "ntsb_report": "MIR-24-33",
+    "ntsb_case": "DCA24FM041",
+    "ntsb_title": "Collision of Fishing Vessel Kathleen K with Vessels Moored at Marina",
+    "ntsb_occurrence": "2024-05-22",
+    "days_apart": 5560
+   },
+   {
+    "nsia": "2009/05",
+    "nsia_vessel": "Marina",
+    "nsia_imo": [],
+    "nsia_occurrence": "2009-03-02",
+    "ntsb_report": "MIR-24-21",
+    "ntsb_case": "DCA23FM046",
+    "ntsb_title": "Contact of Recreational Vessel Flagship 604 with Dock and Subsequent Marina Fire",
+    "ntsb_occurrence": "2023-08-10",
+    "days_apart": 5274
+   },
+   {
+    "nsia": "2009/05",
+    "nsia_vessel": "Marina",
+    "nsia_imo": [],
+    "nsia_occurrence": "2009-03-02",
+    "ntsb_report": "MAB-20-32",
+    "ntsb_case": "DCA20FM013",
+    "ntsb_title": "Fire at Jackson County Park Marina",
+    "ntsb_occurrence": "2020-01-27",
+    "days_apart": 3983
+   }
+  ]
+ },
+ "join_maib_ntsb": {
+  "name_pairs": 23,
+  "same_event_within_3_days": 1,
+  "same_event_pairs": [
+   {
+    "ntsb_report": "MAR-93-01",
+    "ntsb_case": "DCA92MM034",
+    "vessel": "Queen Elizabeth 2",
+    "ntsb_occurrence": "1992-08-07",
+    "maib_link": "/maib-reports/grounding-of-passenger-cruise-ship-queen-elizabeth-2-on-uncharted-rocks-south-of-cuttyhunk-island-usa",
+    "maib_occurrence": "1992-08-07",
+    "days_apart": 0,
+    "maib_imos": [],
+    "ntsb_imos": []
+   }
+  ]
+ },
+ "join_bsu_maib": {
+  "bsu_rows": 325,
+  "name_pairs": 30,
+  "same_event_pairs": 3,
+  "same_event_pairs_with_both_pdfs_read": 2,
+  "same_event_pairs_with_imo_in_both": 2,
+  "imo_matches": 2,
+  "pairs": [
+   {
+    "bsu_case": "117/11",
+    "bsu_report": "Investigation Report 117/11",
+    "vessel": "TYUMEN-2",
+    "bsu_occurrence": "2011-04-14",
+    "maib_link": "/maib-reports/collision-between-container-vessel-oocl-finland-and-general-cargo-vessel-tyumen-2-with-loss-of-2-lives",
+    "maib_title": "Collision between container vessel OOCL Finland and general cargo vessel Tyumen-2 with loss of 2 lives",
+    "maib_occurrence": "2011-04-14",
+    "days_apart": 0,
+    "maib_imos": null,
+    "bsu_imos": [
+     "8727848",
+     "9354351"
+    ],
+    "imo_match": false
+   },
+   {
+    "bsu_case": null,
+    "bsu_report": "Interim investigation report MAIB",
+    "vessel": "VERITY",
+    "bsu_occurrence": "2023-10-24",
+    "maib_link": "/maib-reports/collision-between-the-bulk-carrier-polesie-and-the-general-cargo-ship-verity-resulting-in-the-sinking-of-verity-and-loss-of-five-lives",
+    "maib_title": "Collision between the bulk carrier Polesie and the general cargo ship Verity resulting in the sinking of Verity and loss of five lives",
+    "maib_occurrence": "2023-10-24",
+    "days_apart": 0,
+    "maib_imos": [
+     "9229178",
+     "9488097"
+    ],
+    "bsu_imos": [
+     "9229178",
+     "9488097"
+    ],
+    "imo_match": true
+   },
+   {
+    "bsu_case": null,
+    "bsu_report": "Supplementary statement by the BSU on the Report No 5/2026 of the Marine Accident Investigation Branch (MAIB)",
+    "vessel": "POLESIE",
+    "bsu_occurrence": "2023-10-24",
+    "maib_link": "/maib-reports/collision-between-the-bulk-carrier-polesie-and-the-general-cargo-ship-verity-resulting-in-the-sinking-of-verity-and-loss-of-five-lives",
+    "maib_title": "Collision between the bulk carrier Polesie and the general cargo ship Verity resulting in the sinking of Verity and loss of five lives",
+    "maib_occurrence": "2023-10-24",
+    "days_apart": 0,
+    "maib_imos": [
+     "9229178",
+     "9488097"
+    ],
+    "bsu_imos": [
+     "9229178",
+     "9488097"
+    ],
+    "imo_match": true
+   }
+  ]
+ },
+ "join_maib_cites": {
+  "maib_overseas_or_reg_pages": 27,
+  "citing_an_external_report": 17,
+  "hosts": {
+   "dmaib.com": 1,
+   "www.register-iri.com": 1,
+   "en.msa.gov.cn": 1,
+   "www.bahamasmaritime.com": 1,
+   "www.ilo.org": 1,
+   "wwwcdn.imo.org": 1,
+   "www.mcib.ie": 1,
+   "mobilit.belgium.be": 1,
+   "maritimesafetyinnovationlab.org": 1,
+   "www.ocimf.org": 1,
+   "www.marinetraffic.com": 1,
+   "www.bsu-bund.de": 1,
+   "www.mlit.go.jp": 1,
+   "mti.gov.mt": 1,
+   "onderzoeksraad.nl": 1,
+   "maiif.org": 1,
+   "www.nautinst.org": 1,
+   "www.bea-mer.developpement-durable.gouv.fr": 1,
+   "aet.gouvernement.lu": 1,
+   "dmaib.dk": 1,
+   "www.turvallisuustutkinta.fi": 1,
+   "www.imo.org": 1
+  },
+  "citing_bsu": 1,
+  "bsu_citations_resolved_to_bsu_table": 1,
+  "rows": [
+   {
+    "link": "/maib-reports/fatal-accident-to-a-crew-member-on-board-the-bermuda-registered-passenger-vessel-arvia",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2025-10-26",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/foundering-of-the-fishing-vessel-argos-georgia-with-the-loss-of-13-lives",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2024-07-22",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/collision-between-the-bulk-carrier-polesie-and-the-general-cargo-ship-verity-resulting-in-the-sinking-of-verity-and-loss-of-five-lives",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2023-10-24",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/man-overboard-from-the-bulk-carrier-world-prize-with-the-loss-of-1-life",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2025-10-14",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/cargo-tank-explosion-and-fire-on-chemical-tanker-stolt-groenland",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2019-09-28",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/accident-to-chief-engineer-on-board-motor-yacht-baton-rouge-with-loss-of-1-life",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2024-02-23",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/fatal-accident-on-board-bulk-carrier-berge-mawson-with-loss-of-3-lives",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2022-06-27",
+    "external_hosts": [
+     "www.imo.org",
+     "www.nautinst.org",
+     "wwwcdn.imo.org"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/mooring-deck-accident-on-general-cargo-vessel-teal-bay-with-loss-of-1-life",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2021-08-30",
+    "external_hosts": [
+     "www.marinetraffic.com"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/fall-from-height-on-bulk-carrier-equinox-seas-with-loss-of-1-life",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2023-04-17",
+    "external_hosts": [
+     "maritimesafetyinnovationlab.org",
+     "www.ilo.org",
+     "www.ocimf.org"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/mooring-failure-of-the-drill-ship-valaris-ds-4",
+    "report_type": "overseas-report",
+    "occurrence": "2021-02-02",
+    "external_hosts": [
+     "maiif.org",
+     "www.register-iri.com"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/engine-room-fire-on-lpg-carrier-moritz-schulte-with-loss-of-1-life",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2020-08-04",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/close-quarters-situation-between-passenger-ferries-stena-europe-and-connemara",
+    "report_type": "overseas-report",
+    "occurrence": "2022-03-16",
+    "external_hosts": [
+     "www.mcib.ie"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/collision-between-beam-trawler-henrik-senior-and-ro-ro-cargo-vessel-birka-explorer",
+    "report_type": "overseas-report",
+    "occurrence": "2008-12-08",
+    "external_hosts": [
+     "www.turvallisuustutkinta.fi"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/engine-room-fire-on-ro-ro-passenger-ferry-pride-of-hull",
+    "report_type": "overseas-report",
+    "occurrence": "2020-10-20",
+    "external_hosts": [
+     "www.bahamasmaritime.com"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/collision-between-ro-ro-passenger-ferry-stena-britannica-and-tug-fairplay-22-with-loss-of-2-lives",
+    "report_type": "overseas-report",
+    "occurrence": "2010-11-11",
+    "external_hosts": [
+     "onderzoeksraad.nl"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/swamping-of-small-commercial-vessel-calypso-2-with-loss-of-2-lives",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2023-03-11",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/crush-incident-on-general-cargo-vessel-cimbris-with-loss-of-1-life",
+    "report_type": "investigation-report-on-behalf-of-red-ensign-group",
+    "occurrence": "2020-07-14",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/fall-from-accommodation-ladder-platform-on-chemical-oil-tanker-nabucco-with-loss-of-1-life",
+    "report_type": "overseas-report",
+    "occurrence": "2017-06-26",
+    "external_hosts": [
+     "aet.gouvernement.lu"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/collision-between-container-vessel-oocl-finland-and-general-cargo-vessel-tyumen-2-with-loss-of-2-lives",
+    "report_type": "overseas-report",
+    "occurrence": "2011-04-14",
+    "external_hosts": [
+     "www.bsu-bund.de"
+    ],
+    "bsu_files_cited": [
+     "Investigation_Report_117_11.pdf"
+    ],
+    "bsu_case_resolved": [
+     "117/11"
+    ]
+   },
+   {
+    "link": "/maib-reports/contact-made-by-container-vessel-johanna-with-a-barge-leg-lost-during-towing-operation",
+    "report_type": "overseas-report",
+    "occurrence": "2011-12-18",
+    "external_hosts": [
+     "dmaib.dk"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/grounding-of-ro-ro-cargo-vessel-ciudad-de-cadiz",
+    "report_type": "overseas-report",
+    "occurrence": "2013-01-30",
+    "external_hosts": [
+     "www.bea-mer.developpement-durable.gouv.fr"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/collision-between-bulk-carrier-alex-d-and-beam-trawler-jacoba",
+    "report_type": "overseas-report",
+    "occurrence": "2011-12-19",
+    "external_hosts": [
+     "mti.gov.mt"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/fall-from-pilot-ladder-while-boarding-bulk-carrier-cape-kestrel-with-loss-of-1-life",
+    "report_type": "overseas-report",
+    "occurrence": "2012-07-24",
+    "external_hosts": [],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/explosion-on-japanese-registered-container-vessel-manhattan-bridge-with-loss-of-1-life",
+    "report_type": "overseas-report",
+    "occurrence": "2017-01-19",
+    "external_hosts": [
+     "www.mlit.go.jp"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/man-overboard-from-fishing-vessel-zilvermeeuw-with-the-loss-of-1-life",
+    "report_type": "overseas-report",
+    "occurrence": "2019-11-11",
+    "external_hosts": [
+     "mobilit.belgium.be"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/person-overboard-from-fishing-vessel-hendrika-jacoba-with-the-loss-of-1-life",
+    "report_type": "overseas-report",
+    "occurrence": "2022-05-29",
+    "external_hosts": [
+     "dmaib.com"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   },
+   {
+    "link": "/maib-reports/collision-between-container-vessel-anl-wangaratta-and-bulk-carrier-fu-xin-shan",
+    "report_type": "overseas-report",
+    "occurrence": "2009-02-22",
+    "external_hosts": [
+     "en.msa.gov.cn"
+    ],
+    "bsu_files_cited": [],
+    "bsu_case_resolved": []
+   }
+  ]
+ },
+ "join_bsu_nsia": {
+  "same_event_pairs": 0,
+  "pairs": []
+ },
+ "imo_overlap": {
+  "distinct_imos": {
+   "MAIB": 10,
+   "NTSB": 8,
+   "NSIA": 65,
+   "BSU": 4
+  },
+  "in_more_than_one_publisher": [
+   {
+    "imo": "9229178",
+    "publishers": [
+     "MAIB",
+     "BSU"
+    ]
+   },
+   {
+    "imo": "9488097",
+    "publishers": [
+     "MAIB",
+     "BSU"
+    ]
+   }
+  ]
+ },
+ "nsia_rows": [
+  {
+   "report_no": "2026/05",
+   "imo": [
+    "9133525"
+   ],
+   "vessel": "Eidsvaag Marin",
+   "occurrence": "2025-10-29",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "General Cargo Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2026/04",
+   "imo": [],
+   "vessel": "Fritidsbåt/utleiebåt",
+   "occurrence": "2025-05-19",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2026/03",
+   "imo": [],
+   "vessel": "Fritidsbåt/utleiebåt",
+   "occurrence": "2025-05-04",
+   "published": "2026-04-29",
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship",
+   "register": "Not registered"
+  },
+  {
+   "report_no": "2026/02",
+   "imo": [],
+   "vessel": "Gaute",
+   "occurrence": "2025-11-14",
+   "published": "2026-04-16",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2026/01",
+   "imo": [],
+   "vessel": "Ingun",
+   "occurrence": "2025-02-20",
+   "published": "2026-01-06",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2025/03",
+   "imo": [],
+   "vessel": "Fritidsfartøy",
+   "occurrence": "2024-09-01",
+   "published": "2025-06-25",
+   "category": "Collision",
+   "vessel_type": null,
+   "register": null
+  },
+  {
+   "report_no": "2025/02",
+   "imo": [],
+   "vessel": "Maya",
+   "occurrence": "2024-02-15",
+   "published": "2025-02-14",
+   "category": "Foundering",
+   "vessel_type": "Combination Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2025/01",
+   "imo": [],
+   "vessel": "Øyværing",
+   "occurrence": "2024-03-01",
+   "published": "2025-01-29",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2024/09",
+   "imo": [],
+   "vessel": "Gunn-Lotte",
+   "occurrence": "2024-01-26",
+   "published": "2024-11-28",
+   "category": "Grounding",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2024/08",
+   "imo": [],
+   "vessel": "Iselin",
+   "occurrence": "2023-12-12",
+   "published": "2024-11-15",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2024/07",
+   "imo": [],
+   "vessel": "Toja",
+   "occurrence": "2023-05-30",
+   "published": "2024-04-23",
+   "category": "Foundering",
+   "vessel_type": "Misc. Ship",
+   "register": "Not registered"
+  },
+  {
+   "report_no": "2024/06",
+   "imo": [
+    "8805602"
+   ],
+   "vessel": "Link Star",
+   "occurrence": "2023-09-14",
+   "published": "2024-04-17",
+   "category": "Personal injury",
+   "vessel_type": "General Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2024/05",
+   "imo": [
+    "9650420"
+   ],
+   "vessel": "Viking Sky",
+   "occurrence": "2019-03-23",
+   "published": "2024-03-19",
+   "category": "Technical failure",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2024/04",
+   "imo": [
+    "9833187"
+   ],
+   "vessel": "Viking Mars",
+   "occurrence": "2023-08-18",
+   "published": "2024-02-27",
+   "category": "Personal injury",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2024/03",
+   "imo": [
+    "9693850"
+   ],
+   "vessel": "Tyrhaug/Frøy Loke",
+   "occurrence": "2023-06-28",
+   "published": "2024-02-13",
+   "category": "Collision",
+   "vessel_type": "Passenger Ship - Ferry / Special Purpose Ship",
+   "register": "The Norwegian Ship Register / The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2024/02",
+   "imo": [],
+   "vessel": "Otterøy",
+   "occurrence": "2023-08-12",
+   "published": "2024-01-31",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2024/01",
+   "imo": [
+    "8906949"
+   ],
+   "vessel": "Hunter",
+   "occurrence": "2023-01-30",
+   "published": "2024-01-30",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2023/06",
+   "imo": [
+    "9863209"
+   ],
+   "vessel": "Viking Polaris",
+   "occurrence": "2022-11-29",
+   "published": "2023-11-29",
+   "category": "Weather damage",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2023/05",
+   "imo": [
+    "9208198"
+   ],
+   "vessel": "Oslo Wave 3",
+   "occurrence": "2023-02-13",
+   "published": "2023-09-04",
+   "category": "Personal injury",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2023/04",
+   "imo": [],
+   "vessel": "Malmhella",
+   "occurrence": "2022-10-25",
+   "published": "2023-06-29",
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2023/03",
+   "imo": [],
+   "vessel": "Peik",
+   "occurrence": "2022-01-09",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2023/02",
+   "imo": [],
+   "vessel": "Klævtind 1",
+   "occurrence": "2023-01-09",
+   "published": "2023-02-16",
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2023/01",
+   "imo": [
+    "7502021"
+   ],
+   "vessel": "Bjugnfjord",
+   "occurrence": "2022-01-20",
+   "published": "2023-01-17",
+   "category": "Foundering",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2022/12",
+   "imo": [
+    "9263540"
+   ],
+   "vessel": "EDMY og Tornado",
+   "occurrence": "2022-10-04",
+   "published": "2022-12-14",
+   "category": "Collision",
+   "vessel_type": "Bulk Cargo Ship / Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2022/11",
+   "imo": [
+    "9342205"
+   ],
+   "vessel": "Höegh London",
+   "occurrence": "2019-02-24",
+   "published": "2022-10-07",
+   "category": "Personal injury",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2022/10",
+   "imo": [
+    "9100188"
+   ],
+   "vessel": "Titran",
+   "occurrence": "2022-03-06",
+   "published": "2022-09-29",
+   "category": "Personal injury",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2022/09",
+   "imo": [],
+   "vessel": "Sørbris",
+   "occurrence": "2020-05-08",
+   "published": "2022-09-07",
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2022/08",
+   "imo": [
+    "9862554"
+   ],
+   "vessel": "Brim",
+   "occurrence": "2021-03-11",
+   "published": "2022-07-15",
+   "category": "Technical failure",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2022/07",
+   "imo": [],
+   "vessel": "Fugløybuen",
+   "occurrence": "2021-04-18",
+   "published": "2022-06-29",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2022/06",
+   "imo": [
+    "9364239"
+   ],
+   "vessel": "Stavanger Bliss",
+   "occurrence": "2020-11-05",
+   "published": "2022-06-23",
+   "category": "Misc. accidents",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2022/05",
+   "imo": [
+    "9923669"
+   ],
+   "vessel": "Multi Vision",
+   "occurrence": "2022-01-01",
+   "published": "2022-06-13",
+   "category": "Personal injury",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2022/04",
+   "imo": [
+    "9581930"
+   ],
+   "vessel": "Leander",
+   "occurrence": "2020-06-22",
+   "published": "2022-04-28",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2022/03",
+   "imo": [],
+   "vessel": "Mudder 073",
+   "occurrence": "2021-01-18",
+   "published": "2022-04-05",
+   "category": "Personal injury",
+   "vessel_type": "Special Purpose Ship",
+   "register": null
+  },
+  {
+   "report_no": "2022/02",
+   "imo": [
+    "9827592"
+   ],
+   "vessel": "Hovden Viking",
+   "occurrence": "2021-03-02",
+   "published": "2022-03-08",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2022/01",
+   "imo": [],
+   "vessel": "Elise",
+   "occurrence": "2021-02-16",
+   "published": "2022-02-01",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2021/07",
+   "imo": [],
+   "vessel": "ARV 2 (Iris)",
+   "occurrence": "2018-10-20",
+   "published": "2021-11-22",
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2021/06",
+   "imo": [
+    "9657193"
+   ],
+   "vessel": "Asbjørn Selsbane",
+   "occurrence": "2020-02-07",
+   "published": "2021-05-06",
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2021/05",
+   "imo": [
+    "9724350"
+   ],
+   "vessel": "KNM Helge Ingstad / Sola TS",
+   "occurrence": "2018-11-08",
+   "published": "2021-04-21",
+   "category": "Collision",
+   "vessel_type": "Misc. Ship / Tanker",
+   "register": "The Norwegian Ship Register / Other Flag State"
+  },
+  {
+   "report_no": "2021/04",
+   "imo": [],
+   "vessel": "Smolten",
+   "occurrence": "2019-11-29",
+   "published": "2021-04-13",
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship",
+   "register": "Not registered"
+  },
+  {
+   "report_no": "2021/03",
+   "imo": [],
+   "vessel": "Synne",
+   "occurrence": "2020-06-12",
+   "published": "2021-04-08",
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "Not registered"
+  },
+  {
+   "report_no": "2021/02",
+   "imo": [
+    "9677038"
+   ],
+   "vessel": "Stian-Andre",
+   "occurrence": "2020-10-01",
+   "published": "2021-03-24",
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2021/01",
+   "imo": [
+    "9827619"
+   ],
+   "vessel": "Fay",
+   "occurrence": "2019-12-28",
+   "published": "2021-02-23",
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "Not registered"
+  },
+  {
+   "report_no": "2020/06",
+   "imo": [],
+   "vessel": "Andreas",
+   "occurrence": "2018-02-18",
+   "published": "2020-10-06",
+   "category": "Lost ship",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2020/05",
+   "imo": [],
+   "vessel": "Jøsenbuen",
+   "occurrence": "2018-10-13",
+   "published": "2020-09-24",
+   "category": "Misc. accidents",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2020/04",
+   "imo": [],
+   "vessel": "Fritidsbåt",
+   "occurrence": "2019-08-01",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2020/03",
+   "imo": [],
+   "vessel": null,
+   "occurrence": "2018-04-02",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2020/02",
+   "imo": [
+    "6920111"
+   ],
+   "vessel": "Nordstar",
+   "occurrence": "2018-06-10",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2020/01",
+   "imo": [
+    "9220677"
+   ],
+   "vessel": "Rohav",
+   "occurrence": "2018-09-10",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2019/09",
+   "imo": [
+    "9643013"
+   ],
+   "vessel": "Fugløyfjord",
+   "occurrence": "2017-07-12",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2019/08",
+   "imo": [
+    "9724350"
+   ],
+   "vessel": "HNoMS Helge Ingstad/Sola TS",
+   "occurrence": "2018-11-08",
+   "published": null,
+   "category": "Collision",
+   "vessel_type": "Misc. Ship / Tanker",
+   "register": "The Norwegian Ship Register / Other Flag State"
+  },
+  {
+   "report_no": "2019/07",
+   "imo": [
+    "8224523"
+   ],
+   "vessel": "FFS Achilles",
+   "occurrence": "2017-03-03",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Special Purpose Ship",
+   "register": null
+  },
+  {
+   "report_no": "2019/06",
+   "imo": [
+    "9782405"
+   ],
+   "vessel": "Astrid Sofie",
+   "occurrence": "2018-11-28",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2019/05",
+   "imo": [
+    "7047356"
+   ],
+   "vessel": "Mercator",
+   "occurrence": "2018-11-12",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "General Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2019/04",
+   "imo": [],
+   "vessel": "Nordavind",
+   "occurrence": "2018-11-23",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2019/03",
+   "imo": [
+    "9196723"
+   ],
+   "vessel": "Aurora Explorer",
+   "occurrence": "2018-07-15",
+   "published": null,
+   "category": "Collision",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "Other Flag State"
+  },
+  {
+   "report_no": "2019/02",
+   "imo": [],
+   "vessel": "Recreational craft",
+   "occurrence": "2018-01-01",
+   "published": null,
+   "category": null,
+   "vessel_type": null,
+   "register": null
+  },
+  {
+   "report_no": "2019/01",
+   "imo": [],
+   "vessel": "Bremholmen",
+   "occurrence": "2018-03-13",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2018/06",
+   "imo": [
+    "9744518"
+   ],
+   "vessel": "Normand Maximus",
+   "occurrence": "2017-02-21",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2018/05",
+   "imo": [],
+   "vessel": "Gorgeous",
+   "occurrence": "2017-07-15",
+   "published": null,
+   "category": "Misc. accidents",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2018/04",
+   "imo": [],
+   "vessel": "Målfrid",
+   "occurrence": "2017-05-12",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2018/03",
+   "imo": [
+    "9652129"
+   ],
+   "vessel": "Øysund",
+   "occurrence": "2017-11-16",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2018/02",
+   "imo": [],
+   "vessel": "Hugin",
+   "occurrence": "2017-02-16",
+   "published": null,
+   "category": "Allision",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2018/01",
+   "imo": [
+    "9724130"
+   ],
+   "vessel": "Ytterøy",
+   "occurrence": "2017-04-30",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2017/11",
+   "imo": [],
+   "vessel": "Alexander",
+   "occurrence": "2016-12-23",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2017/10",
+   "imo": [
+    "5248255"
+   ],
+   "vessel": "Fisktrans",
+   "occurrence": "2017-01-25",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Misc. Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2017/09",
+   "imo": [],
+   "vessel": "Knut Gynther",
+   "occurrence": "2014-02-22",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2017/08",
+   "imo": [],
+   "vessel": "Frøy Viking",
+   "occurrence": "2016-08-26",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Misc. Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2017/07",
+   "imo": [],
+   "vessel": "Svællingen",
+   "occurrence": "2016-10-07",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2017/06",
+   "imo": [],
+   "vessel": "RIB",
+   "occurrence": "2015-07-22",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2017/05",
+   "imo": [
+    "8615277"
+   ],
+   "vessel": "MF Godfjord",
+   "occurrence": "2015-09-21",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2017/04",
+   "imo": [
+    "9332626"
+   ],
+   "vessel": "Marinor",
+   "occurrence": "2015-12-21",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2017/03",
+   "imo": [
+    "9630755"
+   ],
+   "vessel": "Clipper Quito / Lurongyu 71108",
+   "occurrence": "2015-10-12",
+   "published": null,
+   "category": "Collision",
+   "vessel_type": "Tanker / Fishing Vessel",
+   "register": "The Norwegian International Ship Register / Not registered"
+  },
+  {
+   "report_no": "2017/02",
+   "imo": [],
+   "vessel": "Sjøkvisten",
+   "occurrence": "2016-05-09",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2017/01",
+   "imo": [
+    "6808533"
+   ],
+   "vessel": "Arctic Pioneer",
+   "occurrence": "2015-11-26",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2016/12",
+   "imo": [],
+   "vessel": "Starkad",
+   "occurrence": "2014-02-22",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2016/11",
+   "imo": [],
+   "vessel": "Jan Bjørn",
+   "occurrence": "2016-02-25",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2016/10",
+   "imo": [],
+   "vessel": "Viking 7",
+   "occurrence": "2014-07-06",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2016/09",
+   "imo": [],
+   "vessel": "Stortinn Jr.",
+   "occurrence": "2015-04-06",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2016/08",
+   "imo": [
+    "8814768"
+   ],
+   "vessel": "BW Havfrost",
+   "occurrence": "2014-06-09",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2016/07",
+   "imo": [
+    "7626011"
+   ],
+   "vessel": "Kim Roger",
+   "occurrence": "2016-01-04",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2016/06",
+   "imo": [
+    "9396153"
+   ],
+   "vessel": "Star Kvarven / Lulanyu 61809",
+   "occurrence": "2014-11-27",
+   "published": null,
+   "category": "Collision",
+   "vessel_type": "Bulk Cargo Ship / Fishing Vessel",
+   "register": "The Norwegian International Ship Register / Other Flag State"
+  },
+  {
+   "report_no": "2016/05",
+   "imo": [],
+   "vessel": "Østbanken",
+   "occurrence": "2015-01-09",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2016/04",
+   "imo": [],
+   "vessel": "Heidi",
+   "occurrence": "2015-02-16",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2016/03",
+   "imo": [
+    "8406494"
+   ],
+   "vessel": "Leif Roald",
+   "occurrence": "2015-01-17",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2016/02",
+   "imo": [],
+   "vessel": "Svendsen Senior",
+   "occurrence": "2014-04-23",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2016/01",
+   "imo": [],
+   "vessel": "Santana R-32-ES",
+   "occurrence": "2014-10-31",
+   "published": null,
+   "category": "Lost ship",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2015/06",
+   "imo": [],
+   "vessel": "Nora Victoria",
+   "occurrence": "2014-06-30",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Misc. Ship",
+   "register": null
+  },
+  {
+   "report_no": "2015/05",
+   "imo": [
+    "5005457"
+   ],
+   "vessel": "Chanko",
+   "occurrence": "2014-04-22",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Special Purpose Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2015/04",
+   "imo": [
+    "7024146"
+   ],
+   "vessel": "Skagastøl",
+   "occurrence": "2013-07-19",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2015/03",
+   "imo": [],
+   "vessel": "Mijana",
+   "occurrence": "2012-04-13",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2015/02",
+   "imo": [],
+   "vessel": "Carina",
+   "occurrence": "2014-02-12",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2015/01",
+   "imo": [],
+   "vessel": "Stålbjørn",
+   "occurrence": "2013-07-31",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Misc. Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2014/10",
+   "imo": [
+    "9298519"
+   ],
+   "vessel": "Favorita",
+   "occurrence": "2013-08-24",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2014/09",
+   "imo": [
+    "5341849"
+   ],
+   "vessel": "Finnøyglimt",
+   "occurrence": "2011-10-07",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2014/08",
+   "imo": [],
+   "vessel": "Isabella / skjærgårdsjeep",
+   "occurrence": "2013-07-27",
+   "published": null,
+   "category": "Collision",
+   "vessel_type": "Misc. Ship / Misc. Ship",
+   "register": "The Norwegian Ship Register / Not registered"
+  },
+  {
+   "report_no": "2014/07",
+   "imo": [
+    "4500163"
+   ],
+   "vessel": "Polaris I",
+   "occurrence": "2012-08-21",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "Other Flag State"
+  },
+  {
+   "report_no": "2014/06",
+   "imo": [
+    "9187899"
+   ],
+   "vessel": "North Tug/Ocean Princess",
+   "occurrence": "2013-06-10",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship / Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register / Other Flag State"
+  },
+  {
+   "report_no": "2014/05",
+   "imo": [
+    "9035709"
+   ],
+   "vessel": "MF Røst",
+   "occurrence": "2013-05-18",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2014/04",
+   "imo": [],
+   "vessel": "Sjøbas JR",
+   "occurrence": "2013-10-27",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2014/03",
+   "imo": [],
+   "vessel": "Maria",
+   "occurrence": "2012-07-03",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Misc. Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2014/02",
+   "imo": [
+    "9390276"
+   ],
+   "vessel": "Svealand",
+   "occurrence": "2012-04-03",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "General Cargo Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2014/01",
+   "imo": [],
+   "vessel": "Eiravåg",
+   "occurrence": "2013-05-01",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2013/11",
+   "imo": [
+    "9565429"
+   ],
+   "vessel": "Artus",
+   "occurrence": "2012-12-05",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2013/10",
+   "imo": [
+    "9243148"
+   ],
+   "vessel": "BW Suez Everett",
+   "occurrence": "2012-04-25",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2013/09",
+   "imo": [],
+   "vessel": "Fiskenes",
+   "occurrence": "2012-03-24",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2013/08",
+   "imo": [
+    "9073672"
+   ],
+   "vessel": "Full City",
+   "occurrence": "2009-07-31",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "Other Flag State"
+  },
+  {
+   "report_no": "2013/07",
+   "imo": [],
+   "vessel": "Ramona",
+   "occurrence": "2012-11-02",
+   "published": null,
+   "category": "Misc. accidents",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2013/06",
+   "imo": [],
+   "vessel": "Tennholmen",
+   "occurrence": "2013-03-02",
+   "published": null,
+   "category": "Misc. accidents",
+   "vessel_type": "Fishing Vessel",
+   "register": "Not registered"
+  },
+  {
+   "report_no": "2013/05",
+   "imo": [
+    "9139608"
+   ],
+   "vessel": "Volstad",
+   "occurrence": "2012-08-16",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2013/04",
+   "imo": [],
+   "vessel": "Sea Respons",
+   "occurrence": "2012-03-15",
+   "published": null,
+   "category": "Misc. accidents",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2013/03",
+   "imo": [
+    "9375977"
+   ],
+   "vessel": "Clipper Sund",
+   "occurrence": "2011-09-06",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2013/02",
+   "imo": [
+    "9048914"
+   ],
+   "vessel": "Nordlys",
+   "occurrence": "2011-09-15",
+   "published": null,
+   "category": "Misc. accidents",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2013/01",
+   "imo": [
+    "9510242"
+   ],
+   "vessel": "Tiderose",
+   "occurrence": "2012-09-16",
+   "published": null,
+   "category": "Misc. accidents",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2012/09",
+   "imo": [
+    "9086796"
+   ],
+   "vessel": "Godafoss",
+   "occurrence": "2011-02-17",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "General Cargo Ship",
+   "register": "Other Flag State"
+  },
+  {
+   "report_no": "2012/08",
+   "imo": [],
+   "vessel": "Langeland",
+   "occurrence": "2009-07-31",
+   "published": null,
+   "category": "Foundering",
+   "vessel_type": "General Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2012/06",
+   "imo": [
+    "9562996"
+   ],
+   "vessel": "MS Sollifjell",
+   "occurrence": "2010-03-24",
+   "published": null,
+   "category": "Weather damage",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2012/07",
+   "imo": [
+    "8913708"
+   ],
+   "vessel": "Solstraum",
+   "occurrence": "2011-02-04",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2011/03",
+   "imo": [
+    "9143219"
+   ],
+   "vessel": "Bow Cecil",
+   "occurrence": "2010-03-08",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Tanker",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2011/02",
+   "imo": [],
+   "vessel": "Monica IV",
+   "occurrence": "2009-09-08",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2010/11",
+   "imo": [],
+   "vessel": "Star Ismene",
+   "occurrence": "2008-12-16",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Combination Ship",
+   "register": "The Norwegian International Ship Register"
+  },
+  {
+   "report_no": "2010/10",
+   "imo": [
+    "8920567",
+    "9077551"
+   ],
+   "vessel": "Sundstraum / Kapitan Lus",
+   "occurrence": "2009-07-03",
+   "published": null,
+   "category": "Collision",
+   "vessel_type": "Tanker / General Cargo Ship",
+   "register": "The Norwegian International Ship Register / Other Flag State"
+  },
+  {
+   "report_no": "2010/09",
+   "imo": [],
+   "vessel": "Nysand",
+   "occurrence": "2008-10-24",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "General Cargo Ship",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2010/08",
+   "imo": [],
+   "vessel": "Lill-Anne",
+   "occurrence": "2009-03-11",
+   "published": null,
+   "category": "Lost ship",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2010/04",
+   "imo": [
+    "9037161"
+   ],
+   "vessel": "Crete Cement",
+   "occurrence": "2008-11-19",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "Other Flag State"
+  },
+  {
+   "report_no": "2010/03",
+   "imo": [
+    "9040429"
+   ],
+   "vessel": "Richard With",
+   "occurrence": "2009-01-06",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Passenger Ship - Ferry",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2010/02",
+   "imo": [],
+   "vessel": "Nesebuen",
+   "occurrence": "2009-01-06",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Ship Register"
+  },
+  {
+   "report_no": "2010/01",
+   "imo": [
+    "9205885"
+   ],
+   "vessel": "Federal Kivalina",
+   "occurrence": "2008-10-06",
+   "published": null,
+   "category": "Grounding",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "Other Flag State"
+  },
+  {
+   "report_no": "2009/05",
+   "imo": [],
+   "vessel": "Marina",
+   "occurrence": "2009-03-02",
+   "published": null,
+   "category": "Capsize",
+   "vessel_type": "Fishing Vessel",
+   "register": null
+  },
+  {
+   "report_no": "2009/04",
+   "imo": [
+    "6920111"
+   ],
+   "vessel": "Nordstar",
+   "occurrence": "2008-10-07",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Fishing Vessel",
+   "register": "The Norwegian Fishing Vessel Register"
+  },
+  {
+   "report_no": "2009/01",
+   "imo": [
+    "9310513"
+   ],
+   "vessel": "Star Java",
+   "occurrence": "2008-08-18",
+   "published": null,
+   "category": "Personal injury",
+   "vessel_type": "Bulk Cargo Ship",
+   "register": "The Norwegian International Ship Register"
+  }
+ ],
+ "ntsb_rows_recent": [
+  {
+   "NTSBReportNumber": "MIR-26-35",
+   "NTSBAccidentID": "DCA25FM009",
+   "Report_x0020_Date_x0020_Adopted": "2026-10-30T04:00:00Z",
+   "Accident_x0020_Date": "2024-12-05T05:00:00Z",
+   "vessels": [
+    "Morning Menad"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-33",
+   "NTSBAccidentID": "DCA25FM033",
+   "Report_x0020_Date_x0020_Adopted": "2026-10-14T04:00:00Z",
+   "Accident_x0020_Date": "2025-04-27T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-34",
+   "NTSBAccidentID": "DCA25FM018",
+   "Report_x0020_Date_x0020_Adopted": "2026-10-14T04:00:00Z",
+   "Accident_x0020_Date": "2025-01-16T05:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-32",
+   "NTSBAccidentID": "DCA24PM057",
+   "Report_x0020_Date_x0020_Adopted": "2026-10-07T04:00:00Z",
+   "Accident_x0020_Date": "2024-08-10T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-31",
+   "NTSBAccidentID": "DCA25FM027",
+   "Report_x0020_Date_x0020_Adopted": "2026-09-29T04:00:00Z",
+   "Accident_x0020_Date": "2025-03-19T04:00:00Z",
+   "vessels": [
+    "MPC 1056"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-30",
+   "NTSBAccidentID": "DCA25FM011",
+   "Report_x0020_Date_x0020_Adopted": "2026-09-18T04:00:00Z",
+   "Accident_x0020_Date": "2024-12-10T05:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-29",
+   "NTSBAccidentID": "DCA25FM040",
+   "Report_x0020_Date_x0020_Adopted": "2026-08-27T04:00:00Z",
+   "Accident_x0020_Date": "2025-05-17T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-28",
+   "NTSBAccidentID": "DCA24FM059",
+   "Report_x0020_Date_x0020_Adopted": "2026-08-27T04:00:00Z",
+   "Accident_x0020_Date": "2024-08-31T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-27",
+   "NTSBAccidentID": "DCA25FM054",
+   "Report_x0020_Date_x0020_Adopted": "2026-08-26T04:00:00Z",
+   "Accident_x0020_Date": "2025-08-16T04:00:00Z",
+   "vessels": [
+    "VK-817A"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-26",
+   "NTSBAccidentID": "DCA25FM005",
+   "Report_x0020_Date_x0020_Adopted": "2026-08-24T04:00:00Z",
+   "Accident_x0020_Date": "2024-11-15T05:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-25",
+   "NTSBAccidentID": "DCA25FM051",
+   "Report_x0020_Date_x0020_Adopted": "2026-07-23T04:00:00Z",
+   "Accident_x0020_Date": "2025-07-24T04:00:00Z",
+   "vessels": [
+    "GITN"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-24",
+   "NTSBAccidentID": "DCA24FM051",
+   "Report_x0020_Date_x0020_Adopted": "2026-07-22T04:00:00Z",
+   "Accident_x0020_Date": "2026-07-19T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-23",
+   "NTSBAccidentID": "DCA24FM055",
+   "Report_x0020_Date_x0020_Adopted": "2026-07-22T04:00:00Z",
+   "Accident_x0020_Date": "2024-08-08T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-22",
+   "NTSBAccidentID": "DCA25FM045",
+   "Report_x0020_Date_x0020_Adopted": "2026-07-15T04:00:00Z",
+   "Accident_x0020_Date": "2025-05-24T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-21",
+   "NTSBAccidentID": "DCA25FM032",
+   "Report_x0020_Date_x0020_Adopted": "2026-07-14T04:00:00Z",
+   "Accident_x0020_Date": "2025-04-22T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-20",
+   "NTSBAccidentID": "DCA25FM036",
+   "Report_x0020_Date_x0020_Adopted": "2026-07-08T04:00:00Z",
+   "Accident_x0020_Date": "2025-05-05T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-19",
+   "NTSBAccidentID": "DCA24FM043",
+   "Report_x0020_Date_x0020_Adopted": "2026-05-21T04:00:00Z",
+   "Accident_x0020_Date": "2024-06-02T04:00:00Z",
+   "vessels": [
+    "STAX"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-18",
+   "NTSBAccidentID": "DCA24FM045",
+   "Report_x0020_Date_x0020_Adopted": "2026-05-20T04:00:00Z",
+   "Accident_x0020_Date": "2024-06-06T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-17",
+   "NTSBAccidentID": "DCA25FM034",
+   "Report_x0020_Date_x0020_Adopted": "2026-05-14T04:00:00Z",
+   "Accident_x0020_Date": "2025-05-01T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-16",
+   "NTSBAccidentID": "DCA24FM039 ",
+   "Report_x0020_Date_x0020_Adopted": "2026-05-07T04:00:00Z",
+   "Accident_x0020_Date": "2024-05-14T04:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-15",
+   "NTSBAccidentID": "DCA24FM049",
+   "Report_x0020_Date_x0020_Adopted": "2026-04-30T04:00:00Z",
+   "Accident_x0020_Date": "2024-06-14T04:00:00Z",
+   "vessels": [
+    "Mackenzie Rose"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-14",
+   "NTSBAccidentID": "DCA24FM040",
+   "Report_x0020_Date_x0020_Adopted": "2026-04-27T04:00:00Z",
+   "Accident_x0020_Date": "2024-05-15T04:00:00Z",
+   "vessels": [
+    "LCPL"
+   ]
+  },
+  {
+   "NTSBReportNumber": "MIR-26-13",
+   "NTSBAccidentID": "DCA25FM012",
+   "Report_x0020_Date_x0020_Adopted": "2026-04-22T04:00:00Z",
+   "Accident_x0020_Date": "2024-12-29T05:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-12",
+   "NTSBAccidentID": "DCA25FM007",
+   "Report_x0020_Date_x0020_Adopted": "2026-04-07T04:00:00Z",
+   "Accident_x0020_Date": "2024-12-01T05:00:00Z",
+   "vessels": []
+  },
+  {
+   "NTSBReportNumber": "MIR-26-10",
+   "NTSBAccidentID": "DCA24FM034",
+   "Report_x0020_Date_x0020_Adopted": "2026-04-06T04:00:00Z",
+   "Accident_x0020_Date": "2024-04-16T04:00:00Z",
+   "vessels": [
+    "MPC 907",
+    "MPC 644"
+   ]
+  }
+ ]
+}

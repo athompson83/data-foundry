@@ -1,0 +1,174 @@
+{
+ "atomic_red_team_index": {
+  "distinct_atomic_test_guids": 1915,
+  "max_tests_for_one_technique": 91,
+  "supported_platform_mentions": {
+   "azure-ad": 26,
+   "containers": 25,
+   "google-workspace": 4,
+   "iaas:aws": 27,
+   "iaas:azure": 20,
+   "iaas:gcp": 13,
+   "linux": 520,
+   "macos": 323,
+   "office-365": 8,
+   "windows": 1692
+  },
+  "technique_ids_listed": 697,
+  "technique_ids_with_at_least_one_test": 353
+ },
+ "atomic_red_team_license_head": [
+  "The MIT License",
+  "Copyright (c) 2018 Red Canary, Inc."
+ ],
+ "atomicredteam_io_page": {
+  "names_technique_id": true,
+  "test_guids_from_index_found_on_page": 1,
+  "tests_in_index_for_this_id": 1,
+  "url": "https://www.atomicredteam.io/atomic-red-team/atomics/T1055.011"
+ },
+ "attack_mitre_org_workbook": {
+  "equal_to_live_stix_technique_ids": true,
+  "in_workbook_not_live_in_stix": [],
+  "live_in_stix_not_in_workbook": [],
+  "sheets": [
+   "techniques",
+   "tactics",
+   "software",
+   "groups",
+   "campaigns",
+   "mitigations",
+   "Enterprise ATT&CK matrix",
+   "relationships",
+   "datacomponents",
+   "analytics",
+   "detectionstrategies",
+   "defensive mappings",
+   "citations"
+  ],
+  "technique_ids_in_techniques_sheet": 706
+ },
+ "fetched": {
+  "atomic_index.yaml": {
+   "bytes": 6764659,
+   "sha256": "afa92a2c9b95b77d6ff0a318ae8000d9df04fc63101f87a7ac9fc6feb1fdf6f6",
+   "url": "https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/atomics/Indexes/index.yaml"
+  },
+  "atomic_license.txt": {
+   "bytes": 1078,
+   "sha256": "65af6027045d23175366eab50e460ab3ee7790e591cb84cc32c78ac63a4c90e1",
+   "url": "https://raw.githubusercontent.com/redcanaryco/atomic-red-team/master/LICENSE.txt"
+  },
+  "atomic_site_T1055.011.html": {
+   "bytes": 336232,
+   "sha256": "42302e55d22a7e4e6a5bf87232ccbd0f755382633a6bf03a7bb5d283df4eb5e3",
+   "url": "https://www.atomicredteam.io/atomic-red-team/atomics/T1055.011"
+  },
+  "attack.json": {
+   "bytes": 55277605,
+   "sha256": "539a843a7b53ed9749740b2123dddae3726b1a4831841c32aca740b011b910b5",
+   "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack.json"
+  },
+  "attack_enterprise.xlsx": {
+   "bytes": 4569699,
+   "sha256": "a2754c280a4dce9a3dd8e8fad5b510ad261d5dd80858fb20d078ff56d2dcaf09",
+   "url": "https://attack.mitre.org/docs/attack-excel-files/v20.1/enterprise-attack/enterprise-attack-v20.1.xlsx"
+  },
+  "attack_license.txt": {
+   "bytes": 1354,
+   "sha256": "738144f7fb054722a4ef9d3367c51710341dc12fc574c6ac3a41daaaecd8bf5e",
+   "url": "https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/LICENSE.txt"
+  }
+ },
+ "mitre_attack_enterprise": {
+  "attack_patterns": 867,
+  "campaigns": 57,
+  "collection_modified": "2026-11-05T15:11:27.678Z",
+  "collection_version": "20.1",
+  "deprecated_not_revoked": 12,
+  "description_characters": 992871,
+  "description_median_characters": 1294,
+  "detects_relationships": 706,
+  "groups": 193,
+  "live_sub_techniques": 479,
+  "live_techniques": 706,
+  "live_techniques_with_a_procedure_example": 619,
+  "live_top_level": 227,
+  "live_with_description": 706,
+  "live_with_distinct_external_id": 706,
+  "mitigates_relationships": 1477,
+  "mitigations": 268,
+  "newest_technique_modified": "2026-11-04T03:34:50.230Z",
+  "object_types": {
+   "attack-pattern": 867,
+   "campaign": 57,
+   "course-of-action": 268,
+   "identity": 1,
+   "intrusion-set": 193,
+   "malware": 750,
+   "marking-definition": 1,
+   "relationship": 21822,
+   "tool": 95,
+   "x-mitre-analytic": 1773,
+   "x-mitre-collection": 1,
+   "x-mitre-data-component": 109,
+   "x-mitre-data-source": 38,
+   "x-mitre-detection-strategy": 708,
+   "x-mitre-matrix": 1,
+   "x-mitre-tactic": 15
+  },
+  "objects": 26699,
+  "platforms": {
+   "Containers": 48,
+   "ESXi": 117,
+   "IaaS": 104,
+   "Identity Provider": 49,
+   "Linux": 356,
+   "Network Devices": 100,
+   "Office Suite": 79,
+   "PRE": 97,
+   "SaaS": 78,
+   "Windows": 479,
+   "macOS": 357
+  },
+  "procedure_example_characters": 3627320,
+  "procedure_example_relationships_to_live_techniques": 17636,
+  "procedure_examples_with_description": 17636,
+  "revoked": 149,
+  "software": 845,
+  "spec_version": "3.3.0",
+  "tactics": {
+   "collection": 41,
+   "command-and-control": 45,
+   "credential-access": 68,
+   "defense-impairment": 57,
+   "discovery": 49,
+   "execution": 66,
+   "exfiltration": 20,
+   "impact": 33,
+   "initial-access": 22,
+   "lateral-movement": 23,
+   "persistence": 113,
+   "privilege-escalation": 96,
+   "reconnaissance": 46,
+   "resource-development": 51,
+   "stealth": 151
+  }
+ },
+ "mitre_attack_license_first_sentence": "The MITRE Corporation (MITRE) hereby grants you a non-exclusive, royalty-free license to use ATT&CK® for research, development, and commercial purposes. Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy.",
+ "requests": {
+  "bodies_reused_from_same_day_cache": 4,
+  "made_this_run": 2,
+  "source_bodies": 6
+ },
+ "run_date": "2026-11-21",
+ "technique_id_join": {
+  "atomic_technique_ids_with_tests": 353,
+  "live_attack_techniques": 706,
+  "live_attack_techniques_with_atomic_test": 353,
+  "resolve_only_to_revoked_or_deprecated": [],
+  "resolve_to_live_attack_technique": 353,
+  "resolve_to_nothing": [],
+  "tests_under_matched_ids": 1915
+ }
+}

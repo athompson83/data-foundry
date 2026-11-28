@@ -1,0 +1,758 @@
+{
+ "measured_on": "2026-11-14",
+ "user_agent": "data-foundry-scout/1.0 (data@mail.proviciency.com)",
+ "wa_ago": {
+  "stats": {
+   "count": "1698",
+   "min_datesubmitted": "2015-08-11T00:00:00.000",
+   "max_datesubmitted": "2026-11-09T00:00:00.000"
+  },
+  "columns": [
+   "dateaware",
+   "datesubmitted",
+   "databreachcause",
+   "datestart",
+   "dateend",
+   "name",
+   "id",
+   "cyberattacktype",
+   "washingtoniansaffected",
+   "industrytype",
+   "businesstype",
+   "year",
+   "yeartext",
+   "washingtoniansaffectedrange",
+   "breachlifecyclerange",
+   "daystocontainbreach",
+   "daystoidentifybreach",
+   "daysbreachlifecycle",
+   "discoveredinprogress",
+   "daysofexposure",
+   "dayselapsedbetweenendanddiscovery",
+   "endedondaydiscovered",
+   "dayselapsedbeforenotification",
+   "daysofexposurerange",
+   "entitystate"
+  ],
+  "license": null,
+  "attribution": "Washington State Attorney General's Office Consumer Protection Division",
+  "rows_since_2024": 616,
+  "fill_since_2024": {
+   "id": 1.0,
+   "name": 1.0,
+   "datestart": 0.95,
+   "dateaware": 1.0,
+   "washingtoniansaffected": 1.0,
+   "databreachcause": 1.0,
+   "cyberattacktype": 0.734,
+   "industrytype": 1.0,
+   "entitystate": 0.981
+  },
+  "has_free_text": false
+ },
+ "ca_oag": {
+  "export_http": 200,
+  "export_content_type": "text/csv; charset=utf-8",
+  "header": [
+   "Organization Name",
+   "Date(s) of Breach  (if known)",
+   "Reported Date"
+  ],
+  "rows": 5440,
+  "reported_min": "2012-01-20",
+  "reported_max": "2026-11-13",
+  "breach_date_fill": 0.909,
+  "list_page_report_links": 50,
+  "report_sample": [
+   {
+    "report_id": "sb24-632903",
+    "sample_notice_pdfs": 1,
+    "pdf_bytes": 272131,
+    "words": 2128,
+    "describes_what_happened": false,
+    "lists_information_involved": false
+   },
+   {
+    "report_id": "sb24-632875",
+    "sample_notice_pdfs": 1,
+    "pdf_bytes": 224597,
+    "words": 1761,
+    "describes_what_happened": true,
+    "lists_information_involved": true
+   },
+   {
+    "report_id": "sb24-632869",
+    "sample_notice_pdfs": 1,
+    "pdf_bytes": 303956,
+    "words": 3198,
+    "describes_what_happened": true,
+    "lists_information_involved": true
+   },
+   {
+    "report_id": "sb24-632867",
+    "sample_notice_pdfs": 2,
+    "pdf_bytes": 294403,
+    "words": 2439,
+    "describes_what_happened": true,
+    "lists_information_involved": true
+   },
+   {
+    "report_id": "sb24-632866",
+    "sample_notice_pdfs": 1
+   },
+   {
+    "report_id": "sb24-632846",
+    "sample_notice_pdfs": 1
+   },
+   {
+    "report_id": "sb24-632787",
+    "sample_notice_pdfs": 1
+   },
+   {
+    "report_id": "sb24-632780",
+    "sample_notice_pdfs": 1
+   }
+  ],
+  "has_free_text": true
+ },
+ "or_doj": {
+  "http": 200,
+  "rows": 1682,
+  "reported_max": "2026-10-29",
+  "reported_min": "2015-10-30",
+  "number_affected_fill": 0.882,
+  "columns": [
+   "Organization",
+   "Reported Date",
+   "Dates of Breach",
+   "Dates of Discovery",
+   "Date Notice Sent",
+   "Number Affected"
+  ],
+  "has_free_text": false
+ },
+ "hhs_ocr": {
+  "direct_report_url_lands_on": "https://ocrportal.hhs.gov/ocr/breach/breach_frontpage.jsf?faces-redirect=true",
+  "captcha_on_frontpage": false,
+  "report_page": "https://ocrportal.hhs.gov/ocr/breach/breach_report_hip.jsf",
+  "report_http": 200,
+  "under_investigation_total": 718,
+  "csv_http": 200,
+  "csv_content_type": "text/csv;charset=UTF-8",
+  "csv_rows": 718,
+  "csv_header": [
+   "<entity name>",
+   "State",
+   "Covered Entity Type",
+   "Individuals Affected",
+   "Breach Submission Date",
+   "Type of Breach",
+   "Location of Breached Information",
+   "<business associate present>",
+   "Web Description"
+  ],
+  "submission_min": "2023-10-12",
+  "submission_max": "2026-10-16",
+  "web_description_fill": 0.0,
+  "individuals_affected_fill": 1.0,
+  "breach_types": [
+   "Hacking/IT Incident",
+   "Improper Disposal",
+   "Theft",
+   "Unauthorized Access/Disclosure"
+  ],
+  "note": "Covered entity names include sole practitioners (personal names); not written here. The archive tab (resolved cases, with web descriptions) was not fetched."
+ },
+ "other_reachability": {
+  "maine_ag": {
+   "http": 403,
+   "url": "https://www.maine.gov/agviewer/content/ag/985235c7-cb95-4be2-8792-a1252b4f8318/list.html",
+   "pdf_links": 0
+  },
+  "vermont_ag": {
+   "http": 404,
+   "url": "https://ago.vermont.gov/document-categories/security-breach-notices",
+   "pdf_links": 0
+  },
+  "indiana_ag": {
+   "http": 200,
+   "url": "https://www.in.gov/attorneygeneral/consumer-protection-division/id-theft-prevention/security-breaches/",
+   "pdf_links": 14
+  }
+ },
+ "terms": {
+  "oag_ca_conditions": "OWNERSHIP Considered in the public domain. It may be distributed or copied as permitted by law. However, the Department does make use of copyrighted data (e."
+ },
+ "join_wa_ca": {
+  "rows_since_2025": 388,
+  "distinct_orgs_since_2025": 380,
+  "matched_orgs": 221,
+  "breach_date_agrees": 195,
+  "check_rows_note": "first 20 matches in source order, hand-checked; all are businesses or public bodies",
+  "check_rows": [
+   {
+    "wa_id": "18182",
+    "wa_org": "American Trust Company",
+    "wa_reported": "2025-01-02",
+    "wa_breach_start": "2024-08-08",
+    "ca_org": "American Trust Company",
+    "ca_reported": "2025-01-02",
+    "ca_breach_dates": [
+     "2024-08-08"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18247",
+    "wa_org": "Avery Products Corporation",
+    "wa_reported": "2025-01-10",
+    "wa_breach_start": "2024-07-18",
+    "ca_org": "Avery Products Corporation",
+    "ca_reported": "2025-02-11",
+    "ca_breach_dates": [
+     "2024-07-19"
+    ],
+    "breach_date_agrees": false,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18293",
+    "wa_org": "Wolf Haldenstein Adler Freeman & Herz LLP",
+    "wa_reported": "2025-01-16",
+    "wa_breach_start": "2023-12-13",
+    "ca_org": "Wolf Haldenstein Adler Freeman & Herz LLP ",
+    "ca_reported": "2025-01-15",
+    "ca_breach_dates": [
+     "2023-12-13"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18294",
+    "wa_org": "Garden of Life, LLC",
+    "wa_reported": "2025-01-17",
+    "wa_breach_start": "2024-07-08",
+    "ca_org": "Garden of Life, LLC",
+    "ca_reported": "2025-01-17",
+    "ca_breach_dates": [
+     "2024-07-08"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18339",
+    "wa_org": "PowerSchool Group LLC",
+    "wa_reported": "2025-01-27",
+    "wa_breach_start": "2024-12-19",
+    "ca_org": "PowerSchool Group LLC",
+    "ca_reported": "2025-01-27",
+    "ca_breach_dates": [
+     "2024-12-19",
+     "2024-12-28"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18342",
+    "wa_org": "Berman & Rabin, P.A.",
+    "wa_reported": "2025-01-28",
+    "wa_breach_start": "2024-07-05",
+    "ca_org": "Berman & Rabin, P.A.",
+    "ca_reported": "2025-01-28",
+    "ca_breach_dates": [
+     "2024-07-05",
+     "2024-07-06",
+     "2024-07-07",
+     "2024-07-08"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18446",
+    "wa_org": "New Era Enterprises, Inc.",
+    "wa_reported": "2025-02-11",
+    "wa_breach_start": "2024-12-09",
+    "ca_org": "New Era Enterprises, Inc.",
+    "ca_reported": "2025-02-11",
+    "ca_breach_dates": [
+     "2024-12-09",
+     "2024-12-18"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18447",
+    "wa_org": "Medusind, Inc.",
+    "wa_reported": "2025-02-11",
+    "wa_breach_start": "2023-12-29",
+    "ca_org": "Medusind, Inc.",
+    "ca_reported": "2025-02-11",
+    "ca_breach_dates": [
+     "2023-12-29"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18499",
+    "wa_org": "Nuna Baby Essentials, Inc ",
+    "wa_reported": "2025-02-21",
+    "wa_breach_start": "2024-09-08",
+    "ca_org": "Nuna Baby Essentials, Inc",
+    "ca_reported": "2025-02-21",
+    "ca_breach_dates": [
+     "2024-09-08",
+     "2024-12-06"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18548",
+    "wa_org": "DISA Global Solutions, Inc.",
+    "wa_reported": "2025-02-24",
+    "wa_breach_start": "2024-02-09",
+    "ca_org": "DISA Global Solutions, Inc.",
+    "ca_reported": "2025-03-10",
+    "ca_breach_dates": [
+     "2024-02-09",
+     "2024-04-22"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18565",
+    "wa_org": "Valsoft Corporation Inc. d/b/a AllTrust",
+    "wa_reported": "2025-02-27",
+    "wa_breach_start": "2024-02-12",
+    "ca_org": "Valsoft Corporation Inc. d/b/a AllTrust",
+    "ca_reported": "2025-02-27",
+    "ca_breach_dates": [
+     "2024-02-12"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18568",
+    "wa_org": "Rivers Casino Philadelphia",
+    "wa_reported": "2025-02-28",
+    "wa_breach_start": "2024-10-14",
+    "ca_org": "Rivers Casino Philadelphia",
+    "ca_reported": "2025-02-28",
+    "ca_breach_dates": [
+     "2024-10-14",
+     "2024-10-22"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18601",
+    "wa_org": "Hillcrest Convalescent Center, Inc. ",
+    "wa_reported": "2025-03-04",
+    "wa_breach_start": "2024-06-27",
+    "ca_org": "Hillcrest Convalescent Center, Inc. ",
+    "ca_reported": "2025-03-04",
+    "ca_breach_dates": [
+     "2024-06-27"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18603",
+    "wa_org": "Colorado River Adventures",
+    "wa_reported": "2025-03-05",
+    "wa_breach_start": "2025-01-21",
+    "ca_org": "Colorado River Adventures",
+    "ca_reported": "2025-04-14",
+    "ca_breach_dates": [
+     "2025-01-21"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18612",
+    "wa_org": "United Seating and Mobility, LLC d/b/a Numotion (\"Numotion\")",
+    "wa_reported": "2025-03-07",
+    "wa_breach_start": "2024-09-02",
+    "ca_org": "United Seating and Mobility, LLC d/b/a Numotion (\u201cNumotion\u201d)",
+    "ca_reported": "2025-03-07",
+    "ca_breach_dates": [
+     "2024-09-02",
+     "2024-11-18"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18620",
+    "wa_org": "Smart ERP Solutions, Inc.",
+    "wa_reported": "2025-03-11",
+    "wa_breach_start": "2024-07-03",
+    "ca_org": "Smart ERP Solutions, Inc.",
+    "ca_reported": "2025-03-11",
+    "ca_breach_dates": [
+     "2024-07-03",
+     "2024-07-13"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18625",
+    "wa_org": "Trinity Petroleum Management, LLC",
+    "wa_reported": "2025-03-12",
+    "wa_breach_start": "2024-10-10",
+    "ca_org": "Trinity Petroleum Management, LLC",
+    "ca_reported": "2025-03-12",
+    "ca_breach_dates": [
+     "2024-10-10",
+     "2024-10-14"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18646",
+    "wa_org": "SAG-AFTRA Health Plan",
+    "wa_reported": "2025-03-14",
+    "wa_breach_start": "2024-09-17",
+    "ca_org": "SAG-AFTRA Health Plan",
+    "ca_reported": "2025-03-14",
+    "ca_breach_dates": [
+     "2024-09-17",
+     "2024-09-18"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18672",
+    "wa_org": "OBI Seafoods, LLC",
+    "wa_reported": "2025-03-19",
+    "wa_breach_start": "2024-08-12",
+    "ca_org": "OBI Seafoods, LLC ",
+    "ca_reported": "2025-03-19",
+    "ca_breach_dates": [
+     "2024-08-12"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "wa_id": "18673",
+    "wa_org": "Southeast Series of Lockton Companies, LLC (\u201cLockton\u201d)",
+    "wa_reported": "2025-03-20",
+    "wa_breach_start": "2024-11-20",
+    "ca_org": "Southeast Series of Lockton Companies, LLC (\u201cLockton\u201d)\u202f",
+    "ca_reported": "2025-04-08",
+    "ca_breach_dates": [
+     "2024-11-20"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   }
+  ]
+ },
+ "join_or_ca": {
+  "rows_since_2025": 410,
+  "distinct_orgs_since_2025": 391,
+  "matched_orgs": 199,
+  "breach_date_agrees": 151,
+  "check_rows_note": "first 20 matches in source order, hand-checked; all are businesses or public bodies",
+  "check_rows": [
+   {
+    "or_id": null,
+    "or_org": "Hippo Analytics Inc.",
+    "or_reported": "2026-10-29",
+    "or_breach_start": "2025-01-30",
+    "ca_org": "Hippo Analytics Inc.",
+    "ca_reported": "2026-11-03",
+    "ca_breach_dates": [
+     "2025-01-30"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Revolve Group, Inc.",
+    "or_reported": "2026-10-29",
+    "or_breach_start": "2026-09-11",
+    "ca_org": "Revolve Group, Inc.",
+    "ca_reported": "2026-10-29",
+    "ca_breach_dates": [
+     "2026-09-11"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Troutman Pepper Locke LLP",
+    "or_reported": "2026-10-28",
+    "or_breach_start": "2026-08-07",
+    "ca_org": "Troutman Pepper Locke LLP",
+    "ca_reported": "2026-10-28",
+    "ca_breach_dates": [
+     "2026-08-07"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Frontline Education",
+    "or_reported": "2026-10-27",
+    "or_breach_start": "2026-08-14",
+    "ca_org": "Frontline Education",
+    "ca_reported": "2026-10-26",
+    "ca_breach_dates": [
+     "2026-08-14",
+     "2026-08-15"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Photon Health",
+    "or_reported": "2026-10-21",
+    "or_breach_start": "2026-08-09",
+    "ca_org": "Photon Health ",
+    "ca_reported": "2026-10-28",
+    "ca_breach_dates": [
+     "2026-08-10",
+     "2026-08-10"
+    ],
+    "breach_date_agrees": false,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Aldrich Services LLP",
+    "or_reported": "2026-10-21",
+    "or_breach_start": "2026-08-22",
+    "ca_org": "Aldrich Services LLP",
+    "ca_reported": "2026-10-01",
+    "ca_breach_dates": [
+     "2026-08-22",
+     "2026-08-23"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Mercadien P.C., CPAs",
+    "or_reported": "2026-10-12",
+    "or_breach_start": "2025-09-17",
+    "ca_org": "Mercadien, P.C. CPAs ",
+    "ca_reported": "2026-10-20",
+    "ca_breach_dates": [
+     "2025-09-17"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Blueberry Pediatrics",
+    "or_reported": "2026-10-10",
+    "or_breach_start": "2026-08-10",
+    "ca_org": "Blueberry Pediatrics",
+    "ca_reported": "2026-10-10",
+    "ca_breach_dates": [
+     "2026-08-09"
+    ],
+    "breach_date_agrees": false,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "iRhythm Technologies Inc.",
+    "or_reported": "2026-10-06",
+    "or_breach_start": "0001-01-01",
+    "ca_org": "iRhythm Technologies Inc.",
+    "ca_reported": "2026-10-06",
+    "ca_breach_dates": [
+     "2026-06-03",
+     "2026-06-08"
+    ],
+    "breach_date_agrees": false,
+    "hand_check": "incorrect"
+   },
+   {
+    "or_id": null,
+    "or_org": "Sheppard, Mullin, Richter & Hampton LLP",
+    "or_reported": "2026-10-02",
+    "or_breach_start": "2026-08-31",
+    "ca_org": "Sheppard, Mullin, Richter & Hampton LLP",
+    "ca_reported": "2026-10-02",
+    "ca_breach_dates": [
+     "2026-08-31"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Poppins Payroll Company",
+    "or_reported": "2026-09-30",
+    "or_breach_start": "2026-09-03",
+    "ca_org": "Poppins Payroll Company",
+    "ca_reported": "2026-09-29",
+    "ca_breach_dates": [
+     "2026-09-03"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "City of McMinnville",
+    "or_reported": "2026-09-29",
+    "or_breach_start": "2026-06-01",
+    "ca_org": "City of McMinnville",
+    "ca_reported": "2026-09-29",
+    "ca_breach_dates": [
+     "2026-06-01"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Upbound Group, Inc.",
+    "or_reported": "2026-09-28",
+    "or_breach_start": "2026-07-03",
+    "ca_org": "Upbound Group, Inc.",
+    "ca_reported": "2026-09-27",
+    "ca_breach_dates": [
+     "2026-07-03",
+     "2026-07-06"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "MedImpact Healthcare Systems, Inc.",
+    "or_reported": "2026-09-26",
+    "or_breach_start": "2025-10-18",
+    "ca_org": "MedImpact Healthcare Systems, Inc.",
+    "ca_reported": "2026-09-25",
+    "ca_breach_dates": [
+     "2025-10-18"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Ridgeway Pharmacy Ltd",
+    "or_reported": "2026-09-21",
+    "or_breach_start": "2026-06-07",
+    "ca_org": "Ridgeway Pharmacy Ltd",
+    "ca_reported": "2026-09-21",
+    "ca_breach_dates": [
+     "2026-06-07"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Kaniksu Community Health",
+    "or_reported": "2026-09-15",
+    "or_breach_start": "2025-12-02",
+    "ca_org": "Kaniksu Community Health",
+    "ca_reported": "2026-09-01",
+    "ca_breach_dates": [
+     "2025-12-18"
+    ],
+    "breach_date_agrees": false,
+    "hand_check": "incorrect"
+   },
+   {
+    "or_id": null,
+    "or_org": "zHealth, Inc.",
+    "or_reported": "2026-09-11",
+    "or_breach_start": "2026-01-20",
+    "ca_org": "zHealth, Inc.",
+    "ca_reported": "2026-09-11",
+    "ca_breach_dates": [
+     "2026-01-20",
+     "2026-01-21"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Cornerstone Staffing Solutions, Inc.",
+    "or_reported": "2026-09-11",
+    "or_breach_start": "2025-11-06",
+    "ca_org": "Cornerstone Staffing Solutions, Inc.",
+    "ca_reported": "2026-09-11",
+    "ca_breach_dates": [
+     "2025-11-06",
+     "2025-11-21"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Greenberg Traurig, LLP (\u201cGT\u201d)",
+    "or_reported": "2026-09-09",
+    "or_breach_start": "2026-08-26",
+    "ca_org": "Greenberg Traurig, LLP (\u201cGT\u201d)",
+    "ca_reported": "2026-10-01",
+    "ca_breach_dates": [
+     "2026-08-26"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   },
+   {
+    "or_id": null,
+    "or_org": "Quatrro Business Support Services, Inc.",
+    "or_reported": "2026-09-09",
+    "or_breach_start": "2025-11-11",
+    "ca_org": "Quatrro Business Support Services, Inc.",
+    "ca_reported": "2026-09-09",
+    "ca_breach_dates": [
+     "2025-11-11",
+     "2025-11-19"
+    ],
+    "breach_date_agrees": true,
+    "hand_check": "correct"
+   }
+  ]
+ },
+ "hand_check": {
+  "wa_ca": {
+   "correct": 20,
+   "checked": 20,
+   "unreviewed_check_rows": 0,
+   "source": "breach_handcheck.json (reviewed 2026-11-14)"
+  },
+  "or_ca": {
+   "correct": 18,
+   "checked": 20,
+   "unreviewed_check_rows": 0,
+   "source": "breach_handcheck.json (reviewed 2026-11-14)"
+  }
+ }
+}

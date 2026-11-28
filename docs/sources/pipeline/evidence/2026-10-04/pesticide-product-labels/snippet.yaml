@@ -1,0 +1,121 @@
+candidates:
+  - key: pesticide-epa-ppis
+    name: EPA Pesticide Product Information System (PPIS) weekly ASCII files (FIFRA Section 3 products, formulations, CAS crosswalk)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: US EPA Office of Pesticide Programs
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.epa.gov/ingredients-used-pesticide-products/ppis-download-product-information-data', 'https://www3.epa.gov/pesticides/PPISdata/product.zip', 'https://www3.epa.gov/pesticides/PPISdata/formula.zip', 'https://www3.epa.gov/pesticides/PPISdata/chemcas.zip' ]
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    conditions:
+      - 'The EPA disclaimer reserves commercial-use copyright for some documents; PPIS rows are EPA-authored registration facts (registration number, product name, status, approval date, active-ingredient code and percentage, CAS), so serve only those fields and resolve the commercial-use wording in an ADR-0013 rights record.'
+      - 'Fixed-width ASCII with no label text: product names and company names are registrant-supplied; exclude company contact fields (company.txt carries personal contact names and phone numbers) from publication.'
+      - 'Files are refreshed every Tuesday (EPA page); archive each snapshot in R2 and record the file date so freshness is never overstated.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Write the ADR-0013 rights record for PPIS, parse product/formula/chemcas/chemname/prodsite/prodpest into typed records keyed by registration number and PC_CODE, and archive the weekly zips in R2.
+
+  - key: pesticide-pmra-ppid
+    name: Health Canada PMRA Pesticide Product Information Database (daily CSV extracts, OGL-Canada)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: Health Canada Pest Management Regulatory Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://open.canada.ca/data/en/dataset/e10b0d6e-04ac-4014-a64a-666c3874bbe0', 'https://pest-control.canada.ca/pesticide-registry-api/api/extract/product', 'https://pest-control.canada.ca/pesticide-registry-api/api/extract/ingredient' ]
+    scores: { agent_demand: 4, rights_clarity: 5, acquisition_ease: 5, structuring_value: 4, freshness: 5, low_onboarding_cost: 5, poor_existing_access: 3 }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+    conditions:
+      - 'Open Government Licence - Canada: include the attribution statement and do not suggest official status or endorsement by the Information Provider.'
+      - 'Extracts are Windows-1252 CSV (bilingual); decode explicitly. Historical products carry placeholder text for missing active ingredients; filter on the Current / Historical column.'
+      - 'The label extract lists only registration number, registrant, product name and status (no label text); label PDFs are not bulk-served, so use-direction text must come from the Sites of Use and Pests fields until a label source is acquired.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Write the ADR-0013 rights record (OGL-Canada attribution), ingest the product, ingredient, application and mrl extracts nightly keyed by registration number and CAS, and probe the registry for label PDF URLs.
+
+  - key: pesticide-apvma-pubcris
+    name: APVMA PubCRIS registered agricultural and veterinary chemical products (data.gov.au CSV, CC BY 3.0 AU)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: Australian Pesticides and Veterinary Medicines Authority
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.gov.au/data/dataset/0de37904-43e0-4814-b21b-5b64fafefe6f', 'https://portal.apvma.gov.au/pubcris' ]
+    scores: { agent_demand: 3, rights_clarity: 4, acquisition_ease: 4, structuring_value: 3, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    terms:
+      - url: https://creativecommons.org/licenses/by/3.0/au/
+        quote: 'Share — copy and redistribute the material in any medium or format for any purpose, even commercially.'
+    conditions:
+      - 'CC BY 3.0 AU: attribute the APVMA, link the licence and indicate changes. The licence is declared in data.gov.au metadata for the dataset; the PubCRIS portal copyright page returned HTTP 404 from the guessed URL, so confirm the portal notice in the rights record.'
+      - 'Constituents are identified by APVMA code and name only (no CAS number in constit.csv), so links to chemical datasets are name-based review candidates.'
+      - 'No label text or use-direction prose in the bulk CSVs (produse.csv holds host and pest codes); label documents are portal-only.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Confirm the PubCRIS portal copyright notice, ingest product, prodcon, constit, pest and host CSVs weekly, and decode host and pest codes via the alias tables.
+
+  - key: pesticide-epa-ppls-labels
+    name: EPA Pesticide Product and Label System (PPLS) accepted-label PDFs
+    category: chemical-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: US EPA Office of Pesticide Programs
+    stage: PARKED
+    rights: AMBER
+    sources: [ 'https://ordspub.epa.gov/ords/pesticides/f?p=PPLS:1' ]
+    scores: { agent_demand: 5, rights_clarity: 3, acquisition_ease: 1, structuring_value: 5, freshness: 5, low_onboarding_cost: 2, poor_existing_access: 3 }
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: 'These documents may be freely distributed and used for non-commercial, scientific and educational purposes. Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.'
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: 'PARKED: PPLS is a session-bound Oracle APEX search (f?p=PPLS:1, search by registration number) with no bulk file or documented PDF listing; label PDF URLs were not discovered, so no label text was measured. Reopen when a stable label PDF URL list or bulk is found (the PPIS prodtype/prodxfer files carry no label dates).'
+
+  - key: pesticide-eu-pesticides-database
+    name: EU Pesticides Database (active substances, approval status, MRLs)
+    category: chemical-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG SANTE
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://ec.europa.eu/food/plant/pesticides/eu-pesticides-database/api/' ]
+    scores: { agent_demand: 3, rights_clarity: 2, acquisition_ease: 1, structuring_value: 3, freshness: 3, low_onboarding_cost: 2, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: 'PARKED: every probe of the database API path returned HTTP 200 with a "Server temporarily unavailable" error page (40,691 bytes) and no JSON; terms unread. Retry from Cloudflare Worker egress; the database lists active substances, not products or labels, so it is a chemical-reference member rather than a product member.'
+
+datasets:
+  - key: pesticide-product-labels
+    name: Registered pesticide products with active ingredients, CAS numbers and use sites (US, Canada, Australia)
+    category: chemical-safety
+    entity: pesticide_product (one registered product per national registration number) with active ingredients, CAS numbers, registration status and use sites or pests
+    stage: SCREENED
+    description: 'One record per registered pesticide product from the US EPA (PPIS), Health Canada PMRA (PPID) and the APVMA (PubCRIS), linked to chemicals by the active ingredient CAS number. EPA names a CAS number per active-ingredient code (983 of 1220 codes in active-product formulations carry one) and PMRA lists a CAS number per active ingredient (943 of 1315); 641 CAS numbers appear in both. The label-text member (EPA PPLS accepted-label PDFs) is parked until a bulk or stable PDF route is found, so the composite has no free-text member yet and cannot advance to EVIDENCED.'
+    sources: [ pesticide-epa-ppis, pesticide-pmra-ppid, pesticide-apvma-pubcris ]
+    join_keys:
+      - key: CAS number (EPA PC_CODE to CAS crosswalk against PMRA ingredient CAS number)
+        between: [ pesticide-epa-ppis, pesticide-pmra-ppid ]
+        measured: '641/1069 EPA active-ingredient CAS numbers (all PC_CODEs in Section 3 active-product formulations that carry a CAS) also appear among the 943 PMRA ingredient CAS numbers (641/943); hand-check of 25 sampled pairs: all 25 name the same substance, 3 differ in how mixture composition is described'
+        mode: declared
+      - key: active ingredient name (PMRA ingredient list against APVMA constituent list, exact after removing punctuation and case)
+        between: [ pesticide-pmra-ppid, pesticide-apvma-pubcris ]
+        measured: '418/1315 PMRA ingredient names equal an APVMA constituent name after normalisation; APVMA constituents carry no CAS number'
+        mode: candidate
+        reviewed: { correct: 20, checked: 20 }
+    taxonomy:
+      - 'Pesticide type (insecticide, herbicide, fungicide, rodenticide, disinfectant, biopesticide)'
+      - 'Registration status (registered, conditionally registered, cancelled, historical)'
+      - 'Use site category and target pest'
+      - 'Active ingredient by CAS number and chemical group'
+      - 'Restricted-use classification (EPA RUP flag)'
+    agent_questions:
+      - 'Which registered pesticide products in the US and Canada contain this active ingredient (by CAS number) and what is each product status?'
+      - 'Is this active ingredient registered in all three jurisdictions, and what products carry it in each?'
+      - 'Which active products are restricted use in the US and what are their registration numbers and approval dates?'
+    scores: { agent_demand: 4, rights_clarity: 3, acquisition_ease: 4, structuring_value: 4, freshness: 5, low_onboarding_cost: 4, poor_existing_access: 3 }
+    evidence: [ docs/sources/pipeline/research-2026-10-04.md, docs/sources/pipeline/evidence/2026-10-04/pesticide-product-labels/notes.md ]
+    next_action: Find a bulk or stable-URL route to the EPA PPLS label PDFs (the free-text member), write ADR-0013 rights records for PPIS, PPID and PubCRIS, and extend the CAS link to the chemical-hazard-classifications dataset (86 of 1069 EPA CAS numbers appear in the NIOSH index).

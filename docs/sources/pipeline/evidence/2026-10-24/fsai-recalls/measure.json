@@ -1,0 +1,13 @@
+{
+ "fsai_list_pages_scanned": 36,
+ "fsai_alert_links_found": 352,
+ "detail_pages_fetched": 40,
+ "detail_with_date": 40,
+ "detail_with_batch_or_dates_text": 40,
+ "fsai_detail_dates": [
+  "2026-06-12",
+  "2026-10-23"
+ ],
+ "fsa_alerts": 1372,
+ "candidate_cross_links_fsai_fsa": 26
+}

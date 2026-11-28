@@ -1,0 +1,288 @@
+[
+ {
+  "statement_date": "2024-01-31",
+  "stated": [
+   5.25,
+   5.5
+  ],
+  "nyfed_next_business_day": "2024-02-01",
+  "nyfed_target": [
+   5.25,
+   5.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-03-20",
+  "stated": [
+   5.25,
+   5.5
+  ],
+  "nyfed_next_business_day": "2024-03-21",
+  "nyfed_target": [
+   5.25,
+   5.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-05-01",
+  "stated": [
+   5.25,
+   5.5
+  ],
+  "nyfed_next_business_day": "2024-05-02",
+  "nyfed_target": [
+   5.25,
+   5.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-06-12",
+  "stated": [
+   5.25,
+   5.5
+  ],
+  "nyfed_next_business_day": "2024-06-13",
+  "nyfed_target": [
+   5.25,
+   5.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-07-31",
+  "stated": [
+   5.25,
+   5.5
+  ],
+  "nyfed_next_business_day": "2024-08-01",
+  "nyfed_target": [
+   5.25,
+   5.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-09-18",
+  "stated": [
+   4.75,
+   5.0
+  ],
+  "nyfed_next_business_day": "2024-09-19",
+  "nyfed_target": [
+   4.75,
+   5.0
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-11-07",
+  "stated": [
+   4.5,
+   4.75
+  ],
+  "nyfed_next_business_day": "2024-11-08",
+  "nyfed_target": [
+   4.5,
+   4.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2024-12-18",
+  "stated": [
+   4.25,
+   4.5
+  ],
+  "nyfed_next_business_day": "2024-12-19",
+  "nyfed_target": [
+   4.25,
+   4.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-01-29",
+  "stated": [
+   4.25,
+   4.5
+  ],
+  "nyfed_next_business_day": "2025-01-30",
+  "nyfed_target": [
+   4.25,
+   4.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-03-19",
+  "stated": [
+   4.25,
+   4.5
+  ],
+  "nyfed_next_business_day": "2025-03-20",
+  "nyfed_target": [
+   4.25,
+   4.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-05-07",
+  "stated": [
+   4.25,
+   4.5
+  ],
+  "nyfed_next_business_day": "2025-05-08",
+  "nyfed_target": [
+   4.25,
+   4.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-06-18",
+  "stated": [
+   4.25,
+   4.5
+  ],
+  "nyfed_next_business_day": "2025-06-20",
+  "nyfed_target": [
+   4.25,
+   4.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-07-30",
+  "stated": [
+   4.25,
+   4.5
+  ],
+  "nyfed_next_business_day": "2025-07-31",
+  "nyfed_target": [
+   4.25,
+   4.5
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-09-17",
+  "stated": [
+   4.0,
+   4.25
+  ],
+  "nyfed_next_business_day": "2025-09-18",
+  "nyfed_target": [
+   4.0,
+   4.25
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-10-29",
+  "stated": [
+   3.75,
+   4.0
+  ],
+  "nyfed_next_business_day": "2025-10-30",
+  "nyfed_target": [
+   3.75,
+   4.0
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2025-12-10",
+  "stated": [
+   3.5,
+   3.75
+  ],
+  "nyfed_next_business_day": "2025-12-11",
+  "nyfed_target": [
+   3.5,
+   3.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2026-01-28",
+  "stated": [
+   3.5,
+   3.75
+  ],
+  "nyfed_next_business_day": "2026-01-29",
+  "nyfed_target": [
+   3.5,
+   3.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2026-03-18",
+  "stated": [
+   3.5,
+   3.75
+  ],
+  "nyfed_next_business_day": "2026-03-19",
+  "nyfed_target": [
+   3.5,
+   3.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2026-04-29",
+  "stated": [
+   3.5,
+   3.75
+  ],
+  "nyfed_next_business_day": "2026-04-30",
+  "nyfed_target": [
+   3.5,
+   3.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2026-06-17",
+  "stated": [
+   3.5,
+   3.75
+  ],
+  "nyfed_next_business_day": "2026-06-18",
+  "nyfed_target": [
+   3.5,
+   3.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2026-07-29",
+  "stated": [
+   3.5,
+   3.75
+  ],
+  "nyfed_next_business_day": "2026-07-30",
+  "nyfed_target": [
+   3.5,
+   3.75
+  ],
+  "agree": true
+ },
+ {
+  "statement_date": "2026-09-16",
+  "stated": [
+   3.75,
+   4.0
+  ],
+  "nyfed_next_business_day": "2026-09-17",
+  "nyfed_target": [
+   3.75,
+   4.0
+  ],
+  "agree": true
+ }
+]

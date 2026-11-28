@@ -1,0 +1,70 @@
+{
+ "round": "2026-09-30",
+ "sanctions": {
+  "ofac_sdn": {
+   "publish_date": "09/30/2026",
+   "entries": 19452,
+   "types": {
+    "Entity": 10006,
+    "Individual": 7565,
+    "Vessel": 1539,
+    "Aircraft": 342
+   },
+   "with_remarks": 8911
+  },
+  "un_consolidated": {
+   "generated": "2026-09-29T23:00:05.384Z",
+   "individuals": 736,
+   "entities": 275,
+   "with_comments": 922
+  },
+  "eu_fsf": {
+   "generated": "2026-09-22T20:01:34.799+02:00",
+   "entities": 6241,
+   "citing_un_reference": 87,
+   "cited_reference_resolves_in_un_list": 81
+  },
+  "uk_ofsi_conlist_2022format": {
+   "last_modified_header": "Wed, 03 Jun 2026 11:02:48 GMT",
+   "rows": 19761,
+   "groups": 5135,
+   "distinct_statements_of_reasons": 3150
+  }
+ },
+ "tenders": {
+  "uk_contracts_finder_ocds": {
+   "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+   "releases_in_page": 100,
+   "publisher": "Cabinet Office"
+  },
+  "canadabuys_open_tenders": {
+   "rows": 909,
+   "latest_publication": "2026-09-29",
+   "with_english_description": 895
+  }
+ },
+ "accidents": {
+  "uk_aaib": {
+   "total": 11355,
+   "newest": "2026-09-24T09:00:30Z",
+   "newest_title": "AAIB investigation to Boeing 737-800, 9H-QBD"
+  },
+  "msha_accidents": {
+   "rows": 275067,
+   "earliest": "20000101",
+   "latest": "20260922",
+   "with_narrative": 275065,
+   "with_equipment_manufacturer_and_model": 109300
+  }
+ },
+ "caselaw_and_directives": {
+  "uk_find_case_law": {
+   "pages_of_2": 8207,
+   "rights_link": "https://caselaw.nationalarchives.gov.uk/open-justice-licence"
+  },
+  "federal_register_faa_ad_rules": {
+   "count_reported": 10000,
+   "newest": "2026-08-28"
+  }
+ }
+}

@@ -1,0 +1,340 @@
+{
+ "epa_counts": {
+  "WATER_SYSTEM": 434040,
+  "VIOLATION": 2098792,
+  "ENFORCEMENT_ACTION": 2246037
+ },
+ "epa_ca_counts": {
+  "WATER_SYSTEM": 18607,
+  "VIOLATION": 50987,
+  "ENFORCEMENT_ACTION": 21283
+ },
+ "epa": {
+  "ws_rows_ca_pulled": 18607,
+  "viol_sample": 2001,
+  "enf_sample": 5001,
+  "enf_with_comment_text": 2794,
+  "enf_newest_date": "2026-04-20 00:00:00",
+  "viol_newest_begin": "2026-01-16 00:00:00",
+  "ws_fields": [
+   "address_line1",
+   "address_line2",
+   "admin_name",
+   "alt_phone_number",
+   "cds_id",
+   "city_name",
+   "country_code",
+   "dbpr_schedule_cat_code",
+   "email_addr",
+   "epa_region",
+   "fax_number",
+   "gw_sw_code",
+   "is_grant_eligible_ind",
+   "is_school_or_daycare_ind",
+   "is_wholesaler_ind",
+   "lt2_schedule_cat_code",
+   "npm_candidate",
+   "org_name",
+   "outstanding_perform_begin_date",
+   "outstanding_performer",
+   "owner_type_code",
+   "phone_ext_number",
+   "phone_number",
+   "pop_cat_11_code",
+   "pop_cat_2_code",
+   "pop_cat_3_code",
+   "pop_cat_4_code",
+   "pop_cat_5_code",
+   "population_served_count",
+   "primacy_agency_code",
+   "primacy_type",
+   "primary_source_code",
+   "pws_activity_code",
+   "pws_deactivation_date",
+   "pws_name",
+   "pws_type_code",
+   "pwsid",
+   "season_begin_date",
+   "season_end_date",
+   "service_connections_count",
+   "source_protection_begin_date",
+   "source_water_protection_code",
+   "state_code",
+   "submission_status_code",
+   "zip_code"
+  ],
+  "viol_fields": [
+   "compl_per_begin_date",
+   "compl_per_end_date",
+   "compliance_status_code",
+   "contaminant_code",
+   "corrective_action_id",
+   "epa_region",
+   "facility_id",
+   "is_health_based_ind",
+   "is_major_viol_ind",
+   "latest_enforcement_id",
+   "npm_candidate",
+   "originator_code",
+   "pop_cat_5_code",
+   "population_served_count",
+   "primacy_agency_code",
+   "primary_source_code",
+   "public_notification_tier",
+   "pws_activity_code",
+   "pws_deactivation_date",
+   "pws_type_code",
+   "pwsid",
+   "rtc_date",
+   "rtc_enforcement_id",
+   "rule_code",
+   "rule_family_code",
+   "rule_group_code",
+   "sample_result_id",
+   "severity_ind_cnt",
+   "state_mcl",
+   "unit_of_measure",
+   "viol_measure",
+   "violation_category_code",
+   "violation_code",
+   "violation_id"
+  ],
+  "enf_fields": [
+   "enforcement_action_type_code",
+   "enforcement_comment_text",
+   "enforcement_date",
+   "enforcement_id",
+   "originator_code",
+   "pwsid"
+  ],
+  "personal_fields_excluded": [
+   "admin_name",
+   "phone_number",
+   "email_addr",
+   "alt_phone_number",
+   "fax_number"
+  ],
+  "sample_enf_comments": [
+   "Failure to submit Service Line Inventory. Section 1414(g) of the Safe Drinking Water Act (SDWA), 42 U.S.C. \u00a7 300-3(g). Administrative Order, Docket No. PWS-AO-2",
+   "02_04_17C_006_0105016_23",
+   "02_04_16C_007_0105017_25",
+   "This TCR violation has been closed with this SOX enforcement record due to rTCR implementation on 4/1/2016.",
+   "Due to rTCR implementation, this TCR violation has been closed with this SOX enforcement record on 01/25/2019."
+  ]
+ },
+ "safer": {
+  "rows": 3190,
+  "cols": 140,
+  "created_date": "2026-10-02",
+  "metadata_modified": "2026-10-02T14:34:18.061391",
+  "license_title": "Other (Public Domain)",
+  "accrual": "R/P1D",
+  "prose_fields": [
+   "*_THRESHOLD_MET (criterion prose)",
+   "AUTOMATICALLY_AT_RISK_REASON",
+   "*_ANALYTES"
+  ],
+  "at_risk_reason_filled": 204
+ },
+ "join_pwsid_safer_epa": {
+  "matched": 3190,
+  "total": 3190,
+  "population_equal": 2241,
+  "epa_active_status": 3187,
+  "mcl_flag_crosscheck": {
+   "flagged_total_in_safer": 254,
+   "sampled": 25,
+   "sampled_with_epa_mcl_record": 19,
+   "errors": 0,
+   "sample": [
+    {
+     "pwsid": "CA1610002",
+     "epa_violations": 24,
+     "epa_mcl_violations": 18
+    },
+    {
+     "pwsid": "CA5410009",
+     "epa_violations": 39,
+     "epa_mcl_violations": 28
+    },
+    {
+     "pwsid": "CA1300555",
+     "epa_violations": 5,
+     "epa_mcl_violations": 2
+    },
+    {
+     "pwsid": "CA2000552",
+     "epa_violations": 60,
+     "epa_mcl_violations": 49
+    },
+    {
+     "pwsid": "CA3610117",
+     "epa_violations": 8,
+     "epa_mcl_violations": 2
+    },
+    {
+     "pwsid": "CA1000042",
+     "epa_violations": 35,
+     "epa_mcl_violations": 35
+    },
+    {
+     "pwsid": "CA1000187",
+     "epa_violations": 2,
+     "epa_mcl_violations": 0
+    },
+    {
+     "pwsid": "CA5000048",
+     "epa_violations": 2,
+     "epa_mcl_violations": 2
+    },
+    {
+     "pwsid": "CA2702608",
+     "epa_violations": 7,
+     "epa_mcl_violations": 7
+    },
+    {
+     "pwsid": "CA1000359",
+     "epa_violations": 53,
+     "epa_mcl_violations": 48
+    },
+    {
+     "pwsid": "CA2000501",
+     "epa_violations": 18,
+     "epa_mcl_violations": 17
+    },
+    {
+     "pwsid": "CA3500006",
+     "epa_violations": 3,
+     "epa_mcl_violations": 0
+    },
+    {
+     "pwsid": "CA1000054",
+     "epa_violations": 16,
+     "epa_mcl_violations": 12
+    },
+    {
+     "pwsid": "CA5400792",
+     "epa_violations": 2,
+     "epa_mcl_violations": 0
+    },
+    {
+     "pwsid": "CA2701040",
+     "epa_violations": 20,
+     "epa_mcl_violations": 20
+    },
+    {
+     "pwsid": "CA1500436",
+     "epa_violations": 50,
+     "epa_mcl_violations": 39
+    },
+    {
+     "pwsid": "CA0800603",
+     "epa_violations": 8,
+     "epa_mcl_violations": 0
+    },
+    {
+     "pwsid": "CA1000316",
+     "epa_violations": 6,
+     "epa_mcl_violations": 6
+    },
+    {
+     "pwsid": "CA2300506",
+     "epa_violations": 1,
+     "epa_mcl_violations": 0
+    },
+    {
+     "pwsid": "CA2000737",
+     "epa_violations": 72,
+     "epa_mcl_violations": 67
+    },
+    {
+     "pwsid": "CA1000180",
+     "epa_violations": 0,
+     "epa_mcl_violations": 0
+    },
+    {
+     "pwsid": "CA1500566",
+     "epa_violations": 18,
+     "epa_mcl_violations": 13
+    },
+    {
+     "pwsid": "CA1000345",
+     "epa_violations": 35,
+     "epa_mcl_violations": 25
+    },
+    {
+     "pwsid": "CA3200104",
+     "epa_violations": 25,
+     "epa_mcl_violations": 22
+    },
+    {
+     "pwsid": "CA2000800",
+     "epa_violations": 17,
+     "epa_mcl_violations": 13
+    }
+   ]
+  }
+ },
+ "ontario": {
+  "fiscal_year": "2024-25 (files stamped 2025-11-28; dataset metadata_modified 2026-08-12, yearly)",
+  "awqi_rows": 2882,
+  "orders_rows": 14,
+  "inspection_rows": 1053,
+  "awqi_cols": [
+   "DWS Category",
+   "Owner Legal Name",
+   "DWS #",
+   "DWS Name",
+   "Municipality Name",
+   "PHU Legal Name",
+   "AWQI Notification #",
+   "AWQI Incident Date",
+   "AWQI Date Resolved",
+   "Fiscal Year",
+   "REG170_PARAMETER_NAME",
+   "Parameter Group"
+  ],
+  "orders_cols": [
+   "DWS #",
+   "Municipality Name",
+   "DWS Category",
+   "DWS Name",
+   "Owner Legal Name",
+   "Operating Authority Legal Name",
+   "Order Summary",
+   "Order Type",
+   "Instrument Status",
+   "Director's Order",
+   "Date Instrument Issued",
+   "Fiscal Year"
+  ],
+  "inspection_cols": [
+   "DWS #",
+   "Inspection Fiscal Year",
+   "DWS Name",
+   "Owner Legal Name",
+   "Operating Authority Legal Name",
+   "DWS Category",
+   "Inspection Type",
+   "Date Inspection File Closed",
+   "Final Inspection Rating",
+   "Number of Confirmed Deficiency"
+  ],
+  "awqi_incident_range": [
+   "2024-04-01 10:01:49",
+   "2025-03-29 10:04:44"
+  ],
+  "order_issue_range": [
+   "2024-05-28 00:00:00",
+   "2025-03-31 00:00:00"
+  ],
+  "order_summary_chars_min_median_max": [
+   264,
+   1078.0,
+   1594
+  ],
+  "order_summary_sample": "The order required that at the end of each month during a specified ninemonth period in 2025, the owner submit to the provincial officer a copy of all water sample results, and a copy of the monthly logbooks and logsheets for free chlorine residuals. The owner was further required to ensure that the",
+  "identifier": "DWS # (Ontario 9-digit, 26xxxxxxx); no US PWSID, no FIPS",
+  "join_to_us_members": "none: no shared identifier with PWSID; name-matching across countries not attempted"
+ }
+}

@@ -1,0 +1,258 @@
+{
+ "checked_on": "2026-11-25",
+ "method": "Two samples of 20 drawn with seed 20261125 by naics_measure.py and read: (a) six-digit codes in the SBA size-standards table of 13 CFR 121.201 against the Census 2022 NAICS list; (b) three- to five-digit codes present in both the Census 2022 list and NAICS Canada 2022.",
+ "sba_census": {
+  "checked": 20,
+  "same_industry": 20,
+  "note": "All 20 codes carry the same industry title on both sides, 19 character for character; the other differs only in punctuation. The BLS QCEW title for the same code agrees in all 20."
+ },
+ "statcan_census": {
+  "checked": 20,
+  "same_class": 20,
+  "note": "All 20 are the same class. Titles differ in capitalisation, spelling (Grantmaking / Grant-making) and once in wording (71399: 'All Other Amusement and Recreation Industries' / 'Other amusement and recreation industries'). The Census workbook ends some titles with a 'T' marker, which the comparison strips. Six-digit codes were not hand-checked: they are national detail, and only 492 of 1,012 US six-digit codes exist in NAICS Canada."
+ },
+ "pairs_sba_census": [
+  {
+   "bls_title": "NAICS 621399 Offices of all other miscellaneous health practitioners",
+   "census_title": "Offices of All Other Miscellaneous Health Practitioners",
+   "code": "621399",
+   "ecfr_row_title": "Offices of All Other Miscellaneous Health Practitioners",
+   "size_standard": "$10.0"
+  },
+  {
+   "bls_title": "NAICS 811122 Automotive glass replacement shops",
+   "census_title": "Automotive Glass Replacement Shops",
+   "code": "811122",
+   "ecfr_row_title": "Automotive Glass Replacement Shops",
+   "size_standard": "$17.5"
+  },
+  {
+   "bls_title": "NAICS 111219 Other vegetable (except potato) and melon farming",
+   "census_title": "Other Vegetable (except Potato) and Melon Farming",
+   "code": "111219",
+   "ecfr_row_title": "Other Vegetable (except Potato) and Melon Farming",
+   "size_standard": "$3.75"
+  },
+  {
+   "bls_title": "NAICS 332321 Metal window and door manufacturing",
+   "census_title": "Metal Window and Door Manufacturing",
+   "code": "332321",
+   "ecfr_row_title": "Metal Window and Door Manufacturing",
+   "size_standard": "750"
+  },
+  {
+   "bls_title": "NAICS 339116 Dental laboratories",
+   "census_title": "Dental Laboratories",
+   "code": "339116",
+   "ecfr_row_title": "Dental Laboratories",
+   "size_standard": "500"
+  },
+  {
+   "bls_title": "NAICS 455219 All other general merchandise retailers",
+   "census_title": "All Other General Merchandise Retailers",
+   "code": "455219",
+   "ecfr_row_title": "All Other General Merchandise Retailers",
+   "size_standard": "$40.0"
+  },
+  {
+   "bls_title": "NAICS 325520 Adhesive manufacturing",
+   "census_title": "Adhesive Manufacturing",
+   "code": "325520",
+   "ecfr_row_title": "Adhesive Manufacturing",
+   "size_standard": "550"
+  },
+  {
+   "bls_title": "NAICS 812990 All other personal services",
+   "census_title": "All Other Personal Services",
+   "code": "812990",
+   "ecfr_row_title": "All Other Personal Services",
+   "size_standard": "$15.0"
+  },
+  {
+   "bls_title": "NAICS 112340 Poultry hatcheries",
+   "census_title": "Poultry Hatcheries",
+   "code": "112340",
+   "ecfr_row_title": "Poultry Hatcheries",
+   "size_standard": "$4.0"
+  },
+  {
+   "bls_title": "NAICS 424710 Petroleum bulk stations and terminals",
+   "census_title": "Petroleum Bulk Stations and Terminals",
+   "code": "424710",
+   "ecfr_row_title": "Petroleum Bulk Stations and Terminals",
+   "size_standard": "225"
+  },
+  {
+   "bls_title": "NAICS 335131 Residential electric lighting fixture manufacturing",
+   "census_title": "Residential Electric Lighting Fixture Manufacturing",
+   "code": "335131",
+   "ecfr_row_title": "Residential Electric Lighting Fixture Manufacturing",
+   "size_standard": "750"
+  },
+  {
+   "bls_title": "NAICS 313320 Fabric coating mills",
+   "census_title": "Fabric Coating Mills",
+   "code": "313320",
+   "ecfr_row_title": "Fabric Coating Mills",
+   "size_standard": "1,000"
+  },
+  {
+   "bls_title": "NAICS 518210 Computing infrastructure providers, data processing, web hosting, and related services",
+   "census_title": "Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services",
+   "code": "518210",
+   "ecfr_row_title": "Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services",
+   "size_standard": "$40.0"
+  },
+  {
+   "bls_title": "NAICS 423490 Other professional equipment and supplies merchant wholesalers",
+   "census_title": "Other Professional Equipment and Supplies Merchant Wholesalers",
+   "code": "423490",
+   "ecfr_row_title": "Other Professional Equipment and Supplies Merchant Wholesalers",
+   "size_standard": "150"
+  },
+  {
+   "bls_title": "NAICS 541850 Indoor and outdoor display advertising",
+   "census_title": "Indoor and Outdoor Display Advertising",
+   "code": "541850",
+   "ecfr_row_title": "Indoor and Outdoor Display Advertising",
+   "size_standard": "$34.5"
+  },
+  {
+   "bls_title": null,
+   "census_title": "Other Building Finishing Contractors",
+   "code": "238390",
+   "ecfr_row_title": "Other Building Finishing Contractors",
+   "size_standard": "$19.0"
+  },
+  {
+   "bls_title": "NAICS 331491 Nonferrous metal (except copper and aluminum) rolling, drawing, and extruding",
+   "census_title": "Nonferrous Metal (except Copper and Aluminum) Rolling, Drawing, and Extruding",
+   "code": "331491",
+   "ecfr_row_title": "Nonferrous Metal (except Copper and Aluminum) Rolling, Drawing, and Extruding",
+   "size_standard": "900"
+  },
+  {
+   "bls_title": "NAICS 488119 Other airport operations",
+   "census_title": "Other Airport Operations",
+   "code": "488119",
+   "ecfr_row_title": "Other Airport Operations",
+   "size_standard": "$40.0"
+  },
+  {
+   "bls_title": "NAICS 621340 Offices of physical, occupational and speech therapists, and audiologists",
+   "census_title": "Offices of Physical, Occupational and Speech Therapists, and Audiologists",
+   "code": "621340",
+   "ecfr_row_title": "Offices of Physical, Occupational and Speech Therapists and Audiologists",
+   "size_standard": "$12.5"
+  },
+  {
+   "bls_title": "NAICS 541612 Human resources consulting services",
+   "census_title": "Human Resources Consulting Services",
+   "code": "541612",
+   "ecfr_row_title": "Human Resources Consulting Services",
+   "size_standard": "$29.0"
+  }
+ ],
+ "pairs_statcan_census": [
+  {
+   "census_title": "FishingT",
+   "code": "11411",
+   "statcan_title": "Fishing"
+  },
+  {
+   "census_title": "Automotive Repair and MaintenanceT",
+   "code": "8111",
+   "statcan_title": "Automotive repair and maintenance"
+  },
+  {
+   "census_title": "Sales Financing",
+   "code": "52222",
+   "statcan_title": "Sales financing"
+  },
+  {
+   "census_title": "Grantmaking and Giving Services",
+   "code": "8132",
+   "statcan_title": "Grant-making and giving services"
+  },
+  {
+   "census_title": "All Other Amusement and Recreation IndustriesT",
+   "code": "71399",
+   "statcan_title": "Other amusement and recreation industries"
+  },
+  {
+   "census_title": "Lessors of Residential Buildings and Dwellings",
+   "code": "53111",
+   "statcan_title": "Lessors of residential buildings and dwellings"
+  },
+  {
+   "census_title": "Computer TrainingT",
+   "code": "61142",
+   "statcan_title": "Computer training"
+  },
+  {
+   "census_title": "Spring and Wire Product ManufacturingT",
+   "code": "33261",
+   "statcan_title": "Spring and wire product manufacturing"
+  },
+  {
+   "census_title": "CaterersT",
+   "code": "72232",
+   "statcan_title": "Caterers"
+  },
+  {
+   "census_title": "Offices of Real Estate Agents and BrokersT",
+   "code": "53121",
+   "statcan_title": "Offices of real estate agents and brokers"
+  },
+  {
+   "census_title": "Hotels (except Casino Hotels) and MotelsT",
+   "code": "72111",
+   "statcan_title": "Hotels (except casino hotels) and motels"
+  },
+  {
+   "census_title": "Waste Treatment and Disposal",
+   "code": "56221",
+   "statcan_title": "Waste treatment and disposal"
+  },
+  {
+   "census_title": "Fur-Bearing Animal and Rabbit ProductionT",
+   "code": "11293",
+   "statcan_title": "Fur-bearing animal and rabbit production"
+  },
+  {
+   "census_title": "Cattle Ranching and FarmingT",
+   "code": "1121",
+   "statcan_title": "Cattle ranching and farming"
+  },
+  {
+   "census_title": "Securities, Commodity Contracts, and Other Financial Investments and Related ActivitiesT",
+   "code": "523",
+   "statcan_title": "Securities, commodity contracts, and other financial investment and related activities"
+  },
+  {
+   "census_title": "Steel Product Manufacturing from Purchased SteelT",
+   "code": "3312",
+   "statcan_title": "Steel product manufacturing from purchased steel"
+  },
+  {
+   "census_title": "Private HouseholdsT",
+   "code": "8141",
+   "statcan_title": "Private households"
+  },
+  {
+   "census_title": "Other Travel Arrangement and Reservation ServicesT",
+   "code": "56159",
+   "statcan_title": "Other travel arrangement and reservation services"
+  },
+  {
+   "census_title": "Other Commercial and Industrial Machinery and Equipment Rental and LeasingT",
+   "code": "53249",
+   "statcan_title": "Other commercial and industrial machinery and equipment rental and leasing"
+  },
+  {
+   "census_title": "Farm Product Warehousing and StorageT",
+   "code": "49313",
+   "statcan_title": "Farm product warehousing and storage"
+  }
+ ]
+}

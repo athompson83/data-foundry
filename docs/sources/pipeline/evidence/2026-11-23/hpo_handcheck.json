@@ -1,0 +1,169 @@
+{
+ "checked_on": "2026-11-23",
+ "method": "20 Orphadata product 4 associations whose HPO id is a live hp.obo term but whose Orphadata label differs from the current hp.obo name, drawn with seed 20261123 by hpo_measure.py (the hardest case: 111,342 of 116,507 associations carry the identical label). Both labels were read.",
+ "checked": 20,
+ "same_phenotype": 19,
+ "note": "19 of 20 are the same phenotype under an older label (for example 'Abnormality of the pons' / 'Abnormal pons morphology'). HP:0005019 reads 'Diaphyseal thickening' in Orphadata and 'Diaphyseal undertubulation' in hp.obo, which do not say the same thing; the id is still the same term, renamed. A reading of labels, not a clinical review.",
+ "pairs": [
+  {
+   "disorder": "Paraneoplastic sensory ganglionopathy",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Diminished deep tendon reflex",
+   "hpo_id": "HP:0001315",
+   "orpha_code": "208999",
+   "orphadata_label": "Reduced tendon reflexes"
+  },
+  {
+   "disorder": "Dyggve-Melchior-Clausen disease",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Abnormal femoral head morphology",
+   "hpo_id": "HP:0003368",
+   "orpha_code": "239",
+   "orphadata_label": "Abnormality of the femoral head"
+  },
+  {
+   "disorder": "Systemic-onset juvenile idiopathic arthritis",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Juvenile idiopathic arthritis",
+   "hpo_id": "HP:0005681",
+   "orpha_code": "85414",
+   "orphadata_label": "Juvenile rheumatoid arthritis"
+  },
+  {
+   "disorder": "Mu-heavy chain disease",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Abnormal bone marrow cell morphology",
+   "hpo_id": "HP:0005561",
+   "orpha_code": "100024",
+   "orphadata_label": "Abnormality of bone marrow cell morphology"
+  },
+  {
+   "disorder": "Prader-Willi syndrome due to paternal deletion of 15q11q13 type 1",
+   "frequency": "Occasional (29-5%)",
+   "hp_obo_name": "Decreased circulating inhibin B concentration",
+   "hpo_id": "HP:0031100",
+   "orpha_code": "177901",
+   "orphadata_label": "Decreased inhibin B level"
+  },
+  {
+   "disorder": "Ghosal hematodiaphyseal dysplasia",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Abnormal femur morphology",
+   "hpo_id": "HP:0002823",
+   "orpha_code": "1802",
+   "orphadata_label": "Abnormality of femur morphology"
+  },
+  {
+   "disorder": "Japanese encephalitis",
+   "frequency": "Occasional (29-5%)",
+   "hp_obo_name": "Abnormal pons morphology",
+   "hpo_id": "HP:0007361",
+   "orpha_code": "79139",
+   "orphadata_label": "Abnormality of the pons"
+  },
+  {
+   "disorder": "Immune dysregulation-polyendocrinopathy-enteropathy-X-linked syndrome",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Abnormal circulating electrolyte concentration",
+   "hpo_id": "HP:0003111",
+   "orpha_code": "37042",
+   "orphadata_label": "Abnormal blood ion concentration"
+  },
+  {
+   "disorder": "Combined immunodeficiency due to ZAP70 deficiency",
+   "frequency": "Occasional (29-5%)",
+   "hp_obo_name": "Increased total lymphocyte count",
+   "hpo_id": "HP:0100827",
+   "orpha_code": "911",
+   "orphadata_label": "Lymphocytosis"
+  },
+  {
+   "disorder": "46,XY ovotesticular difference of sex development",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Abnormal clitoris morphology",
+   "hpo_id": "HP:0000056",
+   "orpha_code": "325345",
+   "orphadata_label": "Abnormality of the clitoris"
+  },
+  {
+   "disorder": "Smith-Magenis syndrome",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Short REM sleep",
+   "hpo_id": "HP:5200360",
+   "orpha_code": "819",
+   "orphadata_label": "Short rem sleep"
+  },
+  {
+   "disorder": "Severe microbrachycephaly-intellectual disability-athetoid cerebral palsy syndrome",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Dimple chin",
+   "hpo_id": "HP:0010751",
+   "orpha_code": "1236",
+   "orphadata_label": "Chin dimple"
+  },
+  {
+   "disorder": "Gorlin-Chaudhry-Moss syndrome",
+   "frequency": "Occasional (29-5%)",
+   "hp_obo_name": "Mild intellectual disability",
+   "hpo_id": "HP:0001256",
+   "orpha_code": "2095",
+   "orphadata_label": "Intellectual disability, mild"
+  },
+  {
+   "disorder": "Spondylodysplastic Ehlers-Danlos syndrome",
+   "frequency": "Very rare (<4-1%)",
+   "hp_obo_name": "Abnormal right hemidiaphragm morphology",
+   "hpo_id": "HP:0040047",
+   "orpha_code": "536471",
+   "orphadata_label": "Abnormality of the right hemidiaphragm"
+  },
+  {
+   "disorder": "Spastic paraplegia-facial-cutaneous lesions syndrome",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Abnormal speech pattern",
+   "hpo_id": "HP:0002167",
+   "orpha_code": "2819",
+   "orphadata_label": "Abnormality of speech or vocalization"
+  },
+  {
+   "disorder": "Endosteal hyperostosis, Worth type",
+   "frequency": "Very frequent (99-80%)",
+   "hp_obo_name": "Diaphyseal undertubulation",
+   "hpo_id": "HP:0005019",
+   "orpha_code": "2790",
+   "orphadata_label": "Diaphyseal thickening"
+  },
+  {
+   "disorder": "Legionnaires disease",
+   "frequency": "Occasional (29-5%)",
+   "hp_obo_name": "Abnormal pleura morphology",
+   "hpo_id": "HP:0002103",
+   "orpha_code": "549",
+   "orphadata_label": "Abnormality of the pleura"
+  },
+  {
+   "disorder": "Arnold-Chiari malformation type I",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Abnormal clivus morphology",
+   "hpo_id": "HP:0010558",
+   "orpha_code": "268882",
+   "orphadata_label": "Abnormality of the clivus"
+  },
+  {
+   "disorder": "5q22 microdeletion syndrome",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Mild intellectual disability",
+   "hpo_id": "HP:0001256",
+   "orpha_code": "261584",
+   "orphadata_label": "Intellectual disability, mild"
+  },
+  {
+   "disorder": "Regional odontodysplasia",
+   "frequency": "Frequent (79-30%)",
+   "hp_obo_name": "Eruption failure",
+   "hpo_id": "HP:0000706",
+   "orpha_code": "83450",
+   "orphadata_label": "Unerupted tooth"
+  }
+ ]
+}

@@ -1,0 +1,169 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 Glottolog languoids whose ISO 639-3 code is in the SIL table, drawn with seed 20261128 by lang_measure.py; the Glottolog name was read against the SIL reference name.",
+ "checked": 20,
+ "same_language": 20,
+ "note": "16 pairs carry the identical name. 4 differ in spelling or use another name of the same language (Wadjabangai / Wadjabangayi, Akabea / Aka-Bea, Mwotlap / Motlav, Shabo / Chabu). 2 of the 20 Glottolog languoids are classed as dialects (wadj1257, ayer1246) although SIL gives them a language code, so the code links a Glottolog languoid to a SIL code element; it does not say both sources draw the language boundary in the same place.",
+ "pairs": [
+  {
+   "glottocode": "lowe1388",
+   "glottolog_name": "Lower Silesian",
+   "iso_639_3": "sli",
+   "sil_name": "Lower Silesian",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "borg1235",
+   "glottolog_name": "Borgu Fulfulde",
+   "iso_639_3": "fue",
+   "sil_name": "Borgu Fulfulde",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "scot1243",
+   "glottolog_name": "Scots",
+   "iso_639_3": "sco",
+   "sil_name": "Scots",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "wadj1257",
+   "glottolog_name": "Wadjabangai",
+   "iso_639_3": "wdy",
+   "sil_name": "Wadjabangayi",
+   "sil_type": "E",
+   "glottolog_level": "dialect"
+  },
+  {
+   "glottocode": "sout3128",
+   "glottolog_name": "Southwestern Nisu",
+   "iso_639_3": "nsv",
+   "sil_name": "Southwestern Nisu",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "bhat1265",
+   "glottolog_name": "Bhatri",
+   "iso_639_3": "bgw",
+   "sil_name": "Bhatri",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "akab1249",
+   "glottolog_name": "Akabea",
+   "iso_639_3": "abj",
+   "sil_name": "Aka-Bea",
+   "sil_type": "E",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "olds1249",
+   "glottolog_name": "Old Spanish",
+   "iso_639_3": "osp",
+   "sil_name": "Old Spanish",
+   "sil_type": "H",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "konn1242",
+   "glottolog_name": "Konni",
+   "iso_639_3": "kma",
+   "sil_name": "Konni",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "koli1253",
+   "glottolog_name": "Kolibugan Subanon",
+   "iso_639_3": "skn",
+   "sil_name": "Kolibugan Subanon",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "kash1277",
+   "glottolog_name": "Kashmiri",
+   "iso_639_3": "kas",
+   "sil_name": "Kashmiri",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "yare1248",
+   "glottolog_name": "Yareba",
+   "iso_639_3": "yrb",
+   "sil_name": "Yareba",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "motl1237",
+   "glottolog_name": "Mwotlap",
+   "iso_639_3": "mlv",
+   "sil_name": "Motlav",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "ulch1241",
+   "glottolog_name": "Ulch",
+   "iso_639_3": "ulc",
+   "sil_name": "Ulch",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "rama1270",
+   "glottolog_name": "Rama",
+   "iso_639_3": "rma",
+   "sil_name": "Rama",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "ayer1246",
+   "glottolog_name": "Ayerrerenge",
+   "iso_639_3": "axe",
+   "sil_name": "Ayerrerenge",
+   "sil_type": "E",
+   "glottolog_level": "dialect"
+  },
+  {
+   "glottocode": "farw1235",
+   "glottolog_name": "Far Western Muria",
+   "iso_639_3": "fmu",
+   "sil_name": "Far Western Muria",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "shab1252",
+   "glottolog_name": "Shabo",
+   "iso_639_3": "sbf",
+   "sil_name": "Chabu",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "karo1297",
+   "glottolog_name": "Karo (Ethiopia)",
+   "iso_639_3": "kxh",
+   "sil_name": "Karo (Ethiopia)",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  },
+  {
+   "glottocode": "bhil1253",
+   "glottolog_name": "Bhilali",
+   "iso_639_3": "bhi",
+   "sil_name": "Bhilali",
+   "sil_type": "L",
+   "glottolog_level": "language"
+  }
+ ]
+}

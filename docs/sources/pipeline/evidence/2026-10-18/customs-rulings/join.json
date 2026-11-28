@@ -1,0 +1,416 @@
+{
+ "hts_codes": 29861,
+ "hts_rows": 35805,
+ "search_terms": {
+  "heat pump": 284,
+  "compressor": 559,
+  "refrigerator": 376,
+  "valve": 2262,
+  "solar panel": 325,
+  "battery": 7302,
+  "furniture": 5427,
+  "footwear": 8955,
+  "textile": 10000,
+  "plastic": 10000,
+  "steel pipe": 1122,
+  "toy": 5948,
+  "led lamp": 493,
+  "water heater": 235,
+  "garment": 10000,
+  "frozen fish": 410,
+  "pharmaceutical": 3489,
+  "bicycle": 740
+ },
+ "distinct_rulings": 3539,
+ "date_min": "0001-01-01",
+ "date_max": "2026-09-24",
+ "with_tariffs_field": 3148,
+ "non_chapter99_scored": 3147,
+ "all_codes_in_hts": 1671,
+ "any_code_in_hts": 1988,
+ "text_sample": {
+  "n": 40,
+  "text_nonempty": 40,
+  "has_classification_para": 35,
+  "has_duty_rate": 31
+ },
+ "unresolved": [
+  [
+   "N350773",
+   [
+    "8415908065"
+   ]
+  ],
+  [
+   "N332381",
+   [
+    "8415106000",
+    "8415908065"
+   ]
+  ],
+  [
+   "869213",
+   [
+    "8419190040"
+   ]
+  ],
+  [
+   "N306002",
+   [
+    "8415908085",
+    "8415908065",
+    "8509805095"
+   ]
+  ],
+  [
+   "R00436",
+   [
+    "8419899585"
+   ]
+  ],
+  [
+   "N308187",
+   [
+    "8415908065"
+   ]
+  ],
+  [
+   "N325669",
+   [
+    "8479909596",
+    "8413500090"
+   ]
+  ],
+  [
+   "a82938",
+   [
+    "84229006",
+    "84137020",
+    "84145960",
+    "85365080"
+   ]
+  ],
+  [
+   "N307384",
+   [
+    "8415908065",
+    "8415106000"
+   ]
+  ],
+  [
+   "N140135",
+   [
+    "8414809000",
+    "8414909080",
+    "8544429000"
+   ]
+  ],
+  [
+   "859202",
+   [
+    "7322900015",
+    "8414598040"
+   ]
+  ],
+  [
+   "N325721",
+   [
+    "8415908065",
+    "8415908085"
+   ]
+  ],
+  [
+   "I84266",
+   [
+    "8424897090"
+   ]
+  ],
+  [
+   "I82596",
+   [
+    "8424897090"
+   ]
+  ],
+  [
+   "867801",
+   [
+    "8413909090"
+   ]
+  ],
+  [
+   "g81772",
+   [
+    "3926909880"
+   ]
+  ],
+  [
+   "a82553",
+   [
+    "8414100000",
+    "9032896040",
+    "8481809005",
+    "8544518000"
+   ]
+  ],
+  [
+   "854129",
+   [
+    "8413919090"
+   ]
+  ],
+  [
+   "N080655",
+   [
+    "8419190040"
+   ]
+  ],
+  [
+   "J88032",
+   [
+    "8418610060"
+   ]
+  ]
+ ],
+ "texts": [
+  {
+   "ruling": "f85183",
+   "len": 3068,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N164299",
+   "len": 3753,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "c86485",
+   "len": 3014,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N269645",
+   "len": 2339,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "H325402",
+   "len": 5537,
+   "has_classification_para": true,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "H337342",
+   "len": 10812,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N255949",
+   "len": 4448,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "c87863",
+   "len": 1420,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "H089781",
+   "len": 4051,
+   "has_classification_para": true,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "a81009",
+   "len": 2082,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "h88176",
+   "len": 1405,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "L85715",
+   "len": 2073,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "R02468",
+   "len": 3149,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N300975",
+   "len": 2692,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "E83447",
+   "len": 1902,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N332673",
+   "len": 2743,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N312965",
+   "len": 3810,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N361091",
+   "len": 4390,
+   "has_classification_para": false,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "R03923",
+   "len": 1849,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "h82705",
+   "len": 4038,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N014417",
+   "len": 3691,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "810285",
+   "len": 1698,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "451538",
+   "len": 4690,
+   "has_classification_para": false,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "733531",
+   "len": 6094,
+   "has_classification_para": false,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "N361447",
+   "len": 7320,
+   "has_classification_para": false,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "N349448",
+   "len": 5702,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "731318",
+   "len": 6136,
+   "has_classification_para": false,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "L84626",
+   "len": 1496,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N302275",
+   "len": 5485,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "872319",
+   "len": 3941,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "951196",
+   "len": 4020,
+   "has_classification_para": true,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "N233239",
+   "len": 3214,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "H091978",
+   "len": 5730,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N258617",
+   "len": 2216,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N282609",
+   "len": 3358,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N340144",
+   "len": 4564,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "087183",
+   "len": 3328,
+   "has_classification_para": true,
+   "has_duty_rate": false
+  },
+  {
+   "ruling": "N277442",
+   "len": 2393,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "861020",
+   "len": 3046,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  },
+  {
+   "ruling": "N313077",
+   "len": 2038,
+   "has_classification_para": true,
+   "has_duty_rate": true
+  }
+ ]
+}

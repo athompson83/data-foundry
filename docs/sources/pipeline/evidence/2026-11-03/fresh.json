@@ -1,0 +1,120 @@
+{
+ "nga_all": {
+  "n": 198034,
+  "newest_issueDate": "312359Z OCT 2014",
+  "oldest_issueDate": "010000Z FEB 2018",
+  "per_year_last5": [
+   [
+    2020,
+    10071
+   ],
+   [
+    2021,
+    9265
+   ],
+   [
+    2022,
+    9887
+   ],
+   [
+    2023,
+    9803
+   ],
+   [
+    2024,
+    3480
+   ]
+  ]
+ },
+ "nga_active": {
+  "n": 386,
+  "newest_issueDate": "312227Z MAY 2023",
+  "oldest": "010012Z APR 2023"
+ },
+ "avalanche_org": {
+  "zones": 93,
+  "off_season": 6,
+  "in_season": 87,
+  "with_travel_advice": 93,
+  "danger_levels": {
+   "-1": 83,
+   "1": 3,
+   "2": 5,
+   "3": 2
+  }
+ },
+ "avalanche_ca": [
+  {
+   "area": "010016cb778a7962e0174e68d5a278372db93924e19e450052de07b95eb72c85",
+   "dateIssued": "2026-10-07T19:00:00.000Z",
+   "validUntil": "2026-12-01T00:00:00.000Z",
+   "highlights_chars": 149,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "2b27cc579bf40b0d3360a5ffe527102213d07f32526775c4e2f0af58e02f8d3d",
+   "dateIssued": "2026-10-01T18:30:00.000Z",
+   "validUntil": "2027-01-29T19:30:00.000Z",
+   "highlights_chars": 541,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "53bb614cadbd487077d867dec6007dfed090d20fbc0cbfe941451b6af2df33ed",
+   "dateIssued": "2026-10-01T23:00:00.000Z",
+   "validUntil": "2026-11-26T00:00:00.000Z",
+   "highlights_chars": 305,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "d15dff296f550c29a26e3203191d60ed0a36eeda9361320a324047b0850d77ea",
+   "dateIssued": "2026-10-30T23:30:34.800Z",
+   "validUntil": "2026-11-05T23:00:00.000Z",
+   "highlights_chars": 298,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "03eb3e06c31ffda095ce133e8c6974197efdccd29c7723d078ef27742ff6a762",
+   "dateIssued": "2026-04-30T20:00:00.000Z",
+   "validUntil": "2026-12-01T23:00:00.000Z",
+   "highlights_chars": 435,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "afe9ffd14c0637d10e2530857f8e7a8cba0277f33351d3b31c8f37f4111c6ecf",
+   "dateIssued": "2026-11-01T23:00:00.000Z",
+   "validUntil": "2026-11-07T23:00:00.000Z",
+   "highlights_chars": 223,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "b2a14eb464567902bcdf5b0cf1efe870416fee4de1d80d5b1f6d9cbc1b3bd73a",
+   "dateIssued": "2026-10-28T23:00:00.000Z",
+   "validUntil": "2026-11-10T23:00:00.000Z",
+   "highlights_chars": 352,
+   "summaries": [
+    "summaries"
+   ]
+  },
+  {
+   "area": "426b4bc4f761f2890921214b32ed3bf9f5de086f39b6f755296daf3a3048587e",
+   "dateIssued": "2026-10-31T22:00:00.000Z",
+   "validUntil": "2026-11-11T22:00:00.000Z",
+   "highlights_chars": 774,
+   "summaries": [
+    "summaries"
+   ]
+  }
+ ]
+}

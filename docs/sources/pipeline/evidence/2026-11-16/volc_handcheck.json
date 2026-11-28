@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-16",
+  "join": "GeoNet volcanoTitle -> Smithsonian GVP Volcano_Name within Country New Zealand (accent-folded, '/'-split, substring); verdict by hand from names, GVP Geological_Summary and coordinate distance (volc_measure.json join_geonet_to_gvp.pairs)",
+  "reviewed": { "correct": 8, "checked": 9 },
+  "pairs": [
+    { "geonet_id": "taupo", "gvp_volcano_number": 241070, "gvp_volcano": "Taupo", "km": 0.4, "verdict": "correct" },
+    { "geonet_id": "tongariro", "gvp_volcano_number": 241080, "gvp_volcano": "Tongariro", "km": 2.8, "verdict": "correct" },
+    { "geonet_id": "tongariro", "gvp_volcano_number": 241819, "gvp_volcano": "Northern Tongariro Group", "km": 17.8, "verdict": "incorrect: substring hit on a separate Pleistocene GVP record" },
+    { "geonet_id": "aucklandvolcanicfield", "gvp_volcano_number": 241020, "gvp_volcano": "Auckland Volcanic Field", "km": 11.1, "verdict": "correct (field centroids differ)" },
+    { "geonet_id": "mayorisland", "gvp_volcano_number": 241021, "gvp_volcano": "Tuhua/Mayor Island", "km": 0.7, "verdict": "correct" },
+    { "geonet_id": "okataina", "gvp_volcano_number": 241050, "gvp_volcano": "Okataina", "km": 4.2, "verdict": "correct" },
+    { "geonet_id": "rotorua", "gvp_volcano_number": 241816, "gvp_volcano": "Rotorua", "km": 1.7, "verdict": "correct" },
+    { "geonet_id": "whiteisland", "gvp_volcano_number": 241040, "gvp_volcano": "Whakaari/White Island", "km": 0.3, "verdict": "correct" },
+    { "geonet_id": "ruapehu", "gvp_volcano_number": 241100, "gvp_volcano": "Ruapehu", "km": 0.6, "verdict": "correct" }
+  ],
+  "unmatched_by_name": [
+    { "geonet_id": "ngauruhoe", "nearest_gvp": 241080, "gvp_volcano": "Tongariro", "km": 0.1, "note": "GVP treats Ngauruhoe as a cone of Tongariro: many-to-one mapping, needs a reviewed alias" },
+    { "geonet_id": "taranakiegmont", "nearest_gvp": 241030, "gvp_volcano": "Taranaki", "km": 0.8, "note": "same volcano; GeoNet title 'Taranaki Maunga' needs an alias" },
+    { "geonet_id": "kermadecislands", "nearest_gvp": 242030, "gvp_volcano": "Raoul Island", "km": 1.9, "note": "GeoNet alert covers the island group; one-to-many" },
+    { "geonet_id": "northland", "nearest_gvp": 241010, "gvp_volcano": "Kaikohe-Bay of Islands", "km": 26.7, "note": "regional alert area spanning several GVP fields; no single counterpart" }
+  ]
+}

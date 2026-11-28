@@ -1,0 +1,275 @@
+{
+ "run_date": "2026-11-18",
+ "terms": {
+  "https://open.fda.gov/terms/": {
+   "status": 200,
+   "bytes": 130897,
+   "sha256": "b11f712bfb11d03319675fc04e6948133a83c57aa2913b7f18d3677d0209f723",
+   "quotes": [
+    {
+     "quote": "Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication.",
+     "present_verbatim": true
+    },
+    {
+     "quote": "Some data on openFDA may not be public domain, such as copies of copyrightable works made available to the FDA by private entities.",
+     "present_verbatim": true
+    },
+    {
+     "quote": "FDA may make these works available under the fair use provision of the Copyright Act or as a result of regulatory directives. Therefore, your rights to use those works may be similarly limited.",
+     "present_verbatim": true
+    }
+   ],
+   "context": {
+    "public domain": "hrough which you may access FDA public data is subject to these terms. Use of openFDA constitutes acceptance to this Agreement. Data Rights and Usage Unless otherwise noted, the content, data, documentation, code, and related materials on openFDA is public domain and made available with a Creative Commons CC0 1.0 Universal dedication. In short, FDA waives all rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute, and perform the work, even f",
+    "fair use": "all uses of the work, to the fullest extent permitted by applicable law. Some data on openFDA may not be public domain, such as copies of copyrightable works made available to the FDA by private entities. FDA may make these works available under the fair use provision of the Copyright Act or as a result of regulatory directives. Therefore, your rights to use those works may be similarly limited. Works where CC0 do not apply will be clearly marked by a warning in the relevant documentation (for example: \"This data is not in the public domain. Th"
+   }
+  },
+  "https://www.nlm.nih.gov/web_policies.html": {
+   "status": 200,
+   "bytes": 43526,
+   "sha256": "c8b7026b5c3fcfd1b0cb88755077f6a99a5f2159eecd42b0e7d1a5ad9b30ec55",
+   "quotes": [
+    {
+     "quote": "Works produced by the U.S. government are not subject to copyright protection in the United States",
+     "present_verbatim": true
+    },
+    {
+     "quote": "Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the U.S. copyright laws) requires the written permission of the copyright holders.",
+     "present_verbatim": true
+    }
+   ],
+   "context": {
+    "public domain": "a Usage Policies and Disclaimers MedPix® Licensing Information PubMed Central (PMC) Copyright Notice User Responsibility: It is your responsibility to determine and satisfy copyright or other use restrictions when using materials that are not in the public domain. NLM cannot guarantee the copyright status for any item. Disclaimers Liability: For documents and software available from NLM, the U.S. Government does not warrant or assume any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatu",
+    "fair use": "holder, or the statement \"All rights reserved.\" However, a copyright notice is not required by law and therefore not all copyrighted content is necessarily marked in this way. Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the U.S. copyright laws) requires the written permission of the copyright holders. NLM Resources with Further Guidance: Some NLM resources also have additional copyright and licensing policies and information, including: Copyright Information & Downloading National Library of ",
+    "copyright protection": "contact the NLM Support Center . For general information about diseases, conditions, and wellness issues please visit NLM's MedlinePlus . Copyright Attribution and Rights for Government Works: Works produced by the U.S. government are not subject to copyright protection in the United States. Any such works found on National Library of Medicine (NLM) Web sites may be freely used or reproduced without permission in the U.S. Please acknowledge NLM as the source of the information by including the phrase \"Courtesy of the National Library of Medicin",
+    "written permission": "pyright notice is not required by law and therefore not all copyrighted content is necessarily marked in this way. Transmission or reproduction of copyrighted items (beyond that allowed by fair use as defined in the U.S. copyright laws) requires the written permission of the copyright holders. NLM Resources with Further Guidance: Some NLM resources also have additional copyright and licensing policies and information, including: Copyright Information & Downloading National Library of Medicine Data Historical Collections Copyright Information an"
+   }
+  },
+  "https://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm": {
+   "status": 200,
+   "bytes": 109034,
+   "sha256": "cc0a4bdf2ee58ce3a683418c63781ea4d898853740d42fbd8bc42d51ddb7b312",
+   "zip_links": [
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_daily_update_11162026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_daily_update_11172026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_apr2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_aug2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_jul2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_jun2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_may2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_oct2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_monthly_update_sep2026.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_animal.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_homeopathic.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part1.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part10.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part11.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part12.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part2.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part3.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part4.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part5.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part6.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part7.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part8.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_otc_part9.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_rx_part1.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_rx_part2.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_rx_part3.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_rx_part4.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_rx_part5.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_human_rx_part6.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_release_remainder.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_weekly_update_110226_110626.zip",
+    "ftp://public.nlm.nih.gov/nlmdata/.dailymed/dm_spl_weekly_update_110926_111326.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_daily_update_11162026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_daily_update_11172026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_monthly_update_apr2026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_monthly_update_aug2026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_monthly_update_jul2026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_monthly_update_jun2026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_monthly_update_may2026.zip",
+    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_monthly_update_oct2026.zip"
+   ],
+   "mentions_terms": [
+    "copyright",
+    "terms"
+   ]
+  },
+  "https://dailymed.nlm.nih.gov/dailymed/app-support-web-services.cfm": {
+   "status": 200,
+   "bytes": 88569,
+   "sha256": "c636253edd8294037543604a2a73f3a1a5a880a69d00906536c960ad2426502b",
+   "zip_links": [],
+   "mentions_terms": [
+    "copyright",
+    "terms"
+   ]
+  }
+ },
+ "openfda_label": {
+  "status": 200,
+  "last_updated": "2026-11-17",
+  "total": 264879,
+  "license": "https://open.fda.gov/license/",
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "prescription_total": 37490
+ },
+ "openfda_label_bulk": {
+  "status": 200,
+  "export_date": "2026-11-17",
+  "total_records": 264879,
+  "partitions": 14,
+  "zipped_mb": 1788.4
+ },
+ "openfda_rate_limit_no_key": {
+  "status": 200,
+  "text": "240 requests per minute, per IP address. 1,000 requests per day, per IP address."
+ },
+ "copyright_notice_sample": {
+  "sample": "100 newest prescription labels by effective_time",
+  "labels": 100,
+  "effective_time_range": [
+   "20261112",
+   "20261123"
+  ],
+  "labels_with_notice": 14,
+  "notice_by_section": {
+   "how_supplied": 6,
+   "storage_and_handling": 5,
+   "information_for_patients": 4,
+   "spl_unclassified_section": 4,
+   "spl_medguide": 3
+  },
+  "notices_inside_fact_sections": 0,
+  "labels_having_section": {
+   "boxed_warning": 31,
+   "contraindications": 98,
+   "pregnancy": 70,
+   "lactation": 0,
+   "use_in_specific_populations": 41,
+   "drug_interactions": 69,
+   "dosage_forms_and_strengths": 41,
+   "indications_and_usage": 99
+  },
+  "set_ids_with_notice": [
+   "0f248e55-d1bb-13f9-e063-6294a90a05ce",
+   "147def93-cd3d-4e42-89ad-6a6b413bf362",
+   "5be69660-738c-4db7-b0d4-517aa873dc41",
+   "a59bf36e-6f04-4b47-b385-8040c95f040c",
+   "0556378a-b794-4235-ba09-ebdc295e9092",
+   "19546563-50b7-4160-8cbe-f8e7079cba69",
+   "32525b4e-6384-49e1-a66d-abe45484ab86",
+   "4446d4c8-056d-4bc3-8f58-21255b063398",
+   "4b699dd8-d232-4bdb-88ce-9b42ed93e036",
+   "4cbb2264-ef65-4906-86e5-349deeeda7a9",
+   "577dd6f0-d56a-4c82-9f72-274c3a4a0f01",
+   "668a2730-e95a-4639-a506-ae95a6502ca1",
+   "9114cea1-3338-487e-87fa-cc3a409d501a",
+   "969a421e-37d8-499e-9e89-67e210bd5d9d"
+  ],
+  "set_ids_sampled": [
+   "fc8e868f-9699-4ae6-83d5-fa27789336cd",
+   "8914d8bf-61b7-4cd2-a8ef-7e1c5df37828",
+   "4a3901a4-194f-4a15-9c85-3d0982afcf31",
+   "8134c0da-9985-461e-85f4-d33709233535",
+   "d949a09c-de98-458d-a250-fb4024c04ee5",
+   "0f248e55-d1bb-13f9-e063-6294a90a05ce",
+   "147def93-cd3d-4e42-89ad-6a6b413bf362",
+   "1bda7fa4-fdee-410a-a216-02cfbf91632f",
+   "27c2e78d-d037-470d-b4fa-44c33d78f788",
+   "3bdf3b03-90cf-4416-9344-7733b193adf5",
+   "5be69660-738c-4db7-b0d4-517aa873dc41",
+   "6899113c-dee4-4227-9f68-475fcce6b91e",
+   "80be54ec-2a38-4125-a1a8-e58f50800dd2",
+   "98bf51e7-01bb-e3f7-e053-2995a90a42f0",
+   "9e8d0318-b2fe-4084-aedf-de97f61605a8",
+   "a2cc631e-13a6-40c2-acf9-065ccedfb90a",
+   "a59bf36e-6f04-4b47-b385-8040c95f040c",
+   "a6019956-a6e0-4988-a870-6aee06c354c3",
+   "b359baee-6faf-4f7d-be86-ba7a1b1de770",
+   "c8e151d6-50c6-47a1-80b0-bd8e07acddd2",
+   "e1771cc1-a91a-436c-801a-1c915ca25c6a",
+   "e5bbb3e1-ab50-4ec7-a2b4-ce4091712e23",
+   "ecc38772-246a-46c4-b42a-b9b81124f27f",
+   "f9be442d-0782-4b93-828f-9ebbf67dbced",
+   "ffc87dfb-0e26-4b42-80fd-3fb7690119e3",
+   "051acbc2-7bf8-4059-e063-6394a90a115b",
+   "0556378a-b794-4235-ba09-ebdc295e9092",
+   "05b9b595-05d9-469f-82a3-c2bc94c50be2",
+   "06bbde65-7d85-430e-95c8-7c6d96904422",
+   "08e41a9d-644c-4ac6-aba3-38d7c3f36d36",
+   "0930965b-80e3-4a0c-bffc-14ac32a47894",
+   "0b675b09-fe40-435c-b91a-c61cdf767fbf",
+   "0c021aad-97a3-4404-a11e-cdd2ec731c6b",
+   "0db62c57-d020-4ddb-b24a-ecb349ce3850",
+   "10afd68b-877f-4819-a314-39f2d56d5db9",
+   "126406ae-1fdc-df20-e063-6294a90a2718",
+   "1523a2b4-f9d6-4d3c-a370-df579ed36911",
+   "189b6a89-8de8-4a62-a54b-a6c52be870ca",
+   "19546563-50b7-4160-8cbe-f8e7079cba69",
+   "1a3e389f-391d-4f37-9e34-ce3c6f5fe8c1",
+   "1ad84940-40f7-457a-8ffa-53e1a7bfee16",
+   "1ce88d2c-70f7-427b-8787-4afd9ce6f71c",
+   "1d328f5d-73c1-4df7-a3df-71d0e0221181",
+   "2483426d-3782-432a-8b8d-86c06ef0de4a",
+   "2df111dc-ecac-4161-9e22-38436eb37c1f",
+   "32525b4e-6384-49e1-a66d-abe45484ab86",
+   "3254432e-87a4-4af0-afd1-d9e6f1b0efd4",
+   "3501952b-b556-4d5e-b81b-5c35ff87b475",
+   "36c07ebf-b091-483e-b2c4-f0fc0c2b4186",
+   "4446d4c8-056d-4bc3-8f58-21255b063398",
+   "4789b7ae-314c-43c0-ad33-92ff50085f27",
+   "4832cfbf-a540-46af-bb7d-3ba8e6bc783e",
+   "4b699dd8-d232-4bdb-88ce-9b42ed93e036",
+   "4cbb2264-ef65-4906-86e5-349deeeda7a9",
+   "5587f4bb-eaed-4871-a5fe-88a6546ce482",
+   "57492b91-1fe2-74ab-e063-6394a90a0b9e",
+   "577dd6f0-d56a-4c82-9f72-274c3a4a0f01",
+   "596c3f00-1504-eaed-e063-6294a90a08bb",
+   "5a6705af-bb72-4edb-863a-93a351bd6dba",
+   "601b8b7e-763f-2466-e063-6294a90aa688",
+   "615dfd5c-125a-40e2-a6da-afacde305282",
+   "620ecf00-5473-4420-afd1-94b5b38e7301",
+   "6286ea54-2350-49fc-8f37-4b979bd7f986",
+   "63466eb1-16b1-4d86-8c65-ce85def031b2",
+   "6563b923-269f-40c3-b992-cbacdfca6e16",
+   "668a2730-e95a-4639-a506-ae95a6502ca1",
+   "6f044d16-295e-43ff-72a3-b045c387bc5c",
+   "7014808d-cec9-4b2c-8eb5-940493e356ab",
+   "701ee488-c57f-a82c-e053-2991aa0af403",
+   "726bb436-69e3-452f-9f28-153b58bf3ca5",
+   "7546e868-d99f-4f8c-b1e9-cc96fd9fa1eb",
+   "76fa4eb6-fefa-4e97-9543-f81e465743e6",
+   "7d0f0431-e616-49c2-80d8-0752a45428db",
+   "84cecab3-d0e6-436b-996b-0b598e972308",
+   "88403fcf-a276-42c0-88b6-bd84a720b564",
+   "88441a9f-b4f9-455d-a355-46fb30699a7b",
+   "8cc6240a-58d3-4bca-aa1e-662228957f75",
+   "8f3c1b1d-2765-4cb5-92df-044b99339c92",
+   "8f86f677-2ebd-43c4-b2dd-2e07d4d54147",
+   "9114cea1-3338-487e-87fa-cc3a409d501a",
+   "93edf309-993c-48ec-be90-27d89c86b62b",
+   "9558d296-8edd-4aa1-875a-6247f9a8374d",
+   "95761173-1c95-46b2-a08f-fbc3e70daba8",
+   "969a421e-37d8-499e-9e89-67e210bd5d9d",
+   "9ee4e019-6a99-4aac-84b0-9aae597815a7",
+   "a1277ef5-6072-43ff-a6ce-0a7cea58b7cb",
+   "a42fc981-77bc-4c9e-a79d-b821bffb65b4",
+   "a9f9ce81-9d51-4167-9581-974866a8fe31",
+   "add10ccd-c205-4512-9619-253290fa1152",
+   "ba216276-b0bd-420a-9e0d-090bdfcc2460",
+   "be8580bc-0eb2-4eb6-a4cc-4ebbeb33424d",
+   "c37206ae-52f1-4192-9ab9-3044247cf58d",
+   "c4c6bc1f-e0c7-fd0d-e053-2995a90abdef",
+   "c707caa1-d6fd-4790-9a64-f749bf93ef18",
+   "ce5b0429-bbe1-47a4-af5e-0159d3cfd2c3",
+   "ceddc406-4a17-471f-917e-63b4b03779ea",
+   "cfcf519f-5d15-431d-89c8-961a0c38ba60",
+   "d0276e7b-a1c9-61f3-e053-2a95a90ae3aa",
+   "d0938df9-9065-47eb-9eae-0722ed1411a1",
+   "d54a27f2-2af8-4f86-a7fd-453f6b1a9997"
+  ]
+ },
+ "requests": 9
+}

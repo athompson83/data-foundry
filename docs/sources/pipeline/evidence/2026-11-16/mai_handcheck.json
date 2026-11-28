@@ -1,0 +1,38 @@
+{
+  "dataset": "marine-accident-investigations",
+  "checked_on": "2026-11-16",
+  "method": "Each candidate pair (same vessel name and occurrence date within 3 days) was opened on both publishers and judged the same casualty event if vessel(s), date and place agree; IMO numbers were then compared where both report PDFs print them. Source: mai_measure.json.",
+  "joins": [
+    {
+      "join": "BSU vessel name (capitals) + occurrence date within 3 days -> MAIB report title + date_of_occurrence",
+      "between": ["maritime-de-bsu-investigation-reports", "maritime-uk-maib-reports"],
+      "name_pairs": 30,
+      "same_date_pairs": 3,
+      "pairs": [
+        {"bsu_report": "Investigation Report 117-11", "vessel": "TYUMEN-2", "bsu_occurrence": "2011-04-14", "maib_link": "/maib-reports/collision-between-container-vessel-oocl-finland-and-general-cargo-vessel-tyumen-2-with-loss-of-2-lives", "maib_occurrence": "2011-04-14", "verdict": "same event", "note": "Collision OOCL Finland / Tyumen-2; the MAIB overseas-report page links the BSU report PDF Investigation_Report_117_11.pdf. BSU PDF IMOs 8727848, 9354351; the MAIB page has no PDF."},
+        {"bsu_report": "Interim investigation report MAIB (hosted by BSU)", "vessel": "VERITY", "bsu_occurrence": "2023-10-24", "maib_link": "/maib-reports/collision-between-the-bulk-carrier-polesie-and-the-general-cargo-ship-verity-resulting-in-the-sinking-of-verity-and-loss-of-five-lives", "maib_occurrence": "2023-10-24", "verdict": "same event", "note": "Polesie / Verity collision in the German Bight; joint investigation led by MAIB for the Red Ensign Group. IMO 9229178 and 9488097 printed in both PDFs."},
+        {"bsu_report": "Supplementary statement by the BSU on MAIB report 5 of 2026", "vessel": "POLESIE", "bsu_occurrence": "2023-10-24", "maib_link": "/maib-reports/collision-between-the-bulk-carrier-polesie-and-the-general-cargo-ship-verity-resulting-in-the-sinking-of-verity-and-loss-of-five-lives", "maib_occurrence": "2023-10-24", "verdict": "same event", "note": "BSU-authored statement on the same casualty; IMO 9229178 and 9488097 in both PDFs."}
+      ],
+      "rejected_name_pairs": "The other 27 name pairs are occurrence dates years apart (different vessels sharing a word such as a common ship name); none is the same event.",
+      "reviewed": {"correct": 3, "checked": 3}
+    },
+    {
+      "join": "NTSB vessel name (title) + occurrence date within 3 days -> MAIB report title + date_of_occurrence",
+      "between": ["maritime-ntsb-marine-investigation-reports", "maritime-uk-maib-reports"],
+      "name_pairs": 23,
+      "same_date_pairs": 1,
+      "pairs": [
+        {"ntsb_report": "MAR-93-01", "ntsb_case": "DCA92MM034", "vessel": "Queen Elizabeth 2", "ntsb_occurrence": "1992-08-07", "maib_link": "/maib-reports/grounding-of-passenger-cruise-ship-queen-elizabeth-2-on-uncharted-rocks-south-of-cuttyhunk-island-usa", "maib_occurrence": "1992-08-07", "verdict": "same event", "note": "Grounding of the UK passenger vessel QE2 near Cuttyhunk Island, Massachusetts. Neither scanned report PDF yields an IMO number from its text layer."}
+      ],
+      "reviewed": {"correct": 1, "checked": 1}
+    },
+    {
+      "join": "NSIA vessel name -> MAIB / NTSB titles (any date)",
+      "between": ["mai-no-nsia-marine-reports", "maritime-uk-maib-reports"],
+      "name_pairs": 4,
+      "same_date_pairs": 0,
+      "note": "4 MAIB and 9 NTSB name pairs, all years apart and different vessels (generic words such as 'Maria', 'Marina'); 0 of 65 NSIA IMO numbers appear in the MAIB, NTSB or BSU IMO sets read this round.",
+      "reviewed": {"correct": 0, "checked": 13}
+    }
+  ]
+}

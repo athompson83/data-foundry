@@ -1,0 +1,309 @@
+{
+ "ecfr_authority_citations": {
+  "authority_characters": 17863,
+  "authority_lines_without_a_usc_citation": 1,
+  "by_code_title": {
+   "15": 5,
+   "20": 7,
+   "22": 4,
+   "31": 8,
+   "42": 30,
+   "49": 1099,
+   "5": 17,
+   "51": 49
+  },
+  "citations_that_are_range_endpoints": 304,
+  "parts_in_full_xml": 226,
+  "parts_with_authority_line": 198,
+  "section_citations_extracted": 1231
+ },
+ "ecfr_title_14": {
+  "full_xml_characters": 15969479,
+  "latest_amended_on": "2026-11-23",
+  "structure_nodes_by_type": {
+   "appendix": 181,
+   "chapter": 5,
+   "part": 226,
+   "section": 6363,
+   "subchapter": 25,
+   "subject_group": 165,
+   "subpart": 672,
+   "title": 1
+  },
+  "up_to_date_as_of": "2026-11-25"
+ },
+ "fetched": {
+  "ecfr_title14_full.xml": {
+   "bytes": 16014238,
+   "sha256": "1b3fc99c54a04a08e2e5359f0334516ff35c8a930f6e89e5a11ab8371749d0c5",
+   "url": "https://www.ecfr.gov/api/versioner/v1/full/2026-11-25/title-14.xml"
+  },
+  "ecfr_title14_structure.json": {
+   "bytes": 2061453,
+   "sha256": "044f69e5fb30100c7d6b1570dd716a5be334f136140ca818d62990e7be5e2ab1",
+   "url": "https://www.ecfr.gov/api/versioner/v1/structure/2026-11-25/title-14.json"
+  },
+  "ecfr_titles.json": {
+   "bytes": 8033,
+   "sha256": "be7cb29de3a1acf914d79bde4e866a48b8a1aba0dd09d5142a8d6b160a2790f8",
+   "url": "https://www.ecfr.gov/api/versioner/v1/titles.json"
+  },
+  "terms_ecfr.html": {
+   "bytes": 10596,
+   "sha256": "6543159eb828cfb3d00087e81c8f58ce3256186933bb74b374faf86264f8ab17",
+   "url": "https://www.ecfr.gov/reader-aids/government-policy-and-ogc/terms-of-service"
+  },
+  "terms_govinfo.html": {
+   "bytes": 64169,
+   "sha256": "d9e3a2f1cb4486ab4ecc4eff640f94f9a9bb8655ca71ff00694b236e7011ad1c",
+   "url": "https://www.govinfo.gov/about/policies"
+  },
+  "usc_2024_title49.htm": {
+   "bytes": 16647167,
+   "sha256": "2207bcd9ac80140d2b384f169dfe1f4178b78e865924ada7e3852c972e8b499f",
+   "url": "https://www.govinfo.gov/content/pkg/USCODE-2024-title49/html/USCODE-2024-title49.htm"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "authority_line": "Authority: 49 U.S.C. 40101, 40102, 40109, 40113, 41504, 41708, 41712, and 46101.",
+   "cfr_part": "14 CFR part 214",
+   "cfr_part_heading": "PART 214—TERMS, CONDITIONS, AND LIMITATIONS OF FOREIGN AIR CARRIER PERMITS AUTHORIZING CHARTER TRANSPORTATION ONLY",
+   "usc_section": "49 U.S.C. 40113",
+   "usc_section_heading": "Administrative",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101-40103, 40113, 40120, 41706, 41721, 44106, 44701, 44702, 44703, 44709, 44710, 44711, 45101-45105, 46105, 46306.",
+   "cfr_part": "14 CFR part 120",
+   "cfr_part_heading": "PART 120—DRUG AND ALCOHOL TESTING PROGRAM",
+   "usc_section": "49 U.S.C. 41721",
+   "usc_section_heading": "Reports by carriers on incidents involving animals during air transport",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40103, 40113-40114, 44101-44105, 44107-44111, 44504, 44701, 44708-44709, 44711-44713, 44725, 45302-45303, 46104, 46304, 46306, 47122.",
+   "cfr_part": "14 CFR part 45",
+   "cfr_part_heading": "PART 45—IDENTIFICATION AND REGISTRATION MARKING",
+   "usc_section": "49 U.S.C. 46306",
+   "usc_section_heading": "Registration violations involving aircraft not providing air transportation",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101, 40103, 40105, 40113, 40120, 44101, 44111, 44701, 44704, 44709, 44711, 44712, 44715,44716, 44717, 44722, 44740, 46306, 46315, 46316, 46504, 46506-46507, 47122, 47508,47528-47531, 47534; Pub. L. 112-95, 126 Stat. 11; Pub. L. 114-190, 130 Stat. 615 (49 U.S.C. 44703 note); sec. 828, Pub. L. 118-63, 138 Stat. 1330 (49 U.S.C. 44703 note); articles 12 and 29 of the Convention on International Civil Aviation, 61 Stat. 1180. Link to an amendment published at 91 FR 72405, Nov. 10, 2026.",
+   "cfr_part": "14 CFR part 91",
+   "cfr_part_heading": "PART 91—GENERAL OPERATING AND FLIGHT RULES",
+   "usc_section": "49 U.S.C. 44703",
+   "usc_section_heading": "Airman certificates",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 4 U.S.T. 1830; Pub. L. 108-297, 118 Stat. 1095 (49 U.S.C. 40101 note, 49 U.S.C. 44101 note); 49 U.S.C. 106(f), 40113-40114, 44101-44108, 44110-44113, 44701, 44704, 44713, 45302, 46104, 46301.",
+   "cfr_part": "14 CFR part 49",
+   "cfr_part_heading": "PART 49—RECORDING OF AIRCRAFT TITLES AND SECURITY DOCUMENTS",
+   "usc_section": "49 U.S.C. 44713",
+   "usc_section_heading": "Inspection and maintenance",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101, 40102, 40103, 40113, 44105, 44106, 44111, 44701-44717, 44722, 44901, 44903, 44904, 44906, 44912, 44914, 44936, 44938, 46103, 46105; sec. 215, Pub. L. 111-216, 124 Stat. 2348.",
+   "cfr_part": "14 CFR part 119",
+   "cfr_part_heading": "PART 119—CERTIFICATION: AIR CARRIERS AND COMMERCIAL OPERATORS",
+   "usc_section": "49 U.S.C. 44111",
+   "usc_section_heading": "Modifications in registration and recordation system for aircraft not providing air transportation",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40103-40104, 40113, 44701.",
+   "cfr_part": "14 CFR part 103",
+   "cfr_part_heading": "PART 103—ULTRALIGHT VEHICLES",
+   "usc_section": "49 U.S.C. 106",
+   "usc_section_heading": "Federal Aviation Administration",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40113, 44701-44709, 46111, 46103 and 46301.",
+   "cfr_part": "14 CFR part 3",
+   "cfr_part_heading": "PART 3—GENERAL REQUIREMENTS",
+   "usc_section": "49 U.S.C. 46301",
+   "usc_section_heading": "Civil penalties",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40103-40107, 40109, 40113, 44502, 44701-44702, 44708-44709, 44711, 44719-44721, 45303, 46308.",
+   "cfr_part": "14 CFR part 171",
+   "cfr_part_heading": "PART 171—NON-FEDERAL NAVIGATION FACILITIES",
+   "usc_section": "49 U.S.C. 44721",
+   "usc_section_heading": "Aeronautical charts and related products and services",
+   "was_range_endpoint": true
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40103-40107, 40109, 40113, 44502, 44701-44702, 44708-44709, 44711, 44719-44721, 45303, 46308.",
+   "cfr_part": "14 CFR part 171",
+   "cfr_part_heading": "PART 171—NON-FEDERAL NAVIGATION FACILITIES",
+   "usc_section": "49 U.S.C. 44708",
+   "usc_section_heading": "Inspecting and rating air navigation facilities",
+   "was_range_endpoint": true
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101-40107, 40113-40114, 44501-44502, 46104, 47122, 47151-47153, 47302-47306.",
+   "cfr_part": "14 CFR part 169",
+   "cfr_part_heading": "PART 169—EXPENDITURE OF FEDERAL FUNDS FOR NONMILITARY AIRPORTS OR AIR NAVIGATION FACILITIES THEREON",
+   "usc_section": "49 U.S.C. 47153",
+   "usc_section_heading": "Waiving and adding terms",
+   "was_range_endpoint": true
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101, 40103, 40106, 40113, 40120, 44502, 44721.",
+   "cfr_part": "14 CFR part 99",
+   "cfr_part_heading": "PART 99—SECURITY CONTROL OF AIR TRAFFIC",
+   "usc_section": "49 U.S.C. 40113",
+   "usc_section_heading": "Administrative",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 41724.",
+   "cfr_part": "14 CFR part 251",
+   "cfr_part_heading": "PART 251—CARRIAGE OF MUSICAL INSTRUMENTS",
+   "usc_section": "49 U.S.C. 41724",
+   "usc_section_heading": "Musical instruments",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40103, 40113-40114, 44502, 44701, 44718, 46101-46102, 46104.",
+   "cfr_part": "14 CFR part 77",
+   "cfr_part_heading": "PART 77—SAFE, EFFICIENT USE, AND PRESERVATION OF THE NAVIGABLE AIRSPACE",
+   "usc_section": "49 U.S.C. 40114",
+   "usc_section_heading": "Reports and records",
+   "was_range_endpoint": true
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 40113, 40114, 41711; 31 U.S.C. 9701; and 5 U.S.C. 552.",
+   "cfr_part": "14 CFR part 389",
+   "cfr_part_heading": "PART 389—FEES AND CHARGES FOR SPECIAL SERVICES",
+   "usc_section": "49 U.S.C. 40114",
+   "usc_section_heading": "Reports and records",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101, 40102, 40103, 40113, 44105, 44106, 44111, 44701-44717, 44722, 44901, 44903, 44904, 44906, 44912, 44914, 44936, 44938, 46103, 46105.",
+   "cfr_part": "14 CFR part 110",
+   "cfr_part_heading": "PART 110—GENERAL REQUIREMENTS",
+   "usc_section": "49 U.S.C. 44906",
+   "usc_section_heading": "Foreign air carrier security programs",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40103, 40113, 44701-44702. Link to an amendment published at 91 FR 72407, Nov. 10, 2026.",
+   "cfr_part": "14 CFR part 137",
+   "cfr_part_heading": "PART 137—AGRICULTURAL AIRCRAFT OPERATIONS",
+   "usc_section": "49 U.S.C. 40103",
+   "usc_section_heading": "Sovereignty and use of airspace",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 4 U.S.T. 1830; Pub. L. 115-254, Pub. L. 108-297, 118 Stat. 1095 (49 U.S.C. 40101 note, 49 U.S.C. 44101 note); 49 U.S.C. 106(f), 40113-40114, 44101-44108, 44110-44113, 44701, 44703-44704, 44713, 45302, 46104, 46301.",
+   "cfr_part": "14 CFR part 47",
+   "cfr_part_heading": "PART 47—AIRCRAFT REGISTRATION",
+   "usc_section": "49 U.S.C. 44701",
+   "usc_section_heading": "General requirements",
+   "was_range_endpoint": false
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101-40107, 40113-40114, 44501-44502, 46104, 47122, 47151-47153, 47302-47306.",
+   "cfr_part": "14 CFR part 169",
+   "cfr_part_heading": "PART 169—EXPENDITURE OF FEDERAL FUNDS FOR NONMILITARY AIRPORTS OR AIR NAVIGATION FACILITIES THEREON",
+   "usc_section": "49 U.S.C. 47151",
+   "usc_section_heading": "Authority to transfer an interest in surplus property",
+   "was_range_endpoint": true
+  },
+  {
+   "authority_line": "Authority: 49 U.S.C. 106(f), 40101, 40102, 40103, 40113, 44105, 44106, 44111, 44701-44717, 44722, 44901, 44903, 44904, 44906, 44912, 44914, 44936, 44938, 46103, 46105; sec. 215, Pub. L. 111-216, 124 Stat. 2348.",
+   "cfr_part": "14 CFR part 119",
+   "cfr_part_heading": "PART 119—CERTIFICATION: AIR CARRIERS AND COMMERCIAL OPERATORS",
+   "usc_section": "49 U.S.C. 44701",
+   "usc_section_heading": "General requirements",
+   "was_range_endpoint": true
+  }
+ ],
+ "join_usc_section": {
+  "citations_resolving_in_the_2024_code": 971,
+  "citations_to_title_49": 1099,
+  "distinct_sections_resolving": 169,
+  "distinct_title_49_sections_cited": 194,
+  "documents_in_the_code_file_without_a_parsed_section_heading": 263,
+  "not_resolving_sections_with_citing_part_count": {
+   "1110": 1,
+   "1372": 1,
+   "1718": 1,
+   "1719": 1,
+   "1723": 1,
+   "1726": 1,
+   "1727": 1,
+   "2307": 1,
+   "401": 29,
+   "40101n": 1,
+   "411": 17,
+   "413": 15,
+   "415": 10,
+   "417": 27,
+   "419": 3,
+   "421": 1,
+   "44514": 3,
+   "449": 1,
+   "46014": 1,
+   "461": 5,
+   "463": 2,
+   "465": 1,
+   "46901": 1,
+   "471": 1,
+   "47306": 2
+  },
+  "parts_citing_title_49": 149,
+  "resolving_to_a_repealed_omitted_or_transferred_section": 0
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 6,
+  "made_this_run": 0,
+  "source_bodies": 6
+ },
+ "run_date": "2026-11-28",
+ "terms": {
+  "ecfr": {
+   "bytes": 10596,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://www.ecfr.gov/reader-aids/government-policy-and-ogc/terms-of-service"
+  },
+  "govinfo": {
+   "bytes": 64169,
+   "http_status": 200,
+   "keyword_sentences": [
+    "The intent of the section is to place in the public domain all work of the United States Government, which is defined in 17 U.S.C.",
+    "However, Government publications may contain copyrighted material which was used with permission of the copyright owner.",
+    "Publication in a Government document does not authorize any use or appropriation of such copyright material without consent of the owner.",
+    "Government, the copyright notice (if any) must identify those parts of the work in which copyright is claimed per 17 U.S.C.",
+    "Photo Credits and Copyright For many of the images on GPO's websites, GPO has purchased the right to use the image.",
+    "All other rights to the image, including those without limitation, copyright, and all other rights, are retained by the owner of the images."
+   ],
+   "quotes": {
+    "By virtue of the foregoing, public documents can generally be reprinted without legal restriction.": true
+   },
+   "url": "https://www.govinfo.gov/about/policies"
+  }
+ },
+ "us_code_title_49_2024": {
+  "by_status": {
+   "current": 1311
+  },
+  "characters": 10978525,
+  "citations_to_other_code_sections": 760,
+  "distinct_public_law_citations_summed": 7304,
+  "documents": 1574,
+  "median_characters": 4052,
+  "sections": 1311,
+  "with_notes": 1056,
+  "with_source_credit": 1311
+ }
+}

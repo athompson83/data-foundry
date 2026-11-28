@@ -1,0 +1,844 @@
+{
+ "dbt_commodities_report": {
+  "distinct_commodity_codes_without_end_date": 22327,
+  "distinct_hs6_chapters_01_97": 5612,
+  "fields": [
+   "id",
+   "commodity__sid",
+   "commodity__code",
+   "commodity__suffix",
+   "commodity__description",
+   "commodity__validity_start",
+   "commodity__validity_end",
+   "parent__sid",
+   "parent__code",
+   "parent__suffix"
+  ],
+  "newest_validity_start": "2026-11-18",
+  "of_which_undivided_headings_held_at_heading_level": 141,
+  "rows": 25904,
+  "rows_without_end_date": 25822,
+  "suffix_80_rows_without_end_date": 22324,
+  "versions_endpoint_status": 200
+ },
+ "fetched": {
+  "dbt.csv": {
+   "bytes": 3397401,
+   "sha256": "7ac1cf133c415de80668600563f50db10a6d1f4e88d05069ef156a04d7e52cbd",
+   "url": "https://data.api.trade.gov.uk/v1/datasets/uk-tariff-2021-01-01/versions/latest/tables/commodities-report/data?format=csv"
+  },
+  "hts_full.json": {
+   "bytes": 12642109,
+   "sha256": "532e0c00ff4300e1e0844b7e4e46d38769f5e66575ad552964d73a12ceabd709",
+   "url": "https://hts.usitc.gov/reststop/exportList?from=0101&to=9999&format=JSON&styles=false"
+  },
+  "hts_release.json": {
+   "bytes": 82625,
+   "sha256": "7a0ecc1aed6d9e54d10c483bd6d73b893ee0f0c01bcc37ff1c1e8f19671bbb6c",
+   "url": "https://hts.usitc.gov/reststop/releaseList"
+  },
+  "uk_ch01.json": {
+   "bytes": 4349,
+   "sha256": "32e7dea891230721c59160a60807f5c4e98af3e5280943a0feada6443b769eba",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/01"
+  },
+  "uk_ch02.json": {
+   "bytes": 25509,
+   "sha256": "60bded05e5758a94cce9ee881a96d5e5ede71b200bf1034b57c655244957a504",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/02"
+  },
+  "uk_ch03.json": {
+   "bytes": 10843,
+   "sha256": "fb9e86fa3799be0924d6c316709808d176b2a4818c6aad830586a7eb9f36a850",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/03"
+  },
+  "uk_ch04.json": {
+   "bytes": 14792,
+   "sha256": "d62f881121370f6e1010c82c5a9641aeba4f5a9831aa885aeb0c391aecad27d3",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/04"
+  },
+  "uk_ch05.json": {
+   "bytes": 10229,
+   "sha256": "f36ba1d084eb4eaabf4cceea0bb3c575fb17fa1c72c29aa5876e276bc221ef9d",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/05"
+  },
+  "uk_ch06.json": {
+   "bytes": 5138,
+   "sha256": "c9df269f59704f0cac4dc54e9ee3e1b9827aea3e050b7d93dfcc83e28bbed7d6",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/06"
+  },
+  "uk_ch07.json": {
+   "bytes": 11431,
+   "sha256": "e7eebc98bd167701b0628cdae770acb068dd4f89b1692ce01daf887665ecbd86",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/07"
+  },
+  "uk_ch08.json": {
+   "bytes": 11097,
+   "sha256": "9a1f811d30c6790e3ad9f370c16c8749c4a93a818b4e8baac712e28e225972e5",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/08"
+  },
+  "uk_ch09.json": {
+   "bytes": 7310,
+   "sha256": "3ea2395cacb702c12dddba016509ae3d2ef835c72788863d2d2fcf138fc5a270",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/09"
+  },
+  "uk_ch10.json": {
+   "bytes": 10166,
+   "sha256": "46d980eba3c0f4b619fdf1cc3eade078467b933fb487538654a57c360c06c39e",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/10"
+  },
+  "uk_ch11.json": {
+   "bytes": 10166,
+   "sha256": "056d27c4b678863b6586855ab73112d564d2d644c1fd1f8ac7dea7bbb95fe900",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/11"
+  },
+  "uk_ch12.json": {
+   "bytes": 13070,
+   "sha256": "30ed37143e3bb016a57c6a1d521e70c0b6ead7933eeff8d907c1daa1b2d0c8e4",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/12"
+  },
+  "uk_ch13.json": {
+   "bytes": 3942,
+   "sha256": "557ecc4ac35f1a1d79530ec3dae4eba28822313140565dcb355c7e5d1d630383",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/13"
+  },
+  "uk_ch14.json": {
+   "bytes": 3269,
+   "sha256": "bbbe6dd0d02b6dfccf376ffb3efa02151e7992679f2e5a895e299ca25e126bf6",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/14"
+  },
+  "uk_ch15.json": {
+   "bytes": 24735,
+   "sha256": "99b47edbeea48ede7fbf622331fb7cc7c744ff2ea61d8e11a0e3ff39055886ae",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/15"
+  },
+  "uk_ch16.json": {
+   "bytes": 7460,
+   "sha256": "84252a8799134e1be23660778a3ce2589be7f03437b474e83b874bd0d15f594b",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/16"
+  },
+  "uk_ch17.json": {
+   "bytes": 8135,
+   "sha256": "29585cb0545c63a33f43d9945d4708ebbcd298f0cf2ecbb982fda4398840adf3",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/17"
+  },
+  "uk_ch18.json": {
+   "bytes": 5170,
+   "sha256": "e31e48e98ce60cdd6e4ff3992ee7b047ee5a48ee25d7c36710c7fad622e3f472",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/18"
+  },
+  "uk_ch19.json": {
+   "bytes": 9692,
+   "sha256": "62f7b87b93a0ccace09f18abf55a6b642dfee2f4e603beb88effd3f001fe8be2",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/19"
+  },
+  "uk_ch20.json": {
+   "bytes": 17258,
+   "sha256": "160a7492de916c7aaf958eff8336b9ab5a0761802331e46e57d5178fd97b6a4f",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/20"
+  },
+  "uk_ch21.json": {
+   "bytes": 8536,
+   "sha256": "ce651522990afbd6d3197ae9ac0ab92b6d8545875ef6d0154fc626227049fb11",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/21"
+  },
+  "uk_ch22.json": {
+   "bytes": 18154,
+   "sha256": "d1291e66ba3f13302fe8f9271c09e4098695a7db4a37e50c0e3f2328fcbd2205",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/22"
+  },
+  "uk_ch23.json": {
+   "bytes": 12898,
+   "sha256": "32aef8dc3096e56cd19b55f0aa5c3601ec74f5061e83bccce60818f178f31ad7",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/23"
+  },
+  "uk_ch24.json": {
+   "bytes": 5986,
+   "sha256": "8e954dd087606bad08d4171df318ff7633834402cd5bdc5263adc5e7c2e5f091",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/24"
+  },
+  "uk_ch25.json": {
+   "bytes": 27626,
+   "sha256": "95a5bd0ba8345126d5b79b2cd70a8ec2dd7045d5acfb2f5e7797c766f7cb1b8a",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/25"
+  },
+  "uk_ch26.json": {
+   "bytes": 14311,
+   "sha256": "f9cffb7e9508141e256bae486f9acc7a85147dad9b2e372ae10f24e4e146b5b4",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/26"
+  },
+  "uk_ch27.json": {
+   "bytes": 22843,
+   "sha256": "65b6b1d1501e6f40c5a1c528b2d67b50b65e4818087fe59d613e4c9bb7e35288",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/27"
+  },
+  "uk_ch28.json": {
+   "bytes": 36854,
+   "sha256": "c65beb5fd11413ad90d9c23b6cd0907012b8452aa35814243759d561b27644cb",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/28"
+  },
+  "uk_ch29.json": {
+   "bytes": 41597,
+   "sha256": "f16fb499ae34cc154edcff8932799536b721108e2996203fab5a4ac24f9c376c",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/29"
+  },
+  "uk_ch30.json": {
+   "bytes": 15146,
+   "sha256": "55d75f3f034bc1b1811e7bf081327de4922e181eb1121c98d74f988861cfbc89",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/30"
+  },
+  "uk_ch31.json": {
+   "bytes": 9369,
+   "sha256": "94a09b77dae26bc75df78681f82174ad5372c51848b7ae95a1466af3437466e0",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/31"
+  },
+  "uk_ch32.json": {
+   "bytes": 18546,
+   "sha256": "2fc4bc53dcc225d856b42313026e5d77f4394c151c949b37117064bacf4adf3c",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/32"
+  },
+  "uk_ch33.json": {
+   "bytes": 10083,
+   "sha256": "7e7bda528fd2b6707a6df6a997c293c32b28fb2be1789b32c62184b24b9b5e36",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/33"
+  },
+  "uk_ch34.json": {
+   "bytes": 13527,
+   "sha256": "297cd5b8693eb235434877d4b49b889ee07b0ddfe29ae7a7e8ce7c46ac21cbac",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/34"
+  },
+  "uk_ch35.json": {
+   "bytes": 9911,
+   "sha256": "fe2843ea2f709b58b964fb2e90b58473fe0632f72c959951c8094b4f77138e5b",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/35"
+  },
+  "uk_ch36.json": {
+   "bytes": 6727,
+   "sha256": "246156fe1676898575e5d5698c5c094b4d9108670774b00860c1396e22886218",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/36"
+  },
+  "uk_ch37.json": {
+   "bytes": 8557,
+   "sha256": "3c5c63e0dad14c0e0e859d85bc6ce0d4cf57715ec857188a2d8c7221e10b171f",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/37"
+  },
+  "uk_ch38.json": {
+   "bytes": 33952,
+   "sha256": "85f330dbcb6e1dfe105e77b099b3e328f629a07d54b801bca7a10e3cd5c91c57",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/38"
+  },
+  "uk_ch39.json": {
+   "bytes": 28827,
+   "sha256": "9fa8fa4ac9e5351732f84f21ddbd1b791a2f7b60b37ce62236e46b2b2e4a0351",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/39"
+  },
+  "uk_ch40.json": {
+   "bytes": 18787,
+   "sha256": "ea75212087352e130c9a1d115c4987eaa989241f8e7a57ac8b5c3554e2581e2d",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/40"
+  },
+  "uk_ch41.json": {
+   "bytes": 12548,
+   "sha256": "569438e143f35b78bd73400acb2ec737acbf8eeddcf82fb7b52523ac8f382fb4",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/41"
+  },
+  "uk_ch42.json": {
+   "bytes": 9005,
+   "sha256": "2ee8a199216b7948e3b14ffaec8cc6204311238a6766535b67d69f04bc8b520e",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/42"
+  },
+  "uk_ch43.json": {
+   "bytes": 5358,
+   "sha256": "8d5d7510675e958b1378687a7c7c50caa18efc7ad9dce6e791d243e3bbc5fcf3",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/43"
+  },
+  "uk_ch44.json": {
+   "bytes": 21861,
+   "sha256": "9eb428b25c9a70a27ca5333d40a6486ec057f04cbe179e35d5b72bbdb5a92493",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/44"
+  },
+  "uk_ch45.json": {
+   "bytes": 3631,
+   "sha256": "8512c221161c85ca6ae3e50549c779fb06d6bf9c1d91693b85802616df46e298",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/45"
+  },
+  "uk_ch46.json": {
+   "bytes": 4469,
+   "sha256": "7216bcb11b42d20801c7a45f49fd25d144bc8a592ea83bead41e7512c595040b",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/46"
+  },
+  "uk_ch47.json": {
+   "bytes": 5395,
+   "sha256": "c03bbd23aea1436b2ee12c13f4204dbabdf6873e16a1d55f23296b2f2c9aae07",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/47"
+  },
+  "uk_ch48.json": {
+   "bytes": 32908,
+   "sha256": "8609feed727f8194972510eb689848497848d138ed3971b041ed9501b45dc762",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/48"
+  },
+  "uk_ch49.json": {
+   "bytes": 11200,
+   "sha256": "cc0a8b492f14d7df4be46a92bf49ad9f397f813a6fc9a56c197f0119e26a805b",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/49"
+  },
+  "uk_ch50.json": {
+   "bytes": 20753,
+   "sha256": "e9fe8856a71ce4057b855306178747670a32db32da42a427964f99fffc796968",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/50"
+  },
+  "uk_ch51.json": {
+   "bytes": 25105,
+   "sha256": "d159e7c5fa18c3277158310368b40714f48d640d43933844168dfee55bfdd3d0",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/51"
+  },
+  "uk_ch52.json": {
+   "bytes": 25256,
+   "sha256": "901cd61284aea50b2eaf6a6581fb3a4ad0d829327b45a709550559f3d5f0d3c7",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/52"
+  },
+  "uk_ch53.json": {
+   "bytes": 24857,
+   "sha256": "7666c05ffda39e75ba8de69c0a3b342558ada9036f4f9e8f2ac55a49d9d73e12",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/53"
+  },
+  "uk_ch54.json": {
+   "bytes": 24733,
+   "sha256": "00bfb7356881a49aec50e2802606fd89e57e4e67ca56ce3f42999cab0dcadb9d",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/54"
+  },
+  "uk_ch55.json": {
+   "bytes": 27810,
+   "sha256": "d6e5c8e98d26b2f8c57f928e462045ce393651d161f80465580537c8ac4b680e",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/55"
+  },
+  "uk_ch56.json": {
+   "bytes": 27018,
+   "sha256": "523429e068d0249c73e3c29934191fe046be766debdb3bd2cabb870dbebf941c",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/56"
+  },
+  "uk_ch57.json": {
+   "bytes": 20817,
+   "sha256": "934a97bf883526db20b984e8ea16a89fc55ea7c6712b82e87bb8edc60da22255",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/57"
+  },
+  "uk_ch58.json": {
+   "bytes": 27527,
+   "sha256": "d54e312cf75774545585ce447b3592807c79ae2d4852d122a92a7820c0da5666",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/58"
+  },
+  "uk_ch59.json": {
+   "bytes": 32319,
+   "sha256": "b83bb5a019e8de92059dd17a85546d18c603a79ee0e42c612e6377d1b9e9e854",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/59"
+  },
+  "uk_ch60.json": {
+   "bytes": 22405,
+   "sha256": "37aed73198195745041ee288701447630b27fa5ad9ee0e25e632cffcd77e436a",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/60"
+  },
+  "uk_ch61.json": {
+   "bytes": 38277,
+   "sha256": "088b51c1b0035c15f70a24d2a0e475dc8bea0186761722ec7301b167feb66956",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/61"
+  },
+  "uk_ch62.json": {
+   "bytes": 37051,
+   "sha256": "08eb34396950baab278f9a57ff514ae171bc5fd14473dca5df7de774e8ba5b17",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/62"
+  },
+  "uk_ch63.json": {
+   "bytes": 25040,
+   "sha256": "b2626d560e14da0fcb0af30ef928fe636282d6e876ddd246aed3f350b9c86c51",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/63"
+  },
+  "uk_ch64.json": {
+   "bytes": 8681,
+   "sha256": "09a724ea0302a6fff23324b2b013e20c4d1142fa0ae6dbecfcc482897507013c",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/64"
+  },
+  "uk_ch65.json": {
+   "bytes": 5715,
+   "sha256": "08fc156a275f463d5534a82f1de78934db79fc5dbd06774d0b55b0a9eac653e7",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/65"
+  },
+  "uk_ch66.json": {
+   "bytes": 3477,
+   "sha256": "aca669f072ed92dcb2a845c0db129635263848d3c48133ee3ca854a9ddb7ed71",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/66"
+  },
+  "uk_ch67.json": {
+   "bytes": 5648,
+   "sha256": "0642437c2a8fbff4188009c451206965afa31626c64494a4ab45e80637a9ae79",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/67"
+  },
+  "uk_ch68.json": {
+   "bytes": 16126,
+   "sha256": "b7b127eab033555050c5ee6375ae16555fabc249101090f7d12904d9d63fc6e5",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/68"
+  },
+  "uk_ch69.json": {
+   "bytes": 11766,
+   "sha256": "394216710e75359c95153b1dbb25637a8fbd105cf4137ecc8ee03186df187497",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/69"
+  },
+  "uk_ch70.json": {
+   "bytes": 19350,
+   "sha256": "c6e74dcf0a584034fb7357eae1c9d8bb404122c82c4b3361006a627a64385e5c",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/70"
+  },
+  "uk_ch71.json": {
+   "bytes": 20564,
+   "sha256": "996b1a0c995a225b4ea563de0549c2290691266d746b3e4c4af21a403d366aec",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/71"
+  },
+  "uk_ch72.json": {
+   "bytes": 39323,
+   "sha256": "9b55bec52901bfe35cb90cbb659475e5c2ee8a7fcc7c78b49e2277e31770247c",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/72"
+  },
+  "uk_ch73.json": {
+   "bytes": 32520,
+   "sha256": "039e3e21621101b26936e175563f5a59720a6ae7b67dd86da1801750550c2ed9",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/73"
+  },
+  "uk_ch74.json": {
+   "bytes": 22690,
+   "sha256": "ed599615e635d1fc43ddda10ee0abcc111060bc6c7d878529af407af27c3257f",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/74"
+  },
+  "uk_ch75.json": {
+   "bytes": 15490,
+   "sha256": "1d3e677c8cd16f66a65efc8f40b2a94535a49cbdc879ead0a9ba4489a5419958",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/75"
+  },
+  "uk_ch76.json": {
+   "bytes": 25641,
+   "sha256": "926e8426242634410db1922695e40bce1c6533e424a93ba53fd582c621432eb2",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/76"
+  },
+  "uk_ch78.json": {
+   "bytes": 12752,
+   "sha256": "a238ac64a5f190ea49d09b552f17e626a7f8015f638fef855e1c1a67ea2763e0",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/78"
+  },
+  "uk_ch79.json": {
+   "bytes": 13630,
+   "sha256": "2a7d73e80516ad0e16d360a4eb8d45788c69d0cc23ada415549687fb3f4e65f9",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/79"
+  },
+  "uk_ch80.json": {
+   "bytes": 12756,
+   "sha256": "99d79a681af651204490fc860c0b0d2284d9d2b51b4d28a660707dc783ad7de4",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/80"
+  },
+  "uk_ch81.json": {
+   "bytes": 17462,
+   "sha256": "59a2a0712344511283ecb1cf3b1834a5ba393858b76e9da9609497e9fad27e7d",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/81"
+  },
+  "uk_ch82.json": {
+   "bytes": 24035,
+   "sha256": "beb21ca8cbb79946e7e9b34ace21b8e859feacacfc4c1560f1e691cec3c3b477",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/82"
+  },
+  "uk_ch83.json": {
+   "bytes": 21902,
+   "sha256": "c175c6e7cf51e688d040f6bb3d4be700dd09429bb26988bb6250af797eeb3d10",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/83"
+  },
+  "uk_ch84.json": {
+   "bytes": 93970,
+   "sha256": "438022622b125fdcdf7d8b040a5c6cdec0448c9da7309be020a4039386d1c3c5",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/84"
+  },
+  "uk_ch85.json": {
+   "bytes": 67390,
+   "sha256": "ae3e5c9749560da532679c9e5dea607f906a86356945cdd636f033961bbb8c0e",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/85"
+  },
+  "uk_ch86.json": {
+   "bytes": 13125,
+   "sha256": "d4451e66f4aa31cd3814be75e604dc8b6e08d7121deaa175e01256adb605178d",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/86"
+  },
+  "uk_ch87.json": {
+   "bytes": 17642,
+   "sha256": "2551304966c50f715893af463fb63f13de0b336307444050f8bbbfdeeec7ca8a",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/87"
+  },
+  "uk_ch88.json": {
+   "bytes": 9490,
+   "sha256": "2aa6a241cf40cbde9c4ec4fdf605789698f009c1dcad83466277dc9dbd967814",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/88"
+  },
+  "uk_ch89.json": {
+   "bytes": 11058,
+   "sha256": "3dc8657c7321a7ca05d00624880f7345a5a6b0b55d1cbbc22c60965d48eca973",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/89"
+  },
+  "uk_ch90.json": {
+   "bytes": 37903,
+   "sha256": "433d6c9c46bb5ef8a06d97591dcbd03a120cce1c14da70a0de2f1ee2c37f78d9",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/90"
+  },
+  "uk_ch91.json": {
+   "bytes": 11581,
+   "sha256": "8dafa3e1dbcf559da89365cb9923751ec6608ac90d39d4127152ab8705cbd3f5",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/91"
+  },
+  "uk_ch92.json": {
+   "bytes": 7848,
+   "sha256": "70588983cc5d2908fbade954642a0dd53e58766b6473c1a3dfe7eb64918f51f7",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/92"
+  },
+  "uk_ch93.json": {
+   "bytes": 7001,
+   "sha256": "77615f3f30a798a2fbb6ca76ec3b43122287c9a7c8eb2b006eb1c4e4296e4608",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/93"
+  },
+  "uk_ch94.json": {
+   "bytes": 9787,
+   "sha256": "3062560763e80596206044d61854efe9be033079a90cafb9ec663bd83616edb4",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/94"
+  },
+  "uk_ch95.json": {
+   "bytes": 13582,
+   "sha256": "eb9d1a037f3051c049630bce61bd70885fc0ab5deb619c7071d538ccdf44ee9f",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/95"
+  },
+  "uk_ch96.json": {
+   "bytes": 20143,
+   "sha256": "8c78c09ad80907a30c8c06b832d114b88735859f9bc71c857608cb544b21345b",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/96"
+  },
+  "uk_ch97.json": {
+   "bytes": 8808,
+   "sha256": "9eb7cc765bf1b673cbf46af953c2aa4ce93740493bff0d001e8554a72acceb43",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/97"
+  },
+  "uk_ch98.json": {
+   "bytes": 1468,
+   "sha256": "669b7fdd87c45541f6e515783e768c2df21889da8f7ce60b591fd1acec8e3b56",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/98"
+  },
+  "uk_ch99.json": {
+   "bytes": 3627,
+   "sha256": "3e06b22d061b2168db087620d22312c6e3f9006d730e08205b185f9e48a3a297",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters/99"
+  },
+  "uk_chapters.json": {
+   "bytes": 20944,
+   "sha256": "edf02ef3a32016a27cc8f3aaca266fed1d8cfae58eef66a52d6a725c341d1aed",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/chapters"
+  },
+  "uk_sections.json": {
+   "bytes": 4898,
+   "sha256": "7dc9aba58eaf7b20dfee04a5ea7534e1aa14e9f68ea37da09b070f95f543db13",
+   "url": "https://www.trade-tariff.service.gov.uk/api/v2/sections"
+  }
+ },
+ "hs6_handcheck_sample": [
+  {
+   "hs6": "845510",
+   "hts": [
+    "8455.10.00.00",
+    "Tube mills"
+   ],
+   "uk": [
+    "8455100000",
+    "Tube mills"
+   ]
+  },
+  {
+   "hs6": "292029",
+   "hts": [
+    "2920.29.00.00",
+    "Other"
+   ],
+   "uk": [
+    "2920290000",
+    "Other"
+   ]
+  },
+  {
+   "hs6": "441891",
+   "hts": [
+    "4418.91",
+    "Of bamboo:"
+   ],
+   "uk": [
+    "4418910000",
+    "Of bamboo"
+   ]
+  },
+  {
+   "hs6": "570242",
+   "hts": [
+    "5702.42",
+    "Of man-made textile materials:"
+   ],
+   "uk": [
+    "5702420000",
+    "Of man-made textile materials"
+   ]
+  },
+  {
+   "hs6": "900490",
+   "hts": [
+    "9004.90.00",
+    "Other"
+   ],
+   "uk": [
+    "9004900000",
+    "Other"
+   ]
+  },
+  {
+   "hs6": "140490",
+   "hts": [
+    "1404.90",
+    "Other:"
+   ],
+   "uk": [
+    "1404900000",
+    "Other"
+   ]
+  },
+  {
+   "hs6": "551221",
+   "hts": [
+    "5512.21.00",
+    "Unbleached or bleached"
+   ],
+   "uk": [
+    "5512210000",
+    "Unbleached or bleached"
+   ]
+  },
+  {
+   "hs6": "110710",
+   "hts": [
+    "1107.10.00.00",
+    "Not roasted"
+   ],
+   "uk": [
+    "1107100000",
+    "Not roasted"
+   ]
+  },
+  {
+   "hs6": "010690",
+   "hts": [
+    "0106.90.01",
+    "Other"
+   ],
+   "uk": [
+    "0106900000",
+    "Other"
+   ]
+  },
+  {
+   "hs6": "292425",
+   "hts": [
+    "2924.25.00.00",
+    "Alachlor (ISO)"
+   ],
+   "uk": [
+    "2924250000",
+    "Alachlor (ISO)"
+   ]
+  },
+  {
+   "hs6": "290719",
+   "hts": [
+    "2907.19",
+    "Other:"
+   ],
+   "uk": [
+    "2907190000",
+    "Other"
+   ]
+  },
+  {
+   "hs6": "600642",
+   "hts": [
+    "6006.42.00",
+    "Dyed"
+   ],
+   "uk": [
+    "6006420000",
+    "Dyed"
+   ]
+  },
+  {
+   "hs6": "580121",
+   "hts": [
+    "5801.21.00.00",
+    "Uncut weft pile fabrics (224)"
+   ],
+   "uk": [
+    "5801210000",
+    "Uncut weft pile fabrics"
+   ]
+  },
+  {
+   "hs6": "291720",
+   "hts": [
+    "2917.20.00.00",
+    "Cyclanic, cyclenic or cycloterpenic polycarboxylic acids, their anhydrides, halides, peroxides, peroxyacids and their derivatives"
+   ],
+   "uk": [
+    "2917200000",
+    "Cyclanic, cyclenic or cycloterpenic polycarboxylic acids, their anhydrides, halides, peroxides, peroxyacids and their derivatives"
+   ]
+  },
+  {
+   "hs6": "291242",
+   "hts": [
+    "2912.42.00.00",
+    "Ethylvanillin (3-Ethoxy-4-hydroxybenzaldehyde)"
+   ],
+   "uk": [
+    "2912420000",
+    "Ethylvanillin (3-ethoxy-4-hydroxybenzaldehyde)"
+   ]
+  },
+  {
+   "hs6": "870443",
+   "hts": [
+    "8704.43.00.00",
+    "G.V.W. exceeding 20 metric tons "
+   ],
+   "uk": [
+    "8704430000",
+    "Of a gross vehicle weight exceeding 20|tonnes"
+   ]
+  },
+  {
+   "hs6": "610342",
+   "hts": [
+    "6103.42",
+    "Of cotton:"
+   ],
+   "uk": [
+    "6103420000",
+    "Of cotton"
+   ]
+  },
+  {
+   "hs6": "640110",
+   "hts": [
+    "6401.10.00.00",
+    "Footwear incorporating a protective metal toe-cap"
+   ],
+   "uk": [
+    "6401100000",
+    "Footwear incorporating a protective metal toecap"
+   ]
+  },
+  {
+   "hs6": "580131",
+   "hts": [
+    "5801.31.00.00",
+    "Uncut weft pile fabrics (224)"
+   ],
+   "uk": [
+    "5801310000",
+    "Uncut weft pile fabrics"
+   ]
+  },
+  {
+   "hs6": "551693",
+   "hts": [
+    "5516.93.00",
+    "Of yarns of different colors"
+   ],
+   "uk": [
+    "5516930000",
+    "Of yarns of different colours"
+   ]
+  }
+ ],
+ "hs6_join": {
+  "hts_hs6": 5612,
+  "hts_only": 0,
+  "hts_only_sample": [],
+  "in_both": 5612,
+  "uk_hs6": 5612,
+  "uk_only": 0,
+  "uk_only_sample": []
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 103,
+  "made_this_run": 3,
+  "source_bodies": 103
+ },
+ "run_date": "2026-11-21",
+ "uk_trade_tariff_api": {
+  "chapter_note_characters": 332674,
+  "chapter_note_median_characters": 1873,
+  "chapter_notes_citing_a_heading_number": 81,
+  "chapters": 98,
+  "chapters_with_chapter_note": 95,
+  "heading_citations_in_chapter_notes": 751,
+  "headings_listed_under_chapters": 1264,
+  "sections": 21,
+  "terms_page_status": {
+   "https://www.trade-tariff.service.gov.uk/find_commodity": 403,
+   "https://www.trade-tariff.service.gov.uk/terms": 403
+  }
+ },
+ "usitc_hts": {
+  "chapter_98_99_rows": 3615,
+  "chapters_present": 98,
+  "current_release": [
+   {
+    "date": "11/09/2026",
+    "name": "2026HTSRev23",
+    "releaseStartDate": "11/10/2026",
+    "status": "current"
+   }
+  ],
+  "distinct_hs6_chapters_01_97": 5612,
+  "distinct_htsno": 29861,
+  "eight_digit_general_free": 2598,
+  "eight_digit_rate_lines": 6858,
+  "eight_digit_with_general_rate": 5690,
+  "eight_digit_with_special_rate": 4888,
+  "fields": [
+   "addiitionalDuties",
+   "additionalDuties",
+   "description",
+   "footnotes",
+   "general",
+   "htsno",
+   "indent",
+   "other",
+   "quotaQuantity",
+   "special",
+   "superior",
+   "units"
+  ],
+  "footnote_rows_citing_chapter_99": 707,
+  "htsno_digit_lengths": {
+   "4": 961,
+   "6": 2093,
+   "8": 6858,
+   "10": 19949
+  },
+  "releases_by_year": {
+   "2023": 12,
+   "2024": 11,
+   "2025": 33,
+   "2026": 24
+  },
+  "releases_listed": 186,
+  "rows": 35805,
+  "rows_with_footnotes": 4645,
+  "rows_with_htsno": 29861,
+  "rows_with_units": 19940,
+  "rows_without_htsno_headings_text": 5944,
+  "ten_digit_statistical_lines": 19949
+ }
+}

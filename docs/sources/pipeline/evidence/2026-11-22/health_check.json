@@ -1,0 +1,127 @@
+{
+ "cpsc_source": {
+  "distinct_recall_ids": 10098,
+  "newest_recall_date": "2026-11-19",
+  "oldest_recall_date": "1973-06-08",
+  "recalls_since_2026_11_01": 28,
+  "rows": 10098
+ },
+ "fda_ours": {
+  "categories": [
+   {
+    "category": "device",
+    "latest_report": "2026-11-11",
+    "recalls": 40534
+   },
+   {
+    "category": "drug",
+    "latest_report": "2026-11-11",
+    "recalls": 18164
+   },
+   {
+    "category": "food",
+    "latest_report": "2026-11-11",
+    "recalls": 29607
+   }
+  ],
+  "last_successful_sync": "2026-11-22T12:18:08.495Z",
+  "source_sync": {
+   "device": {
+    "last_successful_sync": "2026-11-22T12:18:08.495Z",
+    "status": "SUCCEEDED"
+   },
+   "drug": {
+    "last_successful_sync": "2026-11-22T12:18:01.664Z",
+    "status": "SUCCEEDED"
+   },
+   "food": {
+    "last_successful_sync": "2026-11-22T12:17:57.114Z",
+    "status": "SUCCEEDED"
+   }
+  }
+ },
+ "hc_source": {
+  "by_organization": {
+   "CFIA": 5353,
+   "Communications and Public Affairs Branch": 1814,
+   "Consumer product safety": 5240,
+   "Controlled substances and cannabis": 103,
+   "Drugs and health products": 1950,
+   "HC": 62,
+   "Marketed health products": 1163,
+   "Medical devices": 8738,
+   "TC": 9992
+  },
+  "consumer_product_newest_last_updated": "2026-11-20",
+  "consumer_product_rows": 5240,
+  "field_names": [
+   "Archived",
+   "Category",
+   "Issue",
+   "Last updated",
+   "NID",
+   "Organization",
+   "Product",
+   "Recall class",
+   "Title",
+   "URL",
+   "What you should do"
+  ],
+  "newest_last_updated_any_organization": "2026-11-20",
+  "rows": 34415
+ },
+ "hc_source_cdn_copy_plain_url": {
+  "consumer_product_newest_last_updated": "2026-11-20",
+  "consumer_product_rows": 5240,
+  "newest_last_updated_any_organization": "2026-11-20",
+  "rows": 34415
+ },
+ "openfda": {
+  "device": {
+   "last_updated": "2026-11-11",
+   "newest_report_date": "20261111",
+   "total": 40535
+  },
+  "drug": {
+   "last_updated": "2026-11-11",
+   "newest_report_date": "20261111",
+   "total": 18166
+  },
+  "food": {
+   "last_updated": "2026-11-11",
+   "newest_report_date": "20261111",
+   "total": 29609
+  }
+ },
+ "product_ours": {
+  "agencies": [
+   {
+    "agency": "CPSC",
+    "latest": "2026-11-19",
+    "notices": 10098
+   },
+   {
+    "agency": "HC",
+    "latest": "2026-11-20",
+    "notices": 5241
+   }
+  ],
+  "declared_cross_agency_links": 352,
+  "last_successful_sync": {
+   "CPSC": "2026-11-22T12:18:10.445Z",
+   "HC": "2026-11-22T12:18:16.804Z"
+  },
+  "source_sync": {
+   "CPSC": {
+    "status": "SUCCEEDED",
+    "window_from": "2026-10-23"
+   },
+   "HC": {
+    "status": "SUCCEEDED",
+    "window_from": "full"
+   }
+  }
+ },
+ "requests": 8,
+ "run_date": "2026-11-22"
+}

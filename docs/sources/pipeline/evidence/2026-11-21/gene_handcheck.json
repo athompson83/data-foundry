@@ -1,0 +1,170 @@
+{
+ "checked_on": "2026-11-21",
+ "method": "20 HGNC id and NCBI GeneID pairs stated by both files, drawn with seed 20261121 by gene_measure.py; symbol and cytogenetic location compared.",
+ "checked": 20,
+ "same_symbol": 20,
+ "same_location": 19,
+ "note": "The one location difference is PIRC88, where HGNC records chromosome 16 and NCBI records no map location.",
+ "pairs": [
+  {
+   "gene_id": "101928496",
+   "hgnc_id": "HGNC:51149",
+   "hgnc_location": "9q31.1",
+   "hgnc_symbol": "LINC01492",
+   "ncbi_map_location": "9q31.1",
+   "ncbi_symbol": "LINC01492"
+  },
+  {
+   "gene_id": "56899",
+   "hgnc_id": "HGNC:24600",
+   "hgnc_location": "12q23.1",
+   "hgnc_symbol": "ANKS1B",
+   "ncbi_map_location": "12q23.1",
+   "ncbi_symbol": "ANKS1B"
+  },
+  {
+   "gene_id": "1983",
+   "hgnc_id": "HGNC:3299",
+   "hgnc_location": "14q32.32",
+   "hgnc_symbol": "EIF5",
+   "ncbi_map_location": "14q32.32",
+   "ncbi_symbol": "EIF5"
+  },
+  {
+   "gene_id": "100313894",
+   "hgnc_id": "HGNC:37592",
+   "hgnc_location": "16",
+   "hgnc_symbol": "PIRC88",
+   "ncbi_map_location": "-",
+   "ncbi_symbol": "PIRC88"
+  },
+  {
+   "gene_id": "128667228",
+   "hgnc_id": "HGNC:56737",
+   "hgnc_location": "16p11.2",
+   "hgnc_symbol": "ITGAL-AS1",
+   "ncbi_map_location": "16p11.2",
+   "ncbi_symbol": "ITGAL-AS1"
+  },
+  {
+   "gene_id": "54149",
+   "hgnc_id": "HGNC:16459",
+   "hgnc_location": "21q21.1",
+   "hgnc_symbol": "C21orf91",
+   "ncbi_map_location": "21q21.1",
+   "ncbi_symbol": "C21orf91"
+  },
+  {
+   "gene_id": "2249",
+   "hgnc_id": "HGNC:3682",
+   "hgnc_location": "11q13.3",
+   "hgnc_symbol": "FGF4",
+   "ncbi_map_location": "11q13.3",
+   "ncbi_symbol": "FGF4"
+  },
+  {
+   "gene_id": "55184",
+   "hgnc_id": "HGNC:15858",
+   "hgnc_location": "20p11.23",
+   "hgnc_symbol": "DZANK1",
+   "ncbi_map_location": "20p11.23",
+   "ncbi_symbol": "DZANK1"
+  },
+  {
+   "gene_id": "6157",
+   "hgnc_id": "HGNC:10329",
+   "hgnc_location": "11p15.4",
+   "hgnc_symbol": "RPL27A",
+   "ncbi_map_location": "11p15.4",
+   "ncbi_symbol": "RPL27A"
+  },
+  {
+   "gene_id": "84224",
+   "hgnc_id": "HGNC:25076",
+   "hgnc_location": "1p36.12",
+   "hgnc_symbol": "NBPF3",
+   "ncbi_map_location": "1p36.12",
+   "ncbi_symbol": "NBPF3"
+  },
+  {
+   "gene_id": "118738",
+   "hgnc_id": "HGNC:23535",
+   "hgnc_location": "10q11.22",
+   "hgnc_symbol": "ZNF488",
+   "ncbi_map_location": "10q11.22",
+   "ncbi_symbol": "ZNF488"
+  },
+  {
+   "gene_id": "100421188",
+   "hgnc_id": "HGNC:38563",
+   "hgnc_location": "2p12",
+   "hgnc_symbol": "GAPDHP57",
+   "ncbi_map_location": "2p12",
+   "ncbi_symbol": "GAPDHP57"
+  },
+  {
+   "gene_id": "401630",
+   "hgnc_id": "HGNC:37736",
+   "hgnc_location": "Yq11.222",
+   "hgnc_symbol": "FAM224A",
+   "ncbi_map_location": "Yq11.222",
+   "ncbi_symbol": "FAM224A"
+  },
+  {
+   "gene_id": "767846",
+   "hgnc_id": "HGNC:24298",
+   "hgnc_location": "1p11.2",
+   "hgnc_symbol": "PFN1P2",
+   "ncbi_map_location": "1p11.2",
+   "ncbi_symbol": "PFN1P2"
+  },
+  {
+   "gene_id": "57568",
+   "hgnc_id": "HGNC:23800",
+   "hgnc_location": "1q42.2",
+   "hgnc_symbol": "SIPA1L2",
+   "ncbi_map_location": "1q42.2",
+   "ncbi_symbol": "SIPA1L2"
+  },
+  {
+   "gene_id": "105372520",
+   "hgnc_id": "HGNC:55788",
+   "hgnc_location": "20p12.3",
+   "hgnc_symbol": "TMX4-AS1",
+   "ncbi_map_location": "20p12.3",
+   "ncbi_symbol": "TMX4-AS1"
+  },
+  {
+   "gene_id": "387361",
+   "hgnc_id": "HGNC:38778",
+   "hgnc_location": "Yq11.222",
+   "hgnc_symbol": "USP9YP34",
+   "ncbi_map_location": "Yq11.222",
+   "ncbi_symbol": "USP9YP34"
+  },
+  {
+   "gene_id": "106480738",
+   "hgnc_id": "HGNC:41250",
+   "hgnc_location": "3q28",
+   "hgnc_symbol": "OSTN-AS1",
+   "ncbi_map_location": "3q28",
+   "ncbi_symbol": "OSTN-AS1"
+  },
+  {
+   "gene_id": "729493",
+   "hgnc_id": "HGNC:37792",
+   "hgnc_location": "19q13.32",
+   "hgnc_symbol": "GAPDHP38",
+   "ncbi_map_location": "19q13.32",
+   "ncbi_symbol": "GAPDHP38"
+  },
+  {
+   "gene_id": "133874",
+   "hgnc_id": "HGNC:37272",
+   "hgnc_location": "5q35.1",
+   "hgnc_symbol": "C5orf58",
+   "ncbi_map_location": "5q35.1",
+   "ncbi_symbol": "C5orf58"
+  }
+ ]
+}

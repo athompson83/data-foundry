@@ -1,0 +1,134 @@
+[
+ {
+  "ncei_id": 5572,
+  "ncei_place": "S OF RAOUL ISLAND, KERMADEC ISLANDS",
+  "ncei_year": 2014,
+  "ncei_mag": null,
+  "usgs_id": "usc000rkg5",
+  "usgs_place": "Kermadec Islands, New Zealand",
+  "usgs_mag": 6.9,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5881,
+  "ncei_place": "LOYALTY ISLANDS",
+  "ncei_year": 2023,
+  "ncei_mag": null,
+  "usgs_id": "us6000kd0n",
+  "usgs_place": "southeast of the Loyalty Islands",
+  "usgs_mag": 7.7,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5664,
+  "ncei_place": "LOYALTY ISLANDS",
+  "ncei_year": 2017,
+  "ncei_mag": null,
+  "usgs_id": "us1000azjt",
+  "usgs_place": "101 km E of Tadine, New Caledonia",
+  "usgs_mag": 6.6,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5879,
+  "ncei_place": "S OF RAOUL ISLAND, KERMADEC ISLANDS",
+  "ncei_year": 2023,
+  "ncei_mag": null,
+  "usgs_id": "us6000k6mg",
+  "usgs_place": "Kermadec Islands, New Zealand",
+  "usgs_mag": 7.1,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5776,
+  "ncei_place": "N. ALGERIA",
+  "ncei_year": 2021,
+  "ncei_mag": null,
+  "usgs_id": "us7000dker",
+  "usgs_place": "21 km NNE of Beja\u00efa, Algeria",
+  "usgs_mag": 6,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5439,
+  "ncei_place": "KERMADEC ISLANDS",
+  "ncei_year": 2011,
+  "ncei_mag": null,
+  "usgs_id": "usp000j9nm",
+  "usgs_place": "Kermadec Islands region",
+  "usgs_mag": 7.4,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5604,
+  "ncei_place": "LOYALTY ISLANDS",
+  "ncei_year": 2016,
+  "ncei_mag": null,
+  "usgs_id": "us10006d5h",
+  "usgs_place": "southeast of the Loyalty Islands",
+  "usgs_mag": 7.2,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5751,
+  "ncei_place": "OFF COAST OF OAXACA",
+  "ncei_year": 2020,
+  "ncei_mag": null,
+  "usgs_id": "us6000ah9t",
+  "usgs_place": "9 km SE of Santa Mar\u00eda Xadani, Mexico",
+  "usgs_mag": 7.4,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5533,
+  "ncei_place": "E. COAST HONSHU ISLAND",
+  "ncei_year": 2013,
+  "ncei_mag": null,
+  "usgs_id": "usc000kn4n",
+  "usgs_place": "off the east coast of Honshu, Japan",
+  "usgs_mag": 7.1,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5994,
+  "ncei_place": "PHILIPPINE TRENCH",
+  "ncei_year": 2000,
+  "ncei_mag": null,
+  "usgs_id": "usp0009wkm",
+  "usgs_place": "22 km SSE of Basco, Philippines",
+  "usgs_mag": 6.4,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 5750,
+  "ncei_place": "S OF RAOUL ISLAND, KERMADEC ISLANDS",
+  "ncei_year": 2020,
+  "ncei_mag": null,
+  "usgs_id": "us6000ae4n",
+  "usgs_place": "south of the Kermadec Islands",
+  "usgs_mag": 7.4,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ },
+ {
+  "ncei_id": 4562,
+  "ncei_place": "DEAD SEA",
+  "ncei_year": 2004,
+  "ncei_mag": null,
+  "usgs_id": "usp000ckyy",
+  "usgs_place": "21 km SE of Mi?p\u00e9 Yeri?o, Israel",
+  "usgs_mag": 5.3,
+  "same_event": true,
+  "basis": "time within 5 minutes plus a place name naming the same region"
+ }
+]

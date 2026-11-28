@@ -1,0 +1,525 @@
+{
+ "run_date": "2026-11-16",
+ "nrc_list": {
+  "status": 200,
+  "final_url": "https://www.nrc.gov/facilities-safety/operating-reactors/list-power-reactor-units",
+  "bytes": 128354,
+  "units": 93,
+  "by_type": {
+   "PWR": 62,
+   "BWR": 31
+  },
+  "distinct_dockets": 93,
+  "distinct_operators": 29,
+  "with_state": 93,
+  "sample": [
+   {
+    "page": "/facilities-safety/facility-finder/reactors/ano1",
+    "unit": "Arkansas Nuclear 1",
+    "docket": "05000313",
+    "licence": "DPR-51",
+    "type": "PWR",
+    "state": "AR",
+    "operator": "Entergy Nuclear Operations, Inc.",
+    "region": "4",
+    "plant_state": "AR"
+   },
+   {
+    "page": "/facilities-safety/facility-finder/reactors/ano2",
+    "unit": "Arkansas Nuclear 2",
+    "docket": "05000368",
+    "licence": "NPF-6",
+    "type": "PWR",
+    "state": "AR",
+    "operator": "Entergy Nuclear Operations, Inc.",
+    "region": "4",
+    "plant_state": "AR"
+   },
+   {
+    "page": "/facilities-safety/facility-finder/reactors/bv1",
+    "unit": "Beaver Valley 1",
+    "docket": "05000334",
+    "licence": "DPR-66",
+    "type": "PWR",
+    "state": "PA",
+    "operator": "Vistra Corporation",
+    "region": "1",
+    "plant_state": "PA"
+   }
+  ],
+  "plant_state_differs_from_reference_city_state": 6
+ },
+ "nrc_xlsx": {
+  "status": 200,
+  "bytes": 47027,
+  "rows": 93,
+  "fields": [
+   "% License Remaining",
+   "2003 Capacity Factor (Percent)",
+   "2004 Capacity Factor (Percent)",
+   "2005 Capacity Factor (Percent)",
+   "2008 Capacity Factor (Percent)",
+   "2009 Capacity Factor (Percent)",
+   "2010 Capacity Factor (Percent)",
+   "2011 Capacity Factor (Percent)",
+   "2012 Capacity Factor (Percent)",
+   "2013 Capacity Factor (Percent)",
+   "2014 Capacity Factor (Percent)",
+   "2015 Capacity Factor (Percent)",
+   "2016 Capacity Factor (Percent)",
+   "2017 Capacity Factor (Percent)",
+   "2018 Capacity Factor (Percent)",
+   "2019 Capacity Factor (Percent)",
+   "2020 Capacity Factor (Percent)",
+   "2021 Capacity Factor (Percent)",
+   "2022 Capacity Factor (Percent)",
+   "Architect-Engineer",
+   "Capacity MWe",
+   "Column1",
+   "Column2",
+   "Column3",
+   "Column4",
+   "Column5",
+   "Commercial Operation",
+   "Construction Permit Issued",
+   "Constructor Name",
+   "Current Reactor Age",
+   "Docket Number",
+   "License Length",
+   "License Number",
+   "Licensed MWt",
+   "Licensee",
+   "Location",
+   "NRC Reactor Unit Web Page",
+   "NRC Region",
+   "Nuclear Steam System Supplier and Design Type",
+   "Operating License Expires",
+   "Operating License Issued",
+   "Parent Company Notes",
+   "Parent Company Utility Name",
+   "Parent Company Website",
+   "Plant Name, Unit Number",
+   "Reactor and Containment Type",
+   "Renewed Operating License Issued",
+   "Subsequent Renewed Operating License Issued",
+   "Time Remaining",
+   "Year Operating License Issued",
+   "Year of Update"
+  ],
+  "year_of_update": {
+   "2022": 93
+  },
+  "with_licence_expiry": 93,
+  "dockets_in_html_list": 91
+ },
+ "nrc_facility_pages": {
+  "fetched": 20,
+  "ok": 20,
+  "docket_agrees": 20,
+  "with_expiry": 14,
+  "expiry_differs_from_xlsx": 0,
+  "mwt_differs_from_xlsx": 2,
+  "pages": [
+   {
+    "docket": "05000313",
+    "status": 200,
+    "page_docket": "05000313",
+    "licence_expires": "2034-05-20",
+    "xlsx_licence_expires": "2034-05-20",
+    "licensed_mwt": "2568",
+    "xlsx_mwt": "2568"
+   },
+   {
+    "docket": "05000456",
+    "status": 200,
+    "page_docket": "05000456",
+    "licence_expires": null,
+    "xlsx_licence_expires": "2046-10-17",
+    "licensed_mwt": "3645",
+    "xlsx_mwt": "3645"
+   },
+   {
+    "docket": "05000296",
+    "status": 200,
+    "page_docket": "05000296",
+    "licence_expires": "2036-07-02",
+    "xlsx_licence_expires": "2036-07-02",
+    "licensed_mwt": "3952",
+    "xlsx_mwt": "3952"
+   },
+   {
+    "docket": "05000455",
+    "status": 200,
+    "page_docket": "05000455",
+    "licence_expires": null,
+    "xlsx_licence_expires": "2046-11-06",
+    "licensed_mwt": "3645",
+    "xlsx_mwt": "3645"
+   },
+   {
+    "docket": "05000413",
+    "status": 200,
+    "page_docket": "05000413",
+    "licence_expires": "2043-12-05",
+    "xlsx_licence_expires": "2043-12-05",
+    "licensed_mwt": "3469",
+    "xlsx_mwt": "3469"
+   },
+   {
+    "docket": "05000445",
+    "status": 200,
+    "page_docket": "05000445",
+    "licence_expires": null,
+    "xlsx_licence_expires": "2030-02-08",
+    "licensed_mwt": "3612",
+    "xlsx_mwt": "3612"
+   },
+   {
+    "docket": "05000316",
+    "status": 200,
+    "page_docket": "05000316",
+    "licence_expires": "2037-12-23",
+    "xlsx_licence_expires": "2037-12-23",
+    "licensed_mwt": "3468",
+    "xlsx_mwt": "3468"
+   },
+   {
+    "docket": "05000237",
+    "status": 200,
+    "page_docket": "05000237",
+    "licence_expires": "2029-12-22",
+    "xlsx_licence_expires": "2029-12-22",
+    "licensed_mwt": "2957",
+    "xlsx_mwt": "2957"
+   },
+   {
+    "docket": "05000341",
+    "status": 200,
+    "page_docket": "05000341",
+    "licence_expires": null,
+    "xlsx_licence_expires": "2045-03-20",
+    "licensed_mwt": "3486",
+    "xlsx_mwt": "3486"
+   },
+   {
+    "docket": "05000321",
+    "status": 200,
+    "page_docket": "05000321",
+    "licence_expires": null,
+    "xlsx_licence_expires": "2034-08-06",
+    "licensed_mwt": "2804",
+    "xlsx_mwt": "2804"
+   },
+   {
+    "docket": "05000374",
+    "status": 200,
+    "page_docket": "05000374",
+    "licence_expires": null,
+    "xlsx_licence_expires": "2043-12-16",
+    "licensed_mwt": "3546",
+    "xlsx_mwt": "3546"
+   },
+   {
+    "docket": "05000370",
+    "status": 200,
+    "page_docket": "05000370",
+    "licence_expires": "2043-03-03",
+    "xlsx_licence_expires": "2043-03-03",
+    "licensed_mwt": "3469",
+    "xlsx_mwt": "3411"
+   },
+   {
+    "docket": "05000220",
+    "status": 200,
+    "page_docket": "05000220",
+    "licence_expires": "2029-08-22",
+    "xlsx_licence_expires": "2029-08-22",
+    "licensed_mwt": "1850",
+    "xlsx_mwt": "1850"
+   },
+   {
+    "docket": "05000269",
+    "status": 200,
+    "page_docket": "05000269",
+    "licence_expires": "2033-02-06",
+    "xlsx_licence_expires": "2033-02-06",
+    "licensed_mwt": "2568",
+    "xlsx_mwt": "2610"
+   },
+   {
+    "docket": "05000528",
+    "status": 200,
+    "page_docket": "05000528",
+    "licence_expires": "2045-06-01",
+    "xlsx_licence_expires": "2045-06-01",
+    "licensed_mwt": "3990",
+    "xlsx_mwt": "3990"
+   },
+   {
+    "docket": "05000278",
+    "status": 200,
+    "page_docket": "05000278",
+    "licence_expires": "2054-07-02",
+    "xlsx_licence_expires": "2054-07-02",
+    "licensed_mwt": "4016",
+    "xlsx_mwt": "4016"
+   },
+   {
+    "docket": "05000282",
+    "status": 200,
+    "page_docket": "05000282",
+    "licence_expires": "2033-08-09",
+    "xlsx_licence_expires": "2033-08-09",
+    "licensed_mwt": "1677",
+    "xlsx_mwt": "1677"
+   },
+   {
+    "docket": "05000458",
+    "status": 200,
+    "page_docket": "05000458",
+    "licence_expires": "2045-08-29",
+    "xlsx_licence_expires": "2045-08-29",
+    "licensed_mwt": "3091",
+    "xlsx_mwt": "3091"
+   },
+   {
+    "docket": "05000272",
+    "status": 200,
+    "page_docket": "05000272",
+    "licence_expires": "2036-08-13",
+    "xlsx_licence_expires": "2036-08-13",
+    "licensed_mwt": "3459",
+    "xlsx_mwt": "3459"
+   },
+   {
+    "docket": "05000328",
+    "status": 200,
+    "page_docket": "05000328",
+    "licence_expires": "2041-09-15",
+    "xlsx_licence_expires": "2041-09-15",
+    "licensed_mwt": "3455",
+    "xlsx_mwt": "3455"
+   }
+  ]
+ },
+ "nrc_status": {
+  "status": 200,
+  "final_url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/power-reactor-status-reports/PowerReactorStatusForLast365Days.txt",
+  "bytes": 1310129,
+  "rows": 34485,
+  "days": 363,
+  "oldest": "2025-11-16",
+  "newest": "2026-11-13",
+  "units": 95,
+  "units_on_newest_day": 95,
+  "newest_day_at_100": 77,
+  "newest_day_at_0": 14
+ },
+ "join_status_to_list": {
+  "matched": 89,
+  "total": 95,
+  "unmatched": [
+   "Harris 1",
+   "LaSalle 1",
+   "LaSalle 2",
+   "River Bend Station 1",
+   "Vogtle 3",
+   "Vogtle 4"
+  ],
+  "with_site_token_and_unit_number": {
+   "matched": 93,
+   "total": 95,
+   "unmatched": [
+    "Vogtle 3",
+    "Vogtle 4"
+   ]
+  }
+ },
+ "nrc_events_index": {
+  "status": 200,
+  "final_url": "https://www.nrc.gov/documents-reports/document-collections/events-reports-associated-with/event-notification-reports/2026",
+  "daily_pages_2026": 221,
+  "first": "20260102",
+  "last": "20261116"
+ },
+ "nrc_events_sample": {
+  "days_fetched": 32,
+  "events": 103,
+  "power_reactor_events": 20,
+  "distinct_facilities": 17,
+  "power_reactor_with_docket_field": 0,
+  "median_narrative_chars": 1351,
+  "cfr_sections": {
+   "26.719": 6,
+   "50.72(b)(2)(iv)(B)": 6,
+   "50.73(a)(1)": 4,
+   "50.72(b)(3)(iv)(A)": 1,
+   "50.72(b)(2)(i)": 1,
+   "50.72(a) (1) (i)": 1,
+   "50.72(b)(3)(ii)(A)": 1
+  },
+  "scram_codes": {
+   "N": 12,
+   "M/R": 5,
+   "A/R": 3
+  }
+ },
+ "join_events_to_list": {
+  "matched": 22,
+  "total": 24,
+  "unmatched": [
+   [
+    "Vogtle 3/4",
+    "GA"
+   ]
+  ]
+ },
+ "pris": {
+  "countries": 38,
+  "reactors": 739,
+  "by_status": {
+   "Under Construction": 76,
+   "Operational": 419,
+   "Permanent Shutdown": 220,
+   "Suspended Operation": 21,
+   "Decommissioning Completed": 3
+  },
+  "countries_with_reactors": 38,
+  "operational_by_country_top": {
+   "US": 94,
+   "CN": 61,
+   "FR": 57,
+   "RU": 34,
+   "KR": 26,
+   "IN": 23,
+   "CA": 17,
+   "UA": 15,
+   "JP": 14,
+   "GB": 9
+  },
+  "fields": [
+   "ageGross",
+   "ageNet",
+   "alternateName",
+   "commercialDate",
+   "constructionDate",
+   "constructionLicenseDate",
+   "countryCode",
+   "countryName",
+   "criticalityDate",
+   "decommissioningEndDate",
+   "decommissioningStartDate",
+   "defaultImageId",
+   "defaultImageName",
+   "designNetElectricalCapacity",
+   "gridDate",
+   "grossElectricalCapacity",
+   "id",
+   "informationStatusCode",
+   "informationStatusDescription",
+   "latestOperatingLicenseDate",
+   "latestRestartConstructionsDate",
+   "latestRestartOperationsDate",
+   "latestSuspendedConstructionsDate",
+   "latestSuspendedOperationsDate",
+   "lifetimeFactor",
+   "model",
+   "netElectricalCapacity",
+   "operatorName",
+   "ownerName",
+   "reactorSupplierCode",
+   "reactorSupplierName",
+   "regionName",
+   "rupUnitTypeCode",
+   "rupUnitTypeName",
+   "shutdownDate",
+   "siteId",
+   "siteName",
+   "statusCode",
+   "statusName",
+   "thermalPower",
+   "turbineSupplierCode",
+   "turbineSupplierName",
+   "typeCode",
+   "typeName",
+   "unitName"
+  ],
+  "us_reactors": 135,
+  "us_operational": 94,
+  "with_alternate_name": 69,
+  "detail_sample": {
+   "id": 137,
+   "status": 200,
+   "lifetime_factor_report_year": null
+  }
+ },
+ "join_nrc_to_pris": {
+  "matched": 92,
+  "total": 93,
+  "distinct_pris_ids": 92,
+  "with_nrc_xlsx_row": 91,
+  "mwt_equal": 77,
+  "commercial_date_equal": 90,
+  "unmatched": [
+   "Palisades"
+  ],
+  "pris_us_operational_not_in_nrc_list": [
+   "VOGTLE-3",
+   "VOGTLE-4"
+  ]
+ },
+ "eia860": {
+  "status": 200,
+  "content_type": "application/x-zip-compressed",
+  "bytes": 23622347,
+  "generators": 27919,
+  "nuclear_generators": 96,
+  "nuclear_plants": 56,
+  "nuclear_status": {
+   "OP": 94,
+   "OA": 1,
+   "OS": 1
+  }
+ },
+ "join_nrc_to_eia": {
+  "matched": 93,
+  "total": 93,
+  "distinct_eia_generators": 93,
+  "eia_nuclear_generators_unmatched": 3,
+  "operating_year_equals_commercial_year": 85,
+  "unmatched": [],
+  "eia_nuclear_generators_not_in_nrc_list": [
+   [
+    "Crane Clean Energy Center",
+    "1"
+   ],
+   [
+    "Vogtle",
+    "3"
+   ],
+   [
+    "Vogtle",
+    "4"
+   ]
+  ]
+ },
+ "nrc_terms": {
+  "url": "https://www.nrc.gov/about-nrc/site-disclaimer",
+  "status": 200,
+  "found": true,
+  "context": "his Web site. However, because we do not know how you are using the information found on this Web site, we do not make any warranties (express or implied) about the information in the NRC Web site for your particular use. NRC's website constitutes a U.S. Government Work under federal copyright law and as such, it is not subject to copyright. It is freely available for non-exclusive rights in publication or reproduction for any purpose, in any form, and there are no restrictions on use. Similarly, there is no restriction on the right of others to use or reproduce the same material, now or in th"
+ },
+ "eia_terms": {
+  "url": "https://www.eia.gov/about/copyrights_reuse.php",
+  "status": 200,
+  "found": true,
+  "context": "rmation Administration - EIA - Independent Statistics and Analysis Menu Statistics Analysis Tools Education News Enter Search Term(s): Search About EIA Copyrights and Reuse Public domain and use of EIA content U.S. government publications are in the public domain and are not subject to copyright protection. You may use and/or distribute any of our data, files, databases, reports, graphs, charts, and other information products that are on our website or that you receive through our email distribution service. However, if you use or reproduce any of our information products, you should use an ac"
+ },
+ "iaea_terms": {
+  "url": "https://nucleus.iaea.org/Pages/Others/Disclaimer.aspx",
+  "status": 200,
+  "found": true,
+  "context": " freely available and encourages the use, reproduction and dissemination of the text, multimedia and data presented. Content may be adapted, translated, copied, printed and downloaded for private study, research and teaching purposes, and for use in commercial and non-commercial products or services, provided that appropriate acknowledgement of the IAEA as the source is given and that the IAEA's endorsement of users' views, products or services is not stated or implied in any way. Specific restrictions and/or conditions may apply to specific Materials within this Site. Non-IAEA Content This Si"
+ },
+ "requests": 100
+}

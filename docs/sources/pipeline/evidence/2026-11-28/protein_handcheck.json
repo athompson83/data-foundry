@@ -1,0 +1,190 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 of the 48 polymer-entity-to-UniProt citations found on 40 seeded PDB entries (seed 20261128, protein_measure.py); the PDB entity description was read against the UniProtKB protein name and organism.",
+ "checked": 20,
+ "same_protein_or_the_polyprotein_that_contains_it": 19,
+ "not_confirmed": 1,
+ "note": "17 pairs name the same protein, some under another name (Transmembrane protein 173 / Stimulator of interferon genes protein). In 2 the PDB entity is one mature protein and the UniProtKB record is the viral polyprotein that contains it (7H8U, 7X42). 1 accession (G0SC54, cited by 6YUC) answers as an inactive UniProtKB record, so it could not be compared. The 19 active records list the PDB id back.",
+ "pairs": [
+  {
+   "pdb_id": "5AKX",
+   "entity": "1",
+   "pdb_entity_description": "SOLUBLE EPOXIDE HYDROLASE",
+   "uniprot_accession": "P34913",
+   "uniprot_protein_name": "Bifunctional epoxide hydrolase 2",
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "7H8U",
+   "entity": "1",
+   "pdb_entity_description": "Non-structural protein 3",
+   "uniprot_accession": "Q8JUX6",
+   "uniprot_protein_name": "Polyprotein P1234",
+   "uniprot_organism": "Chikungunya virus (strain S27-African prototype)",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "2O3E",
+   "entity": "1",
+   "pdb_entity_description": "Neurolysin",
+   "uniprot_accession": "P42676",
+   "uniprot_protein_name": "Neurolysin, mitochondrial",
+   "uniprot_organism": "Rattus norvegicus",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "5DPT",
+   "entity": "1",
+   "pdb_entity_description": "Pleckstrin homology domain-containing family M member 1, Gamma-aminobutyric acid receptor-associated protein-like 1,Gamma-aminobutyric acid receptor-associated protein-like 1",
+   "uniprot_accession": "Q9Y4G2",
+   "uniprot_protein_name": "Pleckstrin homology domain-containing family M member 1",
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "2OAC",
+   "entity": "1",
+   "pdb_entity_description": "Glutathione S-transferase P 1",
+   "uniprot_accession": "P19157",
+   "uniprot_protein_name": "Glutathione S-transferase P 1",
+   "uniprot_organism": "Mus musculus",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "1EJS",
+   "entity": "2",
+   "pdb_entity_description": "UREASE BETA SUBUNIT",
+   "uniprot_accession": "P18315",
+   "uniprot_protein_name": "Urease subunit beta",
+   "uniprot_organism": "Klebsiella aerogenes",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "1EJS",
+   "entity": "1",
+   "pdb_entity_description": "UREASE ALPHA SUBUNIT",
+   "uniprot_accession": "P18314",
+   "uniprot_protein_name": "Urease subunit alpha",
+   "uniprot_organism": "Klebsiella aerogenes",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "7Q1D",
+   "entity": "1",
+   "pdb_entity_description": "Aminoglycoside N(3)-acetyltransferase III",
+   "uniprot_accession": "P29808",
+   "uniprot_protein_name": "Aminoglycoside N(3)-acetyltransferase III",
+   "uniprot_organism": "Pseudomonas aeruginosa",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "1EJS",
+   "entity": "3",
+   "pdb_entity_description": "UREASE GAMMA SUBUNIT",
+   "uniprot_accession": "P18316",
+   "uniprot_protein_name": "Urease subunit gamma",
+   "uniprot_organism": "Klebsiella aerogenes",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "4EMU",
+   "entity": "1",
+   "pdb_entity_description": "Transmembrane protein 173",
+   "uniprot_accession": "Q86WV6",
+   "uniprot_protein_name": "Stimulator of interferon genes protein",
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "5TDG",
+   "entity": "1",
+   "pdb_entity_description": "Fusion glycoprotein F0,Fibritin",
+   "uniprot_accession": "Q9YS24",
+   "uniprot_protein_name": "Fusion glycoprotein F0",
+   "uniprot_organism": "Bovine orthopneumovirus",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "7X42",
+   "entity": "3",
+   "pdb_entity_description": "Virion protein 1",
+   "uniprot_accession": "A0A7T7KAA0",
+   "uniprot_protein_name": "Genome polyprotein",
+   "uniprot_organism": "Coxsackievirus B1",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "9FBR",
+   "entity": "1",
+   "pdb_entity_description": "Chitinase 60",
+   "uniprot_accession": "B1VBB0",
+   "uniprot_protein_name": "Chitinase 60",
+   "uniprot_organism": "Moritella marina",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "8IE2",
+   "entity": "1",
+   "pdb_entity_description": "Glycine--tRNA ligase alpha subunit",
+   "uniprot_accession": "Q88VS2",
+   "uniprot_protein_name": "Glycine--tRNA ligase alpha subunit",
+   "uniprot_organism": "Lactiplantibacillus plantarum (strain ATCC BAA-793 / NCIMB 8826 / WCFS1)",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "8OSM",
+   "entity": "1",
+   "pdb_entity_description": "GTPase HRas",
+   "uniprot_accession": "P01112",
+   "uniprot_protein_name": "GTPase HRas",
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "9P4M",
+   "entity": "1",
+   "pdb_entity_description": "Capsid protein VP1",
+   "uniprot_accession": "Q6JC22",
+   "uniprot_protein_name": "Capsid protein VP1",
+   "uniprot_organism": "Adeno-associated virus",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "4JK4",
+   "entity": "1",
+   "pdb_entity_description": "Serum albumin",
+   "uniprot_accession": "P02769",
+   "uniprot_protein_name": "Albumin",
+   "uniprot_organism": "Bos taurus",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "5TH9",
+   "entity": "3",
+   "pdb_entity_description": "Matrix metalloproteinase-9,Matrix metalloproteinase-9",
+   "uniprot_accession": "P14780",
+   "uniprot_protein_name": "Matrix metalloproteinase-9",
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "4I24",
+   "entity": "1",
+   "pdb_entity_description": "Epidermal growth factor receptor",
+   "uniprot_accession": "P00533",
+   "uniprot_protein_name": "Epidermal growth factor receptor",
+   "uniprot_organism": "Homo sapiens",
+   "uniprot_lists_this_pdb_id": true
+  },
+  {
+   "pdb_id": "6YUC",
+   "entity": "1",
+   "pdb_entity_description": "Adenylyltransferase and sulfurtransferase uba4",
+   "uniprot_accession": "G0SC54",
+   "uniprot_protein_name": null,
+   "uniprot_organism": null,
+   "uniprot_lists_this_pdb_id": false
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "equipment-energystar-model-index": {
+  "population": "All 1,796,876 rows of the ENERGY STAR Model Index (8wj2-sec8) archived on 2026-10-01, with the 39,108-row UPC Codes dataset joined by pd_id.",
+  "sample": "25 rows evenly spaced by pd_id (every 71,875th row), with what the deterministic rules read from each: model pattern flag, check-digit-valid GTINs and certification date. Hit rates are over the full population.",
+  "sample_size": 25,
+  "scripts": [
+   "scripts/energystar_assess.py"
+  ],
+  "results": [
+   "results/energystar_assess.txt"
+  ],
+  "identifiers": {
+   "pd_id": [
+    "1723365",
+    "2491088",
+    "2590100",
+    "2735384",
+    "2850298",
+    "2946927",
+    "3040393",
+    "3119381",
+    "3201926",
+    "3280613",
+    "3361751",
+    "3436398",
+    "3517856",
+    "3598324",
+    "3673175",
+    "3751592",
+    "3828660",
+    "3908539",
+    "3981248",
+    "4067800",
+    "4139870",
+    "4211745",
+    "4283691",
+    "4355612",
+    "4427487"
+   ]
+  }
+ }
+}

@@ -1,0 +1,345 @@
+{
+ "disease_ontology": {
+  "by_mesh_id_prefix": {
+   "C": 1167,
+   "D": 2923
+  },
+  "current_terms": 12419,
+  "data_version": "releases/2026-10-29/doid.obo",
+  "mesh_cross_references": 4090,
+  "terms_citing_a_mesh_id": 4014,
+  "with_definition": 10149
+ },
+ "fetched": {
+  "doid.obo": {
+   "bytes": 7313592,
+   "sha256": "b208a1bc910ba681f32c1c602e2a2d8c7ae6029d2f311fc9669f3fae30f09bc6",
+   "url": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/src/ontology/doid.obo"
+  },
+  "mesh_desc2026.gz": {
+   "bytes": 16812612,
+   "sha256": "ccd4d0d33bebfd4c836a59e7dd0c635b1d4e20c4f5a6abc55e2eb0ba4c8716dd",
+   "url": "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.gz"
+  },
+  "terms_do_readme.md": {
+   "bytes": 2969,
+   "sha256": "64db8446dda9b7512d3d12233b3d01137f293cd292fd27a05ee150a6e38b78fb",
+   "url": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/README.md"
+  },
+  "terms_nlm.html": {
+   "bytes": 18099,
+   "sha256": "f1fb494447a54d2190e496410163c8e1fc138a601d83d8c124f267f7103026b3",
+   "url": "https://www.nlm.nih.gov/databases/download/terms_and_conditions.html"
+  },
+  "terms_nlm_mesh.html": {
+   "bytes": 18244,
+   "sha256": "f33b14141a5b6c8a2b1464c751dbdbb0a0d476c913851bf2a8c3d5c14b1afce7",
+   "url": "https://www.nlm.nih.gov/databases/download/terms_and_conditions_mesh.html"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "do_name": "Usher syndrome",
+   "doid": "DOID:0050439",
+   "mesh_heading": "Usher Syndromes",
+   "mesh_trees": [
+    "C09.218.458.341.186.500.500",
+    "C09.218.458.341.887.886",
+    "C10.597.751.418.341.186.500.500"
+   ],
+   "mesh_ui": "D052245"
+  },
+  {
+   "do_name": "ichthyosis",
+   "doid": "DOID:1697",
+   "mesh_heading": "Ichthyosis",
+   "mesh_trees": [
+    "C16.131.831.512",
+    "C16.614.492",
+    "C17.800.428.333"
+   ],
+   "mesh_ui": "D007057"
+  },
+  {
+   "do_name": "Noonan syndrome",
+   "doid": "DOID:3490",
+   "mesh_heading": "Noonan Syndrome",
+   "mesh_trees": [
+    "C05.660.207.690",
+    "C14.240.400.787",
+    "C14.280.400.787"
+   ],
+   "mesh_ui": "D009634"
+  },
+  {
+   "do_name": "borna disease",
+   "doid": "DOID:5154",
+   "mesh_heading": "Borna Disease",
+   "mesh_trees": [
+    "C01.925.782.580.124",
+    "C22.152"
+   ],
+   "mesh_ui": "D001890"
+  },
+  {
+   "do_name": "alpha 1-antitrypsin deficiency",
+   "doid": "DOID:13372",
+   "mesh_heading": "alpha 1-Antitrypsin Deficiency",
+   "mesh_trees": [
+    "C06.552.074",
+    "C08.381.112",
+    "C16.320.060"
+   ],
+   "mesh_ui": "D019896"
+  },
+  {
+   "do_name": "seasonal affective disorder",
+   "doid": "DOID:0060167",
+   "mesh_heading": "Seasonal Affective Disorder",
+   "mesh_trees": [
+    "F03.600.300.775"
+   ],
+   "mesh_ui": "D016574"
+  },
+  {
+   "do_name": "cystoid macular edema",
+   "doid": "DOID:4447",
+   "mesh_heading": "Macular Edema",
+   "mesh_trees": [
+    "C11.768.585.439.245"
+   ],
+   "mesh_ui": "D008269"
+  },
+  {
+   "do_name": "hemoglobin C disease",
+   "doid": "DOID:2859",
+   "mesh_heading": "Hemoglobin C Disease",
+   "mesh_trees": [
+    "C15.378.050.141.150.490",
+    "C15.378.420.463",
+    "C16.320.070.490"
+   ],
+   "mesh_ui": "D006445"
+  },
+  {
+   "do_name": "botulism",
+   "doid": "DOID:11976",
+   "mesh_heading": "Botulism",
+   "mesh_trees": [
+    "C01.150.252.410.222.151",
+    "C10.668.758.200",
+    "C10.720.150"
+   ],
+   "mesh_ui": "D001906"
+  },
+  {
+   "do_name": "mucocutaneous leishmaniasis",
+   "doid": "DOID:9155",
+   "mesh_heading": "Leishmaniasis, Mucocutaneous",
+   "mesh_trees": [
+    "C01.610.752.300.500.400.385",
+    "C01.610.858.560.400.385",
+    "C01.920.813.400.385"
+   ],
+   "mesh_ui": "D007897"
+  },
+  {
+   "do_name": "medullomyoblastoma",
+   "doid": "DOID:3861",
+   "mesh_heading": "Medulloblastoma",
+   "mesh_trees": [
+    "C04.557.465.625.600.380.515",
+    "C04.557.465.625.600.590.500",
+    "C04.557.470.670.380.515"
+   ],
+   "mesh_ui": "D008527"
+  },
+  {
+   "do_name": "St. Louis encephalitis",
+   "doid": "DOID:10845",
+   "mesh_heading": "Encephalitis, St. Louis",
+   "mesh_trees": [
+    "C01.207.245.340.300.550",
+    "C01.207.399.750.300.550",
+    "C01.920.313.156.350"
+   ],
+   "mesh_ui": "D004674"
+  },
+  {
+   "do_name": "Silver-Russell syndrome",
+   "doid": "DOID:14681",
+   "mesh_heading": "Silver-Russell Syndrome",
+   "mesh_trees": [
+    "C05.660.207.925",
+    "C16.131.077.855",
+    "C16.131.260.870"
+   ],
+   "mesh_ui": "D056730"
+  },
+  {
+   "do_name": "chronic kidney disease",
+   "doid": "DOID:784",
+   "mesh_heading": "Kidney Failure, Chronic",
+   "mesh_trees": [
+    "C12.050.351.968.419.780.750.500",
+    "C12.200.777.419.780.750.500",
+    "C12.950.419.780.750.500"
+   ],
+   "mesh_ui": "D007676"
+  },
+  {
+   "do_name": "systemic mastocytosis",
+   "doid": "DOID:349",
+   "mesh_heading": "Mastocytosis, Systemic",
+   "mesh_trees": [
+    "C04.557.450.565.465.750",
+    "C20.762.750.750"
+   ],
+   "mesh_ui": "D034721"
+  },
+  {
+   "do_name": "hereditary lymphedema I",
+   "doid": "DOID:0070212",
+   "mesh_heading": "Lymphedema",
+   "mesh_trees": [
+    "C15.604.496"
+   ],
+   "mesh_ui": "D008209"
+  },
+  {
+   "do_name": "dentin dysplasia",
+   "doid": "DOID:701",
+   "mesh_heading": "Dentin Dysplasia",
+   "mesh_trees": [
+    "C07.650.800.260",
+    "C07.793.700.260",
+    "C16.131.850.800.260"
+   ],
+   "mesh_ui": "D003805"
+  },
+  {
+   "do_name": "corneal ulcer",
+   "doid": "DOID:8463",
+   "mesh_heading": "Corneal Ulcer",
+   "mesh_trees": [
+    "C01.375.177",
+    "C11.204.564.225",
+    "C11.294.177"
+   ],
+   "mesh_ui": "D003320"
+  },
+  {
+   "do_name": "cancer",
+   "doid": "DOID:162",
+   "mesh_heading": "Neoplasms",
+   "mesh_trees": [
+    "C04"
+   ],
+   "mesh_ui": "D009369"
+  },
+  {
+   "do_name": "subcorneal pustular dermatosis",
+   "doid": "DOID:8508",
+   "mesh_heading": "Skin Diseases, Vesiculobullous",
+   "mesh_trees": [
+    "C17.800.865"
+   ],
+   "mesh_ui": "D012872"
+  }
+ ],
+ "join_mesh_unique_id": {
+  "cross_references_to_supplementary_records_not_checked": 1167,
+  "descriptors_in_disease_tree_C": 5069,
+  "distinct_descriptors_cited": 2569,
+  "do_cross_references_to_a_mesh_descriptor_id": 2923,
+  "resolved_in_the_2026_descriptor_file": 2923,
+  "resolved_to_a_descriptor_in_tree_C_or_F": 2920,
+  "resolved_with_identical_normalised_heading": 1271,
+  "unresolved_sample": []
+ },
+ "nlm_mesh_descriptors_2026": {
+  "by_descriptor_class": {
+   "1": 30512,
+   "2": 194,
+   "3": 2,
+   "4": 402
+  },
+  "by_tree_category": {
+   "A": 1908,
+   "B": 3967,
+   "C": 5069,
+   "D": 10688,
+   "E": 3141,
+   "F": 1267,
+   "G": 2513,
+   "H": 479,
+   "I": 759,
+   "J": 657,
+   "K": 208,
+   "L": 501,
+   "M": 361,
+   "N": 2020,
+   "V": 194,
+   "Z": 406
+  },
+  "compressed_bytes": 16812612,
+  "descriptors": 31110,
+  "entry_terms_beyond_the_heading": 235902,
+  "example": {
+   "name": "Asthma",
+   "scope": "A form of bronchial disorder with three distinct components: airway hyper-responsiveness (RESPIRATORY HYPERSENSITIVITY), airway INFLAMMATION, and intermittent AIRWAY OBSTRUCTION. It is characterized by spasmodic contraction of airway smooth muscle, WHEEZING, and dyspnea (DYSPNEA, PAROXYSMAL).",
+   "trees": [
+    "C08.127.108",
+    "C08.381.495.108",
+    "C08.674.095",
+    "C20.543.480.680.095"
+   ],
+   "ui": "D001249"
+  },
+  "median_scope_note_characters": 168,
+  "scope_note_characters": 6133086,
+  "scope_notes_naming_a_year": 1096,
+  "tree_numbers": 65360,
+  "with_pharmacological_action": 2838,
+  "with_scope_note": 30960
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 5,
+  "source_bodies": 5
+ },
+ "run_date": "2026-11-25",
+ "terms": {
+  "disease_ontology": {
+   "bytes": 2969,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/README.md"
+  },
+  "nlm": {
+   "bytes": 18244,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Medical Subject Headings (MeSH) SPECIFIC TERMS NLM freely provides MeSH data.",
+    "Use of MeSH Translation (MTMS) files is not covered under the NLM Terms and Conditions for MeSH data.",
+    "GENERAL TERMS AND CONDITIONS Users of the data agree to: acknowledge NLM as the source of the data in a clear and conspicuous manner, not indicate or imply that NLM has endorsed its products/services/applications.",
+    "Users who republish or redistribute the data (services, products or raw data) agree to: maintain the most current version of all distributed data, or make known in a clear and conspicuous manner that the products/services/applications do not reflect the most current/accurate data available from NLM and/or identify the version of MeSH being used.",
+    "These data are produced with a reasonable standard of care, but NLM makes no warranties express or implied, including no warranty of merchantability or fitness for particular purpose, regarding the accuracy or completeness of the data.",
+    "NLM disclaims any liability for any consequences due to use, misuse, or interpretation of information contained or not contained in the data."
+   ],
+   "quotes": {},
+   "url": "https://www.nlm.nih.gov/databases/download/terms_and_conditions_mesh.html"
+  },
+  "nlm_general": {
+   "bytes": 18099,
+   "http_status": 200,
+   "keyword_sentences": [
+    "GENERAL TERMS AND CONDITIONS Users of the data agree to: acknowledge NLM as the source of the data by including the phrase \"Courtesy of the U.S.",
+    "NLM does not provide legal advice regarding copyright, fair use, or other aspects of intellectual property rights."
+   ],
+   "quotes": {},
+   "url": "https://www.nlm.nih.gov/databases/download/terms_and_conditions.html"
+  }
+ }
+}

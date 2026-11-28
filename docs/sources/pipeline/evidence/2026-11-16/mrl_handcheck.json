@@ -1,0 +1,564 @@
+{
+ "date": "2026-11-16",
+ "method": "Random sample (seed 20261116) of name-normalised active-substance matches written by mrl_measure.py; each pair checked by reading both register entries (substance name, EU residue definition text). Verdict is at active-substance level: residue definitions can differ between jurisdictions and must be kept per jurisdiction.",
+ "summary": {
+  "us-eu": {
+   "checked": 20,
+   "correct": 20
+  },
+  "au-eu": {
+   "checked": 20,
+   "correct": 20
+  },
+  "ca-eu": {
+   "checked": 20,
+   "correct": 20
+  }
+ },
+ "pairs": [
+  {
+   "join": "us-eu",
+   "a_id": "180.462",
+   "a_name": "Pyridate",
+   "eu_pest_res_id": "198",
+   "eu_name": "Pyridate (sum of pyridate, its hydrolysis product CL 9673 (6-chloro-4-hydroxy-3-phenylpyridazin) and hydrolysable conjugates of CL 9673 expressed as pyridate)",
+   "verdict": "same active substance",
+   "correct": true,
+   "note": "same active substance; EU residue definition adds hydrolysis product CL 9673"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.466",
+   "a_name": "Fenpropathrin",
+   "eu_pest_res_id": "777",
+   "eu_name": "Fenpropathrin",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.633",
+   "a_name": "Florasulam",
+   "eu_pest_res_id": "108",
+   "eu_name": "Florasulam",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.587",
+   "a_name": "Famoxadone",
+   "eu_pest_res_id": "93",
+   "eu_name": "Famoxadone  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.721",
+   "a_name": "Isoprothiolane",
+   "eu_pest_res_id": "2285",
+   "eu_name": "Isoprothiolane",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.578",
+   "a_name": "Acetamiprid",
+   "eu_pest_res_id": "10",
+   "eu_name": "Acetamiprid  (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.116",
+   "a_name": "Ziram",
+   "eu_pest_res_id": "226",
+   "eu_name": "Ziram",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.726",
+   "a_name": "Metamitron",
+   "eu_pest_res_id": "333",
+   "eu_name": "Metamitron",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.443",
+   "a_name": "Myclobutanil",
+   "eu_pest_res_id": "166",
+   "eu_name": "Myclobutanil  (sum of  constituent isomers) (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.108",
+   "a_name": "Acephate",
+   "eu_pest_res_id": "9",
+   "eu_name": "Acephate",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.710",
+   "a_name": "Pethoxamid",
+   "eu_pest_res_id": "177",
+   "eu_name": "Pethoxamid",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.605",
+   "a_name": "Penoxsulam",
+   "eu_pest_res_id": "797",
+   "eu_name": "Penoxsulam",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.495",
+   "a_name": "Spinosad",
+   "eu_pest_res_id": "373",
+   "eu_name": "Spinosad (spinosad, sum of spinosyn A and spinosyn D) (F)",
+   "verdict": "same active substance",
+   "correct": true,
+   "note": "same active substance; both define spinosad as spinosyn A + D"
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.656",
+   "a_name": "Amisulbrom",
+   "eu_pest_res_id": "2080",
+   "eu_name": "Amisulbrom",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.601",
+   "a_name": "Cyazofamid",
+   "eu_pest_res_id": "61",
+   "eu_name": "Cyazofamid",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.510",
+   "a_name": "Pyriproxyfen",
+   "eu_pest_res_id": "368",
+   "eu_name": "Pyriproxyfen  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.184",
+   "a_name": "Linuron",
+   "eu_pest_res_id": "142",
+   "eu_name": "Linuron",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.475",
+   "a_name": "Difenoconazole",
+   "eu_pest_res_id": "276",
+   "eu_name": "Difenoconazole",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.655",
+   "a_name": "Flazasulfuron",
+   "eu_pest_res_id": "107",
+   "eu_name": "Flazasulfuron",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "us-eu",
+   "a_id": "180.632",
+   "a_name": "Fenazaquin",
+   "eu_pest_res_id": "2692",
+   "eu_name": "Fenazaquin (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Propyzamide",
+   "a_name": "Propyzamide",
+   "eu_pest_res_id": "192",
+   "eu_name": "Propyzamide (R)(F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Cypermethrin",
+   "a_name": "Cypermethrin",
+   "eu_pest_res_id": "65",
+   "eu_name": "Cypermethrin (cypermethrin including other mixtures of constituent isomers (sum of isomers)) (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Pyraclostrobin",
+   "a_name": "Pyraclostrobin",
+   "eu_pest_res_id": "195",
+   "eu_name": "Pyraclostrobin  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fenbuconazole",
+   "a_name": "Fenbuconazole",
+   "eu_pest_res_id": "297",
+   "eu_name": "Fenbuconazole (sum of constituent enantiomers)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Ethofumesate",
+   "a_name": "Ethofumesate",
+   "eu_pest_res_id": "89",
+   "eu_name": "Ethofumesate (Sum of ethofumesate, 2-keto–ethofumesate, open-ring-2-keto-ethofumesate and its conjugate, expressed as ethofumesate)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fipronil",
+   "a_name": "Fipronil",
+   "eu_pest_res_id": "302",
+   "eu_name": "Fipronil (sum fipronil + sulfone metabolite (MB46136) expressed as fipronil) (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Valifenalate",
+   "a_name": "Valifenalate",
+   "eu_pest_res_id": "2850",
+   "eu_name": "Valifenalate (R)(A)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Acequinocyl",
+   "a_name": "Acequinocyl",
+   "eu_pest_res_id": "2930",
+   "eu_name": "Acequinocyl (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Acetamiprid",
+   "a_name": "Acetamiprid",
+   "eu_pest_res_id": "10",
+   "eu_name": "Acetamiprid  (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fenpicoxamid",
+   "a_name": "Fenpicoxamid",
+   "eu_pest_res_id": "2513",
+   "eu_name": "Fenpicoxamid  (R)(F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Oxadixyl",
+   "a_name": "Oxadixyl",
+   "eu_pest_res_id": "796",
+   "eu_name": "Oxadixyl",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Quinclorac",
+   "a_name": "Quinclorac",
+   "eu_pest_res_id": "804",
+   "eu_name": "Quinclorac",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Dimethomorph",
+   "a_name": "Dimethomorph",
+   "eu_pest_res_id": "281",
+   "eu_name": "Dimethomorph (sum of isomers)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Etofenprox",
+   "a_name": "Etofenprox",
+   "eu_pest_res_id": "294",
+   "eu_name": "Etofenprox  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Dicamba",
+   "a_name": "Dicamba",
+   "eu_pest_res_id": "270",
+   "eu_name": "Dicamba",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fluoxastrobin",
+   "a_name": "Fluoxastrobin",
+   "eu_pest_res_id": "310",
+   "eu_name": "Fluoxastrobin (sum of fluoxastrobin and its Z-isomer) (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Thiobencarb",
+   "a_name": "Thiobencarb",
+   "eu_pest_res_id": "389",
+   "eu_name": "Thiobencarb (4-chlorobenzyl methyl sulfone) (A)",
+   "verdict": "same active substance",
+   "correct": true,
+   "note": "same active substance; the EU entry name carries its residue definition (4-chlorobenzyl methyl sulfone)"
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Triadimefon",
+   "a_name": "Triadimefon",
+   "eu_pest_res_id": "2416",
+   "eu_name": "Triadimefon  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Fluazinam",
+   "a_name": "Fluazinam",
+   "eu_pest_res_id": "305",
+   "eu_name": "Fluazinam  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "au-eu",
+   "a_id": "Oryzalin",
+   "a_name": "Oryzalin",
+   "eu_pest_res_id": "795",
+   "eu_name": "Oryzalin  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "captan",
+   "a_name": "Captan",
+   "eu_pest_res_id": "36",
+   "eu_name": "Captan (Sum of captan and THPI, expressed as captan) (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "clethodim",
+   "a_name": "Clethodim",
+   "eu_pest_res_id": "259",
+   "eu_name": "Clethodim (sum of Sethoxydim and Clethodim including degradation products calculated as Sethoxydim)",
+   "verdict": "same active substance",
+   "correct": true,
+   "note": "same active substance; EU residue definition is the sum of sethoxydim and clethodim, so limits compare at substance level only"
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "metconazole",
+   "a_name": "Metconazole",
+   "eu_pest_res_id": "335",
+   "eu_name": "Metconazole (sum of isomers) (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "benzovindiflupyr",
+   "a_name": "Benzovindiflupyr",
+   "eu_pest_res_id": "2415",
+   "eu_name": "Benzovindiflupyr",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "cyflumetofen",
+   "a_name": "Cyflumetofen",
+   "eu_pest_res_id": "3031",
+   "eu_name": "Cyflumetofen (sum of isomers)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "flutolanil",
+   "a_name": "Flutolanil",
+   "eu_pest_res_id": "314",
+   "eu_name": "Flutolanil  (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "cyfluthrin",
+   "a_name": "Cyfluthrin",
+   "eu_pest_res_id": "63",
+   "eu_name": "Cyfluthrin (cyfluthrin including other mixtures of constituent isomers (sum of isomers)) (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "imazalil",
+   "a_name": "Imazalil",
+   "eu_pest_res_id": "129",
+   "eu_name": "Imazalil (any ratio of constituent isomers) (R)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "mevinphos",
+   "a_name": "Mevinphos",
+   "eu_pest_res_id": "161",
+   "eu_name": "Mevinphos (sum of E- and Z-isomers)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "13dichloropropene",
+   "a_name": "1,3-Dichloropropene",
+   "eu_pest_res_id": "228",
+   "eu_name": "1,3-Dichloropropene",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "fludioxonil",
+   "a_name": "Fludioxonil",
+   "eu_pest_res_id": "307",
+   "eu_name": "Fludioxonil  (R)(F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "spiroxamine",
+   "a_name": "Spiroxamine",
+   "eu_pest_res_id": "206",
+   "eu_name": "Spiroxamine (sum of isomers) (R)(A)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "carbaryl",
+   "a_name": "Carbaryl",
+   "eu_pest_res_id": "37",
+   "eu_name": "Carbaryl  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "triflumezopyrim",
+   "a_name": "Triflumezopyrim",
+   "eu_pest_res_id": "2537",
+   "eu_name": "Triflumezopyrim",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "coumaphos",
+   "a_name": "Coumaphos",
+   "eu_pest_res_id": "2465",
+   "eu_name": "Coumaphos",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "metsulfuronmethyl",
+   "a_name": "Metsulfuron-methyl",
+   "eu_pest_res_id": "160",
+   "eu_name": "Metsulfuron-methyl",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "ethametsulfuronmethyl",
+   "a_name": "Ethametsulfuron-methyl",
+   "eu_pest_res_id": "2228",
+   "eu_name": "Ethametsulfuron-methyl",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "dithianon",
+   "a_name": "Dithianon",
+   "eu_pest_res_id": "285",
+   "eu_name": "Dithianon",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "flufenoxuron",
+   "a_name": "Flufenoxuron",
+   "eu_pest_res_id": "308",
+   "eu_name": "Flufenoxuron  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  },
+  {
+   "join": "ca-eu",
+   "a_id": "tebufenozide",
+   "a_name": "Tebufenozide",
+   "eu_pest_res_id": "380",
+   "eu_name": "Tebufenozide  (F)",
+   "verdict": "same active substance",
+   "correct": true
+  }
+ ]
+}

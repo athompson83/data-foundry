@@ -1,0 +1,192 @@
+candidates:
+  - key: uk-fsa-food-alerts
+    name: UK Food Standards Agency food alerts (allergy alerts, product recalls, food alerts for action)
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: Food Standards Agency
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://data.food.gov.uk/food-alerts/id?_limit=5000' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 3,
+        freshness: 5,
+        low_onboarding_cost: 4,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'exploit the Information commercially and non-commercially for example, by combining it with other Information, or by including it in your own product or application.'
+      - url: https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/
+        quote: 'acknowledge the source of the Information in your product or application by including or linking to any attribution statement specified by the Information Provider(s)'
+    conditions:
+      - 'Attribute with "Contains public sector information licensed under the Open Government Licence v3.0" and link the licence.'
+      - Exclude personal data and do not imply FSA endorsement.
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'Measured 2026-10-01: 1,359 alerts 2018-01-09 to 2026-09-25 in one JSON request; no barcode, lot or FDA reference in the API, so it links to FDA only by reviewed candidate; keep the raw JSON (allergen, pathogenRisk, country, modified, update chain).'
+
+  - key: ca-recalls-food-health-open-data
+    name: Health Canada recalls and safety alerts index, food (CFIA), drug, device and health-product slice
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: Health Canada
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json' ]
+    scores:
+      {
+        agent_demand: 4,
+        rights_clarity: 4,
+        acquisition_ease: 5,
+        structuring_value: 4,
+        freshness: 5,
+        low_onboarding_cost: 5,
+        poor_existing_access: 3
+      }
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below.'
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: 'This licence does not grant you any right to use: Personal Information; third party rights the Information Provider is not authorized to license; the names, crests, logos, or other official symbols of the Information Provider; and Information subject to other intellectual property rights, including patents, trade-marks and official marks.'
+    conditions:
+      - 'Attribute with "Contains information licensed under the Open Government Licence - Canada" and link the licence.'
+      - Never republish the "What you should do" text (contact details); derive remedy classes only.
+      - 'Use the open-data file; notice detail pages (UPC, lot, best-before) are canada.ca page text and need a rights-record extension before use.'
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'Measured 2026-10-01: 18,973 non-consumer rows (CFIA 5,318 from 2011, devices 8,647, drugs 1,934, marketed health products 1,161) in the same file as the consumer slice; check-digit-valid UPC on 21 of 29 fetched detail pages and 5 of 29 matched FDA code_info; extend the existing Health Canada rights record to this slice and the detail pages.'
+
+  - key: au-nz-fsanz-food-recalls
+    name: FSANZ food recall alerts (Australia and New Zealand)
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: Food Standards Australia New Zealand
+    stage: SCREENED
+    rights: AMBER
+    sources: [ 'https://www.foodstandards.gov.au/food-recalls-rss.xml', 'https://www.foodstandards.gov.au/food-recalls/recall-alert' ]
+    scores:
+      {
+        agent_demand: 2,
+        rights_clarity: 4,
+        acquisition_ease: 2,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 4
+      }
+    terms:
+      - url: https://www.foodstandards.gov.au/copyright
+        quote: 'Unless expressly noted otherwise, material presented on this website is provided under a Creative Commons Attribution 4.0 Australia (CC BY 4.0) licence, except for: the Food Standards Australia New Zealand logo; and third party material.'
+      - url: https://www.foodstandards.gov.au/copyright
+        quote: 'You may copy, distribute, transmit and adapt the material covered by the CC BY 4.0 licence for commercial and non-commercial purposes; but you must attribute the work in the following manner: Food Standards Australia New Zealand.'
+    conditions:
+      - 'Attribute "Food Standards Australia New Zealand"; do not imply endorsement.'
+      - Exclude third-party material (images, PDF notices) and firm contact details (phone, email).
+      - 'No API: RSS holds the latest 10 only; history needs the HTML listing (19 pages, about 2024 onward) through the governed crawler adapter.'
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'Measured 2026-10-01: RSS 200 with 10 items to 2026-09-30, listing pager to page 18 (back to about April 2024); no GTIN or lot in the sampled item; linkage to FDA not measured.'
+
+  - key: us-fsis-recall-api-2026
+    name: USDA FSIS recall API (meat, poultry, egg products), 2026 re-screen
+    category: product-safety
+    structuring: identifier-extraction
+    format: structured
+    publisher: USDA Food Safety and Inspection Service
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://www.fsis.usda.gov/fsis/api/recall/v/1' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 4,
+        freshness: 4,
+        low_onboarding_cost: 3,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'PARKED: HTTP 403 Access Denied (Akamai) from this egress with the scout User-Agent on 2026-10-01, terms unread; retry from Cloudflare Worker egress and merge with the existing fsis-recalls entry rather than creating a second one.'
+
+  - key: eu-rasff-notifications
+    name: EU RASFF food and feed safety notifications
+    category: product-safety
+    structuring: normalization
+    format: structured
+    publisher: European Commission DG SANTE
+    stage: PARKED
+    rights: UNKNOWN
+    sources: [ 'https://webgate.ec.europa.eu/rasff-window/screen/search' ]
+    scores:
+      {
+        agent_demand: 3,
+        rights_clarity: 2,
+        acquisition_ease: 1,
+        structuring_value: 3,
+        freshness: 4,
+        low_onboarding_cost: 2,
+        poor_existing_access: 3
+      }
+    evidence: [ docs/sources/pipeline/research-2026-10-01.md ]
+    next_action: 'PARKED: official API at developer.datalake.sante.service.ec.europa.eu needs a subscription key and the RASFF Window backend answered 405; only a pre-2021 xlsx is reachable and these are border notifications, not lot-level recalls.'
+
+datasets:
+  - key: food-and-health-recalls-global
+    name: Global food, drug and health-product recall notices (FDA, Health Canada and CFIA, UK FSA, FSANZ)
+    category: product-safety
+    entity: recall_notice (one agency notice for a food, drug, device or health product) with affected products (lot, GTIN/UPC, NDC, establishment) and the recalling firm
+    stage: SCREENED
+    description: 'One record per national agency notice, widening the LIVE fda-recalls feed (US FDA food, drug and device enforcement reports) with Health Canada and CFIA, the UK Food Standards Agency and FSANZ. Free text is parsed deterministically into allergens, pathogens, hazards, classes, check-digit-valid GTINs, lots and dates, under one hazard and class taxonomy. A check-digit-valid GTIN links a notice to the affected product and never merges two recall events. Name and product matches only propose a reviewed link.'
+    sources:
+      - fda-recalls
+      - uk-fsa-food-alerts
+      - ca-recalls-food-health-open-data
+      - au-nz-fsanz-food-recalls
+    join_keys:
+      - key: GTIN/UPC (check-digit-valid, Health Canada notice detail page vs FDA code_info)
+        between:
+          - ca-recalls-food-health-open-data
+          - fda-recalls
+        measured: '5/29 Health Canada notices fetched (9 hand-correct plus 20 random recent CFIA) carry a UPC that appears in an FDA record; 4/6 of the hand-correct notices with a UPC matched'
+        mode: declared
+      - key: recalling firm name + product tokens, reviewed for same hazard and date
+        between:
+          - ca-recalls-food-health-open-data
+          - fda-recalls
+        measured: '9/80 distinct Health Canada notices with a candidate pair were the same recall event on hand check (4,000 FDA rows, 2,364 HC notices since 2023-12)'
+        mode: candidate
+        reviewed: { correct: 9, checked: 80 }
+      - key: recalling firm name + product tokens, dates within 120 days
+        between:
+          - uk-fsa-food-alerts
+          - fda-recalls
+        measured: '0/7 distinct FSA notices with a candidate pair were the same recall event on hand check; no FDA number or GTIN in any of 1,359 FSA items'
+        mode: candidate
+        reviewed: { correct: 0, checked: 7 }
+    taxonomy:
+      - 'agency: FDA | HC-CFIA | HC | FSA | FSANZ; jurisdiction: US | CA | UK | AU-NZ'
+      - 'product_class: food | drug | device | natural-health-product | veterinary | biologic'
+      - 'hazard: undeclared-allergen | pathogen | foreign-material | chemical-contaminant | labelling | cgmp-deviation | mislabelled | other'
+      - 'severity: FDA Class I-III | CFIA Class 1-3 | Health Canada Type I-III, kept verbatim and mapped to I | II | III'
+      - 'allergen and pathogen: FSA allergen and pathogenRisk values verbatim, others extracted from the reason text'
+    agent_questions:
+      - Is this UPC, lot or NDC under a recall in the US, Canada, the UK or Australia, and what is the hazard and class?
+      - Was this US food recall also issued in Canada, and by whom and when?
+      - Which recalls name this firm or establishment across agencies since 2024, by hazard?
+      - Which allergen or pathogen recalls hit a given product category in the last 90 days, by country?
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 4
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-10-01.md
+    next_action: 'Extend the Health Canada rights record to the food/health slice and detail pages; build a notice-detail extractor for UPC, lot and best-before; PARKED members (FSIS 403, RASFF key) re-screened from Worker egress.'

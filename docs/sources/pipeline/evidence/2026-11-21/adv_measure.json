@@ -1,0 +1,234 @@
+{
+ "fetched": {
+  "ibhs_incentives.html": {
+   "bytes": 244527,
+   "sha256": "c929cf84162a136fe0cdf0a231c757d8c3a9353dff0bc52eba18ab084be6010a",
+   "url": "https://fortifiedhome.org/incentives/"
+  },
+  "ibhs_legal.html": {
+   "bytes": 226412,
+   "sha256": "bfe4950be90abf38ce1ccdef8e5eb17cdba2b440d6fd1fb4e2858faa7d204673",
+   "url": "https://fortifiedhome.org/legal/"
+  },
+  "ibhs_robots.txt": {
+   "bytes": 191,
+   "sha256": "ad551705d2395561bf3039c964217e34c7600760e2c7a9b21fd937f33e98fb6b",
+   "url": "https://fortifiedhome.org/robots.txt"
+  }
+ },
+ "ibhs_incentives_page": {
+  "modified_time_meta": "2024-07-01T18:23:14+00:00",
+  "page_text_characters": 12470,
+  "state_section_characters": 5454,
+  "state_sections": 14,
+  "states": [
+   {
+    "characters": 201,
+    "defers_to_a_state_page": true,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [],
+    "links": 1,
+    "percent_figures": [],
+    "state": "Alabama"
+   },
+   {
+    "characters": 157,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [
+     "www.georgiaunderwriting.com"
+    ],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 1,
+    "percent_figures": [],
+    "state": "Georgia"
+   },
+   {
+    "characters": 523,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [
+     "discount",
+     "endorsement"
+    ],
+    "links": 1,
+    "percent_figures": [
+     "55%"
+    ],
+    "state": "Mississippi"
+   },
+   {
+    "characters": 248,
+    "defers_to_a_state_page": true,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [],
+    "links": 1,
+    "percent_figures": [],
+    "state": "North Carolina"
+   },
+   {
+    "characters": 174,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 1,
+    "percent_figures": [
+     "42%"
+    ],
+    "state": "Oklahoma"
+   },
+   {
+    "characters": 1019,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [
+     "$1,000",
+     "$1,500"
+    ],
+    "external_link_hosts": [
+     "doi.sc.gov"
+    ],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 1,
+    "percent_figures": [
+     "50%",
+     "25%"
+    ],
+    "state": "South Carolina"
+   },
+   {
+    "characters": 202,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 0,
+    "percent_figures": [],
+    "state": "Connecticut"
+   },
+   {
+    "characters": 913,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [
+     "apps.floridadisaster.org",
+     "floridapace.gov",
+     "www.floridadisaster.org"
+    ],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 3,
+    "percent_figures": [
+     "100%"
+    ],
+    "state": "Florida"
+   },
+   {
+    "characters": 667,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [
+     "$5,000"
+    ],
+    "external_link_hosts": [
+     "revenue.louisiana.gov",
+     "www.ldi.louisiana.gov"
+    ],
+    "labelled_incentive_types": [
+     "discount",
+     "tax deduction"
+    ],
+    "links": 2,
+    "percent_figures": [
+     "50%"
+    ],
+    "state": "Louisiana"
+   },
+   {
+    "characters": 414,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 0,
+    "percent_figures": [],
+    "state": "Maryland"
+   },
+   {
+    "characters": 204,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 0,
+    "percent_figures": [],
+    "state": "New Jersey"
+   },
+   {
+    "characters": 202,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [
+     "discount"
+    ],
+    "links": 0,
+    "percent_figures": [],
+    "state": "New York"
+   },
+   {
+    "characters": 219,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [
+     "rules.sos.ri.gov"
+    ],
+    "labelled_incentive_types": [],
+    "links": 1,
+    "percent_figures": [],
+    "state": "Rhode Island"
+   },
+   {
+    "characters": 311,
+    "defers_to_a_state_page": false,
+    "dollar_figures": [],
+    "external_link_hosts": [],
+    "labelled_incentive_types": [],
+    "links": 0,
+    "percent_figures": [],
+    "state": "Texas"
+   }
+  ],
+  "states_deferring_to_a_state_page": [
+   "Alabama",
+   "North Carolina"
+  ],
+  "states_where_fortified_qualifies_for_other_incentives": 8,
+  "states_with_a_labelled_incentive_type": 10,
+  "states_with_a_percent_or_dollar_figure": 5,
+  "states_with_fortified_specific_incentives": 6
+ },
+ "ibhs_legal_sentence": "Any reproduction, retransmission, or republication of all or part of any graphic images, materials or documents found on the Site is allowed with proper attribution to IBHS.",
+ "requests": {
+  "bodies_reused_from_same_day_cache": 3,
+  "made_this_run": 0,
+  "source_bodies": 3
+ },
+ "robots_crawl_delay": "10",
+ "run_date": "2026-11-21"
+}

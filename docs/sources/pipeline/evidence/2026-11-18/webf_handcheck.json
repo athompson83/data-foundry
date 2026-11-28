@@ -1,0 +1,196 @@
+{
+ "checked_on": "2026-11-18",
+ "join": "normalised caniuse title = normalised web-features name (candidate)",
+ "between": [
+  "webf-caniuse-support-tables",
+  "webf-webdx-web-features"
+ ],
+ "method": "20 pairs drawn with random.Random(20261118) from the 192 title matches in webf_measure.json (joins.caniuse_title_candidate.handcheck_pairs); each pair judged by reading both records' descriptions, specification URLs and first Chrome version",
+ "pairs": [
+  {
+   "caniuse_id": "canvas",
+   "caniuse_title": "Canvas (basic support)",
+   "web_features_id": "canvas",
+   "web_features_entry": "<canvas>",
+   "declared_link_exists": false,
+   "verdict": "correct",
+   "reason": "same HTML canvas element (WHATWG HTML canvas section on both); caniuse counts from Chrome 4, its earliest tracked version, web-features says 1; no declared link exists for this caniuse id"
+  },
+  {
+   "caniuse_id": "channel-messaging",
+   "caniuse_title": "Channel messaging",
+   "web_features_id": "channel-messaging",
+   "web_features_entry": "Channel messaging",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same MessageChannel feature, same WHATWG section anchor, Chrome 4 on both"
+  },
+  {
+   "caniuse_id": "webnfc",
+   "caniuse_title": "Web NFC",
+   "web_features_id": "web-nfc",
+   "web_features_entry": "Web NFC",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same Web NFC API (web-nfc spec), no Chrome desktop support on both"
+  },
+  {
+   "caniuse_id": "css-text-orientation",
+   "caniuse_title": "CSS text-orientation",
+   "web_features_id": "text-orientation",
+   "web_features_entry": "text-orientation",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same text-orientation property, css-writing-modes spec, Chrome 48 on both"
+  },
+  {
+   "caniuse_id": "dialog",
+   "caniuse_title": "Dialog element",
+   "web_features_id": "dialog",
+   "web_features_entry": "<dialog>",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same dialog element, WHATWG HTML dialog section, Chrome 37 on both"
+  },
+  {
+   "caniuse_id": "serviceworkers",
+   "caniuse_title": "Service Workers",
+   "web_features_id": "service-workers",
+   "web_features_entry": "Service workers",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same Service Worker spec URL, Chrome 45 on both"
+  },
+  {
+   "caniuse_id": "viewport-unit-variants",
+   "caniuse_title": "Small, Large, and Dynamic viewport units",
+   "web_features_id": "viewport-unit-variants",
+   "web_features_entry": "Small, large, and dynamic viewport units",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same sv*/lv*/dv* units, css-values-4 #viewport-variants, Chrome 108 on both"
+  },
+  {
+   "caniuse_id": "font-feature",
+   "caniuse_title": "CSS font-feature-settings",
+   "web_features_id": "font-feature-settings",
+   "web_features_entry": "font-feature-settings",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same font-feature-settings property (css-fonts); caniuse counts prefixed support from Chrome 21, web-features unprefixed from 48"
+  },
+  {
+   "caniuse_id": "touch",
+   "caniuse_title": "Touch events",
+   "web_features_id": "touch-events",
+   "web_features_entry": "Touch events",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same Touch Events spec, Chrome 22 on both"
+  },
+  {
+   "caniuse_id": "vibration",
+   "caniuse_title": "Vibration API",
+   "web_features_id": "vibration",
+   "web_features_entry": "Vibration",
+   "declared_link_exists": false,
+   "verdict": "correct",
+   "reason": "same Vibration API spec (navigator.vibrate); Chrome 30 vs 32, no declared link exists for this caniuse id"
+  },
+  {
+   "caniuse_id": "css-element-function",
+   "caniuse_title": "CSS element() function",
+   "web_features_id": "function",
+   "web_features_entry": "@function",
+   "declared_link_exists": false,
+   "verdict": "wrong",
+   "reason": "different features: caniuse is the CSS element() image function (no Chrome support), web-features is the @function at-rule (Chrome 139, css-mixins spec); the normaliser dropped 'css' and 'element'"
+  },
+  {
+   "caniuse_id": "font-variant-numeric",
+   "caniuse_title": "CSS font-variant-numeric",
+   "web_features_id": "font-variant-numeric",
+   "web_features_entry": "font-variant-numeric",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same property, css-fonts #font-variant-numeric, Chrome 52 on both"
+  },
+  {
+   "caniuse_id": "wordwrap",
+   "caniuse_title": "CSS3 Overflow-wrap",
+   "web_features_id": "overflow-wrap",
+   "web_features_entry": "overflow-wrap",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same overflow-wrap / word-wrap property, css-text spec, Chrome 23 on both"
+  },
+  {
+   "caniuse_id": "css-supports-api",
+   "caniuse_title": "CSS.supports() API",
+   "web_features_id": "supports",
+   "web_features_entry": "@supports",
+   "declared_link_exists": false,
+   "verdict": "wrong",
+   "reason": "related but not the same record: caniuse is the CSS.supports() script method (Chrome 61), web-features is the @supports at-rule (Chrome 28); web-features declares css-supports-api for its css-supports feature instead"
+  },
+  {
+   "caniuse_id": "web-serial",
+   "caniuse_title": "Web Serial API",
+   "web_features_id": "serial",
+   "web_features_entry": "Web serial",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same Web Serial API (navigator.serial), Chrome 89 on both"
+  },
+  {
+   "caniuse_id": "declarative-shadow-dom",
+   "caniuse_title": "Declarative Shadow DOM",
+   "web_features_id": "declarative-shadow-dom",
+   "web_features_entry": "Declarative shadow DOM",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "identical WHATWG spec anchor (shadowrootmode), Chrome 111 on both"
+  },
+  {
+   "caniuse_id": "svg-filters",
+   "caniuse_title": "SVG filters",
+   "web_features_id": "svg-filters",
+   "web_features_entry": "SVG filters",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same SVG filter element feature (filter effects); Chrome 8 vs 5"
+  },
+  {
+   "caniuse_id": "css-boxdecorationbreak",
+   "caniuse_title": "CSS box-decoration-break",
+   "web_features_id": "box-decoration-break",
+   "web_features_entry": "box-decoration-break",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same box-decoration-break property, css-break spec, Chrome 130 on both"
+  },
+  {
+   "caniuse_id": "webvr",
+   "caniuse_title": "WebVR API",
+   "web_features_id": "webvr",
+   "web_features_entry": "WebVR",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same deprecated WebVR API, never shipped in Chrome on both"
+  },
+  {
+   "caniuse_id": "css-letter-spacing",
+   "caniuse_title": "letter-spacing CSS property",
+   "web_features_id": "letter-spacing",
+   "web_features_entry": "letter-spacing",
+   "declared_link_exists": true,
+   "verdict": "correct",
+   "reason": "same letter-spacing property; caniuse Chrome 30 vs web-features 1 (caniuse counts full support later)"
+  }
+ ],
+ "totals": {
+  "checked": 20,
+  "correct": 18,
+  "wrong": 2
+ }
+}

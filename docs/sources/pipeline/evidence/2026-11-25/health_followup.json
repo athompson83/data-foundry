@@ -1,0 +1,80 @@
+{
+ "fda": {
+  "device": {
+   "gap_2026_11_24": 1,
+   "gap_today": 3,
+   "openfda_new_records_with_an_earlier_report_date": 2,
+   "openfda_records_with_report_date_2026_11_18": 88,
+   "openfda_total_growth_since_2026_11_24": 90,
+   "our_growth_since_2026_11_24": 88
+  },
+  "drug": {
+   "gap_2026_11_24": 2,
+   "gap_today": 13,
+   "openfda_new_records_with_an_earlier_report_date": 20,
+   "openfda_records_with_report_date_2026_11_18": 8,
+   "openfda_total_growth_since_2026_11_24": 28,
+   "our_growth_since_2026_11_24": 17
+  },
+  "food": {
+   "gap_2026_11_24": 2,
+   "gap_today": 8,
+   "openfda_new_records_with_an_earlier_report_date": 13,
+   "openfda_records_with_report_date_2026_11_18": 12,
+   "openfda_total_growth_since_2026_11_24": 25,
+   "our_growth_since_2026_11_24": 19
+  }
+ },
+ "fetched": {
+  "hc_index_followup.json": {
+   "bytes": 15903678,
+   "sha256": "989273f384e0e5dc967da8ab0ffe542b13d306446538dc2c5cfa171afb9ef76c",
+   "url": "https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json?scout=20261125f"
+  },
+  "hc_page_82874.html": {
+   "bytes": 61936,
+   "sha256": "0c381356b8af46c6b7e7c43391ef061118496c549b12cf0797b358ecf3d08107",
+   "url": "https://recalls-rappels.canada.ca/en/alert-recall/klean-strip-denatured-alcohol-fuel-recalled-due-improper-labelling"
+  },
+  "openfda_device_20261118.json": {
+   "bytes": 1828,
+   "sha256": "1729b888e65c8367e951520249c96ade35bb0605c092ca7d1f645a0e61609460",
+   "url": "https://api.fda.gov/device/enforcement.json?search=report_date:20261118&limit=1"
+  },
+  "openfda_drug_20261118.json": {
+   "bytes": 1736,
+   "sha256": "851f945541b1a5a462de829b5d067e80a07dcaf54e569b600933c36c6dcc834b",
+   "url": "https://api.fda.gov/drug/enforcement.json?search=report_date:20261118&limit=1"
+  },
+  "openfda_food_20261118.json": {
+   "bytes": 1778,
+   "sha256": "ae31d7a47bf4224b945a15ade37565f7d6a81c22be5951d78db56a0e8135b84d",
+   "url": "https://api.fda.gov/food/enforcement.json?search=report_date:20261118&limit=1"
+  },
+  "our_page_82874.html": {
+   "bytes": 15324,
+   "sha256": "a437d6cf9d16d11038800bd6fda50d1e4f64ebdb55343262259f70f43ff2d9f2",
+   "url": "https://data.aroqon.com/product-recalls/hc-82874"
+  }
+ },
+ "health_canada_updated_since_2026_11_21": [
+  {
+   "dates_on_our_page": [
+    "2026-11-06",
+    "2026-11-08"
+   ],
+   "dates_on_the_agency_page": [
+    "2026-11-06",
+    "2026-11-24"
+   ],
+   "index_last_updated": "2026-11-24",
+   "nid": "82874"
+  }
+ ],
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 6,
+  "source_bodies": 6
+ },
+ "run_date": "2026-11-25"
+}

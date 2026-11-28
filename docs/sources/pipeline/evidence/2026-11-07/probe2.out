@@ -1,0 +1,8 @@
+nist-800-53-oscal | 200 10448237 text/plain; charset=utf-8 | https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json
+mitre-attack-stix | 200 55277605 text/plain; charset=utf-8 | https://raw.githubusercontent.com/mitre-attack/attack-stix-data/master/enterprise-attack/enterprise-attack.json
+mitre-capec | 200 4480297 text/plain; charset=utf-8 | https://raw.githubusercontent.com/mitre/cti/master/capec/2.1/stix-capec.json
+mitre-cwe | 200 2119263 application/zip | https://cwe.mitre.org/data/xml/cwec_latest.xml.zip
+ctid-mapping | 404 14 text/plain; charset=utf-8 | https://raw.githubusercontent.com/center-for-threat-informed-defense/mappings-explorer/main/mappings/nist_800_53/attack-16.1/nist_800_53-rev5/enterprise/nist_800_53-rev5_attack-16.1-enterprise_json.json
+nas-factsheet | 200 181648 text/html; charset=utf-8 | https://nas.er.usgs.gov/queries/FactSheet.aspx?speciesID=5
+nhtsa-tsb-flat | 404 327 application/xml | https://static.nhtsa.gov/odi/tsbs/TSBS_RECEIVED_2025-2026.zip
+fueleconomy-zip | 200 2228192 application/x-zip-compressed | https://www.fueleconomy.gov/feg/epadata/vehicles.csv.zip

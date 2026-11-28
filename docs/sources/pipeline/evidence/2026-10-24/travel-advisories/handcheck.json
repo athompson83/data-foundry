@@ -1,0 +1,86 @@
+[
+ {
+  "state": "Tunisia",
+  "state_code": "TS",
+  "canada": "Tunisia",
+  "canada_iso": "TN",
+  "fcdo": "Tunisia"
+ },
+ {
+  "state": "Liberia",
+  "state_code": "LI",
+  "canada": "Liberia",
+  "canada_iso": "LR",
+  "fcdo": "Liberia"
+ },
+ {
+  "state": "Rwanda",
+  "state_code": "RW",
+  "canada": "Rwanda",
+  "canada_iso": "RW",
+  "fcdo": "Rwanda"
+ },
+ {
+  "state": "Czechia",
+  "state_code": "EZ",
+  "canada": "Czechia",
+  "canada_iso": "CZ",
+  "fcdo": "Czechia"
+ },
+ {
+  "state": "Eritrea",
+  "state_code": "ER",
+  "canada": "Eritrea",
+  "canada_iso": "ER",
+  "fcdo": "Eritrea"
+ },
+ {
+  "state": "Croatia",
+  "state_code": "HR",
+  "canada": "Croatia",
+  "canada_iso": "HR",
+  "fcdo": "Croatia"
+ },
+ {
+  "state": "Dominica",
+  "state_code": "DO",
+  "canada": "Dominica",
+  "canada_iso": "DM",
+  "fcdo": "Dominica"
+ },
+ {
+  "state": "Cuba",
+  "state_code": "CU",
+  "canada": "Cuba",
+  "canada_iso": "CU",
+  "fcdo": "Cuba"
+ },
+ {
+  "state": "Sweden",
+  "state_code": "SW",
+  "canada": "Sweden",
+  "canada_iso": "SE",
+  "fcdo": "Sweden"
+ },
+ {
+  "state": "Taiwan",
+  "state_code": "TW",
+  "canada": "Taiwan",
+  "canada_iso": "TW",
+  "fcdo": "Taiwan"
+ },
+ {
+  "state": "Bolivia",
+  "state_code": "BL",
+  "canada": "Bolivia",
+  "canada_iso": "BO",
+  "fcdo": "Bolivia"
+ },
+ {
+  "state": "Tonga",
+  "state_code": "TA",
+  "canada": "Tonga",
+  "canada_iso": "TO",
+  "fcdo": "Tonga"
+ }
+]

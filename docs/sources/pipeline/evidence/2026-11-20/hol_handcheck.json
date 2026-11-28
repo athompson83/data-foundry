@@ -1,0 +1,171 @@
+{
+ "run_date": "2026-11-20",
+ "method": "The 20 pairs are hol_measure.json handcheck_sample (seed 20261120: 10 US, 10 UK). Each pairs one dated row of the government list with the statute item whose rule yields that date. Checked by reading the statute item against the row's holiday and date: correct when the statute item is the legal basis of that observance (including in-lieu and substitute days).",
+ "checked": 20,
+ "correct": 20,
+ "pairs": [
+  {
+   "jurisdiction": "US",
+   "list_date": "2020-05-25",
+   "list_notes": "",
+   "list_title": "Memorial Day",
+   "statute_item": "Memorial Day, the last Monday in May.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2017-12-25",
+   "list_notes": "",
+   "list_title": "Christmas Day",
+   "statute_item": "Christmas Day, December 25.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2018-02-19",
+   "list_notes": "footnoted",
+   "list_title": "Washington’s Birthday",
+   "statute_item": "Washington's Birthday, the third Monday in February.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2022-12-26",
+   "list_notes": "footnoted",
+   "list_title": "Christmas Day",
+   "statute_item": "Christmas Day, December 25.",
+   "verdict": "correct",
+   "note": "25 December 2022 was a Sunday; observed Monday (Executive Order 11582 rule, footnoted by OPM)"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2030-11-28",
+   "list_notes": "",
+   "list_title": "Thanksgiving Day",
+   "statute_item": "Thanksgiving Day, the fourth Thursday in November.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2013-07-04",
+   "list_notes": "",
+   "list_title": "Independence Day",
+   "statute_item": "Independence Day, July 4.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2028-12-25",
+   "list_notes": "",
+   "list_title": "Christmas Day",
+   "statute_item": "Christmas Day, December 25.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2013-02-18",
+   "list_notes": "footnoted",
+   "list_title": "Washington's Birthday",
+   "statute_item": "Washington's Birthday, the third Monday in February.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2027-02-15",
+   "list_notes": "footnoted",
+   "list_title": "Washington’s Birthday",
+   "statute_item": "Washington's Birthday, the third Monday in February.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "US",
+   "list_date": "2021-10-11",
+   "list_notes": "",
+   "list_title": "Columbus Day",
+   "statute_item": "Columbus Day, the second Monday in October.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/england-and-wales",
+   "list_date": "2026-04-06",
+   "list_notes": "",
+   "list_title": "Easter Monday",
+   "statute_item": "Easter Monday.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/northern-ireland",
+   "list_date": "2020-05-25",
+   "list_notes": "",
+   "list_title": "Spring bank holiday",
+   "statute_item": "The last Monday in May.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/england-and-wales",
+   "list_date": "2028-04-17",
+   "list_notes": "",
+   "list_title": "Easter Monday",
+   "statute_item": "Easter Monday.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/england-and-wales",
+   "list_date": "2027-08-30",
+   "list_notes": "",
+   "list_title": "Summer bank holiday",
+   "statute_item": "The last Monday in August.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2025-05-05",
+   "list_notes": "",
+   "list_title": "Early May bank holiday",
+   "statute_item": "The first Monday in May.",
+   "verdict": "correct",
+   "note": "Scotland: the first Monday in May is a statutory bank holiday; the list titles it Early May bank holiday"
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2021-11-30",
+   "list_notes": "",
+   "list_title": "St Andrew’s Day",
+   "statute_item": "30th November, if it is not a Saturday or Sunday or, if it is a Saturday or Sunday, the first Monday following that day.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/northern-ireland",
+   "list_date": "2022-12-27",
+   "list_notes": "Substitute day",
+   "list_title": "Christmas Day",
+   "statute_item": "27th December in a year in which 25th or 26th December is a Sunday.",
+   "verdict": "correct",
+   "note": "substitute day: the statute item itself designates 27 December when 25 or 26 December is a Sunday"
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2027-11-30",
+   "list_notes": "",
+   "list_title": "St Andrew’s Day",
+   "statute_item": "30th November, if it is not a Saturday or Sunday or, if it is a Saturday or Sunday, the first Monday following that day.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2026-01-02",
+   "list_notes": "",
+   "list_title": "2nd January",
+   "statute_item": "2nd January, if it be not a Sunday or, if it be a Sunday, 3rd January.",
+   "verdict": "correct"
+  },
+  {
+   "jurisdiction": "GB/scotland",
+   "list_date": "2019-04-19",
+   "list_notes": "",
+   "list_title": "Good Friday",
+   "statute_item": "Good Friday.",
+   "verdict": "correct"
+  }
+ ]
+}

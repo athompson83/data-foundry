@@ -1,0 +1,229 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 QUDT units whose UNECE common code is in the Recommendation 20 list, drawn with seed 20261128 by unit_measure.py; the QUDT label and symbol were read against the UNECE name, symbol and conversion factor.",
+ "checked": 20,
+ "same_unit": 20,
+ "note": "All 20 name the same unit; spelling follows each source (meter / metre, liter / litre). One UNECE symbol differs from the name it sits beside (Q27, newton metre per metre, printed as N·m/m²); the names agree.",
+ "pairs": [
+  {
+   "qudt_unit": "MicroBAR",
+   "qudt_label": "Microbar",
+   "qudt_symbol": [
+    "μbar"
+   ],
+   "unece_common_code": "B85",
+   "unece_name": "microbar",
+   "unece_symbol": "µbar",
+   "unece_conversion_factor": "10⁻¹ Pa"
+  },
+  {
+   "qudt_unit": "DEG_F",
+   "qudt_label": "Degree Fahrenheit",
+   "qudt_symbol": [
+    "°F"
+   ],
+   "unece_common_code": "FAH",
+   "unece_name": "degree Fahrenheit",
+   "unece_symbol": "°F",
+   "unece_conversion_factor": "5/9 x K"
+  },
+  {
+   "qudt_unit": "TeraJ",
+   "qudt_label": "Terajoule",
+   "qudt_symbol": [
+    "TJ"
+   ],
+   "unece_common_code": "D30",
+   "unece_name": "terajoule",
+   "unece_symbol": "TJ",
+   "unece_conversion_factor": "10¹² J"
+  },
+  {
+   "qudt_unit": "CentiM3-PER-MIN",
+   "qudt_label": "Cubic Centimeter per Minute",
+   "qudt_symbol": [
+    "cm³/min"
+   ],
+   "unece_common_code": "G49",
+   "unece_name": "cubic centimetre per minute",
+   "unece_symbol": "cm³/min",
+   "unece_conversion_factor": "1,666 67 × 10⁻⁸ m³ x s⁻¹"
+  },
+  {
+   "qudt_unit": "AttoJ",
+   "qudt_label": "Attojoule",
+   "qudt_symbol": [
+    "aJ"
+   ],
+   "unece_common_code": "A13",
+   "unece_name": "attojoule",
+   "unece_symbol": "aJ",
+   "unece_conversion_factor": "10⁻¹⁸ J"
+  },
+  {
+   "qudt_unit": "PINT_US",
+   "qudt_label": "Us Liquid Pint",
+   "qudt_symbol": [
+    "pt{US}"
+   ],
+   "unece_common_code": "PTL",
+   "unece_name": "liquid pint (US)",
+   "unece_symbol": "liq pt (US)",
+   "unece_conversion_factor": "4, 731 765 x 10⁻⁴ m³"
+  },
+  {
+   "qudt_unit": "M-PER-MIN",
+   "qudt_label": "Meter per Minute",
+   "qudt_symbol": [
+    "m/min"
+   ],
+   "unece_common_code": "2X",
+   "unece_name": "metre per minute",
+   "unece_symbol": "m/min",
+   "unece_conversion_factor": "0,016 666 m/s"
+  },
+  {
+   "qudt_unit": "M",
+   "qudt_label": "Meter",
+   "qudt_symbol": [
+    "m"
+   ],
+   "unece_common_code": "MTR",
+   "unece_name": "metre",
+   "unece_symbol": "m",
+   "unece_conversion_factor": "m"
+  },
+  {
+   "qudt_unit": "LA",
+   "qudt_label": "Lambert",
+   "qudt_symbol": [
+    "L"
+   ],
+   "unece_common_code": "P30",
+   "unece_name": "lambert",
+   "unece_symbol": "Lb",
+   "unece_conversion_factor": "3,183 099 x 10³ cd/m²"
+  },
+  {
+   "qudt_unit": "N-M-PER-M",
+   "qudt_label": "Newton Meter per Meter",
+   "qudt_symbol": [
+    "N·m/m"
+   ],
+   "unece_common_code": "Q27",
+   "unece_name": "newton metre per metre",
+   "unece_symbol": "N·m/m²",
+   "unece_conversion_factor": "m x kg x s⁻²"
+  },
+  {
+   "qudt_unit": "SV-PER-SEC",
+   "qudt_label": "Sievert per Second",
+   "qudt_symbol": [
+    "Sv/s"
+   ],
+   "unece_common_code": "P65",
+   "unece_name": "sievert per second",
+   "unece_symbol": "Sv/s",
+   "unece_conversion_factor": "Sv/s"
+  },
+  {
+   "qudt_unit": "BYTE-PER-SEC",
+   "qudt_label": "Byte per Second",
+   "qudt_symbol": [
+    "B/s"
+   ],
+   "unece_common_code": "P93",
+   "unece_name": "byte per second",
+   "unece_symbol": "byte/s",
+   "unece_conversion_factor": "byte/s"
+  },
+  {
+   "qudt_unit": "HP_H2O",
+   "qudt_label": "Horsepower (water)",
+   "qudt_symbol": [
+    "water hp"
+   ],
+   "unece_common_code": "F80",
+   "unece_name": "water horse power",
+   "unece_symbol": "",
+   "unece_conversion_factor": "7,460 43 x 10² W"
+  },
+  {
+   "qudt_unit": "V-SEC-PER-M",
+   "qudt_label": "Volt Second per Meter",
+   "qudt_symbol": [
+    "V·s/m"
+   ],
+   "unece_common_code": "H45",
+   "unece_name": "volt second per metre",
+   "unece_symbol": "V·s/m",
+   "unece_conversion_factor": "m x kg x s⁻² x A⁻¹"
+  },
+  {
+   "qudt_unit": "L-PER-SEC",
+   "qudt_label": "Liter per Second",
+   "qudt_symbol": [
+    "L/s"
+   ],
+   "unece_common_code": "G51",
+   "unece_name": "litre per second",
+   "unece_symbol": "l/s",
+   "unece_conversion_factor": "10⁻³ m³ x s⁻¹"
+  },
+  {
+   "qudt_unit": "CentiM3-PER-MIN-BAR",
+   "qudt_label": "Cubic Centimeter per Minute Bar",
+   "qudt_symbol": [
+    "cm³/(min·bar)"
+   ],
+   "unece_common_code": "G80",
+   "unece_name": "cubic centimetre per minute bar",
+   "unece_symbol": "cm³/(min·bar)",
+   "unece_conversion_factor": "1,666 67 × 10⁻¹³ kg⁻¹ x m⁴ x s"
+  },
+  {
+   "qudt_unit": "PK_UK-PER-HR",
+   "qudt_label": "Peck (UK) per Hour",
+   "qudt_symbol": [
+    "peck{UK}/h"
+   ],
+   "unece_common_code": "L45",
+   "unece_name": "peck (UK) per hour",
+   "unece_symbol": "pk (UK)/h",
+   "unece_conversion_factor": "2,525 606 x 10⁻⁶ m³/s"
+  },
+  {
+   "qudt_unit": "MilliGAL",
+   "qudt_label": "Milligalileo",
+   "qudt_symbol": [
+    "mgal"
+   ],
+   "unece_common_code": "C11",
+   "unece_name": "milligal",
+   "unece_symbol": "mGal",
+   "unece_conversion_factor": "10⁻⁵ m/s²"
+  },
+  {
+   "qudt_unit": "GI_US-PER-MIN",
+   "qudt_label": "Gill (US) per Minute",
+   "qudt_symbol": [
+    "gill{US}/min"
+   ],
+   "unece_common_code": "K38",
+   "unece_name": "gill (US) per minute",
+   "unece_symbol": "gi (US)/min",
+   "unece_conversion_factor": "1,971 568 x 10⁻⁶ m³/s"
+  },
+  {
+   "qudt_unit": "MicroT",
+   "qudt_label": "Microtesla",
+   "qudt_symbol": [
+    "μT"
+   ],
+   "unece_common_code": "D81",
+   "unece_name": "microtesla",
+   "unece_symbol": "µT",
+   "unece_conversion_factor": "10⁻⁶ T"
+  }
+ ]
+}

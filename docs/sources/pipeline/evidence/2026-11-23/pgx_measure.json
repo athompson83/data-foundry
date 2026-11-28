@@ -1,0 +1,388 @@
+{
+ "cpic": {
+  "drugs": 324,
+  "drugs_with_atc_code": 291,
+  "drugs_with_drugbank_id": 292,
+  "drugs_with_rxnorm_id": 306,
+  "guideline_genes": 31,
+  "guidelines": 29,
+  "pair_drugs": 301,
+  "pair_genes": 121,
+  "pairs": 635,
+  "pairs_by_cpic_level": {
+   "A": 96,
+   "A/B": 7,
+   "B": 32,
+   "B/C": 56,
+   "C": 272,
+   "C/D": 5,
+   "D": 102,
+   "Retired": 4
+  },
+  "pairs_citing_a_pubmed_id": 296,
+  "pairs_not_removed": 574,
+  "pairs_with_a_guideline": 319,
+  "pairs_with_fda_pgx_testing_note": {
+   "Actionable PGx": 84,
+   "Informative PGx": 56,
+   "No Clinical PGx": 10,
+   "None": 400,
+   "Testing Recommended": 9,
+   "Testing Required": 15
+  },
+  "recommendation_drugs": 109,
+  "recommendation_text_characters": 804882,
+  "recommendation_text_median_characters": 399,
+  "recommendations": 2159,
+  "recommendations_by_classification": {
+   "Moderate": 379,
+   "No Recommendation": 120,
+   "Optional": 1047,
+   "Strong": 601,
+   "n/a": 12
+  }
+ },
+ "fda_table": {
+  "content_current_as_of": "09/10/2026",
+  "description_characters": 21806,
+  "description_median_characters": 118,
+  "descriptions_naming_an_action": 86,
+  "descriptions_referring_to_fda_labeling": 22,
+  "distinct_drug_gene_pairs": 145,
+  "distinct_drugs": 136,
+  "distinct_genes": 23,
+  "rows": 147,
+  "rows_by_section": {
+   "1": 82,
+   "2": 25,
+   "3": 40
+  },
+  "tables": 3
+ },
+ "fetched": {
+  "cpic_drug": {
+   "bytes": 73754,
+   "sha256": "4501a5f3c5258ac046921ed54b886aaeae2c870d2e59ac7c1b6e2808a249b73d",
+   "url": "https://api.cpicpgx.org/v1/drug"
+  },
+  "cpic_guideline": {
+   "bytes": 5901,
+   "sha256": "9b5069e4c052b133c652867f9fe4d11574758ff9e40962a45e2340e8d3ae6bce",
+   "url": "https://api.cpicpgx.org/v1/guideline"
+  },
+  "cpic_pair": {
+   "bytes": 169483,
+   "sha256": "e7c80298ff79b17a0fddef770c093ec625e9daedf4a6c1d40c727711e52fb2f6",
+   "url": "https://api.cpicpgx.org/v1/pair"
+  },
+  "cpic_recommendation": {
+   "bytes": 2398185,
+   "sha256": "f37fea46630e41992ea19ba01dc45c9795fed481405622add31ab55390bd42e6",
+   "url": "https://api.cpicpgx.org/v1/recommendation"
+  },
+  "fda_pgx_table": {
+   "bytes": 83311,
+   "sha256": "de184841c2792624e18cf6ba656feefddbf1bc0811a6c6029bdc74d2c8e9047e",
+   "url": "https://www.fda.gov/medical-devices/precision-medicine/table-pharmacogenetic-associations"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "cpic_drug_id": "RxNorm:11289",
+   "cpic_guideline_id": 100425,
+   "cpic_level": "A",
+   "drug": "warfarin",
+   "fda_description": "Alters systemic concentrations and dosage requirements. Select initial dosage, taking into account clinical and genetic factors. Monitor and adjust dosages based on INR.",
+   "fda_section": 1,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "CYP2C9"
+  },
+  {
+   "cpic_drug_id": "RxNorm:3638",
+   "cpic_guideline_id": 100414,
+   "cpic_level": "B",
+   "drug": "doxepin",
+   "fda_description": "Results in higher systemic concentrations. Poor metabolizers have higher adverse reaction risk. Dosage reductions may be needed in poor metabolizers.",
+   "fda_section": 1,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "CYP2C19"
+  },
+  {
+   "cpic_drug_id": "RxNorm:2049846",
+   "cpic_guideline_id": null,
+   "cpic_level": "B/C",
+   "drug": "elagolix",
+   "fda_description": "Results in higher systemic concentrations.",
+   "fda_section": 3,
+   "fda_subgroup": "521 CC (poor function transporters)",
+   "gene": "SLCO1B1"
+  },
+  {
+   "cpic_drug_id": "RxNorm:20352",
+   "cpic_guideline_id": 5290480,
+   "cpic_level": "C",
+   "drug": "carvedilol",
+   "fda_description": "Results in higher systemic concentrations and higher adverse reaction risk (dizziness).",
+   "fda_section": 2,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2D6"
+  },
+  {
+   "cpic_drug_id": "RxNorm:8754",
+   "cpic_guideline_id": null,
+   "cpic_level": "B/C",
+   "drug": "propafenone",
+   "fda_description": "Results in higher systemic concentrations and higher adverse reaction risk (arrhythmia). Avoid use in poor metabolizers taking a CYP3A4 inhibitor.",
+   "fda_section": 1,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2D6"
+  },
+  {
+   "cpic_drug_id": "RxNorm:114979",
+   "cpic_guideline_id": 110076,
+   "cpic_level": "C",
+   "drug": "rabeprazole",
+   "fda_description": "Results in higher systemic concentrations.",
+   "fda_section": 3,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2C19"
+  },
+  {
+   "cpic_drug_id": "RxNorm:321988",
+   "cpic_guideline_id": 100413,
+   "cpic_level": "A",
+   "drug": "escitalopram",
+   "fda_description": "May alter systemic concentrations.",
+   "fda_section": 3,
+   "fda_subgroup": "ultrarapid, intermediate, or poor metabolizers",
+   "gene": "CYP2C19"
+  },
+  {
+   "cpic_drug_id": "RxNorm:725",
+   "cpic_guideline_id": null,
+   "cpic_level": "B/C",
+   "drug": "amphetamine",
+   "fda_description": "May affect systemic concentrations and adverse reaction risk. Consider lower starting dosage or use alternative agent.",
+   "fda_section": 1,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2D6"
+  },
+  {
+   "cpic_drug_id": "RxNorm:194000",
+   "cpic_guideline_id": 100419,
+   "cpic_level": "A",
+   "drug": "capecitabine",
+   "fda_description": "Results in higher adverse reaction risk (severe, life-threatening, or fatal toxicities). Avoid use in patients with complete DPD deficiency. No dosage has proven safe in patients with complete DPD deficiency. In patients with partial DPD deficiency, individualize the dosage and modify based on tolerability and intent of treatment. Withhold or discontinue in the presence of early-onset or unusually severe toxicity.",
+   "fda_section": 1,
+   "fda_subgroup": "partial or complete DPD deficiency",
+   "gene": "DPYD"
+  },
+  {
+   "cpic_drug_id": "RxNorm:2556",
+   "cpic_guideline_id": 100413,
+   "cpic_level": "A",
+   "drug": "citalopram",
+   "fda_description": "Results in higher systemic concentrations and adverse reaction risk (QT prolongation). The maximum recommended dose is 20 mg.",
+   "fda_section": 1,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2C19"
+  },
+  {
+   "cpic_drug_id": "RxNorm:10154",
+   "cpic_guideline_id": null,
+   "cpic_level": "B/C",
+   "drug": "succinylcholine",
+   "fda_description": "Results in higher systemic concentrations and higher adverse reaction risk (prolonged neuromuscular blockade). Avoid use in poor metabolizers. May administer test dose to assess sensitivity and administer cautiously via slow infusion.",
+   "fda_section": 1,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "BCHE"
+  },
+  {
+   "cpic_drug_id": "RxNorm:28863",
+   "cpic_guideline_id": null,
+   "cpic_level": "B/C",
+   "drug": "lofexidine",
+   "fda_description": "Results in higher systemic concentrations and higher adverse reaction risk. Monitor for orthostatic hypotension and bradycardia.",
+   "fda_section": 1,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2D6"
+  },
+  {
+   "cpic_drug_id": "RxNorm:32968",
+   "cpic_guideline_id": 100411,
+   "cpic_level": "A",
+   "drug": "clopidogrel",
+   "fda_description": "Results in lower systemic active metabolite concentrations, lower antiplatelet response, and may result in higher cardiovascular risk. Consider use of another platelet P2Y12 inhibitor.",
+   "fda_section": 1,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "CYP2C19"
+  },
+  {
+   "cpic_drug_id": "RxNorm:1256",
+   "cpic_guideline_id": 100428,
+   "cpic_level": "A",
+   "drug": "azathioprine",
+   "fda_description": "Alters systemic active metabolite concentration and dosage requirements. Results in higher adverse reaction risk (myelosuppression). Consider alternative therapy in poor metabolizers. Dosage reduction is recommended in intermediate metabolizers for NUDT15 or TPMT. Intermediate metabolizers for both genes may require more substantial dosage reductions. Refer to FDA labeling for specific dosing recommendations.",
+   "fda_section": 1,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "NUDT15"
+  },
+  {
+   "cpic_drug_id": "RxNorm:103",
+   "cpic_guideline_id": 100428,
+   "cpic_level": "A",
+   "drug": "mercaptopurine",
+   "fda_description": "Alters systemic active metabolite concentration and dosage requirements. Results in higher adverse reaction risk (myelosuppression). Initial dosages should be reduced in poor metabolizers; poor metabolizers generally tolerate 10% or less of the recommended dosage. Intermediate metabolizers may require dosage reductions based on tolerability. Intermediate metabolizers for both genes may require more substantial dosage reductions. Refer to FDA labeling for specific dosing recommendations.",
+   "fda_section": 1,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "NUDT15"
+  },
+  {
+   "cpic_drug_id": "RxNorm:714438",
+   "cpic_guideline_id": null,
+   "cpic_level": "B/C",
+   "drug": "pazopanib",
+   "fda_description": "May result in higher adverse reaction risk (liver enzyme elevations). Monitor liver function tests regardless of genotype.",
+   "fda_section": 2,
+   "fda_subgroup": "*57:01 allele positive",
+   "gene": "HLA-B"
+  },
+  {
+   "cpic_drug_id": "RxNorm:119565",
+   "cpic_guideline_id": null,
+   "cpic_level": "C",
+   "drug": "tolterodine",
+   "fda_description": "Results in higher systemic concentrations and higher adverse reaction risk (QT prolongation).",
+   "fda_section": 2,
+   "fda_subgroup": "poor metabolizers",
+   "gene": "CYP2D6"
+  },
+  {
+   "cpic_drug_id": "RxNorm:7646",
+   "cpic_guideline_id": 110076,
+   "cpic_level": "A",
+   "drug": "omeprazole",
+   "fda_description": "Results in higher systemic concentrations.",
+   "fda_section": 3,
+   "fda_subgroup": "intermediate or poor metabolizers",
+   "gene": "CYP2C19"
+  },
+  {
+   "cpic_drug_id": "RxNorm:83367",
+   "cpic_guideline_id": 100426,
+   "cpic_level": "A",
+   "drug": "atorvastatin",
+   "fda_description": "May result in higher systemic concentrations.",
+   "fda_section": 3,
+   "fda_subgroup": "521 CC (poor function transporters)",
+   "gene": "SLCO1B1"
+  },
+  {
+   "cpic_drug_id": "RxNorm:1543543",
+   "cpic_guideline_id": null,
+   "cpic_level": "B",
+   "drug": "belinostat",
+   "fda_description": "May result in higher systemic concentrations and higher adverse reaction risk. Reduce starting dose to 750 mg/m2 in poor metabolizers.",
+   "fda_section": 1,
+   "fda_subgroup": "*28/*28 (poor metabolizers)",
+   "gene": "UGT1A1"
+  }
+ ],
+ "join_cpic_recommendation_to_pair": {
+  "distinct_drug_gene_links": 130,
+  "distinct_links_resolving": 130,
+  "links_resolving_to_a_current_pair": 3591,
+  "pair_drugs_with_more_than_one_current_gene_pair": 110,
+  "recommendation_drug_gene_links": 3591,
+  "recommendation_drugs_with_more_than_one_current_gene_pair": 50,
+  "recommendations": 2159,
+  "recommendations_naming_more_than_one_gene": 1432,
+  "recommendations_naming_no_gene": 0,
+  "recommendations_with_every_gene_resolved": 2159,
+  "unresolved_distinct_links": []
+ },
+ "join_drug_name_and_gene_symbol": {
+  "cpic_drug_gene_pairs": 574,
+  "cpic_level_a_pairs_not_in_the_fda_table": 34,
+  "fda_drug_gene_pairs": 153,
+  "fda_only_sample": [
+   [
+    "abrocitinib",
+    "CYP2C19"
+   ],
+   [
+    "aficamten",
+    "CYP2C9"
+   ],
+   [
+    "belzutifan",
+    "CYP2C19"
+   ],
+   [
+    "belzutifan",
+    "UGT2B17"
+   ],
+   [
+    "bupropion and dextromethorphan",
+    "CYP2D6"
+   ],
+   [
+    "deuruxolitinib",
+    "CYP2C9"
+   ],
+   [
+    "donanemab-azbt",
+    "APOE"
+   ],
+   [
+    "ethanol (dehydrated alcohol)",
+    "ALDH2"
+   ],
+   [
+    "etrasimod",
+    "CYP2C9"
+   ],
+   [
+    "flucytosine",
+    "DPYD"
+   ],
+   [
+    "hydralazine",
+    "Nonspecific (NAT)"
+   ],
+   [
+    "isoniazid",
+    "Nonspecific (NAT)"
+   ],
+   [
+    "lamotrigine",
+    "HLA-B"
+   ],
+   [
+    "lecanemab-irmb",
+    "APOE"
+   ],
+   [
+    "mavacamten",
+    "CYP2C19"
+   ]
+  ],
+  "fda_pairs_whose_drug_name_is_a_cpic_drug": 134,
+  "fda_pairs_whose_gene_is_a_cpic_gene": 146,
+  "shared": 129,
+  "shared_by_cpic_level": {
+   "A": 62,
+   "A/B": 4,
+   "B": 14,
+   "B/C": 38,
+   "C": 11
+  },
+  "shared_with_a_cpic_guideline": 74
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 5,
+  "made_this_run": 0,
+  "source_bodies": 5
+ },
+ "run_date": "2026-11-23"
+}

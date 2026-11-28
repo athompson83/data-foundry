@@ -1,0 +1,122 @@
+{
+ "run_utc": "2026-10-17T14:02:40.473943Z",
+ "probes": [
+  {
+   "name": "FCC EAS search (primary grants)",
+   "url": "https://apps.fcc.gov/oetcf/eas/reports/GenericSearch.cfm",
+   "http": 403,
+   "bytes": 417,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC EAS grantee search result",
+   "url": "https://apps.fcc.gov/oetcf/eas/reports/GenericSearchResult.cfm?grantee_code=2AC7Z",
+   "http": 403,
+   "bytes": 426,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC EAS home",
+   "url": "https://apps.fcc.gov/oetcf/eas/",
+   "http": 403,
+   "bytes": 384,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC OET EA page",
+   "url": "https://www.fcc.gov/oet/ea/fccid",
+   "http": 403,
+   "bytes": 385,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC EAS open-data page",
+   "url": "https://www.fcc.gov/general/equipment-authorization-system-eas-open-data",
+   "http": 403,
+   "bytes": 441,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC robots.txt",
+   "url": "https://www.fcc.gov/robots.txt",
+   "http": 403,
+   "bytes": 379,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC API host",
+   "url": "https://api.fcc.gov/",
+   "http": 403,
+   "bytes": 118,
+   "content_type": "text/html"
+  },
+  {
+   "name": "FCC open data: EAS grantee registrations (Socrata 3b3k-34jp)",
+   "url": "https://opendata.fcc.gov/resource/3b3k-34jp.json?$limit=2",
+   "http": 200,
+   "bytes": 601,
+   "content_type": "application/json;charset=utf-8"
+  },
+  {
+   "name": "ISED radio equipment search app",
+   "url": "https://sms-sgs.ic.gc.ca/equipmentSearch/searchRadioEquipments",
+   "http": 503,
+   "bytes": 5737,
+   "content_type": "text/html"
+  },
+  {
+   "name": "ISED spectrum management system page",
+   "url": "https://ised-isde.canada.ca/site/spectrum-management-system/en",
+   "http": 0,
+   "bytes": 0,
+   "content_type": ""
+  },
+  {
+   "name": "ISED REL page (old path)",
+   "url": "https://ised-isde.canada.ca/site/spectrum-management-telecommunications/en/devices-and-equipment/radio-equipment-list-rel",
+   "http": 404,
+   "bytes": 22676,
+   "content_type": "text/html; charset=UTF-8"
+  },
+  {
+   "name": "Third-party aggregator fccid.io (not a primary publisher)",
+   "url": "https://fccid.io/2AC7Z",
+   "http": 200,
+   "bytes": 28988,
+   "content_type": "text/html; charset=UTF-8"
+  },
+  {
+   "name": "Third-party aggregator fccid.io trailing slash",
+   "url": "https://fccid.io/2AC7Z/",
+   "http": 403,
+   "bytes": 8108,
+   "content_type": "text/html; charset=UTF-8"
+  },
+  {
+   "name": "open.canada.ca search \"radio equipment list certification\"",
+   "url": "https://open.canada.ca/data/api/action/package_search?q=radio+equipment+list+certification&rows=5",
+   "http": 200,
+   "bytes": 6568,
+   "content_type": "application/json;charset=utf-8"
+  },
+  {
+   "name": "open.canada.ca search \"FCC ID\"",
+   "url": "https://open.canada.ca/data/api/action/package_search?q=FCC+ID&rows=5",
+   "http": 200,
+   "bytes": 67386,
+   "content_type": "application/json;charset=utf-8"
+  }
+ ],
+ "fcc_opendata_EAS_datasets": [
+  "EAS Equipment Authorization Grantee Registrations",
+  "EAS 2.948 Listed Test Firms",
+  "EAS Test Firm Accrediting Bodies (TFAB)",
+  "EAS Telecommunications Certification Bodies (TCB)",
+  "EAS Designating Authorities for Telecommunications Certification Bodies (TCB)",
+  "EAS Accredited Test Firms"
+ ],
+ "ised_open_canada_radio_equipment_list_datasets": "none relevant (searches returned unrelated datasets only)",
+ "ised_503_text": "That page is currently down for maintenance (Error 503) - Innovation, Science and Economic Development Canada",
+ "join_measured": null,
+ "verdict": "PARK: no reachable grant-level FCC or ISED certification records; cross-reference join not measurable"
+}
