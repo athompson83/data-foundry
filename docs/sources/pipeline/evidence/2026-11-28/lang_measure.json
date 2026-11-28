@@ -1,0 +1,442 @@
+{
+ "fetched": {
+  "glottolog_cldf_metadata.json": {
+   "bytes": 26428,
+   "sha256": "9b347525564e41e4e202d4cb015c55f566cd20e6eecfac85e5319a9530ae7407",
+   "url": "https://cdn.jsdelivr.net/gh/glottolog/glottolog-cldf@master/cldf/cldf-metadata.json"
+  },
+  "glottolog_languages.csv": {
+   "bytes": 2486351,
+   "sha256": "ecadbfd440f3d0c28182f676b7e49c6e38fd3d40774c7ae3d90bf28ca137fe90",
+   "url": "https://cdn.jsdelivr.net/gh/glottolog/glottolog-cldf@master/cldf/languages.csv"
+  },
+  "iana_language_subtag_registry.txt": {
+   "bytes": 732254,
+   "sha256": "8ac4e58567593c96e9e6d66e2017dbb8d3953dbcb42fe32ecd3b3fccdfdaba7b",
+   "url": "https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry"
+  },
+  "iso-639-3.tab": {
+   "bytes": 178362,
+   "sha256": "07ce5fed94472312bdd1a4bd7f297c83e7cd4ac4ff335dfbed0824a270f482ed",
+   "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+  },
+  "iso-639-3_Retirements.tab": {
+   "bytes": 19046,
+   "sha256": "c4c5105798541859ce6f0125572132dfcfaf6ab8485ed6a77ca9592404386cb8",
+   "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3_Retirements.tab"
+  },
+  "terms_glottolog_downloads.html": {
+   "bytes": 57504,
+   "sha256": "25fb9d8a6b09844258db7c58d18bac6f75e2ecf5020f4ba3e111b277dd84b3fc",
+   "url": "https://glottolog.org/meta/downloads"
+  },
+  "terms_iana.html": {
+   "bytes": 8488,
+   "sha256": "16887b36c23739ae51b44d02cfd4e909302ece8325f815a763287afcbd589ae3",
+   "url": "https://www.iana.org/help/licensing-terms"
+  },
+  "terms_sil.html": {
+   "bytes": 36734,
+   "sha256": "886c922c641939e8fca54f254a903ff05621675b95b915019016c94c8ebc5a72",
+   "url": "https://iso639-3.sil.org/code_tables/download_tables"
+  }
+ },
+ "glottolog": {
+  "by_level": {
+   "dialect": 13773,
+   "family": 4879,
+   "language": 8623
+  },
+  "by_macroarea": {
+   "(none)": 93,
+   "Africa": 8055,
+   "Africa;Eurasia": 30,
+   "Australia": 929,
+   "Eurasia": 8188,
+   "North America": 1841,
+   "Papunesia": 6411,
+   "South America": 1571
+  },
+  "columns": [
+   "ID",
+   "Name",
+   "Macroarea",
+   "Latitude",
+   "Longitude",
+   "Glottocode",
+   "ISO639P3code",
+   "Level",
+   "Countries",
+   "Family_ID",
+   "Language_ID",
+   "Closest_ISO369P3code",
+   "First_Year_Of_Documentation",
+   "Last_Year_Of_Documentation",
+   "Is_Isolate"
+  ],
+  "languoids": 27275,
+  "with_coordinates": 26796,
+  "with_family": 26847
+ },
+ "handcheck_sample": [
+  {
+   "glottocode": "lowe1388",
+   "glottolog_level": "language",
+   "glottolog_name": "Lower Silesian",
+   "iso_639_3": "sli",
+   "macroarea": "Eurasia",
+   "sil_name": "Lower Silesian",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "borg1235",
+   "glottolog_level": "language",
+   "glottolog_name": "Borgu Fulfulde",
+   "iso_639_3": "fue",
+   "macroarea": "Africa",
+   "sil_name": "Borgu Fulfulde",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "scot1243",
+   "glottolog_level": "language",
+   "glottolog_name": "Scots",
+   "iso_639_3": "sco",
+   "macroarea": "Eurasia",
+   "sil_name": "Scots",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "wadj1257",
+   "glottolog_level": "dialect",
+   "glottolog_name": "Wadjabangai",
+   "iso_639_3": "wdy",
+   "macroarea": "Australia",
+   "sil_name": "Wadjabangayi",
+   "sil_type": "E"
+  },
+  {
+   "glottocode": "sout3128",
+   "glottolog_level": "language",
+   "glottolog_name": "Southwestern Nisu",
+   "iso_639_3": "nsv",
+   "macroarea": "Eurasia",
+   "sil_name": "Southwestern Nisu",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "bhat1265",
+   "glottolog_level": "language",
+   "glottolog_name": "Bhatri",
+   "iso_639_3": "bgw",
+   "macroarea": "Eurasia",
+   "sil_name": "Bhatri",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "akab1249",
+   "glottolog_level": "language",
+   "glottolog_name": "Akabea",
+   "iso_639_3": "abj",
+   "macroarea": "Eurasia",
+   "sil_name": "Aka-Bea",
+   "sil_type": "E"
+  },
+  {
+   "glottocode": "olds1249",
+   "glottolog_level": "language",
+   "glottolog_name": "Old Spanish",
+   "iso_639_3": "osp",
+   "macroarea": "Eurasia",
+   "sil_name": "Old Spanish",
+   "sil_type": "H"
+  },
+  {
+   "glottocode": "konn1242",
+   "glottolog_level": "language",
+   "glottolog_name": "Konni",
+   "iso_639_3": "kma",
+   "macroarea": "Africa",
+   "sil_name": "Konni",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "koli1253",
+   "glottolog_level": "language",
+   "glottolog_name": "Kolibugan Subanon",
+   "iso_639_3": "skn",
+   "macroarea": "Papunesia",
+   "sil_name": "Kolibugan Subanon",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "kash1277",
+   "glottolog_level": "language",
+   "glottolog_name": "Kashmiri",
+   "iso_639_3": "kas",
+   "macroarea": "Eurasia",
+   "sil_name": "Kashmiri",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "yare1248",
+   "glottolog_level": "language",
+   "glottolog_name": "Yareba",
+   "iso_639_3": "yrb",
+   "macroarea": "Papunesia",
+   "sil_name": "Yareba",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "motl1237",
+   "glottolog_level": "language",
+   "glottolog_name": "Mwotlap",
+   "iso_639_3": "mlv",
+   "macroarea": "Papunesia",
+   "sil_name": "Motlav",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "ulch1241",
+   "glottolog_level": "language",
+   "glottolog_name": "Ulch",
+   "iso_639_3": "ulc",
+   "macroarea": "Eurasia",
+   "sil_name": "Ulch",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "rama1270",
+   "glottolog_level": "language",
+   "glottolog_name": "Rama",
+   "iso_639_3": "rma",
+   "macroarea": "North America",
+   "sil_name": "Rama",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "ayer1246",
+   "glottolog_level": "dialect",
+   "glottolog_name": "Ayerrerenge",
+   "iso_639_3": "axe",
+   "macroarea": "Australia",
+   "sil_name": "Ayerrerenge",
+   "sil_type": "E"
+  },
+  {
+   "glottocode": "farw1235",
+   "glottolog_level": "language",
+   "glottolog_name": "Far Western Muria",
+   "iso_639_3": "fmu",
+   "macroarea": "Eurasia",
+   "sil_name": "Far Western Muria",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "shab1252",
+   "glottolog_level": "language",
+   "glottolog_name": "Shabo",
+   "iso_639_3": "sbf",
+   "macroarea": "Africa",
+   "sil_name": "Chabu",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "karo1297",
+   "glottolog_level": "language",
+   "glottolog_name": "Karo (Ethiopia)",
+   "iso_639_3": "kxh",
+   "macroarea": "Africa",
+   "sil_name": "Karo (Ethiopia)",
+   "sil_type": "L"
+  },
+  {
+   "glottocode": "bhil1253",
+   "glottolog_level": "language",
+   "glottolog_name": "Bhilali",
+   "iso_639_3": "bhi",
+   "macroarea": "Eurasia",
+   "sil_name": "Bhilali",
+   "sil_type": "L"
+  }
+ ],
+ "iana_registry": {
+  "by_type": {
+   "extlang": 258,
+   "grandfathered": 26,
+   "language": 8276,
+   "redundant": 67,
+   "region": 305,
+   "script": 225,
+   "variant": 141
+  },
+  "comment_characters": 8513,
+  "deprecated_language_records": 232,
+  "file_date": "2026-11-18",
+  "language_records": 8276,
+  "language_records_with_comments": 83,
+  "records": 9298,
+  "with_macrolanguage": 453,
+  "with_suppress_script": 134
+ },
+ "join_glottolog_to_sil": {
+  "distinct_iso_codes": 8207,
+  "found_in_sil_table": 7830,
+  "languoids_with_iso_code": 8207,
+  "not_found": 377,
+  "not_found_sample": [
+   [
+    "garr1260",
+    "Garrwan",
+    "gbc"
+   ],
+   [
+    "araf1243",
+    "Arafundi",
+    "arf"
+   ],
+   [
+    "lumb1237",
+    "Lumbee",
+    "lmz"
+   ],
+   [
+    "palu1237",
+    "Palumata",
+    "pmc"
+   ],
+   [
+    "miar1236",
+    "Miarrã",
+    "xmi"
+   ],
+   [
+    "renn1236",
+    "Rennellese Sign Language",
+    "rsi"
+   ],
+   [
+    "orok1270",
+    "Orokaiva (Retired)",
+    "ork"
+   ],
+   [
+    "fala1245",
+    "Falam Chin (Retired)",
+    "flm"
+   ],
+   [
+    "kaqc1277",
+    "Kaqchikel, Akatenango Southwestern",
+    "ckk"
+   ],
+   [
+    "garr1261",
+    "Garreh-Ajuran",
+    "ggh"
+   ]
+  ],
+  "not_found_that_are_retired_codes": 366,
+  "same_name_ignoring_case": 6648,
+  "sil_codes_with_a_glottolog_languoid": 7830,
+  "sil_individual_living_codes": 7021
+ },
+ "join_iana_to_sil": {
+  "current_three_letter_language_subtags": 7859,
+  "current_two_letter_language_subtags": 184,
+  "found_in_sil_table": 7742,
+  "not_found_sample": [
+   "aav",
+   "afa",
+   "alg",
+   "alv",
+   "apa",
+   "aqa",
+   "aql",
+   "art",
+   "asw",
+   "ath",
+   "auf",
+   "aus",
+   "awd",
+   "azc",
+   "bad"
+  ],
+  "two_letter_found_as_sil_part1": 184
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 6,
+  "made_this_run": 2,
+  "source_bodies": 8
+ },
+ "run_date": "2026-11-28",
+ "sil_iso_639_3": {
+  "by_scope": {
+   "I": 7861,
+   "M": 63,
+   "S": 4
+  },
+  "by_type": {
+   "C": 24,
+   "E": 602,
+   "H": 215,
+   "L": 7083,
+   "S": 4
+  },
+  "codes": 7928,
+  "with_comment": 1,
+  "with_two_letter_code": 184
+ },
+ "sil_retirements": {
+  "by_reason": {
+   "C": 1,
+   "D": 34,
+   "M": 179,
+   "N": 72,
+   "S": 102
+  },
+  "change_to_in_current_table": 214,
+  "cited_codes_in_current_table": 266,
+  "codes_cited_in_remedy_prose": 269,
+  "effective_range": [
+   "2005-11-16",
+   "2026-07-15"
+  ],
+  "remedy_characters": 6619,
+  "retired_ids_reused_in_current_table": 0,
+  "rows": 388,
+  "with_change_to": 214,
+  "with_remedy_prose": 102
+ },
+ "terms": {
+  "glottolog": {
+   "bytes": 57504,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://glottolog.org/meta/downloads"
+  },
+  "glottolog_cldf_metadata_dc_license": "https://creativecommons.org/licenses/by/4.0/",
+  "iana": {
+   "bytes": 8488,
+   "http_status": 200,
+   "keyword_sentences": [
+    "However, for additional clarity, and to avoid any potential confusion about applicable rights, both IANA and IETF desire to (a) dedicate any applicable copyright rights that they may own in the Protocol Registries to the public domain, and (b) license any copyright or related rights for which they are a licensee (with a right to sublicense) to the broadest extent that they are permitted to do so.",
+    "Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication found at https://creativecommons.org/publicdomain/zero/1.0/legalcode .",
+    "The limitations and disclaimers found in the CC0 1.0 dedication are an integral part of this joint statement.",
+    "For example, in no way are the patent or trademark rights of any person affected by CC0, nor are the rights that other persons may have in the work or in how the work is used, including data protection rights."
+   ],
+   "quotes": {},
+   "url": "https://www.iana.org/help/licensing-terms"
+  },
+  "sil": {
+   "bytes": 36734,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {
+    "The ISO 639-3 code set may be downloaded and incorporated into software products, web-based systems, digital devices, etc., either commercial or non-commercial, provided that:": true
+   },
+   "url": "https://iso639-3.sil.org/code_tables/download_tables"
+  }
+ }
+}

@@ -1,0 +1,389 @@
+{
+ "fetched": {
+  "qudt_vocab_unit.ttl": {
+   "bytes": 4081464,
+   "sha256": "15d6dafe50099c4d7fa2ab9cebc1cb62e9d12ee135d204e03fd6d27405861d09",
+   "url": "https://qudt.org/vocab/unit/"
+  },
+  "terms_qudt_readme.md": {
+   "bytes": 6346,
+   "sha256": "ce2278a99014464ec08c0baaf537eaae6e08bca4bdac252f35efa822b559674d",
+   "url": "https://cdn.jsdelivr.net/gh/qudt/qudt-public-repo@main/README.md"
+  },
+  "terms_ucum_license.md": {
+   "bytes": 14158,
+   "sha256": "b7989c84c68b7a80d42aad28cfdd824d756c2f70f26eaf1347d2e49f7838bbdf",
+   "url": "https://cdn.jsdelivr.net/gh/ucum-org/ucum@main/LICENSE.md"
+  },
+  "terms_unece_mirror_datapackage.json": {
+   "bytes": 2091,
+   "sha256": "03c9a90e5754641d266ec3379855fa0d2ce3c03df45545bcef575b723f7bef60",
+   "url": "https://cdn.jsdelivr.net/gh/datasets/unece-units-of-measure@main/datapackage.json"
+  },
+  "ucum-essence.xml": {
+   "bytes": 82776,
+   "sha256": "dfccea1b5dc284245ebae97edd1dc03c45864da4e87df55bc9851797b4fd0b61",
+   "url": "https://cdn.jsdelivr.net/gh/ucum-org/ucum@main/ucum-essence.xml"
+  },
+  "unece_rec20_units.csv": {
+   "bytes": 174949,
+   "sha256": "e2d06370cdadf5da1bce705783ff5d0d94d11d70eacba6d592adf401c32fb76e",
+   "url": "https://cdn.jsdelivr.net/gh/datasets/unece-units-of-measure@main/data/units-of-measure.csv"
+  }
+ },
+ "handcheck_sample": [
+  {
+   "qudt_label": "Microbar",
+   "qudt_symbol": [
+    "μbar"
+   ],
+   "qudt_unit": "MicroBAR",
+   "unece_common_code": "B85",
+   "unece_conversion_factor": "10⁻¹ Pa",
+   "unece_name": "microbar",
+   "unece_symbol": "µbar"
+  },
+  {
+   "qudt_label": "Degree Fahrenheit",
+   "qudt_symbol": [
+    "°F"
+   ],
+   "qudt_unit": "DEG_F",
+   "unece_common_code": "FAH",
+   "unece_conversion_factor": "5/9 x K",
+   "unece_name": "degree Fahrenheit",
+   "unece_symbol": "°F"
+  },
+  {
+   "qudt_label": "Terajoule",
+   "qudt_symbol": [
+    "TJ"
+   ],
+   "qudt_unit": "TeraJ",
+   "unece_common_code": "D30",
+   "unece_conversion_factor": "10¹² J",
+   "unece_name": "terajoule",
+   "unece_symbol": "TJ"
+  },
+  {
+   "qudt_label": "Cubic Centimeter per Minute",
+   "qudt_symbol": [
+    "cm³/min"
+   ],
+   "qudt_unit": "CentiM3-PER-MIN",
+   "unece_common_code": "G49",
+   "unece_conversion_factor": "1,666 67 × 10⁻⁸ m³ x s⁻¹",
+   "unece_name": "cubic centimetre per minute",
+   "unece_symbol": "cm³/min"
+  },
+  {
+   "qudt_label": "Attojoule",
+   "qudt_symbol": [
+    "aJ"
+   ],
+   "qudt_unit": "AttoJ",
+   "unece_common_code": "A13",
+   "unece_conversion_factor": "10⁻¹⁸ J",
+   "unece_name": "attojoule",
+   "unece_symbol": "aJ"
+  },
+  {
+   "qudt_label": "Us Liquid Pint",
+   "qudt_symbol": [
+    "pt{US}"
+   ],
+   "qudt_unit": "PINT_US",
+   "unece_common_code": "PTL",
+   "unece_conversion_factor": "4, 731 765 x 10⁻⁴ m³",
+   "unece_name": "liquid pint (US)",
+   "unece_symbol": "liq pt (US)"
+  },
+  {
+   "qudt_label": "Meter per Minute",
+   "qudt_symbol": [
+    "m/min"
+   ],
+   "qudt_unit": "M-PER-MIN",
+   "unece_common_code": "2X",
+   "unece_conversion_factor": "0,016 666 m/s",
+   "unece_name": "metre per minute",
+   "unece_symbol": "m/min"
+  },
+  {
+   "qudt_label": "Meter",
+   "qudt_symbol": [
+    "m"
+   ],
+   "qudt_unit": "M",
+   "unece_common_code": "MTR",
+   "unece_conversion_factor": "m",
+   "unece_name": "metre",
+   "unece_symbol": "m"
+  },
+  {
+   "qudt_label": "Lambert",
+   "qudt_symbol": [
+    "L"
+   ],
+   "qudt_unit": "LA",
+   "unece_common_code": "P30",
+   "unece_conversion_factor": "3,183 099 x 10³ cd/m²",
+   "unece_name": "lambert",
+   "unece_symbol": "Lb"
+  },
+  {
+   "qudt_label": "Newton Meter per Meter",
+   "qudt_symbol": [
+    "N·m/m"
+   ],
+   "qudt_unit": "N-M-PER-M",
+   "unece_common_code": "Q27",
+   "unece_conversion_factor": "m x kg x s⁻²",
+   "unece_name": "newton metre per metre",
+   "unece_symbol": "N·m/m²"
+  },
+  {
+   "qudt_label": "Sievert per Second",
+   "qudt_symbol": [
+    "Sv/s"
+   ],
+   "qudt_unit": "SV-PER-SEC",
+   "unece_common_code": "P65",
+   "unece_conversion_factor": "Sv/s",
+   "unece_name": "sievert per second",
+   "unece_symbol": "Sv/s"
+  },
+  {
+   "qudt_label": "Byte per Second",
+   "qudt_symbol": [
+    "B/s"
+   ],
+   "qudt_unit": "BYTE-PER-SEC",
+   "unece_common_code": "P93",
+   "unece_conversion_factor": "byte/s",
+   "unece_name": "byte per second",
+   "unece_symbol": "byte/s"
+  },
+  {
+   "qudt_label": "Horsepower (water)",
+   "qudt_symbol": [
+    "water hp"
+   ],
+   "qudt_unit": "HP_H2O",
+   "unece_common_code": "F80",
+   "unece_conversion_factor": "7,460 43 x 10² W",
+   "unece_name": "water horse power",
+   "unece_symbol": ""
+  },
+  {
+   "qudt_label": "Volt Second per Meter",
+   "qudt_symbol": [
+    "V·s/m"
+   ],
+   "qudt_unit": "V-SEC-PER-M",
+   "unece_common_code": "H45",
+   "unece_conversion_factor": "m x kg x s⁻² x A⁻¹",
+   "unece_name": "volt second per metre",
+   "unece_symbol": "V·s/m"
+  },
+  {
+   "qudt_label": "Liter per Second",
+   "qudt_symbol": [
+    "L/s"
+   ],
+   "qudt_unit": "L-PER-SEC",
+   "unece_common_code": "G51",
+   "unece_conversion_factor": "10⁻³ m³ x s⁻¹",
+   "unece_name": "litre per second",
+   "unece_symbol": "l/s"
+  },
+  {
+   "qudt_label": "Cubic Centimeter per Minute Bar",
+   "qudt_symbol": [
+    "cm³/(min·bar)"
+   ],
+   "qudt_unit": "CentiM3-PER-MIN-BAR",
+   "unece_common_code": "G80",
+   "unece_conversion_factor": "1,666 67 × 10⁻¹³ kg⁻¹ x m⁴ x s",
+   "unece_name": "cubic centimetre per minute bar",
+   "unece_symbol": "cm³/(min·bar)"
+  },
+  {
+   "qudt_label": "Peck (UK) per Hour",
+   "qudt_symbol": [
+    "peck{UK}/h"
+   ],
+   "qudt_unit": "PK_UK-PER-HR",
+   "unece_common_code": "L45",
+   "unece_conversion_factor": "2,525 606 x 10⁻⁶ m³/s",
+   "unece_name": "peck (UK) per hour",
+   "unece_symbol": "pk (UK)/h"
+  },
+  {
+   "qudt_label": "Milligalileo",
+   "qudt_symbol": [
+    "mgal"
+   ],
+   "qudt_unit": "MilliGAL",
+   "unece_common_code": "C11",
+   "unece_conversion_factor": "10⁻⁵ m/s²",
+   "unece_name": "milligal",
+   "unece_symbol": "mGal"
+  },
+  {
+   "qudt_label": "Gill (US) per Minute",
+   "qudt_symbol": [
+    "gill{US}/min"
+   ],
+   "qudt_unit": "GI_US-PER-MIN",
+   "unece_common_code": "K38",
+   "unece_conversion_factor": "1,971 568 x 10⁻⁶ m³/s",
+   "unece_name": "gill (US) per minute",
+   "unece_symbol": "gi (US)/min"
+  },
+  {
+   "qudt_label": "Microtesla",
+   "qudt_symbol": [
+    "μT"
+   ],
+   "qudt_unit": "MicroT",
+   "unece_common_code": "D81",
+   "unece_conversion_factor": "10⁻⁶ T",
+   "unece_name": "microtesla",
+   "unece_symbol": "µT"
+  }
+ ],
+ "join_ucum_code": {
+  "not_parsing_sample": [
+   "[Btu_IT].[mol_lb]-1",
+   "[Btu_IT].[mol_lb]-1.[degF]-1",
+   "cm.ka-1",
+   "DU",
+   "EVA",
+   "[ft_i'H2O]",
+   "[ft_i'Hg]",
+   "GVA",
+   "Gvar",
+   "k[lbf_av]",
+   "k[lbf_av].[in_i]-2",
+   "k[Btu_IT]",
+   "k[Btu_IT].[ft_i]-2",
+   "k[Btu_IT].h-1",
+   "k[Btu_th]",
+   "k[Btu_th].h-1",
+   "k[ft_i]3",
+   "kg.M[Btu_IT]-1",
+   "k[lb_av]",
+   "k[lb_av].h-1"
+  ],
+  "qudt_ucum_codes": 2445,
+  "that_are_a_single_ucum_atom": 195,
+  "that_parse_as_prefix_atom_expressions": 2361
+ },
+ "join_unece_common_code": {
+  "citations": 1572,
+  "citations_found_in_rec20_list": 1570,
+  "codes_cited_by_more_than_one_qudt_unit": 85,
+  "distinct_codes_cited": 1482,
+  "not_found_sample": [
+   [
+    "MI_US2",
+    "208"
+   ],
+   [
+    "N-M-PER-M2",
+    "H86"
+   ]
+  ],
+  "qudt_units_citing_a_code": 1571,
+  "rec20_codes_not_cited_by_qudt": 656
+ },
+ "qudt_units": {
+  "deprecated": 87,
+  "description_characters": 393760,
+  "distinct_quantity_kinds": 764,
+  "ucum_codes": 2445,
+  "units": 2945,
+  "version_info": null,
+  "with_conversion_multiplier": 2945,
+  "with_description": 2451,
+  "with_english_label": 2945,
+  "with_quantity_kind": 2945,
+  "with_symbol": 2790,
+  "with_ucum_code": 2445,
+  "with_unece_common_code": 1571
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 5,
+  "made_this_run": 2,
+  "source_bodies": 6
+ },
+ "run_date": "2026-11-28",
+ "terms": {
+  "qudt": {
+   "bytes": 6346,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Citing QUDT ----------- Cite QUDT.org, the organization, and name the release you used: > QUDT — Quantities, Units, Dimensions and Types, by QUDT.org (https://qudt.org), release _x.y.z_, licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+    "License ------- QUDT is licensed under the [Creative Commons Attribution 4.0 International License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), which requires attribution to QUDT.org."
+   ],
+   "quotes": {},
+   "url": "https://cdn.jsdelivr.net/gh/qudt/qudt-public-repo@main/README.md"
+  },
+  "ucum": {
+   "bytes": 14158,
+   "http_status": 200,
+   "keyword_sentences": [
+    "1.1 “**Contribution**” shall mean any work of authorship, including the original version of the Work and any modifications or additions to that Work or Derivative Works thereof, that is intentionally submitted to Licensor for inclusion in the Work by the copyright owner or by an individual or Legal Entity authorized to submit on behalf of the copyright owner.",
+    "1.3 “**Derivative Works**” shall mean any work, in any form, that is based on (or derived from) the Work and for which the editorial revisions, annotations, elaborations, or other modifications represent, as a whole, an original work of authorship.",
+    "For avoidance of doubt, a Software Application that merely communicates with and/or interoperates with an unmodified instance of the Work is not a Derivative Work.",
+    "1.10 “**You**” (or “**Your**”) shall mean an individual or Legal Entity exercising permissions granted by this License.",
+    "Subject to the terms and conditions of this License, each Contributor hereby grants to You a worldwide, non-exclusive, no-charge, royalty-free, revocable license to reproduce, publicly display, publicly perform, and distribute the Work, and to use the Work for the purposes of developing and commercializing Software Applications that will communicate with and interoperate with the Work.",
+    "use the Work to create Derivative Works."
+   ],
+   "quotes": {},
+   "url": "https://cdn.jsdelivr.net/gh/ucum-org/ucum@main/LICENSE.md"
+  },
+  "unece": {
+   "http_status": 403,
+   "url": "https://unece.org/terms-and-conditions"
+  },
+  "unece_mirror_datapackage": {
+   "bytes": 2091,
+   "http_status": 200,
+   "keyword_sentences": [],
+   "quotes": {},
+   "url": "https://cdn.jsdelivr.net/gh/datasets/unece-units-of-measure@main/datapackage.json"
+  }
+ },
+ "ucum_essence": {
+  "base_units": 7,
+  "prefixes": 24,
+  "revision_date": "2024-06-17",
+  "units": 305,
+  "version": "2.2"
+ },
+ "unece_rec20": {
+  "by_status": {
+   "(blank)": 1755,
+   "D": 71,
+   "X": 309,
+   "¦": 1
+  },
+  "columns": [
+   "Status",
+   "CommonCode",
+   "Name",
+   "Description",
+   "LevelAndCategory",
+   "Symbol",
+   "ConversionFactor"
+  ],
+  "description_characters": 70761,
+  "distinct_common_codes": 2136,
+  "rows": 2136,
+  "with_conversion_factor": 1500,
+  "with_description": 792,
+  "with_symbol": 1579
+ }
+}

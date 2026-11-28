@@ -1,0 +1,362 @@
+{
+ "echo_systems": {
+  "by_activity": {
+   "Active": 1346,
+   "Changed from public to non-public": 97,
+   "Inactive": 2973
+  },
+  "by_type": {
+   "Community water system": 633,
+   "Non-Transient non-community system": 464,
+   "Transient non-community system": 3319
+  },
+  "distinct_pwsids": 4416,
+  "fields": 78,
+  "pages_read": 1,
+  "rows": 4416,
+  "serious_violators": 16,
+  "with_contaminants_in_violation_3yr": 594,
+  "with_current_violation_flag": 218,
+  "with_detailed_facility_report_url": 4416,
+  "with_fips_codes": 4416,
+  "with_formal_enforcement_date": 164,
+  "with_last_sanitary_survey_date": 1410,
+  "with_registry_id": 4416,
+  "with_violation_categories": 693
+ },
+ "fetched": {
+  "echo_get_qid_vt_page1.json": {
+   "bytes": 8480061,
+   "sha256": "3158067c4431e20ce6c6dfbdeb2ba088caa6a0f2d822e4d4b559bcf8d67d143c",
+   "url": "https://echodata.epa.gov/echo/sdw_rest_services.get_qid?qid=810&output=JSON&p_pageno=1"
+  },
+  "echo_get_systems_vt.json": {
+   "bytes": 258,
+   "sha256": "a37d104cb70cecbfc13e353dbdbf8345874cd4785ea1376959502db679e3341d",
+   "url": "https://echodata.epa.gov/echo/sdw_rest_services.get_systems?output=JSON&p_st=VT"
+  },
+  "sdwis_water_system_vt_0.json": {
+   "bytes": 1312563,
+   "sha256": "2d489c29b5b2b9712c448ea7e9a0678f404edc1b27e1f6cc05a1381a4d2ef14c",
+   "url": "https://data.epa.gov/efservice/WATER_SYSTEM/PRIMACY_AGENCY_CODE/VT/ROWS/0:999/JSON"
+  },
+  "sdwis_water_system_vt_1000.json": {
+   "bytes": 1308564,
+   "sha256": "94cfa6403f4be361723e8200e133e6e5a32b9e0d7d74b4e23510e5707e7d00ca",
+   "url": "https://data.epa.gov/efservice/WATER_SYSTEM/PRIMACY_AGENCY_CODE/VT/ROWS/1000:1999/JSON"
+  },
+  "sdwis_water_system_vt_2000.json": {
+   "bytes": 1323615,
+   "sha256": "992c8722a25afa80e58e3aaae3b6962e8b684e204e2518b704508a27090e66ea",
+   "url": "https://data.epa.gov/efservice/WATER_SYSTEM/PRIMACY_AGENCY_CODE/VT/ROWS/2000:2999/JSON"
+  },
+  "sdwis_water_system_vt_3000.json": {
+   "bytes": 1332426,
+   "sha256": "c1082cf9b2c4719ffd2ad1a4ae346a9f8b25291c10918b71dd54651b2c5338c3",
+   "url": "https://data.epa.gov/efservice/WATER_SYSTEM/PRIMACY_AGENCY_CODE/VT/ROWS/3000:3999/JSON"
+  },
+  "sdwis_water_system_vt_4000.json": {
+   "bytes": 561125,
+   "sha256": "d6928f02cddb0e03f63717313417fad866c0dbc8ba612edbf6f9688c787cc2eb",
+   "url": "https://data.epa.gov/efservice/WATER_SYSTEM/PRIMACY_AGENCY_CODE/VT/ROWS/4000:4999/JSON"
+  },
+  "terms_echo_about.html": {
+   "bytes": 98172,
+   "sha256": "24982a404ee45becb91fdd681f7c639de75d664a09c005412b406810675fc465",
+   "url": "https://echo.epa.gov/resources/echo-data/about-the-data"
+  },
+  "terms_epa_disclaimers.html": {
+   "bytes": 62565,
+   "sha256": "721f4c6167643277d119c89093db314b6e413067328d9c2c5dccbf8fc79b8435",
+   "url": "https://www.epa.gov/web-policies-and-procedures/epa-disclaimers"
+  }
+ },
+ "get_systems": {
+  "CVRows": "218",
+  "FEARows": "19",
+  "INSPRows": "1503",
+  "InfFEARows": "890",
+  "Message": "Success",
+  "QueryRows": "4416",
+  "SVRows": "16",
+  "V3Rows": "693",
+  "Version": "SDWA v2020-02-05 1500"
+ },
+ "handcheck_sample": [
+  {
+   "echo_activity": "A",
+   "echo_name": "MOUNTAIN VIEW COURT",
+   "echo_population": "53",
+   "echo_type": "CWS",
+   "pwsid": "VT0020722",
+   "sdwis_activity": "A",
+   "sdwis_name": "MOUNTAIN VIEW COURT",
+   "sdwis_population": 53,
+   "sdwis_type": "CWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "DUNKIN DONUTS",
+   "echo_population": "50",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0001831",
+   "sdwis_activity": "I",
+   "sdwis_name": "DUNKIN DONUTS",
+   "sdwis_population": 50,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "THE ARLINGTON",
+   "echo_population": "98",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0001529",
+   "sdwis_activity": "I",
+   "sdwis_name": "THE ARLINGTON",
+   "sdwis_population": 98,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "LAKE HOUSE PUB & GRILLE",
+   "echo_population": "68",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0000229",
+   "sdwis_activity": "I",
+   "sdwis_name": "LAKE HOUSE PUB & GRILLE",
+   "sdwis_population": 68,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "SMOKE RISE CAMPGROUND",
+   "echo_population": "282",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0008164",
+   "sdwis_activity": "A",
+   "sdwis_name": "SMOKE RISE CAMPGROUND",
+   "sdwis_population": 282,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "GREEN VALLEY CAMPGROUND",
+   "echo_population": "63",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0008134",
+   "sdwis_activity": "I",
+   "sdwis_name": "GREEN VALLEY CAMPGROUND",
+   "sdwis_population": 63,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "WAUBANONG CAMP",
+   "echo_population": "35",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0006606",
+   "sdwis_activity": "A",
+   "sdwis_name": "WAUBANONG CAMP",
+   "sdwis_population": 35,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "THE COUNTRY B+B",
+   "echo_population": "25",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0000888",
+   "sdwis_activity": "I",
+   "sdwis_name": "THE COUNTRY B+B",
+   "sdwis_population": 25,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "STARLIGHT INN",
+   "echo_population": "73",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0004550",
+   "sdwis_activity": "A",
+   "sdwis_name": "STARLIGHT INN",
+   "sdwis_population": 73,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "WINDRIDGE AT TEELA WOOKET",
+   "echo_population": "120",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0006555",
+   "sdwis_activity": "A",
+   "sdwis_name": "WINDRIDGE AT TEELA WOOKET",
+   "sdwis_population": 120,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "AMERICAN LEGION BRIGHTON",
+   "echo_population": "50",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0001537",
+   "sdwis_activity": "I",
+   "sdwis_name": "AMERICAN LEGION BRIGHTON",
+   "sdwis_population": 50,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "WEST WARDSBORO STORE",
+   "echo_population": "29",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0021138",
+   "sdwis_activity": "I",
+   "sdwis_name": "WEST WARDSBORO STORE",
+   "sdwis_population": 29,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "COLTON GUEST FARM",
+   "echo_population": "25",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0004112",
+   "sdwis_activity": "I",
+   "sdwis_name": "COLTON GUEST FARM",
+   "sdwis_population": 25,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "ALBURGH BRIDGE JOLLEY",
+   "echo_population": "25",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0020972",
+   "sdwis_activity": "A",
+   "sdwis_name": "ALBURGH BRIDGE JOLLEY",
+   "sdwis_population": 25,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "GOVERNORS ROCK MOTEL",
+   "echo_population": "32",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0004905",
+   "sdwis_activity": "A",
+   "sdwis_name": "GOVERNORS ROCK MOTEL",
+   "sdwis_population": 32,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "THE MOUNTAIN SCHOOL",
+   "echo_population": "50",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0006609",
+   "sdwis_activity": "I",
+   "sdwis_name": "THE MOUNTAIN SCHOOL",
+   "sdwis_population": 50,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "SMUGGLERS NOTCH BASE LODGE",
+   "echo_population": "523",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0000750",
+   "sdwis_activity": "A",
+   "sdwis_name": "SMUGGLERS NOTCH BASE LODGE",
+   "sdwis_population": 523,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "A",
+   "echo_name": "KELLY WAY WATER SYSTEM",
+   "echo_population": "224",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0021619",
+   "sdwis_activity": "A",
+   "sdwis_name": "KELLY WAY WATER SYSTEM",
+   "sdwis_population": 224,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "GRAMPY'S",
+   "echo_population": "8",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0001949",
+   "sdwis_activity": "I",
+   "sdwis_name": "GRAMPY'S",
+   "sdwis_population": 8,
+   "sdwis_type": "TNCWS"
+  },
+  {
+   "echo_activity": "I",
+   "echo_name": "HORTONVILLE INN",
+   "echo_population": "25",
+   "echo_type": "TNCWS",
+   "pwsid": "VT0004492",
+   "sdwis_activity": "I",
+   "sdwis_name": "HORTONVILLE INN",
+   "sdwis_population": 25,
+   "sdwis_type": "TNCWS"
+  }
+ ],
+ "join_pwsid": {
+  "echo_not_in_sdwis": [],
+  "echo_pwsids": 4416,
+  "found_in_sdwis": 4416,
+  "same_activity_code": 4416,
+  "same_population_served": 4416,
+  "same_system_name_ignoring_case": 4412,
+  "sdwis_not_in_echo": 0
+ },
+ "requests": {
+  "bodies_reused_from_same_day_cache": 0,
+  "made_this_run": 9,
+  "source_bodies": 9
+ },
+ "run_date": "2026-11-28",
+ "sdwis_water_system_vt": {
+  "by_activity_code": {
+   "A": 1346,
+   "I": 2973,
+   "N": 97
+  },
+  "distinct_pwsids": 4416,
+  "rows": 4416
+ },
+ "state": "VT",
+ "terms": {
+  "echo_about_the_data": {
+   "bytes": 98172,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Learn more about: ECHO Data Sources and Refresh Dates Data Completeness Data Quality Use of ECHO Data ECHO Data Sources and Refresh Dates Below is a summary of data included in ECHO.",
+    "Data are typically refreshed on a weekly schedule from EPA source databases.",
+    "The most recent and next expected refresh dates are provided in the table below.",
+    "NNCR data are updated after each ICIS-NPDES refresh in ECHO.",
+    "Loading Tool data are typically refreshed on Thursday evenings following each refresh of ICIS-NPDES in ECHO.",
+    "Note: Facility-level identification information is updated weekly via the Facility Registry Service."
+   ],
+   "quotes": {},
+   "url": "https://echo.epa.gov/resources/echo-data/about-the-data"
+  },
+  "epa_disclaimers": {
+   "bytes": 62565,
+   "http_status": 200,
+   "keyword_sentences": [
+    "Individual documents on the EPA website may have different copyright conditions, and that will be noted in those documents.",
+    "Unless otherwise specified, geospatial data produced by the EPA is by default in the public domain and is not subject to domestic copyright protection under 17 U.S.C.",
+    "Permission to reproduce copyrighted items not produced by the EPA must be secured from the copyright owner.",
+    "(Note that non-commercial links that are relevant to the topic or another comment are acceptable.) Copyrighted and other proprietary material should not be posted or shared in any form on EPA social media accounts unless permission to do so is clearly indicated."
+   ],
+   "quotes": {
+    "Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws.": true
+   },
+   "url": "https://www.epa.gov/web-policies-and-procedures/epa-disclaimers"
+  }
+ }
+}

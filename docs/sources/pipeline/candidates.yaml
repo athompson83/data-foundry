@@ -3,7 +3,7 @@
 # applied to the evidence in the linked research record; they are not
 # measurements.
 version: 1
-updated: 2026-11-25
+updated: 2026-11-28
 candidates:
   - key: fda-recalls
     name: FDA Recall Intelligence (food, drug, device enforcement reports)
@@ -7050,26 +7050,37 @@ candidates:
     next_action: Pull earlier fiscal years of DWS Orders, parse Order Summary prose into typed requirements, and find an Ontario or Canadian registry that links DWS numbers to the other members.
 
   - key: water-epa-echo-sdw-rest
-    name: EPA ECHO drinking water REST services (get_systems)
+    name: "EPA ECHO drinking water REST services (get_systems and get_qid: one row per public water system with violation, enforcement and inspection summaries)"
     category: environment
     structuring: normalization
     format: structured
     publisher: US EPA
-    stage: PARKED
-    rights: UNKNOWN
-    sources: [ 'https://echodata.epa.gov/echo/sdw_rest_services.get_systems' ]
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://echodata.epa.gov/echo/sdw_rest_services.get_systems
+      - https://echodata.epa.gov/echo/sdw_rest_services.get_qid
     scores:
-      {
-        agent_demand: 4,
-        rights_clarity: 3,
-        acquisition_ease: 1,
-        structuring_value: 2,
-        freshness: 4,
-        low_onboarding_cost: 3,
-        poor_existing_access: 2
-      }
-    evidence: [ docs/sources/pipeline/research-2026-10-04.md ]
-    next_action: Parked 2026-10-04 on HTTP 502 proxy errors (three attempts); retest later, as the Envirofacts SDWIS tables serve the same data.
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 4
+      structuring_value: 2
+      freshness: 4
+      low_onboarding_cost: 4
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-10-04.md
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/echo_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/echo_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/echo_handcheck.json
+    terms:
+      - url: https://www.epa.gov/web-policies-and-procedures/epa-disclaimers
+        quote: "Commercial use of the documents available from the EPA websites may be protected under the U.S. and Foreign Copyright Laws."
+    conditions:
+      - "Publish facts only (system, flags, dates, counts); do not reproduce EPA documents or the detailed facility report pages."
+      - "The same EPA page says individual documents may carry their own copyright conditions; the ECHO data-use statement was not found (its guessed URL answered HTTP 404). Read it before EVIDENCED."
+    next_action: "Reopened 2026-11-28: parked on 2026-10-04 on proxy errors, the service now answers. Measured for Vermont: 4,416 water systems in one get_qid page, 78 fields each; 1,346 active; 218 with a current violation flag, 16 serious violators, 693 with violation categories, 1,410 with a sanitary survey date; all 4,416 PWSIDs are in the Envirofacts SDWIS table for the same state, with the same population and activity code. ECHO says its data are typically refreshed weekly. Next: read every state, find the ECHO data-use statement, and decide whether ECHO or Envirofacts is the acquisition path (they are one publisher's data)."
   - key: mx-red-alerta-rapida-alertas-gob-mx
     name: Mexico Red de Alerta Rapida (PROFECO consumer-product alerts, alertas.gob.mx)
     category: product-safety
@@ -13847,6 +13858,604 @@ candidates:
       - "Cannabis is an age-restricted product: decide under rule 8 whether these notices get public pages before any is indexed."
     next_action: "Measured 2026-11-25: 104 rows (Cannabis 95, Consumer products 5, Drugs 3, Household items 1), last updated 2018-11-30 to 2026-11-23, 99 with an Issue value (Labelling and packaging 70, Suspected quality concern 10, Microbial contamination 7), 83 titles naming a lot. On 12 seeded notice pages all 12 have an affected-products table with a lot-number column and state units sold; 9 state THC or CBD values. None of 10 sampled notices is served by our pages (HTTP 404). Capture: the sync already archives the whole index in R2 on every run, so the raw rows are preserved; only serving is missing. Next: extend the Health Canada rights record to this slice and decide where it is served (the consumer-product dataset filters on one organisation value)."
 
+  - key: lang-sil-iso-639-3-code-table
+    name: "SIL ISO 639-3 code table (three-letter language identifiers with scope, type, reference name and the two-letter equivalents)"
+    category: linguistics
+    structuring: normalization
+    format: structured
+    publisher: "SIL International (ISO 639-3 registration authority)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab
+      - https://iso639-3.sil.org/code_tables/download_tables
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/lang_handcheck.json
+    terms:
+      - url: https://iso639-3.sil.org/code_tables/download_tables
+        quote: "The ISO 639-3 code set may be downloaded and incorporated into software products, web-based systems, digital devices, etc., either commercial or non-commercial, provided that:"
+    conditions:
+      - "Attribute iso639-3.sil.org as the source of the codes."
+      - "Do not modify or extend the identifiers; serve them exactly as published and keep our own keys separate."
+    next_action: "Measured 2026-11-28: 7,928 codes (7,861 individual languages, 63 macrolanguages, 4 special; 7,083 living, 602 extinct, 215 historical, 24 constructed), 184 with a two-letter code. Next: read the rest of the terms list (only its opening sentence and two conditions were quoted), add the names index and macrolanguage mapping tables, and add the file to tooling/snapshots/plans.json."
+  - key: lang-sil-iso-639-3-retirements
+    name: "SIL ISO 639-3 retired code elements (reason, successor code and remedy prose naming the codes a retired language was split into)"
+    category: linguistics
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "SIL International (ISO 639-3 registration authority)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3_Retirements.tab
+      - https://iso639-3.sil.org/code_tables/download_tables
+    scores:
+      agent_demand: 3
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/lang_handcheck.json
+    terms:
+      - url: https://iso639-3.sil.org/code_tables/download_tables
+        quote: "The ISO 639-3 code set may be downloaded and incorporated into software products, web-based systems, digital devices, etc., either commercial or non-commercial, provided that:"
+    conditions:
+      - "Attribute iso639-3.sil.org as the source of the codes."
+      - "Do not modify or extend the identifiers."
+    next_action: "Measured 2026-11-28: 388 retirements effective 2005-11-16 to 2026-07-15 (179 merged, 102 split, 72 non-existent, 34 duplicate, 1 change); all 214 successor codes are current; 102 rows carry remedy prose (6,619 characters) citing 269 bracketed codes, 266 of them current. Next: hand-check the split remedies and read the change-request documents the rows refer to."
+  - key: lang-glottolog-languoids
+    name: "Glottolog languoid table, CLDF release (languages, dialects and families with glottocode, ISO 639-3 code, coordinates, macroarea, family and countries)"
+    category: linguistics
+    structuring: normalization
+    format: structured
+    publisher: "Glottolog (Max Planck Institute for Evolutionary Anthropology)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://cdn.jsdelivr.net/gh/glottolog/glottolog-cldf@master/cldf/languages.csv
+      - https://cdn.jsdelivr.net/gh/glottolog/glottolog-cldf@master/cldf/cldf-metadata.json
+      - https://glottolog.org/meta/downloads
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/lang_handcheck.json
+    terms:
+      - url: https://cdn.jsdelivr.net/gh/glottolog/glottolog-cldf@master/cldf/cldf-metadata.json
+        quote: "\"dc:license\": \"https://creativecommons.org/licenses/by/4.0/\""
+    conditions:
+      - "CC BY 4.0, as named in the dataset metadata: attribute Glottolog and state the release served."
+      - "No licence sentence was read on the Glottolog downloads page from this egress; only the dc:license value in the CLDF metadata was read. Quote the licence statement before RIGHTS_DETERMINED."
+    next_action: "Measured 2026-11-28: 27,275 languoids (8,623 languages, 13,773 dialects, 4,879 families), 26,796 with coordinates, 8,207 with an ISO 639-3 code. Next: pin a tagged release instead of master, read the reference and classification tables, and add the files to tooling/snapshots/plans.json."
+  - key: lang-iana-language-subtag-registry
+    name: "IANA language subtag registry (BCP 47 language, script, region and variant subtags with descriptions, deprecations, preferred values and comments)"
+    category: linguistics
+    structuring: normalization
+    format: structured
+    publisher: "IANA"
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+      - https://www.iana.org/help/licensing-terms
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/lang_handcheck.json
+    terms:
+      - url: https://www.iana.org/help/licensing-terms
+        quote: "Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication"
+    next_action: "Measured 2026-11-28: file dated 2026-11-18, 9,298 records (8,276 language, 305 region, 258 extlang, 225 script, 141 variant, 67 redundant, 26 grandfathered); 232 language records deprecated, 83 with comments. Next: parse preferred values and prefixes, and add the file to tooling/snapshots/plans.json."
+  - key: tld-iana-root-zone-tld-list
+    name: "IANA list of delegated top-level domains (the root zone list, one line per TLD, refreshed daily)"
+    category: internet-naming
+    structuring: normalization
+    format: structured
+    publisher: "IANA"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://data.iana.org/TLD/tlds-alpha-by-domain.txt
+      - https://www.iana.org/help/licensing-terms
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 1
+      freshness: 5
+      low_onboarding_cost: 5
+      poor_existing_access: 1
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/tld_handcheck.json
+    terms:
+      - url: https://www.iana.org/help/licensing-terms
+        quote: "Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication"
+    conditions:
+      - "The CC0 statement that was read names the Protocol Registries; whether the root zone list falls under it was not settled. Serve the list as facts with IANA named as the source until that is read."
+    next_action: "Measured 2026-11-28: version 2026112800, 1,435 TLDs (248 two-letter, 151 internationalised). Next: settle whether the IANA licensing statement covers the root zone database; add the file to tooling/snapshots/plans.json."
+  - key: tld-iana-delegation-records
+    name: "IANA root zone database delegation records (one page per TLD: manager, delegation date, name servers, DNSSEC records, WHOIS and RDAP servers, delegation reports)"
+    category: internet-naming
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "IANA"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.iana.org/domains/root/db/bmw.html
+      - https://www.iana.org/help/licensing-terms
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 3
+      structuring_value: 4
+      freshness: 4
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/tld_handcheck.json
+    terms:
+      - url: https://www.iana.org/help/licensing-terms
+        quote: "Accordingly, both IANA and IETF affirm that any applicable rights that they may have in the Protocol Registries are subject to the Creative Commons CC0 1.0 dedication"
+    conditions:
+      - "Every page has a Contacts block with role titles, postal addresses, telephone numbers and sometimes a named person: do not store or serve it. Keep the manager organisation, dates, servers and DNSSEC records only."
+      - "Whether the CC0 statement covers the root zone database was not settled; serve facts with IANA named as the source."
+      - "1,435 pages, one request each: fetch slowly and re-fetch only pages whose TLD changed."
+    next_action: "Measured 2026-11-28 on 20 seeded pages (43,653 characters): all 20 state the manager, the delegation date, WHOIS and RDAP servers, name servers, DNSSEC DS records and a delegation report; the delegation date equals the ICANN date in 20 of 20. Next: read all 1,435 pages, measure field extraction, and link the delegation reports."
+  - key: tld-icann-gtld-registry-agreements-table
+    name: "ICANN gTLD table (JSON: registry operator, contract signature, delegation and removal dates, brand status under Specification 13, per gTLD)"
+    category: internet-naming
+    structuring: normalization
+    format: structured
+    publisher: "ICANN"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.icann.org/resources/registries/gtlds/v2/gtlds.json
+      - https://www.icann.org/privacy/tos
+    scores:
+      agent_demand: 4
+      rights_clarity: 2
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 5
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/tld_handcheck.json
+    terms:
+      - url: https://www.icann.org/privacy/tos
+        quote: "Your use of the Platform grants you no right or license to reproduce or otherwise use any intellectual property belonging to our organization or other third parties."
+    conditions:
+      - "The ICANN terms of service withhold a licence in ICANN intellectual property and were not read in full. Serve facts only (TLD, operator, dates, flags), never ICANN text or agreement documents, and read the whole terms page before EVIDENCED; park the source if it forbids reuse of the table."
+    next_action: "Measured 2026-11-28: file updated 2026-11-28, 1,276 gTLD records, 1,121 delegated and not removed, 140 with a removal date, 157 with a terminated contract, 369 brand TLDs under Specification 13, 492 distinct registry operators. Next: read the ICANN terms in full; add the file to tooling/snapshots/plans.json."
+  - key: tld-mozilla-public-suffix-list
+    name: "Public Suffix List (rules for where registrable domains begin, with comment lines naming each registry and its policy URL)"
+    category: internet-naming
+    structuring: normalization
+    format: structured
+    publisher: "Mozilla Foundation and the Public Suffix List maintainers"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://publicsuffix.org/list/public_suffix_list.dat
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 5
+      low_onboarding_cost: 5
+      poor_existing_access: 1
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/tld_handcheck.json
+    terms:
+      - url: https://publicsuffix.org/list/public_suffix_list.dat
+        quote: "This Source Code Form is subject to the terms of the Mozilla Public"
+    conditions:
+      - "Mozilla Public License 2.0: a copy of the file, changed or not, stays under the MPL and carries its notice; publish the unmodified file or mark our changes."
+      - "The private section lists suffixes submitted by companies; present them as submitted rules, not as registry facts."
+    next_action: "Measured 2026-11-28: version 2026-11-28_07-14-22_UTC, 6,953 rules in the ICANN section and 3,556 in the private section, 321 wildcard and 8 exception rules, 4,236 comment lines (190,012 characters), 2,088 of them citing a URL. Next: pin a commit and add the file to tooling/snapshots/plans.json."
+  - key: protein-rcsb-pdb-entries
+    name: "RCSB Protein Data Bank entries and polymer entities (Data API: structure title, method, resolution, release date, entity descriptions and the UniProt accessions they map to)"
+    category: structural-biology
+    structuring: normalization
+    format: structured
+    publisher: "RCSB PDB (wwPDB)"
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://data.rcsb.org/rest/v1/holdings/current/entry_ids
+      - https://data.rcsb.org/rest/v1/core/entry/4HHB
+      - https://www.rcsb.org/pages/usage-policy
+    scores:
+      agent_demand: 4
+      rights_clarity: 5
+      acquisition_ease: 4
+      structuring_value: 2
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/protein_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/protein_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/protein_handcheck.json
+    terms:
+      - url: https://www.rcsb.org/pages/usage-policy
+        quote: "data files contained in the PDB archive are available under the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
+    next_action: "Measured 2026-11-28: 263,889 current entries. On 40 seeded entries (released 1992 to 2026): 34 X-ray, 4 electron microscopy, 2 NMR; 38 with a resolution; 30 with a primary-citation DOI; 67 polymer entities; 38 entries cite a UniProt accession (48 citations from the first three entities of each entry). The same page says website text can be reprinted only with permission, so serve data fields, not page text. Next: use the bulk holdings and SIFTS files instead of one request per entity; add them to tooling/snapshots/plans.json."
+  - key: usc-govinfo-us-code-sections
+    name: "United States Code on GovInfo (annual edition, one HTML file per title: section text, source credits citing public laws, statutory and editorial notes)"
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "US Office of the Law Revision Counsel (United States Code, published on GPO GovInfo)"
+    stage: SCREENED
+    rights: GREEN
+    sources:
+      - https://www.govinfo.gov/content/pkg/USCODE-2024-title49/html/USCODE-2024-title49.htm
+      - https://www.govinfo.gov/about/policies
+    scores:
+      agent_demand: 5
+      rights_clarity: 5
+      acquisition_ease: 4
+      structuring_value: 4
+      freshness: 3
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/usc_handcheck.json
+    terms:
+      - url: https://www.govinfo.gov/about/policies
+        quote: "By virtue of the foregoing, public documents can generally be reprinted without legal restriction."
+    next_action: "Measured 2026-11-28 on Title 49 of the 2024 edition (16,647,167 bytes, current through 2025-01-06): 1,574 documents, 1,311 sections with a parsed heading (10,978,525 characters, median 4,052), every one with a source credit, 1,056 with notes. The other 263 documents are title and chapter fronts and repealed sections, whose bracketed headings the pattern does not read yet. Next: parse repealed and omitted sections, read the other 53 titles, and add the files to tooling/snapshots/plans.json."
+  - key: usc-ecfr-authority-citations
+    name: "eCFR authority citations (the Authority line of each CFR part, prose that names the statute sections the rules rest on)"
+    category: legal
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "US Office of the Federal Register and GPO (eCFR)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.ecfr.gov/api/versioner/v1/titles.json
+      - https://www.ecfr.gov/api/versioner/v1/full/2026-11-25/title-14.xml
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 4
+      structuring_value: 5
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 4
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/usc_handcheck.json
+    conditions:
+      - "The eCFR terms page (https://www.ecfr.gov/reader-aids/government-policy-and-ogc/terms-of-service) answered HTTP 200 but no sentence on reuse was found in it: terms unread, AMBER under ADR-0018. Name the eCFR and its as-of date; it is not the official legal edition of the CFR."
+      - "The API answers HTTP 406 unless the request allows compression."
+    next_action: "Measured 2026-11-28 on Title 14 as of 2026-11-25 (15,969,479 characters): 198 of 226 parts carry an authority line (17,863 characters); 1,231 section citations extracted, 1,099 of them to 49 U.S.C.; 304 are endpoints of a range, whose inner sections are not expanded yet. Next: expand ranges, tell chapter citations from section citations, read every CFR title, and quote the eCFR terms."
+  - key: usc-ecfr-part-structure
+    name: "eCFR structure API (the hierarchy of each CFR title: chapters, subchapters, parts, subparts and sections, as JSON)"
+    category: legal
+    structuring: normalization
+    format: structured
+    publisher: "US Office of the Federal Register and GPO (eCFR)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://www.ecfr.gov/api/versioner/v1/structure/2026-11-25/title-14.json
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 4
+      structuring_value: 2
+      freshness: 5
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/usc_handcheck.json
+    conditions:
+      - "The eCFR terms page answered HTTP 200 but no sentence on reuse was found in it: terms unread, AMBER under ADR-0018. Name the eCFR and its as-of date."
+      - "The API answers HTTP 406 unless the request allows compression."
+    next_action: "Measured 2026-11-28 on Title 14 as of 2026-11-25: 5 chapters, 25 subchapters, 226 parts, 672 subparts, 165 subject groups, 6,363 sections, 181 appendices. Next: read all 50 titles and add the structure files to tooling/snapshots/plans.json."
+  - key: unit-qudt-units
+    name: "QUDT unit vocabulary (units with symbol, quantity kinds, conversion multiplier, UCUM code and UNECE common code)"
+    category: measurement
+    structuring: normalization
+    format: structured
+    publisher: "QUDT.org"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://qudt.org/vocab/unit/
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/unit_handcheck.json
+    terms:
+      - url: https://cdn.jsdelivr.net/gh/qudt/qudt-public-repo@main/README.md
+        quote: "QUDT is licensed under the [Creative Commons Attribution 4.0 International License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), which requires attribution to QUDT.org."
+    conditions:
+      - "CC BY 4.0: attribute QUDT.org and name the release served."
+    next_action: "Measured 2026-11-28: 2,945 units, all with an English label, a quantity kind (764 distinct) and a conversion multiplier; 2,790 with a symbol; 2,445 with a UCUM code; 1,571 with a UNECE common code; 87 deprecated. The file states no release number. Next: pin a tagged release and add it to tooling/snapshots/plans.json."
+  - key: unit-qudt-unit-descriptions
+    name: "QUDT unit descriptions (the prose definition attached to a unit, often with formulas and history)"
+    category: measurement
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "QUDT.org"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://qudt.org/vocab/unit/
+    scores:
+      agent_demand: 3
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/unit_handcheck.json
+    terms:
+      - url: https://cdn.jsdelivr.net/gh/qudt/qudt-public-repo@main/README.md
+        quote: "QUDT is licensed under the [Creative Commons Attribution 4.0 International License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/), which requires attribution to QUDT.org."
+    conditions:
+      - "CC BY 4.0: attribute QUDT.org and name the release served."
+      - "Some descriptions quote or paraphrase other reference works; their origin was not checked. Serve them only after sampling where they come from."
+    next_action: "Measured 2026-11-28: 2,451 of 2,945 units carry a description (393,760 characters). Next: sample 40 descriptions for their origin and for extractable definitions (exact conversion statements, defining constants)."
+  - key: unit-unece-rec20-codes
+    name: "UNECE Recommendation 20 codes for units of measure used in international trade (revision 17, as mirrored by the Datahub datasets project)"
+    category: measurement
+    structuring: normalization
+    format: structured
+    publisher: "UNECE (mirrored by the Datahub datasets project)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://cdn.jsdelivr.net/gh/datasets/unece-units-of-measure@main/data/units-of-measure.csv
+      - https://cdn.jsdelivr.net/gh/datasets/unece-units-of-measure@main/datapackage.json
+    scores:
+      agent_demand: 4
+      rights_clarity: 2
+      acquisition_ease: 4
+      structuring_value: 2
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/unit_handcheck.json
+    conditions:
+      - "The mirror labels the data ODC-PDDL-1.0 in its datapackage.json; the UNECE terms page (https://unece.org/terms-and-conditions) answered HTTP 403, so the publisher's own terms are unread: AMBER under ADR-0018."
+      - "This is a third-party copy of revision 17. Fetch the code list from UNECE itself and confirm the revision before EVIDENCED."
+    next_action: "Measured 2026-11-28: 2,136 common codes, 309 marked X and 71 marked D in the status column, 1,579 with a symbol, 1,500 with a conversion factor, 792 with a description (70,761 characters). Next: find the UNECE download of the current revision and read the UNECE terms from another egress."
+  - key: unit-ucum-essence
+    name: "UCUM essence file (Unified Code for Units of Measure: base units, units and prefixes with codes, print symbols and defining values)"
+    category: measurement
+    structuring: normalization
+    format: structured
+    publisher: "Regenstrief Institute (UCUM Organization)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://cdn.jsdelivr.net/gh/ucum-org/ucum@main/ucum-essence.xml
+      - https://cdn.jsdelivr.net/gh/ucum-org/ucum@main/LICENSE.md
+    scores:
+      agent_demand: 4
+      rights_clarity: 2
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/unit_handcheck.json
+    terms:
+      - url: https://cdn.jsdelivr.net/gh/ucum-org/ucum@main/LICENSE.md
+        quote: "each Contributor hereby grants to You a worldwide, non-exclusive, no-charge, royalty-free, revocable license to reproduce, publicly display, publicly perform, and distribute the Work"
+    conditions:
+      - "The UCUM licence lets the work be reproduced and distributed and lists creating derivative works among its limits; the list was not read in full. Use UCUM codes as references to the unmodified file and do not publish a changed or merged copy until the licence is read whole."
+    next_action: "Measured 2026-11-28: version 2.2 of 2024-06-17, 7 base units, 305 units, 24 prefixes. Next: read the whole licence and decide whether a table that maps UCUM codes to other codes is a derivative work under it."
+  - key: weakness-mitre-cwe-entries
+    name: "MITRE CWE catalogue entries (weakness id, abstraction, status, relationships, observed CVE examples, related attack patterns)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: "MITRE (CWE)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://cwe.mitre.org/data/xml/cwec_latest.xml.zip
+      - https://cwe.mitre.org/about/termsofuse.html
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_handcheck.json
+    terms:
+      - url: https://cwe.mitre.org/about/termsofuse.html
+        quote: "Accordingly, The MITRE Corporation hereby grants you a non-exclusive, royalty-free license to use CWE for research, development, and commercial purposes."
+    conditions:
+      - "Reproduce MITRE's copyright designation and the CWE licence in any copy."
+      - "Do not imply MITRE endorsement; name the CWE version served."
+    next_action: "Measured 2026-11-28: version 5.0 of 2026-10-28, 984 weaknesses (536 base, 300 variant, 131 class, 10 pillar, 7 compound; 498 incomplete, 432 draft, 28 deprecated, 26 stable), 62 views, 948 with related weaknesses, 596 with observed examples (3,183 references, 3,172 of them CVE ids), 336 citing a CAPEC pattern. Categories were not counted. Next: pin the versioned file and add it to tooling/snapshots/plans.json."
+  - key: weakness-mitre-cwe-descriptions-mitigations
+    name: "MITRE CWE prose (weakness descriptions, extended descriptions, potential mitigations and demonstrative examples)"
+    category: cybersecurity
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "MITRE (CWE)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://cwe.mitre.org/data/xml/cwec_latest.xml.zip
+      - https://cwe.mitre.org/about/termsofuse.html
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_handcheck.json
+    terms:
+      - url: https://cwe.mitre.org/about/termsofuse.html
+        quote: "Accordingly, The MITRE Corporation hereby grants you a non-exclusive, royalty-free license to use CWE for research, development, and commercial purposes."
+    conditions:
+      - "Reproduce MITRE's copyright designation and the CWE licence in any copy."
+      - "Do not imply MITRE endorsement; name the CWE version served."
+    next_action: "Measured 2026-11-28: all 984 weaknesses have a description (153,606 characters), 178 an extended description (120,284 characters), 692 at least one mitigation (1,751 mitigations, 656,042 characters), 604 a demonstrative example. Next: measure extraction of mitigation phase and strategy and of the languages and platforms named."
+  - key: weakness-mitre-capec-attack-patterns
+    name: "MITRE CAPEC attack patterns (pattern id, status, prerequisites, and the weaknesses each pattern exploits)"
+    category: cybersecurity
+    structuring: normalization
+    format: structured
+    publisher: "MITRE (CAPEC)"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://capec.mitre.org/data/xml/capec_latest.xml
+      - https://capec.mitre.org/about/termsofuse.html
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 2
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_handcheck.json
+    terms:
+      - url: https://capec.mitre.org/about/termsofuse.html
+        quote: "Any copy you make for such purposes is authorized provided that you reproduce MITRE’s copyright designation and this license in any such copy."
+    conditions:
+      - "Reproduce MITRE's copyright designation and the CAPEC licence in any copy."
+      - "The grant sentence of the CAPEC terms was not captured, only the copy condition; quote the grant before RIGHTS_DETERMINED."
+    next_action: "Measured 2026-11-28: version 3.9 of 2023-01-24 (not updated since), 615 attack patterns (402 draft, 154 stable, 56 deprecated), 450 citing a weakness, 1,214 citations. Next: quote the grant sentence; pin the versioned file."
+  - key: widen-hc-public-advisories
+    name: "Health Canada public advisories and information updates (rows of the recalls open-data index under \"Communications and Public Affairs Branch\" and \"HC\")"
+    category: product-safety
+    structuring: identifier-extraction
+    format: free-text
+    publisher: "Health Canada"
+    stage: SCREENED
+    rights: AMBER
+    sources:
+      - https://recalls-rappels.canada.ca/sites/default/files/opendata-donneesouvertes/HCRSAMOpenData.json
+      - https://open.canada.ca/en/open-government-licence-canada
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 4
+      freshness: 3
+      low_onboarding_cost: 5
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/widen_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/widen_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/widen_handcheck.json
+    terms:
+      - url: https://open.canada.ca/en/open-government-licence-canada
+        quote: "The Information Provider grants you a worldwide, royalty-free, perpetual, non-exclusive licence to use the Information, including for commercial purposes, subject to the terms below."
+    conditions:
+      - "Open Government Licence - Canada: acknowledge the source and link to the licence where possible; no personal information, third-party rights or official symbols."
+      - "The index row is covered; the advisory page text (affected products, DIN and NPN numbers, lots, sellers) is fetched from the notice pages, which the Health Canada rights record does not cover yet."
+      - "Advisories about unauthorized products name small sellers and sometimes individuals; drop personal names before serving."
+    next_action: "Measured 2026-11-28: 1,876 rows (1,814 under Communications and Public Affairs Branch, 62 under HC), last updated 2003-07-17 to 2026-09-25, 94 since 2024; categories Drugs 741, Natural health products 559, Food 147, Medical devices 104; 1,213 state an Issue (Undeclared substance 253, Product safety 208, Unauthorized product 153). On 20 seeded pages since 2024 (97,303 characters): 19 have an affected-products section, 9 mention a lot, 3 a DIN or NPN, 3 link to another notice of the index. None of 6 sampled notices is served by our pages (HTTP 404). Next: extend the Health Canada rights record to the notice pages and measure extraction of product, DIN or NPN, lot and seller."
 datasets:
   - key: home-product-recalls-global
     name: Global home-equipment and consumer-product recall register (multi-agency, model/GTIN-linked)
@@ -14797,7 +15406,15 @@ datasets:
       - widen-uk-mhra-drug-device-alerts
       - fda-openfda-device-recalls
       - widen-hc-cannabis-recalls
+      - widen-hc-public-advisories
     join_keys:
+      - key: cited Health Canada notice URL on an advisory page (advisory to a CFIA food recall notice; both are rows of the same Health Canada index, so not an independent link)
+        between:
+          - widen-hc-public-advisories
+          - ca-recalls-food-health-open-data
+        measured: '1/20 read advisory pages links to a CFIA notice of the index (advisory 74162 on caffeinated energy drinks cites CFIA notice 73848); 5 notice links on 3 of the 20 pages resolve in the index, the other 4 to further advisories; 17 pages link to no other notice (evidence/2026-11-28/widen_handcheck.json)'
+        mode: declared
+        reviewed: { correct: 1, checked: 1 }
       - key: Health Canada index NID shared between the cannabis rows and the food and health rows (same file and publisher, not an independent link)
         between:
           - widen-hc-cannabis-recalls
@@ -15685,7 +16302,15 @@ datasets:
       - water-epa-sdwis-violations-enforcement
       - water-ca-swrcb-safer-risk-assessment
       - water-ontario-dws-orders-awqi
+      - water-epa-echo-sdw-rest
     join_keys:
+      - key: exact PWSID (the cited public water system reference number, ECHO PWSId equals SDWIS pwsid; same publisher, not an independent link)
+        between:
+          - water-epa-echo-sdw-rest
+          - water-epa-sdwis-violations-enforcement
+        measured: '4,416/4,416 Vermont water systems returned by ECHO are in the Envirofacts SDWIS WATER_SYSTEM table, all with the same population and activity code and 4,412 with the identical system name; 20/20 read pairs are the same system (evidence/2026-11-28/echo_handcheck.json)'
+        mode: declared
+        reviewed: { correct: 20, checked: 20 }
       - key: exact PWSID (the cited public water system reference number, SAFER WATER_SYSTEM_NUMBER equals SDWIS pwsid)
         between:
           - water-ca-swrcb-safer-risk-assessment
@@ -18624,3 +19249,308 @@ datasets:
       - docs/sources/pipeline/evidence/2026-11-22/awd_measure.json
       - docs/sources/pipeline/evidence/2026-11-25/awd_handcheck.json
     next_action: "Retry the 12 EASA lookups that answered HTTP 500 and find out whether those directives are withdrawn; measure extraction of compliance times and applicability with hand-checked precision on 200 directives; add the Federal Register query and the GovInfo text to tooling/snapshots/plans.json. Transport Canada CAWIS stays out: its robots.txt disallows everything."
+  - key: languages
+    name: "Languages: ISO 639-3 code elements linked to Glottolog languoids and BCP 47 subtags"
+    category: linguistics
+    entity: "language, identified by its ISO 639-3 code: reference name, scope and type, two-letter code, BCP 47 subtag, Glottolog classification, coordinates and countries, and what became of a retired code"
+    stage: SCREENED
+    description: "One record per language code. SIL publishes the ISO 639-3 table and the table of retired codes, whose remedy prose names the codes a language was split into; Glottolog adds family, coordinates, countries and dialects; the IANA registry gives the subtag software must use. Measured: 7,830 of the 8,207 Glottolog languoids that carry an ISO code are in the current SIL table, and 366 of the other 377 carry a retired code."
+    sources:
+      - lang-sil-iso-639-3-code-table
+      - lang-sil-iso-639-3-retirements
+      - lang-glottolog-languoids
+      - lang-iana-language-subtag-registry
+    join_keys:
+      - key: "ISO 639-3 code a Glottolog languoid carries"
+        between:
+          - lang-glottolog-languoids
+          - lang-sil-iso-639-3-code-table
+        measured: "7,830/8,207 Glottolog languoids with an ISO code are in the current SIL table; 366 of the other 377 carry a retired code; 6,648 of the matched pairs have the identical name; 20/20 read pairs are the same language (evidence/2026-11-28/lang_handcheck.json)"
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: "ISO 639-3 code used as a three-letter IANA language subtag"
+        between:
+          - lang-iana-language-subtag-registry
+          - lang-sil-iso-639-3-code-table
+        measured: "7,742/7,859 current three-letter language subtags are in the SIL table (the other 117 include collective codes such as aav and afa, which ISO 639-3 does not hold); 184/184 two-letter subtags equal a SIL two-letter code"
+        mode: declared
+      - key: "ISO 639-3 code cited in square brackets in retirement remedy prose (same publisher, not an independent link)"
+        between:
+          - lang-sil-iso-639-3-retirements
+          - lang-sil-iso-639-3-code-table
+        measured: "266/269 codes cited in the remedy prose of 102 retirements are in the current table; 214/214 successor codes are current"
+        mode: declared
+    taxonomy:
+      - "scope: individual language | macrolanguage | special"
+      - "type: living | extinct | historical | constructed"
+      - "code status: current | retired (merged | split | duplicate | non-existent)"
+      - "Glottolog level: language | dialect | family"
+      - "macroarea: Africa | Eurasia | Papunesia | North America | South America | Australia"
+    agent_questions:
+      - "Which language does this three-letter code stand for, and is it still valid? (measured: 7,928 current codes, 388 retired)"
+      - "This code was retired: which code or codes replace it? (measured: 214 retirements name one successor; 102 describe a split in prose citing 269 codes)"
+      - "Which BCP 47 tag should software use for this language? (measured: 7,742 of 7,859 three-letter subtags are ISO 639-3 codes; 184 languages have a two-letter subtag)"
+      - "Which family does this language belong to and where is it spoken? (measured: 26,796 of 27,275 Glottolog languoids have coordinates)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 2
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/lang_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/lang_handcheck.json
+    next_action: "Add the four files to tooling/snapshots/plans.json once PR #88 is on main; read the remaining SIL conditions and the Glottolog licence statement; measure extraction of split successors from the remedy prose by hand; add the SIL names index and macrolanguage mapping, and CLDR language names as a further member."
+  - key: top-level-domains
+    name: "Top-level domains: the IANA root zone list linked to ICANN registry agreements, delegation records and public suffix rules"
+    category: internet-naming
+    entity: "top-level domain, identified by its delegated string: type, manager or registry operator, delegation and removal dates, brand status, name servers and DNSSEC, WHOIS and RDAP servers, and the public suffix rules beneath it"
+    stage: SCREENED
+    description: "One record per TLD. The IANA list says which TLDs exist today; the IANA delegation record page states the manager, servers and delegation history; the ICANN table adds the registry operator, contract and removal dates and brand status for gTLDs; the Public Suffix List adds the rules that say where registrable names begin. Measured: all 1,121 gTLDs that ICANN lists as delegated and not removed are in the IANA list of 1,435."
+    sources:
+      - tld-iana-root-zone-tld-list
+      - tld-iana-delegation-records
+      - tld-icann-gtld-registry-agreements-table
+      - tld-mozilla-public-suffix-list
+    join_keys:
+      - key: "delegated TLD string (ASCII form) in the ICANN gTLD table and the IANA root zone list"
+        between:
+          - tld-icann-gtld-registry-agreements-table
+          - tld-iana-root-zone-tld-list
+        measured: "1,121/1,121 gTLDs that ICANN lists as delegated and not removed are in the IANA list of 2026-11-28; none of the 140 removed gTLDs is; 20/20 read IANA delegation records state the ICANN registry operator as manager and the same delegation date (evidence/2026-11-28/tld_handcheck.json)"
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: "delegated TLD string that ends a Public Suffix List rule"
+        between:
+          - tld-mozilla-public-suffix-list
+          - tld-iana-root-zone-tld-list
+        measured: "1,435/1,446 distinct TLDs ending a rule in the ICANN section are in the IANA list (the other 11 include onion, hotel and nine internationalised strings); every one of the 1,435 IANA TLDs has a rule"
+        mode: declared
+    taxonomy:
+      - "type: generic | country-code | sponsored | infrastructure | test"
+      - "status: delegated | removed | contract terminated"
+      - "gTLD kind: brand (Specification 13) | open"
+      - "script: Latin | internationalised"
+      - "suffix rule: normal | wildcard | exception; section: ICANN | private"
+    agent_questions:
+      - "Is this string a delegated top-level domain today? (measured: 1,435 delegated)"
+      - "Who operates this gTLD, and since when? (measured: 1,119 of 1,276 ICANN records name a registry operator; 20 of 20 sampled IANA records agree)"
+      - "Was this gTLD removed from the root, and when? (measured: 140 records carry a removal date)"
+      - "Where does the registrable part of this hostname begin? (measured: 6,953 ICANN-section rules and 3,556 private rules)"
+      - "Which WHOIS or RDAP server answers for this TLD? (measured: 20 of 20 sampled delegation records state both)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 4
+      structuring_value: 3
+      freshness: 5
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/tld_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/tld_handcheck.json
+    next_action: "Read the ICANN terms in full and settle the IANA root zone licence question before EVIDENCED; read all 1,435 delegation records with the contacts block dropped; add the three files to tooling/snapshots/plans.json once PR #88 is on main; add the ICANN registry agreement pages and the IANA RDAP bootstrap file as members."
+  - key: protein-structures
+    name: "Protein structures: PDB entries linked to the UniProtKB proteins they resolve"
+    category: structural-biology
+    entity: "experimentally determined structure, identified by its PDB id, with its polymer entities: method, resolution, release date, and for each entity the UniProtKB protein it maps to, with that protein's name, organism and function text"
+    stage: SCREENED
+    description: "One record per PDB entry and entity. RCSB supplies the structure facts; UniProtKB supplies the protein name, organism and the curated function text. The link is the UniProt accession the PDB entity cites. Measured on 40 seeded entries: 47 of 48 cited accessions resolve to an active UniProtKB record, and all 47 list the PDB id back."
+    sources:
+      - protein-rcsb-pdb-entries
+      - gene-uniprot-swissprot
+    join_keys:
+      - key: "UniProt accession cited by a PDB polymer entity"
+        between:
+          - protein-rcsb-pdb-entries
+          - gene-uniprot-swissprot
+        measured: "47/48 accessions cited by the entities of 40 seeded PDB entries resolve to an active UniProtKB record (37 reviewed, 10 unreviewed; 1 inactive); all 47 list the PDB id back; 19/20 read pairs name the same protein or the polyprotein that contains it (evidence/2026-11-28/protein_handcheck.json)"
+        mode: declared
+        reviewed:
+          correct: 19
+          checked: 20
+    taxonomy:
+      - "method: X-ray diffraction | electron microscopy | solution NMR | other"
+      - "entity kind: protein | DNA | RNA | hybrid"
+      - "UniProtKB status: reviewed (Swiss-Prot) | unreviewed (TrEMBL) | inactive"
+      - "mapping: whole protein | fragment | chain of a polyprotein"
+    agent_questions:
+      - "Is there an experimental structure of this protein, and at what resolution? (measured: 72,258 UniProtKB records cite a PDB entry, 39,891 of them reviewed)"
+      - "Which protein and organism does this PDB entity come from? (measured: 38 of 40 sampled entries cite a UniProt accession)"
+      - "What does the protein in this structure do? (measured: 34 of the 47 resolved UniProtKB records carry function text, 43,756 characters)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 3
+      freshness: 5
+      low_onboarding_cost: 4
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/protein_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/protein_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/protein_handcheck.json
+    next_action: "The existing candidate gene-uniprot-swissprot covers reviewed records only; 10 of 47 resolved accessions are unreviewed, so register UniProtKB TrEMBL or restrict the dataset to reviewed records. Quote the UniProt licence (its page is a script shell from this egress). Replace per-entity requests by the SIFTS mapping files, and add them to tooling/snapshots/plans.json once PR #88 is on main."
+  - key: us-code-sections
+    name: "United States Code sections linked to the federal regulations that cite them as authority"
+    category: legal
+    entity: "section of the United States Code, identified by its citation (49 U.S.C. 44701): heading, text, source credit with the public laws that made and amended it, notes, and the CFR parts that cite it as their authority"
+    stage: SCREENED
+    description: "One record per Code section. GovInfo publishes the section text, source credits and notes; the eCFR publishes each CFR part with an authority line that names the statute sections it rests on. The link is that citation. Measured on 14 CFR against Title 49: 971 of 1,099 extracted citations resolve to a section of the 2024 Code; most of the rest cite a chapter, not a section."
+    sources:
+      - usc-govinfo-us-code-sections
+      - usc-ecfr-authority-citations
+      - usc-ecfr-part-structure
+    join_keys:
+      - key: "U.S.C. section citation in the authority line of an eCFR part (49 U.S.C., from 14 CFR)"
+        between:
+          - usc-ecfr-authority-citations
+          - usc-govinfo-us-code-sections
+        measured: "971/1,099 citations to 49 U.S.C. extracted from 198 authority lines of 14 CFR resolve to a section of the 2024 Code (169 of 194 distinct numbers); most of the unresolved numbers are chapters cited as a whole (401, 411, 413, 415, 417); 20/20 re-read citations are sections of 49 U.S.C. in the authority line (evidence/2026-11-28/usc_handcheck.json)"
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: "CFR part number shared by the eCFR full text and the eCFR structure file (same publisher, not an independent link)"
+        between:
+          - usc-ecfr-authority-citations
+          - usc-ecfr-part-structure
+        measured: "226/226 parts of 14 CFR in the full XML are parts in the structure file of the same date"
+        mode: candidate
+    taxonomy:
+      - "Code title (1 to 54) and whether it is positive law"
+      - "section status: current | repealed | omitted | transferred | renumbered"
+      - "citation kind: section | range of sections | chapter | note"
+      - "authority kind: statute | public law | executive order | treaty"
+    agent_questions:
+      - "Which regulations rest on this statute section? (measured: 149 parts of 14 CFR cite 49 U.S.C.)"
+      - "Which statute gives the agency authority for this CFR part? (measured: 198 of 226 parts of 14 CFR carry an authority line)"
+      - "Which public laws made and amended this section? (measured: 1,311 of 1,311 parsed sections of Title 49 have a source credit)"
+      - "Is the section this rule cites still in the Code? (measured: 128 of 1,099 citations do not resolve as a section)"
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 4
+      structuring_value: 5
+      freshness: 4
+      low_onboarding_cost: 4
+      poor_existing_access: 3
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/usc_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/usc_handcheck.json
+    next_action: "Expand cited ranges and separate chapter citations; parse repealed sections; measure a second CFR title against a second Code title; quote the eCFR terms; add the Code and eCFR files to tooling/snapshots/plans.json once PR #88 is on main. The Federal Register and GovInfo public law texts are natural further members."
+  - key: units-of-measure
+    name: "Units of measure: QUDT units linked to UNECE trade codes and UCUM codes"
+    category: measurement
+    entity: "unit of measure, identified by its QUDT unit: label, symbol, quantity kind, conversion multiplier to SI, the UNECE Recommendation 20 common code used on trade documents, the UCUM code used in health data, and a prose definition"
+    stage: SCREENED
+    description: "One record per unit. QUDT gives the unit, its quantity kinds and its conversion to SI; the UNECE code list gives the code that invoices and customs documents carry; UCUM gives the code that laboratory and clinical data carry. The link is the code QUDT cites. Measured: 1,570 of the 1,572 UNECE codes cited by QUDT units are in the Recommendation 20 list."
+    sources:
+      - unit-qudt-units
+      - unit-qudt-unit-descriptions
+      - unit-unece-rec20-codes
+      - unit-ucum-essence
+    join_keys:
+      - key: "UNECE common code cited by a QUDT unit"
+        between:
+          - unit-qudt-units
+          - unit-unece-rec20-codes
+        measured: "1,570/1,572 UNECE codes cited by 1,571 QUDT units are in the Recommendation 20 list (revision 17 mirror); 85 codes are cited by more than one QUDT unit, so the code links a unit to a trade code and is not one-to-one; 20/20 read pairs are the same unit (evidence/2026-11-28/unit_handcheck.json)"
+        mode: declared
+        reviewed:
+          correct: 20
+          checked: 20
+      - key: "UCUM unit expression cited by a QUDT unit, parsed into UCUM atoms and prefixes"
+        between:
+          - unit-qudt-units
+          - unit-ucum-essence
+        measured: "2,361/2,445 UCUM expressions cited by QUDT units parse into atoms and prefixes of the essence file; 195 are a single atom; not hand-checked"
+        mode: candidate
+    taxonomy:
+      - "quantity kind (length, mass, pressure, energy, and so on; 764 in QUDT)"
+      - "system: SI | SI-derived | imperial | US customary | CGS | other"
+      - "UNECE status: active | marked D | marked X"
+      - "unit form: base | prefixed | compound"
+    agent_questions:
+      - "What is the conversion factor from this unit to SI? (measured: 2,945 of 2,945 QUDT units carry a multiplier)"
+      - "Which unit does this trade code on an invoice stand for? (measured: 2,136 UNECE codes, 1,482 of them cited by a QUDT unit)"
+      - "What is the UCUM code for this unit? (measured: 2,445 QUDT units carry one)"
+      - "Which units measure the same quantity and can be converted into each other? (measured: every unit names a quantity kind)"
+    scores:
+      agent_demand: 4
+      rights_clarity: 3
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 1
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/unit_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/unit_handcheck.json
+    next_action: "Fetch the UNECE list from UNECE and read its terms; read the UCUM licence whole; pin a QUDT release; hand-check the UCUM parse and the 85 shared UNECE codes; add the files to tooling/snapshots/plans.json once PR #88 is on main. NIST SP 811 and the BIPM SI brochure are free-text members to screen."
+  - key: software-weakness-types
+    name: "Software weakness types: the CWE catalogue linked to the vulnerabilities and attack patterns that cite each weakness"
+    category: cybersecurity
+    entity: "software or hardware weakness type, identified by its CWE id: name, abstraction, status, description, mitigations, parent and child weaknesses, the attack patterns that exploit it and the published vulnerabilities classified under it"
+    stage: SCREENED
+    description: "One record per weakness. MITRE publishes the catalogue and its prose; NVD classifies each vulnerability under one or more CWE ids; CAPEC names the weaknesses each attack pattern exploits. The link is the CWE id. Measured on 2,000 CVE records published 2026-11-01 to 2026-11-21: 2,128 of 2,137 CWE citations resolve to a catalogue weakness."
+    sources:
+      - weakness-mitre-cwe-entries
+      - weakness-mitre-cwe-descriptions-mitigations
+      - weakness-mitre-capec-attack-patterns
+      - vuln-nvd-cves
+    join_keys:
+      - key: "CWE id cited in an NVD vulnerability record"
+        between:
+          - vuln-nvd-cves
+          - weakness-mitre-cwe-entries
+        measured: "2,128/2,137 CWE citations on 2,000 NVD records published 2026-11-01 to 2026-11-21 resolve to a weakness of CWE 5.0 (224 of 228 distinct ids; the other 4 are category ids 19, 189, 264 and 310); 10 citations point at a deprecated weakness; in 19/20 read pairs the weakness fits the description (evidence/2026-11-28/cwe_handcheck.json)"
+        mode: declared
+        reviewed:
+          correct: 19
+          checked: 20
+      - key: "CWE id cited by a CAPEC entry (same publisher, not an independent link)"
+        between:
+          - weakness-mitre-capec-attack-patterns
+          - weakness-mitre-cwe-entries
+        measured: "1,214/1,214 weakness citations on 450 CAPEC attack patterns resolve to a weakness of CWE 5.0; 2 point at a deprecated weakness"
+        mode: declared
+    taxonomy:
+      - "abstraction: pillar | class | base | variant | compound"
+      - "status: stable | draft | incomplete | deprecated"
+      - "mitigation phase: architecture and design | implementation | operation | testing"
+      - "citation level in NVD: class | base | variant | pillar"
+    agent_questions:
+      - "What is this weakness and how is it prevented? (measured: 984 descriptions; 692 weaknesses with mitigations)"
+      - "Which recent vulnerabilities are instances of this weakness? (measured: 1,869 of 2,000 sampled NVD records cite a CWE id; CWE-862 and CWE-79 lead)"
+      - "Which attack patterns exploit this weakness? (measured: 450 CAPEC patterns cite 1,214 weaknesses)"
+      - "Is this CWE id still current, and what replaced it? (measured: 28 deprecated weaknesses; 10 of 2,137 NVD citations point at one)"
+    scores:
+      agent_demand: 5
+      rights_clarity: 4
+      acquisition_ease: 5
+      structuring_value: 3
+      freshness: 4
+      low_onboarding_cost: 5
+      poor_existing_access: 2
+    evidence:
+      - docs/sources/pipeline/research-2026-11-28.md
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.py
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_measure.json
+      - docs/sources/pipeline/evidence/2026-11-28/cwe_handcheck.json
+    next_action: "NVD holds 12,410 records for the window and only the first 2,000 were read: page through the rest. Count categories and views so the 4 category ids resolve. Add the CWE and CAPEC files to tooling/snapshots/plans.json once PR #88 is on main. The parked bundle security-control-catalogs-nist-mitre stays parked: its NIST SP 800-53 to ATT&CK join is still unmeasured."

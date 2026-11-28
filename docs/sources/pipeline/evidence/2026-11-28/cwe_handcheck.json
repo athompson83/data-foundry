@@ -1,0 +1,131 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 distinct (CVE, CWE) citations from the NVD page read by cwe_measure.py whose CWE id is a weakness in the catalogue (seed 20261128); the start of the CVE description was read against the name of the cited weakness.",
+ "checked": 20,
+ "cited_id_resolves_to_a_catalogue_weakness": 20,
+ "weakness_fits_the_description_read": 19,
+ "not_confirmed_from_the_text_kept": 1,
+ "note": "19 descriptions describe the cited weakness, several in the same words (CVE-2026-19731 / CWE-22). For CVE-2026-102280 (CWE-390, Detection of Error Condition Without Action) the first 260 characters of the description do not show the error-handling flaw, so it is not counted. Some citations point at a class rather than a specific weakness (CWE-20, CWE-693).",
+ "pairs": [
+  {
+   "cve": "CVE-2026-81734",
+   "cwe": "CWE-862",
+   "cwe_name": "Missing Authorization",
+   "cve_description_first_260_characters": "Missing Authorization in ProductEvents in Apache OFBiz 24.09 before 24.09.08 on all platforms allows a remote authenticated attacker holding only catalog view permission to create, modify, or remove arbitrary product, product feature association, and product c"
+  },
+  {
+   "cve": "CVE-2026-119625",
+   "cwe": "CWE-863",
+   "cwe_name": "Incorrect Authorization",
+   "cve_description_first_260_characters": "The `/{username}` web route accepted personal access tokens over HTTP Basic authentication without checking their scope. A token confined to an unrelated scope, such as `read:issue`, could read its owner's private activity through the user RSS/Atom feed and th"
+  },
+  {
+   "cve": "CVE-2026-117082",
+   "cwe": "CWE-287",
+   "cwe_name": "Improper Authentication",
+   "cve_description_first_260_characters": "An authentication bypass vulnerability in the Universal Plug and Play (UPnP) framework of the Sercomm AOT-4221SR 4.6 Dual Band GPON ONU device allows an attackers to execute arbitrary SOAP requests via port 5555. This flaw exposes 15 administrative, WAN, LAN, "
+  },
+  {
+   "cve": "CVE-2026-102280",
+   "cwe": "CWE-390",
+   "cwe_name": "Detection of Error Condition Without Action",
+   "cve_description_first_260_characters": "Sandboxie-Plus is an open source sandbox-based isolation software for Windows. Prior to 1.18.6, a process inside a sandbox could send MSGID_FILE_SET_ATTRIBUTES or MSGID_FILE_SET_SHORT_NAME to SbieSvc and cause the SYSTEM service to open and modify an existing "
+  },
+  {
+   "cve": "CVE-2026-55262",
+   "cwe": "CWE-20",
+   "cwe_name": "Improper Input Validation",
+   "cve_description_first_260_characters": "In setNotificationListenerAccessGrantedForUserInternal of NotificationManagerService.java, there is a possible  policy desynchronization due to improper input validation. This could lead to local escalation of privilege with no additional execution privileges "
+  },
+  {
+   "cve": "CVE-2026-54374",
+   "cwe": "CWE-798",
+   "cwe_name": "Use of Hard-coded Credentials",
+   "cve_description_first_260_characters": "VitaFit Android application (com.vt.vitafit) before 2.8.1.0 contains a hardcoded credentials vulnerability that allows attackers to extract confidential third-party integration secrets by decompiling the APK. Attackers can retrieve embedded WeChat, Tencent QQ,"
+  },
+  {
+   "cve": "CVE-2026-20547",
+   "cwe": "CWE-787",
+   "cwe_name": "Out-of-bounds Write",
+   "cve_description_first_260_characters": "In Modem, there is a possible out of bounds write due to a missing bounds check. This could lead to remote escalation of privilege, if a UE has connected to a rogue base station controlled by the attacker, with no additional execution privileges needed. User i"
+  },
+  {
+   "cve": "CVE-2026-111037",
+   "cwe": "CWE-79",
+   "cwe_name": "Improper Neutralization of Input During Web Page Generation",
+   "cve_description_first_260_characters": "A reflected Cross-Site Scripting (XSS) vulnerability in the Tenders module of the Coupa Supplier Portal SaaS platform. The vulnerability arises because the `list_item_function` parameter is reflected in the server’s response without proper output encoding or s"
+  },
+  {
+   "cve": "CVE-2026-121172",
+   "cwe": "CWE-863",
+   "cwe_name": "Incorrect Authorization",
+   "cve_description_first_260_characters": "Incorrect authorization in Isolated in Google Chrome prior to 157.0.8103.38 allowed a remote attacker to spoof UI elements via a crafted HTML page. (Chromium security severity: Low)"
+  },
+  {
+   "cve": "CVE-2026-19731",
+   "cwe": "CWE-22",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory",
+   "cve_description_first_260_characters": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal') vulnerability in TÜBİTAK BİLGEM Software Technologies Research Institute İmzager allows Path Traversal.\n\nThis issue affects İmzager: from 2.10.5 before 2.10.7."
+  },
+  {
+   "cve": "CVE-2026-11724",
+   "cwe": "CWE-20",
+   "cwe_name": "Improper Input Validation",
+   "cve_description_first_260_characters": "IBM MQ 9.2.0.0 through 9.2.0.44 LTS, 9.3.0.0 through 9.3.0.42 LTS, 9.4.0.0 through 9.4.0.26 LTS, 9.4.0.0 through 9.4.5.1 CD, and 10.0.0.0 through 10.0.0.5 LTS and CD could allow an authenticated attacker to execute arbitrary code on a Managed File Transfer age"
+  },
+  {
+   "cve": "CVE-2026-92194",
+   "cwe": "CWE-22",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory",
+   "cve_description_first_260_characters": "Quest Foglight for Databases loadManageServerLicense Directory Traversal Remote Code Execution Vulnerability. This vulnerability allows remote attackers to execute arbitrary code on affected installations of Quest Foglight for Databases. Authentication is requ"
+  },
+  {
+   "cve": "CVE-2026-120650",
+   "cwe": "CWE-770",
+   "cwe_name": "Allocation of Resources Without Limits or Throttling",
+   "cve_description_first_260_characters": "CGI versions before 5.00 for Perl allow memory, CPU and disk exhaustion via missing or unenforced request size, parameter and upload limits.\n\n$CGI::POST_MAX defaults to no limit, and when set is not enforced for chunked multipart bodies or for the boundary lin"
+  },
+  {
+   "cve": "CVE-2026-89292",
+   "cwe": "CWE-522",
+   "cwe_name": "Insufficiently Protected Credentials",
+   "cve_description_first_260_characters": "In Eclipse Mnestix Browser versions 1.6.0 up until but excluding 2.3.0 it was possible for an unauthenticated attacker to exfiltrate the MNESTIX_BACKEND_API_KEY for all configured Infrastructures."
+  },
+  {
+   "cve": "CVE-2026-121437",
+   "cwe": "CWE-407",
+   "cwe_name": "Inefficient Algorithmic Complexity",
+   "cve_description_first_260_characters": "Mistune from 3.3.0 before 3.3.4 contains a denial of service vulnerability that allows remote attackers to exhaust CPU through quadratic-time emphasis delimiter processing. Attackers can submit small markdown documents with repeated patterns like \"*a_b\" to tri"
+  },
+  {
+   "cve": "CVE-2026-20548",
+   "cwe": "CWE-787",
+   "cwe_name": "Out-of-bounds Write",
+   "cve_description_first_260_characters": "In Modem, there is a possible out of bounds write due to an integer overflow. This could lead to remote escalation of privilege, if a UE has connected to a rogue base station controlled by the attacker, with no additional execution privileges needed. User inte"
+  },
+  {
+   "cve": "CVE-2026-108327",
+   "cwe": "CWE-22",
+   "cwe_name": "Improper Limitation of a Pathname to a Restricted Directory",
+   "cve_description_first_260_characters": "Tanium addressed a path traversal vulnerability in Tanium Data Service."
+  },
+  {
+   "cve": "CVE-2026-120060",
+   "cwe": "CWE-125",
+   "cwe_name": "Out-of-bounds Read",
+   "cve_description_first_260_characters": "psqlODBC trusts counts and lengths in server data in three places. SQLBulkOperations uses a server-supplied row count in a size subtraction that can underflow. SQLStatistics iterates index keys using a server-supplied key count without bounding it to the fixed"
+  },
+  {
+   "cve": "CVE-2026-121141",
+   "cwe": "CWE-20",
+   "cwe_name": "Improper Input Validation",
+   "cve_description_first_260_characters": "Improper input validation in Editing in Google Chrome prior to 157.0.8103.38 allowed a remote attacker leveraging social engineering to bypass web origin policy via a crafted HTML page. (Chromium security severity: Low)"
+  },
+  {
+   "cve": "CVE-2026-58934",
+   "cwe": "CWE-693",
+   "cwe_name": "Protection Mechanism Failure",
+   "cve_description_first_260_characters": "In prepareWindowToDisplayDuringRelayout of WindowState.java, there is a possible permission bypass due to a logic error in the code. This could lead to local escalation of privilege with no additional execution privileges needed. User interaction is not needed"
+  }
+ ]
+}

@@ -1,0 +1,150 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 gTLDs that the ICANN table lists as delegated and not removed and that are in the IANA list, drawn with seed 20261128 by tld_measure.py; each IANA delegation record page was read for its manager and delegation date.",
+ "checked": 20,
+ "iana_manager_is_the_icann_registry_operator": 20,
+ "iana_delegated_since_equals_icann_delegation_date": 20,
+ "note": "In all 20 the IANA manager line begins with the ICANN registry operator's name and the two delegation dates are equal. Every page also has a Contacts block with role titles, postal addresses and telephone numbers; that block is not copied here.",
+ "pairs": [
+  {
+   "tld": "ubank",
+   "icann_registry_operator": "National Australia Bank Limited",
+   "icann_delegation_date": "2016-08-18",
+   "iana_delegated_since": "2016-08-18",
+   "iana_record_last_updated": "2026-11-25"
+  },
+  {
+   "tld": "crown",
+   "icann_registry_operator": "Crown Equipment Corporation",
+   "icann_delegation_date": "2015-06-19",
+   "iana_delegated_since": "2015-06-19",
+   "iana_record_last_updated": "2026-01-22"
+  },
+  {
+   "tld": "claims",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2014-05-07",
+   "iana_delegated_since": "2014-05-07",
+   "iana_record_last_updated": "2026-10-23"
+  },
+  {
+   "tld": "alibaba",
+   "icann_registry_operator": "Alibaba Group Holding Limited",
+   "icann_delegation_date": "2016-01-16",
+   "iana_delegated_since": "2016-01-16",
+   "iana_record_last_updated": "2026-06-29"
+  },
+  {
+   "tld": "scholarships",
+   "icann_registry_operator": "Scholarships.com, LLC",
+   "icann_delegation_date": "2015-04-02",
+   "iana_delegated_since": "2015-04-02",
+   "iana_record_last_updated": "2026-11-23"
+  },
+  {
+   "tld": "save",
+   "icann_registry_operator": "Amazon Registry Services, Inc.",
+   "icann_delegation_date": "2016-06-07",
+   "iana_delegated_since": "2016-06-07",
+   "iana_record_last_updated": "2025-02-14"
+  },
+  {
+   "tld": "pru",
+   "icann_registry_operator": "Prudential Financial, Inc.",
+   "icann_delegation_date": "2016-07-28",
+   "iana_delegated_since": "2016-07-28",
+   "iana_record_last_updated": "2024-05-11"
+  },
+  {
+   "tld": "bmw",
+   "icann_registry_operator": "Bayerische Motoren Werke Aktiengesellschaft",
+   "icann_delegation_date": "2014-06-21",
+   "iana_delegated_since": "2014-06-21",
+   "iana_record_last_updated": "2023-11-06"
+  },
+  {
+   "tld": "intuit",
+   "icann_registry_operator": "Intuit Administrative Services, Inc.",
+   "icann_delegation_date": "2016-07-12",
+   "iana_delegated_since": "2016-07-12",
+   "iana_record_last_updated": "2024-05-11"
+  },
+  {
+   "tld": "properties",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2014-02-04",
+   "iana_delegated_since": "2014-02-04",
+   "iana_record_last_updated": "2026-11-20"
+  },
+  {
+   "tld": "cleaning",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2014-02-04",
+   "iana_delegated_since": "2014-02-04",
+   "iana_record_last_updated": "2026-10-23"
+  },
+  {
+   "tld": "xn--11b4c3d",
+   "icann_registry_operator": "VeriSign Sarl",
+   "icann_delegation_date": "2015-07-28",
+   "iana_delegated_since": "2015-07-28",
+   "iana_record_last_updated": "2026-03-30"
+  },
+  {
+   "tld": "glass",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2013-12-28",
+   "iana_delegated_since": "2013-12-28",
+   "iana_record_last_updated": "2026-11-05"
+  },
+  {
+   "tld": "weber",
+   "icann_registry_operator": "Saint-Gobain Weber SA",
+   "icann_delegation_date": "2015-12-22",
+   "iana_delegated_since": "2015-12-22",
+   "iana_record_last_updated": "2026-11-19"
+  },
+  {
+   "tld": "limited",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2014-04-23",
+   "iana_delegated_since": "2014-04-23",
+   "iana_record_last_updated": "2026-11-05"
+  },
+  {
+   "tld": "beats",
+   "icann_registry_operator": "Beats Electronics, LLC",
+   "icann_delegation_date": "2015-11-03",
+   "iana_delegated_since": "2015-11-03",
+   "iana_record_last_updated": "2026-11-10"
+  },
+  {
+   "tld": "xn--nqv7f",
+   "icann_registry_operator": "Public Interest Registry",
+   "icann_delegation_date": "2014-03-09",
+   "iana_delegated_since": "2014-03-09",
+   "iana_record_last_updated": "2026-11-13"
+  },
+  {
+   "tld": "deals",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2014-07-10",
+   "iana_delegated_since": "2014-07-10",
+   "iana_record_last_updated": "2026-11-03"
+  },
+  {
+   "tld": "immo",
+   "icann_registry_operator": "Binky Moon, LLC",
+   "icann_delegation_date": "2014-08-27",
+   "iana_delegated_since": "2014-08-27",
+   "iana_record_last_updated": "2026-11-05"
+  },
+  {
+   "tld": "skype",
+   "icann_registry_operator": "Microsoft Corporation",
+   "icann_delegation_date": "2015-06-23",
+   "iana_delegated_since": "2015-06-23",
+   "iana_record_last_updated": "2026-02-07"
+  }
+ ]
+}

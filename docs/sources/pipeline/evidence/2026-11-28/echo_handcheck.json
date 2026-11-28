@@ -1,0 +1,229 @@
+{
+ "checked_on": "2026-11-28",
+ "method": "20 Vermont PWSIDs present in both the ECHO answer and the Envirofacts SDWIS WATER_SYSTEM table, drawn with seed 20261128 by echo_measure.py; name, type, population and activity were compared.",
+ "checked": 20,
+ "same_water_system": 20,
+ "note": "All 20 agree on name, system type, population served and activity code. Both sources are EPA services over the same SDWIS data, so this is one publisher's data seen twice, not an independent link.",
+ "pairs": [
+  {
+   "pwsid": "VT0020722",
+   "echo_name": "MOUNTAIN VIEW COURT",
+   "sdwis_name": "MOUNTAIN VIEW COURT",
+   "echo_type": "CWS",
+   "sdwis_type": "CWS",
+   "echo_population": "53",
+   "sdwis_population": 53,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0001831",
+   "echo_name": "DUNKIN DONUTS",
+   "sdwis_name": "DUNKIN DONUTS",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "50",
+   "sdwis_population": 50,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0001529",
+   "echo_name": "THE ARLINGTON",
+   "sdwis_name": "THE ARLINGTON",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "98",
+   "sdwis_population": 98,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0000229",
+   "echo_name": "LAKE HOUSE PUB & GRILLE",
+   "sdwis_name": "LAKE HOUSE PUB & GRILLE",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "68",
+   "sdwis_population": 68,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0008164",
+   "echo_name": "SMOKE RISE CAMPGROUND",
+   "sdwis_name": "SMOKE RISE CAMPGROUND",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "282",
+   "sdwis_population": 282,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0008134",
+   "echo_name": "GREEN VALLEY CAMPGROUND",
+   "sdwis_name": "GREEN VALLEY CAMPGROUND",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "63",
+   "sdwis_population": 63,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0006606",
+   "echo_name": "WAUBANONG CAMP",
+   "sdwis_name": "WAUBANONG CAMP",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "35",
+   "sdwis_population": 35,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0000888",
+   "echo_name": "THE COUNTRY B+B",
+   "sdwis_name": "THE COUNTRY B+B",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "25",
+   "sdwis_population": 25,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0004550",
+   "echo_name": "STARLIGHT INN",
+   "sdwis_name": "STARLIGHT INN",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "73",
+   "sdwis_population": 73,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0006555",
+   "echo_name": "WINDRIDGE AT TEELA WOOKET",
+   "sdwis_name": "WINDRIDGE AT TEELA WOOKET",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "120",
+   "sdwis_population": 120,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0001537",
+   "echo_name": "AMERICAN LEGION BRIGHTON",
+   "sdwis_name": "AMERICAN LEGION BRIGHTON",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "50",
+   "sdwis_population": 50,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0021138",
+   "echo_name": "WEST WARDSBORO STORE",
+   "sdwis_name": "WEST WARDSBORO STORE",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "29",
+   "sdwis_population": 29,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0004112",
+   "echo_name": "COLTON GUEST FARM",
+   "sdwis_name": "COLTON GUEST FARM",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "25",
+   "sdwis_population": 25,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0020972",
+   "echo_name": "ALBURGH BRIDGE JOLLEY",
+   "sdwis_name": "ALBURGH BRIDGE JOLLEY",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "25",
+   "sdwis_population": 25,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0004905",
+   "echo_name": "GOVERNORS ROCK MOTEL",
+   "sdwis_name": "GOVERNORS ROCK MOTEL",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "32",
+   "sdwis_population": 32,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0006609",
+   "echo_name": "THE MOUNTAIN SCHOOL",
+   "sdwis_name": "THE MOUNTAIN SCHOOL",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "50",
+   "sdwis_population": 50,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0000750",
+   "echo_name": "SMUGGLERS NOTCH BASE LODGE",
+   "sdwis_name": "SMUGGLERS NOTCH BASE LODGE",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "523",
+   "sdwis_population": 523,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0021619",
+   "echo_name": "KELLY WAY WATER SYSTEM",
+   "sdwis_name": "KELLY WAY WATER SYSTEM",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "224",
+   "sdwis_population": 224,
+   "echo_activity": "A",
+   "sdwis_activity": "A"
+  },
+  {
+   "pwsid": "VT0001949",
+   "echo_name": "GRAMPY'S",
+   "sdwis_name": "GRAMPY'S",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "8",
+   "sdwis_population": 8,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  },
+  {
+   "pwsid": "VT0004492",
+   "echo_name": "HORTONVILLE INN",
+   "sdwis_name": "HORTONVILLE INN",
+   "echo_type": "TNCWS",
+   "sdwis_type": "TNCWS",
+   "echo_population": "25",
+   "sdwis_population": 25,
+   "echo_activity": "I",
+   "sdwis_activity": "I"
+  }
+ ]
+}
